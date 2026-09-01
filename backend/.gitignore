@@ -91,3 +91,4 @@ Thumbs.db
 # ==========================================
 *.tmp
 *.bak
+/src/generated/prisma
