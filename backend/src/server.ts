@@ -1,37 +1,73 @@
-const express = require("express") as typeof import("express");
-type Express = import("express").Express;
-type Request = import("express").Request;
-type Response<T = unknown> = import("express").Response<T>;
-const cors = require("cors");
-const helmet = require("helmet");
-require("dotenv/config");
+import { app } from "./app.js";
+import { prisma } from "./config/database.js";
+import { env } from "./config/env.js";
 
-interface HealthResponse {
-  success: boolean;
-  message: string;
+async function startServer(): Promise<void> {
+  try {
+    await prisma.$connect();
+
+    const server = app.listen(env.PORT, (): void => {
+      console.log(`API running on port ${env.PORT}`);
+    });
+
+    server.requestTimeout = 30_000;
+    server.headersTimeout = 35_000;
+    server.keepAliveTimeout = 5_000;
+
+    let isShuttingDown = false;
+
+    const shutdown = async (signal: string): Promise<void> => {
+      if (isShuttingDown) {
+        return;
+      }
+
+      isShuttingDown = true;
+
+      console.log(`${signal} received. Shutting down gracefully.`);
+
+      const forcedShutdownTimer = setTimeout(() => {
+        console.error("Graceful shutdown timed out");
+        process.exit(1);
+      }, 10_000);
+
+      forcedShutdownTimer.unref();
+
+      server.close(async (error: Error | undefined): Promise<void> => {
+        try {
+          await prisma.$disconnect();
+
+          if (error) {
+            console.error("HTTP server shutdown failed", error);
+            process.exit(1);
+          }
+
+          console.log("Server shut down successfully");
+          process.exit(0);
+        } catch (disconnectError: unknown) {
+          console.error(
+            "Database disconnection failed",
+            disconnectError,
+          );
+
+          process.exit(1);
+        }
+      });
+    };
+
+    process.on("SIGTERM", () => {
+      void shutdown("SIGTERM");
+    });
+
+    process.on("SIGINT", () => {
+      void shutdown("SIGINT");
+    });
+  } catch (error) {
+    console.error("Server startup failed", error);
+
+    await prisma.$disconnect().catch(() => undefined);
+
+    process.exit(1);
+  }
 }
 
-const app: Express = express();
-const PORT: string | number = process.env["PORT"] || 5000;
-
-app.use(helmet());
-
-app.use(
-  cors({
-    origin: process.env["FRONTEND_URL"],
-    credentials: true,
-  })
-);
-
-app.use(express.json());
-
-app.get("/api/health", (_req: Request, res: Response<HealthResponse>): void => {
-  res.json({
-    success: true,
-    message: "Allied AutoTech API is running",
-  });
-});
-
-app.listen(PORT, (): void => {
-  console.log(`API running on http://localhost:${PORT}`);
-});
+await startServer();
