@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

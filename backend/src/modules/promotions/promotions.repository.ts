@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

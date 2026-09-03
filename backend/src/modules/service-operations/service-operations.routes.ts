@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Defines the future HTTP route surface and its public, customer, staff, administrator, internal-worker, or webhook trust boundary. */

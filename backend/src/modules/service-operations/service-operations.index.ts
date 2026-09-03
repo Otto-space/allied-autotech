@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */

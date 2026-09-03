@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Defines the future HTTP route surface and its public, customer, staff, administrator, internal-worker, or webhook trust boundary. */

@@ -1,0 +1,1 @@
+/** Owns append-only security and business audit events, actor/request context, redaction, privileged querying, and retention. Defines the future HTTP route surface and its public, customer, staff, administrator, internal-worker, or webhook trust boundary. */

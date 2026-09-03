@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Defines the future HTTP route surface and its public, customer, staff, administrator, internal-worker, or webhook trust boundary. */

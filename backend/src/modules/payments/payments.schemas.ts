@@ -1,0 +1,1 @@
+/** Owns payment intents and attempts, Paystack and manual payments, webhook ingestion, verification, reviews, refunds, disputes, ledger entries, anomalies, and reconciliation. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

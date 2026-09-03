@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

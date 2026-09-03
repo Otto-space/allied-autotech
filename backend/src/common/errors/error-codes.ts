@@ -1,0 +1,23 @@
+export const errorCodes = {
+  badRequest: "BAD_REQUEST",
+  validationFailed: "VALIDATION_FAILED",
+  malformedJson: "MALFORMED_JSON",
+  payloadTooLarge: "PAYLOAD_TOO_LARGE",
+  unauthorized: "UNAUTHORIZED",
+  authenticationFailed: "AUTHENTICATION_FAILED",
+  sessionExpired: "SESSION_EXPIRED",
+  csrfInvalid: "CSRF_INVALID",
+  mfaRequired: "MFA_REQUIRED",
+  tokenInvalid: "TOKEN_INVALID",
+  accountLocked: "ACCOUNT_LOCKED",
+  forbidden: "FORBIDDEN",
+  notFound: "NOT_FOUND",
+  conflict: "CONFLICT",
+  rateLimited: "RATE_LIMITED",
+  databaseUnavailable: "DATABASE_UNAVAILABLE",
+  providerUnavailable: "PROVIDER_UNAVAILABLE",
+  requestTimeout: "REQUEST_TIMEOUT",
+  internalError: "INTERNAL_ERROR",
+} as const;
+
+export type ErrorCode = (typeof errorCodes)[keyof typeof errorCodes];

@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

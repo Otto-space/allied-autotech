@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

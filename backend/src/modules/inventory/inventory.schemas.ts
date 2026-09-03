@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

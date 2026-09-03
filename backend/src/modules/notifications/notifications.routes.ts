@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Defines the future HTTP route surface and its public, customer, staff, administrator, internal-worker, or webhook trust boundary. */

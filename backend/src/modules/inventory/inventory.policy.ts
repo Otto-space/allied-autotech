@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

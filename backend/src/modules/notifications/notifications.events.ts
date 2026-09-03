@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

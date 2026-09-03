@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

@@ -1,0 +1,1 @@
+/** Owns payment intents and attempts, Paystack and manual payments, webhook ingestion, verification, reviews, refunds, disputes, ledger entries, anomalies, and reconciliation. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

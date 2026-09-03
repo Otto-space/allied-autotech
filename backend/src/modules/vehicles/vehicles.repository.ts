@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

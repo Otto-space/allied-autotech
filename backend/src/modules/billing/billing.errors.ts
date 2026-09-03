@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

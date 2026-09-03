@@ -1,0 +1,1 @@
+/** Owns checkout, orders, immutable item pricing snapshots, fulfilment, cancellations, customer access, and administrative lifecycle transitions. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

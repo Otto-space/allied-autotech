@@ -1,0 +1,1 @@
+/** Owns checkout, orders, immutable item pricing snapshots, fulfilment, cancellations, customer access, and administrative lifecycle transitions. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

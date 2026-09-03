@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

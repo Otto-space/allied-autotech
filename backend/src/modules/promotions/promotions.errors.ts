@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

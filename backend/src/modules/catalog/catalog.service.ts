@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

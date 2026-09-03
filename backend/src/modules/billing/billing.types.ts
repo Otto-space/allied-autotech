@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

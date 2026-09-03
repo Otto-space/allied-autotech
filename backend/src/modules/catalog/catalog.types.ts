@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

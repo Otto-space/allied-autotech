@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

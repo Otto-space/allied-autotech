@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

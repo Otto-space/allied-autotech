@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

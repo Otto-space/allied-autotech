@@ -1,0 +1,1 @@
+/** Owns payment intents and attempts, Paystack and manual payments, webhook ingestion, verification, reviews, refunds, disputes, ledger entries, anomalies, and reconciliation. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

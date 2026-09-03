@@ -1,0 +1,1 @@
+/** Owns customer profiles and customer-owned vehicles while enforcing self-service ownership boundaries and protecting personal data. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

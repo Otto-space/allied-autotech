@@ -1,0 +1,1 @@
+/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

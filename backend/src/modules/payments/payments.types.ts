@@ -1,0 +1,1 @@
+/** Owns payment intents and attempts, Paystack and manual payments, webhook ingestion, verification, reviews, refunds, disputes, ledger entries, anomalies, and reconciliation. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

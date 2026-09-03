@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

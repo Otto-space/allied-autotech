@@ -1,0 +1,1 @@
+/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Defines the future HTTP route surface and its public, customer, staff, administrator, internal-worker, or webhook trust boundary. */

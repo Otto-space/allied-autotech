@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

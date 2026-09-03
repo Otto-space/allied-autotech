@@ -1,0 +1,1 @@
+/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

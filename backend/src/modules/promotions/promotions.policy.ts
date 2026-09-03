@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

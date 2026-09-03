@@ -1,0 +1,1 @@
+/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */

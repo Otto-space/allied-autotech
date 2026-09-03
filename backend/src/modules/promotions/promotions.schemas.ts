@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

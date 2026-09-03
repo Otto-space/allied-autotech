@@ -1,0 +1,1 @@
+/** Owns checkout, orders, immutable item pricing snapshots, fulfilment, cancellations, customer access, and administrative lifecycle transitions. Defines the future HTTP route surface and its public, customer, staff, administrator, internal-worker, or webhook trust boundary. */

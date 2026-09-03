@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

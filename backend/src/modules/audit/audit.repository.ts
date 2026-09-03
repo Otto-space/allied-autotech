@@ -1,0 +1,1 @@
+/** Owns append-only security and business audit events, actor/request context, redaction, privileged querying, and retention. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

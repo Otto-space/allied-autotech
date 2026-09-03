@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

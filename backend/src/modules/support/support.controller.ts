@@ -1,0 +1,1 @@
+/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

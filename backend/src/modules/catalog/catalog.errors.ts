@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

@@ -1,0 +1,1 @@
+/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

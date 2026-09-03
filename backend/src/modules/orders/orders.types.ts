@@ -1,0 +1,1 @@
+/** Owns checkout, orders, immutable item pricing snapshots, fulfilment, cancellations, customer access, and administrative lifecycle transitions. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

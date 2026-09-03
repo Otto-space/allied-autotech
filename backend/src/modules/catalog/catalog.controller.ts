@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

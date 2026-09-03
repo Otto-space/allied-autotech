@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

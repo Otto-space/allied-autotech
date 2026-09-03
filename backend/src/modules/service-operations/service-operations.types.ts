@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

@@ -1,0 +1,1 @@
+/** Owns payment intents and attempts, Paystack and manual payments, webhook ingestion, verification, reviews, refunds, disputes, ledger entries, anomalies, and reconciliation. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

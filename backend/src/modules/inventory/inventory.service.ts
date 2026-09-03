@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

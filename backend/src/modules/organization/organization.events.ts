@@ -1,0 +1,1 @@
+/** Owns branches, staff profiles, staff assignment, and privileged administration with branch-aware, default-deny authorization. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

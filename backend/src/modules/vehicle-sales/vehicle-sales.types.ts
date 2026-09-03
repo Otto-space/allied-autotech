@@ -1,0 +1,1 @@
+/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

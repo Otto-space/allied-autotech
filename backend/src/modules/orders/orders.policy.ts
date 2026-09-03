@@ -1,0 +1,1 @@
+/** Owns checkout, orders, immutable item pricing snapshots, fulfilment, cancellations, customer access, and administrative lifecycle transitions. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

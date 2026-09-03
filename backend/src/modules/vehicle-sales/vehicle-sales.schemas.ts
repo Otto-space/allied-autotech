@@ -1,0 +1,1 @@
+/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */

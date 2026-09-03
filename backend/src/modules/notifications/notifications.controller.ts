@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

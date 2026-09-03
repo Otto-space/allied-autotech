@@ -1,0 +1,1 @@
+/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

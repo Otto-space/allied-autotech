@@ -1,0 +1,1 @@
+/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

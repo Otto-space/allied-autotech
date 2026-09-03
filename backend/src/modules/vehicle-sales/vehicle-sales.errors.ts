@@ -1,0 +1,1 @@
+/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

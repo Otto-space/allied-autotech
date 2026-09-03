@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

@@ -1,0 +1,1 @@
+/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

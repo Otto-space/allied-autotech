@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

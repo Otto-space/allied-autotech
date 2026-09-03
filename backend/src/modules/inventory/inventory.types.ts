@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

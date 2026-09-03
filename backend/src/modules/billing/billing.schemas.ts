@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

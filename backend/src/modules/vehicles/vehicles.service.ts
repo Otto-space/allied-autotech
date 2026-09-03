@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

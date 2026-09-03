@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

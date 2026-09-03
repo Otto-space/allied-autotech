@@ -1,0 +1,1 @@
+/** Owns append-only security and business audit events, actor/request context, redaction, privileged querying, and retention. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

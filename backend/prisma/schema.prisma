@@ -7,9 +7,10 @@ datasource db {
   provider = "postgresql"
 }
 
-// =========================
-// ENUMS
-// =========================
+// Allied AutoTech hardened Phase 2.1 schema.
+// Monetary values are integer minor units (kobo), never floating point.
+// Custom CHECK constraints, partial indexes, immutability guards, and payment
+// settlement/refund triggers are in secure-payment-and-domain-constraints.sql.
 
 enum UserRole {
   CUSTOMER
@@ -22,6 +23,22 @@ enum UserStatus {
   ACTIVE
   SUSPENDED
   DEACTIVATED
+}
+
+enum MfaFactorType {
+  TOTP
+  WEBAUTHN
+}
+
+enum MfaFactorStatus {
+  PENDING
+  ACTIVE
+  REVOKED
+}
+
+enum MfaChallengePurpose {
+  REGISTRATION
+  AUTHENTICATION
 }
 
 enum BookingStatus {
@@ -38,6 +55,31 @@ enum ServicePricingType {
   QUOTE_REQUIRED
 }
 
+enum QuoteStatus {
+  DRAFT
+  ISSUED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  VOID
+}
+
+enum WorkOrderStatus {
+  DRAFT
+  APPROVED
+  IN_PROGRESS
+  AWAITING_PARTS
+  QUALITY_CHECK
+  COMPLETED
+  CANCELLED
+}
+
+enum LineItemType {
+  LABOUR
+  PART
+  FEE
+}
+
 enum OrderStatus {
   PENDING
   CONFIRMED
@@ -52,17 +94,145 @@ enum FulfillmentMethod {
   DELIVERY
 }
 
-enum PaymentStatus {
+enum PaymentIntentStatus {
+  REQUIRES_PAYMENT
+  PROCESSING
+  REQUIRES_REVIEW
+  SUCCEEDED
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentAttemptStatus {
+  INITIALIZED
   PENDING
+  PROCESSING
   SUCCESSFUL
   FAILED
   ABANDONED
-  REFUNDED
+  CANCELLED
 }
 
-enum PaymentGateway {
+enum PaymentVerificationStatus {
+  UNVERIFIED
+  VERIFIED
+  MISMATCH
+  MANUAL_REVIEW
+}
+
+enum PaymentProvider {
   PAYSTACK
   MANUAL
+}
+
+enum PaymentMethod {
+  CARD
+  BANK_TRANSFER
+  USSD
+  MOBILE_MONEY
+  QR
+  POS
+  CASH
+  OTHER
+}
+
+enum PaymentPurpose {
+  ORDER_PAYMENT
+  SERVICE_INVOICE
+  VEHICLE_RESERVATION
+  VEHICLE_PARTIAL_PAYMENT
+  VEHICLE_BALANCE_PAYMENT
+  VEHICLE_FULL_PAYMENT
+}
+
+enum ManualPaymentReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  PENDING
+  PROCESSING
+  NEEDS_ATTENTION
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum DisputeStatus {
+  AWAITING_RESPONSE
+  UNDER_REVIEW
+  WON
+  LOST
+  ACCEPTED
+  EXPIRED
+}
+
+enum DisputeCategory {
+  NOT_RECOGNIZED
+  FRAUD
+  NOT_RECEIVED
+  NOT_AS_DESCRIBED
+  DUPLICATE_CHARGE
+  REFUND_NOT_RECEIVED
+  OTHER
+}
+
+enum WebhookProcessingStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+  DEAD_LETTER
+}
+
+enum PaymentAnomalyType {
+  UNKNOWN_REFERENCE
+  AMOUNT_MISMATCH
+  CURRENCY_MISMATCH
+  DUPLICATE_SUCCESS
+  LATE_SUCCESS
+  REFUND_MISMATCH
+  WEBHOOK_REPLAY
+  OTHER
+}
+
+enum PaymentAnomalyStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  IGNORED
+}
+
+enum PaymentLedgerEntryType {
+  CAPTURE
+  REFUND
+  CHARGEBACK
+  REVERSAL
+}
+
+enum LedgerDirection {
+  CREDIT
+  DEBIT
+}
+
+enum ReconciliationStatus {
+  RUNNING
+  MATCHED
+  DIFFERENCES_FOUND
+  FAILED
+}
+
+enum ReconciliationItemStatus {
+  MATCHED
+  MISSING_IN_PROVIDER
+  MISSING_LOCALLY
+  AMOUNT_MISMATCH
+  CURRENCY_MISMATCH
+  STATUS_MISMATCH
 }
 
 enum VehicleListingStatus {
@@ -70,15 +240,55 @@ enum VehicleListingStatus {
   AVAILABLE
   RESERVED
   SOLD
+  INACTIVE
   ARCHIVED
+}
+
+enum VehicleTransactionStatus {
+  ENQUIRY
+  INSPECTION_SCHEDULED
+  INSPECTION_COMPLETED
+  NEGOTIATING
+  PAYMENT_PENDING
+  RESERVED
+  PARTIALLY_PAID
+  PAID
+  HANDOVER_PENDING
+  COMPLETED
+  CANCELLED
+  EXPIRED
 }
 
 enum InspectionStatus {
   REQUESTED
   CONFIRMED
   COMPLETED
+  RESCHEDULED
   CANCELLED
   NO_SHOW
+}
+
+enum VehicleDocumentType {
+  OWNERSHIP
+  REGISTRATION
+  CUSTOMS_CLEARANCE
+  PURCHASE_RECEIPT
+  INSPECTION_REPORT
+  SERVICE_HISTORY
+  OTHER
+}
+
+enum DocumentVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum VehicleHandoverStatus {
+  PENDING
+  READY
+  COMPLETED
+  CANCELLED
 }
 
 enum ReviewStatus {
@@ -91,6 +301,7 @@ enum ReviewTargetType {
   BUSINESS
   SERVICE
   ORDER
+  VEHICLE_TRANSACTION
 }
 
 enum EnquiryType {
@@ -137,9 +348,14 @@ enum InvoiceStatus {
 
 enum NotificationType {
   BOOKING
+  QUOTATION
+  WORK_ORDER
   ORDER
   PAYMENT
+  REFUND
+  DISPUTE
   INSPECTION
+  VEHICLE_TRANSACTION
   ENQUIRY
   COMPLAINT
   REVIEW
@@ -189,6 +405,7 @@ enum DriveType {
 }
 
 enum AuditAction {
+  READ
   CREATE
   UPDATE
   DELETE
@@ -197,29 +414,51 @@ enum AuditAction {
   LOGIN_FAILED
   PASSWORD_RESET
   EMAIL_VERIFIED
+  MFA_ENABLED
+  MFA_DISABLED
   ROLE_CHANGE
   ACCOUNT_SUSPENDED
   ACCOUNT_DEACTIVATED
   SESSION_REVOKED
   STATUS_CHANGE
   INVENTORY_ADJUSTED
+  PAYMENT_INITIALIZED
   PAYMENT_VERIFIED
+  MANUAL_PAYMENT_APPROVED
+  REFUND_REQUESTED
+  REFUND_APPROVED
   PAYMENT_REFUNDED
+  DISPUTE_UPDATED
+  VEHICLE_RESERVED
+  VEHICLE_RELEASED
+  INVITATION_CREATED
+  INVITATION_ACCEPTED
+  BRANCH_ASSIGNED
 }
 
 enum AuditEntityType {
   USER
+  BRANCH
+  PRIVILEGED_INVITATION
   SESSION
+  MFA_FACTOR
   CUSTOMER_PROFILE
   STAFF_PROFILE
   CUSTOMER_VEHICLE
   SERVICE
   BOOKING
+  QUOTE
+  WORK_ORDER
   PRODUCT
   INVENTORY
   ORDER
   PAYMENT
+  PAYMENT_ATTEMPT
+  REFUND
+  DISPUTE
+  VEHICLE
   VEHICLE_LISTING
+  VEHICLE_TRANSACTION
   INSPECTION
   REVIEW
   ENQUIRY
@@ -239,9 +478,19 @@ enum InventoryTransactionType {
   RESTOCK
 }
 
-// =========================
-// IDENTITY / AUTH
-// =========================
+enum IdempotencyStatus {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  FAILED
+  DEAD_LETTER
+}
 
 model User {
   id           String     @id @default(uuid()) @db.Uuid
@@ -255,17 +504,28 @@ model User {
   lastLoginAt         DateTime?
   failedLoginAttempts Int       @default(0)
   lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  profile                 CustomerProfile?
-  staffProfile            StaffProfile?
-  sessions                Session[]
-  passwordResetTokens     PasswordResetToken[]
-  emailVerificationTokens EmailVerificationToken[]
-  auditLogs               AuditLog[]
-  notifications           Notification[]
+  profile                   CustomerProfile?
+  staffProfile              StaffProfile?
+  sessions                  Session[]
+  passwordResetTokens       PasswordResetToken[]
+  emailVerificationTokens   EmailVerificationToken[]
+  mfaFactors                MfaFactor[]
+  mfaRecoveryCodes          MfaRecoveryCode[]
+  mfaChallenges             MfaChallenge[]
+  auditLogs                 AuditLog[]
+  notifications             Notification[]
+  inventoryTransactions     InventoryTransaction[]
+  manualPaymentsSubmitted   ManualPaymentReview[]             @relation("ManualPaymentSubmitter")
+  manualPaymentsReviewed    ManualPaymentReview[]             @relation("ManualPaymentReviewer")
+  refundsRequested          Refund[]                          @relation("RefundRequester")
+  refundsApproved           Refund[]                          @relation("RefundApprover")
+  anomaliesResolved         PaymentAnomaly[]                  @relation("AnomalyResolver")
+  vehicleStatusChanges      VehicleTransactionStatusHistory[]
+  idempotencyRecords        IdempotencyRecord[]
+  privilegedInvitationsSent PrivilegedInvitation[]            @relation("PrivilegedInvitationInviter")
 
   @@index([role])
   @@index([status])
@@ -273,39 +533,39 @@ model User {
 }
 
 model Session {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid
+  id            String    @id @default(uuid()) @db.Uuid
+  userId        String    @db.Uuid
+  tokenHash     String    @unique @db.VarChar(128)
+  csrfTokenHash String?   @db.Char(64)
+  expiresAt     DateTime
+  idleExpiresAt DateTime  @default(now())
+  lastUsedAt    DateTime?
+  lastRotatedAt DateTime  @default(now())
+  revokedAt     DateTime?
+  mfaRequired   Boolean   @default(false)
+  mfaVerifiedAt DateTime?
+  ipAddress     String?   @db.Inet
+  userAgent     String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  tokenHash String @unique @db.VarChar(128)
-
-  expiresAt  DateTime
-  lastUsedAt DateTime?
-  revokedAt  DateTime?
-
-  ipAddress String? @db.Inet
-  userAgent String? @db.Text
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mfaChallenges MfaChallenge[]
 
   @@index([userId])
   @@index([expiresAt])
   @@index([revokedAt])
+  @@index([idleExpiresAt])
 }
 
 model PasswordResetToken {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid
-
-  tokenHash String @unique @db.VarChar(128)
-
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique @db.VarChar(128)
   expiresAt DateTime
   usedAt    DateTime?
   revokedAt DateTime?
-
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -314,16 +574,13 @@ model PasswordResetToken {
 }
 
 model EmailVerificationToken {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid
-
-  tokenHash String @unique @db.VarChar(128)
-
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique @db.VarChar(128)
   expiresAt DateTime
   usedAt    DateTime?
   revokedAt DateTime?
-
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -331,23 +588,83 @@ model EmailVerificationToken {
   @@index([expiresAt])
 }
 
-model AuditLog {
-  id     String  @id @default(uuid()) @db.Uuid
-  userId String? @db.Uuid
+model MfaFactor {
+  id              String          @id @default(uuid()) @db.Uuid
+  userId          String          @db.Uuid
+  type            MfaFactorType
+  status          MfaFactorStatus @default(PENDING)
+  name            String?         @db.VarChar(100)
+  encryptedSecret Bytes?
+  encryptionKeyId String?         @db.VarChar(120)
+  credentialId    String?         @unique @db.VarChar(500)
+  publicKey       Bytes?
+  signCount       BigInt?         @default(0)
+  verifiedAt      DateTime?
+  lastUsedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model MfaRecoveryCode {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  codeHash  String    @unique @db.VarChar(128)
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
+}
+
+model MfaChallenge {
+  id            String              @id @default(uuid()) @db.Uuid
+  userId        String              @db.Uuid
+  sessionId     String              @db.Uuid
+  purpose       MfaChallengePurpose
+  challengeHash String              @unique @db.Char(64)
+  expiresAt     DateTime
+  usedAt        DateTime?
+  createdAt     DateTime            @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, expiresAt])
+  @@index([sessionId, purpose, expiresAt])
+}
+
+model AuthenticationThrottle {
+  id           String    @id @default(uuid()) @db.Uuid
+  keyHash      String    @unique @db.Char(64)
+  failedCount  Int       @default(0)
+  blockedUntil DateTime?
+  lastFailedAt DateTime?
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([blockedUntil])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id         String          @id @default(uuid()) @db.Uuid
+  userId     String?         @db.Uuid
   action     AuditAction
   entityType AuditEntityType
   entityId   String?
-
-  requestId String? @db.VarChar(100)
-
-  oldValues Json?
-  newValues Json?
-
-  ipAddress String? @db.Inet
-  userAgent String? @db.Text
-
-  createdAt DateTime @default(now())
+  requestId  String?         @db.VarChar(100)
+  oldValues  Json?
+  newValues  Json?
+  ipAddress  String?         @db.Inet
+  userAgent  String?         @db.Text
+  createdAt  DateTime        @default(now())
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
@@ -358,84 +675,124 @@ model AuditLog {
   @@index([createdAt])
 }
 
-// =========================
-// PEOPLE
-// =========================
-
 model StaffProfile {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @unique @db.Uuid
-
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @db.Uuid
+  branchId  String?  @db.Uuid
   firstName String
   lastName  String
-  phone     String? @db.VarChar(32)
+  phone     String?  @db.VarChar(32)
   jobTitle  String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch              Branch?               @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  assignedBookings    Booking[]             @relation("AssignedBookings")
+  assignedEnquiries   Enquiry[]             @relation("AssignedEnquiries")
+  assignedComplaints  Complaint[]           @relation("AssignedComplaints")
+  assignedInspections InspectionRequest[]   @relation("AssignedInspections")
+  quotesCreated       ServiceQuote[]
+  vehiclePriceChanges VehiclePriceHistory[]
+  documentsReviewed   VehicleDocument[]
+  handoversHandled    VehicleHandover[]
 
-  assignedBookings    Booking[]           @relation("AssignedBookings")
-  assignedEnquiries   Enquiry[]           @relation("AssignedEnquiries")
-  assignedComplaints  Complaint[]         @relation("AssignedComplaints")
-  assignedInspections InspectionRequest[] @relation("AssignedInspections")
-
+  @@index([branchId])
   @@index([jobTitle])
 }
 
 model CustomerProfile {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @unique @db.Uuid
-
-  firstName String
-  lastName  String
-  phone     String @db.VarChar(32)
-
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @unique @db.Uuid
+  firstName       String
+  lastName        String
+  phone           String    @db.VarChar(32)
   phoneVerifiedAt DateTime?
+  address         String?
+  city            String?
+  state           String?
+  country         String    @default("Nigeria")
+  avatarUrl       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  address String?
-  city    String?
-  state   String?
-  country String  @default("Nigeria")
-
-  avatarUrl String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  customerVehicles   CustomerVehicle[]
-  bookings           Booking[]
-  cart               Cart?
-  orders             Order[]
-  inspectionRequests InspectionRequest[]
-  reviews            Review[]
-  enquiries          Enquiry[]
-  complaints         Complaint[]
-  invoices           Invoice[]
-  savedVehicles      SavedVehicle[]
-  productFavourites  ProductFavourite[]
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerVehicles    CustomerVehicle[]
+  bookings            Booking[]
+  cart                Cart?
+  orders              Order[]
+  payments            Payment[]
+  vehicleTransactions VehicleTransaction[]
+  inspectionRequests  InspectionRequest[]
+  reviews             Review[]
+  enquiries           Enquiry[]
+  complaints          Complaint[]
+  invoices            Invoice[]
+  savedVehicles       SavedVehicle[]
+  productFavourites   ProductFavourite[]
 
   @@index([phone])
   @@index([state])
 }
 
-model CustomerVehicle {
-  id         String @id @default(uuid()) @db.Uuid
-  customerId String @db.Uuid
-
-  make  String
-  model String
-  year  Int
-
-  registrationNumber String?
-  vin                String? @unique
-  color              String?
-  mileage            Int?
-
+model Branch {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique @db.Citext
+  name      String
+  phone     String?  @db.VarChar(32)
+  email     String?  @db.Citext
+  address   String
+  city      String
+  state     String
+  country   String   @default("Nigeria")
+  timezone  String   @default("Africa/Lagos") @db.VarChar(64)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  staff                 StaffProfile[]
+  vehicles              Vehicle[]
+  listings              VehicleListing[]
+  inventories           Inventory[]
+  privilegedInvitations PrivilegedInvitation[]
+
+  @@index([isActive])
+  @@index([state, city])
+}
+
+model PrivilegedInvitation {
+  id          String    @id @default(uuid()) @db.Uuid
+  email       String    @db.Citext
+  role        UserRole
+  branchId    String?   @db.Uuid
+  tokenHash   String    @unique @db.VarChar(128)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  revokedAt   DateTime?
+  invitedById String    @db.Uuid
+  createdAt   DateTime  @default(now())
+
+  branch    Branch? @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  invitedBy User    @relation("PrivilegedInvitationInviter", fields: [invitedById], references: [id], onDelete: Restrict)
+
+  @@index([email])
+  @@index([expiresAt])
+  @@index([invitedById])
+  @@index([branchId])
+}
+
+model CustomerVehicle {
+  id                 String   @id @default(uuid()) @db.Uuid
+  customerId         String   @db.Uuid
+  make               String
+  model              String
+  year               Int
+  registrationNumber String?
+  vin                String?  @unique
+  color              String?
+  mileageKm          Int?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   bookings Booking[]
@@ -445,27 +802,19 @@ model CustomerVehicle {
   @@index([make, model])
 }
 
-// =========================
-// SERVICES / BOOKINGS
-// =========================
-
 model Service {
-  id   String @id @default(uuid()) @db.Uuid
-  name String
-  slug String @unique
-
+  id               String             @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String             @unique
   description      String?
   shortDescription String?
-
-  pricingType ServicePricingType @default(FIXED)
-  price       Decimal?           @db.Decimal(12, 2)
-  currency    String             @default("NGN") @db.VarChar(3)
-
-  durationMinutes Int?
-  isActive        Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  pricingType      ServicePricingType @default(FIXED)
+  priceKobo        BigInt?
+  currency         String             @default("NGN") @db.Char(3)
+  durationMinutes  Int?
+  isActive         Boolean            @default(true)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 
   bookings  Booking[]
   reviews   Review[]
@@ -476,37 +825,35 @@ model Service {
 }
 
 model Booking {
-  id              String  @id @default(uuid()) @db.Uuid
-  customerId      String  @db.Uuid
-  serviceId       String  @db.Uuid
-  vehicleId       String? @db.Uuid
-  assignedStaffId String? @db.Uuid
-
-  scheduledAt DateTime
-  status      BookingStatus @default(REQUESTED)
-
-  quotedPrice Decimal? @db.Decimal(12, 2)
-  currency    String   @default("NGN") @db.VarChar(3)
-
+  id                 String        @id @default(uuid()) @db.Uuid
+  customerId         String        @db.Uuid
+  serviceId          String        @db.Uuid
+  vehicleId          String?       @db.Uuid
+  assignedStaffId    String?       @db.Uuid
+  scheduledAt        DateTime
+  status             BookingStatus @default(REQUESTED)
+  quotedPriceKobo    BigInt?
+  currency           String        @default("NGN") @db.Char(3)
   customerNotes      String?
   staffNotes         String?
   cancellationReason String?
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  confirmedAt DateTime?
-  startedAt   DateTime?
-  completedAt DateTime?
-  cancelledAt DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  confirmedAt        DateTime?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
 
   customer      CustomerProfile  @relation(fields: [customerId], references: [id], onDelete: Restrict)
   service       Service          @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   vehicle       CustomerVehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   assignedStaff StaffProfile?    @relation("AssignedBookings", fields: [assignedStaffId], references: [id], onDelete: SetNull)
-
-  review     Review?
-  invoice    Invoice?
-  complaints Complaint[]
+  quotes        ServiceQuote[]
+  workOrder     WorkOrder?
+  enquiries     Enquiry[]
+  review        Review?
+  invoice       Invoice?
+  complaints    Complaint[]
 
   @@index([serviceId])
   @@index([vehicleId])
@@ -516,20 +863,101 @@ model Booking {
   @@index([customerId, createdAt])
 }
 
-// =========================
-// PRODUCT CATALOG / INVENTORY
-// =========================
+model ServiceQuote {
+  id               String      @id @default(uuid()) @db.Uuid
+  bookingId        String      @db.Uuid
+  createdByStaffId String      @db.Uuid
+  quoteNumber      String      @unique @db.VarChar(40)
+  version          Int         @default(1)
+  status           QuoteStatus @default(DRAFT)
+  currency         String      @default("NGN") @db.Char(3)
+  subtotalKobo     BigInt
+  taxKobo          BigInt      @default(0)
+  totalKobo        BigInt
+  notes            String?
+  expiresAt        DateTime?
+  issuedAt         DateTime?
+  acceptedAt       DateTime?
+  rejectedAt       DateTime?
+  voidedAt         DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  booking        Booking      @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  createdByStaff StaffProfile @relation(fields: [createdByStaffId], references: [id], onDelete: Restrict)
+  items          QuoteItem[]
+  enquiries      Enquiry[]
+
+  @@unique([bookingId, version])
+  @@index([bookingId, status])
+  @@index([status, expiresAt])
+}
+
+model QuoteItem {
+  id             String       @id @default(uuid()) @db.Uuid
+  serviceQuoteId String       @db.Uuid
+  productId      String?      @db.Uuid
+  type           LineItemType
+  description    String
+  quantity       Int
+  unitPriceKobo  BigInt
+  subtotalKobo   BigInt
+  createdAt      DateTime     @default(now())
+
+  serviceQuote ServiceQuote @relation(fields: [serviceQuoteId], references: [id], onDelete: Cascade)
+  product      Product?     @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([serviceQuoteId])
+  @@index([productId])
+}
+
+model WorkOrder {
+  id              String          @id @default(uuid()) @db.Uuid
+  bookingId       String          @unique @db.Uuid
+  workOrderNumber String          @unique @db.VarChar(40)
+  status          WorkOrderStatus @default(DRAFT)
+  diagnosis       String?
+  internalNotes   String?
+  openedAt        DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  booking Booking         @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  items   WorkOrderItem[]
+
+  @@index([status, createdAt])
+}
+
+model WorkOrderItem {
+  id            String       @id @default(uuid()) @db.Uuid
+  workOrderId   String       @db.Uuid
+  productId     String?      @db.Uuid
+  type          LineItemType
+  description   String
+  quantity      Int
+  unitPriceKobo BigInt
+  subtotalKobo  BigInt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  product   Product?  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([workOrderId])
+  @@index([productId])
+}
 
 model Category {
-  id          String  @id @default(uuid()) @db.Uuid
+  id          String   @id @default(uuid()) @db.Uuid
   name        String
-  slug        String  @unique
+  slug        String   @unique
   description String?
-
-  isActive Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   products Product[]
 
@@ -537,30 +965,28 @@ model Category {
 }
 
 model Product {
-  id         String @id @default(uuid()) @db.Uuid
-  categoryId String @db.Uuid
-
-  name String
-  slug String @unique
-  sku  String @unique
-
+  id                     String   @id @default(uuid()) @db.Uuid
+  categoryId             String   @db.Uuid
+  name                   String
+  slug                   String   @unique
+  sku                    String   @unique
   brand                  String?
-  manufacturerPartNumber String? @unique
-
-  description String?
-  price       Decimal @db.Decimal(12, 2)
-  currency    String  @default("NGN") @db.VarChar(3)
-
-  isActive Boolean @default(true)
-  featured Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  manufacturerPartNumber String?  @unique
+  description            String?
+  priceKobo              BigInt
+  compareAtPriceKobo     BigInt?
+  currency               String   @default("NGN") @db.Char(3)
+  isActive               Boolean  @default(true)
+  featured               Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   category        Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   images          ProductImage[]
-  inventory       Inventory?
+  inventories     Inventory[]
   orderItems      OrderItem[]
+  quoteItems      QuoteItem[]
+  workOrderItems  WorkOrderItem[]
   cartItems       CartItem[]
   favouritedBy    ProductFavourite[]
   enquiries       Enquiry[]
@@ -573,15 +999,13 @@ model Product {
 }
 
 model ProductCompatibility {
-  id        String @id @default(uuid()) @db.Uuid
-  productId String @db.Uuid
-
-  make     String
-  model    String?
-  yearFrom Int?
-  yearTo   Int?
-  notes    String?
-
+  id        String   @id @default(uuid()) @db.Uuid
+  productId String   @db.Uuid
+  make      String
+  model     String?
+  yearFrom  Int?
+  yearTo    Int?
+  notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -592,13 +1016,13 @@ model ProductCompatibility {
 }
 
 model ProductImage {
-  id        String @id @default(uuid()) @db.Uuid
-  productId String @db.Uuid
-
+  id        String   @id @default(uuid()) @db.Uuid
+  productId String   @db.Uuid
   url       String
+  publicId  String?  @unique
   altText   String?
-  sortOrder Int     @default(0)
-
+  sortOrder Int      @default(0)
+  isPrimary Boolean  @default(false)
   createdAt DateTime @default(now())
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -607,48 +1031,56 @@ model ProductImage {
 }
 
 model Inventory {
-  id        String @id @default(uuid()) @db.Uuid
-  productId String @unique @db.Uuid
-
-  quantity     Int @default(0)
-  reserved     Int @default(0)
-  reorderLevel Int @default(5)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @db.Uuid
+  branchId     String   @db.Uuid
+  quantity     Int      @default(0)
+  reserved     Int      @default(0)
+  reorderLevel Int      @default(5)
+  version      Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   product      Product                @relation(fields: [productId], references: [id], onDelete: Restrict)
+  branch       Branch                 @relation(fields: [branchId], references: [id], onDelete: Restrict)
   transactions InventoryTransaction[]
 
-  @@index([quantity])
+  @@unique([productId, branchId])
+  @@index([branchId, quantity])
+  @@index([productId])
 }
 
 model InventoryTransaction {
-  id          String @id @default(uuid()) @db.Uuid
-  inventoryId String @db.Uuid
+  id             String                   @id @default(uuid()) @db.Uuid
+  inventoryId    String                   @db.Uuid
+  performedById  String?                  @db.Uuid
+  type           InventoryTransactionType
+  quantityDelta  Int
+  reservedDelta  Int                      @default(0)
+  quantityBefore Int
+  quantityAfter  Int
+  reservedBefore Int
+  reservedAfter  Int
+  idempotencyKey String                   @unique @db.VarChar(120)
+  referenceType  String?
+  referenceId    String?
+  note           String?
+  createdAt      DateTime                 @default(now())
 
-  type     InventoryTransactionType
-  quantity Int
-
-  referenceType String?
-  referenceId   String?
-  note          String?
-
-  createdAt DateTime @default(now())
-
-  inventory Inventory @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+  performedBy User?     @relation(fields: [performedById], references: [id], onDelete: SetNull)
 
   @@index([inventoryId, createdAt])
   @@index([type])
   @@index([referenceType, referenceId])
+  @@index([performedById])
 }
 
 model ProductFavourite {
-  id         String @id @default(uuid()) @db.Uuid
-  customerId String @db.Uuid
-  productId  String @db.Uuid
-
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid()) @db.Uuid
+  customerId String   @db.Uuid
+  productId  String   @db.Uuid
+  createdAt  DateTime @default(now())
 
   customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   product  Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -657,28 +1089,21 @@ model ProductFavourite {
   @@index([productId])
 }
 
-// =========================
-// CART / ORDERS / PAYMENTS
-// =========================
-
 model Cart {
-  id         String @id @default(uuid()) @db.Uuid
-  customerId String @unique @db.Uuid
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid()) @db.Uuid
+  customerId String   @unique @db.Uuid
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   items    CartItem[]
 }
 
 model CartItem {
-  id        String @id @default(uuid()) @db.Uuid
-  cartId    String @db.Uuid
-  productId String @db.Uuid
-
-  quantity Int
-
+  id        String   @id @default(uuid()) @db.Uuid
+  cartId    String   @db.Uuid
+  productId String   @db.Uuid
+  quantity  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -690,41 +1115,35 @@ model CartItem {
 }
 
 model Order {
-  id         String @id @default(uuid()) @db.Uuid
-  customerId String @db.Uuid
-
-  orderNumber String      @unique
-  status      OrderStatus @default(PENDING)
-
-  fulfillmentMethod FulfillmentMethod @default(COLLECTION)
-
-  currency       String  @default("NGN") @db.VarChar(3)
-  subtotal       Decimal @db.Decimal(12, 2)
-  discountAmount Decimal @default(0) @db.Decimal(12, 2)
-  deliveryFee    Decimal @default(0) @db.Decimal(12, 2)
-  total          Decimal @db.Decimal(12, 2)
-
-  customerName  String
-  customerEmail String @db.Citext
-  customerPhone String @db.VarChar(32)
-
-  deliveryName    String?
-  deliveryPhone   String? @db.VarChar(32)
-  deliveryAddress String?
-  deliveryCity    String?
-  deliveryState   String?
-  deliveryCountry String?
-
+  id                 String            @id @default(uuid()) @db.Uuid
+  customerId         String            @db.Uuid
+  orderNumber        String            @unique @db.VarChar(40)
+  status             OrderStatus       @default(PENDING)
+  fulfillmentMethod  FulfillmentMethod @default(COLLECTION)
+  currency           String            @default("NGN") @db.Char(3)
+  subtotalKobo       BigInt
+  discountAmountKobo BigInt            @default(0)
+  deliveryFeeKobo    BigInt            @default(0)
+  totalKobo          BigInt
+  customerName       String
+  customerEmail      String            @db.Citext
+  customerPhone      String            @db.VarChar(32)
+  deliveryName       String?
+  deliveryPhone      String?           @db.VarChar(32)
+  deliveryAddress    String?
+  deliveryCity       String?
+  deliveryState      String?
+  deliveryCountry    String?
   cancellationReason String?
-
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  paymentDueAt DateTime?
-  paidAt       DateTime?
-  processingAt DateTime?
-  readyAt      DateTime?
-  cancelledAt  DateTime?
-  completedAt  DateTime?
+  version            Int               @default(0)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  paymentDueAt       DateTime?
+  paidAt             DateTime?
+  processingAt       DateTime?
+  readyAt            DateTime?
+  cancelledAt        DateTime?
+  completedAt        DateTime?
 
   customer       CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Restrict)
   items          OrderItem[]
@@ -739,218 +1158,627 @@ model Order {
 }
 
 model OrderItem {
-  id        String @id @default(uuid()) @db.Uuid
-  orderId   String @db.Uuid
-  productId String @db.Uuid
+  id            String @id @default(uuid()) @db.Uuid
+  orderId       String @db.Uuid
+  productId     String @db.Uuid
+  productName   String
+  sku           String
+  unitPriceKobo BigInt
+  quantity      Int
+  subtotalKobo  BigInt
 
-  productName String
-  sku         String
-
-  unitPrice Decimal @db.Decimal(12, 2)
-  quantity  Int
-  subtotal  Decimal @db.Decimal(12, 2)
-
-  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Restrict)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
   @@index([productId])
 }
 
+// A Payment is a server-created request for an exact amount and payable target.
+// Gateway/manual retries are PaymentAttempt rows. Only a verified attempt may be
+// selected as settledAttempt; duplicate successful charges remain recordable.
 model Payment {
-  id      String @id @default(uuid()) @db.Uuid
-  orderId String @db.Uuid
+  id                   String              @id @default(uuid()) @db.Uuid
+  customerId           String?             @db.Uuid
+  orderId              String?             @db.Uuid
+  invoiceId            String?             @db.Uuid
+  vehicleTransactionId String?             @db.Uuid
+  paymentNumber        String              @unique @db.VarChar(50)
+  purpose              PaymentPurpose
+  amountKobo           BigInt
+  currency             String              @default("NGN") @db.Char(3)
+  status               PaymentIntentStatus @default(REQUIRES_PAYMENT)
+  idempotencyKeyHash   String              @unique @db.Char(64)
+  settledAttemptId     String?             @unique @db.Uuid
+  description          String?
+  expiresAt            DateTime?
+  succeededAt          DateTime?
+  cancelledAt          DateTime?
+  expiredAt            DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 
-  reference            String  @unique @db.VarChar(120)
-  gatewayTransactionId String? @unique @db.VarChar(120)
+  customer           CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order              Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  invoice            Invoice?            @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
+  settledAttempt     PaymentAttempt?     @relation("SettledAttempt", fields: [settledAttemptId], references: [id], onDelete: Restrict)
+  attempts           PaymentAttempt[]    @relation("PaymentAttempts")
+  anomalies          PaymentAnomaly[]
 
-  amount   Decimal @db.Decimal(12, 2)
-  currency String  @default("NGN") @db.VarChar(3)
-
-  status  PaymentStatus  @default(PENDING)
-  gateway PaymentGateway @default(PAYSTACK)
-
-  verifiedAt DateTime?
-  paidAt     DateTime?
-
-  failureReason   String?
-  gatewayResponse Json?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  order         Order                 @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  webhookEvents PaymentWebhookEvent[]
-
+  @@index([customerId, createdAt])
   @@index([orderId, status])
-  @@index([status])
-  @@index([createdAt])
+  @@index([invoiceId, status])
+  @@index([vehicleTransactionId, status])
+  @@index([status, createdAt])
+}
+
+model PaymentAttempt {
+  id                   String                    @id @default(uuid()) @db.Uuid
+  paymentId            String                    @db.Uuid
+  attemptNumber        Int
+  internalReference    String                    @unique @db.VarChar(120)
+  provider             PaymentProvider
+  method               PaymentMethod?
+  status               PaymentAttemptStatus      @default(INITIALIZED)
+  verificationStatus   PaymentVerificationStatus @default(UNVERIFIED)
+  amountKobo           BigInt
+  currency             String                    @default("NGN") @db.Char(3)
+  verifiedAmountKobo   BigInt?
+  verifiedCurrency     String?                   @db.Char(3)
+  providerReference    String?                   @db.VarChar(160)
+  gatewayTransactionId String?                   @db.VarChar(160)
+  providerFeeKobo      BigInt?
+  gatewayStatus        String?                   @db.VarChar(80)
+  failureCode          String?                   @db.VarChar(100)
+  failureMessage       String?
+  redactedGatewayData  Json?
+  initiatedAt          DateTime                  @default(now())
+  paidAt               DateTime?
+  verifiedAt           DateTime?
+  failedAt             DateTime?
+  abandonedAt          DateTime?
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @updatedAt
+
+  payment             Payment                     @relation("PaymentAttempts", fields: [paymentId], references: [id], onDelete: Restrict)
+  settlesPayment      Payment?                    @relation("SettledAttempt")
+  manualReview        ManualPaymentReview?
+  refunds             Refund[]
+  disputes            PaymentDispute[]
+  webhookEvents       PaymentWebhookEvent[]
+  anomalies           PaymentAnomaly[]
+  ledgerEntries       PaymentLedgerEntry[]
+  reconciliationItems PaymentReconciliationItem[]
+
+  @@unique([paymentId, attemptNumber])
+  @@unique([provider, providerReference])
+  @@index([paymentId, status])
+  @@index([provider, gatewayTransactionId])
+  @@index([status, createdAt])
+}
+
+model ManualPaymentReview {
+  id                String                    @id @default(uuid()) @db.Uuid
+  paymentAttemptId  String                    @unique @db.Uuid
+  submittedByUserId String?                   @db.Uuid
+  reviewedByUserId  String?                   @db.Uuid
+  status            ManualPaymentReviewStatus @default(PENDING)
+  bankReference     String?                   @db.VarChar(160)
+  payerName         String?
+  transferredAt     DateTime?
+  evidenceObjectKey String?
+  evidenceSha256    String?                   @db.Char(64)
+  reviewerNote      String?
+  submittedAt       DateTime                  @default(now())
+  reviewedAt        DateTime?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  paymentAttempt PaymentAttempt @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  submittedBy    User?          @relation("ManualPaymentSubmitter", fields: [submittedByUserId], references: [id], onDelete: SetNull)
+  reviewedBy     User?          @relation("ManualPaymentReviewer", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, submittedAt])
+  @@index([reviewedByUserId])
+}
+
+model Refund {
+  id                 String       @id @default(uuid()) @db.Uuid
+  paymentAttemptId   String       @db.Uuid
+  requestedByUserId  String       @db.Uuid
+  approvedByUserId   String?      @db.Uuid
+  refundNumber       String       @unique @db.VarChar(50)
+  idempotencyKeyHash String       @unique @db.Char(64)
+  providerRefundId   String?      @unique @db.VarChar(160)
+  amountKobo         BigInt
+  currency           String       @default("NGN") @db.Char(3)
+  status             RefundStatus @default(REQUESTED)
+  reason             String
+  providerStatus     String?      @db.VarChar(80)
+  failureCode        String?      @db.VarChar(100)
+  failureMessage     String?
+  requestedAt        DateTime     @default(now())
+  approvedAt         DateTime?
+  processedAt        DateTime?
+  failedAt           DateTime?
+  cancelledAt        DateTime?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  paymentAttempt      PaymentAttempt              @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  requestedBy         User                        @relation("RefundRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  approvedBy          User?                       @relation("RefundApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  webhookEvents       PaymentWebhookEvent[]
+  ledgerEntries       PaymentLedgerEntry[]
+  anomalies           PaymentAnomaly[]
+  reconciliationItems PaymentReconciliationItem[]
+
+  @@index([paymentAttemptId, status])
+  @@index([status, createdAt])
+  @@index([approvedByUserId])
+}
+
+model PaymentDispute {
+  id                String          @id @default(uuid()) @db.Uuid
+  paymentAttemptId  String          @db.Uuid
+  provider          PaymentProvider
+  providerDisputeId String          @db.VarChar(160)
+  status            DisputeStatus
+  category          DisputeCategory
+  amountKobo        BigInt
+  currency          String          @default("NGN") @db.Char(3)
+  reason            String?
+  responseDueAt     DateTime?
+  evidenceObjectKey String?
+  evidenceSha256    String?         @db.Char(64)
+  openedAt          DateTime
+  respondedAt       DateTime?
+  resolvedAt        DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  paymentAttempt      PaymentAttempt              @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  webhookEvents       PaymentWebhookEvent[]
+  ledgerEntries       PaymentLedgerEntry[]
+  anomalies           PaymentAnomaly[]
+  reconciliationItems PaymentReconciliationItem[]
+
+  @@unique([provider, providerDisputeId])
+  @@index([paymentAttemptId])
+  @@index([status, responseDueAt])
 }
 
 model PaymentWebhookEvent {
-  id        String  @id @default(uuid()) @db.Uuid
-  paymentId String? @db.Uuid
+  id                  String                  @id @default(uuid()) @db.Uuid
+  paymentAttemptId    String?                 @db.Uuid
+  refundId            String?                 @db.Uuid
+  disputeId           String?                 @db.Uuid
+  provider            PaymentProvider
+  providerEventId     String?                 @db.VarChar(180)
+  deduplicationKey    String                  @db.Char(64)
+  eventType           String                  @db.VarChar(120)
+  payloadSha256       String                  @db.Char(64)
+  redactedPayload     Json?
+  signatureVerifiedAt DateTime
+  status              WebhookProcessingStatus @default(RECEIVED)
+  processingAttempts  Int                     @default(0)
+  nextAttemptAt       DateTime?
+  lockedAt            DateTime?
+  processedAt         DateTime?
+  failedAt            DateTime?
+  lastErrorCode       String?                 @db.VarChar(100)
+  lastErrorMessage    String?
+  receivedAt          DateTime                @default(now())
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
 
-  // Generate a stable idempotency key from the trusted gateway payload.
-  eventId   String @unique @db.VarChar(160)
-  eventType String @db.VarChar(120)
+  paymentAttempt PaymentAttempt? @relation(fields: [paymentAttemptId], references: [id], onDelete: SetNull)
+  refund         Refund?         @relation(fields: [refundId], references: [id], onDelete: SetNull)
+  dispute        PaymentDispute? @relation(fields: [disputeId], references: [id], onDelete: SetNull)
 
-  payload Json
-
-  processedAt     DateTime?
-  failedAt        DateTime?
-  processingError String?
-
-  createdAt DateTime @default(now())
-
-  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
-
-  @@index([paymentId])
-  @@index([eventType])
-  @@index([createdAt])
+  @@unique([provider, deduplicationKey])
+  @@unique([provider, providerEventId])
+  @@index([status, nextAttemptAt, receivedAt])
+  @@index([paymentAttemptId])
+  @@index([refundId])
+  @@index([disputeId])
+  @@index([eventType, receivedAt])
 }
 
-// =========================
-// VEHICLE MARKETPLACE
-// =========================
+model PaymentAnomaly {
+  id               String               @id @default(uuid()) @db.Uuid
+  paymentId        String?              @db.Uuid
+  paymentAttemptId String?              @db.Uuid
+  refundId         String?              @db.Uuid
+  disputeId        String?              @db.Uuid
+  resolvedByUserId String?              @db.Uuid
+  type             PaymentAnomalyType
+  status           PaymentAnomalyStatus @default(OPEN)
+  summary          String
+  details          Json?
+  detectedAt       DateTime             @default(now())
+  resolvedAt       DateTime?
+  resolutionNote   String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  payment        Payment?        @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  paymentAttempt PaymentAttempt? @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  refund         Refund?         @relation(fields: [refundId], references: [id], onDelete: Restrict)
+  dispute        PaymentDispute? @relation(fields: [disputeId], references: [id], onDelete: Restrict)
+  resolvedBy     User?           @relation("AnomalyResolver", fields: [resolvedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([status, detectedAt])
+  @@index([paymentId])
+  @@index([paymentAttemptId])
+}
+
+model PaymentLedgerEntry {
+  id               String                 @id @default(uuid()) @db.Uuid
+  paymentAttemptId String?                @db.Uuid
+  refundId         String?                @db.Uuid
+  disputeId        String?                @db.Uuid
+  sourceKey        String                 @unique @db.VarChar(200)
+  type             PaymentLedgerEntryType
+  direction        LedgerDirection
+  amountKobo       BigInt
+  currency         String                 @default("NGN") @db.Char(3)
+  occurredAt       DateTime
+  createdAt        DateTime               @default(now())
+
+  paymentAttempt PaymentAttempt? @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  refund         Refund?         @relation(fields: [refundId], references: [id], onDelete: Restrict)
+  dispute        PaymentDispute? @relation(fields: [disputeId], references: [id], onDelete: Restrict)
+
+  @@index([paymentAttemptId, occurredAt])
+  @@index([refundId])
+  @@index([disputeId])
+  @@index([occurredAt])
+}
+
+model PaymentReconciliationRun {
+  id                String               @id @default(uuid()) @db.Uuid
+  provider          PaymentProvider
+  status            ReconciliationStatus @default(RUNNING)
+  periodStart       DateTime
+  periodEnd         DateTime
+  matchedCount      Int                  @default(0)
+  differenceCount   Int                  @default(0)
+  providerTotalKobo BigInt               @default(0)
+  internalTotalKobo BigInt               @default(0)
+  startedAt         DateTime             @default(now())
+  completedAt       DateTime?
+  failureMessage    String?
+  createdAt         DateTime             @default(now())
+
+  items PaymentReconciliationItem[]
+
+  @@unique([provider, periodStart, periodEnd])
+  @@index([status, startedAt])
+}
+
+model PaymentReconciliationItem {
+  id                 String                   @id @default(uuid()) @db.Uuid
+  runId              String                   @db.Uuid
+  paymentAttemptId   String?                  @db.Uuid
+  refundId           String?                  @db.Uuid
+  disputeId          String?                  @db.Uuid
+  status             ReconciliationItemStatus
+  providerReference  String?                  @db.VarChar(160)
+  providerAmountKobo BigInt?
+  internalAmountKobo BigInt?
+  note               String?
+  createdAt          DateTime                 @default(now())
+
+  run            PaymentReconciliationRun @relation(fields: [runId], references: [id], onDelete: Restrict)
+  paymentAttempt PaymentAttempt?          @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  refund         Refund?                  @relation(fields: [refundId], references: [id], onDelete: Restrict)
+  dispute        PaymentDispute?          @relation(fields: [disputeId], references: [id], onDelete: Restrict)
+
+  @@index([runId, status])
+  @@index([paymentAttemptId])
+  @@index([refundId])
+  @@index([disputeId])
+}
+
+model Vehicle {
+  id                  String           @id @default(uuid()) @db.Uuid
+  branchId            String           @db.Uuid
+  stockNumber         String           @unique @db.VarChar(40)
+  make                String
+  model               String
+  trim                String?
+  year                Int
+  mileageKm           Int?
+  transmission        Transmission?
+  fuelType            FuelType?
+  condition           VehicleCondition @default(USED)
+  bodyType            BodyType?
+  engineSize          String?
+  driveType           DriveType?
+  color               String?
+  doors               Int?
+  seats               Int?
+  vin                 String?          @unique @db.VarChar(17)
+  chassisNumber       String?          @unique @db.VarChar(80)
+  registrationNumber  String?
+  acquisitionCostKobo BigInt?
+  acquisitionCurrency String           @default("NGN") @db.Char(3)
+  acquiredAt          DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  branch           Branch                   @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  listings         VehicleListing[]
+  images           VehicleImage[]
+  documents        VehicleDocument[]
+  conditionReports VehicleConditionReport[]
+
+  @@index([branchId])
+  @@index([make, model])
+  @@index([year])
+}
 
 model VehicleListing {
-  id String @id @default(uuid()) @db.Uuid
-
-  title String
-  slug  String @unique
-
-  make  String
-  model String
-  year  Int
-
-  mileage  Int?
-  price    Decimal @db.Decimal(14, 2)
-  currency String  @default("NGN") @db.VarChar(3)
-
-  transmission Transmission?
-  fuelType     FuelType?
-  condition    VehicleCondition @default(USED)
-  bodyType     BodyType?
-
-  engineSize String?
-  driveType  DriveType?
-
-  color String?
-  doors Int?
-  seats Int?
-
+  id          String               @id @default(uuid()) @db.Uuid
+  vehicleId   String               @db.Uuid
+  branchId    String               @db.Uuid
+  title       String
+  slug        String               @unique
+  priceKobo   BigInt
+  currency    String               @default("NGN") @db.Char(3)
   description String?
-
-  status   VehicleListingStatus @default(DRAFT)
-  featured Boolean              @default(false)
-
-  registrationNumber String?
-  vin                String? @unique
-
+  status      VehicleListingStatus @default(DRAFT)
+  featured    Boolean              @default(false)
   publishedAt DateTime?
+  reservedAt  DateTime?
   soldAt      DateTime?
+  archivedAt  DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  images           VehicleImage[]
+  vehicle          Vehicle               @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  branch           Branch                @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  priceHistory     VehiclePriceHistory[]
   inspections      InspectionRequest[]
   enquiries        Enquiry[]
   savedByCustomers SavedVehicle[]
+  transactions     VehicleTransaction[]
 
-  @@index([status, make, model])
-  @@index([status, year])
-  @@index([status, price])
+  @@index([branchId, status])
+  @@index([vehicleId])
+  @@index([status, priceKobo])
   @@index([featured, status])
+  @@index([createdAt])
 }
 
 model VehicleImage {
-  id        String @id @default(uuid()) @db.Uuid
-  vehicleId String @db.Uuid
+  id             String   @id @default(uuid()) @db.Uuid
+  vehicleId      String   @db.Uuid
+  url            String
+  publicId       String?  @unique
+  altText        String?
+  sortOrder      Int      @default(0)
+  isPrimary      Boolean  @default(false)
+  checksumSha256 String?  @db.Char(64)
+  createdAt      DateTime @default(now())
 
-  url       String
-  altText   String?
-  sortOrder Int     @default(0)
-
-  createdAt DateTime @default(now())
-
-  vehicle VehicleListing @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
 
   @@index([vehicleId, sortOrder])
 }
 
+model VehiclePriceHistory {
+  id               String   @id @default(uuid()) @db.Uuid
+  vehicleListingId String   @db.Uuid
+  changedByStaffId String   @db.Uuid
+  oldPriceKobo     BigInt
+  newPriceKobo     BigInt
+  currency         String   @default("NGN") @db.Char(3)
+  reason           String?
+  createdAt        DateTime @default(now())
+
+  listing        VehicleListing @relation(fields: [vehicleListingId], references: [id], onDelete: Restrict)
+  changedByStaff StaffProfile   @relation(fields: [changedByStaffId], references: [id], onDelete: Restrict)
+
+  @@index([vehicleListingId, createdAt])
+}
+
+model VehicleDocument {
+  id                 String                     @id @default(uuid()) @db.Uuid
+  vehicleId          String                     @db.Uuid
+  reviewedByStaffId  String?                    @db.Uuid
+  type               VehicleDocumentType
+  verificationStatus DocumentVerificationStatus @default(PENDING)
+  objectKey          String                     @unique
+  checksumSha256     String                     @db.Char(64)
+  mimeType           String                     @db.VarChar(100)
+  sizeBytes          BigInt
+  issuedAt           DateTime?
+  expiresAt          DateTime?
+  verifiedAt         DateTime?
+  rejectionReason    String?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  vehicle    Vehicle       @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  reviewedBy StaffProfile? @relation(fields: [reviewedByStaffId], references: [id], onDelete: Restrict)
+
+  @@index([vehicleId, type])
+  @@index([verificationStatus])
+}
+
+model VehicleConditionReport {
+  id              String   @id @default(uuid()) @db.Uuid
+  vehicleId       String   @db.Uuid
+  inspectionId    String?  @unique @db.Uuid
+  odometerKm      Int?
+  conditionScore  Int?
+  summary         String
+  findings        Json?
+  reportObjectKey String?
+  reportSha256    String?  @db.Char(64)
+  inspectedAt     DateTime
+  createdAt       DateTime @default(now())
+
+  vehicle    Vehicle            @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  inspection InspectionRequest? @relation(fields: [inspectionId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId, inspectedAt])
+}
+
 model InspectionRequest {
-  id              String  @id @default(uuid()) @db.Uuid
-  customerId      String  @db.Uuid
-  vehicleId       String  @db.Uuid
-  assignedStaffId String? @db.Uuid
-
-  requestedAt DateTime
-  scheduledAt DateTime?
-
-  status InspectionStatus @default(REQUESTED)
-
+  id                 String           @id @default(uuid()) @db.Uuid
+  customerId         String?          @db.Uuid
+  vehicleListingId   String           @db.Uuid
+  assignedStaffId    String?          @db.Uuid
+  customerName       String
+  customerPhone      String           @db.VarChar(32)
+  customerEmail      String?          @db.Citext
+  preferredStartAt   DateTime
+  preferredEndAt     DateTime?
+  scheduledStartAt   DateTime?
+  scheduledEndAt     DateTime?
+  status             InspectionStatus @default(REQUESTED)
   notes              String?
   cancellationReason String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  confirmedAt        DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  confirmedAt DateTime?
-  completedAt DateTime?
-  cancelledAt DateTime?
+  customer             CustomerProfile?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  vehicleListing       VehicleListing          @relation(fields: [vehicleListingId], references: [id], onDelete: Restrict)
+  assignedStaff        StaffProfile?           @relation("AssignedInspections", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  convertedTransaction VehicleTransaction?
+  conditionReport      VehicleConditionReport?
 
-  customer      CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  vehicle       VehicleListing  @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
-  assignedStaff StaffProfile?   @relation("AssignedInspections", fields: [assignedStaffId], references: [id], onDelete: SetNull)
-
-  @@index([customerId, requestedAt])
-  @@index([vehicleId])
-  @@index([status, requestedAt])
+  @@index([customerId, preferredStartAt])
+  @@index([vehicleListingId, status])
+  @@index([status, preferredStartAt])
   @@index([assignedStaffId, status])
 }
 
-model SavedVehicle {
-  id         String @id @default(uuid()) @db.Uuid
-  customerId String @db.Uuid
-  vehicleId  String @db.Uuid
+model VehicleTransaction {
+  id                      String                   @id @default(uuid()) @db.Uuid
+  vehicleListingId        String                   @db.Uuid
+  customerId              String?                  @db.Uuid
+  sourceEnquiryId         String?                  @unique @db.Uuid
+  sourceInspectionId      String?                  @unique @db.Uuid
+  transactionNumber       String                   @unique @db.VarChar(50)
+  customerName            String
+  customerPhone           String                   @db.VarChar(32)
+  customerEmail           String?                  @db.Citext
+  askingPriceKobo         BigInt
+  agreedPriceKobo         BigInt?
+  reservationRequiredKobo BigInt?
+  currency                String                   @default("NGN") @db.Char(3)
+  status                  VehicleTransactionStatus @default(ENQUIRY)
+  reservationExpiresAt    DateTime?
+  termsVersion            String?                  @db.VarChar(40)
+  termsAcceptedAt         DateTime?
+  notes                   String?
+  cancellationReason      String?
+  version                 Int                      @default(0)
+  paidAt                  DateTime?
+  handoverPendingAt       DateTime?
+  completedAt             DateTime?
+  cancelledAt             DateTime?
+  expiredAt               DateTime?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
 
-  createdAt DateTime @default(now())
+  vehicleListing   VehicleListing                    @relation(fields: [vehicleListingId], references: [id], onDelete: Restrict)
+  customer         CustomerProfile?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  sourceEnquiry    Enquiry?                          @relation(fields: [sourceEnquiryId], references: [id], onDelete: SetNull)
+  sourceInspection InspectionRequest?                @relation(fields: [sourceInspectionId], references: [id], onDelete: SetNull)
+  payments         Payment[]
+  statusHistory    VehicleTransactionStatusHistory[]
+  invoice          Invoice?
+  handover         VehicleHandover?
+  review           Review?
+  complaints       Complaint[]
 
-  customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  vehicle  VehicleListing  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-
-  @@unique([customerId, vehicleId])
-  @@index([vehicleId])
+  @@index([vehicleListingId, status])
+  @@index([customerId, createdAt])
+  @@index([status, createdAt])
+  @@index([reservationExpiresAt])
 }
 
-// =========================
-// REVIEWS / CUSTOMER CARE
-// =========================
+model VehicleTransactionStatusHistory {
+  id                   String                    @id @default(uuid()) @db.Uuid
+  vehicleTransactionId String                    @db.Uuid
+  changedByUserId      String?                   @db.Uuid
+  fromStatus           VehicleTransactionStatus?
+  toStatus             VehicleTransactionStatus
+  reason               String?
+  createdAt            DateTime                  @default(now())
+
+  vehicleTransaction VehicleTransaction @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
+  changedBy          User?              @relation(fields: [changedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleTransactionId, createdAt])
+  @@index([changedByUserId])
+}
+
+model VehicleHandover {
+  id                      String                @id @default(uuid()) @db.Uuid
+  vehicleTransactionId    String                @unique @db.Uuid
+  handledByStaffId        String                @db.Uuid
+  status                  VehicleHandoverStatus @default(PENDING)
+  recipientName           String?
+  recipientPhone          String?               @db.VarChar(32)
+  odometerKm              Int?
+  keysDelivered           Int                   @default(0)
+  signedDocumentObjectKey String?
+  signedDocumentSha256    String?               @db.Char(64)
+  readyAt                 DateTime?
+  completedAt             DateTime?
+  cancelledAt             DateTime?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+
+  vehicleTransaction VehicleTransaction @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
+  handledByStaff     StaffProfile       @relation(fields: [handledByStaffId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+}
+
+model SavedVehicle {
+  id               String   @id @default(uuid()) @db.Uuid
+  customerId       String   @db.Uuid
+  vehicleListingId String   @db.Uuid
+  createdAt        DateTime @default(now())
+
+  customer       CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  vehicleListing VehicleListing  @relation(fields: [vehicleListingId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, vehicleListingId])
+  @@index([vehicleListingId])
+}
 
 model Review {
-  id         String @id @default(uuid()) @db.Uuid
-  customerId String @db.Uuid
+  id                   String           @id @default(uuid()) @db.Uuid
+  customerId           String           @db.Uuid
+  targetType           ReviewTargetType
+  serviceId            String?          @db.Uuid
+  bookingId            String?          @unique @db.Uuid
+  orderId              String?          @unique @db.Uuid
+  vehicleTransactionId String?          @unique @db.Uuid
+  rating               Int
+  title                String?
+  comment              String
+  status               ReviewStatus     @default(PENDING)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
 
-  targetType ReviewTargetType
-
-  serviceId String? @db.Uuid
-  bookingId String? @unique @db.Uuid
-  orderId   String? @unique @db.Uuid
-
-  rating  Int
-  title   String?
-  comment String
-
-  status ReviewStatus @default(PENDING)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  service  Service?        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  booking  Booking?        @relation(fields: [bookingId], references: [id], onDelete: Restrict)
-  order    Order?          @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  customer           CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  service            Service?            @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  order              Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
 
   @@index([customerId, createdAt])
   @@index([serviceId])
@@ -958,103 +1786,93 @@ model Review {
 }
 
 model Enquiry {
-  id              String  @id @default(uuid()) @db.Uuid
-  customerId      String? @db.Uuid
-  productId       String? @db.Uuid
-  serviceId       String? @db.Uuid
-  vehicleId       String? @db.Uuid
-  assignedStaffId String? @db.Uuid
+  id               String        @id @default(uuid()) @db.Uuid
+  customerId       String?       @db.Uuid
+  productId        String?       @db.Uuid
+  serviceId        String?       @db.Uuid
+  bookingId        String?       @db.Uuid
+  quoteId          String?       @db.Uuid
+  vehicleListingId String?       @db.Uuid
+  assignedStaffId  String?       @db.Uuid
+  type             EnquiryType
+  status           EnquiryStatus @default(OPEN)
+  subject          String
+  message          String
+  name             String
+  email            String        @db.Citext
+  phone            String?       @db.VarChar(32)
+  resolvedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
-  type    EnquiryType
-  status  EnquiryStatus @default(OPEN)
-  subject String
-  message String
-
-  name  String
-  email String  @db.Citext
-  phone String? @db.VarChar(32)
-
-  resolvedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  customer      CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  product       Product?         @relation(fields: [productId], references: [id], onDelete: SetNull)
-  service       Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-  vehicle       VehicleListing?  @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
-  assignedStaff StaffProfile?    @relation("AssignedEnquiries", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  customer             CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  product              Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
+  service              Service?            @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  booking              Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  quote                ServiceQuote?       @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  vehicleListing       VehicleListing?     @relation(fields: [vehicleListingId], references: [id], onDelete: SetNull)
+  assignedStaff        StaffProfile?       @relation("AssignedEnquiries", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  convertedTransaction VehicleTransaction?
 
   @@index([customerId])
-  @@index([vehicleId])
+  @@index([vehicleListingId])
+  @@index([bookingId])
+  @@index([quoteId])
   @@index([type, status])
   @@index([status, createdAt])
   @@index([assignedStaffId, status])
 }
 
 model Complaint {
-  id              String  @id @default(uuid()) @db.Uuid
-  customerId      String? @db.Uuid
-  bookingId       String? @db.Uuid
-  orderId         String? @db.Uuid
-  assignedStaffId String? @db.Uuid
+  id                   String            @id @default(uuid()) @db.Uuid
+  customerId           String?           @db.Uuid
+  bookingId            String?           @db.Uuid
+  orderId              String?           @db.Uuid
+  vehicleTransactionId String?           @db.Uuid
+  assignedStaffId      String?           @db.Uuid
+  priority             ComplaintPriority @default(MEDIUM)
+  status               ComplaintStatus   @default(OPEN)
+  name                 String?
+  email                String?           @db.Citext
+  phone                String?           @db.VarChar(32)
+  subject              String
+  description          String
+  resolution           String?
+  resolvedAt           DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
-  priority ComplaintPriority @default(MEDIUM)
-  status   ComplaintStatus   @default(OPEN)
-
-  name  String?
-  email String? @db.Citext
-  phone String? @db.VarChar(32)
-
-  subject     String
-  description String
-  resolution  String?
-
-  resolvedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  customer      CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  booking       Booking?         @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  order         Order?           @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  assignedStaff StaffProfile?    @relation("AssignedComplaints", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  customer           CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  order              Order?              @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: SetNull)
+  assignedStaff      StaffProfile?       @relation("AssignedComplaints", fields: [assignedStaffId], references: [id], onDelete: SetNull)
 
   @@index([customerId])
   @@index([bookingId])
   @@index([orderId])
+  @@index([vehicleTransactionId])
   @@index([status, priority, createdAt])
   @@index([assignedStaffId, status])
 }
 
-// =========================
-// PROMOTIONS / INVOICES / NOTIFICATIONS
-// =========================
-
 model Promotion {
-  id String @id @default(uuid()) @db.Uuid
-
-  name String
-  code String? @unique @db.Citext
-
-  description String?
-
-  discountType  DiscountType
-  discountValue Decimal      @db.Decimal(12, 2)
-
-  minimumOrderAmount    Decimal? @db.Decimal(12, 2)
-  maximumDiscountAmount Decimal? @db.Decimal(12, 2)
-
-  usageLimit       Int?
-  perCustomerLimit Int?
-
-  startsAt DateTime
-  endsAt   DateTime
-
-  isActive Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                        String       @id @default(uuid()) @db.Uuid
+  name                      String
+  code                      String?      @unique @db.Citext
+  description               String?
+  discountType              DiscountType
+  percentageBasisPoints     Int?
+  fixedAmountKobo           BigInt?
+  minimumOrderAmountKobo    BigInt?
+  maximumDiscountAmountKobo BigInt?
+  usageLimit                Int?
+  perCustomerLimit          Int?
+  startsAt                  DateTime
+  endsAt                    DateTime
+  isActive                  Boolean      @default(true)
+  createdAt                 DateTime     @default(now())
+  updatedAt                 DateTime     @updatedAt
 
   promotionUsages PromotionUsage[]
 
@@ -1062,16 +1880,15 @@ model Promotion {
 }
 
 model PromotionUsage {
-  id          String @id @default(uuid()) @db.Uuid
-  promotionId String @db.Uuid
-  orderId     String @unique @db.Uuid
-
-  promotionCodeSnapshot String?      @db.Citext
-  discountTypeSnapshot  DiscountType
-  discountValueSnapshot Decimal      @db.Decimal(12, 2)
-  discountAmount        Decimal      @db.Decimal(12, 2)
-
-  createdAt DateTime @default(now())
+  id                            String       @id @default(uuid()) @db.Uuid
+  promotionId                   String       @db.Uuid
+  orderId                       String       @unique @db.Uuid
+  promotionCodeSnapshot         String?      @db.Citext
+  discountTypeSnapshot          DiscountType
+  percentageBasisPointsSnapshot Int?
+  fixedAmountKoboSnapshot       BigInt?
+  discountAmountKobo            BigInt
+  createdAt                     DateTime     @default(now())
 
   promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict)
   order     Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)
@@ -1080,52 +1897,88 @@ model PromotionUsage {
 }
 
 model Invoice {
-  id String @id @default(uuid()) @db.Uuid
+  id                   String        @id @default(uuid()) @db.Uuid
+  invoiceNumber        String        @unique @db.VarChar(50)
+  customerId           String        @db.Uuid
+  orderId              String?       @unique @db.Uuid
+  bookingId            String?       @unique @db.Uuid
+  vehicleTransactionId String?       @unique @db.Uuid
+  currency             String        @default("NGN") @db.Char(3)
+  subtotalKobo         BigInt
+  taxKobo              BigInt        @default(0)
+  totalKobo            BigInt
+  status               InvoiceStatus @default(DRAFT)
+  issuedAt             DateTime?
+  dueAt                DateTime?
+  paidAt               DateTime?
+  voidedAt             DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
-  invoiceNumber String @unique
-
-  customerId String  @db.Uuid
-  orderId    String? @unique @db.Uuid
-  bookingId  String? @unique @db.Uuid
-
-  currency String  @default("NGN") @db.VarChar(3)
-  subtotal Decimal @db.Decimal(12, 2)
-  tax      Decimal @default(0) @db.Decimal(12, 2)
-  total    Decimal @db.Decimal(12, 2)
-
-  status InvoiceStatus @default(DRAFT)
-
-  issuedAt DateTime?
-  dueAt    DateTime?
-  paidAt   DateTime?
-  voidedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  order    Order?          @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  booking  Booking?        @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  customer           CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order              Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+  vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
+  payments           Payment[]
 
   @@index([customerId, createdAt])
   @@index([status])
 }
 
 model Notification {
-  id     String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid
-
-  type    NotificationType
-  title   String
-  message String
-
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @db.Uuid
+  type      NotificationType
+  title     String
+  message   String
   readAt    DateTime?
   expiresAt DateTime?
-
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, readAt, createdAt])
   @@index([expiresAt])
+}
+
+model IdempotencyRecord {
+  id             String            @id @default(uuid()) @db.Uuid
+  userId         String?           @db.Uuid
+  scope          String            @db.VarChar(100)
+  keyHash        String            @db.Char(64)
+  requestHash    String            @db.Char(64)
+  status         IdempotencyStatus @default(IN_PROGRESS)
+  responseStatus Int?
+  responseBody   Json?
+  lockedAt       DateTime?
+  completedAt    DateTime?
+  expiresAt      DateTime
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([scope, keyHash])
+  @@index([status, expiresAt])
+  @@index([userId, createdAt])
+}
+
+model OutboxEvent {
+  id            String       @id @default(uuid()) @db.Uuid
+  eventId       String       @unique @db.Uuid
+  aggregateType String       @db.VarChar(100)
+  aggregateId   String       @db.VarChar(120)
+  eventType     String       @db.VarChar(120)
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  availableAt   DateTime     @default(now())
+  lockedAt      DateTime?
+  publishedAt   DateTime?
+  lastError     String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status, availableAt])
+  @@index([aggregateType, aggregateId])
 }

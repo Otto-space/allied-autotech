@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

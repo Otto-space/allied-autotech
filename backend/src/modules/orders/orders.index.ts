@@ -1,0 +1,1 @@
+/** Owns checkout, orders, immutable item pricing snapshots, fulfilment, cancellations, customer access, and administrative lifecycle transitions. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */

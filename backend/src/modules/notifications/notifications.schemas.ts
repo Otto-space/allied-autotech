@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

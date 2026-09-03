@@ -1,0 +1,1 @@
+/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

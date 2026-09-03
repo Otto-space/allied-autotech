@@ -1,0 +1,1 @@
+/** Owns append-only security and business audit events, actor/request context, redaction, privileged querying, and retention. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

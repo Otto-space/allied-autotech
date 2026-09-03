@@ -1,0 +1,1 @@
+/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

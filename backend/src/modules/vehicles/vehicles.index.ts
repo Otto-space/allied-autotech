@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */

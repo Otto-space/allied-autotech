@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */

@@ -1,0 +1,1 @@
+/** Owns physical vehicle inventory, listings, media, price history, private documents, condition reports, publication, and secure asset access. Centralizes default-deny role, ownership, branch, state-transition, and resource authorization decisions. */

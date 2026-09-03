@@ -1,0 +1,1 @@
+/** Owns append-only security and business audit events, actor/request context, redaction, privileged querying, and retention. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

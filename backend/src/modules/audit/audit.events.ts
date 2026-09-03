@@ -1,0 +1,1 @@
+/** Owns append-only security and business audit events, actor/request context, redaction, privileged querying, and retention. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

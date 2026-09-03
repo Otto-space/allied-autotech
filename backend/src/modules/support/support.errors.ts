@@ -1,0 +1,1 @@
+/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

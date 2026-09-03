@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Encapsulates Prisma persistence, safe selection, pagination, transaction participation, locking, and database error boundaries. */

@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

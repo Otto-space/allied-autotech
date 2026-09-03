@@ -1,0 +1,1 @@
+/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */

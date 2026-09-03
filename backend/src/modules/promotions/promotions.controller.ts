@@ -1,0 +1,1 @@
+/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Adapts validated HTTP requests to application services and returns stable responses without business logic or sensitive error leakage. */

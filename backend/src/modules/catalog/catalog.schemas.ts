@@ -1,0 +1,1 @@
+/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Defines strict allowlist validation and normalization for request parameters, queries, bodies, headers, and external payloads. */

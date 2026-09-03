@@ -1,0 +1,1 @@
+/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */

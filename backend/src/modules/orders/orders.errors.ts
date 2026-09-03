@@ -1,0 +1,1 @@
+/** Owns checkout, orders, immutable item pricing snapshots, fulfilment, cancellations, customer access, and administrative lifecycle transitions. Declares domain-specific failure meanings that map to stable public error codes without exposing internal details. */

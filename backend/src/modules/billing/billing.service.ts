@@ -1,0 +1,1 @@
+/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Coordinates domain use cases, transactions, invariants, audit events, idempotency, and external provider ports. */
