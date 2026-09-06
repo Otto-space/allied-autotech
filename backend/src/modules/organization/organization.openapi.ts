@@ -1,6 +1,7 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 
+import { publicApiPaths } from "../../common/contracts/public-api.js";
 import {
   adminBranchListQuerySchema,
   branchCreateBodySchema,
@@ -22,6 +23,28 @@ const responseSchema = z.object({
   data: z.unknown().optional(),
   meta: z.object({ requestId: z.string() }),
 });
+const publicBranchSchema = z.object({
+  id: z.uuid(),
+  code: z.string(),
+  name: z.string(),
+  phone: z.string().nullable(),
+  email: z.email().nullable(),
+  address: z.string(),
+  city: z.string(),
+  state: z.string(),
+  country: z.string(),
+  timezone: z.string(),
+  isActive: z.boolean(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
+});
+const publicBranchListResponseSchema = responseSchema.extend({
+  data: z.object({
+    items: z.array(publicBranchSchema),
+    nextCursor: z.uuid().optional(),
+  }),
+});
+const publicBranchResponseSchema = responseSchema.extend({ data: publicBranchSchema });
 const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
 type RegisterPathInput = Parameters<OpenAPIRegistry["registerPath"]>[0];
 type RouteParameter = NonNullable<NonNullable<RegisterPathInput["request"]>["params"]>;
@@ -36,21 +59,24 @@ interface OrganizationPath {
   query?: RouteParameter;
   secured?: boolean;
   csrf?: boolean;
+  response?: ZodType;
 }
 
 export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
   const paths: readonly OrganizationPath[] = [
     {
       method: "get",
-      path: "/public/branches",
+      path: publicApiPaths.branches,
       summary: "List active public branches",
       query: publicBranchListQuerySchema,
+      response: publicBranchListResponseSchema,
     },
     {
       method: "get",
-      path: "/public/branches/{branchId}",
+      path: publicApiPaths.branch,
       summary: "Get an active public branch",
       params: branchParamsSchema,
+      response: publicBranchResponseSchema,
     },
     {
       method: "get",
@@ -173,7 +199,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         [status]: {
           description: "Request completed",
-          content: { "application/json": { schema: responseSchema } },
+          content: { "application/json": { schema: path.response ?? responseSchema } },
         },
       },
     });

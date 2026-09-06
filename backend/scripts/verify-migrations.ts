@@ -5,6 +5,11 @@ import { config } from "dotenv";
 import pg from "pg";
 import { z } from "zod";
 
+import {
+  createNodePostgresSslConfiguration,
+  parseDatabaseTlsEnvironment,
+} from "../src/config/database-tls.js";
+
 config({ quiet: true });
 
 const replayEnvironmentSchema = z.object({
@@ -29,6 +34,7 @@ const database = new pg.Client({
   database: settings.DB_NAME,
   user: settings.DB_USER,
   password: settings.DB_PASSWORD,
+  ssl: createNodePostgresSslConfiguration(parseDatabaseTlsEnvironment(process.env)),
 });
 await database.connect();
 try {

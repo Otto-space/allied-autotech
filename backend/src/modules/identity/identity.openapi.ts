@@ -1,7 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 
-import { sessionCookieName } from "../../common/security/cookies.js";
 import {
   changePasswordBodySchema,
   emailBodySchema,
@@ -62,7 +61,10 @@ function registerPost(
   });
 }
 
-export function registerIdentityOpenApi(registry: OpenAPIRegistry): void {
+export function registerIdentityOpenApi(
+  registry: OpenAPIRegistry,
+  sessionCookieName: string,
+): void {
   registry.registerComponent("securitySchemes", "sessionCookie", {
     type: "apiKey",
     in: "cookie",

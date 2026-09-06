@@ -1,6 +1,7 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 
+import { publicApiPaths } from "../../common/contracts/public-api.js";
 import {
   adminServiceListQuerySchema,
   bookingAssignmentBodySchema,
@@ -31,6 +32,31 @@ const responseSchema = z.object({
   data: z.unknown().optional(),
   meta: z.object({ requestId: z.string() }),
 });
+const publicServiceSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string().nullable(),
+  shortDescription: z.string().nullable(),
+  pricingType: z.enum(["FIXED", "QUOTE_REQUIRED"]),
+  priceKobo: z
+    .string()
+    .regex(/^(?:0|[1-9][0-9]*)$/u)
+    .nullable(),
+  currency: z.literal("NGN"),
+  durationMinutes: z.number().int(),
+  isActive: z.boolean(),
+  version: z.number().int(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
+});
+const publicServiceListResponseSchema = responseSchema.extend({
+  data: z.object({
+    items: z.array(publicServiceSchema),
+    nextCursor: z.uuid().optional(),
+  }),
+});
+const publicServiceResponseSchema = responseSchema.extend({ data: publicServiceSchema });
 const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
 type RegisterPathInput = Parameters<OpenAPIRegistry["registerPath"]>[0];
 type RouteParameter = NonNullable<NonNullable<RegisterPathInput["request"]>["params"]>;
@@ -44,21 +70,24 @@ interface Path {
   secured?: boolean;
   csrf?: boolean;
   created?: boolean;
+  response?: ZodType;
 }
 
 export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): void {
   const paths: readonly Path[] = [
     {
       method: "get",
-      path: "/public/services",
+      path: publicApiPaths.services,
       summary: "List active services",
       query: publicServiceListQuerySchema,
+      response: publicServiceListResponseSchema,
     },
     {
       method: "get",
-      path: "/public/services/{serviceId}",
+      path: publicApiPaths.service,
       summary: "Get an active service",
       params: serviceParamsSchema,
+      response: publicServiceResponseSchema,
     },
     {
       method: "get",
@@ -258,7 +287,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       path: route.path,
       summary: route.summary,
       tags: ["Service operations"],
-      ...(route.secured ? { security: [{ cookieSession: [] }] } : {}),
+      ...(route.secured ? { security: [{ sessionCookie: [] }] } : {}),
       request: {
         ...(route.params === undefined ? {} : { params: route.params }),
         ...(route.query === undefined ? {} : { query: route.query }),
@@ -270,7 +299,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       responses: {
         [route.created ? "201" : "200"]: {
           description: "Success",
-          content: { "application/json": { schema: responseSchema } },
+          content: { "application/json": { schema: route.response ?? responseSchema } },
         },
       },
     });

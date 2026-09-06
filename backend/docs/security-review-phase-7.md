@@ -48,15 +48,23 @@ No secret leak was found in tracked files, staged changes, the checked Git patch
 ### SEC-009 — API documentation needs deployment access control
 
 - Severity: Low.
-- Evidence: Swagger is disabled by default in production (`src/config/env.ts:280`) and has no-store/CSP controls when enabled (`src/openapi/swagger.ts:8`).
-- Risk: enabling it publicly increases endpoint discovery and its UI requires relaxed inline directives.
-- Required action: keep it disabled publicly or protect it with Cloudflare Access/admin-only ingress in staging and production.
+- Evidence: production API startup rejects `API_DOCS_ENABLED=true`. Local documentation has
+  no-store/CSP controls, and a private generated JSON artifact is available for handover.
+- Risk: publishing an interactive UI increases endpoint discovery and requires relaxed inline
+  directives.
+- Required action: keep hosted documentation disabled in staging/production and share the static
+  contract only through an approved private channel.
 
 ### SEC-010 — Prisma CLI advisories remain
 
 - Severity: Low application reachability; npm reports High.
-- Evidence: `npm audit --omit=dev` reports four transitive findings through Prisma configuration tooling, including `deepmerge-ts` and `mysql2`. The runtime uses PostgreSQL and does not accept untrusted Prisma configuration.
-- Required action: track the supported Prisma upgrade that removes these dependencies. Do not apply npm's forced incompatible Prisma 7-to-6 downgrade.
+- Evidence: the same-major `mysql2` override is `3.24.3` and removes both MySQL findings. Three npm
+  findings remain because Prisma 7.10 pins vulnerable `deepmerge-ts` 7.1.5 in its CLI/configuration
+  path. A clean production-only install confirms that `prisma`, `deepmerge-ts`, and `mysql2` are all
+  absent from the API/worker runtime dependency tree.
+- Required action: track a supported Prisma release that uses `deepmerge-ts` 8 or later. Do not
+  force the incompatible Prisma downgrade or an untested transitive major override. Keep migration
+  images private, short-lived, and restricted to trusted static configuration.
 
 ## OWASP readiness conclusion
 

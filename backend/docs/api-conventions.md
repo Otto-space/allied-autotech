@@ -54,5 +54,6 @@ applicable, `Idempotency-Key`. Provider signatures and server-owned financial va
 
 The generated OpenAPI 3.1 contract is served at `/api/v1/openapi.json`, with Swagger UI at
 `/api/v1/docs/`, when `API_DOCS_ENABLED=true`. Both are no-store resources. Documentation is enabled
-by default outside production and disabled by default in production; an operator must deliberately
-enable it. Runtime validation and OpenAPI request contracts use the same Zod schemas.
+by default outside production. Production startup rejects hosted documentation; release operators
+share the private generated artifact in `docs/api/allied-autotech.openapi.json` through an approved
+private channel. Runtime validation and OpenAPI request contracts use the same Zod schemas.

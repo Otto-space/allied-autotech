@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { isCommonPassword } from "../../common/security/passwords.js";
-import { normalizeEmail } from "../../common/security/session-tokens.js";
+import { normalizeEmail } from "../../common/security/email.js";
 
 const email = z.email().max(254).transform(normalizeEmail);
 const password = z

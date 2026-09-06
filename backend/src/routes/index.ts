@@ -1,5 +1,7 @@
 import { Router } from "express";
 
+import { publicApiPaths } from "../common/contracts/public-api.js";
+import { sessionCookieName } from "../common/security/cookies.js";
 import { createHealthRouter } from "../modules/health/health.routes.js";
 import { createIdentityRouter } from "../modules/identity/identity.index.js";
 import { createCustomersRouter } from "../modules/customers/customers.index.js";
@@ -71,9 +73,9 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/health", createHealthRouter(options.checkReadiness));
   apiRouter.use("/auth", createIdentityRouter());
   apiRouter.use("/auth/staff/invitations", createPrivilegedInvitationRouter());
-  apiRouter.use("/public/branches", createPublicBranchesRouter());
+  apiRouter.use(publicApiPaths.branches, createPublicBranchesRouter());
   apiRouter.use("/public/catalog", createPublicCatalogRouter());
-  apiRouter.use("/public/services", createPublicServicesRouter());
+  apiRouter.use(publicApiPaths.services, createPublicServicesRouter());
   apiRouter.use("/public/vehicles", createPublicVehiclesRouter());
   apiRouter.use("/customers", createCustomerCatalogRouter());
   apiRouter.use("/customers", createCustomersRouter());
@@ -103,7 +105,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   if (env.API_DOCS_ENABLED) {
     apiRouter.get("/openapi.json", (_req, res): void => {
       res.setHeader("Cache-Control", "no-store");
-      res.status(200).json(createOpenApiDocument());
+      res.status(200).json(createOpenApiDocument({ sessionCookieName }));
     });
     apiRouter.use("/docs", swaggerSecurityHeaders, swaggerServe, swaggerSetup);
   }

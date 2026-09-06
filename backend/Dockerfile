@@ -38,13 +38,15 @@ RUN DB_HOST=localhost \
     && npm run build
 
 
-FROM dependencies AS production-dependencies
+FROM base AS production-dependencies
 
 ENV NODE_ENV=production \
     NPM_CONFIG_UPDATE_NOTIFIER=false \
     NPM_CONFIG_FUND=false
 
-RUN npm prune --omit=dev --no-audit --no-fund
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci --omit=dev --omit=optional --no-audit --no-fund
 
 
 FROM base AS runtime
@@ -52,7 +54,12 @@ FROM base AS runtime
 WORKDIR /app
 
 ENV NODE_ENV=production \
-    PORT=5000
+    PORT=5000 \
+    SERVICE_NAME=allied-autotech-api
+
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.title="Allied AutoTech backend" \
+      org.opencontainers.image.revision="${VCS_REF}"
 
 COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
@@ -64,6 +71,8 @@ USER node
 # Build with --target worker to run the PostgreSQL identity outbox worker.
 FROM runtime AS worker
 
+ENV SERVICE_NAME=allied-autotech-identity-worker
+
 CMD ["node", "dist/workers/outbox.worker.js"]
 
 
@@ -72,7 +81,13 @@ FROM dependencies AS migrate
 
 ENV NODE_ENV=production
 
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.title="Allied AutoTech migration job" \
+      org.opencontainers.image.revision="${VCS_REF}"
+
 COPY --chown=node:node prisma.config.ts ./prisma.config.ts
+COPY --chown=node:node src/config/database-tls.ts ./src/config/database-tls.ts
+COPY --chown=node:node src/config/database-url.ts ./src/config/database-url.ts
 COPY --chown=node:node prisma ./prisma
 
 USER node

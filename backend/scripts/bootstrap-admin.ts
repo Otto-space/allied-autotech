@@ -4,7 +4,7 @@ import { createInterface } from "node:readline/promises";
 import { z } from "zod";
 
 import { hashPassword, isCommonPassword } from "../src/common/security/passwords.js";
-import { normalizeEmail } from "../src/common/security/session-tokens.js";
+import { normalizeEmail } from "../src/common/security/email.js";
 import { prisma } from "../src/config/database.js";
 import { env } from "../src/config/env.js";
 

@@ -113,9 +113,10 @@ const sensitiveExampleVariables = new Set([
   "TOKEN_HASH_KEY",
   "MFA_ENCRYPTION_KEY",
   "OUTBOX_ENCRYPTION_KEY",
+  "ASSET_TICKET_KEY",
   "RESEND_API_KEY",
   "PAYSTACK_SECRET_KEY",
-  "CLOUDINARY_API_SECRET",
+  "OBJECT_STORAGE_SECRET_ACCESS_KEY",
 ]);
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
@@ -179,6 +180,54 @@ for (const relativePath of paths) {
   }
 }
 
+if (process.argv.includes("--history")) {
+  const history = spawnSync(
+    gitBinary,
+    ["log", "--all", "-p", "--no-color", "--no-ext-diff", "--format=commit:%H"],
+    {
+      cwd: repositoryRoot,
+      encoding: "buffer",
+      maxBuffer: 100 * 1024 * 1024,
+      shell: false,
+      windowsHide: true,
+    },
+  );
+  if (
+    history.error !== undefined ||
+    history.status !== 0 ||
+    !Buffer.isBuffer(history.stdout)
+  ) {
+    throw new Error("Git history secret enumeration failed", { cause: history.error });
+  }
+  const historyText = history.stdout.toString("utf8");
+  for (const { category, pattern } of credentialPatterns) {
+    if (pattern.test(historyText)) findings.push(`historical ${category}`);
+  }
+
+  const historicalPaths = spawnSync(
+    gitBinary,
+    ["log", "--all", "--name-only", "--pretty=format:"],
+    {
+      cwd: repositoryRoot,
+      encoding: "utf8",
+      maxBuffer: 20 * 1024 * 1024,
+      shell: false,
+      windowsHide: true,
+    },
+  );
+  if (historicalPaths.error !== undefined || historicalPaths.status !== 0) {
+    throw new Error("Git history path enumeration failed", {
+      cause: historicalPaths.error,
+    });
+  }
+  for (const relativePath of historicalPaths.stdout.split(/\r?\n/u).filter(Boolean)) {
+    const fileName = basename(relativePath);
+    if (/^\.env(?:\..+)?$/u.test(fileName) && fileName !== ".env.example") {
+      findings.push(`historical environment file: ${relativePath}`);
+    }
+  }
+}
+
 if (findings.length > 0) {
   for (const finding of [...new Set(findings)].sort((left, right) =>
     left.localeCompare(right),
@@ -188,6 +237,6 @@ if (findings.length > 0) {
   process.exitCode = 1;
 } else {
   process.stdout.write(
-    `Secret guard passed for ${String(paths.length)} non-ignored files.\n`,
+    `Secret guard passed for ${String(paths.length)} non-ignored files${process.argv.includes("--history") ? " and Git history" : ""}.\n`,
   );
 }

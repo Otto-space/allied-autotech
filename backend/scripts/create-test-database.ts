@@ -2,6 +2,11 @@ import { config } from "dotenv";
 import pg from "pg";
 import { z } from "zod";
 
+import {
+  createNodePostgresSslConfiguration,
+  parseDatabaseTlsEnvironment,
+} from "../src/config/database-tls.js";
+
 config({ quiet: true });
 
 const settings = z
@@ -21,6 +26,7 @@ const client = new pg.Client({
   database: "postgres",
   user: settings.DB_USER,
   password: settings.DB_PASSWORD,
+  ssl: createNodePostgresSslConfiguration(parseDatabaseTlsEnvironment(process.env)),
 });
 
 await client.connect();

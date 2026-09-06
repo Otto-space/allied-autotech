@@ -19,11 +19,8 @@ import {
   verifyPassword,
 } from "../../common/security/passwords.js";
 import { generateRecoveryCodes } from "../../common/security/recovery-codes.js";
-import {
-  generateOpaqueToken,
-  hashToken,
-  normalizeEmail,
-} from "../../common/security/session-tokens.js";
+import { generateOpaqueToken, hashToken } from "../../common/security/session-tokens.js";
+import { normalizeEmail } from "../../common/security/email.js";
 import { createTotpEnrollment, verifyTotp } from "../../common/security/totp.js";
 import {
   createWebAuthnAuthenticationOptions,

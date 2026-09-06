@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { publicRouterPaths } from "../../common/contracts/public-api.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import {
   requireAdministrator,
@@ -30,12 +31,12 @@ export function createPublicBranchesRouter(): Router {
   const router = Router();
   const controller = new OrganizationController();
   router.get(
-    "/",
+    publicRouterPaths.collection,
     validate({ query: publicBranchListQuerySchema }),
     controller.publicBranches,
   );
   router.get(
-    "/:branchId",
+    publicRouterPaths.branch,
     validate({ params: branchParamsSchema, query: organizationEmptyQuerySchema }),
     controller.publicBranch,
   );

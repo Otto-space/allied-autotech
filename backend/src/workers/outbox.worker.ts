@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { prisma } from "../config/database.js";
+import { assertIdentityWorkerEnvironment } from "../config/env.js";
 import {
   decryptIdentityPayload,
   type EncryptedEnvelope,
@@ -161,6 +162,7 @@ export class IdentityOutboxWorker {
 }
 
 async function runIdentityWorker(): Promise<void> {
+  assertIdentityWorkerEnvironment();
   const worker = new IdentityOutboxWorker(new ResendEmailProvider());
   let stopping = false;
   process.once("SIGTERM", () => {

@@ -1,10 +1,11 @@
 import { app } from "./app.js";
 import { logger } from "./common/observability/logger.js";
 import { prisma } from "./config/database.js";
-import { env } from "./config/env.js";
+import { assertApiEnvironment, env } from "./config/env.js";
 
 async function startServer(): Promise<void> {
   try {
+    assertApiEnvironment();
     await prisma.$connect();
 
     const server = app.listen(env.PORT, (): void => {

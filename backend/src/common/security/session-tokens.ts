@@ -37,7 +37,3 @@ export function hashToken(purpose: TokenPurpose, rawValue: string): string {
     .update(rawValue, "utf8")
     .digest("hex");
 }
-
-export function normalizeEmail(email: string): string {
-  return email.trim().normalize("NFKC").toLowerCase();
-}

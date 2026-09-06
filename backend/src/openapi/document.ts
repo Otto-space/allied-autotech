@@ -13,9 +13,13 @@ import { registerVehiclesOpenApi } from "../modules/vehicles/vehicles.openapi.js
 import { registerVehicleSalesOpenApi } from "../modules/vehicle-sales/vehicle-sales.openapi.js";
 import { registerPaymentsOpenApi } from "../modules/payments/payments.openapi.js";
 
-export function createOpenApiDocument() {
+export interface OpenApiDocumentOptions {
+  sessionCookieName: string;
+}
+
+export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   const registry = new OpenAPIRegistry();
-  registerIdentityOpenApi(registry);
+  registerIdentityOpenApi(registry, options.sessionCookieName);
   registerCustomersOpenApi(registry);
   registerOrganizationOpenApi(registry);
   registerCatalogOpenApi(registry);

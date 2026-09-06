@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { publicRouterPaths } from "../../common/contracts/public-api.js";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import {
   requireAdministrator,
@@ -38,12 +39,12 @@ export function createPublicServicesRouter(): Router {
   const router = Router();
   const controller = new ServiceOperationsController();
   router.get(
-    "/",
+    publicRouterPaths.collection,
     validate({ query: publicServiceListQuerySchema }),
     controller.publicServices,
   );
   router.get(
-    "/:serviceId",
+    publicRouterPaths.service,
     validate({ params: serviceParamsSchema, query: serviceOperationsEmptyQuerySchema }),
     controller.publicService,
   );
