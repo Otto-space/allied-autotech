@@ -10,6 +10,14 @@ export type TokenPurpose =
   | "privileged-invitation"
   | "recovery-code"
   | "webauthn-challenge"
+  | "inventory-idempotency"
+  | "order-checkout-idempotency"
+  | "order-reservation"
+  | "order-inventory"
+  | "vehicle-reservation-idempotency"
+  | "payment-intent-idempotency"
+  | "payment-attempt-idempotency"
+  | "refund-idempotency"
   | "throttle-email-ip"
   | "throttle-ip";
 

@@ -6,6 +6,7 @@ import { errorCodes } from "../errors/error-codes.js";
 
 export interface RequestSchemas {
   body?: ZodType;
+  headers?: ZodType;
   params?: ZodType;
   query?: ZodType;
 }

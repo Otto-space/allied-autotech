@@ -1,1 +1,5 @@
-/** Owns categories, products, compatibility, product media, favourites, carts, public discovery, and administrative catalogue maintenance. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */
+export {
+  createAdminCatalogRouter,
+  createCustomerCatalogRouter,
+  createPublicCatalogRouter,
+} from "./catalog.routes.js";

@@ -1,0 +1,2 @@
+-- No-op marker produced by the final Prisma shadow-database drift check.
+-- An empty migration confirms the migration history and schema are aligned.

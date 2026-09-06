@@ -9,6 +9,7 @@
     "test:coverage": "vitest run --coverage",
     "test:migrations": "tsx scripts/verify-migrations.ts",
     "test:db:create": "tsx scripts/create-test-database.ts",
+    "test:db:drop": "tsx scripts/drop-test-database.ts",
     "check": "npm run check:secrets && npm run check:prisma && npm run typecheck && npm run check:scripts && npm run lint && npm run format:check && npm test && npm run check:prisma-config",
     "check:secrets": "tsx scripts/check-secrets.ts",
     "check:prisma": "prisma validate && prisma migrate status",
@@ -24,7 +25,9 @@
     "worker:identity": "tsx src/workers/outbox.worker.ts",
     "bootstrap:super-admin": "tsx scripts/bootstrap-admin.ts",
     "prisma:format": "prisma format",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "phase7:preflight": "tsx scripts/verify-phase7-preflight.ts",
+    "reconcile:payments": "tsx scripts/reconcile-payments.ts"
   },
   "keywords": [
     "automotive",
@@ -37,6 +40,8 @@
   "type": "module",
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",
+    "@aws-sdk/client-s3": "^3.1127.0",
+    "@aws-sdk/s3-request-presigner": "^3.1127.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@simplewebauthn/server": "^14.0.0",
@@ -52,6 +57,7 @@
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "resend": "^6.26.0",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.2",
     "zod": "^4.5.4"
   },
@@ -62,6 +68,7 @@
     "@types/node": "^26.4.0",
     "@types/pg": "^8.23.1",
     "@types/supertest": "^7.2.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^10.9.1",

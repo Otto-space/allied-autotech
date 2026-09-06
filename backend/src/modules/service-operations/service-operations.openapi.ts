@@ -1,0 +1,278 @@
+import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { z, type ZodType } from "zod";
+
+import {
+  adminServiceListQuerySchema,
+  bookingAssignmentBodySchema,
+  bookingCancelBodySchema,
+  bookingCreateBodySchema,
+  bookingParamsSchema,
+  bookingRescheduleBodySchema,
+  bookingTransitionBodySchema,
+  customerBookingListQuerySchema,
+  publicServiceListQuerySchema,
+  quoteCreateBodySchema,
+  quoteParamsSchema,
+  quoteReplaceBodySchema,
+  quoteTransitionBodySchema,
+  serviceCreateBodySchema,
+  serviceParamsSchema,
+  serviceUpdateBodySchema,
+  staffBookingListQuerySchema,
+  workOrderCreateBodySchema,
+  workOrderParamsSchema,
+  workOrderTransitionBodySchema,
+  workOrderUpdateBodySchema,
+} from "./service-operations.schemas.js";
+
+const responseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  data: z.unknown().optional(),
+  meta: z.object({ requestId: z.string() }),
+});
+const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
+type RegisterPathInput = Parameters<OpenAPIRegistry["registerPath"]>[0];
+type RouteParameter = NonNullable<NonNullable<RegisterPathInput["request"]>["params"]>;
+interface Path {
+  method: "get" | "post" | "put" | "patch";
+  path: string;
+  summary: string;
+  body?: ZodType;
+  params?: RouteParameter;
+  query?: RouteParameter;
+  secured?: boolean;
+  csrf?: boolean;
+  created?: boolean;
+}
+
+export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): void {
+  const paths: readonly Path[] = [
+    {
+      method: "get",
+      path: "/public/services",
+      summary: "List active services",
+      query: publicServiceListQuerySchema,
+    },
+    {
+      method: "get",
+      path: "/public/services/{serviceId}",
+      summary: "Get an active service",
+      params: serviceParamsSchema,
+    },
+    {
+      method: "get",
+      path: "/admin/services",
+      summary: "List all services",
+      query: adminServiceListQuerySchema,
+      secured: true,
+    },
+    {
+      method: "post",
+      path: "/admin/services",
+      summary: "Create a service",
+      body: serviceCreateBodySchema,
+      secured: true,
+      csrf: true,
+      created: true,
+    },
+    {
+      method: "patch",
+      path: "/admin/services/{serviceId}",
+      summary: "Update a service using optimistic concurrency",
+      params: serviceParamsSchema,
+      body: serviceUpdateBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "get",
+      path: "/customers/bookings",
+      summary: "List own bookings",
+      query: customerBookingListQuerySchema,
+      secured: true,
+    },
+    {
+      method: "post",
+      path: "/customers/bookings",
+      summary: "Request a booking",
+      body: bookingCreateBodySchema,
+      secured: true,
+      csrf: true,
+      created: true,
+    },
+    {
+      method: "get",
+      path: "/customers/bookings/{bookingId}",
+      summary: "Get an owned booking",
+      params: bookingParamsSchema,
+      secured: true,
+    },
+    {
+      method: "patch",
+      path: "/customers/bookings/{bookingId}/schedule",
+      summary: "Reschedule a requested booking",
+      params: bookingParamsSchema,
+      body: bookingRescheduleBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/customers/bookings/{bookingId}/cancel",
+      summary: "Cancel an owned booking",
+      params: bookingParamsSchema,
+      body: bookingCancelBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/customers/bookings/{bookingId}/quotes/{quoteId}/accept",
+      summary: "Accept an issued quote",
+      params: quoteParamsSchema,
+      body: quoteTransitionBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/customers/bookings/{bookingId}/quotes/{quoteId}/reject",
+      summary: "Reject an issued quote",
+      params: quoteParamsSchema,
+      body: quoteTransitionBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "get",
+      path: "/staff/bookings",
+      summary: "List branch-authorized bookings",
+      query: staffBookingListQuerySchema,
+      secured: true,
+    },
+    {
+      method: "get",
+      path: "/staff/bookings/{bookingId}",
+      summary: "Get a branch-authorized booking",
+      params: bookingParamsSchema,
+      secured: true,
+    },
+    {
+      method: "patch",
+      path: "/staff/bookings/{bookingId}/assignment",
+      summary: "Assign available branch staff",
+      params: bookingParamsSchema,
+      body: bookingAssignmentBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/status",
+      summary: "Transition a booking",
+      params: bookingParamsSchema,
+      body: bookingTransitionBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/quotes",
+      summary: "Create a quote draft",
+      params: bookingParamsSchema,
+      body: quoteCreateBodySchema,
+      secured: true,
+      csrf: true,
+      created: true,
+    },
+    {
+      method: "put",
+      path: "/staff/bookings/{bookingId}/quotes/{quoteId}",
+      summary: "Create a replacement quote version",
+      params: quoteParamsSchema,
+      body: quoteReplaceBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/quotes/{quoteId}/issue",
+      summary: "Issue a quote",
+      params: quoteParamsSchema,
+      body: quoteTransitionBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/quotes/{quoteId}/void",
+      summary: "Void a quote",
+      params: quoteParamsSchema,
+      body: quoteTransitionBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/quotes/{quoteId}/expire",
+      summary: "Expire an overdue quote",
+      params: quoteParamsSchema,
+      body: quoteTransitionBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/work-orders",
+      summary: "Create a work order",
+      params: bookingParamsSchema,
+      body: workOrderCreateBodySchema,
+      secured: true,
+      csrf: true,
+      created: true,
+    },
+    {
+      method: "put",
+      path: "/staff/bookings/{bookingId}/work-orders/{workOrderId}",
+      summary: "Update work details and append items",
+      params: workOrderParamsSchema,
+      body: workOrderUpdateBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/work-orders/{workOrderId}/status",
+      summary: "Transition a work order",
+      params: workOrderParamsSchema,
+      body: workOrderTransitionBodySchema,
+      secured: true,
+      csrf: true,
+    },
+  ];
+
+  for (const route of paths) {
+    registry.registerPath({
+      method: route.method,
+      path: route.path,
+      summary: route.summary,
+      tags: ["Service operations"],
+      ...(route.secured ? { security: [{ cookieSession: [] }] } : {}),
+      request: {
+        ...(route.params === undefined ? {} : { params: route.params }),
+        ...(route.query === undefined ? {} : { query: route.query }),
+        ...(route.body === undefined
+          ? {}
+          : { body: { content: { "application/json": { schema: route.body } } } }),
+        ...(route.csrf ? { headers: csrfHeaders } : {}),
+      },
+      responses: {
+        [route.created ? "201" : "200"]: {
+          description: "Success",
+          content: { "application/json": { schema: responseSchema } },
+        },
+      },
+    });
+  }
+}

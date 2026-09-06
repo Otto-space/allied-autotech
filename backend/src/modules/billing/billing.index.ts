@@ -1,1 +1,4 @@
-/** Owns invoice creation, issuance, source association, payment visibility, amount invariants, immutability, and voiding. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */
+export {
+  createCustomerBillingRouter,
+  createStaffBillingRouter,
+} from "./billing.routes.js";

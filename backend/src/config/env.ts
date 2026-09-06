@@ -83,6 +83,10 @@ const environmentSchema = z.object({
     .min(1_000)
     .max(86_400_000)
     .default(900_000),
+  API_DOCS_ENABLED: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
 
   DB_HOST: z.string().trim().min(1, "DB_HOST is required"),
 
@@ -100,6 +104,20 @@ const environmentSchema = z.object({
   MFA_ENCRYPTION_KEY_ID: z.string().trim().min(1).max(120).default("local-v1"),
   OUTBOX_ENCRYPTION_KEY: base64Key,
   OUTBOX_ENCRYPTION_KEY_ID: z.string().trim().min(1).max(120).default("local-v1"),
+  ASSET_TICKET_KEY: base64Key,
+  ASSET_TICKET_KEY_ID: z.string().trim().min(1).max(120).default("local-v1"),
+
+  OBJECT_STORAGE_ENDPOINT: optionalNonEmptyString.pipe(httpUrl.optional()),
+  OBJECT_STORAGE_REGION: z.string().trim().min(1).default("us-east-1"),
+  OBJECT_STORAGE_BUCKET: optionalNonEmptyString,
+  OBJECT_STORAGE_ACCESS_KEY_ID: optionalNonEmptyString,
+  OBJECT_STORAGE_SECRET_ACCESS_KEY: optionalNonEmptyString,
+  OBJECT_STORAGE_FORCE_PATH_STYLE: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .default(true),
+  ASSET_UPLOAD_TTL_SECONDS: z.coerce.number().int().min(60).max(900).default(300),
+  ASSET_DOWNLOAD_TTL_SECONDS: z.coerce.number().int().min(30).max(900).default(120),
 
   WEBAUTHN_RP_ID: z.string().trim().min(1).default("localhost"),
   WEBAUTHN_RP_NAME: z.string().trim().min(1).max(100).default("Allied AutoTech"),
@@ -107,6 +125,21 @@ const environmentSchema = z.object({
 
   RESEND_API_KEY: optionalNonEmptyString,
   RESEND_FROM_EMAIL: optionalEmail,
+  PAYSTACK_SECRET_KEY: optionalNonEmptyString,
+  PAYSTACK_CALLBACK_URL: optionalNonEmptyString.pipe(httpUrl.optional()),
+  PAYSTACK_REQUEST_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(30_000)
+    .default(8_000),
+  PAYSTACK_MAX_RESPONSE_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1_024)
+    .max(1_048_576)
+    .default(262_144),
+  PAYMENT_INTENT_TTL_SECONDS: z.coerce.number().int().min(300).max(86_400).default(1_800),
   FRONTEND_VERIFY_EMAIL_URL: httpUrl.default("http://localhost:3000/verify-email"),
   FRONTEND_RESET_PASSWORD_URL: httpUrl.default("http://localhost:3000/reset-password"),
   FRONTEND_PRIVILEGED_INVITATION_URL: httpUrl.default(
@@ -185,8 +218,14 @@ const productionRequiredFields = [
   "TOKEN_HASH_KEY",
   "MFA_ENCRYPTION_KEY",
   "OUTBOX_ENCRYPTION_KEY",
+  "ASSET_TICKET_KEY",
   "RESEND_API_KEY",
   "RESEND_FROM_EMAIL",
+  "PAYSTACK_SECRET_KEY",
+  "OBJECT_STORAGE_ENDPOINT",
+  "OBJECT_STORAGE_BUCKET",
+  "OBJECT_STORAGE_ACCESS_KEY_ID",
+  "OBJECT_STORAGE_SECRET_ACCESS_KEY",
 ] as const;
 
 if (environment.data.NODE_ENV === "production") {
@@ -196,6 +235,30 @@ if (environment.data.NODE_ENV === "production") {
 
   if (missing.length > 0) {
     throw new Error(`Missing production security configuration: ${missing.join(", ")}`);
+  }
+
+  const cryptographicKeys = [
+    environment.data.TOKEN_HASH_KEY,
+    environment.data.MFA_ENCRYPTION_KEY,
+    environment.data.OUTBOX_ENCRYPTION_KEY,
+    environment.data.ASSET_TICKET_KEY,
+  ];
+  if (new Set(cryptographicKeys).size !== cryptographicKeys.length) {
+    throw new Error("Production cryptographic keys must be independently generated");
+  }
+
+  if (
+    environment.data.OBJECT_STORAGE_ENDPOINT !== undefined &&
+    new URL(environment.data.OBJECT_STORAGE_ENDPOINT).protocol !== "https:"
+  ) {
+    throw new Error("Production object storage must use HTTPS");
+  }
+
+  if (
+    environment.data.PAYSTACK_CALLBACK_URL !== undefined &&
+    new URL(environment.data.PAYSTACK_CALLBACK_URL).protocol !== "https:"
+  ) {
+    throw new Error("Production Paystack callback URL must use HTTPS");
   }
 
   for (const url of [
@@ -214,7 +277,10 @@ const localOnlyKey = (fill: number): string => Buffer.alloc(32, fill).toString("
 
 export const env = {
   ...environment.data,
+  API_DOCS_ENABLED:
+    environment.data.API_DOCS_ENABLED ?? environment.data.NODE_ENV !== "production",
   TOKEN_HASH_KEY: environment.data.TOKEN_HASH_KEY ?? localOnlyKey(1),
   MFA_ENCRYPTION_KEY: environment.data.MFA_ENCRYPTION_KEY ?? localOnlyKey(2),
   OUTBOX_ENCRYPTION_KEY: environment.data.OUTBOX_ENCRYPTION_KEY ?? localOnlyKey(3),
+  ASSET_TICKET_KEY: environment.data.ASSET_TICKET_KEY ?? localOnlyKey(4),
 };

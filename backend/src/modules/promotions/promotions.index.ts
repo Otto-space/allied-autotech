@@ -1,1 +1,5 @@
-/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */
+export {
+  createAdminPromotionsRouter,
+  createCustomerPromotionsRouter,
+} from "./promotions.routes.js";
+export { promotionsService, PromotionsService } from "./promotions.service.js";

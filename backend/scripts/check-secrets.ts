@@ -1,5 +1,6 @@
+// cspell:words AKIA baprs bxox PAYSTACK
 import { spawnSync } from "node:child_process";
-import { readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -7,6 +8,78 @@ interface CredentialPattern {
   category: string;
   pattern: RegExp;
 }
+
+const isPlaceholderExampleValue = (value: string): boolean => {
+  const trimmedValue = value.trim();
+  if (trimmedValue === "") return true;
+
+  const normalizedValue = trimmedValue.toLowerCase();
+  if (
+    normalizedValue === "change" ||
+    normalizedValue === "replace" ||
+    normalizedValue === "example" ||
+    normalizedValue === "placeholder"
+  ) {
+    return true;
+  }
+
+  if (
+    normalizedValue.startsWith("change me") ||
+    normalizedValue.startsWith("change-me") ||
+    normalizedValue.startsWith("change_me") ||
+    normalizedValue.startsWith("change-") ||
+    normalizedValue.startsWith("change_") ||
+    normalizedValue.startsWith("replace ") ||
+    normalizedValue.startsWith("replace-") ||
+    normalizedValue.startsWith("replace_") ||
+    normalizedValue.startsWith("example ") ||
+    normalizedValue.startsWith("example-") ||
+    normalizedValue.startsWith("example_") ||
+    normalizedValue.startsWith("placeholder ") ||
+    normalizedValue.startsWith("placeholder-") ||
+    normalizedValue.startsWith("placeholder_")
+  ) {
+    return true;
+  }
+
+  return /^<[^>\r\n]*>$/.test(trimmedValue);
+};
+
+const parseEnvironmentAssignment = (
+  line: string,
+): readonly [name: string, value: string] | undefined => {
+  const separatorIndex = line.indexOf("=");
+  if (separatorIndex < 0) return undefined;
+
+  const name = line.slice(0, separatorIndex).trim();
+  if (!/^\w+$/u.test(name)) return undefined;
+
+  return [name, line.slice(separatorIndex + 1).trim()];
+};
+
+const resolveGitBinary = (): string => {
+  const programW6432 = process.env["ProgramW6432"];
+  const programFiles = process.env["ProgramFiles"];
+  const programFilesX86 = process.env["ProgramFiles(x86)"];
+
+  const gitCandidates = [
+    programW6432 ? resolve(programW6432, "Git", "bin", "git.exe") : undefined,
+    programFiles ? resolve(programFiles, "Git", "bin", "git.exe") : undefined,
+    programFilesX86 ? resolve(programFilesX86, "Git", "bin", "git.exe") : undefined,
+    programW6432 ? resolve(programW6432, "Git", "cmd", "git.exe") : undefined,
+    programFiles ? resolve(programFiles, "Git", "cmd", "git.exe") : undefined,
+    programFilesX86 ? resolve(programFilesX86, "Git", "cmd", "git.exe") : undefined,
+    "git",
+  ];
+
+  for (const candidate of gitCandidates) {
+    if (candidate === undefined) continue;
+    if (candidate === "git") return candidate;
+    if (existsSync(candidate)) return candidate;
+  }
+
+  return "git";
+};
 
 const credentialPatterns: readonly CredentialPattern[] = [
   {
@@ -47,8 +120,9 @@ const sensitiveExampleVariables = new Set([
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, "..", "..");
+const gitBinary = resolveGitBinary();
 const listed = spawnSync(
-  "git",
+  gitBinary,
   ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
   {
     cwd: repositoryRoot,
@@ -84,7 +158,7 @@ for (const relativePath of paths) {
   }
   if (statSync(absolutePath).size > 5_000_000) continue;
   const value = readFileSync(absolutePath);
-  if (value.indexOf(0) !== -1) continue;
+  if (value.includes(0)) continue;
   const text = value.toString("utf8");
 
   for (const { category, pattern } of credentialPatterns) {
@@ -93,13 +167,12 @@ for (const relativePath of paths) {
 
   if (fileName === ".env.example") {
     for (const line of text.split(/\r?\n/u)) {
-      const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/u.exec(line);
-      if (match === null || !sensitiveExampleVariables.has(match[1] ?? "")) continue;
-      const exampleValue = (match[2] ?? "").trim();
-      if (
-        exampleValue !== "" &&
-        !/(?:change[-_ ]?me|replace|example|placeholder|<[^>\r\n]*>)/iu.test(exampleValue)
-      ) {
+      const assignment = parseEnvironmentAssignment(line);
+      if (assignment === undefined || !sensitiveExampleVariables.has(assignment[0])) {
+        continue;
+      }
+      const exampleValue = assignment[1];
+      if (exampleValue !== "" && !isPlaceholderExampleValue(exampleValue)) {
         findings.push(`literal sensitive example value: ${relativePath}`);
       }
     }
@@ -107,7 +180,9 @@ for (const relativePath of paths) {
 }
 
 if (findings.length > 0) {
-  for (const finding of [...new Set(findings)].sort()) {
+  for (const finding of [...new Set(findings)].sort((left, right) =>
+    left.localeCompare(right),
+  )) {
     process.stderr.write(`Potential secret detected (${finding})\n`);
   }
   process.exitCode = 1;

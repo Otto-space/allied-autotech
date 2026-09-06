@@ -1,1 +1,41 @@
-/** Defines the minimal payment-provider contract for initialization, verification, refunding, reconciliation, and error normalization. */
+export interface InitializePaymentCommand {
+  email: string;
+  amountKobo: bigint;
+  currency: "NGN";
+  reference: string;
+  callbackUrl?: string;
+}
+
+export interface InitializedPayment {
+  authorizationUrl: string;
+  accessCode: string;
+  providerReference: string;
+}
+
+export interface VerifiedPayment {
+  reference: string;
+  gatewayTransactionId: string;
+  status: "success" | "failed" | "abandoned" | "pending";
+  amountKobo: bigint;
+  currency: string;
+  paidAt: Date | null;
+  providerFeeKobo: bigint | null;
+  method: string | null;
+}
+
+export interface InitiateRefundCommand {
+  gatewayTransactionId: string;
+  amountKobo: bigint;
+  currency: "NGN";
+}
+
+export interface InitiatedRefund {
+  providerRefundId: string;
+  status: string;
+}
+
+export interface PaymentProviderPort {
+  initialize(command: InitializePaymentCommand): Promise<InitializedPayment>;
+  verify(reference: string): Promise<VerifiedPayment>;
+  refund(command: InitiateRefundCommand): Promise<InitiatedRefund>;
+}

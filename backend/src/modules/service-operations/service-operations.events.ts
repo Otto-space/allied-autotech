@@ -1,1 +1,7 @@
-/** Owns services, bookings, quotations, quote items, work orders, lifecycle transitions, scheduling, and staff/customer visibility. Defines domain and integration event contracts for transactional outbox publication and idempotent consumption. */
+export const serviceOperationEvents = {
+  bookingCreated: "service.booking.created",
+  bookingStatusChanged: "service.booking.status-changed",
+  quoteIssued: "service.quote.issued",
+  quoteAccepted: "service.quote.accepted",
+  workOrderStatusChanged: "service.work-order.status-changed",
+} as const;

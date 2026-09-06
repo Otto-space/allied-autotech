@@ -1,1 +1,5 @@
-/** Owns inspections, negotiations, reservations, vehicle transactions, lifecycle history, expirations, payment coordination, and handover. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */
+export {
+  createAdminVehicleSalesRouter,
+  createCustomerVehicleSalesRouter,
+  createStaffVehicleSalesRouter,
+} from "./vehicle-sales.routes.js";

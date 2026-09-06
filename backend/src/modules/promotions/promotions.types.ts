@@ -1,1 +1,10 @@
-/** Owns promotion eligibility, discount calculation, usage limits, concurrent redemption safety, and immutable redemption snapshots. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */
+export interface PromotionEvaluation {
+  promotion: {
+    id: string;
+    code: string | null;
+    discountType: "PERCENTAGE" | "FIXED_AMOUNT";
+    percentageBasisPoints: number | null;
+    fixedAmountKobo: bigint | null;
+  };
+  discountAmountKobo: bigint;
+}

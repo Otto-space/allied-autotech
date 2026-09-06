@@ -1,0 +1,3 @@
+-- No-op migration retained because the OneDrive workspace protects created
+-- directories from deletion. Schema reconciliation is in the preceding
+-- 20260904010100_phase_4_schema_reconciliation migration.

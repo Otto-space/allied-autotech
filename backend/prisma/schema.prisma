@@ -478,6 +478,13 @@ enum InventoryTransactionType {
   RESTOCK
 }
 
+enum InventoryReservationStatus {
+  ACTIVE
+  RELEASED
+  CONSUMED
+  EXPIRED
+}
+
 enum IdempotencyStatus {
   IN_PROGRESS
   COMPLETED
@@ -716,20 +723,21 @@ model CustomerProfile {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  customerVehicles    CustomerVehicle[]
-  bookings            Booking[]
-  cart                Cart?
-  orders              Order[]
-  payments            Payment[]
-  vehicleTransactions VehicleTransaction[]
-  inspectionRequests  InspectionRequest[]
-  reviews             Review[]
-  enquiries           Enquiry[]
-  complaints          Complaint[]
-  invoices            Invoice[]
-  savedVehicles       SavedVehicle[]
-  productFavourites   ProductFavourite[]
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerVehicles      CustomerVehicle[]
+  bookings              Booking[]
+  cart                  Cart?
+  orders                Order[]
+  payments              Payment[]
+  vehicleTransactions   VehicleTransaction[]
+  inspectionRequests    InspectionRequest[]
+  reviews               Review[]
+  enquiries             Enquiry[]
+  complaints            Complaint[]
+  invoices              Invoice[]
+  savedVehicles         SavedVehicle[]
+  productFavourites     ProductFavourite[]
+  inventoryReservations InventoryReservation[]
 
   @@index([phone])
   @@index([state])
@@ -754,6 +762,8 @@ model Branch {
   vehicles              Vehicle[]
   listings              VehicleListing[]
   inventories           Inventory[]
+  bookings              Booking[]
+  orders                Order[]
   privilegedInvitations PrivilegedInvitation[]
 
   @@index([isActive])
@@ -813,6 +823,7 @@ model Service {
   currency         String             @default("NGN") @db.Char(3)
   durationMinutes  Int?
   isActive         Boolean            @default(true)
+  version          Int                @default(0)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 
@@ -827,6 +838,7 @@ model Service {
 model Booking {
   id                 String        @id @default(uuid()) @db.Uuid
   customerId         String        @db.Uuid
+  branchId           String?       @db.Uuid
   serviceId          String        @db.Uuid
   vehicleId          String?       @db.Uuid
   assignedStaffId    String?       @db.Uuid
@@ -843,8 +855,10 @@ model Booking {
   startedAt          DateTime?
   completedAt        DateTime?
   cancelledAt        DateTime?
+  version            Int           @default(0)
 
   customer      CustomerProfile  @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  branch        Branch?          @relation(fields: [branchId], references: [id], onDelete: Restrict)
   service       Service          @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   vehicle       CustomerVehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
   assignedStaff StaffProfile?    @relation("AssignedBookings", fields: [assignedStaffId], references: [id], onDelete: SetNull)
@@ -856,6 +870,7 @@ model Booking {
   complaints    Complaint[]
 
   @@index([serviceId])
+  @@index([branchId, status, scheduledAt])
   @@index([vehicleId])
   @@index([status, scheduledAt])
   @@index([assignedStaffId, status, scheduledAt])
@@ -869,6 +884,7 @@ model ServiceQuote {
   createdByStaffId String      @db.Uuid
   quoteNumber      String      @unique @db.VarChar(40)
   version          Int         @default(1)
+  revision         Int         @default(0)
   status           QuoteStatus @default(DRAFT)
   currency         String      @default("NGN") @db.Char(3)
   subtotalKobo     BigInt
@@ -890,6 +906,7 @@ model ServiceQuote {
 
   @@unique([bookingId, version])
   @@index([bookingId, status])
+  @@index([bookingId, version(sort: Desc)], map: "ServiceQuote_bookingId_version_desc_idx")
   @@index([status, expiresAt])
 }
 
@@ -924,6 +941,7 @@ model WorkOrder {
   cancelledAt     DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+  version         Int             @default(0)
 
   booking Booking         @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   items   WorkOrderItem[]
@@ -1044,9 +1062,11 @@ model Inventory {
   product      Product                @relation(fields: [productId], references: [id], onDelete: Restrict)
   branch       Branch                 @relation(fields: [branchId], references: [id], onDelete: Restrict)
   transactions InventoryTransaction[]
+  reservations InventoryReservation[]
 
   @@unique([productId, branchId])
   @@index([branchId, quantity])
+  @@index([branchId, id])
   @@index([productId])
 }
 
@@ -1062,6 +1082,7 @@ model InventoryTransaction {
   reservedBefore Int
   reservedAfter  Int
   idempotencyKey String                   @unique @db.VarChar(120)
+  requestHash    String?                  @db.Char(64)
   referenceType  String?
   referenceId    String?
   note           String?
@@ -1074,6 +1095,32 @@ model InventoryTransaction {
   @@index([type])
   @@index([referenceType, referenceId])
   @@index([performedById])
+}
+
+model InventoryReservation {
+  id             String                     @id @default(uuid()) @db.Uuid
+  inventoryId    String                     @db.Uuid
+  customerId     String?                    @db.Uuid
+  quantity       Int
+  status         InventoryReservationStatus @default(ACTIVE)
+  expiresAt      DateTime
+  releasedAt     DateTime?
+  consumedAt     DateTime?
+  expiredAt      DateTime?
+  idempotencyKey String                     @unique @db.VarChar(120)
+  requestHash    String                     @db.Char(64)
+  referenceType  String?                    @db.VarChar(60)
+  referenceId    String?                    @db.VarChar(120)
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  inventory Inventory        @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+  customer  CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  @@index([inventoryId, status, expiresAt])
+  @@index([customerId, status, createdAt])
+  @@index([status, expiresAt])
+  @@index([referenceType, referenceId])
 }
 
 model ProductFavourite {
@@ -1117,6 +1164,7 @@ model CartItem {
 model Order {
   id                 String            @id @default(uuid()) @db.Uuid
   customerId         String            @db.Uuid
+  branchId           String?           @db.Uuid
   orderNumber        String            @unique @db.VarChar(40)
   status             OrderStatus       @default(PENDING)
   fulfillmentMethod  FulfillmentMethod @default(COLLECTION)
@@ -1139,6 +1187,7 @@ model Order {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   paymentDueAt       DateTime?
+  confirmedAt        DateTime?
   paidAt             DateTime?
   processingAt       DateTime?
   readyAt            DateTime?
@@ -1146,6 +1195,7 @@ model Order {
   completedAt        DateTime?
 
   customer       CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  branch         Branch?         @relation(fields: [branchId], references: [id], onDelete: Restrict)
   items          OrderItem[]
   payments       Payment[]
   invoice        Invoice?
@@ -1154,6 +1204,7 @@ model Order {
   complaints     Complaint[]
 
   @@index([customerId, createdAt])
+  @@index([branchId, status, createdAt])
   @@index([status, createdAt])
 }
 
@@ -1506,6 +1557,7 @@ model Vehicle {
   acquisitionCostKobo BigInt?
   acquisitionCurrency String           @default("NGN") @db.Char(3)
   acquiredAt          DateTime?
+  version             Int              @default(0)
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
@@ -1535,6 +1587,7 @@ model VehicleListing {
   reservedAt  DateTime?
   soldAt      DateTime?
   archivedAt  DateTime?
+  version     Int                  @default(0)
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
 
@@ -1599,6 +1652,7 @@ model VehicleDocument {
   expiresAt          DateTime?
   verifiedAt         DateTime?
   rejectionReason    String?
+  version            Int                        @default(0)
   createdAt          DateTime                   @default(now())
   updatedAt          DateTime                   @updatedAt
 
@@ -1607,6 +1661,7 @@ model VehicleDocument {
 
   @@index([vehicleId, type])
   @@index([verificationStatus])
+  @@index([vehicleId, verificationStatus, createdAt(sort: Desc)], map: "VehicleDocument_vehicle_status_idx")
 }
 
 model VehicleConditionReport {
@@ -1643,6 +1698,7 @@ model InspectionRequest {
   status             InspectionStatus @default(REQUESTED)
   notes              String?
   cancellationReason String?
+  version            Int              @default(0)
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   confirmedAt        DateTime?
@@ -1737,6 +1793,7 @@ model VehicleHandover {
   readyAt                 DateTime?
   completedAt             DateTime?
   cancelledAt             DateTime?
+  version                 Int                   @default(0)
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt
 
@@ -1871,6 +1928,7 @@ model Promotion {
   startsAt                  DateTime
   endsAt                    DateTime
   isActive                  Boolean      @default(true)
+  version                   Int          @default(0)
   createdAt                 DateTime     @default(now())
   updatedAt                 DateTime     @updatedAt
 
@@ -1894,6 +1952,7 @@ model PromotionUsage {
   order     Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)
 
   @@index([promotionId])
+  @@index([promotionId, createdAt])
 }
 
 model Invoice {
@@ -1908,6 +1967,7 @@ model Invoice {
   taxKobo              BigInt        @default(0)
   totalKobo            BigInt
   status               InvoiceStatus @default(DRAFT)
+  version              Int           @default(0)
   issuedAt             DateTime?
   dueAt                DateTime?
   paidAt               DateTime?

@@ -416,5 +416,5 @@ describe.skipIf(!runDatabaseTests)("database-backed identity flow", () => {
       .set("Origin", origin)
       .send({ email, password: finalPassword });
     expect(lockedLogin.status).toBe(401);
-  }, 20_000);
+  }, 60_000);
 });

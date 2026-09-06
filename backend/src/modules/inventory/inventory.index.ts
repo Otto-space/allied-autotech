@@ -1,1 +1,4 @@
-/** Owns branch stock, reservations, releases, adjustments, concurrency control, idempotent mutations, and append-only stock history. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */
+export {
+  createAdminInventoryRouter,
+  createStaffInventoryRouter,
+} from "./inventory.routes.js";

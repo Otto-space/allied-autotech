@@ -39,9 +39,14 @@ function registerPost(
     summary,
     ...(secured ? { security: [{ sessionCookie: [] }] } : {}),
     ...(requestSchema === undefined
-      ? {}
+      ? secured
+        ? { request: { headers: z.object({ "x-csrf-token": z.string().min(32) }) } }
+        : {}
       : {
           request: {
+            ...(secured
+              ? { headers: z.object({ "x-csrf-token": z.string().min(32) }) }
+              : {}),
             body: {
               required: true,
               content: { "application/json": { schema: requestSchema } },
@@ -172,18 +177,26 @@ export function registerIdentityOpenApi(registry: OpenAPIRegistry): void {
       summary,
       security: [{ sessionCookie: [] }],
       ...(path.includes("{sessionId}")
-        ? { request: { params: z.object({ sessionId: z.uuid() }) } }
+        ? {
+            request: {
+              params: z.object({ sessionId: z.uuid() }),
+              headers: z.object({ "x-csrf-token": z.string().min(32) }),
+            },
+          }
         : path.includes("{factorId}")
           ? {
               request: {
                 params: z.object({ factorId: z.uuid() }),
+                headers: z.object({ "x-csrf-token": z.string().min(32) }),
                 body: {
                   required: true,
                   content: { "application/json": { schema: factorDeleteBodySchema } },
                 },
               },
             }
-          : {}),
+          : method === "delete"
+            ? { request: { headers: z.object({ "x-csrf-token": z.string().min(32) }) } }
+            : {}),
       responses: {
         "200": {
           description: "Request completed",
