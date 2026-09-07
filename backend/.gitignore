@@ -92,3 +92,6 @@ Thumbs.db
 *.tmp
 *.bak
 /src/generated/prisma
+
+# Populated App Platform specifications can contain encrypted or secret values.
+ops/digitalocean/*.app.yaml

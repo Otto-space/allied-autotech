@@ -31,7 +31,8 @@
     "prisma:format": "prisma format",
     "prisma:generate": "prisma generate",
     "phase7:preflight": "tsx scripts/verify-phase7-preflight.ts",
-    "reconcile:payments": "tsx scripts/reconcile-payments.ts"
+    "reconcile:payments": "tsx scripts/reconcile-payments.ts",
+    "seed:staging:public": "tsx scripts/seed-staging-public.ts"
   },
   "keywords": [
     "automotive",

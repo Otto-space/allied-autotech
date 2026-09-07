@@ -20,7 +20,7 @@ credentials or sensitive examples. Share it only through the project's approved 
 | ----------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | `GET /api/v1/public/branches`             | `limit` 1–100 (default 25), optional UUID `cursor`, optional `city`, optional `state` | Active branches only; city/state are case-insensitive exact filters |
 | `GET /api/v1/public/branches/{branchId}`  | UUID path parameter                                                                   | One active branch or `404`                                          |
-| `GET /api/v1/public/services`             | `limit` 1–100 (default 25), optional UUID `cursor`, optional `pricingType=FIXED       | QUOTE_REQUIRED`                                                     | Active services only |
+| `GET /api/v1/public/services`                | `limit` 1–100 (default 25), optional UUID `cursor`, optional `pricingType=FIXED \| QUOTE_REQUIRED`                       | Active services only |
 | `GET /api/v1/public/services/{serviceId}` | UUID path parameter                                                                   | One active service or `404`                                         |
 
 List responses use stable ascending-ID cursor pagination. Send the returned `nextCursor` unchanged

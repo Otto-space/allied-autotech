@@ -13,6 +13,8 @@ RUN apt-get update \
     && apt-get install --yes --no-install-recommends ca-certificates openssl \
     && rm -rf /var/lib/apt/lists/*
 
+COPY --chown=root:root --chmod=0555 docker/with-database-ca.sh /usr/local/bin/aat-with-database-ca
+
 
 FROM base AS dependencies
 
@@ -67,6 +69,8 @@ COPY --chown=node:node package.json ./package.json
 
 USER node
 
+ENTRYPOINT ["aat-with-database-ca"]
+
 
 # Build with --target worker to run the PostgreSQL identity outbox worker.
 FROM runtime AS worker
@@ -91,6 +95,8 @@ COPY --chown=node:node src/config/database-url.ts ./src/config/database-url.ts
 COPY --chown=node:node prisma ./prisma
 
 USER node
+
+ENTRYPOINT ["aat-with-database-ca"]
 
 CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
 
