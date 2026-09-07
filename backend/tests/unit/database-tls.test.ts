@@ -43,6 +43,7 @@ describe("database TLS policy", () => {
     });
     expect(url.searchParams.get("sslmode")).toBe("require");
     expect(url.searchParams.get("sslaccept")).toBe("strict");
-    expect(url.searchParams.get("sslrootcert")).toBe(resolve("private-database-ca.pem"));
+    expect(url.searchParams.get("sslcert")).toBe(resolve("private-database-ca.pem"));
+    expect(url.searchParams.has("sslrootcert")).toBe(false);
   });
 });

@@ -106,5 +106,8 @@ export function addPrismaTlsParameters(
 
   url.searchParams.set("sslmode", "require");
   url.searchParams.set("sslaccept", "strict");
-  url.searchParams.set("sslrootcert", configuration.caFile);
+  // Prisma's PostgreSQL connector uses `sslcert` for the trusted server CA.
+  // This differs from libpq, where the similarly named option identifies a
+  // client certificate.
+  url.searchParams.set("sslcert", configuration.caFile);
 }
