@@ -22,6 +22,13 @@ submission, verified-purchase/service eligibility, moderation, and public
 projection routes are therefore absent from this release and its OpenAPI file;
 they must not be represented as available to the frontend.
 
+The current database also retains the legacy `Review_target_consistent` check
+beside `aat_review_target_valid`. Their service rules disagree about whether a
+booking is required, and the legacy check has no vehicle-transaction case.
+Consequently, service and vehicle-transaction reviews must remain disabled
+until Phase 9 replaces the legacy check in a reviewed forward-only migration.
+Do not edit the already-applied migration or bypass the constraints.
+
 Hosted Swagger and hosted OpenAPI remain disabled. Share
 `docs/api/allied-autotech.openapi.json` through an approved private channel.
 
@@ -463,6 +470,8 @@ only for this file-boundary check, never for a database connection.
   directly to the stable DigitalOcean origin in a later payment milestone.
 - Central logging/alert provider and on-call recipients.
 - Timing and owner for the identity email worker and staging Resend setup.
+- Phase 9 owner for the forward review-constraint reconciliation and secure
+  review API implementation.
 - Approval of the synthetic branch/service fixture labels and illustrative
   values.
 
