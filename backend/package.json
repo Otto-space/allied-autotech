@@ -27,6 +27,7 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "worker:identity": "tsx src/workers/outbox.worker.ts",
+    "worker:general": "tsx src/workers/worker-runtime.ts",
     "bootstrap:super-admin": "tsx scripts/bootstrap-admin.ts",
     "prisma:format": "prisma format",
     "prisma:generate": "prisma generate",

@@ -363,6 +363,30 @@ enum NotificationType {
   SYSTEM
 }
 
+enum NotificationCategory {
+  SECURITY
+  TRANSACTIONAL
+  OPERATIONAL
+  MARKETING
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+}
+
+enum SupportMessageVisibility {
+  CUSTOMER
+  INTERNAL
+}
+
+enum SupportMessageAuthorType {
+  CUSTOMER
+  STAFF
+  SYSTEM
+}
+
 enum Transmission {
   AUTOMATIC
   MANUAL
@@ -524,6 +548,9 @@ model User {
   mfaChallenges             MfaChallenge[]
   auditLogs                 AuditLog[]
   notifications             Notification[]
+  notificationPreferences   NotificationPreference[]
+  supportMessages           SupportMessage[]
+  reviewsModerated          Review[]                          @relation("ReviewModerator")
   inventoryTransactions     InventoryTransaction[]
   manualPaymentsSubmitted   ManualPaymentReview[]             @relation("ManualPaymentSubmitter")
   manualPaymentsReviewed    ManualPaymentReview[]             @relation("ManualPaymentReviewer")
@@ -759,6 +786,8 @@ model Branch {
   updatedAt DateTime @updatedAt
 
   staff                 StaffProfile[]
+  enquiries             Enquiry[]
+  complaints            Complaint[]
   vehicles              Vehicle[]
   listings              VehicleListing[]
   inventories           Inventory[]
@@ -1828,6 +1857,10 @@ model Review {
   title                String?
   comment              String
   status               ReviewStatus     @default(PENDING)
+  moderatedByUserId    String?          @db.Uuid
+  moderationNote       String?
+  moderatedAt          DateTime?
+  version              Int              @default(0)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
 
@@ -1836,15 +1869,18 @@ model Review {
   booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   order              Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict)
   vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
+  moderatedBy        User?               @relation("ReviewModerator", fields: [moderatedByUserId], references: [id], onDelete: Restrict)
 
   @@index([customerId, createdAt])
   @@index([serviceId])
   @@index([status, createdAt])
+  @@index([moderatedByUserId])
 }
 
 model Enquiry {
   id               String        @id @default(uuid()) @db.Uuid
   customerId       String?       @db.Uuid
+  branchId         String?       @db.Uuid
   productId        String?       @db.Uuid
   serviceId        String?       @db.Uuid
   bookingId        String?       @db.Uuid
@@ -1859,10 +1895,13 @@ model Enquiry {
   email            String        @db.Citext
   phone            String?       @db.VarChar(32)
   resolvedAt       DateTime?
+  closedAt         DateTime?
+  version          Int           @default(0)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
   customer             CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  branch               Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
   product              Product?            @relation(fields: [productId], references: [id], onDelete: SetNull)
   service              Service?            @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   booking              Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
@@ -1870,8 +1909,10 @@ model Enquiry {
   vehicleListing       VehicleListing?     @relation(fields: [vehicleListingId], references: [id], onDelete: SetNull)
   assignedStaff        StaffProfile?       @relation("AssignedEnquiries", fields: [assignedStaffId], references: [id], onDelete: SetNull)
   convertedTransaction VehicleTransaction?
+  messages             SupportMessage[]
 
   @@index([customerId])
+  @@index([branchId, status, createdAt])
   @@index([vehicleListingId])
   @@index([bookingId])
   @@index([quoteId])
@@ -1883,6 +1924,7 @@ model Enquiry {
 model Complaint {
   id                   String            @id @default(uuid()) @db.Uuid
   customerId           String?           @db.Uuid
+  branchId             String?           @db.Uuid
   bookingId            String?           @db.Uuid
   orderId              String?           @db.Uuid
   vehicleTransactionId String?           @db.Uuid
@@ -1896,21 +1938,45 @@ model Complaint {
   description          String
   resolution           String?
   resolvedAt           DateTime?
+  closedAt             DateTime?
+  version              Int               @default(0)
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
   customer           CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  branch             Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
   booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   order              Order?              @relation(fields: [orderId], references: [id], onDelete: SetNull)
   vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: SetNull)
   assignedStaff      StaffProfile?       @relation("AssignedComplaints", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  messages           SupportMessage[]
 
   @@index([customerId])
+  @@index([branchId, status, priority, createdAt])
   @@index([bookingId])
   @@index([orderId])
   @@index([vehicleTransactionId])
   @@index([status, priority, createdAt])
   @@index([assignedStaffId, status])
+}
+
+model SupportMessage {
+  id           String                   @id @default(uuid()) @db.Uuid
+  enquiryId    String?                  @db.Uuid
+  complaintId  String?                  @db.Uuid
+  authorUserId String?                  @db.Uuid
+  authorType   SupportMessageAuthorType
+  visibility   SupportMessageVisibility @default(CUSTOMER)
+  body         String
+  createdAt    DateTime                 @default(now())
+
+  enquiry   Enquiry?   @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
+  complaint Complaint? @relation(fields: [complaintId], references: [id], onDelete: Restrict)
+  author    User?      @relation(fields: [authorUserId], references: [id], onDelete: Restrict)
+
+  @@index([enquiryId, createdAt])
+  @@index([complaintId, createdAt])
+  @@index([authorUserId])
 }
 
 model Promotion {
@@ -1986,19 +2052,60 @@ model Invoice {
 }
 
 model Notification {
-  id        String           @id @default(uuid()) @db.Uuid
-  userId    String           @db.Uuid
-  type      NotificationType
-  title     String
-  message   String
-  readAt    DateTime?
-  expiresAt DateTime?
-  createdAt DateTime         @default(now())
+  id               String               @id @default(uuid()) @db.Uuid
+  userId           String               @db.Uuid
+  type             NotificationType
+  category         NotificationCategory @default(TRANSACTIONAL)
+  title            String
+  message          String
+  resourceType     String?              @db.VarChar(80)
+  resourceId       String?              @db.VarChar(120)
+  deduplicationKey String?              @unique @db.VarChar(160)
+  readAt           DateTime?
+  expiresAt        DateTime?
+  createdAt        DateTime             @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries NotificationDelivery[]
 
   @@index([userId, readAt, createdAt])
   @@index([expiresAt])
+  @@index([userId, category, createdAt])
+}
+
+model NotificationPreference {
+  id          String               @id @default(uuid()) @db.Uuid
+  userId      String               @db.Uuid
+  category    NotificationCategory
+  channel     NotificationChannel
+  enabled     Boolean              @default(true)
+  consentedAt DateTime?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, channel])
+  @@index([userId])
+}
+
+model NotificationDelivery {
+  id             String              @id @default(uuid()) @db.Uuid
+  notificationId String              @db.Uuid
+  outboxEventId  String?             @unique @db.Uuid
+  channel        NotificationChannel
+  status         OutboxStatus        @default(PENDING)
+  attempts       Int                 @default(0)
+  lastErrorCode  String?             @db.VarChar(100)
+  deliveredAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  outboxEvent  OutboxEvent? @relation(fields: [outboxEventId], references: [id], onDelete: SetNull)
+
+  @@unique([notificationId, channel])
+  @@index([status, createdAt])
 }
 
 model IdempotencyRecord {
@@ -2038,6 +2145,8 @@ model OutboxEvent {
   lastError     String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+
+  notificationDelivery NotificationDelivery?
 
   @@index([status, availableAt])
   @@index([aggregateType, aggregateId])

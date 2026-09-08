@@ -253,7 +253,7 @@ export class VehicleSalesRepository {
   }
   history(
     id: string,
-    userId: string,
+    userId: string | null,
     fromStatus: Prisma.VehicleTransactionStatusHistoryUncheckedCreateInput["fromStatus"],
     toStatus: Prisma.VehicleTransactionStatusHistoryUncheckedCreateInput["toStatus"],
     reason: string | undefined,

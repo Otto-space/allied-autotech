@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { providerUnavailable } from "../../common/errors/provider-error-mapper.js";
-import { env } from "../../config/env.js";
+import { assertPaystackMode, env } from "../../config/env.js";
 import type {
   InitializePaymentCommand,
   InitiateRefundCommand,
@@ -47,6 +47,7 @@ export class PaystackAdapter implements PaymentProviderPort {
   private readonly baseUrl = "https://api.paystack.co";
 
   private secret(): string {
+    assertPaystackMode();
     if (env.PAYSTACK_SECRET_KEY === undefined) throw providerUnavailable();
     return env.PAYSTACK_SECRET_KEY;
   }

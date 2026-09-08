@@ -80,6 +80,15 @@ ENV SERVICE_NAME=allied-autotech-identity-worker
 CMD ["node", "dist/workers/outbox.worker.js"]
 
 
+# Build with --target general-worker for notifications, expiry, webhook retry,
+# and explicitly enabled payment reconciliation schedules.
+FROM runtime AS general-worker
+
+ENV SERVICE_NAME=allied-autotech-general-worker
+
+CMD ["node", "dist/workers/worker-runtime.js"]
+
+
 # Build with --target migrate to create a one-shot, forward-only migration job.
 FROM dependencies AS migrate
 

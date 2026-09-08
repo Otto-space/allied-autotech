@@ -1,1 +1,5 @@
-/** Owns enquiries, complaints, reviews, moderation, assignment, resolution, abuse controls, and customer/staff visibility. Holds domain-owned command, result, filter, actor, and projection types without leaking persistence models across boundaries. */
+export function supportPage<T extends { id: string }>(rows: T[], limit: number) {
+  const items = rows.slice(0, limit);
+  const last = items.at(-1);
+  return { items, ...(rows.length > limit && last ? { nextCursor: last.id } : {}) };
+}

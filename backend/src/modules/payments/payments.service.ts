@@ -1053,13 +1053,22 @@ export class PaymentsService {
     attemptId: string,
     occurredAt: Date,
   ) {
+    await tx.$queryRaw`SELECT "id" FROM "Payment" WHERE "id" = ${paymentId}::uuid FOR UPDATE`;
     const payment = await tx.payment.update({
       where: { id: paymentId },
       data: { status: "SUCCEEDED", settledAttemptId: attemptId, succeededAt: occurredAt },
-      select: { orderId: true, invoiceId: true, vehicleTransactionId: true },
+      select: {
+        id: true,
+        orderId: true,
+        invoiceId: true,
+        vehicleTransactionId: true,
+        amountKobo: true,
+        currency: true,
+      },
     });
-    await tx.paymentLedgerEntry.create({
-      data: {
+    await tx.paymentLedgerEntry.upsert({
+      where: { sourceKey: `capture:${attemptId}` },
+      create: {
         paymentAttemptId: attemptId,
         sourceKey: `capture:${attemptId}`,
         type: "CAPTURE",
@@ -1073,12 +1082,38 @@ export class PaymentsService {
         currency: "NGN",
         occurredAt,
       },
+      update: {},
     });
     if (payment.orderId) {
       const order = await tx.order.findUniqueOrThrow({
         where: { id: payment.orderId },
-        select: { invoice: { select: { id: true, status: true } } },
+        select: {
+          status: true,
+          paymentDueAt: true,
+          invoice: { select: { id: true, status: true } },
+        },
       });
+      if (
+        order.status === "CANCELLED" ||
+        (order.paymentDueAt !== null && occurredAt > order.paymentDueAt)
+      ) {
+        await tx.paymentAnomaly.create({
+          data: {
+            paymentId: payment.id,
+            paymentAttemptId: attemptId,
+            type: "LATE_SUCCESS",
+            summary: "Payment was captured after the order commitment window ended",
+            details: {
+              payableType: "ORDER",
+              payableId: payment.orderId,
+              orderStatus: order.status,
+              amountKobo: payment.amountKobo.toString(),
+              currency: payment.currency,
+            },
+          },
+        });
+        return;
+      }
       await tx.order.update({
         where: { id: payment.orderId },
         data: { paidAt: occurredAt },
@@ -1106,8 +1141,31 @@ export class PaymentsService {
     if (payment.vehicleTransactionId) {
       const vehicle = await tx.vehicleTransaction.findUnique({
         where: { id: payment.vehicleTransactionId },
-        select: { status: true, agreedPriceKobo: true },
+        select: { status: true, agreedPriceKobo: true, reservationExpiresAt: true },
       });
+      if (
+        vehicle !== null &&
+        (vehicle.status === "CANCELLED" ||
+          vehicle.status === "EXPIRED" ||
+          (vehicle.reservationExpiresAt !== null && occurredAt > vehicle.reservationExpiresAt))
+      ) {
+        await tx.paymentAnomaly.create({
+          data: {
+            paymentId: payment.id,
+            paymentAttemptId: attemptId,
+            type: "LATE_SUCCESS",
+            summary: "Payment was captured after the vehicle commitment window ended",
+            details: {
+              payableType: "VEHICLE_TRANSACTION",
+              payableId: payment.vehicleTransactionId,
+              transactionStatus: vehicle.status,
+              amountKobo: payment.amountKobo.toString(),
+              currency: payment.currency,
+            },
+          },
+        });
+        return;
+      }
       if (vehicle?.agreedPriceKobo) {
         const total =
           (

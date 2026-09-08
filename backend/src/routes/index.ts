@@ -62,6 +62,16 @@ import {
   swaggerServe,
   swaggerSetup,
 } from "../openapi/swagger.js";
+import {
+  createCustomerSupportRouter,
+  createPublicSupportRouter,
+  createStaffSupportRouter,
+} from "../modules/support/support.index.js";
+import {
+  createCustomerNotificationsRouter,
+  createStaffNotificationsRouter,
+} from "../modules/notifications/notifications.index.js";
+import { createAuditOperationsRouter } from "../modules/audit/audit.index.js";
 
 export interface ApiRouterOptions {
   checkReadiness: ReadinessCheck;
@@ -77,6 +87,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/public/catalog", createPublicCatalogRouter());
   apiRouter.use(publicApiPaths.services, createPublicServicesRouter());
   apiRouter.use("/public/vehicles", createPublicVehiclesRouter());
+  apiRouter.use("/public/support", createPublicSupportRouter());
   apiRouter.use("/customers", createCustomerCatalogRouter());
   apiRouter.use("/customers", createCustomersRouter());
   apiRouter.use("/customers", createCustomerServiceOperationsRouter());
@@ -86,6 +97,8 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/customers/payments", createCustomerPaymentsRouter());
   apiRouter.use("/customers", createCustomerVehiclesDiscoveryRouter());
   apiRouter.use("/customers", createCustomerVehicleSalesRouter());
+  apiRouter.use("/customers/support", createCustomerSupportRouter());
+  apiRouter.use("/customers/notifications", createCustomerNotificationsRouter());
   apiRouter.use("/staff/inventory", createStaffInventoryRouter());
   apiRouter.use("/staff", createStaffOrganizationRouter());
   apiRouter.use("/staff", createStaffServiceOperationsRouter());
@@ -94,6 +107,8 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/staff/payments", createStaffPaymentsRouter());
   apiRouter.use("/staff/vehicles", createStaffVehiclesRouter());
   apiRouter.use("/staff", createStaffVehicleSalesRouter());
+  apiRouter.use("/staff/support", createStaffSupportRouter());
+  apiRouter.use("/staff/notifications", createStaffNotificationsRouter());
   apiRouter.use("/admin/catalog", createAdminCatalogRouter());
   apiRouter.use("/admin/inventory", createAdminInventoryRouter());
   apiRouter.use("/admin/services", createAdminServicesRouter());
@@ -101,6 +116,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/admin/promotions", createAdminPromotionsRouter());
   apiRouter.use("/admin", createAdminVehicleSalesRouter());
   apiRouter.use("/admin", createAdminOrganizationRouter());
+  apiRouter.use("/admin", createAuditOperationsRouter());
   apiRouter.use("/webhooks/paystack", createPaystackWebhookRouter());
   if (env.API_DOCS_ENABLED) {
     apiRouter.get("/openapi.json", (_req, res): void => {

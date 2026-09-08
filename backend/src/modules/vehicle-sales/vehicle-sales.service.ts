@@ -634,6 +634,89 @@ export class VehicleSalesService {
     }
     return { expired };
   }
+
+  async expireSystem(limit: number) {
+    const candidates = await this.database.vehicleTransaction.findMany({
+      where: {
+        status: { in: ["PAYMENT_PENDING", "RESERVED"] },
+        reservationExpiresAt: { lt: new Date() },
+      },
+      select: { id: true },
+      orderBy: [{ reservationExpiresAt: "asc" }, { id: "asc" }],
+      take: Math.max(1, Math.min(limit, 100)),
+    });
+    let expired = 0;
+    for (const candidate of candidates) {
+      await this.database.$transaction(async (transaction) => {
+        const initial = await this.repository.transaction(candidate.id, transaction);
+        if (initial === null) return;
+        const listing = await this.repository.lockListing(
+          initial.vehicleListingId,
+          transaction,
+        );
+        const sale = await this.repository.lockTransaction(candidate.id, transaction);
+        if (
+          listing === null ||
+          sale === null ||
+          !["PAYMENT_PENDING", "RESERVED"].includes(sale.status) ||
+          sale.reservationExpiresAt === null ||
+          sale.reservationExpiresAt > new Date()
+        )
+          return;
+        const inFlightPayment = await transaction.payment.findFirst({
+          where: {
+            vehicleTransactionId: sale.id,
+            OR: [
+              { status: { in: ["SUCCEEDED", "REQUIRES_REVIEW"] } },
+              { attempts: { some: { status: { in: ["PROCESSING", "SUCCESSFUL"] } } } },
+            ],
+          },
+          select: { id: true },
+        });
+        if (inFlightPayment !== null) return;
+        const updated = await this.repository.updateTransaction(
+          sale.id,
+          sale.version,
+          sale.status,
+          {
+            status: "EXPIRED",
+            expiredAt: new Date(),
+            cancellationReason: "RESERVATION_EXPIRED",
+          },
+          transaction,
+        );
+        if (updated === null) return;
+        if (listing.status === "RESERVED")
+          await transaction.vehicleListing.updateMany({
+            where: { id: listing.id, status: "RESERVED", version: listing.version },
+            data: { status: "AVAILABLE", reservedAt: null, version: { increment: 1 } },
+          });
+        await this.repository.history(
+          sale.id,
+          null,
+          sale.status,
+          "EXPIRED",
+          "RESERVATION_EXPIRED",
+          transaction,
+        );
+        await appendAuditEvent(transaction, {
+          actorUserId: null,
+          action: "VEHICLE_RELEASED",
+          entityType: "VEHICLE_TRANSACTION",
+          entityId: sale.id,
+          oldValues: { status: sale.status, version: sale.version },
+          newValues: { status: "EXPIRED", version: updated.version },
+          context: {
+            requestId: `worker:vehicle-expiry:${sale.id}`,
+            ipAddress: null,
+            userAgent: null,
+          },
+        });
+        expired += 1;
+      });
+    }
+    return { expired };
+  }
   async createHandover(
     actor: AuthenticatedActor,
     id: string,

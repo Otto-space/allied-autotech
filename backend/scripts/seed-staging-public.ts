@@ -210,7 +210,9 @@ async function seed(): Promise<void> {
   }
 }
 
-seed().catch(() => {
+try {
+  await seed();
+} catch {
   console.error("Staging public seed failed; no partial seed was committed.");
   process.exitCode = 1;
-});
+}

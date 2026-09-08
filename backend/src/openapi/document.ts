@@ -12,6 +12,9 @@ import { registerBillingOpenApi } from "../modules/billing/billing.openapi.js";
 import { registerVehiclesOpenApi } from "../modules/vehicles/vehicles.openapi.js";
 import { registerVehicleSalesOpenApi } from "../modules/vehicle-sales/vehicle-sales.openapi.js";
 import { registerPaymentsOpenApi } from "../modules/payments/payments.openapi.js";
+import { registerSupportOpenApi } from "../modules/support/support.openapi.js";
+import { registerNotificationsOpenApi } from "../modules/notifications/notifications.openapi.js";
+import { registerAuditOpenApi } from "../modules/audit/audit.openapi.js";
 
 export interface OpenApiDocumentOptions {
   sessionCookieName: string;
@@ -31,6 +34,9 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerVehiclesOpenApi(registry);
   registerVehicleSalesOpenApi(registry);
   registerPaymentsOpenApi(registry);
+  registerSupportOpenApi(registry);
+  registerNotificationsOpenApi(registry);
+  registerAuditOpenApi(registry);
   const generator = new OpenApiGeneratorV31(registry.definitions);
 
   return generator.generateDocument({

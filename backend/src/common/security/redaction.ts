@@ -37,4 +37,8 @@ export const sensitiveLogPaths = [
   "req.body.currentPassword",
   "req.body.newPassword",
   "req.body.assetToken",
+  "recipient",
+  "to",
+  "req.body.email",
+  "req.body.phone",
 ] as const;

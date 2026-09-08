@@ -1,1 +1,9 @@
-/** Owns notification persistence, user visibility, delivery orchestration, read state, preferences, and expiry. Documents this bounded context's public composition boundary; future exports must expose only stable application contracts. */
+export {
+  createCustomerNotificationsRouter,
+  createStaffNotificationsRouter,
+} from "./notifications.routes.js";
+export { enqueueNotification } from "./notifications.service.js";
+export type {
+  EnqueueNotification,
+  NotificationDeliveryPayload,
+} from "./notifications.types.js";

@@ -1,1 +1,1 @@
-/** Applies approved retention and anonymization rules without deleting immutable financial or audit records contrary to policy. */
+/** No customer-data retention job is enabled until the owner approves retention and deletion periods; expiry-only cleanup lives in the expiration and identity workers. */

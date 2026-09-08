@@ -54,6 +54,26 @@ const optionalCommaSeparatedHttpUrls = z.preprocess(
   commaSeparatedHttpUrls.optional(),
 );
 
+const optionalCommaSeparatedValues = z.preprocess(
+  (value) => (value === "" ? undefined : value),
+  z
+    .string()
+    .transform((value) =>
+      value
+        .split(",")
+        .map((item) => item.trim().toLowerCase())
+        .filter((item) => item.length > 0),
+    )
+    .pipe(z.array(z.string().min(1).max(254)).max(100))
+    .optional(),
+);
+
+const booleanValue = (defaultValue: boolean) =>
+  z
+    .enum(["true", "false"])
+    .default(defaultValue ? "true" : "false")
+    .transform((value) => value === "true");
+
 const optionalNonEmptyString = z.preprocess(
   (value) => (value === "" ? undefined : value),
   z.string().trim().min(1).optional(),
@@ -66,6 +86,7 @@ const optionalEmail = z.preprocess(
 
 const environmentSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  DEPLOYMENT_ENV: z.enum(["local", "staging", "production"]).default("local"),
 
   PORT: z.coerce.number().int().min(1).max(65_535).default(5000),
 
@@ -156,7 +177,21 @@ const environmentSchema = z.object({
 
   RESEND_API_KEY: optionalNonEmptyString,
   RESEND_FROM_EMAIL: optionalEmail,
+  EMAIL_DELIVERY_ENABLED: booleanValue(false),
+  SMS_DELIVERY_ENABLED: booleanValue(false),
+  STAGING_EMAIL_ALLOWLIST: optionalCommaSeparatedValues,
+  STAGING_SMS_ALLOWLIST: optionalCommaSeparatedValues,
+  TERMII_API_KEY: optionalNonEmptyString,
+  TERMII_SENDER_ID: optionalNonEmptyString,
+  MESSAGING_REQUEST_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(30_000)
+    .default(8_000),
   PAYSTACK_SECRET_KEY: optionalNonEmptyString,
+  PAYSTACK_MODE: z.enum(["disabled", "test", "live"]).default("disabled"),
+  PAYSTACK_LIVE_ENABLED: booleanValue(false),
   PAYSTACK_CALLBACK_URL: optionalNonEmptyString.pipe(httpUrl.optional()),
   PAYSTACK_REQUEST_TIMEOUT_MS: z.coerce
     .number()
@@ -222,6 +257,33 @@ const environmentSchema = z.object({
   MAX_ACTIVE_SESSIONS: z.coerce.number().int().min(1).max(20).default(5),
   AUTH_FAILURE_LIMIT: z.coerce.number().int().min(3).max(20).default(5),
   AUTH_LOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(900),
+  WORKER_POLL_INTERVAL_MS: z.coerce.number().int().min(250).max(60_000).default(2_000),
+  WORKER_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(25),
+  WORKER_EXPIRATION_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .min(10_000)
+    .max(60 * 60_000)
+    .default(60_000),
+  PAYMENT_RECONCILIATION_ENABLED: booleanValue(false),
+  PAYMENT_RECONCILIATION_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .min(60_000)
+    .max(7 * 24 * 60 * 60_000)
+    .default(24 * 60 * 60_000),
+  EXPIRATION_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .min(5_000)
+    .max(3_600_000)
+    .default(60_000),
+  RECONCILIATION_INTERVAL_MS: z.coerce
+    .number()
+    .int()
+    .min(60_000)
+    .max(86_400_000)
+    .default(3_600_000),
 });
 
 const environment = environmentSchema.safeParse(process.env);
@@ -259,6 +321,8 @@ export const env = {
   MFA_ENCRYPTION_KEY: environment.data.MFA_ENCRYPTION_KEY ?? localOnlyKey(2),
   OUTBOX_ENCRYPTION_KEY: environment.data.OUTBOX_ENCRYPTION_KEY ?? localOnlyKey(3),
   ASSET_TICKET_KEY: environment.data.ASSET_TICKET_KEY ?? localOnlyKey(4),
+  STAGING_EMAIL_ALLOWLIST: environment.data.STAGING_EMAIL_ALLOWLIST ?? [],
+  STAGING_SMS_ALLOWLIST: environment.data.STAGING_SMS_ALLOWLIST ?? [],
 };
 
 function requireConfiguredVariables(
@@ -305,7 +369,7 @@ export function assertApiEnvironment(
       "FRONTEND_VERIFY_EMAIL_URL",
       "FRONTEND_RESET_PASSWORD_URL",
       "FRONTEND_PRIVILEGED_INVITATION_URL",
-      "PAYSTACK_SECRET_KEY",
+      "PAYSTACK_MODE",
       "OBJECT_STORAGE_ENDPOINT",
       "OBJECT_STORAGE_BUCKET",
       "OBJECT_STORAGE_ACCESS_KEY_ID",
@@ -346,6 +410,7 @@ export function assertApiEnvironment(
   ) {
     throw new Error("Production Paystack callback URL must use HTTPS");
   }
+  assertPaystackMode(runtime);
   if (runtime.API_DOCS_ENABLED) {
     throw new Error("Hosted API documentation must remain disabled in production");
   }
@@ -361,4 +426,54 @@ export function assertIdentityWorkerEnvironment(
     ["OUTBOX_ENCRYPTION_KEY", "RESEND_API_KEY", "RESEND_FROM_EMAIL"],
     source,
   );
+  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.STAGING_EMAIL_ALLOWLIST.length === 0) {
+    throw new Error("Staging identity delivery requires STAGING_EMAIL_ALLOWLIST");
+  }
+}
+
+export function assertGeneralWorkerEnvironment(
+  runtime: typeof env = env,
+  source: NodeJS.ProcessEnv = process.env,
+): void {
+  if (runtime.NODE_ENV !== "production") return;
+  requireConfiguredVariables("general worker", ["OUTBOX_ENCRYPTION_KEY"], source);
+  if (runtime.EMAIL_DELIVERY_ENABLED) {
+    requireConfiguredVariables(
+      "general worker email delivery",
+      ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
+      source,
+    );
+    if (runtime.DEPLOYMENT_ENV === "staging" && runtime.STAGING_EMAIL_ALLOWLIST.length === 0)
+      throw new Error("Staging email delivery requires STAGING_EMAIL_ALLOWLIST");
+  }
+  if (runtime.SMS_DELIVERY_ENABLED) {
+    requireConfiguredVariables(
+      "general worker SMS delivery",
+      ["TERMII_API_KEY", "TERMII_SENDER_ID"],
+      source,
+    );
+    if (runtime.DEPLOYMENT_ENV === "staging" && runtime.STAGING_SMS_ALLOWLIST.length === 0)
+      throw new Error("Staging SMS delivery requires STAGING_SMS_ALLOWLIST");
+  }
+  assertPaystackMode(runtime);
+}
+
+export function assertPaystackMode(runtime: typeof env = env): void {
+  const key = runtime.PAYSTACK_SECRET_KEY;
+  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.PAYSTACK_MODE !== "test")
+    throw new Error("Staging requires PAYSTACK_MODE=test");
+  if (runtime.PAYSTACK_MODE === "disabled") {
+    if (key !== undefined)
+      throw new Error("PAYSTACK_SECRET_KEY must be unset when PAYSTACK_MODE is disabled");
+    return;
+  }
+  if (key === undefined) throw new Error("PAYSTACK_SECRET_KEY is required for configured mode");
+  if (runtime.PAYSTACK_MODE === "test" && !key.startsWith("sk_test_"))
+    throw new Error("PAYSTACK_MODE=test requires a Paystack test secret");
+  if (runtime.PAYSTACK_MODE === "live") {
+    if (runtime.DEPLOYMENT_ENV !== "production" || !runtime.PAYSTACK_LIVE_ENABLED)
+      throw new Error("Live Paystack is permitted only for an explicitly enabled production deployment");
+    if (!key.startsWith("sk_live_"))
+      throw new Error("PAYSTACK_MODE=live requires a Paystack live secret");
+  }
 }

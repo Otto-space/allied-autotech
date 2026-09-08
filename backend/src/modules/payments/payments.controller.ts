@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { successResponse } from "../../common/http/api-response.js";
-import { env } from "../../config/env.js";
+import { assertPaystackMode, env } from "../../config/env.js";
 import {
   parsePaystackWebhook,
   paystackPayloadSha256,
@@ -209,6 +209,7 @@ export class PaymentsController {
         ),
       );
   webhook = async (req: Request, res: Response) => {
+    assertPaystackMode();
     const raw = req.body as Buffer;
     const signature = validated<{ "x-paystack-signature": string }>(res, "headers")[
       "x-paystack-signature"

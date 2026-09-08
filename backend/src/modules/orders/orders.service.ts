@@ -431,6 +431,48 @@ export class OrdersService {
     return { expired };
   }
 
+  async expireDueSystem(limit: number) {
+    const boundedLimit = Math.max(1, Math.min(limit, 100));
+    const candidates = await this.repository.dueOrderIds(boundedLimit);
+    let expired = 0;
+    for (const candidate of candidates) {
+      await this.database.$transaction(async (transaction) => {
+        const order = await this.repository.lockOrder(candidate.id, transaction);
+        if (
+          order?.status !== "PENDING" ||
+          order.paymentDueAt === null ||
+          order.paymentDueAt > new Date()
+        )
+          return;
+        const inFlightPayment = await transaction.payment.findFirst({
+          where: {
+            orderId: order.id,
+            OR: [
+              { status: { in: ["SUCCEEDED", "REQUIRES_REVIEW"] } },
+              { attempts: { some: { status: { in: ["PROCESSING", "SUCCESSFUL"] } } } },
+            ],
+          },
+          select: { id: true },
+        });
+        if (inFlightPayment !== null) return;
+        await this.cancelLocked(
+          null,
+          order,
+          order.version,
+          "PAYMENT_WINDOW_EXPIRED",
+          transaction,
+          {
+            requestId: `worker:order-expiry:${order.id}`,
+            ipAddress: null,
+            userAgent: null,
+          },
+        );
+        expired += 1;
+      });
+    }
+    return { expired };
+  }
+
   private async allowedBranch(
     actor: AuthenticatedActor,
     client: PrismaClient | Prisma.TransactionClient = this.database,
@@ -525,7 +567,7 @@ export class OrdersService {
     }
   }
   private async releaseOrRestock(
-    userId: string,
+    userId: string | null,
     orderId: string,
     orderStatus: string,
     transaction: Prisma.TransactionClient,
@@ -636,7 +678,7 @@ export class OrdersService {
     }
   }
   private async cancelLocked(
-    actor: AuthenticatedActor,
+    actor: AuthenticatedActor | null,
     order: NonNullable<Awaited<ReturnType<OrdersRepository["order"]>>>,
     expectedVersion: number,
     reason: string,
@@ -645,7 +687,7 @@ export class OrdersService {
   ) {
     if (!(["PENDING", "CONFIRMED", "PROCESSING"] as string[]).includes(order.status))
       throw invalidOrderTransition();
-    await this.releaseOrRestock(actor.userId, order.id, order.status, transaction);
+    await this.releaseOrRestock(actor?.userId ?? null, order.id, order.status, transaction);
     const now = new Date();
     const result = await this.repository.updateOrder(
       order.id,
@@ -662,7 +704,7 @@ export class OrdersService {
     const updated = await this.repository.order(order.id, transaction);
     if (updated === null) throw orderNotFound();
     await appendAuditEvent(transaction, {
-      actorUserId: actor.userId,
+      actorUserId: actor?.userId ?? null,
       action: "STATUS_CHANGE",
       entityType: "ORDER",
       entityId: order.id,

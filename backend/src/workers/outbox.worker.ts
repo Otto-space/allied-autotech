@@ -9,6 +9,7 @@ import {
   type EncryptedEnvelope,
 } from "../common/security/mfa-encryption.js";
 import { logger } from "../common/observability/logger.js";
+import { isStagingRecipientAllowed } from "../common/security/messaging-recipients.js";
 import { renderIdentityEmail } from "../modules/identity/identity-email.templates.js";
 import { identityEventTypes } from "../modules/identity/identity.events.js";
 import type { IdentityEmailPayload } from "../modules/identity/identity.types.js";
@@ -127,6 +128,9 @@ export class IdentityOutboxWorker {
         throw new Error("Invalid identity email payload");
       }
       const rendered = renderIdentityEmail(payload);
+      if (!isStagingRecipientAllowed("EMAIL", payload.to)) {
+        throw new Error("Staging identity recipient is not allowlisted");
+      }
       await this.provider.send({
         to: payload.to,
         ...rendered,

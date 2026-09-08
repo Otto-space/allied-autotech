@@ -10,7 +10,7 @@ export interface EncryptedEnvelope {
   tag: string;
 }
 
-type EncryptionPurpose = "totp-secret" | "identity-outbox";
+type EncryptionPurpose = "totp-secret" | "identity-outbox" | "notification-outbox";
 
 function deriveKey(keyMaterial: string, purpose: EncryptionPurpose): Buffer {
   return Buffer.from(
@@ -100,6 +100,26 @@ export function decryptIdentityPayload<T>(envelope: EncryptedEnvelope): T {
     decrypt(
       envelope,
       "identity-outbox",
+      env.OUTBOX_ENCRYPTION_KEY,
+      env.OUTBOX_ENCRYPTION_KEY_ID,
+    ),
+  ) as T;
+}
+
+export function encryptNotificationPayload(payload: unknown): EncryptedEnvelope {
+  return encrypt(
+    JSON.stringify(payload),
+    "notification-outbox",
+    env.OUTBOX_ENCRYPTION_KEY,
+    env.OUTBOX_ENCRYPTION_KEY_ID,
+  );
+}
+
+export function decryptNotificationPayload<T>(envelope: EncryptedEnvelope): T {
+  return JSON.parse(
+    decrypt(
+      envelope,
+      "notification-outbox",
       env.OUTBOX_ENCRYPTION_KEY,
       env.OUTBOX_ENCRYPTION_KEY_ID,
     ),

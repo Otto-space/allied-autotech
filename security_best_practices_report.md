@@ -1,4 +1,4 @@
-# Security Best-Practices Review
+****# Security Best-Practices Review
 
 ## Executive summary
 
@@ -14,7 +14,7 @@ One dependency advisory remains in Prisma's development CLI dependency tree. It 
 - Severity: High
 - Location: `backend/src/server.ts`, environment validation and CORS middleware, lines 13–31 and 58–72
 - Evidence: `FRONTEND_URL` is now required, parsed as one or more valid URLs, normalized to exact origins, and compared through a `Set`. Untrusted browser origins receive HTTP 403.
-- Impact: The previous single optional environment value could create broken or unintended credentialed cross-origin behavior.
+- Impact: The previous **single** optional environment value could create broken or unintended credentialed cross-origin behavior.
 - Fix: Exact origin allowlisting, explicit methods/headers, controlled preflight caching, and fail-fast environment validation.
 - Mitigation: Keep production `FRONTEND_URL` limited to exact HTTPS application origins.
 - False-positive notes: Requests without an `Origin` header remain allowed because non-browser clients and same-origin traffic commonly omit it; authentication and authorization must still protect private routes.
