@@ -10,11 +10,13 @@ refund requests require an `Idempotency-Key`. Only an HMAC and request fingerpri
 Reusing a key with different input is rejected. Payment references are server-generated and provider
 authorization material is returned only to the owning customer.
 
-Paystack is called only from the server. A successful API response is not settlement by itself:
+Paystack and Monnify are called only from the server. A successful API response or browser redirect
+is not settlement by itself:
 reference, amount, currency, provider status, and payable identity must match server truth. Webhook
-signatures are verified over the exact raw request bytes using HMAC-SHA-512 before event parsing.
-Parsed provider payloads use strict allowlists; raw payloads, authorization data, and provider
-responses are never persisted or logged.
+signatures are verified over the exact raw request bytes using the provider's HMAC policy before
+trusted processing. Monnify sandbox may omit a signature, so those events can only trigger
+authoritative server-to-server verification and never settle directly. Parsed provider payloads use
+strict allowlists; raw payloads, authorization data, and provider responses are never persisted or logged.
 
 Webhook identities are immutable and deduplicated. Duplicate delivery is safe, while an event that
 does not match its attempt creates an anomaly instead of changing financial state. Capture, refund,
@@ -29,8 +31,8 @@ not approve the same payment.
 
 Refund requests lock the captured attempt and include pending, approved, submitted, and completed
 refunds when calculating the committed total. The database rejects totals above the verified captured
-amount. The requester cannot approve the same refund. Paystack refunds remain pending until verified
-provider evidence is processed; manual refunds enter `NEEDS_ATTENTION` for an explicit offline
+amount. The requester cannot approve the same refund. Paystack and Monnify refunds remain pending
+until verified provider evidence is processed; manual refunds enter `NEEDS_ATTENTION` for an explicit offline
 completion workflow and are never assumed complete.
 
 Disputes are keyed by provider identity and maintain explicit state. Chargebacks create immutable

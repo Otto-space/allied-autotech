@@ -43,10 +43,11 @@ OpenAPI 3.1 is generated from the Zod schemas used at runtime. The documentation
 only when explicitly enabled by environment policy; it is kept outside domain controllers and does
 not weaken the application's global security middleware.
 
-Phase 8 adds the payments bounded context and a Paystack adapter. Payment services derive financial
+Phase 8 adds the payments bounded context with Paystack and Monnify adapters. Payment services derive financial
 truth from locked business resources and persist state, ledger entries, anomalies, and audit events
-transactionally. Provider calls never occur while database row locks are held. Paystack webhooks are
-isolated as raw bytes, authenticated before parsing, allowlisted, deduplicated, and replay-safe.
+transactionally. Provider calls never occur while database row locks are held. Paystack and Monnify
+webhooks are isolated as raw bytes, signature-policy checked before trusted processing, allowlisted,
+deduplicated, replay-safe, and backed by authoritative provider verification.
 Manual evidence uses private storage capabilities and branch-scoped access. Refund approval enforces
 four-eyes separation. Reconciliation and webhook-retry workers operate in bounded batches and do not
 overwrite immutable financial history. See `docs/payment-invariants.md` for the authoritative rules.

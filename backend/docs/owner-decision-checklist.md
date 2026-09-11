@@ -45,23 +45,26 @@ the feature yet.
 
 ## Decisions needed before live launch
 
-### 5. How are workshop capacity and booking confirmation handled?
+### 5. Approved: workshop booking capacity and confirmation
 
-- Why it matters: staff-time conflict checks do not prove that a bay, lift, or specialist is free.
-- Current behavior: booking states and customer/staff schedule conflicts exist; bay/equipment
-  capacity is not modeled.
-- **Proposed—not approved:** begin with staff-confirmed bookings and a daily branch capacity limit;
-  add bay/equipment scheduling only after actual operational use shows a need.
-- Needed: before live self-service booking. Service discovery staging is not blocked.
+- **Owner decision recorded:** customers select a published staff-bound slot for a fixed-price
+  service exactly 7–14 days ahead. The service duration determines the appointment interval.
+- A 30% non-refundable deposit holds the selected slot for 30 minutes and a verified exact payment
+  confirms the booking. Quote-required services remain enquiry/quotation workflows.
+- Database and application locks prevent overlapping staff slots and multiple active bookings for
+  one slot. Bay/lift/equipment capacity is not modeled and must be revisited if operations require it.
+- Reminders are scheduled for 7 days, 72 hours, 48 hours, and 24 hours before the appointment.
 
-### 6. What are booking and order cancellation windows or fees?
+### 6. Approved booking terms; order cancellation still needed
 
-- Why it matters: customers need predictable refunds and the workshop needs protection from late
-  cancellations.
-- Current behavior: lifecycle transitions and reasons are stored, but no fee is invented or charged.
-- **Proposed—not approved:** free cancellation before a stated cutoff; manual review after work,
-  procurement, or delivery has begun.
-- Needed: before live bookings/orders.
+- **Owner decision recorded for bookings:** the deposit is non-refundable for customer cancellation
+  or no-show. One customer reschedule is allowed at least 24 hours ahead and transfers the deposit.
+  A business-caused disruption permits a transfer without consuming that reschedule or a full
+  deposit-refund request through four-eyes approval.
+- **Still unresolved for orders:** cancellation windows, restocking/delivery costs, and refund rules.
+  No unapproved order fee is invented or charged.
+- Needed: the booking portion is implemented and ready for staging; the order portion is required
+  before live order cancellation is offered.
 
 ### 7. How long are quotations valid, and who supplies tax?
 

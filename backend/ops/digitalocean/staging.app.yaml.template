@@ -222,6 +222,38 @@ services:
         value: "262144"
         scope: RUN_TIME
         type: GENERAL
+      - key: MONNIFY_MODE
+        value: sandbox
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_LIVE_ENABLED
+        value: "false"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_API_KEY
+        value: REPLACE_MONNIFY_SANDBOX_API_KEY_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: MONNIFY_SECRET_KEY
+        value: REPLACE_MONNIFY_SANDBOX_SECRET_KEY_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: MONNIFY_CONTRACT_CODE
+        value: REPLACE_MONNIFY_SANDBOX_CONTRACT_CODE_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: MONNIFY_CALLBACK_URL
+        value: https://REPLACE_STAGING_FRONTEND_HOST/payments/complete
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_REQUEST_TIMEOUT_MS
+        value: "8000"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_MAX_RESPONSE_BYTES
+        value: "262144"
+        scope: RUN_TIME
+        type: GENERAL
       - key: PAYMENT_INTENT_TTL_SECONDS
         value: "1800"
         scope: RUN_TIME
@@ -453,6 +485,38 @@ workers:
         type: GENERAL
       - key: PAYSTACK_LIVE_ENABLED
         value: "false"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_MODE
+        value: sandbox
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_LIVE_ENABLED
+        value: "false"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_API_KEY
+        value: REPLACE_MONNIFY_SANDBOX_API_KEY_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: MONNIFY_SECRET_KEY
+        value: REPLACE_MONNIFY_SANDBOX_SECRET_KEY_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: MONNIFY_CONTRACT_CODE
+        value: REPLACE_MONNIFY_SANDBOX_CONTRACT_CODE_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: MONNIFY_CALLBACK_URL
+        value: https://REPLACE_STAGING_FRONTEND_HOST/payments/complete
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_REQUEST_TIMEOUT_MS
+        value: "8000"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MONNIFY_MAX_RESPONSE_BYTES
+        value: "262144"
         scope: RUN_TIME
         type: GENERAL
       - key: WORKER_POLL_INTERVAL_MS

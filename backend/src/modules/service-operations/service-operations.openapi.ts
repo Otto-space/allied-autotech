@@ -162,6 +162,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       body: bookingCreateBodySchema,
       secured: true,
       csrf: true,
+      idempotent: true,
       created: true,
     },
     {
@@ -174,11 +175,12 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
     {
       method: "patch",
       path: "/customers/bookings/{bookingId}/schedule",
-      summary: "Reschedule a requested booking",
+      summary: "Reschedule a confirmed deposit-backed booking once",
       params: bookingParamsSchema,
       body: bookingRescheduleBodySchema,
       secured: true,
       csrf: true,
+      idempotent: true,
     },
     {
       method: "post",

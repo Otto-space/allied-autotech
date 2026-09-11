@@ -15,6 +15,7 @@ import { registerPaymentsOpenApi } from "../modules/payments/payments.openapi.js
 import { registerSupportOpenApi } from "../modules/support/support.openapi.js";
 import { registerNotificationsOpenApi } from "../modules/notifications/notifications.openapi.js";
 import { registerAuditOpenApi } from "../modules/audit/audit.openapi.js";
+import { hardenOpenApiDocument } from "./harden-document.js";
 
 export interface OpenApiDocumentOptions {
   sessionCookieName: string;
@@ -39,14 +40,16 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerAuditOpenApi(registry);
   const generator = new OpenApiGeneratorV31(registry.definitions);
 
-  return generator.generateDocument({
-    openapi: "3.1.0",
-    info: {
-      title: "Allied AutoTech API",
-      version: "1.0.0",
-      description:
-        "Versioned REST API contracts for Allied AutoTech. Runtime schemas will be registered alongside each domain route.",
-    },
-    servers: [{ url: "/api/v1", description: "Current API version" }],
-  });
+  return hardenOpenApiDocument(
+    generator.generateDocument({
+      openapi: "3.1.0",
+      info: {
+        title: "Allied AutoTech API",
+        version: "1.0.0",
+        description:
+          "Versioned REST API contracts for Allied AutoTech. Runtime schemas will be registered alongside each domain route.",
+      },
+      servers: [{ url: "/api/v1", description: "Current API version" }],
+    }),
+  );
 }

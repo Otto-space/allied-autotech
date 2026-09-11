@@ -2,7 +2,7 @@
 
 Run this checklist only after the public discovery milestone is stable and the
 identity email worker/test email provider are intentionally enabled. Use
-synthetic accounts and Paystack test mode only.
+synthetic accounts, Paystack test mode, and Monnify sandbox only.
 
 ## Preconditions
 
@@ -59,6 +59,16 @@ synthetic accounts and Paystack test mode only.
 - [ ] Back/forward navigation and page-source inspection do not reveal
       verification/reset tokens; links place them in URL fragments and the
       frontend submits them in POST bodies.
+
+## Hosted checkout return handling
+
+- [ ] Paystack and Monnify return only to the exact configured HTTPS frontend callback.
+- [ ] The frontend accepts only same-origin post-checkout navigation and does not persist provider
+      authorization URLs, references, or response parameters.
+- [ ] A browser return is displayed as pending until the owned payment/attempt endpoint reports a
+      server-verified state; query parameters never mark a booking, order, or vehicle as paid.
+- [ ] Paystack and Monnify webhooks go directly to the stable App Platform API hostname, bypassing
+      Vercel rewrites so exact raw bytes reach signature verification.
 
 ## Trusted proxy validation
 

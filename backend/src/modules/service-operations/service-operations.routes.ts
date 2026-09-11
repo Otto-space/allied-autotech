@@ -109,6 +109,7 @@ export function createCustomerServiceOperationsRouter(): Router {
     requireCsrf,
     validate({
       params: bookingParamsSchema,
+      headers: bookingIdempotencyHeadersSchema,
       body: bookingRescheduleBodySchema,
       query: serviceOperationsEmptyQuerySchema,
     }),

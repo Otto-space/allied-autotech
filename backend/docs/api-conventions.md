@@ -48,12 +48,14 @@ are server-owned. Reservation mutations require `Idempotency-Key` and optimistic
 Phase 8 customer payment intents, provider initialization/verification, and manual evidence are under
 `/customers/payments`; branch-scoped review and refund requests are under `/staff/payments`; approval
 decisions are under `/admin/payments`; and Paystack delivery uses `/webhooks/paystack`. The webhook is
-the only JSON API surface parsed from exact raw bytes and does not use browser session or CSRF
-authentication. Browser payment mutations still require the session cookie, CSRF header, and, where
+joined by Monnify delivery at `/webhooks/monnify`. Both webhook surfaces are parsed from bounded
+exact raw bytes and do not use browser session or CSRF authentication. Browser payment mutations still require the session cookie, CSRF header, and, where
 applicable, `Idempotency-Key`. Provider signatures and server-owned financial values are authoritative.
 
 The generated OpenAPI 3.1 contract is served at `/api/v1/openapi.json`, with Swagger UI at
 `/api/v1/docs/`, when `API_DOCS_ENABLED=true`. Both are no-store resources. Documentation is enabled
 by default outside production. Production startup rejects hosted documentation; release operators
-share the private generated artifact in `docs/api/allied-autotech.openapi.json` through an approved
-private channel. Runtime validation and OpenAPI request contracts use the same Zod schemas.
+share the private generated artifact in `docs/api/allied-autotech.openapi.json` and the generated
+`docs/api/endpoint-handbook.md` through an approved private channel. Runtime validation and OpenAPI
+request contracts use the same Zod schemas; the OpenAPI validation gate rejects missing operation
+IDs, access/CSRF/idempotency declarations, request examples, concrete success data, or stale files.

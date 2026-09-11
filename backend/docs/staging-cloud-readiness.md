@@ -15,7 +15,7 @@ validate the exact Cloudflare/Tunnel/App Platform or Droplet path first, then se
 hop count and test spoofed forwarding headers.
 
 ```text
-Browser / Paystack
+Browser / Paystack / Monnify
         |
 Cloudflare TLS, WAF, Access (docs/admin)
         |
@@ -34,16 +34,20 @@ Before live payment testing:
 1. Create an isolated DigitalOcean project, private network, managed PostgreSQL cluster, container registry, API service, worker service, and migration job.
 2. Put `api-staging` behind Cloudflare with Full (strict) TLS. Prefer Tunnel; otherwise allow origin ingress only from the intended proxy path.
 3. Inject secrets at deploy time. Never build them into images or commit them: database password,
-   managed-database CA file, four independent crypto keys, Paystack test secret, Resend key, and
+   managed-database CA file, four independent crypto keys, Paystack test credentials, Monnify
+   sandbox credentials, Resend key, and
    object-store credentials. Use `DB_SSL_MODE=verify-full`; run `npm run check:db-tls` in the
    staging network and retain the sanitized result.
 4. Set exact HTTPS frontend/WebAuthn/callback origins and determine the real proxy hop count from observed requests. Test spoofed `X-Forwarded-For` handling.
-5. Register the Paystack test webhook URL and exercise valid, forged, duplicate, delayed, reordered, and amount/currency-mismatch events.
+5. Register Paystack test and Monnify sandbox webhook URLs directly on the stable App Platform API
+   origin. Exercise valid, unsigned/forged, duplicate, delayed, reordered, late, and
+   amount/currency/reference-mismatch events. A Monnify sandbox event is never settlement proof
+   until authoritative server-to-server verification succeeds.
 6. Enable encrypted backups and point-in-time recovery where available; restore a backup into an isolated database and run integrity checks.
 7. Ship redacted structured logs, payment anomaly metrics, webhook retry/dead-letter alerts, readiness alerts, and reconciliation mismatch alerts.
 8. Run migration replay and the full database-enabled test suite as a release job before promoting the same immutable image.
-9. Keep hosted Swagger/OpenAPI disabled. Share the generated OpenAPI JSON privately with the
-   frontend developer and regenerate/validate it from the release revision.
+9. Keep hosted Swagger/OpenAPI disabled. Share the generated OpenAPI JSON and endpoint handbook
+   privately with the frontend developer and regenerate/validate both from the release revision.
 
 ## Droplet baseline
 

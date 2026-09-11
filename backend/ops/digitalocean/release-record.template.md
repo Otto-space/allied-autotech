@@ -18,5 +18,9 @@ credentials, certificates, provider payloads, or environment-variable values.
 - Migration result: `REPLACE_PASS_OR_FAIL`
 - Seed version: `allied-autotech-public-v1`
 - Seed result: `REPLACE_CREATED_OR_UNCHANGED`
+- Booking/reminder worker smoke result: `REPLACE_PASS_OR_FAIL`
+- Paystack test webhook result: `REPLACE_PASS_OR_FAIL_OR_DEFERRED`
+- Monnify sandbox hosted-bank/webhook result: `REPLACE_PASS_OR_FAIL_OR_DEFERRED`
+- OpenAPI/handbook artifact commit: `REPLACE_RELEASE_COMMIT`
 - Post-deployment checklist reviewer: `REPLACE_REVIEWER`
 - Rollback-forward notes: `REPLACE_NOTES`

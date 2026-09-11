@@ -6,15 +6,16 @@ image or committed.
 
 | Process         | Required production configuration                                                                                                            |
 | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| API             | Database settings, exact frontend/WebAuthn HTTPS origins, four independent cryptographic keys, Paystack, and private object-storage settings |
+| API             | Database settings, exact frontend/WebAuthn HTTPS origins, four independent cryptographic keys, Paystack, Monnify, and private object-storage settings |
 | Identity worker | Database settings, outbox encryption key, Resend key, and sender address                                                                     |
-| General worker  | Database settings, outbox encryption key, enabled notification providers, Paystack test reconciliation settings, and bounded schedules       |
+| General worker  | Database settings, outbox encryption key, enabled notification providers, Paystack/Monnify reconciliation settings, and bounded expiry/reminder schedules |
 | Migration job   | Database settings only                                                                                                                       |
 
 The API does not require Resend or Termii credentials because it only writes encrypted outbox
 events. The identity worker does not require frontend, WebAuthn, Paystack, object-storage, session,
 MFA, or asset-ticket secrets. The general worker does not require cookie/WebAuthn/private-storage
-keys. Missing configuration fails process startup; optional channels must be explicitly disabled,
+keys. It claims versioned booking reminders, expiries, notification delivery, webhook retries, and
+payment reconciliation in bounded PostgreSQL batches. Missing configuration fails process startup; optional channels must be explicitly disabled,
 and enabled provider work is never silently discarded.
 
 Every process also requires `DB_SSL_MODE=verify-full` and an absolute readable

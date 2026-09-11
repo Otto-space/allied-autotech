@@ -21,9 +21,14 @@ require verification in the real staging environment.
   vehicle, vehicle-sale, and payment route surfaces with default-deny role/ownership policies.
 - Transactional inventory reservations, deterministic locking, integer-kobo server pricing,
   immutable snapshots, lifecycle checks, idempotency, audit history, and expiry workers.
-- Paystack test/live safeguards independent of `NODE_ENV`, raw-byte webhook verification,
-  deduplication, reconciliation, four-eyes manual-payment/refund controls, immutable ledger entries,
-  disputes, and late-capture anomalies that do not revive expired commitments.
+- Paystack test/live and Monnify sandbox/live safeguards independent of `NODE_ENV`, raw-byte
+  webhook verification, authoritative provider verification, deduplication, reconciliation,
+  four-eyes manual-payment/refund controls, immutable ledger entries, disputes, and late-capture
+  anomalies that do not revive expired commitments.
+- Published fixed-price booking slots with advisory/row locking, exact 7–14-day selection,
+  30-minute unpaid holds, integer-kobo 30% deposit snapshots, explicit policy acceptance,
+  one qualifying customer reschedule, business-disruption transfer/refund choices, and durable
+  versioned 7-day/72-hour/48-hour/24-hour reminders.
 - Support enquiries and complaints with branch isolation, assignment, priority/status transitions,
   customer-visible versus internal append-only messages, and authenticated incremental chat.
 - Rated reviews for the overall business, verified service bookings, completed orders, completed
@@ -38,15 +43,16 @@ require verification in the real staging environment.
 - One synthetic staging branch plus three synthetic services through an idempotent, guarded,
   serializable seed. Multi-branch data structures remain supported without forcing branch selection
   while exactly one active branch is eligible.
-- Twenty-six forward migrations replay from an empty PostgreSQL database. The `PRODUCT` review enum
-  value is deliberately committed in its own migration before any constraint references it,
+- Thirty forward migrations replay from an empty PostgreSQL database. Enum-only migrations commit
+  booking/payment-provider and `PRODUCT` review values before later constraints reference them,
   preventing PostgreSQL error `55P04` in Prisma shadow or replay databases.
 
 ## Implemented but requiring staging verification
 
 - Resend delivery from a verified staging sender and only to the email allowlist.
 - Optional Termii SMS from the account-specific HTTPS Termii base URL and only to the SMS allowlist.
-- Paystack test initialization, callbacks, signed webhooks, reordered events, and reconciliation.
+- Paystack test and Monnify sandbox initialization, callbacks, signed/unsigned-sandbox webhook
+  handling, authoritative verification, reordered events, refunds, and reconciliation.
 - Private Spaces uploads/downloads, checksum verification, MIME/size enforcement, and expiry of
   signed access.
 - Managed PostgreSQL `verify-full` TLS using the materialized absolute CA file.
@@ -72,7 +78,8 @@ Delivery checkout deliberately returns a conflict instead of silently charging a
   sources, backup settings, and a restore-test target.
 - Private staging Spaces bucket and least-privilege key.
 - Independently generated staging cryptographic keys in the approved secret store.
-- Paystack test key/webhook secret, Resend staging key/sender, recipient allowlist, and alert owners.
+- Paystack test credentials, Monnify sandbox credentials/contract code, Resend staging key/sender,
+  recipient allowlist, and alert owners.
 - Optional Termii credentials only if SMS staging tests are enabled.
 
 ## Explicitly deferred

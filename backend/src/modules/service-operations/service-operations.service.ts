@@ -650,10 +650,24 @@ export class ServiceOperationsService {
     actor: AuthenticatedActor,
     id: string,
     input: BookingRescheduleInput,
+    rawKey: string,
     context: RequestSecurityContext,
   ) {
     assertCustomerActor(actor);
+    const scope = `booking-reschedule:${actor.userId}:${id}`;
+    const keyHash = hashToken("booking-idempotency", `${scope}:${rawKey}`);
+    const requestHash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
     return this.database.$transaction(async (transaction) => {
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-reschedule:${keyHash}`}, 0))`;
+      const prior = await this.repository.idempotency(scope, keyHash, transaction);
+      if (prior !== null) {
+        if (prior.status !== "COMPLETED" || prior.requestHash !== requestHash)
+          throw serviceOperationConflict(
+            "The idempotency key was already used for another request",
+          );
+        const replay = await this.lockOwnedCustomerBooking(actor.userId, id, transaction);
+        return jsonSafe({ ...customerSafeBooking(replay), replayed: true });
+      }
       const booking = await this.lockOwnedCustomerBooking(actor.userId, id, transaction);
       if (
         booking.status !== "CONFIRMED" ||
@@ -666,6 +680,13 @@ export class ServiceOperationsService {
         throw invalidServiceTransition();
       if (input.slotId === booking.bookingSlotId)
         throw serviceOperationConflict("Choose a different booking slot");
+      await this.repository.createIdempotency(
+        actor.userId,
+        scope,
+        keyHash,
+        requestHash,
+        transaction,
+      );
       const slotIds = [booking.bookingSlotId, input.slotId].sort();
       for (const slotId of slotIds) {
         await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${slotId}`}, 0))`;
@@ -723,7 +744,8 @@ export class ServiceOperationsService {
         channels: ["EMAIL"],
       });
       await this.auditBooking(transaction, actor, booking, updated, context);
-      return jsonSafe(customerSafeBooking(updated));
+      await this.repository.completeIdempotency(scope, keyHash, id, transaction, 200);
+      return jsonSafe({ ...customerSafeBooking(updated), replayed: false });
     });
   }
 

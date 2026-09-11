@@ -80,8 +80,8 @@ ENV SERVICE_NAME=allied-autotech-identity-worker
 CMD ["node", "dist/workers/outbox.worker.js"]
 
 
-# Build with --target general-worker for notifications, expiry, webhook retry,
-# and explicitly enabled payment reconciliation schedules.
+# Build with --target general-worker for notifications, booking reminders/expiry,
+# webhook retry, and explicitly enabled Paystack/Monnify reconciliation schedules.
 FROM runtime AS general-worker
 
 ENV SERVICE_NAME=allied-autotech-general-worker

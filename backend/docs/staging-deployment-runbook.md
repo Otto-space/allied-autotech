@@ -25,7 +25,9 @@ extension is committed in one migration before a later migration references it,
 which prevents PostgreSQL's unsafe-new-enum-value migration failure.
 
 Hosted Swagger and hosted OpenAPI remain disabled. Share
-`docs/api/allied-autotech.openapi.json` through an approved private channel.
+`docs/api/allied-autotech.openapi.json` and `docs/api/endpoint-handbook.md`
+through an approved private channel. Both are generated from the same registry
+and `npm run check:openapi` rejects stale artifacts.
 
 ## Delivery state
 
@@ -49,7 +51,7 @@ Hosted Swagger and hosted OpenAPI remain disabled. Share
 - Vercel project access and the actual framework-specific routing change in the
   teammate's repository.
 - Cloudflare zone access and the owner-supplied domain.
-- Paystack test credentials and an explicitly test-mode integration.
+- Paystack test credentials and Monnify sandbox credentials/contract code.
 - Staging secret generation/storage and named operational owners.
 
 ### Requires post-deployment validation
@@ -223,8 +225,9 @@ The App Platform template is the authoritative key list.
 
 API-only configuration includes HTTP/CORS/proxy/rate-limit settings; four
 independently generated cryptographic keys and their version IDs; WebAuthn and
-frontend URLs; the Paystack **test** secret/callback; and staging-only private
-Spaces settings. `API_DOCS_ENABLED` must remain `false`.
+frontend URLs; the Paystack **test** and Monnify **sandbox** credentials/callbacks;
+and staging-only private Spaces settings. `API_DOCS_ENABLED` must remain `false`.
+Both `PAYSTACK_LIVE_ENABLED` and `MONNIFY_LIVE_ENABLED` remain `false`.
 
 For Spaces, `OBJECT_STORAGE_ENDPOINT` contains the DigitalOcean region, while
 `OBJECT_STORAGE_REGION` remains `us-east-1` as required by DigitalOcean's AWS
@@ -233,12 +236,14 @@ SDK guidance. Keep virtual-hosted-style requests enabled with
 
 The migration job receives only `NODE_ENV`, discrete PostgreSQL credentials,
 TLS mode, CA destination, and CA binding. It does not receive identity,
-Paystack, object-storage, email, or frontend configuration.
+payment-provider, object-storage, email, or frontend configuration.
 
 The identity worker receives only database/outbox encryption and Resend
 delivery settings. The general worker receives database/outbox encryption,
-notification providers, Paystack test reconciliation, and bounded worker
-schedules. SMS remains explicitly disabled unless Termii staging credentials,
+notification providers, Paystack test/Monnify sandbox reconciliation, and bounded
+worker schedules. It owns booking hold expiry, versioned 7-day/72-hour/48-hour/
+24-hour reminders, webhook retry, notification delivery, and reconciliation.
+SMS remains explicitly disabled unless Termii staging credentials,
 its account-specific HTTPS base URL, sender, and recipient allowlist are added.
 
 Shared database values are repeated at component scope deliberately so future
@@ -252,7 +257,7 @@ session and store it in the staging secret inventory. Never reuse development
 or production keys, and never reuse one key for two purposes.
 
 The App Spec deploys both workers. Do not invite users to exercise registration,
-recovery, notification, webhook, or expiry flows until those workers are healthy
+recovery, notification, booking reminder, webhook, or expiry flows until those workers are healthy
 and staging recipient/provider safeguards have been verified.
 
 ## Vercel routing handoff
@@ -273,7 +278,7 @@ Required behavior:
 - Rewrite caching is explicitly disabled for all `/api/v1/*`. Do not add a
   blanket cache policy just because the first integration endpoints are public
   reads; the same prefix contains authenticated and mutation routes.
-- No Paystack, database, Spaces, or backend application secret is placed in
+- No Paystack, Monnify, database, Spaces, or backend application secret is placed in
   Vercel or the browser bundle for this milestone.
 
 If the repository uses `vercel.json`, merge the equivalent of the following
@@ -376,7 +381,8 @@ database.
       registry digests, not tags.
 - [ ] Managed PostgreSQL and Spaces are staging-only; backups and access owners
       are recorded.
-- [ ] Paystack is in test mode. No live secret or live webhook is configured.
+- [ ] Paystack is in test mode and Monnify is in sandbox mode. Both live-enable flags are false;
+      no live secret or live webhook is configured.
 - [ ] Every `REPLACE_*` marker is replaced in the private App Spec copy.
 - [ ] Populated spec and release record contain no plaintext secret or CA.
 
@@ -421,8 +427,12 @@ only for this file-boundary check, never for a database connection.
 - [ ] Confirm API readiness becomes `200` and liveness remains `200`.
 - [ ] Confirm both workers start from their recorded digests, acquire work
       safely, expose no payloads in logs, and stop cleanly during a revision change.
+- [ ] Confirm the general worker claims booking reminders/expiries and both-provider
+      reconciliation in bounded batches without duplicate notifications.
 - [ ] Confirm the deployed image digests match the release record.
 - [ ] Confirm `/api/v1/docs` and `/api/v1/openapi.json` return `404`.
+- [ ] Configure Paystack test and Monnify sandbox webhooks to the stable App Platform
+      hostname (`/api/v1/webhooks/paystack` and `/api/v1/webhooks/monnify`), never through Vercel.
 
 ### Public integration and TLS
 
@@ -435,6 +445,8 @@ only for this file-boundary check, never for a database connection.
 - [ ] Verify `GET /api/v1/public/services` and capture fixed-price and
       quote-required synthetic service IDs.
 - [ ] Verify `GET /api/v1/public/services/{serviceId}` for both pricing types.
+- [ ] Verify `GET /api/v1/public/booking-policy` and an empty or synthetic
+      `GET /api/v1/public/services/{serviceId}/slots` result without inventing staff availability.
 - [ ] Confirm cursor pagination, invalid UUID handling, unknown-route `404`,
       stable response envelopes, and `X-Request-ID` correlation.
 - [ ] Confirm HTTPS has a valid hostname chain, no mixed content, and no
@@ -446,7 +458,8 @@ only for this file-boundary check, never for a database connection.
 ### Logs and completion
 
 - [ ] Search deployment, migration, request, and error logs for passwords,
-      cookies, session/CSRF/token values, CA contents, Paystack secrets or raw
+      cookies, session/CSRF/token values, CA contents, Paystack/Monnify secrets,
+      hosted-checkout URLs, bank details or raw
       payloads, Spaces keys/object keys, and private customer data; none may be
       present.
 - [ ] Confirm normal logs include service name, severity, request ID, method,
@@ -469,6 +482,7 @@ only for this file-boundary check, never for a database connection.
       roles, and named break-glass owner.
 - [ ] Private DigitalOcean Container Registry and an expiring push credential.
 - [ ] Paystack account with test-mode credentials only.
+- [ ] Monnify account with sandbox API key, secret, contract code, and webhook access only.
 - [ ] Approved staging secret inventory/manager and two operational reviewers.
 
 ### Required DigitalOcean resources
@@ -493,8 +507,8 @@ only for this file-boundary check, never for a database connection.
 - Stable DigitalOcean App Platform origin used by Vercel's rewrite.
 - Teammate's frontend framework, existing Vercel routing precedence, and
   responsible reviewer.
-- Paystack test key owner and whether test webhooks are deferred or sent
-  directly to the stable DigitalOcean origin in a later payment milestone.
+- Paystack test and Monnify sandbox credential owners. Provider webhooks must be sent
+  directly to the stable DigitalOcean origin when payment testing is enabled.
 - Central logging/alert provider and on-call recipients.
 - Verified Resend staging sender, recipient allowlist, and delivery-test owner.
 - Whether optional Termii SMS is included in this staging cycle; keep it disabled otherwise.

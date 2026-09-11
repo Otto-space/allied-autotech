@@ -228,6 +228,7 @@ export class ServiceOperationsController {
             actor(req),
             ids(res).bookingId,
             validated<BookingRescheduleInput>(res, "body"),
+            idempotencyKey(res),
             context(req),
           ),
         ),

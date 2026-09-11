@@ -2,7 +2,8 @@
 
 ## Contract source and topology
 
-Use the private OpenAPI artifact at `docs/api/allied-autotech.openapi.json`. Hosted Swagger and
+Use the private OpenAPI artifact at `docs/api/allied-autotech.openapi.json` and the generated,
+operation-by-operation `docs/api/endpoint-handbook.md`. Hosted Swagger and
 hosted OpenAPI remain disabled in production mode. The frontend repository stays separate and needs
 no database, Spaces, Paystack secret, or backend deployment credential.
 
@@ -17,7 +18,8 @@ caching API responses. Do not infer the teammate's framework setup from this rep
 3. Registration, email-link completion, login, session status, CSRF, logout, and recovery.
 4. MFA enrollment/challenge and privileged pending-assurance screens where applicable.
 5. Customer profile/vehicles, favourites, cart, collection checkout, orders, invoices, and payments.
-6. Bookings, quotations, service work, vehicle enquiries/reservations/sales, and private assets.
+6. Booking policy, published slots, deposit checkout/reminders/rescheduling, quotations, service
+   work, vehicle enquiries/reservations/sales, and private assets.
 7. Support enquiries/complaints/chat, rated reviews, and notification preferences.
 8. Staff/admin operational screens only after role/MFA test accounts and authorization tests exist.
 
@@ -108,7 +110,8 @@ disabled while in-app records continue to work.
   backend own price, discount, fee, amount, currency, and customer identity.
 - Collection checkout is available. Delivery checkout is deliberately unavailable until zones and
   fees are approved; show a clear “collection currently available” state for a conflict response.
-- A Paystack redirect is not proof of payment. Poll/read the backend payment/order state after return.
+- Paystack and Monnify Hosted Pay-with-Bank redirects are not proof of payment. Poll/read the
+  backend payment/order/booking state after return; only authoritative backend verification settles it.
 - Represent `REQUIRES_PAYMENT`, `PROCESSING`, `REQUIRES_REVIEW`, `SUCCEEDED`, `CANCELLED`, and
   `EXPIRED` distinctly. Do not turn “submitted manual evidence” into “paid”.
 - A verified payment received after commitment expiry remains a captured payment plus an operations
@@ -125,6 +128,7 @@ disabled while in-app records continue to work.
 - Test cookie flags, session/CSRF rotation, MFA pending access, logout, multi-tab behavior, malformed
   JSON, validation fields, throttling, and request-ID correlation in a real browser.
 - Test chat polling under Vercel timeouts and verify no response or service-worker cache stores it.
+- Send provider webhooks directly to the stable DigitalOcean API origin, never through Vercel.
 - Validate the effective proxy hop count before changing `TRUST_PROXY_HOPS`.
 
 ## Known restrictions

@@ -164,7 +164,7 @@ describe.skipIf(!runDatabaseTests)("deposit-backed booking slots", () => {
     const paymentId = successful.body.data.booking.depositPayment.id as string;
     const manual = await request(app)
       .post(`/api/v1/customers/payments/${paymentId}/manual`)
-      .set(mutation(winningSession))
+      .set(mutation(winningSession, "booking-deposit-manual-payment"))
       .send({
         method: "BANK_TRANSFER",
         payerName: "Synthetic Booking Customer",
@@ -197,11 +197,18 @@ describe.skipIf(!runDatabaseTests)("deposit-backed booking slots", () => {
     expect(replacement.status).toBe(201);
     const moved = await request(app)
       .patch(`/api/v1/customers/bookings/${bookingId}/schedule`)
-      .set(mutation(winningSession))
+      .set(mutation(winningSession, "booking-reschedule-once"))
       .send({ slotId: replacement.body.data.id, expectedVersion: 1 });
     expect(moved.status).toBe(200);
     expect(moved.body.data.customerRescheduleCount).toBe(1);
     expect(moved.body.data.reminders).toHaveLength(8);
+    const movedReplay = await request(app)
+      .patch(`/api/v1/customers/bookings/${bookingId}/schedule`)
+      .set(mutation(winningSession, "booking-reschedule-once"))
+      .send({ slotId: replacement.body.data.id, expectedVersion: 1 });
+    expect(movedReplay.status).toBe(200);
+    expect(movedReplay.body.data.replayed).toBe(true);
+    expect(movedReplay.body.data.customerRescheduleCount).toBe(1);
     const dueReminder = await prisma.bookingReminder.findUniqueOrThrow({
       where: {
         bookingId_kind_scheduleVersion: {
@@ -227,7 +234,7 @@ describe.skipIf(!runDatabaseTests)("deposit-backed booking slots", () => {
     ).toBe("SENT");
     const secondMove = await request(app)
       .patch(`/api/v1/customers/bookings/${bookingId}/schedule`)
-      .set(mutation(winningSession))
+      .set(mutation(winningSession, "booking-reschedule-twice"))
       .send({ slotId, expectedVersion: 2 });
     expect(secondMove.status).toBe(409);
   }, 60_000);
