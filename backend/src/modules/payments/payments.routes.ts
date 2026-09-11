@@ -89,6 +89,7 @@ export function createCustomerPaymentsRouter(): Router {
     createSensitiveRateLimit(10),
     validate({
       params: paymentParamsSchema,
+      headers: paymentIdempotencyHeadersSchema,
       body: manualPaymentBodySchema,
       query: paymentsEmptySchema,
     }),

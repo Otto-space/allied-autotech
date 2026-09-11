@@ -81,7 +81,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       summary: "Submit manual-payment evidence",
       params: z.object({ paymentId: uuid }),
       body: manualPaymentBodySchema,
-      headers: csrf,
+      headers: idempotent,
       created: true,
     },
     {

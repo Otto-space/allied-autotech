@@ -16821,6 +16821,16 @@
             "required": true,
             "name": "x-csrf-token",
             "in": "header"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header"
           }
         ],
         "requestBody": {

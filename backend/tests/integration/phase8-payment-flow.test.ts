@@ -135,17 +135,34 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
       .set(headers(customerSession, "p8-payment-intent"))
       .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
     expect(replay.body.data.replayed).toBe(true);
+    const transferredAt = new Date().toISOString();
     const manual = await request(app)
       .post(`/api/v1/customers/payments/${paymentId}/manual`)
-      .set(headers(customerSession))
+      .set(headers(customerSession, "p8-manual-payment"))
       .send({
         method: "BANK_TRANSFER",
         bankReference: "P8-TRANSFER",
         payerName: "Phase Eight",
-        transferredAt: new Date().toISOString(),
+        transferredAt,
       });
     expect(manual.status).toBe(201);
     const attemptId = manual.body.data.attempts[0].id as string;
+    const manualReplay = await request(app)
+      .post(`/api/v1/customers/payments/${paymentId}/manual`)
+      .set(headers(customerSession, "p8-manual-payment"))
+      .send({
+        method: "BANK_TRANSFER",
+        bankReference: "P8-TRANSFER",
+        payerName: "Phase Eight",
+        transferredAt,
+      });
+    expect(manualReplay.status).toBe(201);
+    expect(manualReplay.body.data.replayed).toBe(true);
+    expect(
+      await prisma.paymentAttempt.count({
+        where: { paymentId, provider: "MANUAL" },
+      }),
+    ).toBe(1);
     const review = await request(app)
       .post(`/api/v1/staff/payments/manual-attempts/${attemptId}/review`)
       .set(headers(adminSession))

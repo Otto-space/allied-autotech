@@ -152,6 +152,7 @@ export class PaymentsController {
             actor(req),
             validated<{ paymentId: string }>(res, "params").paymentId,
             validated<ManualPaymentInput>(res, "body"),
+            key(res),
             context(req),
           ),
         ),

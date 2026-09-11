@@ -56,7 +56,6 @@ const paymentNumber = () =>
   `PAY-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
 const refundNumber = () =>
   `REF-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
-const providerReference = () => `AAT-${randomUUID().replaceAll("-", "")}`;
 const methodMap: Readonly<Record<string, PaymentMethod>> = {
   card: "CARD",
   bank: "BANK_TRANSFER",
@@ -364,6 +363,7 @@ export class PaymentsService {
     actor: AuthenticatedActor,
     id: string,
     input: ManualPaymentInput,
+    rawKey: string,
     context: RequestSecurityContext,
   ) {
     assertPaymentCustomer(actor);
@@ -382,9 +382,44 @@ export class PaymentsService {
       }))
     )
       throw paymentConflict("Payment evidence could not be verified");
+    const referenceHash = hashToken(
+      "payment-attempt-idempotency",
+      `MANUAL:${id}:${rawKey}`,
+    );
+    const reference = `AAT-MANUAL-${referenceHash.slice(0, 32)}`;
+    const requestFingerprint = createHash("sha256")
+      .update(JSON.stringify(input))
+      .digest("hex");
     return this.database.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
+      const existing = await tx.paymentAttempt.findUnique({
+        where: { internalReference: reference },
+        select: {
+          paymentId: true,
+          provider: true,
+          redactedGatewayData: true,
+        },
+      });
+      if (existing) {
+        const metadata =
+          existing.redactedGatewayData !== null &&
+          typeof existing.redactedGatewayData === "object" &&
+          !Array.isArray(existing.redactedGatewayData)
+            ? existing.redactedGatewayData
+            : {};
+        if (
+          existing.paymentId !== id ||
+          existing.provider !== "MANUAL" ||
+          metadata["requestFingerprint"] !== requestFingerprint
+        )
+          throw paymentIdempotencyConflict();
+        return paymentJsonSafe({
+          ...(await this.repository.get(id, tx)),
+          replayed: true,
+        });
+      }
       this.assertPayable(payment);
       const latest = await tx.paymentAttempt.aggregate({
         where: { paymentId: id },
@@ -394,13 +429,14 @@ export class PaymentsService {
         {
           paymentId: id,
           attemptNumber: (latest._max.attemptNumber ?? 0) + 1,
-          internalReference: providerReference(),
+          internalReference: reference,
           provider: "MANUAL",
           method: input.method,
           status: "PENDING",
           verificationStatus: "UNVERIFIED",
           amountKobo: payment.amountKobo,
           currency: payment.currency,
+          redactedGatewayData: { requestFingerprint },
         },
         tx,
       );
@@ -428,7 +464,10 @@ export class PaymentsService {
         newValues: { provider: "MANUAL", paymentId: id },
         context,
       });
-      return paymentJsonSafe(await this.repository.get(id, tx));
+      return paymentJsonSafe({
+        ...(await this.repository.get(id, tx)),
+        replayed: false,
+      });
     });
   }
 
