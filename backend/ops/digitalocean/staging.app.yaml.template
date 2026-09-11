@@ -46,6 +46,10 @@ services:
         value: production
         scope: RUN_TIME
         type: GENERAL
+      - key: DEPLOYMENT_ENV
+        value: staging
+        scope: RUN_TIME
+        type: GENERAL
       - key: SERVICE_NAME
         value: allied-autotech-staging-api
         scope: RUN_TIME
@@ -198,6 +202,14 @@ services:
         value: REPLACE_PAYSTACK_TEST_SECRET_IN_APP_PLATFORM
         scope: RUN_TIME
         type: SECRET
+      - key: PAYSTACK_MODE
+        value: test
+        scope: RUN_TIME
+        type: GENERAL
+      - key: PAYSTACK_LIVE_ENABLED
+        value: "false"
+        scope: RUN_TIME
+        type: GENERAL
       - key: PAYSTACK_CALLBACK_URL
         value: https://REPLACE_STAGING_FRONTEND_HOST/payments/complete
         scope: RUN_TIME
@@ -246,6 +258,223 @@ services:
         value: "120"
         scope: RUN_TIME
         type: GENERAL
+      - key: EMAIL_DELIVERY_ENABLED
+        value: "true"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: SMS_DELIVERY_ENABLED
+        value: "false"
+        scope: RUN_TIME
+        type: GENERAL
+    alerts:
+      - rule: RESTART_COUNT
+        operator: GREATER_THAN
+        value: 3
+        window: FIVE_MINUTES
+
+workers:
+  - name: identity-worker
+    image:
+      registry_type: DOCR
+      repository: allied-autotech-backend-identity-worker
+      digest: sha256:REPLACE_IDENTITY_WORKER_REGISTRY_DIGEST
+    instance_count: 1
+    instance_size_slug: REPLACE_WORKER_INSTANCE_SIZE_SLUG
+    envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DEPLOYMENT_ENV
+        value: staging
+        scope: RUN_TIME
+        type: GENERAL
+      - key: SERVICE_NAME
+        value: allied-autotech-staging-identity-worker
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_HOST
+        value: ${staging-db.HOSTNAME}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_PORT
+        value: ${staging-db.PORT}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_NAME
+        value: ${staging-db.DATABASE}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_USER
+        value: ${staging-db.USERNAME}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_PASSWORD
+        value: ${staging-db.PASSWORD}
+        scope: RUN_TIME
+        type: SECRET
+      - key: DB_SSL_MODE
+        value: verify-full
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_SSL_CA_FILE
+        value: /tmp/allied-autotech-secrets/database-ca.pem
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_SSL_CA_CERT
+        value: ${staging-db.CA_CERT}
+        scope: RUN_TIME
+        type: SECRET
+      - key: OUTBOX_ENCRYPTION_KEY
+        value: REPLACE_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: OUTBOX_ENCRYPTION_KEY_ID
+        value: staging-identity-outbox-v1
+        scope: RUN_TIME
+        type: GENERAL
+      - key: RESEND_API_KEY
+        value: REPLACE_RESEND_STAGING_KEY_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: RESEND_FROM_EMAIL
+        value: REPLACE_VERIFIED_STAGING_SENDER
+        scope: RUN_TIME
+        type: GENERAL
+      - key: STAGING_EMAIL_ALLOWLIST
+        value: REPLACE_STAGING_TEST_RECIPIENTS
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MESSAGING_REQUEST_TIMEOUT_MS
+        value: "8000"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: WORKER_BATCH_SIZE
+        value: "25"
+        scope: RUN_TIME
+        type: GENERAL
+    alerts:
+      - rule: RESTART_COUNT
+        operator: GREATER_THAN
+        value: 3
+        window: FIVE_MINUTES
+
+  - name: general-worker
+    image:
+      registry_type: DOCR
+      repository: allied-autotech-backend-general-worker
+      digest: sha256:REPLACE_GENERAL_WORKER_REGISTRY_DIGEST
+    instance_count: 1
+    instance_size_slug: REPLACE_WORKER_INSTANCE_SIZE_SLUG
+    envs:
+      - key: NODE_ENV
+        value: production
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DEPLOYMENT_ENV
+        value: staging
+        scope: RUN_TIME
+        type: GENERAL
+      - key: SERVICE_NAME
+        value: allied-autotech-staging-general-worker
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_HOST
+        value: ${staging-db.HOSTNAME}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_PORT
+        value: ${staging-db.PORT}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_NAME
+        value: ${staging-db.DATABASE}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_USER
+        value: ${staging-db.USERNAME}
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_PASSWORD
+        value: ${staging-db.PASSWORD}
+        scope: RUN_TIME
+        type: SECRET
+      - key: DB_SSL_MODE
+        value: verify-full
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_SSL_CA_FILE
+        value: /tmp/allied-autotech-secrets/database-ca.pem
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DB_SSL_CA_CERT
+        value: ${staging-db.CA_CERT}
+        scope: RUN_TIME
+        type: SECRET
+      - key: OUTBOX_ENCRYPTION_KEY
+        value: REPLACE_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: OUTBOX_ENCRYPTION_KEY_ID
+        value: staging-identity-outbox-v1
+        scope: RUN_TIME
+        type: GENERAL
+      - key: EMAIL_DELIVERY_ENABLED
+        value: "true"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: SMS_DELIVERY_ENABLED
+        value: "false"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: RESEND_API_KEY
+        value: REPLACE_RESEND_STAGING_KEY_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: RESEND_FROM_EMAIL
+        value: REPLACE_VERIFIED_STAGING_SENDER
+        scope: RUN_TIME
+        type: GENERAL
+      - key: STAGING_EMAIL_ALLOWLIST
+        value: REPLACE_STAGING_TEST_RECIPIENTS
+        scope: RUN_TIME
+        type: GENERAL
+      - key: MESSAGING_REQUEST_TIMEOUT_MS
+        value: "8000"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: PAYSTACK_SECRET_KEY
+        value: REPLACE_PAYSTACK_TEST_SECRET_IN_APP_PLATFORM
+        scope: RUN_TIME
+        type: SECRET
+      - key: PAYSTACK_MODE
+        value: test
+        scope: RUN_TIME
+        type: GENERAL
+      - key: PAYSTACK_LIVE_ENABLED
+        value: "false"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: WORKER_POLL_INTERVAL_MS
+        value: "2000"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: WORKER_BATCH_SIZE
+        value: "25"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: EXPIRATION_INTERVAL_MS
+        value: "60000"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: PAYMENT_RECONCILIATION_ENABLED
+        value: "true"
+        scope: RUN_TIME
+        type: GENERAL
+      - key: RECONCILIATION_INTERVAL_MS
+        value: "3600000"
+        scope: RUN_TIME
+        type: GENERAL
     alerts:
       - rule: RESTART_COUNT
         operator: GREATER_THAN
@@ -264,6 +493,10 @@ jobs:
     envs:
       - key: NODE_ENV
         value: production
+        scope: RUN_TIME
+        type: GENERAL
+      - key: DEPLOYMENT_ENV
+        value: staging
         scope: RUN_TIME
         type: GENERAL
       - key: DB_HOST

@@ -9,12 +9,14 @@ import {
   type EncryptedEnvelope,
 } from "../common/security/mfa-encryption.js";
 import { logger } from "../common/observability/logger.js";
+import { AppError } from "../common/errors/app-error.js";
 import { isStagingRecipientAllowed } from "../common/security/messaging-recipients.js";
 import { renderIdentityEmail } from "../modules/identity/identity-email.templates.js";
 import { identityEventTypes } from "../modules/identity/identity.events.js";
 import type { IdentityEmailPayload } from "../modules/identity/identity.types.js";
 import type { EmailProvider } from "../providers/messaging/email-provider.port.js";
 import { ResendEmailProvider } from "../providers/messaging/resend-email.adapter.js";
+import { safeErrorAttributes } from "../common/observability/safe-error.js";
 
 interface ClaimedEvent {
   id: string;
@@ -146,7 +148,8 @@ export class IdentityOutboxWorker {
         },
       });
     } catch (error: unknown) {
-      const terminal = event.attempts >= 8;
+      const terminal =
+        event.attempts >= 8 || (error instanceof AppError && !error.retryable);
       const delaySeconds = Math.min(3_600, 2 ** Math.min(event.attempts, 10) * 15);
       await this.database.outboxEvent.updateMany({
         where: { id: event.id, status: "PROCESSING" },
@@ -158,35 +161,90 @@ export class IdentityOutboxWorker {
         },
       });
       logger.warn(
-        { err: error, eventId: event.eventId, attempt: event.attempts, terminal },
+        {
+          ...safeErrorAttributes(error),
+          eventId: event.eventId,
+          attempt: event.attempts,
+          terminal,
+        },
         "Identity email delivery failed",
       );
     }
   }
 }
 
+function wait(milliseconds: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolveWait) => {
+    if (signal.aborted) return resolveWait();
+    const timer = setTimeout(resolveWait, milliseconds);
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timer);
+        resolveWait();
+      },
+      { once: true },
+    );
+  });
+}
+
+export function identityWorkerBackoff(
+  consecutiveFailures: number,
+  random: () => number = Math.random,
+): number {
+  const exponent = Math.max(0, Math.min(consecutiveFailures - 1, 5));
+  const baseMilliseconds = Math.min(30_000, 1_000 * 2 ** exponent);
+  const jitterMilliseconds = Math.floor(Math.max(0, Math.min(random(), 1)) * 500);
+  return baseMilliseconds + jitterMilliseconds;
+}
+
 async function runIdentityWorker(): Promise<void> {
   assertIdentityWorkerEnvironment();
   const worker = new IdentityOutboxWorker(new ResendEmailProvider());
-  let stopping = false;
-  process.once("SIGTERM", () => {
-    stopping = true;
-  });
-  process.once("SIGINT", () => {
-    stopping = true;
-  });
+  const stop = new AbortController();
+  const stopOnce = () => stop.abort();
+  process.once("SIGTERM", stopOnce);
+  process.once("SIGINT", stopOnce);
+  let consecutiveFailures = 0;
 
-  await prisma.$connect();
+  logger.info("Identity worker starting");
   try {
-    while (!stopping) {
-      const count = await worker.runOnce();
-      await worker.cleanupExpiredIdentityState();
-      if (count === 0) {
-        await new Promise((resolve) => setTimeout(resolve, 2_000));
+    while (!stop.signal.aborted) {
+      try {
+        await prisma.$connect();
+        const count = await worker.runOnce();
+        await worker.cleanupExpiredIdentityState();
+        consecutiveFailures = 0;
+        if (count === 0) await wait(2_000, stop.signal);
+      } catch (error: unknown) {
+        consecutiveFailures += 1;
+        const retryInMilliseconds = identityWorkerBackoff(consecutiveFailures);
+        logger.error(
+          {
+            ...safeErrorAttributes(error),
+            consecutiveFailures,
+            retryInMilliseconds,
+          },
+          "Identity worker cycle failed",
+        );
+        try {
+          await prisma.$disconnect();
+        } catch (disconnectError: unknown) {
+          logger.warn(
+            safeErrorAttributes(disconnectError),
+            "Identity worker disconnect failed",
+          );
+        }
+        await wait(retryInMilliseconds, stop.signal);
       }
     }
   } finally {
-    await prisma.$disconnect();
+    logger.info("Identity worker stopping");
+    try {
+      await prisma.$disconnect();
+    } catch (error: unknown) {
+      logger.warn(safeErrorAttributes(error), "Identity worker final disconnect failed");
+    }
   }
 }
 

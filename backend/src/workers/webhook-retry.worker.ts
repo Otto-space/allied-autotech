@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppError } from "../common/errors/app-error.js";
 import { prisma } from "../config/database.js";
 import type { PrismaClient } from "../generated/prisma/client.js";
 import {
@@ -62,8 +63,11 @@ export class PaymentWebhookRetryWorker {
           ipAddress: null,
           userAgent: null,
         });
-      } catch {
-        const terminal = item.processingAttempts >= 8;
+      } catch (error: unknown) {
+        const terminal =
+          item.processingAttempts >= 8 ||
+          error instanceof z.ZodError ||
+          (error instanceof AppError && !error.retryable);
         const delaySeconds = Math.min(
           3_600,
           2 ** Math.min(item.processingAttempts, 8) * 15,

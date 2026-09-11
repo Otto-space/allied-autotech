@@ -45,18 +45,6 @@ const branches = [
     timezone: "Africa/Lagos",
     isActive: true,
   },
-  {
-    code: "STG-ABJ-CENTRAL",
-    name: "[STAGING] Abuja Service Centre",
-    phone: null,
-    email: null,
-    address: "1 Example Way",
-    city: "Abuja",
-    state: "Federal Capital Territory",
-    country: "Nigeria",
-    timezone: "Africa/Lagos",
-    isActive: true,
-  },
 ] as const;
 
 const services = [

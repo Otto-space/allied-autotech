@@ -99,7 +99,8 @@ export const customerComplaintCreateBodySchema = z
   .strict()
   .refine(
     (value) =>
-      [value.bookingId, value.orderId, value.vehicleTransactionId].filter(Boolean).length <= 1,
+      [value.bookingId, value.orderId, value.vehicleTransactionId].filter(Boolean)
+        .length <= 1,
     "Choose at most one related transaction",
   );
 
@@ -111,6 +112,14 @@ const reviewContent = {
 
 export const reviewCreateBodySchema = z.discriminatedUnion("targetType", [
   z.object({ ...reviewContent, targetType: z.literal("BUSINESS") }).strict(),
+  z
+    .object({
+      ...reviewContent,
+      targetType: z.literal("PRODUCT"),
+      productId: uuid,
+      orderItemId: uuid,
+    })
+    .strict(),
   z
     .object({
       ...reviewContent,
@@ -154,11 +163,16 @@ export const publicReviewListQuerySchema = z
   .object({
     ...page,
     targetType: z
-      .enum(["BUSINESS", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"])
+      .enum(["BUSINESS", "PRODUCT", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"])
       .optional(),
+    productId: uuid.optional(),
     serviceId: uuid.optional(),
   })
   .strict()
+  .refine(
+    (value) => value.productId === undefined || value.targetType === "PRODUCT",
+    "productId requires targetType PRODUCT",
+  )
   .refine(
     (value) => value.serviceId === undefined || value.targetType === "SERVICE",
     "serviceId requires targetType SERVICE",
@@ -194,8 +208,15 @@ export const staffReviewListQuerySchema = z
     ...page,
     status: z.enum(["PENDING", "APPROVED", "REJECTED"]).default("PENDING"),
     targetType: z
-      .enum(["BUSINESS", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"])
+      .enum(["BUSINESS", "PRODUCT", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"])
       .optional(),
+  })
+  .strict();
+
+export const supportMessageListQuerySchema = z
+  .object({
+    cursor: uuid.optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(50),
   })
   .strict();
 
@@ -269,3 +290,4 @@ export type ComplaintPriorityInput = z.infer<typeof complaintPriorityBodySchema>
 export type SupportMessageInput = z.infer<typeof supportMessageBodySchema>;
 export type StaffSupportMessageInput = z.infer<typeof staffSupportMessageBodySchema>;
 export type ReviewModerationInput = z.infer<typeof reviewModerationBodySchema>;
+export type SupportMessageListQuery = z.infer<typeof supportMessageListQuerySchema>;

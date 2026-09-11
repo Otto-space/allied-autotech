@@ -19,7 +19,10 @@ function routes(): Router {
   router.post(
     "/read-all",
     requireCsrf,
-    validate({ body: notificationsEmptyBodySchema, query: notificationsEmptyQuerySchema }),
+    validate({
+      body: notificationsEmptyBodySchema,
+      query: notificationsEmptyQuerySchema,
+    }),
     controller.markAllRead,
   );
   router.post(

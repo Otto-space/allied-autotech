@@ -9,6 +9,8 @@ import type {
   AnomalyListQuery,
   AnomalyUpdateInput,
   AuditListQuery,
+  DisputeListQuery,
+  RefundListQuery,
   OperationalJobsQuery,
   OperationalRetryInput,
 } from "./audit.schemas.js";
@@ -45,23 +47,52 @@ export class AuditOperationsService {
     private readonly repository = new AuditRepository(database),
   ) {}
 
-  async audit(actor: AuthenticatedActor, query: AuditListQuery) {
+  async audit(
+    actor: AuthenticatedActor,
+    query: AuditListQuery,
+    context: RequestSecurityContext,
+  ) {
     assertAuditAdministrator(actor);
     if (query.from && query.to) {
       const from = new Date(query.from);
       const to = new Date(query.to);
       if (from > to || to.getTime() - from.getTime() > 90 * 24 * 60 * 60_000)
-        throw auditBadRequest("Audit date range must be ordered and no longer than 90 days");
+        throw auditBadRequest(
+          "Audit date range must be ordered and no longer than 90 days",
+        );
     }
-    return page(await this.repository.list(query), query.limit);
+    const result = page(await this.repository.list(query), query.limit);
+    await this.auditRead(
+      actor,
+      "USER",
+      actor.userId,
+      "AUDIT_LOG",
+      result.items.length,
+      context,
+    );
+    return result;
   }
 
-  async jobs(actor: AuthenticatedActor, query: OperationalJobsQuery) {
+  async jobs(
+    actor: AuthenticatedActor,
+    query: OperationalJobsQuery,
+    context?: RequestSecurityContext,
+  ) {
     assertAuditAdministrator(actor);
-    return page(await this.repository.jobs(query), query.limit);
+    const result = page(await this.repository.jobs(query), query.limit);
+    if (context)
+      await this.auditRead(
+        actor,
+        "USER",
+        actor.userId,
+        "OPERATIONAL_JOBS",
+        result.items.length,
+        context,
+      );
+    return result;
   }
 
-  async status(actor: AuthenticatedActor) {
+  async status(actor: AuthenticatedActor, context: RequestSecurityContext) {
     assertAuditAdministrator(actor);
     const [counts, lastReconciliation, anomalies] = await Promise.all([
       this.repository.queueCounts(),
@@ -77,13 +108,24 @@ export class AuditOperationsService {
         },
         orderBy: { startedAt: "desc" },
       }),
-      this.database.paymentAnomaly.count({ where: { status: { in: ["OPEN", "INVESTIGATING"] } } }),
+      this.database.paymentAnomaly.count({
+        where: { status: { in: ["OPEN", "INVESTIGATING"] } },
+      }),
     ]);
-    return {
+    const result = {
       queues: counts.map((item) => ({ ...item, count: Number(item.count) })),
       openPaymentAnomalies: anomalies,
       lastReconciliation,
     };
+    await this.auditRead(
+      actor,
+      "USER",
+      actor.userId,
+      "OPERATIONAL_STATUS",
+      counts.length,
+      context,
+    );
+    return result;
   }
 
   async retryJob(
@@ -103,7 +145,12 @@ export class AuditOperationsService {
                 attempts: input.expectedAttempts,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
               },
-              data: { status: "PENDING", availableAt: new Date(), lockedAt: null, lastError: null },
+              data: {
+                status: "PENDING",
+                availableAt: new Date(),
+                lockedAt: null,
+                lastError: null,
+              },
             })
           : await transaction.paymentWebhookEvent.updateMany({
               where: {
@@ -134,9 +181,71 @@ export class AuditOperationsService {
     });
   }
 
-  async anomalies(actor: AuthenticatedActor, query: AnomalyListQuery) {
+  async anomalies(
+    actor: AuthenticatedActor,
+    query: AnomalyListQuery,
+    context?: RequestSecurityContext,
+  ) {
     assertAuditAdministrator(actor);
-    return page(await this.repository.anomalies(query), query.limit);
+    const result = page(await this.repository.anomalies(query), query.limit);
+    if (context)
+      await this.auditRead(
+        actor,
+        "PAYMENT",
+        null,
+        "PAYMENT_ANOMALIES",
+        result.items.length,
+        context,
+      );
+    return result;
+  }
+
+  async disputes(
+    actor: AuthenticatedActor,
+    query: DisputeListQuery,
+    context: RequestSecurityContext,
+  ) {
+    assertAuditAdministrator(actor);
+    const rows = await this.repository.disputes(query);
+    const result = page(
+      rows.map(({ evidenceSha256, ...item }) => ({
+        ...item,
+        amountKobo: item.amountKobo.toString(),
+        hasEvidence: evidenceSha256 !== null,
+      })),
+      query.limit,
+    );
+    await this.auditRead(
+      actor,
+      "PAYMENT",
+      null,
+      "PAYMENT_DISPUTES",
+      result.items.length,
+      context,
+    );
+    return result;
+  }
+
+  async refunds(
+    actor: AuthenticatedActor,
+    query: RefundListQuery,
+    context: RequestSecurityContext,
+  ) {
+    assertAuditAdministrator(actor);
+    const rows = await this.repository.refunds(query);
+    const result = page(
+      rows.map((item) => ({ ...item, amountKobo: item.amountKobo.toString() })),
+      query.limit,
+    );
+    await this.auditRead(
+      actor,
+      "PAYMENT",
+      null,
+      "PAYMENT_REFUNDS",
+      result.items.length,
+      context,
+    );
+    return result;
   }
 
   async updateAnomaly(
@@ -189,6 +298,26 @@ export class AuditOperationsService {
         },
       });
     });
+  }
+
+  private auditRead(
+    actor: AuthenticatedActor,
+    entityType: "USER" | "PAYMENT",
+    entityId: string | null,
+    resource: string,
+    resultCount: number,
+    context: RequestSecurityContext,
+  ) {
+    return this.database.$transaction((transaction) =>
+      appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType,
+        entityId,
+        newValues: { resource, resultCount },
+        context,
+      }),
+    );
   }
 }
 

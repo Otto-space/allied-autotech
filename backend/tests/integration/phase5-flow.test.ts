@@ -329,5 +329,5 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     await expect(
       prisma.$executeRaw`DELETE FROM "WorkOrderItem" WHERE "workOrderId" = ${workOrderId}::uuid`,
     ).rejects.toThrow(/delete|immutable|append-only/i);
-  }, 20_000);
+  }, 60_000);
 });

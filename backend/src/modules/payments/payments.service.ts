@@ -402,7 +402,12 @@ export class PaymentsService {
             verifiedAt: now,
           },
         });
-        await this.settle(tx, attempt.paymentId, attempt.id, now);
+        await this.settle(
+          tx,
+          attempt.paymentId,
+          attempt.id,
+          attempt.manualReview.transferredAt ?? now,
+        );
       } else {
         await tx.paymentAttempt.update({
           where: { id: attempt.id },
@@ -1147,7 +1152,8 @@ export class PaymentsService {
         vehicle !== null &&
         (vehicle.status === "CANCELLED" ||
           vehicle.status === "EXPIRED" ||
-          (vehicle.reservationExpiresAt !== null && occurredAt > vehicle.reservationExpiresAt))
+          (vehicle.reservationExpiresAt !== null &&
+            occurredAt > vehicle.reservationExpiresAt))
       ) {
         await tx.paymentAnomaly.create({
           data: {

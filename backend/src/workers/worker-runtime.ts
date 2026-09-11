@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { logger } from "../common/observability/logger.js";
+import { safeErrorAttributes } from "../common/observability/safe-error.js";
 import { prisma } from "../config/database.js";
 import { assertGeneralWorkerEnvironment, env } from "../config/env.js";
 import { ResendEmailProvider } from "../providers/messaging/resend-email.adapter.js";
@@ -16,7 +17,7 @@ async function safely(name: string, work: Work): Promise<void> {
   try {
     await work();
   } catch (error: unknown) {
-    logger.error({ err: error, worker: name }, "Worker task failed");
+    logger.error({ ...safeErrorAttributes(error), worker: name }, "Worker task failed");
   }
 }
 
@@ -49,7 +50,7 @@ export async function runGeneralWorker(): Promise<void> {
   process.once("SIGINT", stopOnce);
   process.once("SIGTERM", stopOnce);
   let nextExpirationAt = 0;
-  let nextReconciliationAt = Date.now() + env.PAYMENT_RECONCILIATION_INTERVAL_MS;
+  let nextReconciliationAt = Date.now() + env.RECONCILIATION_INTERVAL_MS;
 
   await prisma.$connect();
   logger.info(
@@ -65,23 +66,21 @@ export async function runGeneralWorker(): Promise<void> {
       await safely("notification-delivery", () =>
         notification.runOnce(env.WORKER_BATCH_SIZE),
       );
-      await safely("payment-webhook-retry", () =>
-        webhook.runOnce(env.WORKER_BATCH_SIZE),
-      );
+      await safely("payment-webhook-retry", () => webhook.runOnce(env.WORKER_BATCH_SIZE));
       const now = Date.now();
       if (now >= nextExpirationAt) {
         await safely("expiration", () => expiration.runOnce(env.WORKER_BATCH_SIZE));
-        nextExpirationAt = now + env.WORKER_EXPIRATION_INTERVAL_MS;
+        nextExpirationAt = now + env.EXPIRATION_INTERVAL_MS;
       }
       if (env.PAYMENT_RECONCILIATION_ENABLED && now >= nextReconciliationAt) {
         const periodEnd = new Date();
         const periodStart = new Date(
-          periodEnd.getTime() - env.PAYMENT_RECONCILIATION_INTERVAL_MS,
+          periodEnd.getTime() - env.RECONCILIATION_INTERVAL_MS,
         );
         await safely("payment-reconciliation", () =>
           reconciliation.run(periodStart, periodEnd),
         );
-        nextReconciliationAt = now + env.PAYMENT_RECONCILIATION_INTERVAL_MS;
+        nextReconciliationAt = now + env.RECONCILIATION_INTERVAL_MS;
       }
       await wait(env.WORKER_POLL_INTERVAL_MS, stop.signal);
     }

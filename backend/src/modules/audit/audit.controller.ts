@@ -6,6 +6,8 @@ import type {
   AnomalyListQuery,
   AnomalyUpdateInput,
   AuditListQuery,
+  DisputeListQuery,
+  RefundListQuery,
   OperationalJobsQuery,
   OperationalRetryInput,
 } from "./audit.schemas.js";
@@ -21,19 +23,123 @@ const context = (request: Request): RequestSecurityContext => ({
 });
 
 export class AuditController {
-  constructor(private readonly service: AuditOperationsService = auditOperationsService) {}
+  constructor(
+    private readonly service: AuditOperationsService = auditOperationsService,
+  ) {}
   list = async (req: Request, res: Response) =>
-    res.status(200).json(successResponse("Audit events retrieved", req.id, await this.service.audit(actor(req), validated<AuditListQuery>(res, "query"))));
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Audit events retrieved",
+          req.id,
+          await this.service.audit(
+            actor(req),
+            validated<AuditListQuery>(res, "query"),
+            context(req),
+          ),
+        ),
+      );
   jobs = async (req: Request, res: Response) =>
-    res.status(200).json(successResponse("Operational jobs retrieved", req.id, await this.service.jobs(actor(req), validated<OperationalJobsQuery>(res, "query"))));
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Operational jobs retrieved",
+          req.id,
+          await this.service.jobs(
+            actor(req),
+            validated<OperationalJobsQuery>(res, "query"),
+            context(req),
+          ),
+        ),
+      );
   status = async (req: Request, res: Response) =>
-    res.status(200).json(successResponse("Operational status retrieved", req.id, await this.service.status(actor(req))));
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Operational status retrieved",
+          req.id,
+          await this.service.status(actor(req), context(req)),
+        ),
+      );
   retry = async (req: Request, res: Response) => {
-    const params = validated<{ source: "outbox" | "webhook"; jobId: string }>(res, "params");
-    res.status(200).json(successResponse("Operational retry requested", req.id, await this.service.retryJob(actor(req), params.source, params.jobId, validated<OperationalRetryInput>(res, "body"), context(req))));
+    const params = validated<{ source: "outbox" | "webhook"; jobId: string }>(
+      res,
+      "params",
+    );
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Operational retry requested",
+          req.id,
+          await this.service.retryJob(
+            actor(req),
+            params.source,
+            params.jobId,
+            validated<OperationalRetryInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
   };
   anomalies = async (req: Request, res: Response) =>
-    res.status(200).json(successResponse("Payment anomalies retrieved", req.id, await this.service.anomalies(actor(req), validated<AnomalyListQuery>(res, "query"))));
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Payment anomalies retrieved",
+          req.id,
+          await this.service.anomalies(
+            actor(req),
+            validated<AnomalyListQuery>(res, "query"),
+            context(req),
+          ),
+        ),
+      );
+  disputes = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Payment disputes retrieved",
+          req.id,
+          await this.service.disputes(
+            actor(req),
+            validated<DisputeListQuery>(res, "query"),
+            context(req),
+          ),
+        ),
+      );
+  refunds = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Payment refunds retrieved",
+          req.id,
+          await this.service.refunds(
+            actor(req),
+            validated<RefundListQuery>(res, "query"),
+            context(req),
+          ),
+        ),
+      );
   updateAnomaly = async (req: Request, res: Response) =>
-    res.status(200).json(successResponse("Payment anomaly updated", req.id, await this.service.updateAnomaly(actor(req), validated<{ anomalyId: string }>(res, "params").anomalyId, validated<AnomalyUpdateInput>(res, "body"), context(req))));
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Payment anomaly updated",
+          req.id,
+          await this.service.updateAnomaly(
+            actor(req),
+            validated<{ anomalyId: string }>(res, "params").anomalyId,
+            validated<AnomalyUpdateInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
 }

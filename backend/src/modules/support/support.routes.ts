@@ -32,12 +32,17 @@ import {
   supportEmptyQuerySchema,
   supportIdParamsSchema,
   supportMessageBodySchema,
+  supportMessageListQuerySchema,
 } from "./support.schemas.js";
 
 export function createPublicSupportRouter(): Router {
   const router = Router();
   const controller = new SupportController();
-  router.get("/reviews", validate({ query: publicReviewListQuerySchema }), controller.publicReviews);
+  router.get(
+    "/reviews",
+    validate({ query: publicReviewListQuerySchema }),
+    controller.publicReviews,
+  );
   router.post(
     "/enquiries",
     requireTrustedOrigin,
@@ -59,7 +64,11 @@ export function createCustomerSupportRouter(): Router {
   const router = Router();
   const controller = new SupportController();
   router.use(authenticate(), requireCustomer);
-  router.get("/enquiries", validate({ query: customerEnquiryListQuerySchema }), controller.listEnquiries);
+  router.get(
+    "/enquiries",
+    validate({ query: customerEnquiryListQuerySchema }),
+    controller.listEnquiries,
+  );
   router.post(
     "/enquiries",
     requireCsrf,
@@ -82,6 +91,11 @@ export function createCustomerSupportRouter(): Router {
       query: supportEmptyQuerySchema,
     }),
     controller.messageEnquiry,
+  );
+  router.get(
+    "/enquiries/:supportId/messages",
+    validate({ params: supportIdParamsSchema, query: supportMessageListQuerySchema }),
+    controller.enquiryMessages,
   );
   router.get(
     "/complaints",
@@ -111,7 +125,16 @@ export function createCustomerSupportRouter(): Router {
     }),
     controller.messageComplaint,
   );
-  router.get("/reviews", validate({ query: customerReviewListQuerySchema }), controller.listReviews);
+  router.get(
+    "/complaints/:supportId/messages",
+    validate({ params: supportIdParamsSchema, query: supportMessageListQuerySchema }),
+    controller.complaintMessages,
+  );
+  router.get(
+    "/reviews",
+    validate({ query: customerReviewListQuerySchema }),
+    controller.listReviews,
+  );
   router.post(
     "/reviews",
     requireCsrf,
@@ -126,7 +149,11 @@ export function createStaffSupportRouter(): Router {
   const router = Router();
   const controller = new SupportController();
   router.use(authenticate(), requireStaff);
-  router.get("/enquiries", validate({ query: staffEnquiryListQuerySchema }), controller.staffEnquiries);
+  router.get(
+    "/enquiries",
+    validate({ query: staffEnquiryListQuerySchema }),
+    controller.staffEnquiries,
+  );
   router.get(
     "/enquiries/:supportId",
     validate({ params: supportIdParamsSchema, query: supportEmptyQuerySchema }),
@@ -161,6 +188,11 @@ export function createStaffSupportRouter(): Router {
       query: supportEmptyQuerySchema,
     }),
     controller.staffMessageEnquiry,
+  );
+  router.get(
+    "/enquiries/:supportId/messages",
+    validate({ params: supportIdParamsSchema, query: supportMessageListQuerySchema }),
+    controller.staffEnquiryMessages,
   );
   router.get(
     "/complaints",
@@ -211,6 +243,11 @@ export function createStaffSupportRouter(): Router {
       query: supportEmptyQuerySchema,
     }),
     controller.staffMessageComplaint,
+  );
+  router.get(
+    "/complaints/:supportId/messages",
+    validate({ params: supportIdParamsSchema, query: supportMessageListQuerySchema }),
+    controller.staffComplaintMessages,
   );
   router.get(
     "/reviews",

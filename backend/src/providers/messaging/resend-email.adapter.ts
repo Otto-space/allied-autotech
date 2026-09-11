@@ -1,4 +1,8 @@
-import { providerUnavailable } from "../../common/errors/provider-error-mapper.js";
+import { AppError } from "../../common/errors/app-error.js";
+import {
+  providerRejected,
+  providerUnavailable,
+} from "../../common/errors/provider-error-mapper.js";
 import { env } from "../../config/env.js";
 import type { EmailProvider, TransactionalEmail } from "./email-provider.port.js";
 
@@ -33,9 +37,20 @@ export class ResendEmailProvider implements EmailProvider {
           html: message.html,
         }),
       });
-      if (!response.ok) throw new Error("Email provider rejected delivery");
+      if (!response.ok) {
+        await response.body?.cancel();
+        if (
+          response.status === 408 ||
+          response.status === 425 ||
+          response.status === 429 ||
+          response.status >= 500
+        )
+          throw providerUnavailable();
+        throw providerRejected();
+      }
       await response.body?.cancel();
     } catch (error: unknown) {
+      if (error instanceof AppError) throw error;
       throw providerUnavailable(error);
     }
   }

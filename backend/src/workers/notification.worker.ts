@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { AppError } from "../common/errors/app-error.js";
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { prisma } from "../config/database.js";
 import {
@@ -47,10 +48,9 @@ export class NotificationDeliveryWorker {
 
   async runOnce(batchSize = 25): Promise<number> {
     const limit = Math.max(1, Math.min(batchSize, 100));
-    const claimed = await this.database.$transaction(async (transaction) => {
-      const events = await transaction.$queryRaw<ClaimedDelivery[]>`
+    const claimed = await this.database.$queryRaw<ClaimedDelivery[]>`
         WITH candidates AS (
-          SELECT event."id"
+          SELECT event."id", delivery."id" AS "deliveryId"
           FROM "OutboxEvent" event
           JOIN "NotificationDelivery" delivery ON delivery."outboxEventId" = event."id"
           WHERE (
@@ -58,31 +58,36 @@ export class NotificationDeliveryWorker {
             OR (event."status" = 'PROCESSING' AND event."lockedAt" < CURRENT_TIMESTAMP - INTERVAL '10 minutes')
           )
           AND event."eventType" = ${notificationEventTypes.deliveryRequested}
+          AND delivery."status" IN ('PENDING', 'FAILED', 'PROCESSING')
           ORDER BY event."createdAt" ASC
           FOR UPDATE OF event SKIP LOCKED
           LIMIT ${limit}
+        ), claimed AS (
+          UPDATE "OutboxEvent" event
+          SET "status" = 'PROCESSING',
+              "lockedAt" = CURRENT_TIMESTAMP,
+              "attempts" = event."attempts" + 1,
+              "updatedAt" = CURRENT_TIMESTAMP
+          FROM candidates
+          WHERE event."id" = candidates."id"
+          RETURNING event."id", event."eventId", event."payload", event."attempts",
+                    candidates."deliveryId"
+        ), delivery_claims AS (
+          UPDATE "NotificationDelivery" delivery
+          SET "status" = 'PROCESSING',
+              "attempts" = claimed."attempts",
+              "lastErrorCode" = NULL,
+              "updatedAt" = CURRENT_TIMESTAMP
+          FROM claimed
+          WHERE delivery."id" = claimed."deliveryId"
+          RETURNING delivery."id" AS "deliveryId", delivery."channel",
+                    delivery."outboxEventId"
         )
-        UPDATE "OutboxEvent" event
-        SET "status" = 'PROCESSING',
-            "lockedAt" = CURRENT_TIMESTAMP,
-            "attempts" = event."attempts" + 1,
-            "updatedAt" = CURRENT_TIMESTAMP
-        FROM candidates, "NotificationDelivery" delivery
-        WHERE event."id" = candidates."id"
-          AND delivery."outboxEventId" = event."id"
-        RETURNING event."id", event."eventId", event."payload", event."attempts",
-                  delivery."id" AS "deliveryId", delivery."channel"
+        SELECT claimed."id", claimed."eventId", claimed."payload", claimed."attempts",
+               delivery_claims."deliveryId", delivery_claims."channel"
+        FROM claimed
+        JOIN delivery_claims ON delivery_claims."outboxEventId" = claimed."id"
       `;
-      for (const event of events)
-        await transaction.notificationDelivery.updateMany({
-          where: {
-            id: event.deliveryId,
-            status: { in: ["PENDING", "FAILED", "PROCESSING"] },
-          },
-          data: { status: "PROCESSING", attempts: event.attempts, lastErrorCode: null },
-        });
-      return events;
-    });
     for (const event of claimed) await this.deliver(event);
     return claimed.length;
   }
@@ -122,7 +127,12 @@ export class NotificationDeliveryWorker {
       await this.database.$transaction([
         this.database.outboxEvent.updateMany({
           where: { id: event.id, status: "PROCESSING" },
-          data: { status: "PUBLISHED", publishedAt: now, lockedAt: null, lastError: null },
+          data: {
+            status: "PUBLISHED",
+            publishedAt: now,
+            lockedAt: null,
+            lastError: null,
+          },
         }),
         this.database.notificationDelivery.updateMany({
           where: { id: event.deliveryId, status: "PROCESSING" },
@@ -134,7 +144,11 @@ export class NotificationDeliveryWorker {
           },
         }),
       ]);
-    } catch {
+    } catch (error: unknown) {
+      if (error instanceof AppError && !error.retryable) {
+        code = "NOTIFICATION_DELIVERY_REJECTED";
+        terminal = true;
+      }
       const delaySeconds = Math.min(3_600, 2 ** Math.min(event.attempts, 8) * 15);
       await this.database.$transaction([
         this.database.outboxEvent.updateMany({
@@ -156,7 +170,12 @@ export class NotificationDeliveryWorker {
         }),
       ]);
       logger.warn(
-        { eventId: event.eventId, channel: event.channel, attempt: event.attempts, terminal },
+        {
+          eventId: event.eventId,
+          channel: event.channel,
+          attempt: event.attempts,
+          terminal,
+        },
         "Notification delivery failed",
       );
     }

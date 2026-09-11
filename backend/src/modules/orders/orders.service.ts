@@ -61,6 +61,10 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertCustomer(actor);
+    if (input.fulfillmentMethod === "DELIVERY")
+      throw orderConflict(
+        "Delivery checkout is unavailable until delivery areas and fees are approved",
+      );
     const scope = `order-checkout:${actor.userId}`;
     const keyHash = hashToken("order-checkout-idempotency", rawKey);
     const requestHash = orderFingerprint(input);
@@ -318,17 +322,20 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertCustomer(actor);
-    return this.database.$transaction(async (transaction) => {
-      const profile = await this.repository.customerProfile(actor.userId, transaction);
+    await this.database.$transaction(async (transaction) => {
+      const profile = await transaction.customerProfile.findUnique({
+        where: { userId: actor.userId },
+        select: { id: true },
+      });
       const order = await this.repository.lockOrder(id, transaction);
       if (
         profile === null ||
-        order?.customerName === undefined ||
+        order === null ||
         (await transaction.order.count({ where: { id, customerId: profile.id } })) !== 1
       )
         throw orderNotFound();
       if (order.status !== "PENDING") throw invalidOrderTransition();
-      return this.cancelLocked(
+      await this.cancelLocked(
         actor,
         order,
         input.expectedVersion,
@@ -337,6 +344,9 @@ export class OrdersService {
         context,
       );
     });
+    const updated = await this.repository.order(id);
+    if (updated === null) throw orderNotFound();
+    return jsonSafe(updated);
   }
   async transition(
     actor: AuthenticatedActor,
@@ -345,16 +355,16 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertOrderOperator(actor);
-    return this.database.$transaction(async (transaction) => {
+    await this.database.$transaction(async (transaction) => {
       const order = await this.repository.lockOrder(id, transaction);
       if (order === null) throw orderNotFound();
-      await this.assertBranch(actor, order.branch?.id ?? null, transaction);
+      await this.assertBranch(actor, order.branchId, transaction);
       if (!(transitions[order.status] as readonly string[]).includes(input.status))
         throw invalidOrderTransition();
       if (input.status === "CANCELLED") {
         if (input.reason === undefined)
           throw orderConflict("A cancellation reason is required");
-        return this.cancelLocked(
+        await this.cancelLocked(
           actor,
           order,
           input.expectedVersion,
@@ -362,6 +372,7 @@ export class OrdersService {
           transaction,
           context,
         );
+        return;
       }
       if (
         input.status === "CONFIRMED" &&
@@ -385,19 +396,19 @@ export class OrdersService {
         transaction,
       );
       if (result.count !== 1) throw orderStale();
-      const updated = await this.repository.order(id, transaction);
-      if (updated === null) throw orderNotFound();
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "STATUS_CHANGE",
         entityType: "ORDER",
         entityId: id,
         oldValues: { status: order.status, version: order.version },
-        newValues: { status: updated.status, version: updated.version },
+        newValues: { status: input.status, version: input.expectedVersion + 1 },
         context,
       });
-      return jsonSafe(updated);
     });
+    const updated = await this.repository.order(id);
+    if (updated === null) throw orderNotFound();
+    return jsonSafe(updated);
   }
   async expireDue(
     actor: AuthenticatedActor,
@@ -579,7 +590,7 @@ export class OrdersService {
       statuses,
       transaction,
     );
-    const inventories = await this.repository.lockInventoryIds(
+    const inventories = await this.repository.lockInventoryBalances(
       reservations.map(({ inventoryId }) => inventoryId),
       transaction,
     );
@@ -679,7 +690,7 @@ export class OrdersService {
   }
   private async cancelLocked(
     actor: AuthenticatedActor | null,
-    order: NonNullable<Awaited<ReturnType<OrdersRepository["order"]>>>,
+    order: NonNullable<Awaited<ReturnType<OrdersRepository["lockOrder"]>>>,
     expectedVersion: number,
     reason: string,
     transaction: Prisma.TransactionClient,
@@ -687,7 +698,12 @@ export class OrdersService {
   ) {
     if (!(["PENDING", "CONFIRMED", "PROCESSING"] as string[]).includes(order.status))
       throw invalidOrderTransition();
-    await this.releaseOrRestock(actor?.userId ?? null, order.id, order.status, transaction);
+    await this.releaseOrRestock(
+      actor?.userId ?? null,
+      order.id,
+      order.status,
+      transaction,
+    );
     const now = new Date();
     const result = await this.repository.updateOrder(
       order.id,
@@ -701,18 +717,15 @@ export class OrdersService {
       where: { orderId: order.id, status: { in: ["DRAFT", "ISSUED"] } },
       data: { status: "VOID", voidedAt: now, version: { increment: 1 } },
     });
-    const updated = await this.repository.order(order.id, transaction);
-    if (updated === null) throw orderNotFound();
     await appendAuditEvent(transaction, {
       actorUserId: actor?.userId ?? null,
       action: "STATUS_CHANGE",
       entityType: "ORDER",
       entityId: order.id,
       oldValues: { status: order.status, version: order.version },
-      newValues: { status: "CANCELLED", version: updated.version, reason },
+      newValues: { status: "CANCELLED", version: expectedVersion + 1, reason },
       context,
     });
-    return jsonSafe(updated);
   }
 }
 

@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { providerUnavailable } from "../../common/errors/provider-error-mapper.js";
+import { AppError } from "../../common/errors/app-error.js";
+import {
+  providerRejected,
+  providerUnavailable,
+} from "../../common/errors/provider-error-mapper.js";
 import { assertPaystackMode, env } from "../../config/env.js";
 import type {
   InitializePaymentCommand,
@@ -71,9 +75,19 @@ export class PaystackAdapter implements PaymentProviderPort {
       if (bytes.byteLength > env.PAYSTACK_MAX_RESPONSE_BYTES)
         throw new Error("Provider response too large");
       const body: unknown = JSON.parse(bytes.toString("utf8"));
-      if (!response.ok) throw new Error("Provider rejected request");
+      if (!response.ok) {
+        if (
+          response.status === 408 ||
+          response.status === 425 ||
+          response.status === 429 ||
+          response.status >= 500
+        )
+          throw providerUnavailable();
+        throw providerRejected();
+      }
       return body;
     } catch (error) {
+      if (error instanceof AppError) throw error;
       throw providerUnavailable(error);
     }
   }

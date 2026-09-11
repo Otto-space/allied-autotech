@@ -12,6 +12,7 @@ import type {
   StaffComplaintListQuery,
   StaffEnquiryListQuery,
   StaffReviewListQuery,
+  SupportMessageListQuery,
 } from "./support.schemas.js";
 
 type DatabaseClient = PrismaClient | Prisma.TransactionClient;
@@ -70,6 +71,8 @@ const complaintBaseSelect = {
 const reviewBaseSelect = {
   id: true,
   targetType: true,
+  productId: true,
+  orderItemId: true,
   serviceId: true,
   bookingId: true,
   orderId: true,
@@ -83,6 +86,7 @@ const reviewBaseSelect = {
   version: true,
   createdAt: true,
   updatedAt: true,
+  product: { select: { id: true, name: true, slug: true } },
   service: { select: { id: true, name: true, slug: true } },
 } satisfies Prisma.ReviewSelect;
 
@@ -136,11 +140,17 @@ export class SupportRepository {
   }
 
   activeProduct(id: string, client: DatabaseClient) {
-    return client.product.findFirst({ where: { id, isActive: true }, select: { id: true } });
+    return client.product.findFirst({
+      where: { id, isActive: true },
+      select: { id: true },
+    });
   }
 
   activeService(id: string, client: DatabaseClient) {
-    return client.service.findFirst({ where: { id, isActive: true }, select: { id: true } });
+    return client.service.findFirst({
+      where: { id, isActive: true },
+      select: { id: true },
+    });
   }
 
   activeListing(id: string, client: DatabaseClient) {
@@ -153,7 +163,13 @@ export class SupportRepository {
   booking(id: string, client: DatabaseClient) {
     return client.booking.findUnique({
       where: { id },
-      select: { id: true, customerId: true, serviceId: true, branchId: true, status: true },
+      select: {
+        id: true,
+        customerId: true,
+        serviceId: true,
+        branchId: true,
+        status: true,
+      },
     });
   }
 
@@ -171,6 +187,17 @@ export class SupportRepository {
     return client.order.findUnique({
       where: { id },
       select: { id: true, customerId: true, branchId: true, status: true },
+    });
+  }
+
+  orderItem(id: string, client: DatabaseClient) {
+    return client.orderItem.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        productId: true,
+        order: { select: { customerId: true, status: true } },
+      },
     });
   }
 
@@ -202,9 +229,7 @@ export class SupportRepository {
         ...(input.phone === undefined ? {} : { phone: input.phone }),
         ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE"
-          ? { vehicleListingId: input.vehicleListingId }
-          : {}),
+        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
       },
       select: { id: true, status: true, createdAt: true },
     });
@@ -229,9 +254,7 @@ export class SupportRepository {
         phone: customer.phone,
         ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE"
-          ? { vehicleListingId: input.vehicleListingId }
-          : {}),
+        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
         ...(input.type === "BOOKING" ? { bookingId: input.bookingId } : {}),
         ...(input.type === "QUOTATION" ? { quoteId: input.quoteId } : {}),
       },
@@ -283,10 +306,7 @@ export class SupportRepository {
     });
   }
 
-  listCustomerEnquiries(
-    customerId: string,
-    query: CustomerSupportListQuery,
-  ) {
+  listCustomerEnquiries(customerId: string, query: CustomerSupportListQuery) {
     const statuses = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"] as const;
     return this.database.enquiry.findMany({
       where: {
@@ -302,10 +322,7 @@ export class SupportRepository {
     });
   }
 
-  listCustomerComplaints(
-    customerId: string,
-    query: CustomerSupportListQuery,
-  ) {
+  listCustomerComplaints(customerId: string, query: CustomerSupportListQuery) {
     const statuses = ["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"] as const;
     return this.database.complaint.findMany({
       where: {
@@ -321,7 +338,11 @@ export class SupportRepository {
     });
   }
 
-  customerEnquiry(customerId: string, id: string, client: DatabaseClient = this.database) {
+  customerEnquiry(
+    customerId: string,
+    id: string,
+    client: DatabaseClient = this.database,
+  ) {
     return client.enquiry.findFirst({
       where: { id, customerId },
       select: {
@@ -352,6 +373,77 @@ export class SupportRepository {
           take: 200,
         },
       },
+    });
+  }
+
+  customerThread(
+    customerId: string,
+    kind: "enquiry" | "complaint",
+    id: string,
+    client: DatabaseClient = this.database,
+  ) {
+    return kind === "enquiry"
+      ? client.enquiry.findFirst({
+          where: { id, customerId },
+          select: {
+            id: true,
+            status: true,
+            assignedStaffId: true,
+          },
+        })
+      : client.complaint.findFirst({
+          where: { id, customerId },
+          select: {
+            id: true,
+            status: true,
+            assignedStaffId: true,
+          },
+        });
+  }
+
+  staffThread(
+    kind: "enquiry" | "complaint",
+    id: string,
+    client: DatabaseClient = this.database,
+  ) {
+    return kind === "enquiry"
+      ? client.enquiry.findUnique({
+          where: { id },
+          select: { id: true, branchId: true, status: true },
+        })
+      : client.complaint.findUnique({
+          where: { id },
+          select: { id: true, branchId: true, status: true },
+        });
+  }
+
+  async listMessages(
+    kind: "enquiry" | "complaint",
+    id: string,
+    query: SupportMessageListQuery,
+    customerVisibleOnly: boolean,
+  ) {
+    const target = kind === "enquiry" ? { enquiryId: id } : { complaintId: id };
+    if (query.cursor) {
+      const cursor = await this.database.supportMessage.findFirst({
+        where: {
+          id: query.cursor,
+          ...target,
+          ...(customerVisibleOnly ? { visibility: "CUSTOMER" as const } : {}),
+        },
+        select: { id: true },
+      });
+      if (cursor === null) return null;
+    }
+    return this.database.supportMessage.findMany({
+      where: {
+        ...target,
+        ...(customerVisibleOnly ? { visibility: "CUSTOMER" as const } : {}),
+      },
+      select: messageSelect,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: query.limit + 1,
+      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
     });
   }
 
@@ -480,6 +572,7 @@ export class SupportRepository {
       where: {
         status: "APPROVED",
         ...(query.targetType ? { targetType: query.targetType } : {}),
+        ...(query.productId ? { productId: query.productId } : {}),
         ...(query.serviceId ? { serviceId: query.serviceId } : {}),
       },
       select: {
@@ -489,6 +582,7 @@ export class SupportRepository {
         title: true,
         comment: true,
         createdAt: true,
+        product: { select: { id: true, name: true, slug: true } },
         service: { select: { id: true, name: true, slug: true } },
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
@@ -516,6 +610,8 @@ export class SupportRepository {
       select: {
         ...reviewBaseSelect,
         customer: { select: { firstName: true, lastName: true } },
+        product: { select: { id: true, name: true, slug: true } },
+        orderItem: { select: { id: true, orderId: true } },
         order: { select: { orderNumber: true } },
         booking: { select: { id: true, completedAt: true } },
         vehicleTransaction: { select: { transactionNumber: true } },
@@ -526,11 +622,7 @@ export class SupportRepository {
     });
   }
 
-  createReview(
-    customerId: string,
-    input: ReviewCreateInput,
-    client: DatabaseClient,
-  ) {
+  createReview(customerId: string, input: ReviewCreateInput, client: DatabaseClient) {
     return client.review.create({
       data: {
         customerId,
@@ -538,6 +630,9 @@ export class SupportRepository {
         rating: input.rating,
         ...(input.title === undefined ? {} : { title: input.title }),
         comment: input.comment,
+        ...(input.targetType === "PRODUCT"
+          ? { productId: input.productId, orderItemId: input.orderItemId }
+          : {}),
         ...(input.targetType === "SERVICE"
           ? { serviceId: input.serviceId, bookingId: input.bookingId }
           : {}),
@@ -546,7 +641,7 @@ export class SupportRepository {
           ? { vehicleTransactionId: input.vehicleTransactionId }
           : {}),
       },
-      select: reviewBaseSelect,
+      select: { id: true },
     });
   }
 
@@ -556,6 +651,18 @@ export class SupportRepository {
       select: {
         ...reviewBaseSelect,
         customerId: true,
+        customer: { select: { userId: true } },
+      },
+    });
+  }
+
+  reviewForModeration(id: string, client: DatabaseClient) {
+    return client.review.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        version: true,
         customer: { select: { userId: true } },
       },
     });

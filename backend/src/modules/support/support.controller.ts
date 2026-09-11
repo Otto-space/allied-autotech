@@ -21,6 +21,7 @@ import type {
   StaffReviewListQuery,
   StaffSupportMessageInput,
   SupportMessageInput,
+  SupportMessageListQuery,
 } from "./support.schemas.js";
 import { supportService, type SupportService } from "./support.service.js";
 
@@ -71,7 +72,9 @@ export class SupportController {
         successResponse(
           "Reviews retrieved",
           req.id,
-          await this.service.publicReviews(validated<PublicReviewListQuery>(res, "query")),
+          await this.service.publicReviews(
+            validated<PublicReviewListQuery>(res, "query"),
+          ),
         ),
       );
   createEnquiry = async (req: Request, res: Response) =>
@@ -111,6 +114,23 @@ export class SupportController {
           await this.service.customerEnquiry(actor(req), id(res)),
         ),
       );
+  enquiryMessages = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    return res
+      .status(200)
+      .json(
+        successResponse(
+          "Messages retrieved",
+          req.id,
+          await this.service.customerMessages(
+            actor(req),
+            "enquiry",
+            id(res),
+            validated<SupportMessageListQuery>(res, "query"),
+          ),
+        ),
+      );
+  };
   messageEnquiry = async (req: Request, res: Response) =>
     res
       .status(201)
@@ -164,6 +184,23 @@ export class SupportController {
           await this.service.customerComplaint(actor(req), id(res)),
         ),
       );
+  complaintMessages = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    return res
+      .status(200)
+      .json(
+        successResponse(
+          "Messages retrieved",
+          req.id,
+          await this.service.customerMessages(
+            actor(req),
+            "complaint",
+            id(res),
+            validated<SupportMessageListQuery>(res, "query"),
+          ),
+        ),
+      );
+  };
   messageComplaint = async (req: Request, res: Response) =>
     res
       .status(201)
@@ -269,6 +306,40 @@ export class SupportController {
           await this.service.staffRecord(actor(req), "complaint", id(res), context(req)),
         ),
       );
+  staffEnquiryMessages = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    return res
+      .status(200)
+      .json(
+        successResponse(
+          "Messages retrieved",
+          req.id,
+          await this.service.staffMessages(
+            actor(req),
+            "enquiry",
+            id(res),
+            validated<SupportMessageListQuery>(res, "query"),
+          ),
+        ),
+      );
+  };
+  staffComplaintMessages = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    return res
+      .status(200)
+      .json(
+        successResponse(
+          "Messages retrieved",
+          req.id,
+          await this.service.staffMessages(
+            actor(req),
+            "complaint",
+            id(res),
+            validated<SupportMessageListQuery>(res, "query"),
+          ),
+        ),
+      );
+  };
   assignEnquiry = async (req: Request, res: Response) =>
     res
       .status(200)

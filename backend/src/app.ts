@@ -9,6 +9,7 @@ import { withTimeout } from "./common/database/health.js";
 import { errorCodes } from "./common/errors/error-codes.js";
 import { errorHandler } from "./common/middleware/error-handler.js";
 import { notFound } from "./common/middleware/not-found.js";
+import { privateNoStore } from "./common/middleware/private-no-store.js";
 import { createGlobalRateLimit } from "./common/middleware/rate-limits.js";
 import { rawWebhookBody } from "./common/middleware/raw-webhook-body.js";
 import { requestContext } from "./common/middleware/request-context.js";
@@ -113,6 +114,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
 
   app.use(
     "/api/v1",
+    privateNoStore,
     options.apiRouter ??
       createApiRouter({
         checkReadiness: options.checkReadiness ?? defaultReadinessCheck,

@@ -11,6 +11,8 @@ credentials, certificates, provider payloads, or environment-variable values.
 - PostgreSQL cluster ID: `REPLACE_DATABASE_CLUSTER_ID`
 - Spaces bucket: `REPLACE_PRIVATE_BUCKET_NAME`
 - API image reference: `registry.digitalocean.com/REPLACE_REGISTRY/allied-autotech-backend-api@sha256:REPLACE_API_DIGEST`
+- Identity-worker image reference: `registry.digitalocean.com/REPLACE_REGISTRY/allied-autotech-backend-identity-worker@sha256:REPLACE_IDENTITY_WORKER_DIGEST`
+- General-worker image reference: `registry.digitalocean.com/REPLACE_REGISTRY/allied-autotech-backend-general-worker@sha256:REPLACE_GENERAL_WORKER_DIGEST`
 - Migration image reference: `registry.digitalocean.com/REPLACE_REGISTRY/allied-autotech-backend-migrate@sha256:REPLACE_MIGRATION_DIGEST`
 - Migration deployment/job ID: `REPLACE_MIGRATION_JOB_ID`
 - Migration result: `REPLACE_PASS_OR_FAIL`

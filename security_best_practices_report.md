@@ -1,89 +1,76 @@
-****# Security Best-Practices Review
+# Security Best-Practices Review
+
+Review date: 2026-09-10
 
 ## Executive summary
 
-The repository contains a Next.js frontend and an Express/Prisma backend. No secrets are tracked or staged, and no credential-shaped values were found in the working tree or Git history. The backend now includes secure identity, customer ownership, privileged provisioning, branch-aware administration, strict validation, CSRF, MFA, and append-only audit controls.
+The backend is designed around an Express 5, Prisma 7, and PostgreSQL trust boundary. The reviewed release uses opaque, server-side sessions rather than browser-stored bearer tokens; synchronizer CSRF protection; default-deny role, ownership, and branch policies; mandatory MFA assurance for privileged access; strict Zod input contracts; transactional business operations; and redacted structured logging.
 
-One dependency advisory remains in Prisma's development CLI dependency tree. It is not reachable through the running API, and npm's proposed remediation is an incompatible Prisma 7 to Prisma 6 downgrade. A Content Security Policy for Next.js should be added when the application's script/image requirements are known; introducing an untested policy now could break framework hydration.
+No credential or private-key file is tracked, and both the current-tree and Git-history secret guards pass. The new customer-review implementation supports separately rated overall-business and verified-purchase product reviews. Product eligibility, one-review-per-customer/product, moderation, and immutability are enforced in both application code and PostgreSQL. The customer-care messaging surface enforces thread ownership or staff scope, hides internal messages from customers, disables private-response caching, and uses bounded cursor polling.
 
-## Resolved findings
+No unresolved critical or high-severity application-code vulnerability was found in this pass. One npm-rated high transitive advisory remains in the Prisma CLI configuration toolchain. It is documented below because npm currently offers only an incompatible forced downgrade, not a safe upgrade. Staging still requires browser, Cloudflare/Vercel proxy, database-TLS, object-storage, and provider validation with real infrastructure.
 
-### SEC-001 — Credentialed CORS configuration
+OAuth, Google sign-in, and JWT access tokens were not added. They are not needed for the current browser application and would add token, account-linking, redirect, and key-rotation attack surfaces without replacing the existing session and CSRF requirements.
 
-- Rule ID: EXPRESS-CORS-001
-- Severity: High
-- Location: `backend/src/server.ts`, environment validation and CORS middleware, lines 13–31 and 58–72
-- Evidence: `FRONTEND_URL` is now required, parsed as one or more valid URLs, normalized to exact origins, and compared through a `Set`. Untrusted browser origins receive HTTP 403.
-- Impact: The previous **single** optional environment value could create broken or unintended credentialed cross-origin behavior.
-- Fix: Exact origin allowlisting, explicit methods/headers, controlled preflight caching, and fail-fast environment validation.
-- Mitigation: Keep production `FRONTEND_URL` limited to exact HTTPS application origins.
-- False-positive notes: Requests without an `Origin` header remain allowed because non-browser clients and same-origin traffic commonly omit it; authentication and authorization must still protect private routes.
+## Verified security controls
 
-### SEC-002 — Unbounded requests and basic abuse exposure
+- `backend/.env` is ignored and untracked. `.env.example` contains placeholders and documented non-secret settings only.
+- `npm run check:secrets` and `npm run check:secrets:history` scan for forbidden environment files, private keys, credential-bearing URLs, provider credentials, JWTs, and credential-shaped literals.
+- The API disables Express fingerprinting, uses explicit trusted-proxy hop counts, Helmet, exact credentialed CORS allowlisting, bounded JSON parsing, isolated raw Paystack webhook bytes, and private/no-store API caching (`backend/src/app.ts`).
+- Session cookies are `HttpOnly`, `SameSite=Lax`, path `/`, have no `Domain`, and are `Secure` in production (`backend/src/common/security/cookies.ts`). Session and CSRF values are stored only as purpose-separated HMAC hashes.
+- Authenticated mutations require a session-bound CSRF header plus trusted Origin and fetch-metadata validation (`backend/src/common/middleware/csrf.ts`).
+- Passwords use Argon2id. Password, token, cookie, authorization, MFA, payment, personal-data, and storage-key paths are redacted from logs.
+- Privileged access requires an active user, an unexpired/revocable opaque session, role/branch policy approval, and completed MFA assurance.
+- Paystack webhooks are signature-verified over their exact raw bytes before trusted parsing. Event deduplication, amount/currency/reference validation, locking, immutable ledger entries, anomalies, and four-eyes refund/manual-payment decisions protect settlement.
+- Provider adapters use fixed or allowlisted HTTPS origins, request timeouts, bounded responses, redacted errors, and retry classification. Staging enforces Paystack test mode; live keys require explicit production enablement.
+- Private vehicle/payment assets use validated content metadata, generated storage keys, authorization-gated short-lived access, and never return underlying object keys.
+- PostgreSQL constraints and triggers protect non-negative inventory, integer-kobo totals, lifecycle transitions, append-only financial/inventory/audit history, active reservation uniqueness, review eligibility, and immutable approved review targets.
 
-- Rule ID: EXPRESS-BODY-001 / EXPRESS-RATE-001 / EXPRESS-TIMEOUT-001
-- Severity: Medium
-- Location: `backend/src/server.ts`, lines 49–56, 74, and 102–108
-- Evidence: The API now limits JSON bodies to 100 KB, throttles each client to 300 requests per 15 minutes, and configures request/header/keep-alive timeouts.
-- Impact: Large or slow requests and inexpensive request floods could consume memory, sockets, or application capacity.
-- Fix: Added explicit parser limits, standards-based rate-limit headers, and bounded server timeouts.
-- Mitigation: Add stricter per-route limits to future login, password-reset, payment, and enquiry endpoints; use a shared rate-limit store when running multiple API instances.
-- False-positive notes: Infrastructure-level throttling was not visible in this repository.
+## Review and customer-care controls
 
-### SEC-003 — Server fingerprinting and uncontrolled errors
+### SEC-007 — Product-review eligibility and immutability
 
-- Rule ID: EXPRESS-FINGERPRINT-001 / EXPRESS-ERROR-001
-- Severity: Medium
-- Location: `backend/src/server.ts`, lines 42–48 and 83–100
-- Evidence: Express fingerprinting is disabled, Helmet is enabled, and custom JSON 404/error handlers prevent stack traces from reaching clients.
-- Impact: Default framework responses disclose implementation details and can expose internal exception information.
-- Fix: Disabled `X-Powered-By`; added controlled 404, CORS, and generic error responses.
-- Mitigation: Send structured server logs to a protected logging service in production and never log request credentials or tokens.
-- False-positive notes: Development responses are also generic; full errors remain server-side only.
+- Status: Resolved
+- Severity before mitigation: High
+- Evidence: `backend/src/modules/support/support.schemas.ts`, `backend/src/modules/support/support.service.ts`, and `backend/prisma/migrations/20260910101000_product_reviews/migration.sql`.
+- Resolution: A product review requires a 1–5 rating, the target product, and a completed order item owned by the authenticated customer. PostgreSQL independently verifies the same relationship. A partial unique index enforces one product review per customer/product, and target/rating/content fields are immutable after creation. Only approved reviews are public, and their projection excludes customer identity.
 
-### SEC-004 — Missing frontend baseline headers
+### SEC-008 — Overall-experience review boundary
 
-- Rule ID: NEXT-HEADERS-001 / REACT-HEADERS-001
-- Severity: Medium
-- Location: `frontend/next.config.ts`, lines 3–20
-- Evidence: Next.js fingerprinting is disabled and all routes now receive MIME-sniffing, clickjacking, referrer, and browser-feature restrictions.
-- Impact: Without these headers, browsers provide weaker protection against framing, MIME confusion, referrer leakage, and unnecessary powerful features.
-- Fix: Added `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy` globally.
-- Mitigation: Preserve or strengthen these headers at the deployment edge.
-- False-positive notes: A deployment platform may already set some headers; duplicate compatible values should be consolidated at deployment time.
+- Status: Resolved
+- Severity before mitigation: Medium
+- Evidence: `backend/src/modules/support/support.schemas.ts` and the review moderation service.
+- Resolution: Overall experience uses the distinct `BUSINESS` review target and requires a 1–5 rating. It follows the same customer authentication, moderation, public projection, audit, and immutable-content controls as other reviews.
 
-## Residual findings
+### SEC-009 — Customer-care message isolation
 
-### SEC-005 — Prisma CLI transitive dependency advisories
+- Status: Resolved
+- Severity before mitigation: High
+- Evidence: `backend/src/modules/support/support.routes.ts`, `support.service.ts`, `support.repository.ts`, and `support.controller.ts`.
+- Resolution: Customers can read or append only their own enquiry/complaint threads. Staff access is role- and branch-scoped. Internal messages are removed from all customer queries. Cursors must belong to the authorized thread, writes to closed threads fail, bodies and page sizes are bounded, mutations require CSRF, and message responses use `private, no-store`. Assigned staff/customer notifications use the transactional outbox.
 
-- Rule ID: JS-SUPPLY-001
-- Severity: Low in this repository (npm rating: High)
-- Location: `backend/package-lock.json`; dependency path `prisma@7.10.0 > @prisma/config@7.10.0 > deepmerge-ts@7.1.5`
-- Evidence: `npm audit --omit=dev` reports four high-rated dependency-chain findings involving `deepmerge-ts`, `mysql2`, `@prisma/config`, and `prisma`. Prisma runs only in controlled application/database tooling, and the checked-in config exports a fixed plain object rather than attacker-controlled recursive data.
-- Impact: The reported issues concern recursive configuration merging and MySQL protocol behavior. This application uses PostgreSQL and does not expose Prisma configuration or MySQL connections to untrusted callers.
-- Fix: Upgrade Prisma when it adopts `deepmerge-ts >= 8.0.0`. Do not use `npm audit fix --force`; npm currently proposes an incompatible downgrade to Prisma 6.12.0.
-- Mitigation: Run Prisma only in trusted development/CI environments and do not merge untrusted objects into Prisma configuration.
-- False-positive notes: The advisory's generic severity overstates this application's runtime exposure; it remains a real development-tool dependency issue.
+### SEC-010 — Cross-instance real-time delivery decision
 
-### SEC-006 — Next.js Content Security Policy not yet enforced
+- Status: Safely bounded
+- Severity: Informational
+- Resolution: The initial chat experience uses five-second bounded cursor polling. It works through Vercel forwarding and multiple App Platform instances without sticky sessions or an in-memory connection registry. WebSockets or server-sent events should be introduced only with a shared event backbone, authenticated connection revalidation, origin enforcement, connection/message quotas, and confirmed proxy support.
 
-- Rule ID: NEXT-CSP-001 / REACT-HEADERS-001
-- Severity: Low for the current static starter page; reassess before accepting user content or third-party scripts
-- Location: `frontend/next.config.ts`, headers configuration
-- Evidence: No `Content-Security-Policy` response header is configured.
-- Impact: A future injection bug would have fewer browser-level restrictions on script execution and resource loading.
-- Fix: Introduce a nonce- or hash-based CSP once the app's runtime rendering, image, API, analytics, and payment domains are defined and test it in report-only mode first.
-- Mitigation: Continue avoiding raw HTML, dynamic script injection, untrusted URL navigation, and browser storage for authentication tokens.
-- False-positive notes: No `dangerouslySetInnerHTML`, DOM injection, eval, dynamic script loading, or user-generated rendering exists in the current frontend.
+## Residual findings and deployment validation
 
-## Verified controls
+### SEC-011 — Prisma CLI transitive dependency advisory
 
-- `backend/.env` is ignored and is not tracked, staged, or present in any of the 11 commits reviewed on 2026-09-04.
-- `.env.example` contains only empty values, non-secret configuration, and explicit placeholders.
-- Automated `npm run check:secrets` scanning now blocks environment files, private keys, common provider tokens, JWTs, credential-bearing URLs, and literal sensitive example values from non-ignored repository files.
-- Database credentials remain environment-sourced and are URL-encoded in `backend/prisma.config.ts`.
-- Passwords and authentication/reset/session tokens are modeled as hashes rather than plaintext values.
-- UUIDs are used for public database identifiers.
-- PostgreSQL constraints enforce important monetary, inventory, rating, and lifecycle invariants.
-- Backend audit findings are limited to the documented Prisma toolchain dependency chain; no forced incompatible downgrade was applied.
-- Prisma validation, backend TypeScript checks, and direct API behavior checks pass.
+- Status: Accepted temporarily; upgrade watch required
+- npm severity: High; assessed runtime exposure: Low when runtime images exclude the Prisma CLI
+- Dependency path: `prisma@7.10.0 > @prisma/config@7.10.0 > deepmerge-ts@7.x`
+- Advisory: `deepmerge-ts` can exhaust the stack while merging attacker-controlled recursive object graphs. The application does not accept untrusted Prisma configuration objects, and Prisma CLI execution is limited to controlled development, CI, and migration jobs.
+- Action: Upgrade Prisma when a compatible stable release resolves `deepmerge-ts < 8`. Do not run `npm audit fix --force`; the current proposed remediation is an incompatible Prisma 6 downgrade. Keep the migration image private and short-lived, and verify that API/worker runtime images omit the CLI.
+
+### SEC-012 — Staging edge and browser validation
+
+- Status: Requires deployed infrastructure
+- Severity: Medium until validated
+- Required checks: exact Cloudflare/Vercel/App Platform proxy topology and hop count; HTTPS redirect and forwarded-protocol behavior; PostgreSQL `verify-full` CA validation; private Spaces permissions and signed-access expiry; Paystack test-mode webhook delivery; cookie `Secure`/`SameSite` behavior; CSRF Origin/fetch-metadata rejection; cache bypass for sessions and private API responses; hosted Swagger disabled; and a nonce-based frontend CSP tested in report-only mode before enforcement.
+
+## Verification record
+
+The release gate includes migration replay from an empty PostgreSQL database, Prisma validation/status, strict TypeScript compilation, lint and formatting checks, OpenAPI generation/validation, unit/API/integration/security tests, current-tree and history secret scans, `git diff --check`, production builds, and container smoke tests. Results and any environment-dependent exclusions are recorded in `backend/docs/backend-completion-staging-readiness.md`.

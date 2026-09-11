@@ -22,6 +22,7 @@ import {
   staffSupportMessageBodySchema,
   supportIdParamsSchema,
   supportMessageBodySchema,
+  supportMessageListQuerySchema,
 } from "./support.schemas.js";
 
 const response = z.object({
@@ -52,11 +53,27 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       query: publicReviewListQuerySchema,
     },
     {
+      method: "get",
+      path: "/customers/support/enquiries/{supportId}/messages",
+      summary: "Poll new customer-visible enquiry chat messages",
+      params: supportIdParamsSchema,
+      query: supportMessageListQuerySchema,
+      security: true,
+    },
+    {
       method: "post",
       path: "/public/support/enquiries",
       summary: "Submit a public enquiry",
       body: publicEnquiryCreateBodySchema,
       accepted: true,
+    },
+    {
+      method: "get",
+      path: "/customers/support/complaints/{supportId}/messages",
+      summary: "Poll new customer-visible complaint chat messages",
+      params: supportIdParamsSchema,
+      query: supportMessageListQuerySchema,
+      security: true,
     },
     {
       method: "post",
@@ -73,6 +90,14 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       security: true,
     },
     {
+      method: "get",
+      path: "/staff/support/enquiries/{supportId}/messages",
+      summary: "Poll new branch-authorized enquiry chat messages",
+      params: supportIdParamsSchema,
+      query: supportMessageListQuerySchema,
+      security: true,
+    },
+    {
       method: "post",
       path: "/customers/support/enquiries",
       summary: "Create an owned enquiry",
@@ -85,6 +110,14 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       path: "/customers/support/enquiries/{supportId}",
       summary: "Get an owned enquiry and customer-visible history",
       params: supportIdParamsSchema,
+      security: true,
+    },
+    {
+      method: "get",
+      path: "/staff/support/complaints/{supportId}/messages",
+      summary: "Poll new branch-authorized complaint chat messages",
+      params: supportIdParamsSchema,
+      query: supportMessageListQuerySchema,
       security: true,
     },
     {

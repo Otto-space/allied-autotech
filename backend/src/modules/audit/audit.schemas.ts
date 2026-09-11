@@ -92,7 +92,10 @@ export const operationalJobParamsSchema = z
   .object({ source: z.enum(["outbox", "webhook"]), jobId: z.uuid() })
   .strict();
 export const operationalRetryBodySchema = z
-  .object({ expectedAttempts: z.number().int().min(1).max(1_000), reason: z.string().trim().min(3).max(500) })
+  .object({
+    expectedAttempts: z.number().int().min(1).max(1_000),
+    reason: z.string().trim().min(3).max(500),
+  })
   .strict();
 export const anomalyListQuerySchema = z
   .object({
@@ -120,6 +123,42 @@ export const anomalyUpdateBodySchema = z
     resolutionNote: z.string().trim().min(3).max(2_000),
   })
   .strict();
+export const disputeListQuerySchema = z
+  .object({
+    ...page,
+    status: z
+      .enum(["AWAITING_RESPONSE", "UNDER_REVIEW", "WON", "LOST", "ACCEPTED", "EXPIRED"])
+      .optional(),
+    category: z
+      .enum([
+        "NOT_RECOGNIZED",
+        "FRAUD",
+        "NOT_RECEIVED",
+        "NOT_AS_DESCRIBED",
+        "DUPLICATE_CHARGE",
+        "REFUND_NOT_RECEIVED",
+        "OTHER",
+      ])
+      .optional(),
+  })
+  .strict();
+export const refundListQuerySchema = z
+  .object({
+    ...page,
+    status: z
+      .enum([
+        "REQUESTED",
+        "APPROVED",
+        "PENDING",
+        "PROCESSING",
+        "NEEDS_ATTENTION",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED",
+      ])
+      .optional(),
+  })
+  .strict();
 export const operationsEmptyQuerySchema = z.object({}).strict().default({});
 
 export type AuditListQuery = z.infer<typeof auditListQuerySchema>;
@@ -127,3 +166,5 @@ export type OperationalJobsQuery = z.infer<typeof operationalJobsQuerySchema>;
 export type OperationalRetryInput = z.infer<typeof operationalRetryBodySchema>;
 export type AnomalyListQuery = z.infer<typeof anomalyListQuerySchema>;
 export type AnomalyUpdateInput = z.infer<typeof anomalyUpdateBodySchema>;
+export type DisputeListQuery = z.infer<typeof disputeListQuerySchema>;
+export type RefundListQuery = z.infer<typeof refundListQuerySchema>;

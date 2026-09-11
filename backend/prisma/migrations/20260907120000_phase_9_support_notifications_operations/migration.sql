@@ -42,10 +42,6 @@ ALTER TABLE "Review"
   ),
   ADD CONSTRAINT "aat_review_version_nonnegative" CHECK ("version" >= 0);
 
-CREATE UNIQUE INDEX "Review_customer_business_key"
-  ON "Review" ("customerId")
-  WHERE "targetType" = 'BUSINESS';
-
 CREATE INDEX "Review_moderatedByUserId_idx" ON "Review" ("moderatedByUserId");
 
 ALTER TABLE "Review"

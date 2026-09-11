@@ -94,6 +94,15 @@ const inventoryCheckoutSelect = {
   branch: { select: { isActive: true } },
 } satisfies Prisma.InventorySelect;
 
+const lockedOrderSelect = {
+  id: true,
+  branchId: true,
+  customerName: true,
+  status: true,
+  version: true,
+  paymentDueAt: true,
+} satisfies Prisma.OrderSelect;
+
 export class OrdersRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
   customerProfile(userId: string, client: DatabaseClient = this.database) {
@@ -160,6 +169,15 @@ export class OrdersRepository {
       (left, right) => (positions.get(left.id) ?? 0) - (positions.get(right.id) ?? 0),
     );
   }
+  async lockInventoryBalances(inventoryIds: string[], client: Prisma.TransactionClient) {
+    if (inventoryIds.length === 0) return [];
+    const values = inventoryIds.map((id) => Prisma.sql`${id}::uuid`);
+    return client.$queryRaw<
+      Array<{ id: string; quantity: number; reserved: number; version: number }>
+    >(
+      Prisma.sql`SELECT "id", "quantity", "reserved", "version" FROM "Inventory" WHERE "id" IN (${Prisma.join(values)}) ORDER BY "id" FOR UPDATE`,
+    );
+  }
   createOrder(data: Prisma.OrderUncheckedCreateInput, client: DatabaseClient) {
     return client.order.create({ data, select: orderSelect });
   }
@@ -173,7 +191,9 @@ export class OrdersRepository {
     const rows = await client.$queryRaw<
       Array<{ id: string }>
     >`SELECT "id" FROM "Order" WHERE "id" = ${id}::uuid FOR UPDATE`;
-    return rows.length === 0 ? null : this.order(id, client);
+    return rows.length === 0
+      ? null
+      : await client.order.findUnique({ where: { id }, select: lockedOrderSelect });
   }
   listCustomer(customerId: string, query: CustomerOrderListQuery) {
     return this.database.order.findMany({

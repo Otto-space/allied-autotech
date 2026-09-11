@@ -299,6 +299,7 @@ enum ReviewStatus {
 
 enum ReviewTargetType {
   BUSINESS
+  PRODUCT
   SERVICE
   ORDER
   VEHICLE_TRANSACTION
@@ -1037,6 +1038,7 @@ model Product {
   cartItems       CartItem[]
   favouritedBy    ProductFavourite[]
   enquiries       Enquiry[]
+  reviews         Review[]
   compatibilities ProductCompatibility[]
 
   @@index([categoryId, isActive])
@@ -1249,6 +1251,7 @@ model OrderItem {
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Restrict)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  review  Review?
 
   @@index([orderId])
   @@index([productId])
@@ -1849,6 +1852,8 @@ model Review {
   id                   String           @id @default(uuid()) @db.Uuid
   customerId           String           @db.Uuid
   targetType           ReviewTargetType
+  productId            String?          @db.Uuid
+  orderItemId          String?          @unique @db.Uuid
   serviceId            String?          @db.Uuid
   bookingId            String?          @unique @db.Uuid
   orderId              String?          @unique @db.Uuid
@@ -1865,6 +1870,8 @@ model Review {
   updatedAt            DateTime         @updatedAt
 
   customer           CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  product            Product?            @relation(fields: [productId], references: [id], onDelete: Restrict)
+  orderItem          OrderItem?          @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
   service            Service?            @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   order              Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict)
@@ -1872,6 +1879,7 @@ model Review {
   moderatedBy        User?               @relation("ReviewModerator", fields: [moderatedByUserId], references: [id], onDelete: Restrict)
 
   @@index([customerId, createdAt])
+  @@index([productId])
   @@index([serviceId])
   @@index([status, createdAt])
   @@index([moderatedByUserId])

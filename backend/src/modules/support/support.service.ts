@@ -36,8 +36,9 @@ import type {
   StaffReviewListQuery,
   StaffSupportMessageInput,
   SupportMessageInput,
+  SupportMessageListQuery,
 } from "./support.schemas.js";
-import { supportPage } from "./support.types.js";
+import { supportMessagePage, supportPage } from "./support.types.js";
 
 type Transaction = Prisma.TransactionClient;
 type EnquiryInput = PublicEnquiryInput | CustomerEnquiryInput;
@@ -58,7 +59,11 @@ export class SupportService {
   async createPublicEnquiry(input: PublicEnquiryInput, context: RequestSecurityContext) {
     return this.database.$transaction(async (transaction) => {
       const branchId = await this.resolveEnquiryBranch(input, null, transaction);
-      const enquiry = await this.repository.createPublicEnquiry(input, branchId, transaction);
+      const enquiry = await this.repository.createPublicEnquiry(
+        input,
+        branchId,
+        transaction,
+      );
       await appendAuditEvent(transaction, {
         actorUserId: null,
         action: "CREATE",
@@ -100,9 +105,16 @@ export class SupportService {
     });
   }
 
-  async createPublicComplaint(input: PublicComplaintInput, context: RequestSecurityContext) {
+  async createPublicComplaint(
+    input: PublicComplaintInput,
+    context: RequestSecurityContext,
+  ) {
     return this.database.$transaction(async (transaction) => {
-      const branchId = await this.resolveRequestedBranch(input.branchId, null, transaction);
+      const branchId = await this.resolveRequestedBranch(
+        input.branchId,
+        null,
+        transaction,
+      );
       const complaint = await this.repository.createPublicComplaint(
         input,
         branchId,
@@ -129,7 +141,11 @@ export class SupportService {
     return this.database.$transaction(async (transaction) => {
       const customer = await this.repository.customer(actor.userId, transaction);
       if (customer === null) throw supportNotFound();
-      const sourceBranch = await this.resolveComplaintSource(input, customer.id, transaction);
+      const sourceBranch = await this.resolveComplaintSource(
+        input,
+        customer.id,
+        transaction,
+      );
       const branchId = await this.resolveRequestedBranch(
         input.branchId,
         sourceBranch,
@@ -198,6 +214,35 @@ export class SupportService {
     return complaint;
   }
 
+  async customerMessages(
+    actor: AuthenticatedActor,
+    kind: "enquiry" | "complaint",
+    id: string,
+    query: SupportMessageListQuery,
+  ) {
+    const customer = await this.customer(actor);
+    if ((await this.repository.customerThread(customer.id, kind, id)) === null)
+      throw supportNotFound();
+    const rows = await this.repository.listMessages(kind, id, query, true);
+    if (rows === null) throw supportNotFound();
+    return supportMessagePage(rows, query.limit, query.cursor);
+  }
+
+  async staffMessages(
+    actor: AuthenticatedActor,
+    kind: "enquiry" | "complaint",
+    id: string,
+    query: SupportMessageListQuery,
+  ) {
+    assertSupportOperator(actor);
+    const thread = await this.repository.staffThread(kind, id);
+    if (thread === null) throw supportNotFound();
+    await this.assertStaffBranch(actor, thread.branchId);
+    const rows = await this.repository.listMessages(kind, id, query, false);
+    if (rows === null) throw supportNotFound();
+    return supportMessagePage(rows, query.limit, query.cursor);
+  }
+
   async addCustomerMessage(
     actor: AuthenticatedActor,
     kind: "enquiry" | "complaint",
@@ -207,10 +252,12 @@ export class SupportService {
   ) {
     const customer = await this.customer(actor);
     return this.database.$transaction(async (transaction) => {
-      const record =
-        kind === "enquiry"
-          ? await this.repository.customerEnquiry(customer.id, id, transaction)
-          : await this.repository.customerComplaint(customer.id, id, transaction);
+      const record = await this.repository.customerThread(
+        customer.id,
+        kind,
+        id,
+        transaction,
+      );
       if (record === null) throw supportNotFound();
       if (record.status === "CLOSED")
         throw supportConflict("Closed support records cannot receive new messages");
@@ -222,6 +269,27 @@ export class SupportService {
         input.message,
         transaction,
       );
+      const assignedStaff = record.assignedStaffId
+        ? await transaction.staffProfile.findUnique({
+            where: { id: record.assignedStaffId },
+            select: { userId: true },
+          })
+        : null;
+      if (assignedStaff)
+        await enqueueNotification(transaction, {
+          userId: assignedStaff.userId,
+          type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+          category: "OPERATIONAL",
+          title:
+            kind === "enquiry"
+              ? "New customer enquiry message"
+              : "New customer complaint message",
+          message: "A customer added a message to an assigned support conversation.",
+          deduplicationKey: `${kind}:${id}:customer-message:${created.id}`,
+          resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+          resourceId: id,
+          channels: ["EMAIL"],
+        });
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "CREATE",
@@ -240,10 +308,14 @@ export class SupportService {
     context: RequestSecurityContext,
   ) {
     const customer = await this.customer(actor);
-    return this.database.$transaction(
+    const created = await this.database.$transaction(
       async (transaction) => {
         await this.assertReviewSource(customer.id, input, transaction);
-        const review = await this.repository.createReview(customer.id, input, transaction);
+        const review = await this.repository.createReview(
+          customer.id,
+          input,
+          transaction,
+        );
         await appendAuditEvent(transaction, {
           actorUserId: actor.userId,
           action: "CREATE",
@@ -256,6 +328,10 @@ export class SupportService {
       },
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
+    const review = await this.repository.review(created.id);
+    if (review === null) throw supportNotFound();
+    const { customer: _customer, customerId: _customerId, ...safe } = review;
+    return safe;
   }
 
   async staffEnquiries(
@@ -265,7 +341,10 @@ export class SupportService {
   ) {
     assertSupportOperator(actor);
     const branchId = await this.allowedBranch(actor);
-    const page = supportPage(await this.repository.listStaffEnquiries(query, branchId), query.limit);
+    const page = supportPage(
+      await this.repository.listStaffEnquiries(query, branchId),
+      query.limit,
+    );
     await this.auditPrivilegedRead(actor, "ENQUIRY", null, context);
     return page;
   }
@@ -608,10 +687,11 @@ export class SupportService {
     context: RequestSecurityContext,
   ) {
     assertReviewModerator(actor);
-    return this.database.$transaction(async (transaction) => {
-      const current = await this.repository.review(id, transaction);
+    await this.database.$transaction(async (transaction) => {
+      const current = await this.repository.reviewForModeration(id, transaction);
       if (current === null) throw supportNotFound();
-      if (current.status !== "PENDING") throw supportConflict("Review was already moderated");
+      if (current.status !== "PENDING")
+        throw supportConflict("Review was already moderated");
       const changed = await this.repository.moderateReview(
         id,
         input.expectedVersion,
@@ -644,11 +724,11 @@ export class SupportService {
         resourceId: id,
         channels: ["EMAIL"],
       });
-      const updated = await this.repository.review(id, transaction);
-      if (updated === null) throw supportNotFound();
-      const { customerId: _customerId, ...safe } = updated;
-      return safe;
     });
+    const updated = await this.repository.review(id);
+    if (updated === null) throw supportNotFound();
+    const { customer: _customer, customerId: _customerId, ...safe } = updated;
+    return safe;
   }
 
   private async customer(actor: AuthenticatedActor) {
@@ -671,7 +751,10 @@ export class SupportService {
       if ((await this.repository.activeService(input.serviceId, transaction)) === null)
         throw supportNotFound();
     } else if (input.type === "VEHICLE") {
-      const listing = await this.repository.activeListing(input.vehicleListingId, transaction);
+      const listing = await this.repository.activeListing(
+        input.vehicleListingId,
+        transaction,
+      );
       if (listing === null) throw supportNotFound();
       sourceBranch = listing.branchId;
     } else if (input.type === "BOOKING") {
@@ -680,7 +763,8 @@ export class SupportService {
       sourceBranch = booking.branchId;
     } else if (input.type === "QUOTATION") {
       const quote = await this.repository.quote(input.quoteId, transaction);
-      if (quote === null || quote.booking.customerId !== customerId) throw supportNotFound();
+      if (quote === null || quote.booking.customerId !== customerId)
+        throw supportNotFound();
       sourceBranch = quote.booking.branchId;
     }
     return this.resolveRequestedBranch(input.branchId, sourceBranch, transaction);
@@ -739,6 +823,19 @@ export class SupportService {
     transaction: Transaction,
   ): Promise<void> {
     if (input.targetType === "BUSINESS") return;
+    if (input.targetType === "PRODUCT") {
+      const item = await this.repository.orderItem(input.orderItemId, transaction);
+      if (
+        item === null ||
+        item.productId !== input.productId ||
+        item.order.customerId !== customerId ||
+        item.order.status !== "COMPLETED"
+      )
+        throw supportConflict(
+          "A completed owned product purchase is required for this review",
+        );
+      return;
+    }
     if (input.targetType === "SERVICE") {
       const booking = await this.repository.booking(input.bookingId, transaction);
       if (
@@ -752,7 +849,11 @@ export class SupportService {
     }
     if (input.targetType === "ORDER") {
       const order = await this.repository.order(input.orderId, transaction);
-      if (order === null || order.customerId !== customerId || order.status !== "COMPLETED")
+      if (
+        order === null ||
+        order.customerId !== customerId ||
+        order.status !== "COMPLETED"
+      )
         throw supportConflict("A completed owned order is required for this review");
       return;
     }
@@ -761,7 +862,9 @@ export class SupportService {
       transaction,
     );
     if (sale === null || sale.customerId !== customerId || sale.status !== "COMPLETED")
-      throw supportConflict("A completed owned vehicle transaction is required for this review");
+      throw supportConflict(
+        "A completed owned vehicle transaction is required for this review",
+      );
   }
 
   private async allowedBranch(
@@ -770,7 +873,8 @@ export class SupportService {
   ): Promise<string | null> {
     if (actor.role !== "STAFF") return null;
     const staff = await this.repository.staff(actor.userId, client);
-    if (staff?.branchId == null || staff.branch?.isActive !== true) throw supportForbidden();
+    if (staff?.branchId == null || staff.branch?.isActive !== true)
+      throw supportForbidden();
     return staff.branchId;
   }
 

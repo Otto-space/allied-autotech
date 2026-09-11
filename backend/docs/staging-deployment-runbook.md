@@ -16,18 +16,13 @@ and mutation routes; those routes retain their existing authentication,
 authorization, CSRF, idempotency, validation, and lifecycle controls. This
 milestone does not redefine the API as read-only.
 
-The `Review` model and database constraints already exist, but the support and
-review HTTP module is still a non-executable Phase 9 scaffold. Review
-submission, verified-purchase/service eligibility, moderation, and public
-projection routes are therefore absent from this release and its OpenAPI file;
-they must not be represented as available to the frontend.
-
-The current database also retains the legacy `Review_target_consistent` check
-beside `aat_review_target_valid`. Their service rules disagree about whether a
-booking is required, and the legacy check has no vehicle-transaction case.
-Consequently, service and vehicle-transaction reviews must remain disabled
-until Phase 9 replaces the legacy check in a reviewed forward-only migration.
-Do not edit the already-applied migration or bypass the constraints.
+The support module is part of this release: branch-scoped enquiries and
+complaints, customer-visible/internal append-only chat, assignment, deliberate
+status transitions, rated overall and transaction-backed reviews, moderation,
+notifications, and safe public projections. Product reviews require an owned
+completed order item and are limited to one per customer/product. The enum
+extension is committed in one migration before a later migration references it,
+which prevents PostgreSQL's unsafe-new-enum-value migration failure.
 
 Hosted Swagger and hosted OpenAPI remain disabled. Share
 `docs/api/allied-autotech.openapi.json` through an approved private channel.
@@ -36,10 +31,10 @@ Hosted Swagger and hosted OpenAPI remain disabled. Share
 
 ### Complete locally
 
-- The App Platform template defines one digest-pinned API service and one
-  digest-pinned `PRE_DEPLOY` migration job.
-- The API and migration images materialize the managed PostgreSQL CA at the
-  fixed absolute path required by `DB_SSL_CA_FILE` before starting Prisma.
+- The App Platform template defines digest-pinned API, identity-worker,
+  general-worker, and `PRE_DEPLOY` migration components.
+- All four images materialize the managed PostgreSQL CA at the fixed absolute
+  path required by `DB_SSL_CA_FILE` before starting Prisma.
 - Component-specific environment variables contain placeholders or managed
   database bindings only.
 - The public staging seed is transactional, idempotent, synthetic, audited,
@@ -122,6 +117,14 @@ docker buildx build --platform linux/amd64 --target api `
   --build-arg "VCS_REF=$ReleaseSha" `
   --tag "allied-autotech-backend-api:$ReleaseSha" --load backend
 
+docker buildx build --platform linux/amd64 --target worker `
+  --build-arg "VCS_REF=$ReleaseSha" `
+  --tag "allied-autotech-backend-identity-worker:$ReleaseSha" --load backend
+
+docker buildx build --platform linux/amd64 --target general-worker `
+  --build-arg "VCS_REF=$ReleaseSha" `
+  --tag "allied-autotech-backend-general-worker:$ReleaseSha" --load backend
+
 docker buildx build --platform linux/amd64 --target migrate `
   --build-arg "VCS_REF=$ReleaseSha" `
   --tag "allied-autotech-backend-migrate:$ReleaseSha" --load backend
@@ -134,30 +137,46 @@ registry. Then publish only after approval:
 $RegistryName = 'REPLACE_PRIVATE_REGISTRY_NAME'
 $RegistryHost = "registry.digitalocean.com/$RegistryName"
 $ApiRef = "$RegistryHost/allied-autotech-backend-api:$ReleaseSha"
+$IdentityWorkerRef = "$RegistryHost/allied-autotech-backend-identity-worker:$ReleaseSha"
+$GeneralWorkerRef = "$RegistryHost/allied-autotech-backend-general-worker:$ReleaseSha"
 $MigrationRef = "$RegistryHost/allied-autotech-backend-migrate:$ReleaseSha"
 
 doctl registries login
 docker tag "allied-autotech-backend-api:$ReleaseSha" $ApiRef
+docker tag "allied-autotech-backend-identity-worker:$ReleaseSha" $IdentityWorkerRef
+docker tag "allied-autotech-backend-general-worker:$ReleaseSha" $GeneralWorkerRef
 docker tag "allied-autotech-backend-migrate:$ReleaseSha" $MigrationRef
 docker push $ApiRef
+docker push $IdentityWorkerRef
+docker push $GeneralWorkerRef
 docker push $MigrationRef
 
 docker pull $ApiRef
+docker pull $IdentityWorkerRef
+docker pull $GeneralWorkerRef
 docker pull $MigrationRef
 $ApiDigestRef = docker image inspect --format '{{index .RepoDigests 0}}' $ApiRef
+$IdentityWorkerDigestRef = docker image inspect --format '{{index .RepoDigests 0}}' $IdentityWorkerRef
+$GeneralWorkerDigestRef = docker image inspect --format '{{index .RepoDigests 0}}' $GeneralWorkerRef
 $MigrationDigestRef = docker image inspect --format '{{index .RepoDigests 0}}' $MigrationRef
 $ApiDigest = ($ApiDigestRef -split '@', 2)[1]
+$IdentityWorkerDigest = ($IdentityWorkerDigestRef -split '@', 2)[1]
+$GeneralWorkerDigest = ($GeneralWorkerDigestRef -split '@', 2)[1]
 $MigrationDigest = ($MigrationDigestRef -split '@', 2)[1]
 
 if ($ApiDigest -notmatch '^sha256:[0-9a-f]{64}$') { throw 'API digest is invalid' }
+if ($IdentityWorkerDigest -notmatch '^sha256:[0-9a-f]{64}$') { throw 'Identity worker digest is invalid' }
+if ($GeneralWorkerDigest -notmatch '^sha256:[0-9a-f]{64}$') { throw 'General worker digest is invalid' }
 if ($MigrationDigest -notmatch '^sha256:[0-9a-f]{64}$') { throw 'Migration digest is invalid' }
 
 "API=$ApiDigestRef"
+"IDENTITY_WORKER=$IdentityWorkerDigestRef"
+"GENERAL_WORKER=$GeneralWorkerDigestRef"
 "MIGRATION=$MigrationDigestRef"
 docker logout $RegistryHost
 ```
 
-Record both full `repository@sha256:...` references, the full Git commit, UTC
+Record all four full `repository@sha256:...` references, the full Git commit, UTC
 time, reviewer, and deployment result in a private copy of
 `ops/digitalocean/release-record.template.md`. Put only the digest portion in
 the matching App Platform `image.digest` field. Never use `latest`, a mutable
@@ -169,7 +188,7 @@ IDs are useful local evidence but are not substitutes for registry digests.
 ## PostgreSQL CA delivery
 
 The App Platform template binds `${staging-db.CA_CERT}` to the encrypted,
-runtime-only `DB_SSL_CA_CERT` variable for both the API and migration job. At
+runtime-only `DB_SSL_CA_CERT` variable for the API, both workers, and migration job. At
 container start, `docker/with-database-ca.sh`:
 
 1. requires `DB_SSL_MODE=verify-full` and the exact destination
@@ -216,6 +235,12 @@ The migration job receives only `NODE_ENV`, discrete PostgreSQL credentials,
 TLS mode, CA destination, and CA binding. It does not receive identity,
 Paystack, object-storage, email, or frontend configuration.
 
+The identity worker receives only database/outbox encryption and Resend
+delivery settings. The general worker receives database/outbox encryption,
+notification providers, Paystack test reconciliation, and bounded worker
+schedules. SMS remains explicitly disabled unless Termii staging credentials,
+its account-specific HTTPS base URL, sender, and recipient allowlist are added.
+
 Shared database values are repeated at component scope deliberately so future
 components do not inherit secrets they do not need. All credentials, provider
 keys, cryptographic keys, and CA material use encrypted `SECRET` variables with
@@ -226,11 +251,9 @@ Generate each 256-bit application key independently in a controlled operator
 session and store it in the staging secret inventory. Never reuse development
 or production keys, and never reuse one key for two purposes.
 
-The first App Spec does not deploy the identity email worker. Registration and
-recovery routes remain protected and can enqueue encrypted outbox records, but
-email delivery is not part of the public discovery milestone. Do not invite
-users to exercise those flows until a separately reviewed worker and staging
-Resend configuration are deployed.
+The App Spec deploys both workers. Do not invite users to exercise registration,
+recovery, notification, webhook, or expiry flows until those workers are healthy
+and staging recipient/provider safeguards have been verified.
 
 ## Vercel routing handoff
 
@@ -287,7 +310,7 @@ the Vercel dashboard.
 
 ## Synthetic public staging data
 
-`npm run seed:staging:public` creates two clearly labelled synthetic branches
+`npm run seed:staging:public` creates one clearly labelled synthetic branch
 and three clearly labelled synthetic services. It has four safety properties:
 
 - it requires `DEPLOYMENT_ENV=staging`, an explicit versioned confirmation,
@@ -347,7 +370,8 @@ database.
       uncommitted backend changes.
 - [ ] `npm run check` and `npm run check:secrets:history` pass.
 - [ ] All migrations replay from an empty disposable PostgreSQL database.
-- [ ] API and migration Linux AMD64 images pass the local checks below.
+- [ ] API, identity-worker, general-worker, and migration Linux AMD64 images
+      pass the local checks below.
 - [ ] Private registry images are pushed and App Spec sources use recorded
       registry digests, not tags.
 - [ ] Managed PostgreSQL and Spaces are staging-only; backups and access owners
@@ -395,6 +419,8 @@ only for this file-boundary check, never for a database connection.
       fix forward; do not reset the database or mark a migration applied
       without database review.
 - [ ] Confirm API readiness becomes `200` and liveness remains `200`.
+- [ ] Confirm both workers start from their recorded digests, acquire work
+      safely, expose no payloads in logs, and stop cleanly during a revision change.
 - [ ] Confirm the deployed image digests match the release record.
 - [ ] Confirm `/api/v1/docs` and `/api/v1/openapi.json` return `404`.
 
@@ -449,6 +475,7 @@ only for this file-boundary check, never for a database connection.
 
 - [ ] App Platform app: `allied-autotech-staging`.
 - [ ] API component size and monthly ceiling.
+- [ ] Identity-worker and general-worker sizes, replica counts, and monthly ceiling.
 - [ ] `PRE_DEPLOY` migration job size.
 - [ ] Separate Standard Edition Managed PostgreSQL 17 cluster, database/user,
       backup policy, maintenance window, trusted sources, and restore-test
@@ -469,11 +496,12 @@ only for this file-boundary check, never for a database connection.
 - Paystack test key owner and whether test webhooks are deferred or sent
   directly to the stable DigitalOcean origin in a later payment milestone.
 - Central logging/alert provider and on-call recipients.
-- Timing and owner for the identity email worker and staging Resend setup.
-- Phase 9 owner for the forward review-constraint reconciliation and secure
-  review API implementation.
+- Verified Resend staging sender, recipient allowlist, and delivery-test owner.
+- Whether optional Termii SMS is included in this staging cycle; keep it disabled otherwise.
 - Approval of the synthetic branch/service fixture labels and illustrative
   values.
+- Owner decisions tracked in `owner-decision-checklist.md`, especially delivery,
+  cancellation/refund, tax/invoice, dispute, support SLA, and retention rules.
 
 ## References
 

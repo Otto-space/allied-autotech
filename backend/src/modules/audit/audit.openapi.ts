@@ -5,9 +5,11 @@ import {
   anomalyParamsSchema,
   anomalyUpdateBodySchema,
   auditListQuerySchema,
+  disputeListQuerySchema,
   operationalJobParamsSchema,
   operationalJobsQuerySchema,
   operationalRetryBodySchema,
+  refundListQuerySchema,
 } from "./audit.schemas.js";
 
 const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
@@ -20,10 +22,32 @@ const envelope = z.object({
 
 export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
   const reads = [
-    { path: "/admin/audit", summary: "Search append-only audit events", query: auditListQuerySchema },
+    {
+      path: "/admin/audit",
+      summary: "Search append-only audit events",
+      query: auditListQuerySchema,
+    },
     { path: "/admin/operations/status", summary: "Read queue and reconciliation status" },
-    { path: "/admin/operations/jobs", summary: "List failed or leased operational jobs", query: operationalJobsQuerySchema },
-    { path: "/admin/operations/payment-anomalies", summary: "List payment anomalies", query: anomalyListQuerySchema },
+    {
+      path: "/admin/operations/jobs",
+      summary: "List failed or leased operational jobs",
+      query: operationalJobsQuerySchema,
+    },
+    {
+      path: "/admin/operations/payment-anomalies",
+      summary: "List payment anomalies",
+      query: anomalyListQuerySchema,
+    },
+    {
+      path: "/admin/operations/payment-disputes",
+      summary: "List payment disputes without private evidence keys",
+      query: disputeListQuerySchema,
+    },
+    {
+      path: "/admin/operations/payment-refunds",
+      summary: "List refunds requiring operational action",
+      query: refundListQuerySchema,
+    },
   ] as const;
   for (const route of reads)
     registry.registerPath({
@@ -33,7 +57,12 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
       summary: route.summary,
       security: [{ sessionCookie: [] }],
       request: "query" in route ? { query: route.query as never } : {},
-      responses: { "200": { description: "Operational data retrieved", content: { "application/json": { schema: envelope } } } },
+      responses: {
+        "200": {
+          description: "Operational data retrieved",
+          content: { "application/json": { schema: envelope } },
+        },
+      },
     });
   registry.registerPath({
     method: "post",
@@ -44,9 +73,15 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     request: {
       params: operationalJobParamsSchema as never,
       headers: csrfHeaders as never,
-      body: { required: true, content: { "application/json": { schema: operationalRetryBodySchema } } },
+      body: {
+        required: true,
+        content: { "application/json": { schema: operationalRetryBodySchema } },
+      },
     },
-    responses: { "200": { description: "Retry requested" }, "409": { description: "Job state changed" } },
+    responses: {
+      "200": { description: "Retry requested" },
+      "409": { description: "Job state changed" },
+    },
   });
   registry.registerPath({
     method: "post",
@@ -57,8 +92,14 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     request: {
       params: anomalyParamsSchema as never,
       headers: csrfHeaders as never,
-      body: { required: true, content: { "application/json": { schema: anomalyUpdateBodySchema } } },
+      body: {
+        required: true,
+        content: { "application/json": { schema: anomalyUpdateBodySchema } },
+      },
     },
-    responses: { "200": { description: "Anomaly updated" }, "409": { description: "Invalid or stale transition" } },
+    responses: {
+      "200": { description: "Anomaly updated" },
+      "409": { description: "Invalid or stale transition" },
+    },
   });
 }

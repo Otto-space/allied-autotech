@@ -183,6 +183,7 @@ const environmentSchema = z.object({
   STAGING_SMS_ALLOWLIST: optionalCommaSeparatedValues,
   TERMII_API_KEY: optionalNonEmptyString,
   TERMII_SENDER_ID: optionalNonEmptyString,
+  TERMII_BASE_URL: optionalNonEmptyString.pipe(httpUrl.optional()),
   MESSAGING_REQUEST_TIMEOUT_MS: z.coerce
     .number()
     .int()
@@ -259,19 +260,7 @@ const environmentSchema = z.object({
   AUTH_LOCK_SECONDS: z.coerce.number().int().min(60).max(86_400).default(900),
   WORKER_POLL_INTERVAL_MS: z.coerce.number().int().min(250).max(60_000).default(2_000),
   WORKER_BATCH_SIZE: z.coerce.number().int().min(1).max(100).default(25),
-  WORKER_EXPIRATION_INTERVAL_MS: z.coerce
-    .number()
-    .int()
-    .min(10_000)
-    .max(60 * 60_000)
-    .default(60_000),
   PAYMENT_RECONCILIATION_ENABLED: booleanValue(false),
-  PAYMENT_RECONCILIATION_INTERVAL_MS: z.coerce
-    .number()
-    .int()
-    .min(60_000)
-    .max(7 * 24 * 60 * 60_000)
-    .default(24 * 60 * 60_000),
   EXPIRATION_INTERVAL_MS: z.coerce
     .number()
     .int()
@@ -426,7 +415,10 @@ export function assertIdentityWorkerEnvironment(
     ["OUTBOX_ENCRYPTION_KEY", "RESEND_API_KEY", "RESEND_FROM_EMAIL"],
     source,
   );
-  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.STAGING_EMAIL_ALLOWLIST.length === 0) {
+  if (
+    runtime.DEPLOYMENT_ENV === "staging" &&
+    runtime.STAGING_EMAIL_ALLOWLIST.length === 0
+  ) {
     throw new Error("Staging identity delivery requires STAGING_EMAIL_ALLOWLIST");
   }
 }
@@ -443,17 +435,33 @@ export function assertGeneralWorkerEnvironment(
       ["RESEND_API_KEY", "RESEND_FROM_EMAIL"],
       source,
     );
-    if (runtime.DEPLOYMENT_ENV === "staging" && runtime.STAGING_EMAIL_ALLOWLIST.length === 0)
+    if (
+      runtime.DEPLOYMENT_ENV === "staging" &&
+      runtime.STAGING_EMAIL_ALLOWLIST.length === 0
+    )
       throw new Error("Staging email delivery requires STAGING_EMAIL_ALLOWLIST");
   }
   if (runtime.SMS_DELIVERY_ENABLED) {
     requireConfiguredVariables(
       "general worker SMS delivery",
-      ["TERMII_API_KEY", "TERMII_SENDER_ID"],
+      ["TERMII_API_KEY", "TERMII_SENDER_ID", "TERMII_BASE_URL"],
       source,
     );
-    if (runtime.DEPLOYMENT_ENV === "staging" && runtime.STAGING_SMS_ALLOWLIST.length === 0)
+    if (
+      runtime.DEPLOYMENT_ENV === "staging" &&
+      runtime.STAGING_SMS_ALLOWLIST.length === 0
+    )
       throw new Error("Staging SMS delivery requires STAGING_SMS_ALLOWLIST");
+    const termii = new URL(runtime.TERMII_BASE_URL ?? "http://invalid.invalid");
+    if (
+      termii.protocol !== "https:" ||
+      !(termii.hostname === "termii.com" || termii.hostname.endsWith(".termii.com")) ||
+      termii.username !== "" ||
+      termii.password !== "" ||
+      termii.search !== "" ||
+      termii.hash !== ""
+    )
+      throw new Error("TERMII_BASE_URL must be an HTTPS Termii host without credentials");
   }
   assertPaystackMode(runtime);
 }
@@ -467,12 +475,15 @@ export function assertPaystackMode(runtime: typeof env = env): void {
       throw new Error("PAYSTACK_SECRET_KEY must be unset when PAYSTACK_MODE is disabled");
     return;
   }
-  if (key === undefined) throw new Error("PAYSTACK_SECRET_KEY is required for configured mode");
+  if (key === undefined)
+    throw new Error("PAYSTACK_SECRET_KEY is required for configured mode");
   if (runtime.PAYSTACK_MODE === "test" && !key.startsWith("sk_test_"))
     throw new Error("PAYSTACK_MODE=test requires a Paystack test secret");
   if (runtime.PAYSTACK_MODE === "live") {
     if (runtime.DEPLOYMENT_ENV !== "production" || !runtime.PAYSTACK_LIVE_ENABLED)
-      throw new Error("Live Paystack is permitted only for an explicitly enabled production deployment");
+      throw new Error(
+        "Live Paystack is permitted only for an explicitly enabled production deployment",
+      );
     if (!key.startsWith("sk_live_"))
       throw new Error("PAYSTACK_MODE=live requires a Paystack live secret");
   }

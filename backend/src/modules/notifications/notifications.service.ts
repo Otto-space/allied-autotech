@@ -36,6 +36,10 @@ export async function enqueueNotification(
   )
     throw new Error("Invalid internal notification command");
 
+  await transaction.$executeRaw`
+    SELECT pg_advisory_xact_lock(hashtextextended(${`notification:${input.deduplicationKey}`}, 0))
+  `;
+
   const existing = await transaction.notification.findUnique({
     where: { deduplicationKey: input.deduplicationKey },
     select: { id: true },
@@ -202,7 +206,9 @@ export class NotificationsService {
         },
         update: {
           enabled: input.enabled,
-          ...(input.category === "MARKETING" && input.enabled && existing?.consentedAt == null
+          ...(input.category === "MARKETING" &&
+          input.enabled &&
+          existing?.consentedAt == null
             ? { consentedAt: new Date() }
             : {}),
         },
