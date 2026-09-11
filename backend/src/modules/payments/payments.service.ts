@@ -19,6 +19,8 @@ import type { PaystackWebhookEvent } from "../../providers/payments/paystack-web
 import type { ObjectStoragePort } from "../../providers/storage/object-storage.port.js";
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { enqueueNotification } from "../notifications/notifications.service.js";
+import { scheduleReminders } from "../service-operations/service-operations.service.js";
 import {
   paymentConflict,
   paymentIdempotencyConflict,
@@ -1059,14 +1061,30 @@ export class PaymentsService {
     occurredAt: Date,
   ) {
     await tx.$queryRaw`SELECT "id" FROM "Payment" WHERE "id" = ${paymentId}::uuid FOR UPDATE`;
+    const existingPayment = await tx.payment.findUniqueOrThrow({
+      where: { id: paymentId },
+      select: { status: true, settledAttemptId: true },
+    });
+    if (existingPayment.status === "SUCCEEDED") {
+      if (existingPayment.settledAttemptId !== attemptId)
+        throw paymentConflict("Payment was already settled by another attempt");
+      return;
+    }
     const payment = await tx.payment.update({
       where: { id: paymentId },
-      data: { status: "SUCCEEDED", settledAttemptId: attemptId, succeededAt: occurredAt },
+      data: {
+        status: "SUCCEEDED",
+        settledAttemptId: attemptId,
+        succeededAt: occurredAt,
+        cancelledAt: null,
+        expiredAt: null,
+      },
       select: {
         id: true,
         orderId: true,
         invoiceId: true,
         vehicleTransactionId: true,
+        bookingId: true,
         amountKobo: true,
         currency: true,
       },
@@ -1089,6 +1107,79 @@ export class PaymentsService {
       },
       update: {},
     });
+    if (payment.bookingId) {
+      await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${payment.bookingId}::uuid FOR UPDATE`;
+      const booking = await tx.booking.findUniqueOrThrow({
+        where: { id: payment.bookingId },
+        select: {
+          id: true,
+          customerId: true,
+          status: true,
+          paymentHoldExpiresAt: true,
+          scheduledAt: true,
+          scheduleVersion: true,
+          depositAmountKobo: true,
+          customer: { select: { userId: true } },
+        },
+      });
+      const eligible =
+        booking.status === "AWAITING_DEPOSIT" &&
+        booking.paymentHoldExpiresAt !== null &&
+        occurredAt <= booking.paymentHoldExpiresAt;
+      if (!eligible) {
+        await tx.paymentAnomaly.create({
+          data: {
+            paymentId: payment.id,
+            paymentAttemptId: attemptId,
+            type: "LATE_SUCCESS",
+            summary: "Deposit was captured after the booking slot hold ended",
+            details: {
+              payableType: "BOOKING",
+              payableId: booking.id,
+              bookingStatus: booking.status,
+              amountKobo: payment.amountKobo.toString(),
+              currency: payment.currency,
+            },
+          },
+        });
+        await enqueueNotification(tx, {
+          userId: booking.customer.userId,
+          type: "PAYMENT",
+          category: "TRANSACTIONAL",
+          title: "Deposit received after slot release",
+          message:
+            "Your deposit arrived after the booking hold ended, so the slot was not reclaimed. Our team will review the payment for a refund or transfer.",
+          resourceType: "BOOKING",
+          resourceId: booking.id,
+          deduplicationKey: `booking:${booking.id}:late-deposit:${attemptId}`,
+          channels: ["EMAIL"],
+        });
+        return;
+      }
+      const updated = await tx.booking.update({
+        where: { id: booking.id },
+        data: {
+          status: "CONFIRMED",
+          confirmedAt: occurredAt,
+          depositPaidAt: occurredAt,
+          version: { increment: 1 },
+        },
+        select: { id: true, scheduledAt: true, scheduleVersion: true },
+      });
+      await scheduleReminders(tx, updated);
+      await enqueueNotification(tx, {
+        userId: booking.customer.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title: "Booking confirmed",
+        message: `Your 30% non-refundable deposit was verified and your appointment for ${booking.scheduledAt.toISOString()} is confirmed. The retained deposit will be credited to your final service balance.`,
+        resourceType: "BOOKING",
+        resourceId: booking.id,
+        deduplicationKey: `booking:${booking.id}:confirmed`,
+        channels: ["EMAIL"],
+      });
+      return;
+    }
     if (payment.orderId) {
       const order = await tx.order.findUniqueOrThrow({
         where: { id: payment.orderId },
@@ -1251,6 +1342,7 @@ export class PaymentsService {
       source?.invoice?.booking?.branchId ??
       source?.invoice?.vehicleTransaction?.vehicleListing.branchId ??
       source?.vehicleTransaction?.vehicleListing.branchId ??
+      source?.booking?.branchId ??
       null;
     if (branch !== allowed) throw paymentNotFound();
   }

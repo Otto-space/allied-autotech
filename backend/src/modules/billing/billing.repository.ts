@@ -11,6 +11,7 @@ export const invoiceSelect = {
   currency: true,
   subtotalKobo: true,
   taxKobo: true,
+  depositCreditKobo: true,
   totalKobo: true,
   status: true,
   version: true,
@@ -137,7 +138,21 @@ export class BillingRepository {
         customerId: true,
         branchId: true,
         status: true,
+        bookingSlotId: true,
+        depositAmountKobo: true,
+        depositPaidAt: true,
+        depositForfeitedAt: true,
         invoice: { select: { id: true } },
+        depositPayment: {
+          select: {
+            status: true,
+            settledAttempt: {
+              select: {
+                refunds: { select: { amountKobo: true, status: true } },
+              },
+            },
+          },
+        },
         quotes: {
           where: { status: "ACCEPTED" },
           select: { subtotalKobo: true, taxKobo: true, totalKobo: true, currency: true },

@@ -13,6 +13,7 @@ export const paymentSelect = {
   orderId: true,
   invoiceId: true,
   vehicleTransactionId: true,
+  bookingId: true,
   expiresAt: true,
   succeededAt: true,
   cancelledAt: true,
@@ -155,6 +156,7 @@ export class PaymentsRepository {
                   },
                 },
                 { vehicleTransaction: { vehicleListing: { branchId } } },
+                { booking: { branchId } },
               ],
             }
           : {}),
@@ -182,6 +184,7 @@ export class PaymentsRepository {
         vehicleTransaction: {
           select: { vehicleListing: { select: { branchId: true } } },
         },
+        booking: { select: { branchId: true } },
       },
     });
   }

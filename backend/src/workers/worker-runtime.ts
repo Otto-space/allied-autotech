@@ -7,6 +7,7 @@ import { assertGeneralWorkerEnvironment, env } from "../config/env.js";
 import { ResendEmailProvider } from "../providers/messaging/resend-email.adapter.js";
 import { TermiiSmsProvider } from "../providers/messaging/termii-sms.adapter.js";
 import { ExpirationWorker } from "./expiration.worker.js";
+import { BookingReminderWorker } from "./booking-reminder.worker.js";
 import { NotificationDeliveryWorker } from "./notification.worker.js";
 import { PaymentReconciliationWorker } from "./reconciliation.worker.js";
 import { PaymentWebhookRetryWorker } from "./webhook-retry.worker.js";
@@ -44,6 +45,7 @@ export async function runGeneralWorker(): Promise<void> {
   );
   const webhook = new PaymentWebhookRetryWorker();
   const expiration = new ExpirationWorker();
+  const bookingReminders = new BookingReminderWorker();
   const reconciliation = new PaymentReconciliationWorker();
   const stop = new AbortController();
   const stopOnce = () => stop.abort();
@@ -67,6 +69,9 @@ export async function runGeneralWorker(): Promise<void> {
         notification.runOnce(env.WORKER_BATCH_SIZE),
       );
       await safely("payment-webhook-retry", () => webhook.runOnce(env.WORKER_BATCH_SIZE));
+      await safely("booking-reminders", () =>
+        bookingReminders.runOnce(env.WORKER_BATCH_SIZE),
+      );
       const now = Date.now();
       if (now >= nextExpirationAt) {
         await safely("expiration", () => expiration.runOnce(env.WORKER_BATCH_SIZE));

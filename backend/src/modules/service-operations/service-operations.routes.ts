@@ -8,6 +8,7 @@ import {
   requireStaff,
 } from "../../common/middleware/authorize.js";
 import { requireCsrf } from "../../common/middleware/csrf.js";
+import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import { validate } from "../../common/middleware/validate.js";
 import { ServiceOperationsController } from "./service-operations.controller.js";
 import {
@@ -15,11 +16,18 @@ import {
   bookingAssignmentBodySchema,
   bookingCancelBodySchema,
   bookingCreateBodySchema,
+  bookingDisruptionBodySchema,
+  bookingDisruptionResolutionBodySchema,
+  bookingIdempotencyHeadersSchema,
   bookingParamsSchema,
   bookingRescheduleBodySchema,
   bookingTransitionBodySchema,
+  bookingSlotCreateBodySchema,
+  bookingSlotParamsSchema,
+  bookingSlotUpdateBodySchema,
   customerBookingListQuerySchema,
   publicServiceListQuerySchema,
+  publicBookingSlotListQuerySchema,
   quoteCreateBodySchema,
   quoteParamsSchema,
   quoteReplaceBodySchema,
@@ -29,6 +37,7 @@ import {
   serviceParamsSchema,
   serviceUpdateBodySchema,
   staffBookingListQuerySchema,
+  staffBookingSlotListQuerySchema,
   workOrderCreateBodySchema,
   workOrderParamsSchema,
   workOrderTransitionBodySchema,
@@ -44,9 +53,28 @@ export function createPublicServicesRouter(): Router {
     controller.publicServices,
   );
   router.get(
+    "/:serviceId/slots",
+    validate({
+      params: serviceParamsSchema,
+      query: publicBookingSlotListQuerySchema,
+    }),
+    controller.publicBookingSlots,
+  );
+  router.get(
     publicRouterPaths.service,
     validate({ params: serviceParamsSchema, query: serviceOperationsEmptyQuerySchema }),
     controller.publicService,
+  );
+  return router;
+}
+
+export function createPublicBookingRouter(): Router {
+  const router = Router();
+  const controller = new ServiceOperationsController();
+  router.get(
+    "/booking-policy",
+    validate({ query: serviceOperationsEmptyQuerySchema }),
+    controller.publicBookingPolicy,
   );
   return router;
 }
@@ -63,7 +91,12 @@ export function createCustomerServiceOperationsRouter(): Router {
   router.post(
     "/bookings",
     requireCsrf,
-    validate({ body: bookingCreateBodySchema, query: serviceOperationsEmptyQuerySchema }),
+    createSensitiveRateLimit(20),
+    validate({
+      headers: bookingIdempotencyHeadersSchema,
+      body: bookingCreateBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
     controller.createBooking,
   );
   router.get(
@@ -90,6 +123,18 @@ export function createCustomerServiceOperationsRouter(): Router {
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.cancelBooking,
+  );
+  router.post(
+    "/bookings/:bookingId/disruption-resolution",
+    requireCsrf,
+    createSensitiveRateLimit(10),
+    validate({
+      params: bookingParamsSchema,
+      headers: bookingIdempotencyHeadersSchema,
+      body: bookingDisruptionResolutionBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.resolveBusinessDisruption,
   );
   router.post(
     "/bookings/:bookingId/quotes/:quoteId/accept",
@@ -119,6 +164,31 @@ export function createStaffServiceOperationsRouter(): Router {
   const controller = new ServiceOperationsController();
   router.use(authenticate(), requireStaff);
   router.get(
+    "/booking-slots",
+    validate({ query: staffBookingSlotListQuerySchema }),
+    controller.staffBookingSlots,
+  );
+  router.post(
+    "/booking-slots",
+    requireCsrf,
+    createSensitiveRateLimit(60),
+    validate({
+      body: bookingSlotCreateBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.createBookingSlot,
+  );
+  router.patch(
+    "/booking-slots/:slotId",
+    requireCsrf,
+    validate({
+      params: bookingSlotParamsSchema,
+      body: bookingSlotUpdateBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.updateBookingSlot,
+  );
+  router.get(
     "/bookings",
     validate({ query: staffBookingListQuerySchema }),
     controller.staffBookings,
@@ -147,6 +217,16 @@ export function createStaffServiceOperationsRouter(): Router {
       query: serviceOperationsEmptyQuerySchema,
     }),
     controller.transitionBooking,
+  );
+  router.post(
+    "/bookings/:bookingId/disruption",
+    requireCsrf,
+    validate({
+      params: bookingParamsSchema,
+      body: bookingDisruptionBodySchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    controller.reportBusinessDisruption,
   );
   router.post(
     "/bookings/:bookingId/quotes",

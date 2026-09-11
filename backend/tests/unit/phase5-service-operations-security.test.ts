@@ -47,6 +47,13 @@ describe("Phase 5 service-operation security contracts", () => {
       }).success,
     ).toBe(false);
     expect(
+      bookingCreateBodySchema.safeParse({
+        slotId: crypto.randomUUID(),
+        policyVersion: "booking-deposit-v1",
+        acceptNonRefundableDeposit: true,
+      }).success,
+    ).toBe(true);
+    expect(
       serviceLineItemSchema.safeParse({
         type: "PART",
         productId: crypto.randomUUID(),

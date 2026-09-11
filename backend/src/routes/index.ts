@@ -24,6 +24,7 @@ import {
   createAdminServicesRouter,
   createCustomerServiceOperationsRouter,
   createPublicServicesRouter,
+  createPublicBookingRouter,
   createStaffServiceOperationsRouter,
 } from "../modules/service-operations/service-operations.index.js";
 import {
@@ -84,6 +85,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/auth", createIdentityRouter());
   apiRouter.use("/auth/staff/invitations", createPrivilegedInvitationRouter());
   apiRouter.use(publicApiPaths.branches, createPublicBranchesRouter());
+  apiRouter.use("/public", createPublicBookingRouter());
   apiRouter.use("/public/catalog", createPublicCatalogRouter());
   apiRouter.use(publicApiPaths.services, createPublicServicesRouter());
   apiRouter.use("/public/vehicles", createPublicVehiclesRouter());

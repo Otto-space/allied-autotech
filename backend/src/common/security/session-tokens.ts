@@ -15,6 +15,7 @@ export type TokenPurpose =
   | "order-reservation"
   | "order-inventory"
   | "vehicle-reservation-idempotency"
+  | "booking-idempotency"
   | "payment-intent-idempotency"
   | "payment-attempt-idempotency"
   | "refund-idempotency"

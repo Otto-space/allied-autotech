@@ -1,11 +1,13 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
+import { hashToken } from "../../common/security/session-tokens.js";
 import { prisma } from "../../config/database.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import type { BookingStatus, WorkOrderStatus } from "../../generated/prisma/enums.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { enqueueNotification } from "../notifications/notifications.service.js";
 import {
   invalidServiceTransition,
   scheduleConflict,
@@ -25,10 +27,15 @@ import type {
   BookingAssignmentInput,
   BookingCancelInput,
   BookingCreateInput,
+  BookingDisruptionInput,
+  BookingDisruptionResolutionInput,
   BookingRescheduleInput,
+  BookingSlotCreateInput,
+  BookingSlotUpdateInput,
   BookingTransitionInput,
   CustomerBookingListQuery,
   PublicServiceListQuery,
+  PublicBookingSlotListQuery,
   QuoteCreateInput,
   QuoteReplaceInput,
   QuoteTransitionInput,
@@ -36,6 +43,7 @@ import type {
   ServiceLineItemInput,
   ServiceUpdateInput,
   StaffBookingListQuery,
+  StaffBookingSlotListQuery,
   WorkOrderCreateInput,
   WorkOrderTransitionInput,
   WorkOrderUpdateInput,
@@ -44,16 +52,19 @@ import { page, type PricedLine } from "./service-operations.types.js";
 
 const activeBookingStatuses: readonly BookingStatus[] = [
   "REQUESTED",
+  "AWAITING_DEPOSIT",
   "CONFIRMED",
   "IN_PROGRESS",
 ];
 const bookingTransitions: Readonly<Record<BookingStatus, readonly BookingStatus[]>> = {
   REQUESTED: ["CONFIRMED", "CANCELLED"],
+  AWAITING_DEPOSIT: ["CANCELLED", "EXPIRED"],
   CONFIRMED: ["IN_PROGRESS", "CANCELLED", "NO_SHOW"],
   IN_PROGRESS: ["COMPLETED", "CANCELLED"],
   COMPLETED: [],
   CANCELLED: [],
   NO_SHOW: [],
+  EXPIRED: [],
 };
 const workTransitions: Readonly<Record<WorkOrderStatus, readonly WorkOrderStatus[]>> = {
   DRAFT: ["APPROVED", "CANCELLED"],
@@ -78,11 +89,23 @@ function jsonSafe(value: unknown): unknown {
 }
 
 function customerSafeBooking<
-  T extends { staffNotes: unknown; workOrder: null | { internalNotes: unknown } },
+  T extends {
+    staffNotes: unknown;
+    workOrder: null | { internalNotes: unknown };
+    depositPayment: null | { settledAttemptId: unknown };
+  },
 >(booking: T) {
-  const { staffNotes: _staffNotes, workOrder, ...safe } = booking;
+  const { staffNotes: _staffNotes, workOrder, depositPayment, ...safe } = booking;
   return {
     ...safe,
+    depositPayment:
+      depositPayment === null
+        ? null
+        : (() => {
+            const { settledAttemptId: _settledAttemptId, ...safePayment } =
+              depositPayment;
+            return safePayment;
+          })(),
     workOrder:
       workOrder === null
         ? null
@@ -95,6 +118,97 @@ function customerSafeBooking<
 
 function reference(prefix: "Q" | "WO"): string {
   return `${prefix}-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
+}
+
+export const bookingPolicy = Object.freeze({
+  version: "booking-deposit-v1",
+  minimumAdvanceHours: 168,
+  maximumAdvanceHours: 336,
+  paymentHoldMinutes: 30,
+  depositBasisPoints: 3000,
+  depositRefundableForCustomerCancellation: false,
+  customerRescheduleLimit: 1,
+  customerRescheduleCutoffHours: 24,
+  reminderHoursBeforeAppointment: [168, 72, 48, 24] as const,
+});
+
+const paymentNumber = () =>
+  `PAY-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
+const refundNumber = () =>
+  `REF-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
+
+function bookingFingerprint(input: BookingCreateInput): string {
+  return createHash("sha256")
+    .update(
+      JSON.stringify({
+        slotId: input.slotId,
+        vehicleId: input.vehicleId ?? null,
+        customerNotes: input.customerNotes ?? null,
+        policyVersion: input.policyVersion,
+        acceptNonRefundableDeposit: input.acceptNonRefundableDeposit,
+      }),
+    )
+    .digest("hex");
+}
+
+function bookingWindow(now = new Date()) {
+  return {
+    from: new Date(now.getTime() + bookingPolicy.minimumAdvanceHours * 3_600_000),
+    to: new Date(now.getTime() + bookingPolicy.maximumAdvanceHours * 3_600_000),
+  };
+}
+
+function assertWithinBookingWindow(startsAt: Date, now = new Date()): void {
+  const window = bookingWindow(now);
+  if (startsAt < window.from || startsAt > window.to)
+    throw serviceOperationConflict(
+      "Bookings must be scheduled between 7 and 14 days in advance",
+    );
+}
+
+function formatNgn(amountKobo: bigint): string {
+  const naira = amountKobo / 100n;
+  const kobo = (amountKobo % 100n).toString().padStart(2, "0");
+  return `NGN ${naira.toString()}.${kobo}`;
+}
+
+async function cancelPendingReminders(
+  transaction: Prisma.TransactionClient,
+  bookingId: string,
+): Promise<void> {
+  await transaction.bookingReminder.updateMany({
+    where: {
+      bookingId,
+      status: { in: ["PENDING", "PROCESSING", "FAILED"] },
+    },
+    data: {
+      status: "CANCELLED",
+      cancelledAt: new Date(),
+      lockedAt: null,
+      nextAttemptAt: null,
+    },
+  });
+}
+
+export async function scheduleReminders(
+  transaction: Prisma.TransactionClient,
+  booking: { id: string; scheduledAt: Date; scheduleVersion: number },
+): Promise<void> {
+  const definitions = [
+    ["SEVEN_DAYS", 168],
+    ["THREE_DAYS", 72],
+    ["TWO_DAYS", 48],
+    ["ONE_DAY", 24],
+  ] as const;
+  await transaction.bookingReminder.createMany({
+    data: definitions.map(([kind, hours]) => ({
+      bookingId: booking.id,
+      kind,
+      scheduledFor: new Date(booking.scheduledAt.getTime() - hours * 3_600_000),
+      scheduleVersion: booking.scheduleVersion,
+    })),
+    skipDuplicates: true,
+  });
 }
 
 export class ServiceOperationsService {
@@ -111,6 +225,167 @@ export class ServiceOperationsService {
     const service = await this.repository.service(id, true);
     if (service === null) throw serviceOperationNotFound();
     return jsonSafe(service);
+  }
+
+  publicBookingPolicy() {
+    return bookingPolicy;
+  }
+
+  async publicBookingSlots(serviceId: string, query: PublicBookingSlotListQuery) {
+    const service = await this.repository.service(serviceId, true);
+    if (
+      service === null ||
+      service.pricingType !== "FIXED" ||
+      service.priceKobo === null ||
+      service.durationMinutes === null
+    )
+      throw serviceOperationNotFound();
+    const allowed = bookingWindow();
+    const requestedFrom = query.from === undefined ? allowed.from : new Date(query.from);
+    const requestedTo = query.to === undefined ? allowed.to : new Date(query.to);
+    const from = requestedFrom > allowed.from ? requestedFrom : allowed.from;
+    const to = requestedTo < allowed.to ? requestedTo : allowed.to;
+    if (to < from) return { items: [] };
+    return jsonSafe(
+      page(
+        await this.repository.publicBookingSlots(serviceId, {
+          ...query,
+          from: from.toISOString(),
+          to: to.toISOString(),
+        }),
+        query.limit,
+      ),
+    );
+  }
+
+  async staffBookingSlots(actor: AuthenticatedActor, query: StaffBookingSlotListQuery) {
+    assertPrivilegedActor(actor);
+    const profile = await this.repository.staffProfile(actor.userId);
+    if (profile === null) throw serviceOperationForbidden();
+    if (
+      actor.role === "STAFF" &&
+      (profile.branchId === null || profile.branch?.isActive !== true)
+    )
+      throw serviceOperationForbidden();
+    return jsonSafe(
+      page(
+        await this.repository.listBookingSlots(
+          query,
+          actor.role === "STAFF" ? profile.branchId : null,
+        ),
+        query.limit,
+      ),
+    );
+  }
+
+  async createBookingSlot(
+    actor: AuthenticatedActor,
+    input: BookingSlotCreateInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    const startsAt = new Date(input.startsAt);
+    if (startsAt <= new Date())
+      throw serviceOperationConflict("Booking slots must start in the future");
+    return this.database.$transaction(async (transaction) => {
+      const [actorProfile, targetStaff, service, branch] = await Promise.all([
+        this.repository.staffProfile(actor.userId, transaction),
+        this.repository.assignableStaff(input.staffId, transaction),
+        this.repository.service(input.serviceId, true, transaction),
+        this.repository.branch(input.branchId, transaction),
+      ]);
+      if (
+        actorProfile === null ||
+        targetStaff === null ||
+        branch === null ||
+        service === null ||
+        targetStaff.branchId !== input.branchId ||
+        service.pricingType !== "FIXED" ||
+        service.priceKobo === null ||
+        service.durationMinutes === null
+      )
+        throw serviceOperationNotFound();
+      if (
+        actor.role === "STAFF" &&
+        (actorProfile.id !== targetStaff.id || actorProfile.branchId !== input.branchId)
+      )
+        throw serviceOperationForbidden();
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot-staff:${input.staffId}`}, 0))`;
+      const endsAt = new Date(startsAt.getTime() + service.durationMinutes * 60_000);
+      const conflict = await transaction.bookingSlot.count({
+        where: {
+          staffId: input.staffId,
+          status: "OPEN",
+          startsAt: { lt: endsAt },
+          endsAt: { gt: startsAt },
+        },
+      });
+      if (conflict > 0) throw scheduleConflict();
+      const slot = await this.repository.createBookingSlot(
+        {
+          branchId: input.branchId,
+          serviceId: input.serviceId,
+          staffId: input.staffId,
+          startsAt,
+          endsAt,
+        },
+        transaction,
+      );
+      await appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "CREATE",
+        entityType: "BOOKING_SLOT",
+        entityId: slot.id,
+        newValues: {
+          branchId: slot.branchId,
+          serviceId: slot.serviceId,
+          staffId: slot.staffId,
+          startsAt: slot.startsAt.toISOString(),
+        },
+        context,
+      });
+      return jsonSafe(slot);
+    });
+  }
+
+  async updateBookingSlot(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingSlotUpdateInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (transaction) => {
+      const [profile, slot] = await Promise.all([
+        this.repository.staffProfile(actor.userId, transaction),
+        this.repository.lockBookingSlot(id, transaction),
+      ]);
+      if (profile === null || slot === null) throw serviceOperationNotFound();
+      if (
+        actor.role === "STAFF" &&
+        (profile.id !== slot.staffId || profile.branchId !== slot.branchId)
+      )
+        throw serviceOperationForbidden();
+      const updated = await this.repository.updateBookingSlot(
+        id,
+        input.expectedVersion,
+        input.status,
+        transaction,
+      );
+      if (updated.count !== 1) throw staleServiceOperation();
+      const result = await this.repository.bookingSlot(id, transaction);
+      if (result === null) throw serviceOperationNotFound();
+      await appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "STATUS_CHANGE",
+        entityType: "BOOKING_SLOT",
+        entityId: id,
+        oldValues: { status: slot.status, version: slot.version },
+        newValues: { status: result.status, version: result.version },
+        context,
+      });
+      return jsonSafe(result);
+    });
   }
 
   async adminServices(actor: AuthenticatedActor, query: AdminServiceListQuery) {
@@ -215,24 +490,60 @@ export class ServiceOperationsService {
   async createBooking(
     actor: AuthenticatedActor,
     input: BookingCreateInput,
+    rawKey: string,
     context: RequestSecurityContext,
   ) {
     assertCustomerActor(actor);
-    const scheduledAt = new Date(input.scheduledAt);
-    if (scheduledAt.getTime() <= Date.now())
-      throw serviceOperationConflict("Bookings must be scheduled in the future");
+    if (input.policyVersion !== bookingPolicy.version)
+      throw serviceOperationConflict(
+        "The booking policy has changed; review it and retry",
+      );
+    const scope = `booking-create:${actor.userId}`;
+    const keyHash = hashToken("booking-idempotency", `${actor.userId}:${rawKey}`);
+    const requestHash = bookingFingerprint(input);
     return this.database.$transaction(async (transaction) => {
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-idempotency:${keyHash}`}, 0))`;
+      const prior = await this.repository.idempotency(scope, keyHash, transaction);
+      if (prior !== null) {
+        if (prior.status !== "COMPLETED" || prior.requestHash !== requestHash)
+          throw serviceOperationConflict(
+            "The idempotency key was already used for another request",
+          );
+        const bookingId =
+          prior.responseBody !== null &&
+          typeof prior.responseBody === "object" &&
+          !Array.isArray(prior.responseBody)
+            ? (prior.responseBody as { bookingId?: unknown }).bookingId
+            : undefined;
+        const replay =
+          typeof bookingId === "string"
+            ? await this.repository.booking(bookingId, transaction)
+            : null;
+        if (replay === null) throw serviceOperationNotFound();
+        return jsonSafe({ booking: customerSafeBooking(replay), replayed: true });
+      }
       const profile = await this.repository.customerProfile(actor.userId, transaction);
       if (profile === null) throw serviceOperationForbidden();
-      const [branch, service] = await Promise.all([
-        this.repository.branch(input.branchId, transaction),
-        this.repository.service(input.serviceId, true, transaction),
-      ]);
-      if (branch === null || service === null) throw serviceOperationNotFound();
-      if (service.durationMinutes === null)
-        throw serviceOperationConflict(
-          "This service is not available for online booking",
-        );
+      await this.repository.createIdempotency(
+        actor.userId,
+        scope,
+        keyHash,
+        requestHash,
+        transaction,
+      );
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${input.slotId}`}, 0))`;
+      const slot = await this.repository.lockBookingSlot(input.slotId, transaction);
+      if (
+        slot === null ||
+        slot.status !== "OPEN" ||
+        slot.branch.isActive !== true ||
+        slot.service.isActive !== true ||
+        slot.service.pricingType !== "FIXED" ||
+        slot.service.priceKobo === null ||
+        slot.service.durationMinutes === null
+      )
+        throw serviceOperationNotFound();
+      assertWithinBookingWindow(slot.startsAt);
       if (
         input.vehicleId !== undefined &&
         (await this.repository.ownedVehicle(profile.id, input.vehicleId, transaction)) ===
@@ -240,32 +551,98 @@ export class ServiceOperationsService {
       )
         throw serviceOperationNotFound();
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${profile.id}`}, 0))`;
-      const end = new Date(scheduledAt.getTime() + service.durationMinutes * 60_000);
       if (
         await this.repository.hasCustomerScheduleConflict(
           profile.id,
-          scheduledAt,
-          end,
+          slot.startsAt,
+          slot.endsAt,
           null,
           transaction,
         )
       )
         throw scheduleConflict();
-      const booking = await this.repository.createBooking(profile.id, input, transaction);
+      const now = new Date();
+      const holdExpiresAt = new Date(
+        now.getTime() + bookingPolicy.paymentHoldMinutes * 60_000,
+      );
+      const depositAmountKobo =
+        (slot.service.priceKobo * BigInt(bookingPolicy.depositBasisPoints) + 5000n) /
+        10000n;
+      const booking = await this.repository.createBooking(
+        {
+          customerId: profile.id,
+          branchId: slot.branchId,
+          serviceId: slot.serviceId,
+          assignedStaffId: slot.staffId,
+          bookingSlotId: slot.id,
+          scheduledAt: slot.startsAt,
+          status: "AWAITING_DEPOSIT",
+          quotedPriceKobo: slot.service.priceKobo,
+          currency: "NGN",
+          paymentHoldExpiresAt: holdExpiresAt,
+          depositBaseKobo: slot.service.priceKobo,
+          depositBasisPoints: bookingPolicy.depositBasisPoints,
+          depositAmountKobo,
+          depositPolicyVersion: bookingPolicy.version,
+          depositTermsAcceptedAt: now,
+          ...(input.vehicleId === undefined ? {} : { vehicleId: input.vehicleId }),
+          ...(input.customerNotes === undefined
+            ? {}
+            : { customerNotes: input.customerNotes }),
+        },
+        transaction,
+      );
+      const payment = await transaction.payment.create({
+        data: {
+          customerId: profile.id,
+          bookingId: booking.id,
+          paymentNumber: paymentNumber(),
+          purpose: "BOOKING_DEPOSIT",
+          amountKobo: depositAmountKobo,
+          currency: "NGN",
+          status: "REQUIRES_PAYMENT",
+          idempotencyKeyHash: hashToken(
+            "payment-intent-idempotency",
+            `booking-deposit:${booking.id}`,
+          ),
+          expiresAt: holdExpiresAt,
+          description: "Non-refundable service booking deposit",
+        },
+        select: { id: true },
+      });
+      const formattedAmount = formatNgn(depositAmountKobo);
+      await enqueueNotification(transaction, {
+        userId: actor.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title: "Booking held for deposit payment",
+        message: `Your booking is held for 30 minutes. Pay the non-refundable 30% deposit of ${formattedAmount} by ${holdExpiresAt.toISOString()} to confirm it.`,
+        resourceType: "BOOKING",
+        resourceId: booking.id,
+        deduplicationKey: `booking:${booking.id}:deposit-required`,
+        channels: ["EMAIL"],
+        expiresAt: holdExpiresAt,
+      });
+      await this.repository.completeIdempotency(scope, keyHash, booking.id, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "CREATE",
         entityType: "BOOKING",
         entityId: booking.id,
         newValues: {
-          branchId: input.branchId,
-          serviceId: input.serviceId,
+          branchId: booking.branchId,
+          serviceId: booking.serviceId,
           status: booking.status,
           scheduledAt: booking.scheduledAt.toISOString(),
+          depositAmountKobo: depositAmountKobo.toString(),
+          paymentId: payment.id,
+          policyVersion: bookingPolicy.version,
         },
         context,
       });
-      return jsonSafe(customerSafeBooking(booking));
+      const result = await this.repository.booking(booking.id, transaction);
+      if (result === null) throw serviceOperationNotFound();
+      return jsonSafe({ booking: customerSafeBooking(result), replayed: false });
     });
   }
 
@@ -276,24 +653,39 @@ export class ServiceOperationsService {
     context: RequestSecurityContext,
   ) {
     assertCustomerActor(actor);
-    const scheduledAt = new Date(input.scheduledAt);
-    if (scheduledAt.getTime() <= Date.now())
-      throw serviceOperationConflict("Bookings must be scheduled in the future");
     return this.database.$transaction(async (transaction) => {
       const booking = await this.lockOwnedCustomerBooking(actor.userId, id, transaction);
-      if (booking.status !== "REQUESTED") throw invalidServiceTransition();
+      if (
+        booking.status !== "CONFIRMED" ||
+        booking.bookingSlotId === null ||
+        booking.depositPaidAt === null ||
+        booking.customerRescheduleCount >= bookingPolicy.customerRescheduleLimit ||
+        booking.scheduledAt.getTime() - Date.now() <
+          bookingPolicy.customerRescheduleCutoffHours * 3_600_000
+      )
+        throw invalidServiceTransition();
+      if (input.slotId === booking.bookingSlotId)
+        throw serviceOperationConflict("Choose a different booking slot");
+      const slotIds = [booking.bookingSlotId, input.slotId].sort();
+      for (const slotId of slotIds) {
+        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${slotId}`}, 0))`;
+        await transaction.$queryRaw`SELECT "id" FROM "BookingSlot" WHERE "id" = ${slotId}::uuid FOR UPDATE`;
+      }
+      const replacement = await this.repository.bookingSlot(input.slotId, transaction);
+      if (
+        replacement === null ||
+        replacement.status !== "OPEN" ||
+        replacement.serviceId !== booking.serviceId ||
+        replacement.branch.isActive !== true
+      )
+        throw serviceOperationNotFound();
+      assertWithinBookingWindow(replacement.startsAt);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`}, 0))`;
-      const duration = booking.service.durationMinutes;
-      if (duration === null)
-        throw serviceOperationConflict(
-          "Service duration must be configured before rescheduling",
-        );
-      const end = new Date(scheduledAt.getTime() + duration * 60_000);
       if (
         await this.repository.hasCustomerScheduleConflict(
           booking.customerId,
-          scheduledAt,
-          end,
+          replacement.startsAt,
+          replacement.endsAt,
           booking.id,
           transaction,
         )
@@ -302,12 +694,34 @@ export class ServiceOperationsService {
       const result = await this.repository.updateBooking(
         id,
         input.expectedVersion,
-        { scheduledAt },
+        {
+          bookingSlotId: replacement.id,
+          branchId: replacement.branchId,
+          assignedStaffId: replacement.staffId,
+          scheduledAt: replacement.startsAt,
+          customerRescheduleCount: { increment: 1 },
+          scheduleVersion: { increment: 1 },
+        },
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
+      const rescheduled = await this.repository.booking(id, transaction);
+      if (rescheduled === null) throw serviceOperationNotFound();
+      await cancelPendingReminders(transaction, id);
+      await scheduleReminders(transaction, rescheduled);
       const updated = await this.repository.booking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
+      await enqueueNotification(transaction, {
+        userId: actor.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title: "Booking rescheduled",
+        message: `Your booking has been moved to ${updated.scheduledAt.toISOString()}. Your existing deposit remains applied. Please reschedule at least 24 hours ahead if your plans change.`,
+        resourceType: "BOOKING",
+        resourceId: id,
+        deduplicationKey: `booking:${id}:rescheduled:${updated.scheduleVersion}`,
+        channels: ["EMAIL"],
+      });
       await this.auditBooking(transaction, actor, booking, updated, context);
       return jsonSafe(customerSafeBooking(updated));
     });
@@ -328,12 +742,40 @@ export class ServiceOperationsService {
       const result = await this.repository.updateBooking(
         id,
         input.expectedVersion,
-        { status: "CANCELLED", cancellationReason: input.reason, cancelledAt: now },
+        {
+          status: "CANCELLED",
+          cancellationReason: input.reason,
+          cancelledAt: now,
+          ...(booking.depositPaidAt === null ? {} : { depositForfeitedAt: now }),
+        },
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
+      if (booking.depositPayment !== null)
+        await transaction.payment.updateMany({
+          where: {
+            id: booking.depositPayment.id,
+            status: { in: ["REQUIRES_PAYMENT", "PROCESSING", "REQUIRES_REVIEW"] },
+          },
+          data: { status: "CANCELLED", cancelledAt: now },
+        });
+      await cancelPendingReminders(transaction, id);
       const updated = await this.repository.booking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
+      await enqueueNotification(transaction, {
+        userId: actor.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title: "Booking cancelled",
+        message:
+          booking.depositPaidAt === null
+            ? "Your booking was cancelled and the unpaid slot hold was released."
+            : "Your booking was cancelled. As accepted when booking, the 30% deposit is non-refundable and cannot be applied to the final balance.",
+        resourceType: "BOOKING",
+        resourceId: id,
+        deduplicationKey: `booking:${id}:cancelled:${updated.version}`,
+        channels: ["EMAIL"],
+      });
       await this.auditBooking(transaction, actor, booking, updated, context);
       return jsonSafe(customerSafeBooking(updated));
     });
@@ -450,6 +892,15 @@ export class ServiceOperationsService {
       const booking = await this.lockAuthorizedStaffBooking(actor, id, transaction);
       if (!bookingTransitions[booking.status].includes(input.status))
         throw invalidServiceTransition();
+      if (
+        booking.bookingSlotId !== null &&
+        (input.status === "CONFIRMED" || input.status === "CANCELLED")
+      )
+        throw serviceOperationConflict(
+          input.status === "CONFIRMED"
+            ? "Deposit-backed bookings are confirmed only by verified payment"
+            : "Use the business disruption workflow for a provider-caused cancellation",
+        );
       if (input.status === "CONFIRMED") {
         if (booking.assignedStaffId === null || booking.service.durationMinutes === null)
           throw serviceOperationConflict(
@@ -482,6 +933,9 @@ export class ServiceOperationsService {
         ...(input.status === "CANCELLED"
           ? { cancelledAt: now, cancellationReason: input.reason! }
           : {}),
+        ...(input.status === "NO_SHOW" && booking.depositPaidAt !== null
+          ? { depositForfeitedAt: now }
+          : {}),
       };
       const result = await this.repository.updateBooking(
         id,
@@ -492,8 +946,244 @@ export class ServiceOperationsService {
       if (result.count !== 1) throw staleServiceOperation();
       const updated = await this.repository.booking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
+      if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
+        await cancelPendingReminders(transaction, id);
+      if (input.status === "NO_SHOW") {
+        const customer = await transaction.customerProfile.findUniqueOrThrow({
+          where: { id: booking.customerId },
+          select: { userId: true },
+        });
+        await enqueueNotification(transaction, {
+          userId: customer.userId,
+          type: "BOOKING",
+          category: "TRANSACTIONAL",
+          title: "Booking marked as no-show",
+          message:
+            "This appointment was marked as a no-show. The accepted deposit is non-refundable. Please create a new booking and deposit to reschedule.",
+          resourceType: "BOOKING",
+          resourceId: id,
+          deduplicationKey: `booking:${id}:no-show`,
+          channels: ["EMAIL"],
+        });
+      }
       await this.auditBooking(transaction, actor, booking, updated, context);
       return jsonSafe(updated);
+    });
+  }
+
+  async reportBusinessDisruption(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingDisruptionInput,
+    context: RequestSecurityContext,
+  ) {
+    assertPrivilegedActor(actor);
+    return this.database.$transaction(async (transaction) => {
+      const booking = await this.lockAuthorizedStaffBooking(actor, id, transaction);
+      if (
+        booking.status !== "CONFIRMED" ||
+        booking.bookingSlotId === null ||
+        booking.depositPaidAt === null ||
+        booking.disruptionRequestedAt !== null
+      )
+        throw invalidServiceTransition();
+      const now = new Date();
+      const result = await this.repository.updateBooking(
+        id,
+        input.expectedVersion,
+        {
+          disruptionRequestedAt: now,
+          disruptionReason: input.reason,
+          disruptionResolution: "PENDING",
+        },
+        transaction,
+      );
+      if (result.count !== 1) throw staleServiceOperation();
+      await cancelPendingReminders(transaction, id);
+      const updated = await this.repository.booking(id, transaction);
+      if (updated === null) throw serviceOperationNotFound();
+      const customer = await transaction.customerProfile.findUniqueOrThrow({
+        where: { id: booking.customerId },
+        select: { userId: true },
+      });
+      await enqueueNotification(transaction, {
+        userId: customer.userId,
+        type: "BOOKING",
+        category: "TRANSACTIONAL",
+        title: "Action required: booking disruption",
+        message:
+          "Allied AutoTech cannot fulfil this appointment. Choose another published slot without using your customer reschedule, or request a full deposit refund.",
+        resourceType: "BOOKING",
+        resourceId: id,
+        deduplicationKey: `booking:${id}:business-disruption:${updated.version}`,
+        channels: ["EMAIL"],
+      });
+      await this.auditBooking(transaction, actor, booking, updated, context);
+      return jsonSafe(updated);
+    });
+  }
+
+  async resolveBusinessDisruption(
+    actor: AuthenticatedActor,
+    id: string,
+    input: BookingDisruptionResolutionInput,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
+    assertCustomerActor(actor);
+    const scope = `booking-disruption:${actor.userId}:${id}`;
+    const keyHash = hashToken("booking-idempotency", `${scope}:${rawKey}`);
+    const requestHash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
+    return this.database.$transaction(async (transaction) => {
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-disruption:${keyHash}`}, 0))`;
+      const prior = await this.repository.idempotency(scope, keyHash, transaction);
+      if (prior !== null) {
+        if (prior.status !== "COMPLETED" || prior.requestHash !== requestHash)
+          throw serviceOperationConflict(
+            "The idempotency key was already used for another request",
+          );
+        const replay = await this.repository.booking(id, transaction);
+        if (replay === null) throw serviceOperationNotFound();
+        return jsonSafe({ booking: customerSafeBooking(replay), replayed: true });
+      }
+      const booking = await this.lockOwnedCustomerBooking(actor.userId, id, transaction);
+      if (
+        booking.version !== input.expectedVersion ||
+        booking.status !== "CONFIRMED" ||
+        booking.disruptionResolution !== "PENDING" ||
+        booking.depositPaidAt === null ||
+        booking.depositPayment?.status !== "SUCCEEDED"
+      )
+        throw invalidServiceTransition();
+      await this.repository.createIdempotency(
+        actor.userId,
+        scope,
+        keyHash,
+        requestHash,
+        transaction,
+      );
+      if (input.resolution === "TRANSFER") {
+        if (booking.bookingSlotId === null || input.slotId === booking.bookingSlotId)
+          throw serviceOperationConflict("Choose a different booking slot");
+        const slotIds = [booking.bookingSlotId, input.slotId].sort();
+        for (const slotId of slotIds) {
+          await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot:${slotId}`}, 0))`;
+          await transaction.$queryRaw`SELECT "id" FROM "BookingSlot" WHERE "id" = ${slotId}::uuid FOR UPDATE`;
+        }
+        const replacement = await this.repository.bookingSlot(input.slotId, transaction);
+        if (
+          replacement === null ||
+          replacement.status !== "OPEN" ||
+          replacement.serviceId !== booking.serviceId ||
+          replacement.branch.isActive !== true
+        )
+          throw serviceOperationNotFound();
+        assertWithinBookingWindow(replacement.startsAt);
+        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`customer-schedule:${booking.customerId}`}, 0))`;
+        if (
+          await this.repository.hasCustomerScheduleConflict(
+            booking.customerId,
+            replacement.startsAt,
+            replacement.endsAt,
+            booking.id,
+            transaction,
+          )
+        )
+          throw scheduleConflict();
+        const changed = await this.repository.updateBooking(
+          id,
+          input.expectedVersion,
+          {
+            bookingSlotId: replacement.id,
+            branchId: replacement.branchId,
+            assignedStaffId: replacement.staffId,
+            scheduledAt: replacement.startsAt,
+            disruptionResolution: "TRANSFERRED",
+            scheduleVersion: { increment: 1 },
+          },
+          transaction,
+        );
+        if (changed.count !== 1) throw staleServiceOperation();
+        const updated = await this.repository.booking(id, transaction);
+        if (updated === null) throw serviceOperationNotFound();
+        await scheduleReminders(transaction, updated);
+        await enqueueNotification(transaction, {
+          userId: actor.userId,
+          type: "BOOKING",
+          category: "TRANSACTIONAL",
+          title: "Booking transferred",
+          message: `Your booking and deposit were transferred to ${updated.scheduledAt.toISOString()}. This did not use your customer reschedule.`,
+          resourceType: "BOOKING",
+          resourceId: id,
+          deduplicationKey: `booking:${id}:disruption-transferred:${updated.scheduleVersion}`,
+          channels: ["EMAIL"],
+        });
+      } else {
+        if (booking.depositPayment.settledAttemptId === null)
+          throw serviceOperationConflict("Deposit settlement is unavailable");
+        const attempt = await transaction.paymentAttempt.findUnique({
+          where: { id: booking.depositPayment.settledAttemptId },
+          select: { id: true },
+        });
+        if (attempt === null)
+          throw serviceOperationConflict("Deposit settlement is unavailable");
+        const refund = await transaction.refund.create({
+          data: {
+            paymentAttemptId: attempt.id,
+            requestedByUserId: actor.userId,
+            refundNumber: refundNumber(),
+            idempotencyKeyHash: hashToken(
+              "refund-idempotency",
+              `${attempt.id}:${rawKey}`,
+            ),
+            amountKobo: booking.depositAmountKobo!,
+            currency: "NGN",
+            reason: "Allied AutoTech booking disruption deposit refund",
+          },
+          select: { id: true },
+        });
+        const now = new Date();
+        const changed = await this.repository.updateBooking(
+          id,
+          input.expectedVersion,
+          {
+            status: "CANCELLED",
+            cancelledAt: now,
+            cancellationReason: "Allied AutoTech booking disruption",
+            disruptionResolution: "REFUND_REQUESTED",
+          },
+          transaction,
+        );
+        if (changed.count !== 1) throw staleServiceOperation();
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "REFUND_REQUESTED",
+          entityType: "REFUND",
+          entityId: refund.id,
+          newValues: {
+            bookingId: id,
+            amountKobo: booking.depositAmountKobo!.toString(),
+          },
+          context,
+        });
+        await enqueueNotification(transaction, {
+          userId: actor.userId,
+          type: "REFUND",
+          category: "TRANSACTIONAL",
+          title: "Deposit refund requested",
+          message:
+            "Your full booking deposit refund was requested and is awaiting independent approval. We will notify you when its status changes.",
+          resourceType: "BOOKING",
+          resourceId: id,
+          deduplicationKey: `booking:${id}:disruption-refund-requested`,
+          channels: ["EMAIL"],
+        });
+      }
+      await this.repository.completeIdempotency(scope, keyHash, id, transaction, 200);
+      const updated = await this.repository.booking(id, transaction);
+      if (updated === null) throw serviceOperationNotFound();
+      await this.auditBooking(transaction, actor, booking, updated, context);
+      return jsonSafe({ booking: customerSafeBooking(updated), replayed: false });
     });
   }
 

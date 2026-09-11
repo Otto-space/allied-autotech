@@ -2,10 +2,11 @@ import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import type {
   AdminServiceListQuery,
-  BookingCreateInput,
   CustomerBookingListQuery,
+  PublicBookingSlotListQuery,
   ServiceCreateInput,
   ServiceUpdateInput,
+  StaffBookingSlotListQuery,
   StaffBookingListQuery,
 } from "./service-operations.schemas.js";
 import type { PricedLine } from "./service-operations.types.js";
@@ -91,6 +92,41 @@ export const workOrderSelect = {
   items: { select: workLineSelect, orderBy: { id: "asc" as const } },
 } satisfies Prisma.WorkOrderSelect;
 
+export const bookingSlotSelect = {
+  id: true,
+  branchId: true,
+  serviceId: true,
+  staffId: true,
+  startsAt: true,
+  endsAt: true,
+  status: true,
+  version: true,
+  createdAt: true,
+  updatedAt: true,
+  branch: { select: { id: true, code: true, name: true, isActive: true } },
+  service: { select: serviceSelect },
+  staff: { select: { id: true, firstName: true, lastName: true } },
+} satisfies Prisma.BookingSlotSelect;
+
+const publicBookingSlotSelect = {
+  id: true,
+  branchId: true,
+  serviceId: true,
+  startsAt: true,
+  endsAt: true,
+  version: true,
+  branch: { select: { id: true, code: true, name: true } },
+  service: {
+    select: {
+      id: true,
+      name: true,
+      priceKobo: true,
+      currency: true,
+      durationMinutes: true,
+    },
+  },
+} satisfies Prisma.BookingSlotSelect;
+
 export const bookingSelect = {
   id: true,
   customerId: true,
@@ -98,6 +134,7 @@ export const bookingSelect = {
   serviceId: true,
   vehicleId: true,
   assignedStaffId: true,
+  bookingSlotId: true,
   scheduledAt: true,
   status: true,
   quotedPriceKobo: true,
@@ -109,6 +146,19 @@ export const bookingSelect = {
   startedAt: true,
   completedAt: true,
   cancelledAt: true,
+  paymentHoldExpiresAt: true,
+  depositBaseKobo: true,
+  depositBasisPoints: true,
+  depositAmountKobo: true,
+  depositPolicyVersion: true,
+  depositTermsAcceptedAt: true,
+  depositPaidAt: true,
+  depositForfeitedAt: true,
+  customerRescheduleCount: true,
+  scheduleVersion: true,
+  disruptionRequestedAt: true,
+  disruptionReason: true,
+  disruptionResolution: true,
   version: true,
   createdAt: true,
   updatedAt: true,
@@ -118,6 +168,30 @@ export const bookingSelect = {
     select: { id: true, make: true, model: true, year: true, registrationNumber: true },
   },
   assignedStaff: { select: { id: true, firstName: true, lastName: true } },
+  bookingSlot: { select: bookingSlotSelect },
+  depositPayment: {
+    select: {
+      id: true,
+      paymentNumber: true,
+      amountKobo: true,
+      currency: true,
+      status: true,
+      settledAttemptId: true,
+      expiresAt: true,
+      succeededAt: true,
+    },
+  },
+  reminders: {
+    select: {
+      id: true,
+      kind: true,
+      scheduledFor: true,
+      scheduleVersion: true,
+      status: true,
+      sentAt: true,
+    },
+    orderBy: [{ scheduledFor: "asc" as const }, { id: "asc" as const }],
+  },
   quotes: { select: quoteSelect, orderBy: { version: "desc" as const } },
   workOrder: { select: workOrderSelect },
 } satisfies Prisma.BookingSelect;
@@ -203,6 +277,87 @@ export class ServiceOperationsRepository {
     });
   }
 
+  publicBookingSlots(serviceId: string, query: PublicBookingSlotListQuery) {
+    const now = new Date();
+    return this.database.bookingSlot.findMany({
+      where: {
+        serviceId,
+        branchId: query.branchId,
+        status: "OPEN",
+        startsAt: {
+          gte: query.from === undefined ? now : new Date(query.from),
+          ...(query.to === undefined ? {} : { lte: new Date(query.to) }),
+        },
+        bookings: {
+          none: { status: { in: ["AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"] } },
+        },
+      },
+      select: publicBookingSlotSelect,
+      orderBy: [{ startsAt: "asc" }, { id: "asc" }],
+      take: query.limit + 1,
+      ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
+    });
+  }
+
+  listBookingSlots(query: StaffBookingSlotListQuery, branchId: string | null) {
+    return this.database.bookingSlot.findMany({
+      where: {
+        ...(branchId === null
+          ? query.branchId === undefined
+            ? {}
+            : { branchId: query.branchId }
+          : { branchId }),
+        ...(query.serviceId === undefined ? {} : { serviceId: query.serviceId }),
+        ...(query.staffId === undefined ? {} : { staffId: query.staffId }),
+        ...(query.status === undefined ? {} : { status: query.status }),
+        ...(query.startsFrom === undefined && query.startsTo === undefined
+          ? {}
+          : {
+              startsAt: {
+                ...(query.startsFrom === undefined
+                  ? {}
+                  : { gte: new Date(query.startsFrom) }),
+                ...(query.startsTo === undefined ? {} : { lt: new Date(query.startsTo) }),
+              },
+            }),
+      },
+      select: bookingSlotSelect,
+      orderBy: [{ startsAt: "asc" }, { id: "asc" }],
+      take: query.limit + 1,
+      ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
+    });
+  }
+
+  bookingSlot(id: string, client: DatabaseClient = this.database) {
+    return client.bookingSlot.findUnique({ where: { id }, select: bookingSlotSelect });
+  }
+
+  async lockBookingSlot(id: string, client: Prisma.TransactionClient) {
+    const rows = await client.$queryRaw<
+      Array<{ id: string }>
+    >`SELECT "id" FROM "BookingSlot" WHERE "id" = ${id}::uuid FOR UPDATE`;
+    return rows.length === 0 ? null : this.bookingSlot(id, client);
+  }
+
+  createBookingSlot(
+    data: Prisma.BookingSlotUncheckedCreateInput,
+    client: DatabaseClient,
+  ) {
+    return client.bookingSlot.create({ data, select: bookingSlotSelect });
+  }
+
+  updateBookingSlot(
+    id: string,
+    expectedVersion: number,
+    status: "OPEN" | "CLOSED",
+    client: DatabaseClient,
+  ) {
+    return client.bookingSlot.updateMany({
+      where: { id, version: expectedVersion },
+      data: { status, version: { increment: 1 } },
+    });
+  }
+
   assignableStaff(id: string, client: DatabaseClient) {
     return client.staffProfile.findFirst({
       where: {
@@ -280,18 +435,9 @@ export class ServiceOperationsRepository {
     return rows.length === 0 ? null : this.booking(id, client);
   }
 
-  createBooking(customerId: string, input: BookingCreateInput, client: DatabaseClient) {
+  createBooking(data: Prisma.BookingUncheckedCreateInput, client: DatabaseClient) {
     return client.booking.create({
-      data: {
-        customerId,
-        branchId: input.branchId,
-        serviceId: input.serviceId,
-        ...(input.vehicleId === undefined ? {} : { vehicleId: input.vehicleId }),
-        scheduledAt: new Date(input.scheduledAt),
-        ...(input.customerNotes === undefined
-          ? {}
-          : { customerNotes: input.customerNotes }),
-      },
+      data,
       select: bookingSelect,
     });
   }
@@ -320,7 +466,7 @@ export class ServiceOperationsRepository {
         SELECT 1 FROM "Booking" b
         JOIN "Service" s ON s."id" = b."serviceId"
         WHERE b."assignedStaffId" = ${staffId}::uuid
-          AND b."status" IN ('REQUESTED', 'CONFIRMED', 'IN_PROGRESS')
+          AND b."status" IN ('REQUESTED', 'AWAITING_DEPOSIT', 'CONFIRMED', 'IN_PROGRESS')
           AND (${excludeBookingId}::uuid IS NULL OR b."id" <> ${excludeBookingId}::uuid)
           AND b."scheduledAt" < ${end}
           AND b."scheduledAt" + make_interval(mins => COALESCE(s."durationMinutes", 60)) > ${start}
@@ -341,13 +487,59 @@ export class ServiceOperationsRepository {
         SELECT 1 FROM "Booking" b
         JOIN "Service" s ON s."id" = b."serviceId"
         WHERE b."customerId" = ${customerId}::uuid
-          AND b."status" IN ('REQUESTED', 'CONFIRMED', 'IN_PROGRESS')
+          AND b."status" IN ('REQUESTED', 'AWAITING_DEPOSIT', 'CONFIRMED', 'IN_PROGRESS')
           AND (${excludeBookingId}::uuid IS NULL OR b."id" <> ${excludeBookingId}::uuid)
           AND b."scheduledAt" < ${end}
           AND b."scheduledAt" + make_interval(mins => COALESCE(s."durationMinutes", 60)) > ${start}
       ) AS "exists"
     `);
     return rows[0]?.exists ?? false;
+  }
+
+  idempotency(scope: string, keyHash: string, client: DatabaseClient) {
+    return client.idempotencyRecord.findUnique({
+      where: { scope_keyHash: { scope, keyHash } },
+      select: { status: true, requestHash: true, responseBody: true },
+    });
+  }
+
+  createIdempotency(
+    userId: string,
+    scope: string,
+    keyHash: string,
+    requestHash: string,
+    client: DatabaseClient,
+  ) {
+    return client.idempotencyRecord.create({
+      data: {
+        userId,
+        scope,
+        keyHash,
+        requestHash,
+        lockedAt: new Date(),
+        expiresAt: new Date(Date.now() + 86_400_000),
+      },
+      select: { id: true },
+    });
+  }
+
+  completeIdempotency(
+    scope: string,
+    keyHash: string,
+    bookingId: string,
+    client: DatabaseClient,
+    responseStatus = 201,
+  ) {
+    return client.idempotencyRecord.update({
+      where: { scope_keyHash: { scope, keyHash } },
+      data: {
+        status: "COMPLETED",
+        responseStatus,
+        responseBody: { bookingId },
+        completedAt: new Date(),
+      },
+      select: { id: true },
+    });
   }
 
   products(ids: string[], client: DatabaseClient) {

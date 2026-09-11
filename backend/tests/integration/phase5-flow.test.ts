@@ -148,19 +148,17 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
       },
     });
     const scheduledAt = new Date(Date.now() + 48 * 3_600_000).toISOString();
-    const bookingResponse = await request(app)
-      .post("/api/v1/customers/bookings")
-      .set(mutation(customerSession))
-      .send({
+    const legacyBooking = await prisma.booking.create({
+      data: {
+        customerId: customer.profile!.id,
         branchId: branch.id,
         serviceId,
         vehicleId: vehicle.id,
-        scheduledAt,
+        scheduledAt: new Date(scheduledAt),
         customerNotes: "Check warning light",
-      });
-    expect(bookingResponse.status).toBe(201);
-    expect(bookingResponse.body.data).not.toHaveProperty("staffNotes");
-    const bookingId = bookingResponse.body.data.id as string;
+      },
+    });
+    const bookingId = legacyBooking.id;
 
     const crossBranch = await request(app)
       .get(`/api/v1/staff/bookings/${bookingId}`)

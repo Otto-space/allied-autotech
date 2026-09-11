@@ -43,11 +43,40 @@ enum MfaChallengePurpose {
 
 enum BookingStatus {
   REQUESTED
+  AWAITING_DEPOSIT
   CONFIRMED
   IN_PROGRESS
   COMPLETED
   CANCELLED
   NO_SHOW
+  EXPIRED
+}
+
+enum BookingSlotStatus {
+  OPEN
+  CLOSED
+}
+
+enum BookingReminderKind {
+  SEVEN_DAYS
+  THREE_DAYS
+  TWO_DAYS
+  ONE_DAY
+}
+
+enum BookingReminderStatus {
+  PENDING
+  PROCESSING
+  SENT
+  CANCELLED
+  FAILED
+  DEAD_LETTER
+}
+
+enum BookingDisruptionResolution {
+  PENDING
+  TRANSFERRED
+  REFUND_REQUESTED
 }
 
 enum ServicePricingType {
@@ -122,6 +151,7 @@ enum PaymentVerificationStatus {
 
 enum PaymentProvider {
   PAYSTACK
+  MONNIFY
   MANUAL
 }
 
@@ -139,6 +169,7 @@ enum PaymentMethod {
 enum PaymentPurpose {
   ORDER_PAYMENT
   SERVICE_INVOICE
+  BOOKING_DEPOSIT
   VEHICLE_RESERVATION
   VEHICLE_PARTIAL_PAYMENT
   VEHICLE_BALANCE_PAYMENT
@@ -471,6 +502,7 @@ enum AuditEntityType {
   STAFF_PROFILE
   CUSTOMER_VEHICLE
   SERVICE
+  BOOKING_SLOT
   BOOKING
   QUOTE
   WORK_ORDER
@@ -724,6 +756,7 @@ model StaffProfile {
   user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   branch              Branch?               @relation(fields: [branchId], references: [id], onDelete: SetNull)
   assignedBookings    Booking[]             @relation("AssignedBookings")
+  bookingSlots        BookingSlot[]
   assignedEnquiries   Enquiry[]             @relation("AssignedEnquiries")
   assignedComplaints  Complaint[]           @relation("AssignedComplaints")
   assignedInspections InspectionRequest[]   @relation("AssignedInspections")
@@ -793,6 +826,7 @@ model Branch {
   listings              VehicleListing[]
   inventories           Inventory[]
   bookings              Booking[]
+  bookingSlots          BookingSlot[]
   orders                Order[]
   privilegedInvitations PrivilegedInvitation[]
 
@@ -857,55 +891,120 @@ model Service {
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 
-  bookings  Booking[]
-  reviews   Review[]
-  enquiries Enquiry[]
+  bookings     Booking[]
+  bookingSlots BookingSlot[]
+  reviews      Review[]
+  enquiries    Enquiry[]
 
   @@index([isActive])
   @@index([pricingType, isActive])
 }
 
-model Booking {
-  id                 String        @id @default(uuid()) @db.Uuid
-  customerId         String        @db.Uuid
-  branchId           String?       @db.Uuid
-  serviceId          String        @db.Uuid
-  vehicleId          String?       @db.Uuid
-  assignedStaffId    String?       @db.Uuid
-  scheduledAt        DateTime
-  status             BookingStatus @default(REQUESTED)
-  quotedPriceKobo    BigInt?
-  currency           String        @default("NGN") @db.Char(3)
-  customerNotes      String?
-  staffNotes         String?
-  cancellationReason String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  confirmedAt        DateTime?
-  startedAt          DateTime?
-  completedAt        DateTime?
-  cancelledAt        DateTime?
-  version            Int           @default(0)
+model BookingSlot {
+  id        String            @id @default(uuid()) @db.Uuid
+  branchId  String            @db.Uuid
+  serviceId String            @db.Uuid
+  staffId   String            @db.Uuid
+  startsAt  DateTime
+  endsAt    DateTime
+  status    BookingSlotStatus @default(OPEN)
+  version   Int               @default(0)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 
-  customer      CustomerProfile  @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  branch        Branch?          @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  service       Service          @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  vehicle       CustomerVehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
-  assignedStaff StaffProfile?    @relation("AssignedBookings", fields: [assignedStaffId], references: [id], onDelete: SetNull)
-  quotes        ServiceQuote[]
-  workOrder     WorkOrder?
-  enquiries     Enquiry[]
-  review        Review?
-  invoice       Invoice?
-  complaints    Complaint[]
+  branch   Branch       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  service  Service      @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  staff    StaffProfile @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  bookings Booking[]
+
+  @@index([serviceId, branchId, status, startsAt])
+  @@index([staffId, startsAt, endsAt])
+  @@index([status, startsAt])
+}
+
+model Booking {
+  id                      String                       @id @default(uuid()) @db.Uuid
+  customerId              String                       @db.Uuid
+  branchId                String?                      @db.Uuid
+  serviceId               String                       @db.Uuid
+  vehicleId               String?                      @db.Uuid
+  assignedStaffId         String?                      @db.Uuid
+  bookingSlotId           String?                      @db.Uuid
+  scheduledAt             DateTime
+  status                  BookingStatus                @default(REQUESTED)
+  quotedPriceKobo         BigInt?
+  currency                String                       @default("NGN") @db.Char(3)
+  customerNotes           String?
+  staffNotes              String?
+  cancellationReason      String?
+  createdAt               DateTime                     @default(now())
+  updatedAt               DateTime                     @updatedAt
+  confirmedAt             DateTime?
+  startedAt               DateTime?
+  completedAt             DateTime?
+  cancelledAt             DateTime?
+  paymentHoldExpiresAt    DateTime?
+  depositBaseKobo         BigInt?
+  depositBasisPoints      Int?
+  depositAmountKobo       BigInt?
+  depositPolicyVersion    String?                      @db.VarChar(80)
+  depositTermsAcceptedAt  DateTime?
+  depositPaidAt           DateTime?
+  depositForfeitedAt      DateTime?
+  customerRescheduleCount Int                          @default(0)
+  scheduleVersion         Int                          @default(0)
+  disruptionRequestedAt   DateTime?
+  disruptionReason        String?
+  disruptionResolution    BookingDisruptionResolution?
+  version                 Int                          @default(0)
+
+  customer       CustomerProfile   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  branch         Branch?           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  service        Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  vehicle        CustomerVehicle?  @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  assignedStaff  StaffProfile?     @relation("AssignedBookings", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  bookingSlot    BookingSlot?      @relation(fields: [bookingSlotId], references: [id], onDelete: Restrict)
+  depositPayment Payment?
+  reminders      BookingReminder[]
+  quotes         ServiceQuote[]
+  workOrder      WorkOrder?
+  enquiries      Enquiry[]
+  review         Review?
+  invoice        Invoice?
+  complaints     Complaint[]
 
   @@index([serviceId])
   @@index([branchId, status, scheduledAt])
   @@index([vehicleId])
   @@index([status, scheduledAt])
   @@index([assignedStaffId, status, scheduledAt])
+  @@index([bookingSlotId, status])
+  @@index([status, paymentHoldExpiresAt])
   @@index([customerId, status])
   @@index([customerId, createdAt])
+}
+
+model BookingReminder {
+  id              String                @id @default(uuid()) @db.Uuid
+  bookingId       String                @db.Uuid
+  kind            BookingReminderKind
+  scheduledFor    DateTime
+  scheduleVersion Int
+  status          BookingReminderStatus @default(PENDING)
+  attempts        Int                   @default(0)
+  nextAttemptAt   DateTime?
+  lockedAt        DateTime?
+  sentAt          DateTime?
+  cancelledAt     DateTime?
+  lastErrorCode   String?               @db.VarChar(100)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Restrict)
+
+  @@unique([bookingId, kind, scheduleVersion])
+  @@index([status, nextAttemptAt, scheduledFor])
+  @@index([bookingId, scheduleVersion])
 }
 
 model ServiceQuote {
@@ -1266,6 +1365,7 @@ model Payment {
   orderId              String?             @db.Uuid
   invoiceId            String?             @db.Uuid
   vehicleTransactionId String?             @db.Uuid
+  bookingId            String?             @unique @db.Uuid
   paymentNumber        String              @unique @db.VarChar(50)
   purpose              PaymentPurpose
   amountKobo           BigInt
@@ -1285,6 +1385,7 @@ model Payment {
   order              Order?              @relation(fields: [orderId], references: [id], onDelete: Restrict)
   invoice            Invoice?            @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
   vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: Restrict)
+  booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   settledAttempt     PaymentAttempt?     @relation("SettledAttempt", fields: [settledAttemptId], references: [id], onDelete: Restrict)
   attempts           PaymentAttempt[]    @relation("PaymentAttempts")
   anomalies          PaymentAnomaly[]
@@ -1293,6 +1394,7 @@ model Payment {
   @@index([orderId, status])
   @@index([invoiceId, status])
   @@index([vehicleTransactionId, status])
+  @@index([bookingId, status])
   @@index([status, createdAt])
 }
 
@@ -2039,6 +2141,7 @@ model Invoice {
   currency             String        @default("NGN") @db.Char(3)
   subtotalKobo         BigInt
   taxKobo              BigInt        @default(0)
+  depositCreditKobo    BigInt        @default(0)
   totalKobo            BigInt
   status               InvoiceStatus @default(DRAFT)
   version              Int           @default(0)

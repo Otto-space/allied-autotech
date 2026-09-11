@@ -32,6 +32,7 @@ export const serviceOperationsEmptyBodySchema = z.object({}).strict().default({}
 export const serviceOperationsEmptyQuerySchema = z.object({}).strict().default({});
 export const serviceParamsSchema = z.object({ serviceId: uuid }).strict();
 export const bookingParamsSchema = z.object({ bookingId: uuid }).strict();
+export const bookingSlotParamsSchema = z.object({ slotId: uuid }).strict();
 export const quoteParamsSchema = z.object({ bookingId: uuid, quoteId: uuid }).strict();
 export const workOrderParamsSchema = z
   .object({ bookingId: uuid, workOrderId: uuid })
@@ -97,11 +98,13 @@ export const serviceUpdateBodySchema = z
 
 const bookingStatus = z.enum([
   "REQUESTED",
+  "AWAITING_DEPOSIT",
   "CONFIRMED",
   "IN_PROGRESS",
   "COMPLETED",
   "CANCELLED",
   "NO_SHOW",
+  "EXPIRED",
 ]);
 export const customerBookingListQuerySchema = z
   .object({ ...pageFields, status: bookingStatus.optional() })
@@ -132,15 +135,15 @@ export const staffBookingListQuerySchema = customerBookingListQuerySchema
   });
 export const bookingCreateBodySchema = z
   .object({
-    branchId: uuid,
-    serviceId: uuid,
+    slotId: uuid,
     vehicleId: uuid.optional(),
-    scheduledAt: dateTime,
     customerNotes: nullableText(2_000),
+    policyVersion: cleanText(80),
+    acceptNonRefundableDeposit: z.literal(true),
   })
   .strict();
 export const bookingRescheduleBodySchema = z
-  .object({ scheduledAt: dateTime, expectedVersion: version })
+  .object({ slotId: uuid, expectedVersion: version })
   .strict();
 export const bookingCancelBodySchema = z
   .object({ reason: cleanText(500), expectedVersion: version })
@@ -156,6 +159,62 @@ export const bookingTransitionBodySchema = z
     staffNotes: nullableText(4_000),
   })
   .strict();
+
+export const bookingIdempotencyHeadersSchema = z.looseObject({
+  "idempotency-key": z
+    .string()
+    .trim()
+    .min(16)
+    .max(120)
+    .regex(/^[\x21-\x7E]+$/),
+});
+export const publicBookingSlotListQuerySchema = z
+  .object({
+    branchId: uuid,
+    from: dateTime.optional(),
+    to: dateTime.optional(),
+    ...pageFields,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.from === undefined || value.to === undefined) return;
+    if (new Date(value.to) <= new Date(value.from))
+      context.addIssue({
+        code: "custom",
+        path: ["to"],
+        message: "Must follow from",
+      });
+  });
+export const staffBookingSlotListQuerySchema = z
+  .object({
+    branchId: uuid.optional(),
+    serviceId: uuid.optional(),
+    staffId: uuid.optional(),
+    status: z.enum(["OPEN", "CLOSED"]).optional(),
+    startsFrom: dateTime.optional(),
+    startsTo: dateTime.optional(),
+    ...pageFields,
+  })
+  .strict();
+export const bookingSlotCreateBodySchema = z
+  .object({ branchId: uuid, serviceId: uuid, staffId: uuid, startsAt: dateTime })
+  .strict();
+export const bookingSlotUpdateBodySchema = z
+  .object({ expectedVersion: version, status: z.enum(["OPEN", "CLOSED"]) })
+  .strict();
+export const bookingDisruptionBodySchema = z
+  .object({ expectedVersion: version, reason: cleanText(1_000) })
+  .strict();
+export const bookingDisruptionResolutionBodySchema = z.discriminatedUnion("resolution", [
+  z
+    .object({
+      resolution: z.literal("TRANSFER"),
+      slotId: uuid,
+      expectedVersion: version,
+    })
+    .strict(),
+  z.object({ resolution: z.literal("REFUND"), expectedVersion: version }).strict(),
+]);
 
 const partLine = z
   .object({
@@ -228,6 +287,14 @@ export type BookingRescheduleInput = z.infer<typeof bookingRescheduleBodySchema>
 export type BookingCancelInput = z.infer<typeof bookingCancelBodySchema>;
 export type BookingAssignmentInput = z.infer<typeof bookingAssignmentBodySchema>;
 export type BookingTransitionInput = z.infer<typeof bookingTransitionBodySchema>;
+export type PublicBookingSlotListQuery = z.infer<typeof publicBookingSlotListQuerySchema>;
+export type StaffBookingSlotListQuery = z.infer<typeof staffBookingSlotListQuerySchema>;
+export type BookingSlotCreateInput = z.infer<typeof bookingSlotCreateBodySchema>;
+export type BookingSlotUpdateInput = z.infer<typeof bookingSlotUpdateBodySchema>;
+export type BookingDisruptionInput = z.infer<typeof bookingDisruptionBodySchema>;
+export type BookingDisruptionResolutionInput = z.infer<
+  typeof bookingDisruptionResolutionBodySchema
+>;
 export type ServiceLineItemInput = z.infer<typeof serviceLineItemSchema>;
 export type QuoteCreateInput = z.infer<typeof quoteCreateBodySchema>;
 export type QuoteReplaceInput = z.infer<typeof quoteReplaceBodySchema>;

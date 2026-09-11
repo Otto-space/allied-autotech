@@ -76,7 +76,7 @@ export const paymentListQuerySchema = z
 export const staffPaymentListQuerySchema = paymentListQuerySchema
   .extend({
     customerId: uuid.optional(),
-    provider: z.enum(["PAYSTACK", "MANUAL"]).optional(),
+    provider: z.enum(["PAYSTACK", "MONNIFY", "MANUAL"]).optional(),
   })
   .strict();
 export const manualPaymentBodySchema = z

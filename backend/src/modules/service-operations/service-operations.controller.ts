@@ -10,16 +10,22 @@ import type {
   BookingAssignmentInput,
   BookingCancelInput,
   BookingCreateInput,
+  BookingDisruptionInput,
+  BookingDisruptionResolutionInput,
   BookingRescheduleInput,
+  BookingSlotCreateInput,
+  BookingSlotUpdateInput,
   BookingTransitionInput,
   CustomerBookingListQuery,
   PublicServiceListQuery,
+  PublicBookingSlotListQuery,
   QuoteCreateInput,
   QuoteReplaceInput,
   QuoteTransitionInput,
   ServiceCreateInput,
   ServiceUpdateInput,
   StaffBookingListQuery,
+  StaffBookingSlotListQuery,
   WorkOrderCreateInput,
   WorkOrderTransitionInput,
   WorkOrderUpdateInput,
@@ -29,7 +35,10 @@ import {
   type ServiceOperationsService,
 } from "./service-operations.service.js";
 
-function validated<T>(response: Response, location: "body" | "params" | "query"): T {
+function validated<T>(
+  response: Response,
+  location: "body" | "params" | "query" | "headers",
+): T {
   return response.locals.validated?.[location] as T;
 }
 function actor(request: Request): AuthenticatedActor {
@@ -49,10 +58,15 @@ function context(request: Request): RequestSecurityContext {
   };
 }
 const ids = (response: Response) =>
-  validated<{ bookingId: string; quoteId?: string; workOrderId?: string }>(
-    response,
-    "params",
-  );
+  validated<{
+    bookingId: string;
+    slotId?: string;
+    serviceId?: string;
+    quoteId?: string;
+    workOrderId?: string;
+  }>(response, "params");
+const idempotencyKey = (response: Response) =>
+  validated<{ "idempotency-key": string }>(response, "headers")["idempotency-key"];
 
 export class ServiceOperationsController {
   constructor(
@@ -80,6 +94,29 @@ export class ServiceOperationsController {
           req.id,
           await this.service.publicService(
             validated<{ serviceId: string }>(res, "params").serviceId,
+          ),
+        ),
+      );
+  publicBookingPolicy = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Booking policy retrieved",
+          req.id,
+          this.service.publicBookingPolicy(),
+        ),
+      );
+  publicBookingSlots = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Booking slots retrieved",
+          req.id,
+          await this.service.publicBookingSlots(
+            ids(res).serviceId!,
+            validated<PublicBookingSlotListQuery>(res, "query"),
           ),
         ),
       );
@@ -159,6 +196,23 @@ export class ServiceOperationsController {
           await this.service.createBooking(
             actor(req),
             validated<BookingCreateInput>(res, "body"),
+            idempotencyKey(res),
+            context(req),
+          ),
+        ),
+      );
+  resolveBusinessDisruption = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Booking disruption resolved",
+          req.id,
+          await this.service.resolveBusinessDisruption(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingDisruptionResolutionInput>(res, "body"),
+            idempotencyKey(res),
             context(req),
           ),
         ),
@@ -239,6 +293,48 @@ export class ServiceOperationsController {
           ),
         ),
       );
+  staffBookingSlots = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Booking slots retrieved",
+          req.id,
+          await this.service.staffBookingSlots(
+            actor(req),
+            validated<StaffBookingSlotListQuery>(res, "query"),
+          ),
+        ),
+      );
+  createBookingSlot = async (req: Request, res: Response) =>
+    res
+      .status(201)
+      .json(
+        successResponse(
+          "Booking slot published",
+          req.id,
+          await this.service.createBookingSlot(
+            actor(req),
+            validated<BookingSlotCreateInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  updateBookingSlot = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Booking slot updated",
+          req.id,
+          await this.service.updateBookingSlot(
+            actor(req),
+            ids(res).slotId!,
+            validated<BookingSlotUpdateInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
   staffBooking = async (req: Request, res: Response) =>
     res
       .status(200)
@@ -275,6 +371,21 @@ export class ServiceOperationsController {
             actor(req),
             ids(res).bookingId,
             validated<BookingTransitionInput>(res, "body"),
+            context(req),
+          ),
+        ),
+      );
+  reportBusinessDisruption = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Booking disruption recorded",
+          req.id,
+          await this.service.reportBusinessDisruption(
+            actor(req),
+            ids(res).bookingId,
+            validated<BookingDisruptionInput>(res, "body"),
             context(req),
           ),
         ),

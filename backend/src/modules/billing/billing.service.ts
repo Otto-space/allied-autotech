@@ -104,6 +104,33 @@ export class BillingService {
           throw invoiceNotFound();
         if (source.invoice !== null)
           throw invoiceConflict("An invoice already exists for this source");
+        const refunds = source.depositPayment?.settledAttempt?.refunds ?? [];
+        if (
+          refunds.some((refund) =>
+            [
+              "REQUESTED",
+              "APPROVED",
+              "PENDING",
+              "PROCESSING",
+              "NEEDS_ATTENTION",
+            ].includes(refund.status),
+          )
+        )
+          throw invoiceConflict(
+            "Resolve the booking deposit refund before creating an invoice",
+          );
+        const refundedKobo = refunds
+          .filter((refund) => refund.status === "SUCCEEDED")
+          .reduce((sum, refund) => sum + refund.amountKobo, 0n);
+        const depositCreditKobo =
+          source.bookingSlotId !== null &&
+          source.depositPayment?.status === "SUCCEEDED" &&
+          source.depositPaidAt !== null &&
+          source.depositForfeitedAt === null
+            ? (source.depositAmountKobo ?? 0n) - refundedKobo
+            : 0n;
+        if (depositCreditKobo < 0n || depositCreditKobo > quote.totalKobo)
+          throw invoiceConflict("The booking deposit credit is inconsistent");
         branchId = source.branchId;
         data = {
           invoiceNumber: number(),
@@ -112,7 +139,8 @@ export class BillingService {
           currency: quote.currency,
           subtotalKobo: quote.subtotalKobo,
           taxKobo: quote.taxKobo,
-          totalKobo: quote.totalKobo,
+          depositCreditKobo,
+          totalKobo: quote.totalKobo - depositCreditKobo,
           dueAt,
         };
       } else {

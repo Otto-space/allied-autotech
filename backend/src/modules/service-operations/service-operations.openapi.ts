@@ -7,11 +7,17 @@ import {
   bookingAssignmentBodySchema,
   bookingCancelBodySchema,
   bookingCreateBodySchema,
+  bookingDisruptionBodySchema,
+  bookingDisruptionResolutionBodySchema,
   bookingParamsSchema,
   bookingRescheduleBodySchema,
   bookingTransitionBodySchema,
+  bookingSlotCreateBodySchema,
+  bookingSlotParamsSchema,
+  bookingSlotUpdateBodySchema,
   customerBookingListQuerySchema,
   publicServiceListQuerySchema,
+  publicBookingSlotListQuerySchema,
   quoteCreateBodySchema,
   quoteParamsSchema,
   quoteReplaceBodySchema,
@@ -20,6 +26,7 @@ import {
   serviceParamsSchema,
   serviceUpdateBodySchema,
   staffBookingListQuerySchema,
+  staffBookingSlotListQuerySchema,
   workOrderCreateBodySchema,
   workOrderParamsSchema,
   workOrderTransitionBodySchema,
@@ -58,6 +65,9 @@ const publicServiceListResponseSchema = responseSchema.extend({
 });
 const publicServiceResponseSchema = responseSchema.extend({ data: publicServiceSchema });
 const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
+const idempotentHeaders = csrfHeaders.extend({
+  "idempotency-key": z.string().min(16).max(120),
+});
 type RegisterPathInput = Parameters<OpenAPIRegistry["registerPath"]>[0];
 type RouteParameter = NonNullable<NonNullable<RegisterPathInput["request"]>["params"]>;
 interface Path {
@@ -71,6 +81,7 @@ interface Path {
   csrf?: boolean;
   created?: boolean;
   response?: ZodType;
+  idempotent?: boolean;
 }
 
 export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): void {
@@ -91,6 +102,18 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
     },
     {
       method: "get",
+      path: publicApiPaths.bookingPolicy,
+      summary: "Get the current deposit and scheduling policy",
+    },
+    {
+      method: "get",
+      path: publicApiPaths.serviceSlots,
+      summary: "List available published slots for a fixed-price service",
+      params: serviceParamsSchema,
+      query: publicBookingSlotListQuerySchema,
+    },
+    {
+      method: "get",
       path: "/admin/services",
       summary: "List all services",
       query: adminServiceListQuerySchema,
@@ -103,6 +126,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       body: serviceCreateBodySchema,
       secured: true,
       csrf: true,
+      idempotent: true,
       created: true,
     },
     {
@@ -113,6 +137,16 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       body: serviceUpdateBodySchema,
       secured: true,
       csrf: true,
+    },
+    {
+      method: "post",
+      path: "/customers/bookings/{bookingId}/disruption-resolution",
+      summary: "Transfer a business-disrupted booking or request its deposit refund",
+      params: bookingParamsSchema,
+      body: bookingDisruptionResolutionBodySchema,
+      secured: true,
+      csrf: true,
+      idempotent: true,
     },
     {
       method: "get",
@@ -182,6 +216,31 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
     },
     {
       method: "get",
+      path: "/staff/booking-slots",
+      summary: "List authorized published booking slots",
+      query: staffBookingSlotListQuerySchema,
+      secured: true,
+    },
+    {
+      method: "post",
+      path: "/staff/booking-slots",
+      summary: "Publish a staff-bound fixed-price booking slot",
+      body: bookingSlotCreateBodySchema,
+      secured: true,
+      csrf: true,
+      created: true,
+    },
+    {
+      method: "patch",
+      path: "/staff/booking-slots/{slotId}",
+      summary: "Open or close a booking slot using optimistic concurrency",
+      params: bookingSlotParamsSchema,
+      body: bookingSlotUpdateBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "get",
       path: "/staff/bookings/{bookingId}",
       summary: "Get a branch-authorized booking",
       params: bookingParamsSchema,
@@ -193,6 +252,15 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       summary: "Assign available branch staff",
       params: bookingParamsSchema,
       body: bookingAssignmentBodySchema,
+      secured: true,
+      csrf: true,
+    },
+    {
+      method: "post",
+      path: "/staff/bookings/{bookingId}/disruption",
+      summary: "Report a business-caused booking disruption",
+      params: bookingParamsSchema,
+      body: bookingDisruptionBodySchema,
       secured: true,
       csrf: true,
     },
@@ -294,7 +362,11 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
         ...(route.body === undefined
           ? {}
           : { body: { content: { "application/json": { schema: route.body } } } }),
-        ...(route.csrf ? { headers: csrfHeaders } : {}),
+        ...(route.idempotent
+          ? { headers: idempotentHeaders }
+          : route.csrf
+            ? { headers: csrfHeaders }
+            : {}),
       },
       responses: {
         [route.created ? "201" : "200"]: {

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { prisma } from "../config/database.js";
 import { Prisma, type PrismaClient } from "../generated/prisma/client.js";
 import { appendAuditEvent } from "../modules/audit/audit.service.js";
+import { enqueueNotification } from "../modules/notifications/notifications.service.js";
 import { ordersService, type OrdersService } from "../modules/orders/orders.service.js";
 import {
   vehicleSalesService,
@@ -9,6 +10,7 @@ import {
 } from "../modules/vehicle-sales/vehicle-sales.service.js";
 
 export interface ExpirationResult {
+  bookingHolds: number;
   orders: number;
   vehicleReservations: number;
   quotes: number;
@@ -26,17 +28,97 @@ export class ExpirationWorker {
   async runOnce(batchSize = 25): Promise<ExpirationResult> {
     const limit = Math.max(1, Math.min(batchSize, 100));
     const orders = (await this.orderService.expireDueSystem(limit)).expired;
+    const bookingHolds = await this.expireBookingHolds(limit);
     const vehicleReservations = (await this.vehicleService.expireSystem(limit)).expired;
     const quotes = await this.expireQuotes(limit);
     const inventoryReservations = await this.expireStandaloneInventory(limit);
     const idempotencyRecords = await this.cleanupExpiredIdempotency(limit * 4);
     return {
+      bookingHolds,
       orders,
       vehicleReservations,
       quotes,
       inventoryReservations,
       idempotencyRecords,
     };
+  }
+
+  private async expireBookingHolds(limit: number): Promise<number> {
+    const candidates = await this.database.booking.findMany({
+      where: {
+        status: "AWAITING_DEPOSIT",
+        paymentHoldExpiresAt: { lte: new Date() },
+      },
+      select: { id: true },
+      orderBy: [{ paymentHoldExpiresAt: "asc" }, { id: "asc" }],
+      take: limit,
+    });
+    let changed = 0;
+    for (const candidate of candidates) {
+      await this.database.$transaction(async (transaction) => {
+        await transaction.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${candidate.id}::uuid FOR UPDATE`;
+        const booking = await transaction.booking.findUnique({
+          where: { id: candidate.id },
+          select: {
+            id: true,
+            status: true,
+            version: true,
+            paymentHoldExpiresAt: true,
+            customer: { select: { userId: true } },
+            depositPayment: { select: { id: true } },
+          },
+        });
+        const now = new Date();
+        if (
+          booking?.status !== "AWAITING_DEPOSIT" ||
+          booking.paymentHoldExpiresAt === null ||
+          booking.paymentHoldExpiresAt > now
+        )
+          return;
+        if (booking.depositPayment !== null) {
+          await transaction.$queryRaw`SELECT "id" FROM "Payment" WHERE "id" = ${booking.depositPayment.id}::uuid FOR UPDATE`;
+          await transaction.payment.updateMany({
+            where: {
+              id: booking.depositPayment.id,
+              status: { in: ["REQUIRES_PAYMENT", "PROCESSING", "REQUIRES_REVIEW"] },
+            },
+            data: { status: "EXPIRED", expiredAt: now },
+          });
+        }
+        const result = await transaction.booking.updateMany({
+          where: { id: booking.id, status: "AWAITING_DEPOSIT", version: booking.version },
+          data: { status: "EXPIRED", version: { increment: 1 } },
+        });
+        if (result.count !== 1) return;
+        await enqueueNotification(transaction, {
+          userId: booking.customer.userId,
+          type: "BOOKING",
+          category: "TRANSACTIONAL",
+          title: "Booking hold expired",
+          message:
+            "The 30-minute deposit payment window ended, so this booking slot was released. Select an available slot to create a new booking.",
+          resourceType: "BOOKING",
+          resourceId: booking.id,
+          deduplicationKey: `booking:${booking.id}:hold-expired`,
+          channels: ["EMAIL"],
+        });
+        await appendAuditEvent(transaction, {
+          actorUserId: null,
+          action: "STATUS_CHANGE",
+          entityType: "BOOKING",
+          entityId: booking.id,
+          oldValues: { status: "AWAITING_DEPOSIT", version: booking.version },
+          newValues: { status: "EXPIRED", version: booking.version + 1 },
+          context: {
+            requestId: `worker:booking-hold-expiry:${booking.id}`,
+            ipAddress: null,
+            userAgent: null,
+          },
+        });
+        changed += 1;
+      });
+    }
+    return changed;
   }
 
   private async expireQuotes(limit: number): Promise<number> {

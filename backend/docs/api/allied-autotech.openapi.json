@@ -7254,6 +7254,154 @@
         }
       }
     },
+    "/public/booking-policy": {
+      "get": {
+        "summary": "Get the current deposit and scheduling policy",
+        "tags": [
+          "Service operations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/services/{serviceId}/slots": {
+      "get": {
+        "summary": "List available published slots for a fixed-price service",
+        "tags": [
+          "Service operations"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "serviceId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "branchId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/admin/services": {
       "get": {
         "summary": "List all services",
@@ -7367,6 +7515,16 @@
             },
             "required": true,
             "name": "x-csrf-token",
+            "in": "header"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "idempotency-key",
             "in": "header"
           }
         ],
@@ -7630,6 +7788,143 @@
         }
       }
     },
+    "/customers/bookings/{bookingId}/disruption-resolution": {
+      "post": {
+        "summary": "Transfer a business-disrupted booking or request its deposit refund",
+        "tags": [
+          "Service operations"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "bookingId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 16,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "resolution": {
+                        "type": "string",
+                        "enum": [
+                          "TRANSFER"
+                        ]
+                      },
+                      "slotId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647
+                      }
+                    },
+                    "required": [
+                      "resolution",
+                      "slotId",
+                      "expectedVersion"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "resolution": {
+                        "type": "string",
+                        "enum": [
+                          "REFUND"
+                        ]
+                      },
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 2147483647
+                      }
+                    },
+                    "required": [
+                      "resolution",
+                      "expectedVersion"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/customers/bookings": {
       "get": {
         "summary": "List own bookings",
@@ -7667,11 +7962,13 @@
               "type": "string",
               "enum": [
                 "REQUESTED",
+                "AWAITING_DEPOSIT",
                 "CONFIRMED",
                 "IN_PROGRESS",
                 "COMPLETED",
                 "CANCELLED",
-                "NO_SHOW"
+                "NO_SHOW",
+                "EXPIRED"
               ]
             },
             "required": false,
@@ -7744,21 +8041,13 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "branchId": {
-                    "type": "string",
-                    "format": "uuid"
-                  },
-                  "serviceId": {
+                  "slotId": {
                     "type": "string",
                     "format": "uuid"
                   },
                   "vehicleId": {
                     "type": "string",
                     "format": "uuid"
-                  },
-                  "scheduledAt": {
-                    "type": "string",
-                    "format": "date-time"
                   },
                   "customerNotes": {
                     "type": [
@@ -7767,12 +8056,23 @@
                     ],
                     "minLength": 1,
                     "maxLength": 2000
+                  },
+                  "policyVersion": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "acceptNonRefundableDeposit": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ]
                   }
                 },
                 "required": [
-                  "branchId",
-                  "serviceId",
-                  "scheduledAt"
+                  "slotId",
+                  "policyVersion",
+                  "acceptNonRefundableDeposit"
                 ],
                 "additionalProperties": false
               }
@@ -7916,9 +8216,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "scheduledAt": {
+                  "slotId": {
                     "type": "string",
-                    "format": "date-time"
+                    "format": "uuid"
                   },
                   "expectedVersion": {
                     "type": "integer",
@@ -7927,7 +8227,7 @@
                   }
                 },
                 "required": [
-                  "scheduledAt",
+                  "slotId",
                   "expectedVersion"
                 ],
                 "additionalProperties": false
@@ -8305,11 +8605,13 @@
               "type": "string",
               "enum": [
                 "REQUESTED",
+                "AWAITING_DEPOSIT",
                 "CONFIRMED",
                 "IN_PROGRESS",
                 "COMPLETED",
                 "CANCELLED",
-                "NO_SHOW"
+                "NO_SHOW",
+                "EXPIRED"
               ]
             },
             "required": false,
@@ -8353,6 +8655,326 @@
             "in": "query"
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/staff/booking-slots": {
+      "get": {
+        "summary": "List authorized published booking slots",
+        "tags": [
+          "Service operations"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "branchId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "serviceId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "staffId",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "CLOSED"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "startsFrom",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "startsTo",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish a staff-bound fixed-price booking slot",
+        "tags": [
+          "Service operations"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "branchId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "serviceId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "staffId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "startsAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                },
+                "required": [
+                  "branchId",
+                  "serviceId",
+                  "staffId",
+                  "startsAt"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/staff/booking-slots/{slotId}": {
+      "patch": {
+        "summary": "Open or close a booking slot using optimistic concurrency",
+        "tags": [
+          "Service operations"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "slotId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "OPEN",
+                      "CLOSED"
+                    ]
+                  }
+                },
+                "required": [
+                  "expectedVersion",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success",
@@ -8503,6 +9125,102 @@
                 "required": [
                   "assignedStaffId",
                   "expectedVersion"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/staff/bookings/{bookingId}/disruption": {
+      "post": {
+        "summary": "Report a business-caused booking disruption",
+        "tags": [
+          "Service operations"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "bookingId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                "required": [
+                  "expectedVersion",
+                  "reason"
                 ],
                 "additionalProperties": false
               }
@@ -16276,6 +16994,7 @@
               "type": "string",
               "enum": [
                 "PAYSTACK",
+                "MONNIFY",
                 "MANUAL"
               ]
             },
