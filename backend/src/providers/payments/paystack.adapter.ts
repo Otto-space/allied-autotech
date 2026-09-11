@@ -47,6 +47,12 @@ const refundResponse = envelope(
   z.object({ id: z.union([z.string(), z.number()]), status: z.string() }),
 );
 
+function parseProviderResponse<T>(schema: z.ZodType<T>, value: unknown): T {
+  const parsed = schema.safeParse(value);
+  if (!parsed.success) throw providerUnavailable();
+  return parsed.data;
+}
+
 export class PaystackAdapter implements PaymentProviderPort {
   private readonly baseUrl = "https://api.paystack.co";
 
@@ -93,7 +99,8 @@ export class PaystackAdapter implements PaymentProviderPort {
   }
 
   async initialize(command: InitializePaymentCommand): Promise<InitializedPayment> {
-    const parsed = initializeResponse.parse(
+    const parsed = parseProviderResponse(
+      initializeResponse,
       await this.request("/transaction/initialize", {
         method: "POST",
         body: JSON.stringify({
@@ -112,11 +119,15 @@ export class PaystackAdapter implements PaymentProviderPort {
       authorizationUrl: parsed.data.authorization_url,
       accessCode: parsed.data.access_code,
       providerReference: parsed.data.reference,
+      authorizationExpiresAt: new Date(
+        Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000,
+      ),
     };
   }
 
   async verify(reference: string): Promise<VerifiedPayment> {
-    const parsed = verifyResponse.parse(
+    const parsed = parseProviderResponse(
+      verifyResponse,
       await this.request(`/transaction/verify/${encodeURIComponent(reference)}`),
     );
     if (!parsed.status) throw providerUnavailable();
@@ -136,7 +147,8 @@ export class PaystackAdapter implements PaymentProviderPort {
   }
 
   async refund(command: InitiateRefundCommand): Promise<InitiatedRefund> {
-    const parsed = refundResponse.parse(
+    const parsed = parseProviderResponse(
+      refundResponse,
       await this.request("/refund", {
         method: "POST",
         body: JSON.stringify({

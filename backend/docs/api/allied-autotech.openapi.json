@@ -16633,12 +16633,92 @@
         }
       }
     },
+    "/customers/payments/{paymentId}/monnify": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Initialize Monnify hosted Pay-with-Bank checkout",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "paymentId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Request completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "data": {},
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/customers/payments/{paymentId}/attempts/{attemptId}/verify": {
       "post": {
         "tags": [
           "Payments"
         ],
-        "summary": "Verify a Paystack attempt",
+        "summary": "Verify an online payment attempt with its stored provider",
         "security": [
           {
             "sessionCookie": []
@@ -17433,6 +17513,32 @@
           },
           "401": {
             "description": "Invalid signature"
+          }
+        }
+      }
+    },
+    "/webhooks/monnify": {
+      "post": {
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Receive a verified Monnify webhook",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "monnify-signature",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook accepted"
+          },
+          "401": {
+            "description": "Missing or invalid production signature"
           }
         }
       }

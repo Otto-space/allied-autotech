@@ -13,6 +13,7 @@ import {
   attemptParamsSchema,
   manualPaymentBodySchema,
   manualReviewBodySchema,
+  monnifyWebhookHeadersSchema,
   paymentCreateBodySchema,
   paymentIdempotencyHeadersSchema,
   paymentEvidenceUploadBodySchema,
@@ -58,6 +59,18 @@ export function createCustomerPaymentsRouter(): Router {
       query: paymentsEmptySchema,
     }),
     controller.initialize,
+  );
+  router.post(
+    "/:paymentId/monnify",
+    requireCsrf,
+    createSensitiveRateLimit(20),
+    validate({
+      params: paymentParamsSchema,
+      headers: paymentIdempotencyHeadersSchema,
+      body: paymentsEmptySchema,
+      query: paymentsEmptySchema,
+    }),
+    controller.initializeMonnify,
   );
   router.post(
     "/:paymentId/attempts/:attemptId/verify",
@@ -151,6 +164,18 @@ export function createPaystackWebhookRouter(): Router {
     createSensitiveRateLimit(300, 60_000),
     validate({ headers: webhookHeadersSchema }),
     controller.webhook,
+  );
+  return router;
+}
+
+export function createMonnifyWebhookRouter(): Router {
+  const router = Router();
+  const controller = new PaymentsController();
+  router.post(
+    "/",
+    createSensitiveRateLimit(300, 60_000),
+    validate({ headers: monnifyWebhookHeadersSchema }),
+    controller.monnifyWebhook,
   );
   return router;
 }

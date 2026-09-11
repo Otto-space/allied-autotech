@@ -1399,32 +1399,34 @@ model Payment {
 }
 
 model PaymentAttempt {
-  id                   String                    @id @default(uuid()) @db.Uuid
-  paymentId            String                    @db.Uuid
-  attemptNumber        Int
-  internalReference    String                    @unique @db.VarChar(120)
-  provider             PaymentProvider
-  method               PaymentMethod?
-  status               PaymentAttemptStatus      @default(INITIALIZED)
-  verificationStatus   PaymentVerificationStatus @default(UNVERIFIED)
-  amountKobo           BigInt
-  currency             String                    @default("NGN") @db.Char(3)
-  verifiedAmountKobo   BigInt?
-  verifiedCurrency     String?                   @db.Char(3)
-  providerReference    String?                   @db.VarChar(160)
-  gatewayTransactionId String?                   @db.VarChar(160)
-  providerFeeKobo      BigInt?
-  gatewayStatus        String?                   @db.VarChar(80)
-  failureCode          String?                   @db.VarChar(100)
-  failureMessage       String?
-  redactedGatewayData  Json?
-  initiatedAt          DateTime                  @default(now())
-  paidAt               DateTime?
-  verifiedAt           DateTime?
-  failedAt             DateTime?
-  abandonedAt          DateTime?
-  createdAt            DateTime                  @default(now())
-  updatedAt            DateTime                  @updatedAt
+  id                     String                    @id @default(uuid()) @db.Uuid
+  paymentId              String                    @db.Uuid
+  attemptNumber          Int
+  internalReference      String                    @unique @db.VarChar(120)
+  provider               PaymentProvider
+  method                 PaymentMethod?
+  status                 PaymentAttemptStatus      @default(INITIALIZED)
+  verificationStatus     PaymentVerificationStatus @default(UNVERIFIED)
+  amountKobo             BigInt
+  currency               String                    @default("NGN") @db.Char(3)
+  verifiedAmountKobo     BigInt?
+  verifiedCurrency       String?                   @db.Char(3)
+  providerReference      String?                   @db.VarChar(160)
+  gatewayTransactionId   String?                   @db.VarChar(160)
+  providerFeeKobo        BigInt?
+  gatewayStatus          String?                   @db.VarChar(80)
+  failureCode            String?                   @db.VarChar(100)
+  failureMessage         String?
+  redactedGatewayData    Json?
+  encryptedCheckoutState Json?
+  authorizationExpiresAt DateTime?
+  initiatedAt            DateTime                  @default(now())
+  paidAt                 DateTime?
+  verifiedAt             DateTime?
+  failedAt               DateTime?
+  abandonedAt            DateTime?
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
 
   payment             Payment                     @relation("PaymentAttempts", fields: [paymentId], references: [id], onDelete: Restrict)
   settlesPayment      Payment?                    @relation("SettledAttempt")
@@ -1440,6 +1442,7 @@ model PaymentAttempt {
   @@unique([provider, providerReference])
   @@index([paymentId, status])
   @@index([provider, gatewayTransactionId])
+  @@index([provider, status, initiatedAt])
   @@index([status, createdAt])
 }
 
@@ -1545,7 +1548,8 @@ model PaymentWebhookEvent {
   eventType           String                  @db.VarChar(120)
   payloadSha256       String                  @db.Char(64)
   redactedPayload     Json?
-  signatureVerifiedAt DateTime
+  signatureVerifiedAt DateTime?
+  providerVerifiedAt  DateTime?
   status              WebhookProcessingStatus @default(RECEIVED)
   processingAttempts  Int                     @default(0)
   nextAttemptAt       DateTime?

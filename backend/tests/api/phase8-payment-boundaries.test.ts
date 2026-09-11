@@ -22,11 +22,24 @@ describe("Phase 8 payment HTTP boundaries", () => {
     expect(response.body.error.code).toBe("VALIDATION_FAILED");
   });
 
+  it("fails closed when Monnify is disabled and exposes no provider detail", async () => {
+    const response = await request(createApp({ checkReadiness: async () => undefined }))
+      .post("/api/v1/webhooks/monnify")
+      .set("Content-Type", "application/json")
+      .send({ eventType: "UNSUPPORTED_EVENT", eventData: {} });
+    expect(response.status).toBe(401);
+    expect(JSON.stringify(response.body)).not.toMatch(
+      /MONNIFY_SECRET|SK_TEST|stack|database/iu,
+    );
+  });
+
   it("publishes payment routes and their CSRF/idempotency headers", async () => {
     const response = await request(app).get("/api/v1/openapi.json");
     expect(response.status).toBe(200);
     expect(response.body.paths["/customers/payments"]).toBeDefined();
     expect(response.body.paths["/webhooks/paystack"]).toBeDefined();
+    expect(response.body.paths["/webhooks/monnify"]).toBeDefined();
+    expect(response.body.paths["/customers/payments/{paymentId}/monnify"]).toBeDefined();
     const parameters = response.body.paths["/customers/payments"].post.parameters;
     expect(
       parameters.some((item: { name: string }) => item.name === "x-csrf-token"),

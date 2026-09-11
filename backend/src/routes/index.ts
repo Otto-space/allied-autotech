@@ -55,6 +55,7 @@ import {
 import { env } from "../config/env.js";
 import {
   createCustomerPaymentsRouter,
+  createMonnifyWebhookRouter,
   createPaystackWebhookRouter,
   createStaffPaymentsRouter,
 } from "../modules/payments/payments.index.js";
@@ -120,6 +121,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/admin", createAdminOrganizationRouter());
   apiRouter.use("/admin", createAuditOperationsRouter());
   apiRouter.use("/webhooks/paystack", createPaystackWebhookRouter());
+  apiRouter.use("/webhooks/monnify", createMonnifyWebhookRouter());
   if (env.API_DOCS_ENABLED) {
     apiRouter.get("/openapi.json", (_req, res): void => {
       res.setHeader("Cache-Control", "no-store");

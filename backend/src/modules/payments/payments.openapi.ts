@@ -62,8 +62,16 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     },
     {
       method: "post",
+      path: "/customers/payments/{paymentId}/monnify",
+      summary: "Initialize Monnify hosted Pay-with-Bank checkout",
+      params: z.object({ paymentId: uuid }),
+      headers: idempotent,
+      created: true,
+    },
+    {
+      method: "post",
       path: "/customers/payments/{paymentId}/attempts/{attemptId}/verify",
-      summary: "Verify a Paystack attempt",
+      summary: "Verify an online payment attempt with its stored provider",
       params: z.object({ paymentId: uuid, attemptId: uuid }),
       headers: csrf,
     },
@@ -159,6 +167,19 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     responses: {
       "200": { description: "Webhook accepted" },
       "401": { description: "Invalid signature" },
+    },
+  });
+  registry.registerPath({
+    method: "post",
+    path: "/webhooks/monnify",
+    tags: ["Payments"],
+    summary: "Receive a verified Monnify webhook",
+    request: {
+      headers: z.object({ "monnify-signature": z.string().optional() }),
+    },
+    responses: {
+      "200": { description: "Webhook accepted" },
+      "401": { description: "Missing or invalid production signature" },
     },
   });
 }

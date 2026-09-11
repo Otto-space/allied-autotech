@@ -11,6 +11,7 @@ import {
 import { prisma } from "../../src/config/database.js";
 import type { UserRole } from "../../src/generated/prisma/enums.js";
 import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
+import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 
 const runDatabaseTests = process.env.RUN_DATABASE_TESTS === "true";
@@ -206,6 +207,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
           authorizationUrl: "https://checkout.example.test/authorize",
           accessCode: "test-access-code",
           providerReference: command.reference,
+          authorizationExpiresAt: new Date(Date.now() + 600_000),
         };
       },
       async verify(reference) {
@@ -224,7 +226,10 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
         return { providerRefundId, status: "pending" };
       },
     };
-    const service = new PaymentsService(prisma, provider);
+    const service = new PaymentsService(
+      prisma,
+      new PaymentProviderRegistry({ PAYSTACK: provider }),
+    );
     const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
     const customerActor = {
       userId: customer.id,
@@ -289,7 +294,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     const attempt = await prisma.paymentAttempt.findUniqueOrThrow({
       where: { internalReference: activeReference },
     });
-    await service.verifyPaystack(customerActor, onlineId, attempt.id, context);
+    await service.verifyAttempt(customerActor, onlineId, attempt.id, context);
     expect(
       (await prisma.payment.findUniqueOrThrow({ where: { id: onlineId } })).status,
     ).toBe("SUCCEEDED");

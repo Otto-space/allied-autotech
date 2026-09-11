@@ -34,6 +34,7 @@ export class PaymentWebhookRetryWorker {
       async (tx) => tx.$queryRaw<
         Array<{
           id: string;
+          provider: "PAYSTACK" | "MONNIFY" | "MANUAL";
           payloadSha256: string;
           redactedPayload: unknown;
           processingAttempts: number;
@@ -45,10 +46,19 @@ export class PaymentWebhookRetryWorker {
         WHERE "status" IN ('RECEIVED', 'FAILED') AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= CURRENT_TIMESTAMP)
         ORDER BY "receivedAt" ASC FOR UPDATE SKIP LOCKED LIMIT ${limit}
       )
-      RETURNING "id", "payloadSha256", "redactedPayload", "processingAttempts"`,
+      RETURNING "id", "provider", "payloadSha256", "redactedPayload", "processingAttempts"`,
     );
     for (const item of claimed) {
       try {
+        if (item.provider === "MONNIFY") {
+          await this.service.retryMonnifyWebhook(item.id, {
+            requestId: `webhook-retry:${item.id}`,
+            ipAddress: null,
+            userAgent: null,
+          });
+          continue;
+        }
+        if (item.provider !== "PAYSTACK") throw new Error("Unsupported webhook provider");
         const value = redactedSchema.parse(item.redactedPayload);
         const event: PaystackWebhookEvent = {
           ...value,

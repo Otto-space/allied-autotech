@@ -83,7 +83,7 @@ export async function runGeneralWorker(): Promise<void> {
           periodEnd.getTime() - env.RECONCILIATION_INTERVAL_MS,
         );
         await safely("payment-reconciliation", () =>
-          reconciliation.run(periodStart, periodEnd),
+          reconciliation.runConfigured(periodStart, periodEnd),
         );
         nextReconciliationAt = now + env.RECONCILIATION_INTERVAL_MS;
       }

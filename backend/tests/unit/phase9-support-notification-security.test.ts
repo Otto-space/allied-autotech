@@ -84,6 +84,11 @@ describe("Phase 9 support, delivery, and staging safeguards", () => {
         DEPLOYMENT_ENV: "staging",
         PAYSTACK_MODE: "test",
         PAYSTACK_SECRET_KEY: "sk_test_synthetic_not_a_real_key",
+        MONNIFY_MODE: "sandbox",
+        MONNIFY_API_KEY: "MK_TEST_synthetic_not_a_real_key",
+        MONNIFY_SECRET_KEY: "SK_TEST_synthetic_not_a_real_key",
+        MONNIFY_CONTRACT_CODE: "synthetic-contract",
+        MONNIFY_CALLBACK_URL: "https://app.example.test/payments/complete",
       }),
     ).not.toThrow();
     expect(() =>

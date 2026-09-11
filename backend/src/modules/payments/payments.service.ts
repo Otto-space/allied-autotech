@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { hashToken } from "../../common/security/session-tokens.js";
@@ -6,16 +7,22 @@ import {
   issuePaymentEvidenceTicket,
   readPaymentEvidenceTicket,
 } from "../../common/security/payment-evidence-tickets.js";
+import {
+  openPaymentCheckoutState,
+  sealPaymentCheckoutState,
+} from "../../common/security/payment-checkout-state.js";
 import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type { PaymentMethod } from "../../generated/prisma/enums.js";
-import { paystackProvider } from "../../providers/payments/paystack.adapter.js";
-import type {
-  PaymentProviderPort,
-  VerifiedPayment,
-} from "../../providers/payments/payment-provider.port.js";
+import type { VerifiedPayment } from "../../providers/payments/payment-provider.port.js";
+import {
+  paymentProviders,
+  PaymentProviderRegistry,
+  type OnlinePaymentProvider,
+} from "../../providers/payments/payment-provider.registry.js";
 import type { PaystackWebhookEvent } from "../../providers/payments/paystack-webhook.js";
+import type { MonnifyWebhookEvent } from "../../providers/payments/monnify-webhook.js";
 import type { ObjectStoragePort } from "../../providers/storage/object-storage.port.js";
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
@@ -58,13 +65,36 @@ const methodMap: Readonly<Record<string, PaymentMethod>> = {
   mobile_money: "MOBILE_MONEY",
   qr: "QR",
   pos: "POS",
+  account_transfer: "BANK_TRANSFER",
 };
+const monnifyTransactionRetrySchema = z
+  .object({
+    kind: z.literal("transaction"),
+    reference: z.string().min(1).max(120),
+    gatewayTransactionId: z.string().min(1).max(160),
+    status: z.enum(["success", "failed", "abandoned", "pending"]),
+    amountKobo: z.string().regex(/^\d+$/),
+    currency: z.string().length(3),
+    paidAt: z.string().nullable(),
+    providerFeeKobo: z.string().regex(/^\d+$/).nullable(),
+    method: z.string().max(80).nullable(),
+  })
+  .strict();
+const monnifyRefundRetrySchema = z
+  .object({
+    kind: z.literal("refund"),
+    providerRefundId: z.string().min(1).max(160),
+    status: z.enum(["pending", "succeeded", "failed"]),
+    amountKobo: z.string().regex(/^\d+$/).nullable(),
+    currency: z.string().length(3).nullable(),
+  })
+  .strict();
 
 export class PaymentsService {
   private readonly repository: PaymentsRepository;
   constructor(
     private readonly database: PrismaClient = prisma,
-    private readonly provider: PaymentProviderPort = paystackProvider,
+    private readonly providers: PaymentProviderRegistry = paymentProviders,
     private readonly storage: ObjectStoragePort = objectStorage,
   ) {
     this.repository = new PaymentsRepository(database);
@@ -164,11 +194,33 @@ export class PaymentsService {
     rawKey: string,
     context: RequestSecurityContext,
   ) {
+    return this.initializeOnlineProvider(actor, id, rawKey, context, "PAYSTACK");
+  }
+
+  async initializeMonnify(
+    actor: AuthenticatedActor,
+    id: string,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
+    return this.initializeOnlineProvider(actor, id, rawKey, context, "MONNIFY");
+  }
+
+  private async initializeOnlineProvider(
+    actor: AuthenticatedActor,
+    id: string,
+    rawKey: string,
+    context: RequestSecurityContext,
+    provider: OnlinePaymentProvider,
+  ) {
     assertPaymentCustomer(actor);
     const profile = await this.repository.customerProfile(actor.userId);
     if (!profile) throw paymentNotFound();
-    const attemptKey = hashToken("payment-attempt-idempotency", `${id}:${rawKey}`);
-    const reference = `AAT-${attemptKey.slice(0, 40)}`;
+    const attemptKey = hashToken(
+      "payment-attempt-idempotency",
+      `${provider}:${id}:${rawKey}`,
+    );
+    const reference = `AAT-${provider}-${attemptKey.slice(0, 32)}`;
     const prepared = await this.database.$transaction(async (tx) => {
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
@@ -177,15 +229,22 @@ export class PaymentsService {
         where: { internalReference: reference },
       });
       if (existing) {
-        const url =
-          existing.redactedGatewayData &&
-          typeof existing.redactedGatewayData === "object" &&
-          !Array.isArray(existing.redactedGatewayData)
-            ? (existing.redactedGatewayData as Record<string, unknown>)[
-                "authorizationUrl"
-              ]
-            : undefined;
-        if (typeof url === "string") return { payment, existing, authorizationUrl: url };
+        if (existing.provider !== provider) throw paymentConflict();
+        if (existing.encryptedCheckoutState && existing.authorizationExpiresAt) {
+          let state;
+          try {
+            state = openPaymentCheckoutState(existing.encryptedCheckoutState);
+          } catch {
+            throw paymentConflict("Payment checkout state is unavailable");
+          }
+          if (
+            state.provider === provider &&
+            existing.authorizationExpiresAt > new Date() &&
+            new Date(state.expiresAt) > new Date()
+          )
+            return { payment, existing, checkout: state };
+          throw paymentConflict("The payment checkout has expired; start a new attempt");
+        }
         throw paymentConflict("Payment initialization is already in progress");
       }
       const latest = await tx.paymentAttempt.aggregate({
@@ -197,32 +256,62 @@ export class PaymentsService {
           paymentId: id,
           attemptNumber: (latest._max.attemptNumber ?? 0) + 1,
           internalReference: reference,
-          provider: "PAYSTACK",
+          provider,
           status: "INITIALIZED",
           amountKobo: payment.amountKobo,
           currency: payment.currency,
         },
         tx,
       );
-      return { payment, existing: attempt, authorizationUrl: null };
+      return { payment, existing: attempt, checkout: null };
     });
-    if (prepared.authorizationUrl)
-      return { authorizationUrl: prepared.authorizationUrl, replayed: true };
-    const initialized = await this.provider.initialize({
+    if (prepared.checkout)
+      return {
+        attemptId: prepared.existing.id,
+        authorizationUrl: prepared.checkout.authorizationUrl,
+        authorizationExpiresAt: prepared.checkout.expiresAt,
+        ...(provider === "PAYSTACK" ? { accessCode: prepared.checkout.accessCode } : {}),
+        replayed: true,
+      };
+    const initialized = await this.providers.get(provider).initialize({
       email: profile.user.email,
+      customerName: `${profile.firstName} ${profile.lastName}`,
       amountKobo: prepared.payment.amountKobo,
       currency: "NGN",
       reference,
-      ...(env.PAYSTACK_CALLBACK_URL ? { callbackUrl: env.PAYSTACK_CALLBACK_URL } : {}),
+      ...(provider === "PAYSTACK" && env.PAYSTACK_CALLBACK_URL
+        ? { callbackUrl: env.PAYSTACK_CALLBACK_URL }
+        : {}),
+      ...(provider === "MONNIFY" && env.MONNIFY_CALLBACK_URL
+        ? { callbackUrl: env.MONNIFY_CALLBACK_URL }
+        : {}),
     });
     if (initialized.providerReference !== reference) throw paymentVerificationFailed();
+    const authorizationExpiresAt = new Date(
+      Math.min(
+        initialized.authorizationExpiresAt.getTime(),
+        prepared.payment.expiresAt?.getTime() ??
+          initialized.authorizationExpiresAt.getTime(),
+      ),
+    );
+    if (authorizationExpiresAt <= new Date())
+      throw paymentConflict("The payable expired during checkout initialization");
     await this.database.$transaction(async (tx) => {
       await tx.paymentAttempt.update({
         where: { id: prepared.existing.id },
         data: {
           status: "PENDING",
           providerReference: reference,
-          redactedGatewayData: { authorizationUrl: initialized.authorizationUrl },
+          encryptedCheckoutState: sealPaymentCheckoutState({
+            provider,
+            authorizationUrl: initialized.authorizationUrl,
+            accessCode: initialized.accessCode,
+            expiresAt: authorizationExpiresAt.toISOString(),
+          }),
+          authorizationExpiresAt,
+          redactedGatewayData: {
+            checkoutMethod: provider === "MONNIFY" ? "PAY_WITH_BANK" : "HOSTED",
+          },
         },
       });
       await tx.payment.updateMany({
@@ -234,18 +323,20 @@ export class PaymentsService {
         action: "PAYMENT_INITIALIZED",
         entityType: "PAYMENT_ATTEMPT",
         entityId: prepared.existing.id,
-        newValues: { provider: "PAYSTACK", paymentId: id },
+        newValues: { provider, paymentId: id },
         context,
       });
     });
     return {
+      attemptId: prepared.existing.id,
       authorizationUrl: initialized.authorizationUrl,
-      accessCode: initialized.accessCode,
+      authorizationExpiresAt: authorizationExpiresAt.toISOString(),
+      ...(provider === "PAYSTACK" ? { accessCode: initialized.accessCode } : {}),
       replayed: false,
     };
   }
 
-  async verifyPaystack(
+  async verifyAttempt(
     actor: AuthenticatedActor,
     paymentId: string,
     attemptId: string,
@@ -259,10 +350,12 @@ export class PaymentsService {
       !attempt ||
       attempt.paymentId !== paymentId ||
       attempt.payment.customerId !== profile.id ||
-      attempt.provider !== "PAYSTACK"
+      attempt.provider === "MANUAL"
     )
       throw paymentNotFound();
-    const verified = await this.provider.verify(attempt.internalReference);
+    const verified = await this.providers
+      .get(attempt.provider as OnlinePaymentProvider)
+      .verify(attempt.internalReference);
     await this.applyVerifiedAttempt(attempt.id, verified, context, actor.userId);
     return this.customerGet(actor, paymentId);
   }
@@ -578,10 +671,7 @@ export class PaymentsService {
       return { refund: updated, attempt: refund.paymentAttempt };
     });
     if (input.decision === "CANCELLED") return paymentJsonSafe(approved.refund);
-    if (
-      approved.attempt.provider !== "PAYSTACK" ||
-      !approved.attempt.gatewayTransactionId
-    )
+    if (approved.attempt.provider === "MANUAL" || !approved.attempt.gatewayTransactionId)
       return paymentJsonSafe(
         await this.database.refund.update({
           where: { id },
@@ -591,11 +681,30 @@ export class PaymentsService {
           },
         }),
       );
-    const result = await this.provider.refund({
-      gatewayTransactionId: approved.attempt.gatewayTransactionId,
-      amountKobo: approved.refund.amountKobo,
-      currency: "NGN",
-    });
+    let result;
+    try {
+      result = await this.providers
+        .get(approved.attempt.provider as OnlinePaymentProvider)
+        .refund({
+          gatewayTransactionId: approved.attempt.gatewayTransactionId,
+          amountKobo: approved.refund.amountKobo,
+          currency: "NGN",
+          refundReference: approved.refund.refundNumber,
+          reason: approved.refund.reason,
+          customerNote: "AAT refund",
+        });
+    } catch {
+      return paymentJsonSafe(
+        await this.database.refund.update({
+          where: { id },
+          data: {
+            status: "NEEDS_ATTENTION",
+            providerStatus: "PROVIDER_SUBMISSION_UNCONFIRMED",
+            failureMessage: "Provider submission requires reviewed follow-up",
+          },
+        }),
+      );
+    }
     return paymentJsonSafe(
       await this.database.refund.update({
         where: { id },
@@ -708,9 +817,298 @@ export class PaymentsService {
       },
       context,
       null,
-      deduplicationKey,
+      { provider: "PAYSTACK", deduplicationKey },
     );
     return { accepted: true, duplicate };
+  }
+
+  async ingestMonnifyWebhook(
+    event: MonnifyWebhookEvent,
+    payloadSha256: string,
+    signatureVerified: boolean,
+    context: RequestSecurityContext,
+  ) {
+    if (event.kind === "ignored" && !signatureVerified)
+      return { accepted: true, duplicate: false, ignored: true };
+
+    const deduplicationKey = createHash("sha256")
+      .update(`${event.eventType}:${event.providerEventId ?? ""}:${payloadSha256}`)
+      .digest("hex");
+    const existing = await this.database.paymentWebhookEvent.findFirst({
+      where: {
+        provider: "MONNIFY",
+        OR: [
+          { deduplicationKey },
+          ...(event.providerEventId ? [{ providerEventId: event.providerEventId }] : []),
+        ],
+      },
+      select: { id: true, status: true },
+    });
+    if (existing) {
+      if (existing.status !== "PROCESSED")
+        await this.retryMonnifyWebhook(existing.id, context);
+      return { accepted: true, duplicate: true };
+    }
+
+    const now = new Date();
+    if (event.kind === "ignored") {
+      await this.database.paymentWebhookEvent.create({
+        data: {
+          provider: "MONNIFY",
+          providerEventId: null,
+          deduplicationKey,
+          eventType: event.eventType,
+          payloadSha256,
+          signatureVerifiedAt: now,
+          status: "PROCESSED",
+          processedAt: now,
+          redactedPayload: { kind: "ignored" },
+        },
+      });
+      return { accepted: true, duplicate: false, ignored: true };
+    }
+
+    if (event.kind === "transaction") {
+      const attempt = await this.repository.attemptByReference(event.reference);
+      if (!attempt || attempt.provider !== "MONNIFY") {
+        if (!signatureVerified)
+          return { accepted: true, duplicate: false, ignored: true };
+        await this.database.paymentWebhookEvent.create({
+          data: {
+            provider: "MONNIFY",
+            providerEventId: event.providerEventId,
+            deduplicationKey,
+            eventType: event.eventType,
+            payloadSha256,
+            signatureVerifiedAt: now,
+            status: "PROCESSED",
+            processedAt: now,
+            redactedPayload: { kind: "ignored", reason: "unknown-reference" },
+          },
+        });
+        return { accepted: true, duplicate: false, ignored: true };
+      }
+      const verified = await this.providers.get("MONNIFY").verify(event.reference);
+      const payload = {
+        kind: "transaction" as const,
+        reference: verified.reference,
+        gatewayTransactionId: verified.gatewayTransactionId,
+        status: verified.status,
+        amountKobo: verified.amountKobo.toString(),
+        currency: verified.currency,
+        paidAt: verified.paidAt?.toISOString() ?? null,
+        providerFeeKobo: verified.providerFeeKobo?.toString() ?? null,
+        method: verified.method,
+      };
+      const eventMatchesProvider =
+        !signatureVerified ||
+        (event.reference === verified.reference &&
+          event.gatewayTransactionId === verified.gatewayTransactionId &&
+          event.amountKobo === verified.amountKobo &&
+          event.currency === verified.currency);
+      const record = await this.database.paymentWebhookEvent.create({
+        data: {
+          paymentAttemptId: attempt.id,
+          provider: "MONNIFY",
+          providerEventId: event.providerEventId,
+          deduplicationKey,
+          eventType: event.eventType,
+          payloadSha256,
+          ...(signatureVerified ? { signatureVerifiedAt: now } : {}),
+          providerVerifiedAt: now,
+          redactedPayload: payload,
+        },
+      });
+      if (!eventMatchesProvider) {
+        await this.database.$transaction(async (tx) => {
+          await tx.payment.updateMany({
+            where: { id: attempt.paymentId, status: { not: "SUCCEEDED" } },
+            data: { status: "REQUIRES_REVIEW" },
+          });
+          await tx.paymentAnomaly.create({
+            data: {
+              paymentId: attempt.paymentId,
+              paymentAttemptId: attempt.id,
+              type: "OTHER",
+              summary: "Monnify webhook facts differed from provider verification",
+            },
+          });
+          await tx.paymentWebhookEvent.update({
+            where: { id: record.id },
+            data: { status: "PROCESSED", processedAt: now },
+          });
+        });
+        return { accepted: true, duplicate: false };
+      }
+      await this.retryMonnifyWebhook(record.id, context);
+      return { accepted: true, duplicate: false };
+    }
+
+    const refund = await this.database.refund.findUnique({
+      where: { providerRefundId: event.refundReference },
+      include: { paymentAttempt: true },
+    });
+    if (!refund || refund.paymentAttempt.provider !== "MONNIFY") {
+      if (!signatureVerified) return { accepted: true, duplicate: false, ignored: true };
+      await this.database.paymentWebhookEvent.create({
+        data: {
+          provider: "MONNIFY",
+          providerEventId: event.providerEventId,
+          deduplicationKey,
+          eventType: event.eventType,
+          payloadSha256,
+          signatureVerifiedAt: now,
+          status: "PROCESSED",
+          processedAt: now,
+          redactedPayload: { kind: "ignored", reason: "unknown-refund" },
+        },
+      });
+      return { accepted: true, duplicate: false, ignored: true };
+    }
+    const adapter = this.providers.get("MONNIFY");
+    const verified = adapter.verifyRefund
+      ? await adapter.verifyRefund(event.refundReference)
+      : null;
+    if (!verified && !signatureVerified) throw paymentVerificationFailed();
+    const amountKobo =
+      verified?.amountKobo ?? (signatureVerified ? event.amountKobo : null);
+    const currency = verified?.currency ?? (signatureVerified ? event.currency : null);
+    const status =
+      verified?.status ??
+      (event.eventType === "SUCCESSFUL_REFUND" ? "succeeded" : "failed");
+    const record = await this.database.paymentWebhookEvent.create({
+      data: {
+        refundId: refund.id,
+        provider: "MONNIFY",
+        providerEventId: event.providerEventId,
+        deduplicationKey,
+        eventType: event.eventType,
+        payloadSha256,
+        ...(signatureVerified ? { signatureVerifiedAt: now } : {}),
+        providerVerifiedAt: verified ? now : null,
+        redactedPayload: {
+          kind: "refund",
+          providerRefundId: verified?.providerRefundId ?? event.refundReference,
+          status,
+          amountKobo: amountKobo?.toString() ?? null,
+          currency,
+        },
+      },
+    });
+    await this.retryMonnifyWebhook(record.id, context);
+    return { accepted: true, duplicate: false };
+  }
+
+  async retryMonnifyWebhook(id: string, context: RequestSecurityContext): Promise<void> {
+    const record = await this.database.paymentWebhookEvent.findUnique({
+      where: { id },
+      select: {
+        provider: true,
+        status: true,
+        deduplicationKey: true,
+        paymentAttemptId: true,
+        refundId: true,
+        redactedPayload: true,
+      },
+    });
+    if (!record || record.provider !== "MONNIFY" || record.status === "PROCESSED") return;
+    if (record.paymentAttemptId) {
+      const payload = monnifyTransactionRetrySchema.parse(record.redactedPayload);
+      await this.applyVerifiedAttempt(
+        record.paymentAttemptId,
+        {
+          reference: payload.reference,
+          gatewayTransactionId: payload.gatewayTransactionId,
+          status: payload.status,
+          amountKobo: BigInt(payload.amountKobo),
+          currency: payload.currency,
+          paidAt: payload.paidAt ? new Date(payload.paidAt) : null,
+          providerFeeKobo:
+            payload.providerFeeKobo === null ? null : BigInt(payload.providerFeeKobo),
+          method: payload.method,
+        },
+        context,
+        null,
+        { provider: "MONNIFY", deduplicationKey: record.deduplicationKey },
+      );
+      return;
+    }
+    if (record.refundId) {
+      const payload = monnifyRefundRetrySchema.parse(record.redactedPayload);
+      await this.applyMonnifyRefund(record.refundId, record.deduplicationKey, payload);
+      return;
+    }
+    await this.database.paymentWebhookEvent.update({
+      where: { id },
+      data: { status: "PROCESSED", processedAt: new Date() },
+    });
+  }
+
+  private async applyMonnifyRefund(
+    refundId: string,
+    webhookKey: string,
+    result: z.infer<typeof monnifyRefundRetrySchema>,
+  ): Promise<void> {
+    await this.database.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${refundId}::uuid FOR UPDATE`;
+      const refund = await tx.refund.findUniqueOrThrow({ where: { id: refundId } });
+      const now = new Date();
+      const exact =
+        result.providerRefundId === refund.providerRefundId &&
+        result.amountKobo !== null &&
+        BigInt(result.amountKobo) === refund.amountKobo &&
+        result.currency === refund.currency;
+      if (!exact) {
+        await tx.refund.update({
+          where: { id: refundId },
+          data: { status: "NEEDS_ATTENTION", providerStatus: result.status },
+        });
+        await tx.paymentAnomaly.create({
+          data: {
+            refundId,
+            paymentAttemptId: refund.paymentAttemptId,
+            type: "REFUND_MISMATCH",
+            summary: "Monnify refund did not match the approved refund",
+          },
+        });
+      } else if (result.status === "succeeded" && refund.status !== "SUCCEEDED") {
+        await tx.refund.update({
+          where: { id: refundId },
+          data: { status: "SUCCEEDED", processedAt: now, providerStatus: result.status },
+        });
+        await tx.paymentLedgerEntry.upsert({
+          where: { sourceKey: `refund:${refundId}` },
+          create: {
+            refundId,
+            sourceKey: `refund:${refundId}`,
+            type: "REFUND",
+            direction: "DEBIT",
+            amountKobo: refund.amountKobo,
+            currency: refund.currency,
+            occurredAt: now,
+          },
+          update: {},
+        });
+      } else if (result.status === "failed") {
+        await tx.refund.updateMany({
+          where: { id: refundId, status: { not: "SUCCEEDED" } },
+          data: { status: "FAILED", failedAt: now, providerStatus: result.status },
+        });
+      }
+      await tx.paymentWebhookEvent.update({
+        where: {
+          provider_deduplicationKey: {
+            provider: "MONNIFY",
+            deduplicationKey: webhookKey,
+          },
+        },
+        data: {
+          status: "PROCESSED",
+          processedAt: now,
+          processingAttempts: { increment: 1 },
+        },
+      });
+    });
   }
 
   private async applyRefundWebhook(event: PaystackWebhookEvent, webhookKey: string) {
@@ -932,7 +1330,7 @@ export class PaymentsService {
     result: VerifiedPayment,
     context: RequestSecurityContext,
     actorUserId: string | null,
-    webhookKey?: string,
+    webhook?: { provider: OnlinePaymentProvider; deduplicationKey: string },
   ) {
     await this.database.$transaction(async (tx) => {
       const rows = await tx.$queryRaw<
@@ -1028,12 +1426,12 @@ export class PaymentsService {
           });
         } else await this.settle(tx, attempt.paymentId, attemptId, result.paidAt ?? now);
       }
-      if (webhookKey)
+      if (webhook)
         await tx.paymentWebhookEvent.update({
           where: {
             provider_deduplicationKey: {
-              provider: "PAYSTACK",
-              deduplicationKey: webhookKey,
+              provider: webhook.provider,
+              deduplicationKey: webhook.deduplicationKey,
             },
           },
           data: {

@@ -118,6 +118,12 @@ export const refundDecisionBodySchema = z
 export const webhookHeadersSchema = z.looseObject({
   "x-paystack-signature": z.string().regex(/^[0-9a-f]{128}$/i),
 });
+export const monnifyWebhookHeadersSchema = z.looseObject({
+  "monnify-signature": z
+    .string()
+    .regex(/^[0-9a-f]{128}$/i)
+    .optional(),
+});
 
 export type PaymentCreateInput = z.infer<typeof paymentCreateBodySchema>;
 export type PaymentListQuery = z.infer<typeof paymentListQuerySchema>;

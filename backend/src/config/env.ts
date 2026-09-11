@@ -206,6 +206,24 @@ const environmentSchema = z.object({
     .min(1_024)
     .max(1_048_576)
     .default(262_144),
+  MONNIFY_MODE: z.enum(["disabled", "sandbox", "live"]).default("disabled"),
+  MONNIFY_LIVE_ENABLED: booleanValue(false),
+  MONNIFY_API_KEY: optionalNonEmptyString,
+  MONNIFY_SECRET_KEY: optionalNonEmptyString,
+  MONNIFY_CONTRACT_CODE: optionalNonEmptyString,
+  MONNIFY_CALLBACK_URL: optionalNonEmptyString.pipe(httpUrl.optional()),
+  MONNIFY_REQUEST_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1_000)
+    .max(30_000)
+    .default(8_000),
+  MONNIFY_MAX_RESPONSE_BYTES: z.coerce
+    .number()
+    .int()
+    .min(1_024)
+    .max(1_048_576)
+    .default(262_144),
   PAYMENT_INTENT_TTL_SECONDS: z.coerce.number().int().min(300).max(86_400).default(1_800),
   FRONTEND_VERIFY_EMAIL_URL: optionalNonEmptyString.pipe(httpUrl.optional()),
   FRONTEND_RESET_PASSWORD_URL: optionalNonEmptyString.pipe(httpUrl.optional()),
@@ -359,6 +377,7 @@ export function assertApiEnvironment(
       "FRONTEND_RESET_PASSWORD_URL",
       "FRONTEND_PRIVILEGED_INVITATION_URL",
       "PAYSTACK_MODE",
+      "MONNIFY_MODE",
       "OBJECT_STORAGE_ENDPOINT",
       "OBJECT_STORAGE_BUCKET",
       "OBJECT_STORAGE_ACCESS_KEY_ID",
@@ -400,6 +419,7 @@ export function assertApiEnvironment(
     throw new Error("Production Paystack callback URL must use HTTPS");
   }
   assertPaystackMode(runtime);
+  assertMonnifyMode(runtime);
   if (runtime.API_DOCS_ENABLED) {
     throw new Error("Hosted API documentation must remain disabled in production");
   }
@@ -464,6 +484,7 @@ export function assertGeneralWorkerEnvironment(
       throw new Error("TERMII_BASE_URL must be an HTTPS Termii host without credentials");
   }
   assertPaystackMode(runtime);
+  assertMonnifyMode(runtime);
 }
 
 export function assertPaystackMode(runtime: typeof env = env): void {
@@ -487,4 +508,41 @@ export function assertPaystackMode(runtime: typeof env = env): void {
     if (!key.startsWith("sk_live_"))
       throw new Error("PAYSTACK_MODE=live requires a Paystack live secret");
   }
+}
+
+export function assertMonnifyMode(runtime: typeof env = env): void {
+  const configured = [
+    runtime.MONNIFY_API_KEY,
+    runtime.MONNIFY_SECRET_KEY,
+    runtime.MONNIFY_CONTRACT_CODE,
+    runtime.MONNIFY_CALLBACK_URL,
+  ];
+  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.MONNIFY_MODE !== "sandbox")
+    throw new Error("Staging requires MONNIFY_MODE=sandbox");
+  if (runtime.MONNIFY_MODE === "disabled") {
+    if (configured.some((value) => value !== undefined))
+      throw new Error("Monnify credentials and callback must be unset when disabled");
+    return;
+  }
+  if (configured.some((value) => value === undefined))
+    throw new Error("Monnify credentials, contract code, and callback are required");
+  const callback = new URL(runtime.MONNIFY_CALLBACK_URL!);
+  if (callback.protocol !== "https:")
+    throw new Error("Configured Monnify callback URL must use HTTPS");
+  if (runtime.MONNIFY_MODE === "sandbox") {
+    if (!runtime.MONNIFY_API_KEY!.startsWith("MK_TEST_"))
+      throw new Error("Monnify sandbox requires a test API key");
+    if (!runtime.MONNIFY_SECRET_KEY!.startsWith("SK_TEST_"))
+      throw new Error("Monnify sandbox requires a test secret key");
+    return;
+  }
+  if (runtime.DEPLOYMENT_ENV !== "production" || !runtime.MONNIFY_LIVE_ENABLED)
+    throw new Error(
+      "Live Monnify is permitted only for an explicitly enabled production deployment",
+    );
+  if (
+    runtime.MONNIFY_API_KEY!.startsWith("MK_TEST_") ||
+    runtime.MONNIFY_SECRET_KEY!.startsWith("SK_TEST_")
+  )
+    throw new Error("Live Monnify cannot use sandbox credentials");
 }

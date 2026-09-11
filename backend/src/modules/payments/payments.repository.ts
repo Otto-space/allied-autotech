@@ -53,7 +53,12 @@ export class PaymentsRepository {
   customerProfile(userId: string, client: DatabaseClient = this.database) {
     return client.customerProfile.findUnique({
       where: { userId },
-      select: { id: true, user: { select: { email: true } } },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        user: { select: { email: true } },
+      },
     });
   }
   staffProfile(userId: string, client: DatabaseClient = this.database) {

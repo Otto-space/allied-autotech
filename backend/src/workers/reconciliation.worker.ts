@@ -1,14 +1,21 @@
 import { prisma } from "../config/database.js";
 import type { PrismaClient } from "../generated/prisma/client.js";
-import { paystackProvider } from "../providers/payments/paystack.adapter.js";
-import type { PaymentProviderPort } from "../providers/payments/payment-provider.port.js";
+import {
+  paymentProviders,
+  PaymentProviderRegistry,
+  type OnlinePaymentProvider,
+} from "../providers/payments/payment-provider.registry.js";
 
 export class PaymentReconciliationWorker {
   constructor(
     private readonly database: PrismaClient = prisma,
-    private readonly provider: PaymentProviderPort = paystackProvider,
+    private readonly providers: PaymentProviderRegistry = paymentProviders,
   ) {}
-  async run(periodStart: Date, periodEnd: Date) {
+  async run(
+    periodStart: Date,
+    periodEnd: Date,
+    provider: OnlinePaymentProvider = "PAYSTACK",
+  ) {
     if (
       !Number.isFinite(periodStart.getTime()) ||
       !Number.isFinite(periodEnd.getTime()) ||
@@ -16,11 +23,11 @@ export class PaymentReconciliationWorker {
     )
       throw new Error("Invalid reconciliation period");
     const run = await this.database.paymentReconciliationRun.create({
-      data: { provider: "PAYSTACK", periodStart, periodEnd },
+      data: { provider, periodStart, periodEnd },
     });
     try {
       const attempts = await this.database.paymentAttempt.findMany({
-        where: { provider: "PAYSTACK", initiatedAt: { gte: periodStart, lt: periodEnd } },
+        where: { provider, initiatedAt: { gte: periodStart, lt: periodEnd } },
         orderBy: [{ initiatedAt: "asc" }, { id: "asc" }],
         take: 1_000,
       });
@@ -31,7 +38,9 @@ export class PaymentReconciliationWorker {
       for (const attempt of attempts) {
         internalTotalKobo += attempt.status === "SUCCESSFUL" ? attempt.amountKobo : 0n;
         try {
-          const remote = await this.provider.verify(attempt.internalReference);
+          const remote = await this.providers
+            .get(provider)
+            .verify(attempt.internalReference);
           providerTotalKobo += remote.status === "success" ? remote.amountKobo : 0n;
           const status =
             remote.reference !== attempt.internalReference
@@ -91,5 +100,12 @@ export class PaymentReconciliationWorker {
       });
       throw error;
     }
+  }
+
+  async runConfigured(periodStart: Date, periodEnd: Date) {
+    const results = [];
+    for (const provider of this.providers.enabledProviders())
+      results.push(await this.run(periodStart, periodEnd, provider));
+    return results;
   }
 }

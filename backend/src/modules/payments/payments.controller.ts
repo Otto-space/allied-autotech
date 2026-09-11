@@ -2,12 +2,17 @@ import type { Request, Response } from "express";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { successResponse } from "../../common/http/api-response.js";
-import { assertPaystackMode, env } from "../../config/env.js";
+import { assertMonnifyMode, assertPaystackMode, env } from "../../config/env.js";
 import {
   parsePaystackWebhook,
   paystackPayloadSha256,
   verifyPaystackSignature,
 } from "../../providers/payments/paystack-webhook.js";
+import {
+  monnifyPayloadSha256,
+  parseMonnifyWebhook,
+  verifyMonnifySignature,
+} from "../../providers/payments/monnify-webhook.js";
 import { webhookUnauthorized } from "./payments.errors.js";
 import type {
   ManualPaymentInput,
@@ -90,6 +95,21 @@ export class PaymentsController {
           ),
         ),
       );
+  initializeMonnify = async (req: Request, res: Response) =>
+    res
+      .status(201)
+      .json(
+        successResponse(
+          "Payment initialized",
+          req.id,
+          await this.service.initializeMonnify(
+            actor(req),
+            validated<{ paymentId: string }>(res, "params").paymentId,
+            key(res),
+            context(req),
+          ),
+        ),
+      );
   evidenceUpload = async (req: Request, res: Response) =>
     res
       .status(201)
@@ -112,7 +132,7 @@ export class PaymentsController {
         successResponse(
           "Payment verification completed",
           req.id,
-          await this.service.verifyPaystack(
+          await this.service.verifyAttempt(
             actor(req),
             ids.paymentId,
             ids.attemptId,
@@ -229,6 +249,36 @@ export class PaymentsController {
           await this.service.ingestWebhook(
             event,
             paystackPayloadSha256(raw),
+            context(req),
+          ),
+        ),
+      );
+  };
+
+  monnifyWebhook = async (req: Request, res: Response) => {
+    assertMonnifyMode();
+    if (env.MONNIFY_MODE === "disabled" || env.MONNIFY_SECRET_KEY === undefined)
+      throw webhookUnauthorized();
+    const raw = req.body as Buffer;
+    const signature = validated<{ "monnify-signature"?: string }>(res, "headers")[
+      "monnify-signature"
+    ];
+    const signatureVerified =
+      env.MONNIFY_MODE === "live" &&
+      signature !== undefined &&
+      verifyMonnifySignature(raw, signature, env.MONNIFY_SECRET_KEY);
+    if (env.MONNIFY_MODE === "live" && !signatureVerified) throw webhookUnauthorized();
+    const event = parseMonnifyWebhook(raw);
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Webhook accepted",
+          req.id,
+          await this.service.ingestMonnifyWebhook(
+            event,
+            monnifyPayloadSha256(raw),
+            signatureVerified,
             context(req),
           ),
         ),
