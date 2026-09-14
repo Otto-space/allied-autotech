@@ -1,0 +1,296 @@
+"use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { z } from "zod";
+import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
+import { useResource } from "@/lib/api/use-resource";
+import { parseBookingPolicy, parseSlots, bookingSchema } from "@/lib/api/booking-schemas";
+import { serviceSchema } from "@/lib/api/public-schemas";
+import { branchRef } from "@/lib/api/commerce-schemas";
+import type { RequestBody } from "@/lib/api/contracts";
+import { formatKobo } from "@/lib/format/money";
+import { formatBusinessDate } from "@/lib/format/date";
+import { Feedback } from "./feedback";
+import { SiteHeader } from "./site-header";
+import { SiteFooter } from "./site-footer";
+import { PublicEnquiryForm } from "./public-enquiry-form";
+const parseService = (value: unknown) => serviceSchema.parse(value);
+const parseBranches = (value: unknown) =>
+  z.object({ items: z.array(branchRef), nextCursor: z.string().optional() }).parse(value);
+export function ServiceDetail({
+  serviceId,
+  initialService,
+}: {
+  serviceId: string;
+  initialService: z.infer<typeof serviceSchema>;
+}) {
+  const router = useRouter();
+  const service = useResource(
+    `/public/services/${encodeURIComponent(serviceId)}`,
+    parseService,
+    initialService,
+  );
+  const policy = useResource("/public/booking-policy", parseBookingPolicy);
+  const branches = useResource("/public/branches?limit=100", parseBranches);
+  const [branch, setBranch] = useState("");
+  const [slot, setSlot] = useState("");
+  const [slotCursor, setSlotCursor] = useState<string>();
+  const [accepted, setAccepted] = useState(false);
+  const slots = useResource(
+    branch && service.data?.pricingType === "FIXED"
+      ? `/public/services/${serviceId}/slots?branchId=${branch}&limit=50${slotCursor ? `&cursor=${slotCursor}` : ""}`
+      : null,
+    parseSlots,
+  );
+  const [error, setError] = useState<string>();
+  const [booking, setBooking] = useState<z.infer<typeof bookingSchema>>();
+  const [busy, setBusy] = useState(false);
+  const [uncertain, setUncertain] = useState(false);
+  const attempt = useRef<{
+    fingerprint: string;
+    key: string;
+    body: RequestBody<"/customers/bookings", "post">;
+  } | null>(null);
+  async function book() {
+    if (busy || !slot || !accepted || !policy.data || booking) return;
+    setBusy(true);
+    setError(undefined);
+    const body: RequestBody<"/customers/bookings", "post"> =
+      uncertain && attempt.current
+        ? attempt.current.body
+        : {
+            slotId: slot,
+            policyVersion: policy.data.version,
+            acceptNonRefundableDeposit: true,
+          };
+    const fingerprint = JSON.stringify(body);
+    if (attempt.current?.fingerprint !== fingerprint)
+      attempt.current = { fingerprint, key: newIdempotencyKey(), body };
+    try {
+      const result = await apiRequest("/customers/bookings", {
+        method: "POST",
+        csrf: true,
+        idempotencyKey: attempt.current.key,
+        body,
+      });
+      const response = z.object({ booking: bookingSchema }).parse(result.data);
+      setBooking(response.booking);
+      setUncertain(false);
+    } catch (value) {
+      if (value instanceof ApiError && value.status === 401) {
+        router.push(`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`);
+        return;
+      }
+      setUncertain(
+        !(value instanceof ApiError && value.status >= 400 && value.status < 500),
+      );
+      setError(
+        value instanceof ApiError
+          ? value.message
+          : "We could not confirm the booking. Check your bookings before making another request.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  const current = service.data;
+  return (
+    <>
+      <SiteHeader />
+      <main id="main" className="section">
+        <div className="container narrow">
+          <nav className="breadcrumbs" aria-label="Breadcrumb">
+            <Link href="/services">Services</Link>
+            <span aria-hidden="true">/</span>
+            <span>{current?.name ?? "Service details"}</span>
+          </nav>
+          <Feedback message={service.error} />
+          {service.error && (
+            <button className="button secondary" onClick={service.refresh}>
+              Retry service
+            </button>
+          )}
+          {service.loading && <p role="status">Loading service…</p>}
+          {current && (
+            <>
+              <h1>{current.name}</h1>
+              <p className="lead">
+                {current.description ??
+                  current.shortDescription ??
+                  "Discuss your vehicle’s needs with our team."}
+              </p>
+              <p className="price">{formatKobo(current.priceKobo)}</p>
+              {current.durationMinutes !== null && (
+                <p className="muted">
+                  Listed duration: {current.durationMinutes} minutes
+                </p>
+              )}
+              {current.pricingType === "QUOTE_REQUIRED" ? (
+                <section className="detail-section">
+                  <h2>Tell us what your vehicle needs.</h2>
+                  <PublicEnquiryForm serviceId={current.id} serviceName={current.name} />
+                </section>
+              ) : (
+                <section className="detail-section">
+                  <h2>Choose an available appointment.</h2>
+                  <Feedback
+                    message={error ?? policy.error ?? branches.error ?? slots.error}
+                  />
+                  {(policy.error || branches.error || slots.error) && (
+                    <button
+                      className="button secondary"
+                      onClick={() => {
+                        policy.refresh();
+                        branches.refresh();
+                        slots.refresh();
+                      }}
+                    >
+                      Refresh availability & terms
+                    </button>
+                  )}
+                  {booking ? (
+                    <div className="notice success">
+                      <h3>Booking request received</h3>
+                      <p>Status: {booking.status.replaceAll("_", " ")}</p>
+                      <p>Deposit due: {formatKobo(booking.depositAmountKobo)}</p>
+                      {booking.paymentHoldExpiresAt && (
+                        <p>
+                          Hold expires {formatBusinessDate(booking.paymentHoldExpiresAt)}.
+                        </p>
+                      )}
+                      <Link className="button" href={`/dashboard/bookings/${booking.id}`}>
+                        Review booking & deposit
+                      </Link>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="field">
+                        <label htmlFor="service-branch">Workshop branch</label>
+                        <select
+                          id="service-branch"
+                          value={branch}
+                          disabled={uncertain}
+                          onChange={(event) => {
+                            setBranch(event.target.value);
+                            setSlot("");
+                            setSlotCursor(undefined);
+                            setAccepted(false);
+                          }}
+                        >
+                          <option value="">Choose a branch</option>
+                          {branches.data?.items.map((item) => (
+                            <option value={item.id} key={item.id}>
+                              {item.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      {slots.loading && (
+                        <p role="status">Checking available appointments…</p>
+                      )}
+                      <div className="slot-grid">
+                        {slots.data?.items.map((item) => (
+                          <button
+                            key={item.id}
+                            disabled={uncertain || slots.loading}
+                            className="slot"
+                            aria-pressed={slot === item.id}
+                            onClick={() => setSlot(item.id)}
+                          >
+                            {formatBusinessDate(item.startsAt)}
+                          </button>
+                        ))}
+                      </div>
+                      {branch &&
+                        !slots.loading &&
+                        !slots.error &&
+                        slots.data?.items.length === 0 && (
+                          <div className="empty">
+                            No published appointments on this page. Try another branch or
+                            contact our team.
+                          </div>
+                        )}
+                      {slots.data?.nextCursor && (
+                        <button
+                          className="button secondary"
+                          disabled={uncertain}
+                          onClick={() => {
+                            setSlotCursor(slots.data?.nextCursor);
+                            setSlot("");
+                          }}
+                        >
+                          More appointments
+                        </button>
+                      )}
+                      {policy.data && (
+                        <div className="notice">
+                          <h3>Booking deposit terms</h3>
+                          <p>
+                            The deposit is {policy.data.depositBasisPoints / 100}% of the
+                            service price. Available appointments are{" "}
+                            {policy.data.minimumAdvanceHours / 24}–
+                            {policy.data.maximumAdvanceHours / 24} days ahead, with a{" "}
+                            {policy.data.paymentHoldMinutes}-minute payment hold.
+                          </p>
+                          <p>
+                            {policy.data.depositRefundableForCustomerCancellation
+                              ? "The published policy allows a refundable deposit for customer cancellation."
+                              : "The deposit is non-refundable if you cancel."}{" "}
+                            You may reschedule up to {policy.data.customerRescheduleLimit}{" "}
+                            time, at least {policy.data.customerRescheduleCutoffHours}{" "}
+                            hours before your appointment.
+                          </p>
+                          <label className="check-label">
+                            <input
+                              type="checkbox"
+                              checked={accepted}
+                              disabled={uncertain}
+                              onChange={(event) => setAccepted(event.target.checked)}
+                            />{" "}
+                            I have read and accept these deposit terms.
+                          </label>
+                        </div>
+                      )}
+                      {uncertain && (
+                        <Feedback
+                          message="Confirmation is pending. Check this same request again or view your bookings before choosing another appointment."
+                          tone="info"
+                        />
+                      )}
+                      <div className="actions">
+                        <button
+                          className="button"
+                          disabled={
+                            busy ||
+                            !slot ||
+                            !accepted ||
+                            !policy.data ||
+                            !!slots.error ||
+                            slots.loading ||
+                            !!policy.error
+                          }
+                          onClick={() => void book()}
+                        >
+                          {busy
+                            ? "Submitting…"
+                            : uncertain
+                              ? "Check the same booking request"
+                              : "Request booking & review deposit"}
+                        </button>
+                        <Link className="text-link" href="/dashboard/bookings">
+                          Your bookings →
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </section>
+              )}
+            </>
+          )}
+        </div>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}
