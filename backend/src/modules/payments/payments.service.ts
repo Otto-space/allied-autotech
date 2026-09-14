@@ -272,18 +272,23 @@ export class PaymentsService {
         ...(provider === "PAYSTACK" ? { accessCode: prepared.checkout.accessCode } : {}),
         replayed: true,
       };
+    const callbackUrl =
+      provider === "PAYSTACK" ? env.PAYSTACK_CALLBACK_URL : env.MONNIFY_CALLBACK_URL;
+    const ownedCallbackUrl = callbackUrl
+      ? (() => {
+          const url = new URL(callbackUrl);
+          url.searchParams.set("paymentId", id);
+          url.searchParams.set("attemptId", prepared.existing.id);
+          return url.toString();
+        })()
+      : undefined;
     const initialized = await this.providers.get(provider).initialize({
       email: profile.user.email,
       customerName: `${profile.firstName} ${profile.lastName}`,
       amountKobo: prepared.payment.amountKobo,
       currency: "NGN",
       reference,
-      ...(provider === "PAYSTACK" && env.PAYSTACK_CALLBACK_URL
-        ? { callbackUrl: env.PAYSTACK_CALLBACK_URL }
-        : {}),
-      ...(provider === "MONNIFY" && env.MONNIFY_CALLBACK_URL
-        ? { callbackUrl: env.MONNIFY_CALLBACK_URL }
-        : {}),
+      ...(ownedCallbackUrl ? { callbackUrl: ownedCallbackUrl } : {}),
     });
     if (initialized.providerReference !== reference) throw paymentVerificationFailed();
     const authorizationExpiresAt = new Date(
