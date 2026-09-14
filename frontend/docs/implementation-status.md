@@ -21,6 +21,16 @@ The workshop increment adds staff booking list/detail, assignment, versioned sta
 
 ## Baseline
 
+## Public entry experience — 14 September 2026
+
+The homepage now acts as the public product entry point: it has route-aware navigation,
+an accessible keyboard-controlled carousel for services, parts and vehicles, API-backed
+featured catalogue panels, a transparent three-step journey, contact/location actions,
+trust and support guidance, and an FAQ preview. Catalogue failures and empty responses
+remain explicit rather than being replaced with invented products, vehicles, prices or
+reviews. Shared notice accents now use restrained top rules instead of card-like side
+tabs.
+
 - Frontend lint: passed before edits.
 - Frontend typecheck: passed before edits.
 - Frontend tests: pre-existing failure, no test files found.

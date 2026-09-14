@@ -211,7 +211,11 @@ export function DashboardShell({
             <Link
               key={item.href}
               href={item.href}
-              aria-current={pathname === item.href ? "page" : undefined}
+              aria-current={
+                pathname === item.href || pathname.startsWith(`${item.href}/`)
+                  ? "page"
+                  : undefined
+              }
             >
               <item.icon size={17} />
               {item.label}
@@ -220,15 +224,28 @@ export function DashboardShell({
         </nav>
       </aside>
       <div className="dashboard-main">
-        <div className="mobile-nav" aria-label="Customer dashboard mobile navigation">
+        <nav className="mobile-nav" aria-label="Customer dashboard mobile navigation">
           {navigation.map((item) => (
-            <Link key={item.href} href={item.href}>
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={
+                pathname === item.href || pathname.startsWith(`${item.href}/`)
+                  ? "page"
+                  : undefined
+              }
+            >
               {item.label}
             </Link>
           ))}
-        </div>
+        </nav>
         <header className="dashboard-top">
-          <span className="mono">{session.user.email}</span>
+          <div>
+            <span className="dashboard-kicker">
+              {audience === "staff" ? "Operations workspace" : "Customer workspace"}
+            </span>
+            <strong>{session.user.email}</strong>
+          </div>
           <button
             className="button secondary"
             disabled={busy}
