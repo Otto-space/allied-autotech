@@ -82,11 +82,6 @@ export function PublicHome() {
           className="home-hero"
           aria-roledescription="carousel"
           aria-label="Allied AutoTech services"
-          onKeyDown={(event) => {
-            if (event.key === "ArrowLeft") moveSlide(-1);
-            if (event.key === "ArrowRight") moveSlide(1);
-          }}
-          tabIndex={0}
         >
           <div className="container home-hero-grid">
             <div>
@@ -212,7 +207,7 @@ export function PublicHome() {
                   <Link className="text-link" href="/parts">See all</Link>
                 </div>
                 <Feedback message={products.error} tone="info" />
-                {products.loading && <p role="status" className="muted">Loading parts…</p>}
+                {products.loading && <output className="muted">Loading parts…</output>}
                 {products.data?.items.map((product) => (
                   <Link className="feature-row" href={`/parts/${product.id}`} key={product.id}>
                     <PublicMedia
@@ -236,7 +231,7 @@ export function PublicHome() {
                   <Link className="text-link" href="/vehicles">See all</Link>
                 </div>
                 <Feedback message={listings.error} tone="info" />
-                {listings.loading && <p role="status" className="muted">Loading vehicles…</p>}
+                {listings.loading && <output className="muted">Loading vehicles…</output>}
                 {listings.data?.items.map((listing) => (
                   <Link className="feature-row" href={`/vehicles/${listing.id}`} key={listing.id}>
                     <PublicMedia

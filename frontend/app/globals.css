@@ -4,14 +4,14 @@
   --ink: #01121a;
   --muted: #526274;
   --line: #dce3ea;
-  --surface: #f4f7fa;
+  --surface: #f5f7f8;
   --blue: #091b38;
   --blue-dark: #01121a;
   --red: #e60301;
-  --orange: #e60301;
+  --display-font: "Nibble", "Arial Black", var(--font-quicksand), sans-serif;
   --success: #13734a;
   --danger: #b42318;
-  --white: #fff;
+  --white: #ffffff;
 }
 .dashboard-top > div {
   display: grid;
@@ -44,7 +44,8 @@ body {
   margin: 0;
   background: var(--white);
   color: var(--ink);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: var(--font-quicksand), Arial, sans-serif;
+  font-weight: 500;
 }
 button,
 input,
@@ -64,7 +65,7 @@ button {
   cursor: pointer;
 }
 :focus-visible {
-  outline: 3px solid #6ca5ff;
+  outline: 3px solid var(--red);
   outline-offset: 3px;
 }
 .skip-link {
@@ -86,7 +87,7 @@ button {
 }
 .eyebrow {
   color: var(--blue);
-  font: 700 12px/1 var(--font-geist-mono);
+  font: 700 12px/1 var(--font-quicksand), sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -94,7 +95,8 @@ button {
   color: var(--muted);
 }
 .mono {
-  font-family: var(--font-geist-mono);
+  font-family: var(--font-quicksand), sans-serif;
+  letter-spacing: 0.01em;
 }
 .sr-only {
   position: absolute;
@@ -388,7 +390,7 @@ button {
   background: #071422eb;
   color: white;
   padding: 24px;
-  border-top: 2px solid var(--orange);
+  border-top: 2px solid var(--red);
 }
 .field {
   display: grid;
@@ -1003,9 +1005,17 @@ h1 {
   line-height: 1.06;
   letter-spacing: -0.045em;
   margin: 0 0 24px;
+  font-family: var(--display-font);
+  font-weight: 800;
 }
 h2 {
   letter-spacing: -0.035em;
+  font-family: var(--display-font);
+  font-weight: 800;
+}
+h3 {
+  font-family: var(--display-font);
+  font-weight: 700;
 }
 .lead {
   font-size: clamp(17px, 1.6vw, 20px);
@@ -1222,7 +1232,7 @@ h2 {
   gap: 12px;
   margin-top: 22px;
   color: #b9c8d8;
-  font: 700 12px/1 var(--font-geist-mono);
+  font: 700 12px/1 var(--font-quicksand), sans-serif;
 }
 .carousel-controls .icon-button {
   width: 40px;
@@ -1426,7 +1436,7 @@ h2 {
 }
 .step-number {
   color: var(--blue);
-  font-family: var(--font-geist-mono), monospace;
+  font-family: var(--font-quicksand), sans-serif;
   font-size: 14px;
   border-bottom: 2px solid var(--blue);
   display: inline-block;
