@@ -757,14 +757,18 @@ export class IdentityService {
 
   async mfaChallengeOptions(userId: string, sessionId: string, method: string) {
     if (method !== "webauthn") {
-      const count =
-        method === "totp"
-          ? await this.database.mfaFactor.count({
-              where: { userId, type: "TOTP", status: "ACTIVE", revokedAt: null },
-            })
-          : await this.database.mfaRecoveryCode.count({
-              where: { userId, usedAt: null },
-            });
+      if (method === "totp") {
+        const factors = await this.database.mfaFactor.findMany({
+          where: { userId, type: "TOTP", status: "ACTIVE", revokedAt: null },
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+          select: { id: true, name: true },
+        });
+        if (factors.length === 0) throw invalidToken();
+        return { method, available: true, factors };
+      }
+      const count = await this.database.mfaRecoveryCode.count({
+        where: { userId, usedAt: null },
+      });
       if (count === 0) throw invalidToken();
       return { method, available: true };
     }
