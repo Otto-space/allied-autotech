@@ -300,6 +300,19 @@ describe.skipIf(!runDatabaseTests)("database-backed identity flow", () => {
       .set("Origin", origin)
       .set("Cookie", pendingCookie ?? "");
     const pendingCsrf = pendingCsrfResponse.body.data.csrfToken as string;
+    const totpOptions = await request(app)
+      .post("/api/v1/auth/mfa/challenge/options")
+      .set("Origin", origin)
+      .set("Cookie", pendingCookie ?? "")
+      .set("X-CSRF-Token", pendingCsrf)
+      .send({ method: "totp" });
+    expect(totpOptions.status).toBe(200);
+    expect(totpOptions.body.data).toEqual({
+      method: "totp",
+      available: true,
+      factors: [{ id: setup.body.data.factorId, name: "Authenticator app" }],
+    });
+    expect(JSON.stringify(totpOptions.body)).not.toContain("secret");
     const recoveryCode = enabled.body.data.recoveryCodes[0] as string;
     const recoveryOptions = await request(app)
       .post("/api/v1/auth/mfa/challenge/options")
