@@ -21,6 +21,7 @@ import { parseListings } from "@/lib/api/vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
 import { PublicMedia } from "./public-media";
+import { PublicReviews } from "./public-reviews";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { ServiceList } from "./service-list";
@@ -107,6 +108,10 @@ export function PublicHome() {
               </p>
             </div>
             <div className="journey-panel" aria-live="polite">
+              <div className="image-skeleton hero-image-placeholder" aria-label="Homepage image placeholder">
+                <span className="skeleton-shine" />
+                <span>Hero image placeholder</span>
+              </div>
               <div className="journey-icon">
                 <SlideIcon size={64} strokeWidth={1.3} aria-hidden="true" />
               </div>
@@ -267,6 +272,7 @@ export function PublicHome() {
             </div>
           </div>
         </section>
+        <PublicReviews />
         <section className="section">
           <div className="container faq-preview">
             <div>

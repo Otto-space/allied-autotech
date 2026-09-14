@@ -1049,6 +1049,170 @@ h2 {
   color: white;
   border-radius: 12px;
 }
+.image-skeleton {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: end start;
+  min-height: 180px;
+  padding: 16px;
+  color: #526274;
+  background:
+    linear-gradient(135deg, #dce4ed 0%, #f6f8fa 45%, #cbd7e4 100%);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.image-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 1px dashed #8da0b5;
+  border-radius: 8px;
+}
+.skeleton-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, #ffffff55 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: skeleton-shine 2.4s ease-in-out infinite;
+}
+.image-skeleton > span:last-child {
+  position: relative;
+  z-index: 1;
+}
+.hero-image-placeholder {
+  min-height: 150px;
+  margin: -14px -14px 28px;
+  background: linear-gradient(135deg, #122b4d, #29466a);
+  color: #d5e3f2;
+}
+.hero-image-placeholder::after {
+  border-color: #7189a4;
+}
+@keyframes skeleton-shine {
+  100% { transform: translateX(100%); }
+}
+.about-hero {
+  background: linear-gradient(135deg, #f7f9fb 0%, #eaf0f6 100%);
+}
+.about-hero-grid,
+.about-story,
+.about-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
+  align-items: center;
+  gap: clamp(36px, 8vw, 100px);
+}
+.about-hero h1 {
+  max-width: 720px;
+}
+.about-visual {
+  min-height: 420px;
+  border-radius: 12px;
+}
+.about-copy {
+  display: grid;
+  gap: 16px;
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 17px;
+}
+.about-principles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.about-principles .card {
+  min-height: 210px;
+}
+.about-principles svg {
+  color: var(--red);
+}
+.about-contact {
+  grid-template-columns: 1fr auto;
+  padding: 38px;
+  background: var(--ink);
+  color: white;
+  border-radius: 12px;
+}
+.about-contact .muted {
+  color: #b9c8d8;
+}
+.about-contact-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 16px;
+}
+.about-contact-actions svg {
+  color: #ef615f;
+}
+.about-contact-actions .text-link {
+  color: white;
+}
+.review-section {
+  background: #f7f9fb;
+}
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.review-card,
+.review-skeleton {
+  min-height: 245px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+}
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.review-card > svg {
+  color: var(--red);
+}
+.review-card h3 {
+  margin: 0;
+  font-size: 19px;
+}
+.review-card p {
+  flex: 1;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.review-stars {
+  display: flex;
+  gap: 3px;
+  color: #d28b00;
+}
+.review-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(100deg, #eef2f6 35%, #fff 50%, #eef2f6 65%);
+  background-size: 220% 100%;
+  animation: review-loading 1.6s ease-in-out infinite;
+}
+@keyframes review-loading {
+  to { background-position: -100% 0; }
+}
+.review-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.review-empty h3,
+.review-empty p {
+  margin: 0;
+}
+.review-empty svg {
+  color: var(--red);
+}
 .journey-panel .eyebrow {
   color: #ef615f;
 }
@@ -1577,6 +1741,21 @@ address {
   .faq-preview {
     grid-template-columns: 1fr;
     gap: 32px;
+  }
+  .about-hero-grid,
+  .about-story,
+  .about-contact {
+    grid-template-columns: 1fr;
+  }
+  .about-visual {
+    min-height: 280px;
+  }
+  .about-principles,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+  .about-contact-actions {
+    justify-content: flex-start;
   }
   .steps-grid {
     gap: 24px;

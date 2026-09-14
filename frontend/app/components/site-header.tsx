@@ -10,8 +10,7 @@ const navigation = [
   { href: "/services", label: "Services" },
   { href: "/parts", label: "Parts" },
   { href: "/vehicles", label: "Vehicles" },
-  { href: "/help", label: "Help centre" },
-  { href: "/contact", label: "Contact" },
+  { href: "/about", label: "About" },
 ];
 export function SiteHeader() {
   const [open, setOpen] = useState(false);

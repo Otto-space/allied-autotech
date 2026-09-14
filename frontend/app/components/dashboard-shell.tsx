@@ -63,7 +63,7 @@ export function DashboardShell({
   audience = "customer",
 }: {
   readonly children: React.ReactNode;
-  audience?: "customer" | "staff";
+  readonly audience?: "customer" | "staff";
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -110,16 +110,16 @@ export function DashboardShell({
         setSession(r.data);
         setError(null);
       })
-      .catch((value: unknown) => {
+      .catch((error_: unknown) => {
         if (active) {
-          if (value instanceof ApiError && value.status === 401)
+          if (error_ instanceof ApiError && error_.status === 401)
             router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-          else if (value instanceof ApiError && value.code === "MFA_REQUIRED")
+          else if (error_ instanceof ApiError && error_.code === "MFA_REQUIRED")
             router.replace("/mfa");
           else
             setError(
-              value instanceof ApiError
-                ? value.message
+              error_ instanceof ApiError
+                ? error_.message
                 : "We could not verify your session. Please retry.",
             );
         }
