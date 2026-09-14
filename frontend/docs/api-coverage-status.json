@@ -1,0 +1,634 @@
+{
+  "GET /staff/inventory": {
+    "screen": "Parts inventory",
+    "source": "app/components/staff-inventory.tsx; app/components/inventory-filters.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed low-stock, branch and part filtering and staff creation restrictions; cursor controls implemented; real staff API verification pending"
+  },
+  "GET /staff/inventory/{inventoryId}": {
+    "screen": "Inventory detail",
+    "source": "app/components/staff-inventory-detail.tsx; lib/api/inventory-schemas.ts",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed separate server balances, delayed-response handling, reservation/release/sale updates and 320px axe/overflow checks"
+  },
+  "POST /admin/inventory": {
+    "screen": "Administrator stock record creation",
+    "source": "app/components/inventory-create-form.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed selected branch/part, exact request, explicit review and navigation to the empty stock record"
+  },
+  "PATCH /staff/inventory/{inventoryId}": {
+    "screen": "Reorder threshold",
+    "source": "app/components/inventory-change-forms.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed expectedVersion and refreshed reorder level"
+  },
+  "POST /staff/inventory/{inventoryId}/movements": {
+    "screen": "Stock movement review",
+    "source": "app/components/inventory-change-forms.tsx; app/components/staff-inventory-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed stock-in with lost response and same-key/body retry, reserved sale exact quantity, insufficient-stock error and preserved rejected draft; other movement types require affected real API verification"
+  },
+  "GET /staff/inventory/{inventoryId}/history": {
+    "screen": "Stock movement history",
+    "source": "app/components/inventory-records.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed populated movement history, type filtering and error versus empty-state recovery; cursor verification pending"
+  },
+  "GET /staff/inventory/{inventoryId}/reservations": {
+    "screen": "Stock reservations",
+    "source": "app/components/inventory-records.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed active/released/consumed display and status filtering; cursor verification pending"
+  },
+  "POST /staff/inventory/{inventoryId}/reservations": {
+    "screen": "Reserve stock",
+    "source": "app/components/inventory-change-forms.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed quantity, Lagos expiry, distinct idempotency key and updated server balances; optional customer link uses an existing profile reference because no staff customer lookup is available"
+  },
+  "POST /staff/inventory/{inventoryId}/reservations/{reservationId}/release": {
+    "screen": "Release stock reservation",
+    "source": "app/components/inventory-records.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed note, idempotency key, explicit non-refund explanation and refreshed reserved quantity"
+  },
+  "GET /staff/booking-slots": {
+    "screen": "Staff appointment slots",
+    "source": "app/components/staff-booking-slots.tsx; lib/api/staff-booking-schemas.ts",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed scoped slot display and status filtering; cursor controls implemented; real staff API verification pending"
+  },
+  "POST /staff/booking-slots": {
+    "screen": "Publish appointment slot",
+    "source": "app/components/staff-booking-slots.tsx; app/components/slot-catalog-picker.tsx; app/components/staff-picker.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed first-error focus, service eligibility, staff-profile ID, Lagos time, explicit review, saved slot and uncertain-response creation lock"
+  },
+  "PATCH /staff/booking-slots/{slotId}": {
+    "screen": "Manage appointment availability",
+    "source": "app/components/staff-booking-slots.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser closure passed expectedVersion and updated list; UI omits another staff member's slot controls and explains that slot closure does not cancel a booking"
+  },
+  "POST /staff/bookings/{bookingId}/quotes": {
+    "screen": "Staff quotation editor",
+    "source": "app/components/service-line-entry.tsx; app/components/service-line-fields.tsx; lib/forms/service-lines.ts",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed: exact labour/tax kobo, server-priced part request, Lagos expiry, saved draft and uncertain-response resubmission lock"
+  },
+  "PUT /staff/bookings/{bookingId}/quotes/{quoteId}": {
+    "screen": "Staff draft quotation editor",
+    "source": "app/components/service-line-entry.tsx; app/components/staff-quote-records.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed: retained part selection and Lagos expiry, expectedRevision submitted, replacement draft displayed with old draft voided"
+  },
+  "GET /staff/bookings": {
+    "screen": "Workshop bookings",
+    "source": "app/components/staff-bookings.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and status filters inspected; paginated browser list verification pending"
+  },
+  "GET /staff/bookings/{bookingId}": {
+    "screen": "Staff booking detail",
+    "source": "app/components/staff-booking-detail.tsx; lib/api/staff-booking-schemas.ts",
+    "implementation": "Implemented",
+    "verification": "Browser fixtures passed for staff detail, assignment loading, mobile dialog accessibility and uncertain status reconciliation; real staff API journey pending"
+  },
+  "PATCH /staff/bookings/{bookingId}/assignment": {
+    "screen": "Staff booking assignment",
+    "source": "app/components/staff-booking-detail.tsx; app/components/staff-picker.tsx",
+    "implementation": "Implemented",
+    "verification": "Typed request, staff-profile ID lookup and branch scope inspected; assignment selection browser check passed; mutation verification pending"
+  },
+  "POST /staff/bookings/{bookingId}/status": {
+    "screen": "Staff service progress",
+    "source": "app/components/staff-booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed: deposit-backed generic cancellation omitted, no-show review explains forfeiture, expectedVersion sent, lost response blocks repeat submission and refresh reconciles saved status"
+  },
+  "POST /staff/bookings/{bookingId}/disruption": {
+    "screen": "Business-caused booking disruption",
+    "source": "app/components/staff-booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Eligibility, request body and customer notification/refund-choice consequences inspected against backend; browser mutation verification pending"
+  },
+  "POST /staff/bookings/{bookingId}/quotes/{quoteId}/issue": {
+    "screen": "Staff quotation review",
+    "source": "app/components/staff-quote-records.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed: explicit issue review explains superseding other issued quotations and sends expectedRevision; refreshed status displayed"
+  },
+  "POST /staff/bookings/{bookingId}/quotes/{quoteId}/void": {
+    "screen": "Staff quotation review",
+    "source": "app/components/staff-quote-records.tsx",
+    "implementation": "Implemented",
+    "verification": "Expected revision and backend transition eligibility inspected; browser mutation verification pending"
+  },
+  "POST /staff/bookings/{bookingId}/quotes/{quoteId}/expire": {
+    "screen": "Staff quotation review",
+    "source": "app/components/staff-quote-records.tsx",
+    "implementation": "Implemented",
+    "verification": "Expected revision and server clock authority inspected; browser mutation verification pending"
+  },
+  "POST /staff/bookings/{bookingId}/work-orders": {
+    "screen": "Staff work order",
+    "source": "app/components/staff-work-order.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser draft creation passed with exact booking version and notes; line items can be appended after creation through the versioned editor"
+  },
+  "PUT /staff/bookings/{bookingId}/work-orders/{workOrderId}": {
+    "screen": "Staff work order",
+    "source": "app/components/staff-work-order.tsx",
+    "implementation": "Implemented",
+    "verification": "Versioned diagnosis/internal notes editing implemented; browser addItems fee entry passed with exact integer amount and expectedVersion; PART/LABOUR share quotation line editor"
+  },
+  "POST /staff/bookings/{bookingId}/work-orders/{workOrderId}/status": {
+    "screen": "Staff work-order milestones",
+    "source": "app/components/staff-work-order.tsx",
+    "implementation": "Implemented",
+    "verification": "Browser fixture passed approval, in-progress, quality-check and completion with incrementing versions and parent booking refresh"
+  },
+  "GET /public/services": {
+    "screen": "Public service discovery",
+    "source": "app/components/service-list.tsx; app/services/[serviceId]/page.tsx",
+    "implementation": "Implemented",
+    "verification": "Public list empty/error/retry browser fixtures passed; detail server rendering and booking integration pending"
+  },
+  "GET /public/services/{serviceId}": {
+    "screen": "Public service discovery",
+    "source": "app/components/service-list.tsx; app/services/[serviceId]/page.tsx",
+    "implementation": "Implemented",
+    "verification": "Public list empty/error/retry browser fixtures passed; detail server rendering and booking integration pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "GET /public/booking-policy": {
+    "screen": "Appointment booking",
+    "source": "app/components/service-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Backend policy and response wrapper inspected; real isolated booking journey pending"
+  },
+  "GET /public/services/{serviceId}/slots": {
+    "screen": "Appointment booking",
+    "source": "app/components/service-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Backend policy and response wrapper inspected; real isolated booking journey pending"
+  },
+  "POST /customers/bookings": {
+    "screen": "Appointment booking",
+    "source": "app/components/service-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Backend policy and response wrapper inspected; real isolated booking journey pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "GET /customers/bookings": {
+    "screen": "Customer bookings and quotes",
+    "source": "app/components/bookings-panel.tsx; app/components/booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and transition schemas inspected; browser/real mutation verification pending"
+  },
+  "GET /customers/bookings/{bookingId}": {
+    "screen": "Customer bookings and quotes",
+    "source": "app/components/bookings-panel.tsx; app/components/booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and transition schemas inspected; browser/real mutation verification pending"
+  },
+  "PATCH /customers/bookings/{bookingId}/schedule": {
+    "screen": "Customer bookings and quotes",
+    "source": "app/components/bookings-panel.tsx; app/components/booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and transition schemas inspected; browser/real mutation verification pending"
+  },
+  "POST /customers/bookings/{bookingId}/cancel": {
+    "screen": "Customer bookings and quotes",
+    "source": "app/components/bookings-panel.tsx; app/components/booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and transition schemas inspected; browser/real mutation verification pending"
+  },
+  "POST /customers/bookings/{bookingId}/disruption-resolution": {
+    "screen": "Customer bookings and quotes",
+    "source": "app/components/bookings-panel.tsx; app/components/booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and transition schemas inspected; browser/real mutation verification pending"
+  },
+  "POST /customers/bookings/{bookingId}/quotes/{quoteId}/accept": {
+    "screen": "Customer bookings and quotes",
+    "source": "app/components/bookings-panel.tsx; app/components/booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and transition schemas inspected; browser/real mutation verification pending"
+  },
+  "POST /customers/bookings/{bookingId}/quotes/{quoteId}/reject": {
+    "screen": "Customer bookings and quotes",
+    "source": "app/components/bookings-panel.tsx; app/components/booking-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and transition schemas inspected; browser/real mutation verification pending"
+  },
+  "GET /public/catalog/categories": {
+    "screen": "Parts catalogue",
+    "source": "app/components/parts-catalogue.tsx; app/parts/[productId]/page.tsx",
+    "implementation": "Implemented",
+    "verification": "Contracts inspected; browser/real integration pending"
+  },
+  "GET /public/catalog/products": {
+    "screen": "Parts catalogue",
+    "source": "app/components/parts-catalogue.tsx; app/parts/[productId]/page.tsx",
+    "implementation": "Implemented",
+    "verification": "Contracts inspected; browser/real integration pending"
+  },
+  "GET /public/catalog/products/{productId}": {
+    "screen": "Parts catalogue",
+    "source": "app/components/parts-catalogue.tsx; app/parts/[productId]/page.tsx",
+    "implementation": "Implemented",
+    "verification": "Contracts inspected; browser/real integration pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "GET /public/branches": {
+    "screen": "Branch selection",
+    "source": "app/components/service-detail.tsx; app/components/cart-panel.tsx",
+    "implementation": "Implemented",
+    "verification": "Checkout fixture branch selection passed; full branch pagination pending"
+  },
+  "GET /customers/vehicles": {
+    "screen": "Customer vehicles",
+    "source": "app/components/customer-vehicles.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and projection inspected; real/browser mutation verification pending"
+  },
+  "POST /customers/vehicles": {
+    "screen": "Customer vehicles",
+    "source": "app/components/customer-vehicles.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and projection inspected; real/browser mutation verification pending"
+  },
+  "PATCH /customers/vehicles/{vehicleId}": {
+    "screen": "Customer vehicles",
+    "source": "app/components/customer-vehicles.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and projection inspected; real/browser mutation verification pending"
+  },
+  "DELETE /customers/vehicles/{vehicleId}": {
+    "screen": "Customer vehicles",
+    "source": "app/components/customer-vehicles.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and projection inspected; real/browser mutation verification pending"
+  },
+  "GET /customers/cart": {
+    "screen": "Cart and checkout",
+    "source": "app/components/product-actions.tsx; app/components/cart-panel.tsx",
+    "implementation": "Implemented",
+    "verification": "Uncertain checkout fixture reused key/body and made no payment call; stock/price conflict and real transaction tests pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "PUT /customers/cart/items/{productId}": {
+    "screen": "Cart and checkout",
+    "source": "app/components/product-actions.tsx; app/components/cart-panel.tsx",
+    "implementation": "Implemented",
+    "verification": "Uncertain checkout fixture reused key/body and made no payment call; stock/price conflict and real transaction tests pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "DELETE /customers/cart/items/{productId}": {
+    "screen": "Cart and checkout",
+    "source": "app/components/product-actions.tsx; app/components/cart-panel.tsx",
+    "implementation": "Implemented",
+    "verification": "Uncertain checkout fixture reused key/body and made no payment call; stock/price conflict and real transaction tests pending"
+  },
+  "POST /customers/orders/checkout": {
+    "screen": "Cart and checkout",
+    "source": "app/components/product-actions.tsx; app/components/cart-panel.tsx",
+    "implementation": "Implemented",
+    "verification": "Uncertain checkout fixture reused key/body and made no payment call; stock/price conflict and real transaction tests pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "GET /customers/orders": {
+    "screen": "Order history",
+    "source": "app/components/orders-panel.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Orders failure/retry and account-switch isolation fixtures passed; cancellation and real data pending"
+  },
+  "GET /customers/orders/{orderId}": {
+    "screen": "Order history",
+    "source": "app/components/orders-panel.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Orders failure/retry and account-switch isolation fixtures passed; cancellation and real data pending"
+  },
+  "POST /customers/orders/{orderId}/cancel": {
+    "screen": "Order history",
+    "source": "app/components/orders-panel.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Orders failure/retry and account-switch isolation fixtures passed; cancellation and real data pending"
+  },
+  "GET /customers/payments": {
+    "screen": "Payments",
+    "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented for orders and service invoices; vehicle payment initiation remains pending",
+    "verification": "Pending-to-confirmed provider verification fixture passed without new initiation; unit URL checks passed; real providers and failure lifecycles pending"
+  },
+  "POST /customers/payments": {
+    "screen": "Payments",
+    "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented for orders and service invoices; vehicle payment initiation remains pending",
+    "verification": "Pending-to-confirmed provider verification fixture passed without new initiation; unit URL checks passed; real providers and failure lifecycles pending"
+  },
+  "GET /customers/payments/{paymentId}": {
+    "screen": "Payments",
+    "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented for orders and service invoices; vehicle payment initiation remains pending",
+    "verification": "Pending-to-confirmed provider verification fixture passed without new initiation; unit URL checks passed; real providers and failure lifecycles pending"
+  },
+  "POST /customers/payments/{paymentId}/paystack": {
+    "screen": "Payments",
+    "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented for orders and service invoices; vehicle payment initiation remains pending",
+    "verification": "Pending-to-confirmed provider verification fixture passed without new initiation; unit URL checks passed; real providers and failure lifecycles pending"
+  },
+  "POST /customers/payments/{paymentId}/monnify": {
+    "screen": "Payments",
+    "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented for orders and service invoices; vehicle payment initiation remains pending",
+    "verification": "Pending-to-confirmed provider verification fixture passed without new initiation; unit URL checks passed; real providers and failure lifecycles pending"
+  },
+  "POST /customers/payments/{paymentId}/attempts/{attemptId}/verify": {
+    "screen": "Payments",
+    "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx",
+    "implementation": "Implemented for orders and service invoices; vehicle payment initiation remains pending",
+    "verification": "Pending-to-confirmed provider verification fixture passed without new initiation; unit URL checks passed; real providers and failure lifecycles pending"
+  },
+  "GET /public/vehicles": {
+    "screen": "Vehicle discovery",
+    "source": "app/components/vehicle-catalogue.tsx; app/vehicles/[listingId]/page.tsx; app/components/public-media.tsx",
+    "implementation": "Implemented",
+    "verification": "Backend projections inspected; browser/real media verification pending"
+  },
+  "GET /public/vehicles/{listingId}": {
+    "screen": "Vehicle discovery",
+    "source": "app/components/vehicle-catalogue.tsx; app/vehicles/[listingId]/page.tsx; app/components/public-media.tsx",
+    "implementation": "Implemented",
+    "verification": "Backend projections inspected; browser/real media verification pending"
+  },
+  "GET /public/vehicles/images/{imageId}": {
+    "screen": "Vehicle discovery",
+    "source": "app/components/vehicle-catalogue.tsx; app/vehicles/[listingId]/page.tsx; app/components/public-media.tsx",
+    "implementation": "Implemented",
+    "verification": "Backend projections inspected; browser/real media verification pending"
+  },
+  "GET /customers/favourites": {
+    "screen": "Saved items",
+    "source": "app/components/saved-items.tsx; app/components/product-actions.tsx; app/components/vehicle-actions.tsx",
+    "implementation": "Implemented",
+    "verification": "List/remove projection inspected; browser/real integration pending"
+  },
+  "PUT /customers/favourites/{productId}": {
+    "screen": "Saved items",
+    "source": "app/components/saved-items.tsx; app/components/product-actions.tsx; app/components/vehicle-actions.tsx",
+    "implementation": "Implemented",
+    "verification": "List/remove projection inspected; browser/real integration pending"
+  },
+  "DELETE /customers/favourites/{productId}": {
+    "screen": "Saved items",
+    "source": "app/components/saved-items.tsx; app/components/product-actions.tsx; app/components/vehicle-actions.tsx",
+    "implementation": "Implemented",
+    "verification": "List/remove projection inspected; browser/real integration pending"
+  },
+  "GET /customers/saved-vehicles": {
+    "screen": "Saved items",
+    "source": "app/components/saved-items.tsx; app/components/product-actions.tsx; app/components/vehicle-actions.tsx",
+    "implementation": "Implemented",
+    "verification": "List/remove projection inspected; browser/real integration pending"
+  },
+  "PUT /customers/saved-vehicles/{listingId}": {
+    "screen": "Saved items",
+    "source": "app/components/saved-items.tsx; app/components/product-actions.tsx; app/components/vehicle-actions.tsx",
+    "implementation": "Implemented",
+    "verification": "List/remove projection inspected; browser/real integration pending"
+  },
+  "DELETE /customers/saved-vehicles/{listingId}": {
+    "screen": "Saved items",
+    "source": "app/components/saved-items.tsx; app/components/product-actions.tsx; app/components/vehicle-actions.tsx",
+    "implementation": "Implemented",
+    "verification": "List/remove projection inspected; browser/real integration pending"
+  },
+  "GET /customers/vehicle-inspections": {
+    "screen": "Inspections and vehicle purchases",
+    "source": "app/components/inspection-history.tsx; app/components/vehicle-actions.tsx; app/components/vehicle-transactions.tsx; app/components/vehicle-transaction-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and serializer inspected; browser/real integration and duplicate-outcome recovery pending"
+  },
+  "POST /customers/vehicle-inspections": {
+    "screen": "Inspections and vehicle purchases",
+    "source": "app/components/inspection-history.tsx; app/components/vehicle-actions.tsx; app/components/vehicle-transactions.tsx; app/components/vehicle-transaction-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and serializer inspected; browser/real integration and duplicate-outcome recovery pending"
+  },
+  "GET /customers/vehicle-transactions": {
+    "screen": "Inspections and vehicle purchases",
+    "source": "app/components/inspection-history.tsx; app/components/vehicle-actions.tsx; app/components/vehicle-transactions.tsx; app/components/vehicle-transaction-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and serializer inspected; browser/real integration and duplicate-outcome recovery pending"
+  },
+  "POST /customers/vehicle-transactions": {
+    "screen": "Inspections and vehicle purchases",
+    "source": "app/components/inspection-history.tsx; app/components/vehicle-actions.tsx; app/components/vehicle-transactions.tsx; app/components/vehicle-transaction-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and serializer inspected; browser/real integration and duplicate-outcome recovery pending"
+  },
+  "GET /customers/vehicle-transactions/{transactionId}": {
+    "screen": "Inspections and vehicle purchases",
+    "source": "app/components/inspection-history.tsx; app/components/vehicle-actions.tsx; app/components/vehicle-transactions.tsx; app/components/vehicle-transaction-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Request and serializer inspected; browser/real integration and duplicate-outcome recovery pending"
+  },
+  "GET /customers/invoices": {
+    "screen": "Invoices",
+    "source": "app/components/invoices-panel.tsx; app/components/invoice-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and payment eligibility inspected; browser/real integration pending"
+  },
+  "GET /customers/invoices/{invoiceId}": {
+    "screen": "Invoices",
+    "source": "app/components/invoices-panel.tsx; app/components/invoice-detail.tsx",
+    "implementation": "Implemented",
+    "verification": "Serializer and payment eligibility inspected; browser/real integration pending"
+  },
+  "GET /admin/branches": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "POST /admin/branches": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "PATCH /admin/branches/{branchId}": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "GET /admin/catalog/categories": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "POST /admin/catalog/categories": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "PATCH /admin/catalog/categories/{categoryId}": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "GET /admin/catalog/products": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "POST /admin/catalog/products": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "PATCH /admin/catalog/products/{productId}": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "GET /admin/services": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "POST /admin/services": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "PATCH /admin/services/{serviceId}": {
+    "screen": "Administrator catalogue and branches",
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts",
+    "implementation": "Implemented",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+  },
+  "GET /admin/operations/status": {
+    "screen": "Operational monitoring",
+    "source": "app/components/admin-overview.tsx",
+    "implementation": "Implemented",
+    "verification": "Server aggregate definitions inspected; runtime verification pending; no inferred revenue"
+  },
+  "POST /public/support/enquiries": {
+    "screen": "Public enquiries",
+    "source": "app/components/public-enquiry-form.tsx",
+    "implementation": "Implemented for general and service enquiries; other supported contexts pending",
+    "verification": "Request schema inspected; no live messages sent; browser form verification pending"
+  },
+  "POST /auth/csrf": {
+    "screen": "Session boundary",
+    "source": "lib/api/client.ts; app/components/dashboard-shell.tsx; app/components/login-form.tsx",
+    "implementation": "Implemented; full authentication audit pending",
+    "verification": "CSRF and stale-response unit checks, session invalidation browser fixture passed; real cookie forwarding/login/logout pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "GET /auth/session": {
+    "screen": "Session boundary",
+    "source": "lib/api/client.ts; app/components/dashboard-shell.tsx; app/components/login-form.tsx",
+    "implementation": "Implemented; full authentication audit pending",
+    "verification": "CSRF and stale-response unit checks, session invalidation browser fixture passed; real cookie forwarding/login/logout pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "POST /auth/login": {
+    "screen": "Session boundary",
+    "source": "lib/api/client.ts; app/components/dashboard-shell.tsx; app/components/login-form.tsx",
+    "implementation": "Implemented; full authentication audit pending",
+    "verification": "CSRF and stale-response unit checks, session invalidation browser fixture passed; real cookie forwarding/login/logout pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "POST /auth/logout": {
+    "screen": "Session boundary",
+    "source": "lib/api/client.ts; app/components/dashboard-shell.tsx; app/components/login-form.tsx",
+    "implementation": "Implemented; full authentication audit pending",
+    "verification": "CSRF and stale-response unit checks, session invalidation browser fixture passed; real cookie forwarding/login/logout pending Real loopback browser/API journey passed (local cookies, SSR headings, deposit rounding, cart, checkout and logout as applicable)."
+  },
+  "GET /public/branches/{branchId}": {
+    "screen": "See reason",
+    "implementation": "Not used: branch selection receives complete required public location fields from the collection endpoint.",
+    "verification": "Backend endpoint/projection inspected; browser call deliberately omitted."
+  },
+  "GET /public/catalog/categories/{categoryId}": {
+    "screen": "See reason",
+    "implementation": "Not used: the category collection supplies all filter labels and descriptions; products filter by categoryId.",
+    "verification": "Backend endpoint/projection inspected; browser call deliberately omitted."
+  },
+  "GET /customers/vehicles/{vehicleId}": {
+    "screen": "See reason",
+    "implementation": "Not used: the owned-vehicle collection contains all fields used by the current edit form; no additional detail view is required.",
+    "verification": "Backend endpoint/projection inspected; browser call deliberately omitted."
+  },
+  "GET /admin/branches/{branchId}": {
+    "screen": "See reason",
+    "implementation": "Not used: branch list records supply the complete edit form; an individual fetch may be added for concurrent-edit handling.",
+    "verification": "Backend endpoint/projection inspected; browser call deliberately omitted."
+  },
+  "POST /customers/vehicle-transactions/{transactionId}/reserve": {
+    "screen": "/dashboard/vehicle-transactions/[transactionId]",
+    "implementation": "Blocked dependency: no approved reservation terms content/version source. UI explains unavailability; do not fabricate or accept arbitrary terms.",
+    "verification": "Backend endpoint/projection inspected; browser call deliberately omitted."
+  },
+  "GET /staff/orders": {
+    "screen": "/admin/orders; /admin/orders/[orderId]",
+    "source": "app/components/staff-orders.tsx; app/components/staff-order-detail.tsx",
+    "implementation": "Implemented with branch authorization enforced by backend and explicit transition review",
+    "verification": "Backend database suite passed; frontend typecheck/lint passed; staff browser transition coverage pending."
+  },
+  "GET /staff/orders/{orderId}": {
+    "screen": "/admin/orders; /admin/orders/[orderId]",
+    "source": "app/components/staff-orders.tsx; app/components/staff-order-detail.tsx",
+    "implementation": "Implemented with branch authorization enforced by backend and explicit transition review",
+    "verification": "Backend database suite passed; frontend typecheck/lint passed; staff browser transition coverage pending."
+  },
+  "POST /staff/orders/{orderId}/status": {
+    "screen": "/admin/orders; /admin/orders/[orderId]",
+    "source": "app/components/staff-orders.tsx; app/components/staff-order-detail.tsx",
+    "implementation": "Implemented with branch authorization enforced by backend and explicit transition review",
+    "verification": "Backend database suite passed; frontend typecheck/lint passed; staff browser transition coverage pending."
+  },
+  "GET /customers/profile": {
+    "screen": "/dashboard/profile",
+    "source": "app/components/profile-panel.tsx",
+    "implementation": "Implemented with runtime parsing, field validation, guarded submission and preservation of dirty inputs",
+    "verification": "Real browser/API login-profile-booking-cart-checkout-logout journey passed using isolated test database."
+  },
+  "PATCH /customers/profile": {
+    "screen": "/dashboard/profile",
+    "source": "app/components/profile-panel.tsx",
+    "implementation": "Implemented with runtime parsing, field validation, guarded submission and preservation of dirty inputs",
+    "verification": "Real browser/API login-profile-booking-cart-checkout-logout journey passed using isolated test database."
+  },
+  "POST /auth/register": {
+    "screen": "/register",
+    "implementation": "Implemented; token actions require explicit submission",
+    "verification": "Backend identity integration suite passed. Registration and verification-fragment browser fixtures passed; resend and recovery UI integration pending."
+  },
+  "POST /auth/email/verify": {
+    "screen": "/verify-email",
+    "implementation": "Implemented; token actions require explicit submission",
+    "verification": "Backend identity integration suite passed. Registration and verification-fragment browser fixtures passed; resend and recovery UI integration pending."
+  },
+  "POST /auth/password/forgot": {
+    "screen": "/forgot-password; /reset-password",
+    "implementation": "Implemented; token actions require explicit submission",
+    "verification": "Backend identity integration suite passed. Registration and verification-fragment browser fixtures passed; resend and recovery UI integration pending."
+  },
+  "POST /auth/password/reset": {
+    "screen": "/forgot-password; /reset-password",
+    "implementation": "Implemented; token actions require explicit submission",
+    "verification": "Backend identity integration suite passed. Registration and verification-fragment browser fixtures passed; resend and recovery UI integration pending."
+  },
+  "POST /auth/email/resend": {
+    "screen": "/verify-email",
+    "implementation": "Implemented; token actions require explicit submission",
+    "verification": "Backend identity integration suite passed. Registration and verification-fragment browser fixtures passed; resend and recovery UI integration pending."
+  }
+}
