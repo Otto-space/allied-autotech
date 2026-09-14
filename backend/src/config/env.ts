@@ -472,7 +472,7 @@ export function assertGeneralWorkerEnvironment(
       runtime.STAGING_SMS_ALLOWLIST.length === 0
     )
       throw new Error("Staging SMS delivery requires STAGING_SMS_ALLOWLIST");
-    const termii = new URL(runtime.TERMII_BASE_URL ?? "http://invalid.invalid");
+    const termii = new URL(runtime.TERMII_BASE_URL ?? "https://invalid.invalid");
     if (
       termii.protocol !== "https:" ||
       !(termii.hostname === "termii.com" || termii.hostname.endsWith(".termii.com")) ||
@@ -524,7 +524,7 @@ export function assertMonnifyMode(runtime: typeof env = env): void {
       throw new Error("Monnify credentials and callback must be unset when disabled");
     return;
   }
-  if (configured.some((value) => value === undefined))
+  if (configured.includes(undefined))
     throw new Error("Monnify credentials, contract code, and callback are required");
   const callback = new URL(runtime.MONNIFY_CALLBACK_URL!);
   if (callback.protocol !== "https:")
