@@ -190,6 +190,7 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
       .send({ status: "CONFIRMED", expectedVersion: 1, staffNotes: "Bay 2" });
     expect(confirmed.status).toBe(200);
     expect(confirmed.body.data.confirmedAt).toBeTruthy();
+    expect(confirmed.body.data).not.toHaveProperty("depositPayment");
 
     const overlapping = await prisma.booking.create({
       data: {
@@ -245,6 +246,18 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     expect(quoteDraft.body.data.totalKobo).toBe("307500");
     const originalQuoteId = quoteDraft.body.data.id as string;
 
+    const draftCustomerView = await request(app)
+      .get(`/api/v1/customers/bookings/${bookingId}`)
+      .set("Cookie", customerSession.cookie);
+    expect(draftCustomerView.status).toBe(200);
+    expect(draftCustomerView.body.data.quotes).toEqual([]);
+    const draftStaffView = await request(app)
+      .get(`/api/v1/staff/bookings/${bookingId}`)
+      .set("Cookie", staffSession.cookie);
+    expect(draftStaffView.body.data.quotes).toEqual([
+      expect.objectContaining({ id: originalQuoteId, status: "DRAFT" }),
+    ]);
+
     const revised = await request(app)
       .put(`/api/v1/staff/bookings/${bookingId}/quotes/${originalQuoteId}`)
       .set(mutation(staffSession))
@@ -260,12 +273,26 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     expect(revised.body.data.version).toBe(2);
     expect(revised.body.data.totalKobo).toBe("125000");
     const quoteId = revised.body.data.id as string;
+    // Replaced drafts become VOID without ever being issued. They stay internal.
+    const revisedCustomerList = await request(app)
+      .get("/api/v1/customers/bookings")
+      .set("Cookie", customerSession.cookie);
+    expect(revisedCustomerList.status).toBe(200);
+    expect(revisedCustomerList.body.data.items).toEqual([
+      expect.objectContaining({ id: bookingId, quotes: [] }),
+    ]);
     const issued = await request(app)
       .post(`/api/v1/staff/bookings/${bookingId}/quotes/${quoteId}/issue`)
       .set(mutation(staffSession))
       .send({ expectedRevision: 0 });
     expect(issued.status).toBe(200);
     expect(issued.body.data.status).toBe("ISSUED");
+    const issuedCustomerView = await request(app)
+      .get(`/api/v1/customers/bookings/${bookingId}`)
+      .set("Cookie", customerSession.cookie);
+    expect(issuedCustomerView.body.data.quotes).toEqual([
+      expect.objectContaining({ id: quoteId, status: "ISSUED", totalKobo: "125000" }),
+    ]);
 
     const immutable = await request(app)
       .put(`/api/v1/staff/bookings/${bookingId}/quotes/${quoteId}`)
@@ -293,6 +320,9 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     expect(customerView.status).toBe(200);
     expect(customerView.body.data.quotedPriceKobo).toBe("125000");
     expect(customerView.body.data).not.toHaveProperty("staffNotes");
+    expect(customerView.body.data.quotes).toEqual([
+      expect.objectContaining({ id: quoteId, status: "ACCEPTED" }),
+    ]);
 
     const work = await request(app)
       .post(`/api/v1/staff/bookings/${bookingId}/work-orders`)

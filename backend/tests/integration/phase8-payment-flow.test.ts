@@ -94,20 +94,19 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
         state: "FCT",
       },
     });
-    const [customer, staff, otherStaff, admin] = await Promise.all([
+    const [customer, requester, otherStaff, admin] = await Promise.all([
       user("CUSTOMER"),
-      user("STAFF", branch.id),
+      user("ADMIN"),
       user("STAFF", other.id),
       user("ADMIN"),
     ]);
-    const [customerSession, staffSession, otherSession, adminSession] = await Promise.all(
-      [
+    const [customerSession, requesterSession, otherSession, adminSession] =
+      await Promise.all([
         session(customer.id, customer.role),
-        session(staff.id, staff.role),
+        session(requester.id, requester.role),
         session(otherStaff.id, otherStaff.role),
         session(admin.id, admin.role),
-      ],
-    );
+      ]);
     const order = await prisma.order.create({
       data: {
         customerId: customer.profile!.id,
@@ -180,17 +179,46 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     expect(
       (await prisma.order.findUniqueOrThrow({ where: { id: order.id } })).paidAt,
     ).not.toBeNull();
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: "PROCESSING", processingAt: new Date() },
+    });
+    const settledReplay = await request(app)
+      .post("/api/v1/customers/payments")
+      .set(headers(customerSession, "p8-payment-intent"))
+      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+    expect(settledReplay.status).toBe(201);
+    expect(settledReplay.body.data.replayed).toBe(true);
+    expect(settledReplay.body.data.payment.id).toBe(paymentId);
+    expect(settledReplay.body.data.payment.status).toBe("SUCCEEDED");
+    const newIntent = await request(app)
+      .post("/api/v1/customers/payments")
+      .set(headers(customerSession, "p8-new-key-after-processing"))
+      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+    expect(newIntent.status).toBe(404);
+    expect(await prisma.payment.count({ where: { orderId: order.id } })).toBe(1);
+    const changedReplay = await request(app)
+      .post("/api/v1/customers/payments")
+      .set(headers(customerSession, "p8-payment-intent"))
+      .send({ targetType: "ORDER", targetId: randomUUID(), purpose: "ORDER_PAYMENT" });
+    expect(changedReplay.status).toBe(409);
+    const stranger = await user("CUSTOMER");
+    const strangerSession = await session(stranger.id, stranger.role);
+    const stolenReplay = await request(app)
+      .post("/api/v1/customers/payments")
+      .set(headers(strangerSession, "p8-payment-intent"))
+      .send({ targetType: "ORDER", targetId: order.id, purpose: "ORDER_PAYMENT" });
+    expect(stolenReplay.status).toBe(404);
+    expect(stolenReplay.body).not.toHaveProperty("data");
     const crossBranch = await request(app)
       .get("/api/v1/staff/payments")
       .set("Cookie", otherSession.cookie);
-    expect(crossBranch.status).toBe(200);
-    expect(
-      crossBranch.body.data.items.some((item: { id: string }) => item.id === paymentId),
-    ).toBe(false);
+    expect(crossBranch.status).toBe(403);
+    expect(crossBranch.body).not.toHaveProperty("data");
     const refunds = await Promise.all([
       request(app)
         .post("/api/v1/staff/payments/refunds")
-        .set(headers(staffSession, "p8-refund-one"))
+        .set(headers(requesterSession, "p8-refund-one"))
         .send({
           paymentAttemptId: attemptId,
           amountKobo: "7000",
@@ -198,7 +226,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
         }),
       request(app)
         .post("/api/v1/staff/payments/refunds")
-        .set(headers(staffSession, "p8-refund-two"))
+        .set(headers(requesterSession, "p8-refund-two"))
         .send({
           paymentAttemptId: attemptId,
           amountKobo: "7000",
@@ -256,11 +284,11 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
       mfaRequired: false,
       mfaVerifiedAt: null,
     };
-    const staffActor = {
-      userId: staff.id,
+    const requesterActor = {
+      userId: requester.id,
       sessionId: randomUUID(),
-      email: "staff@example.test",
-      role: "STAFF" as const,
+      email: "requester@example.test",
+      role: "ADMIN" as const,
       mfaRequired: true,
       mfaVerifiedAt: new Date(),
     };
@@ -316,7 +344,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
       (await prisma.payment.findUniqueOrThrow({ where: { id: onlineId } })).status,
     ).toBe("SUCCEEDED");
     const requested = (await service.requestRefund(
-      staffActor,
+      requesterActor,
       {
         paymentAttemptId: attempt.id,
         amountKobo: 1_000n,

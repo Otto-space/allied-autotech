@@ -125,6 +125,11 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
       });
     expect(vehicleResponse.status).toBe(201);
     const vehicleId = vehicleResponse.body.data.id as string;
+    // Seed private financial context; the STAFF mutation below must preserve it.
+    await prisma.vehicle.update({
+      where: { id: vehicleId },
+      data: { acquisitionCostKobo: 6000000000n },
+    });
     const updatedVehicle = await request(app)
       .patch(`/api/v1/staff/vehicles/${vehicleId}`)
       .set(mutation(staffSession))
@@ -135,10 +140,10 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
         fuelType: "PETROL",
         bodyType: "SUV",
         color: "Black",
-        acquisitionCostKobo: "6000000000",
         acquiredAt: new Date().toISOString(),
       });
     expect(updatedVehicle.status).toBe(200);
+    expect(updatedVehicle.body.data).not.toHaveProperty("acquisitionCostKobo");
     const staleVehicle = await request(app)
       .patch(`/api/v1/staff/vehicles/${vehicleId}`)
       .set(mutation(staffSession))

@@ -14,11 +14,14 @@ import { sessionCookieName } from "../../src/common/security/cookies.js";
 import { prisma } from "../../src/config/database.js";
 import type { UserRole } from "../../src/generated/prisma/enums.js";
 import type { IdentityEmailPayload } from "../../src/modules/identity/identity.types.js";
+import { testOwner } from "../helpers/owner.js";
 
 const runDatabaseTests = process.env.RUN_DATABASE_TESTS === "true";
 const origin = "http://localhost:3000";
 
 async function createUser(role: UserRole) {
+  if (role === "SUPER_ADMIN")
+    return testOwner(await hashPassword(`synthetic owner ${randomUUID()}`));
   const id = randomUUID();
   const email = `${role.toLowerCase()}-${id}@example.test`;
   return prisma.user.create({
@@ -234,8 +237,12 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
       .set("Origin", origin)
       .set("Cookie", adminSession.cookie)
       .set("X-CSRF-Token", adminSession.csrfToken)
-      .send({ email: `new-admin-${randomUUID()}@example.test`, role: "ADMIN" });
-    expect(forbiddenAdminInvite.status).toBe(403);
+      .send({
+        email: `new-admin-${randomUUID()}@example.test`,
+        role: "ADMIN",
+        currentPassword: `strong direct-user password ${admin.id}`,
+      });
+    expect(forbiddenAdminInvite.status).toBe(409);
 
     const adminListing = await request(app)
       .get("/api/v1/admin/staff?role=ADMIN&limit=1")
@@ -248,110 +255,24 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
     expect(adminDetail.status).toBe(200);
     expect(adminDetail.body.data).not.toHaveProperty("passwordHash");
 
-    const invitedEmail = `staff-invite-${randomUUID()}@example.test`;
-    const invitationResponse = await request(app)
-      .post("/api/v1/admin/staff/invitations")
+    const candidate = await createUser("CUSTOMER");
+    const promotion = await request(app)
+      .post("/api/v1/admin/staff/promotions")
       .set("Origin", origin)
       .set("Cookie", adminSession.cookie)
       .set("X-CSRF-Token", adminSession.csrfToken)
-      .send({ email: invitedEmail, role: "STAFF", branchId });
-    expect(invitationResponse.status).toBe(202);
-    expect(JSON.stringify(invitationResponse.body)).not.toContain("token");
-
-    const invitation = await prisma.privilegedInvitation.findFirstOrThrow({
-      where: { email: invitedEmail, revokedAt: null },
-    });
-    const invitationOutbox = await prisma.outboxEvent.findFirstOrThrow({
-      where: {
-        aggregateId: invitation.id,
-        eventType: "identity.privileged-invitation-email.requested.v1",
-      },
-    });
-    expect(JSON.stringify(invitationOutbox.payload)).not.toContain("#token=");
-    const invitationPayload = decryptIdentityPayload<IdentityEmailPayload>(
-      (
-        invitationOutbox.payload as {
-          encrypted: Parameters<typeof decryptIdentityPayload>[0];
-        }
-      ).encrypted,
-    );
-    const invitationToken = tokenFromPayload(invitationPayload);
-    expect(invitation.tokenHash).toBe(
-      hashToken("privileged-invitation", invitationToken),
-    );
-    expect(invitation.tokenHash).not.toBe(invitationToken);
-
-    const invitedPassword = "a unique phase three invitation passphrase";
-    const accepted = await request(app)
-      .post("/api/v1/auth/staff/invitations/accept")
-      .set("Origin", origin)
       .send({
-        token: invitationToken,
-        password: invitedPassword,
-        firstName: "Invited",
-        lastName: "Staff",
-        phone: "+234 801 000 0000",
-        jobTitle: "Technician",
+        customerUserId: candidate.id,
+        branchId,
+        currentPassword: `strong direct-user password ${admin.id}`,
       });
-    expect(accepted.status).toBe(201);
-    const replay = await request(app)
-      .post("/api/v1/auth/staff/invitations/accept")
-      .set("Origin", origin)
-      .send({
-        token: invitationToken,
-        password: invitedPassword,
-        firstName: "Invited",
-        lastName: "Staff",
-      });
-    expect(replay.status).toBe(400);
-
+    expect(promotion.status).toBe(200);
     const invited = await prisma.user.findUniqueOrThrow({
-      where: { email: invitedEmail },
+      where: { id: candidate.id },
       include: { staffProfile: true },
     });
     expect(invited.role).toBe("STAFF");
     expect(invited.staffProfile?.branchId).toBe(branchId);
-    expect(invited.passwordHash).toContain("$argon2id$");
-
-    const invitedAdminEmail = `admin-invite-${randomUUID()}@example.test`;
-    const adminInvitationResponse = await request(app)
-      .post("/api/v1/admin/staff/invitations")
-      .set("Origin", origin)
-      .set("Cookie", superSession.cookie)
-      .set("X-CSRF-Token", superSession.csrfToken)
-      .send({ email: invitedAdminEmail, role: "ADMIN" });
-    expect(adminInvitationResponse.status).toBe(202);
-    const adminInvitation = await prisma.privilegedInvitation.findFirstOrThrow({
-      where: { email: invitedAdminEmail, revokedAt: null },
-    });
-    const adminInvitationOutbox = await prisma.outboxEvent.findFirstOrThrow({
-      where: { aggregateId: adminInvitation.id },
-    });
-    const adminInvitationPayload = decryptIdentityPayload<IdentityEmailPayload>(
-      (
-        adminInvitationOutbox.payload as {
-          encrypted: Parameters<typeof decryptIdentityPayload>[0];
-        }
-      ).encrypted,
-    );
-    const acceptedAdmin = await request(app)
-      .post("/api/v1/auth/staff/invitations/accept")
-      .set("Origin", origin)
-      .send({
-        token: tokenFromPayload(adminInvitationPayload),
-        password: "a separate invited administrator passphrase",
-        firstName: "Invited",
-        lastName: "Administrator",
-      });
-    expect(acceptedAdmin.status).toBe(201);
-    expect(
-      (
-        await prisma.user.findUniqueOrThrow({
-          where: { email: invitedAdminEmail },
-          select: { role: true, staffProfile: { select: { branchId: true } } },
-        })
-      ).staffProfile?.branchId,
-    ).toBeNull();
 
     const pendingSession = await createSession(invited.id, "STAFF", false);
     const deniedBeforeMfa = await request(app)
@@ -422,13 +343,54 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
       .set("Cookie", superSession.cookie)
       .set("X-CSRF-Token", superSession.csrfToken)
       .send({ role: "ADMIN" });
-    expect(changedRole.status).toBe(200);
-    expect(changedRole.body.data.role).toBe("ADMIN");
-    expect(changedRole.body.data.staffProfile.branchId).toBeNull();
+    expect(changedRole.status).toBe(422);
+    const invitationResponse = await request(app)
+      .post("/api/v1/admin/staff/invitations")
+      .set("Origin", origin)
+      .set("Cookie", adminSession.cookie)
+      .set("X-CSRF-Token", adminSession.csrfToken)
+      .send({
+        email: invited.email,
+        role: "ADMIN",
+        currentPassword: `strong direct-user password ${admin.id}`,
+      });
+    expect(invitationResponse.status).toBe(202);
+    const invitation = await prisma.privilegedInvitation.findUniqueOrThrow({
+      where: { id: invitationResponse.body.data.invitation.id },
+    });
+    const invitationOutbox = await prisma.outboxEvent.findFirstOrThrow({
+      where: { aggregateId: invitation.id },
+    });
+    expect(JSON.stringify(invitationOutbox.payload)).not.toContain("#token=");
+    const invitationPayload = decryptIdentityPayload<IdentityEmailPayload>(
+      (
+        invitationOutbox.payload as {
+          encrypted: Parameters<typeof decryptIdentityPayload>[0];
+        }
+      ).encrypted,
+    );
+    const invitationToken = tokenFromPayload(invitationPayload);
+    expect(invitation.tokenHash).toBe(
+      hashToken("privileged-invitation", invitationToken),
+    );
+    const accepted = await request(app)
+      .post("/api/v1/auth/staff/invitations/accept")
+      .set("Origin", origin)
+      .set("Cookie", beforeRoleChange.cookie)
+      .set("X-CSRF-Token", beforeRoleChange.csrfToken)
+      .send({
+        token: invitationToken,
+        currentPassword: `strong direct-user password ${invited.id}`,
+      });
+    expect(accepted.status).toBe(200);
     expect(
       (await prisma.session.findUniqueOrThrow({ where: { id: beforeRoleChange.id } }))
         .revokedAt,
     ).toBeInstanceOf(Date);
+    expect(
+      (await prisma.staffProfile.findUniqueOrThrow({ where: { userId: invited.id } }))
+        .branchId,
+    ).toBeNull();
 
     const adminCannotSuspendAdmin = await request(app)
       .patch(`/api/v1/admin/staff/${invited.id}/status`)

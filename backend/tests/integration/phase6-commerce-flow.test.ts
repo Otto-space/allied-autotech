@@ -206,7 +206,7 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
     expect(hiddenDraft.status).toBe(404);
     const issued = await request(app)
       .post(`/api/v1/staff/invoices/${invoiceId}/issue`)
-      .set(mutation(staffSession))
+      .set(mutation(adminSession))
       .send({ expectedVersion: 0 });
     expect(issued.status).toBe(200);
     expect(issued.body.data.status).toBe("ISSUED");
@@ -297,7 +297,7 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
     });
     const bookingInvoice = await request(app)
       .post("/api/v1/staff/invoices")
-      .set(mutation(staffSession))
+      .set(mutation(adminSession))
       .send({ sourceType: "BOOKING", sourceId: booking.id });
     expect(bookingInvoice.status).toBe(201);
     expect(bookingInvoice.body.data.totalKobo).toBe("53750");
@@ -336,7 +336,7 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
     });
     const vehicleInvoice = await request(app)
       .post("/api/v1/staff/invoices")
-      .set(mutation(staffSession))
+      .set(mutation(adminSession))
       .send({ sourceType: "VEHICLE_TRANSACTION", sourceId: vehicleTransaction.id });
     expect(vehicleInvoice.status).toBe(201);
     expect(vehicleInvoice.body.data.totalKobo).toBe("19500000");

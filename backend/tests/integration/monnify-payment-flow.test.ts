@@ -8,6 +8,7 @@ import { PaymentsService } from "../../src/modules/payments/payments.service.js"
 import type { PaymentProviderPort } from "../../src/providers/payments/payment-provider.port.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import { PaymentReconciliationWorker } from "../../src/workers/reconciliation.worker.js";
+import { testOwner } from "../helpers/owner.js";
 
 const runDatabaseTests = process.env.RUN_DATABASE_TESTS === "true";
 const context = { requestId: randomUUID(), ipAddress: null, userAgent: null };
@@ -35,8 +36,8 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
     });
     const customerId = randomUUID();
     const requesterId = randomUUID();
-    const approverId = randomUUID();
     const passwordHash = await hashPassword(`synthetic passphrase ${randomUUID()}`);
+    const approverId = (await testOwner(passwordHash)).id;
     const customer = await prisma.user.create({
       data: {
         id: customerId,
@@ -56,10 +57,7 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
       select: { id: true, profile: { select: { id: true } } },
     });
     await Promise.all(
-      [
-        { id: requesterId, role: "ADMIN" as const },
-        { id: approverId, role: "SUPER_ADMIN" as const },
-      ].map(({ id, role }) =>
+      [{ id: requesterId, role: "ADMIN" as const }].map(({ id, role }) =>
         prisma.user.create({
           data: {
             id,

@@ -130,6 +130,44 @@ describe.skipIf(!runDatabaseTests)("Phase 4 catalogue, cart, and inventory flow"
       .send({ make: "Toyota", model: "Camry", yearFrom: 2018, yearTo: 2026 });
     expect(compatibility.status).toBe(201);
     const compatibilityId = compatibility.body.data.id as string;
+    const compatibilityPath = `/api/v1/admin/catalog/products/${productId}/compatibilities/${compatibilityId}`;
+    for (const invalidPartial of [{ yearFrom: 2028 }, { yearTo: 2017 }]) {
+      await request(app)
+        .patch(compatibilityPath)
+        .set(mutation(adminSession))
+        .send(invalidPartial)
+        .expect(409);
+      expect(
+        await prisma.productCompatibility.findUniqueOrThrow({
+          where: { id: compatibilityId },
+        }),
+      ).toMatchObject({ yearFrom: 2018, yearTo: 2026 });
+    }
+    const competingBounds = await Promise.all(
+      [{ yearFrom: 2024 }, { yearTo: 2020 }].map((body) =>
+        request(app).patch(compatibilityPath).set(mutation(adminSession)).send(body),
+      ),
+    );
+    expect(competingBounds.map(({ status }) => status).sort()).toEqual([200, 409]);
+    for (const body of [
+      { yearFrom: null, yearTo: 2010 },
+      { yearFrom: 2028, yearTo: null },
+      { yearFrom: 2018, yearTo: 2026 },
+    ]) {
+      const changed = await request(app)
+        .patch(compatibilityPath)
+        .set(mutation(adminSession))
+        .send(body)
+        .expect(200);
+      expect(changed.body.data).toMatchObject(body);
+    }
+    await request(app)
+      .patch(
+        `/api/v1/admin/catalog/products/${productId}/compatibilities/${randomUUID()}`,
+      )
+      .set(mutation(adminSession))
+      .send({ yearFrom: 2020 })
+      .expect(404);
     const image = await request(app)
       .post(`/api/v1/admin/catalog/products/${productId}/images`)
       .set(mutation(adminSession))

@@ -185,6 +185,23 @@ describe.skipIf(!runDatabaseTests)("deposit-backed booking slots", () => {
     expect(confirmed.body.data.reminders).toHaveLength(4);
     expect(confirmed.body.data.depositPaidAt).toBeTruthy();
 
+    const privateDraft = await request(app)
+      .post(`/api/v1/staff/bookings/${bookingId}/quotes`)
+      .set(mutation(staffSession))
+      .send({
+        expiresAt: new Date(Date.now() + 24 * 3_600_000).toISOString(),
+        taxKobo: "0",
+        items: [
+          {
+            type: "LABOUR",
+            description: "Unpublished estimate",
+            quantity: 1,
+            unitPriceKobo: "1000",
+          },
+        ],
+      });
+    expect(privateDraft.status).toBe(201);
+
     const replacement = await request(app)
       .post("/api/v1/staff/booking-slots")
       .set(mutation(staffSession))
@@ -202,6 +219,7 @@ describe.skipIf(!runDatabaseTests)("deposit-backed booking slots", () => {
     expect(moved.status).toBe(200);
     expect(moved.body.data.customerRescheduleCount).toBe(1);
     expect(moved.body.data.reminders).toHaveLength(8);
+    expect(moved.body.data.quotes).toEqual([]);
     const movedReplay = await request(app)
       .patch(`/api/v1/customers/bookings/${bookingId}/schedule`)
       .set(mutation(winningSession, "booking-reschedule-once"))
@@ -209,6 +227,7 @@ describe.skipIf(!runDatabaseTests)("deposit-backed booking slots", () => {
     expect(movedReplay.status).toBe(200);
     expect(movedReplay.body.data.replayed).toBe(true);
     expect(movedReplay.body.data.customerRescheduleCount).toBe(1);
+    expect(movedReplay.body.data.quotes).toEqual([]);
     const dueReminder = await prisma.bookingReminder.findUniqueOrThrow({
       where: {
         bookingId_kind_scheduleVersion: {
@@ -237,6 +256,16 @@ describe.skipIf(!runDatabaseTests)("deposit-backed booking slots", () => {
       .set(mutation(winningSession, "booking-reschedule-twice"))
       .send({ slotId, expectedVersion: 2 });
     expect(secondMove.status).toBe(409);
+    const disruption = await request(app)
+      .post(`/api/v1/staff/bookings/${bookingId}/disruption`)
+      .set(mutation(staffSession))
+      .send({
+        expectedVersion: moved.body.data.version,
+        reason: "Synthetic workshop disruption",
+      });
+    expect(disruption.status).toBe(200);
+    expect(disruption.body.data.disruptionResolution).toBe("PENDING");
+    expect(disruption.body.data).not.toHaveProperty("depositPayment");
   }, 60_000);
 
   it("expires an unpaid 30-minute hold and releases the slot", async () => {
