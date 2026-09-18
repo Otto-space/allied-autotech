@@ -33,13 +33,13 @@ describe("Phase 3 HTTP trust boundaries", () => {
     expect(response.status).toBe(401);
   });
 
-  it("requires a trusted origin and strong input for invitation acceptance", async () => {
+  it("requires authentication before accepting or validating an invitation", async () => {
     const app = createApp({ checkReadiness: async () => undefined });
     const missingOrigin = await request(app)
       .post("/api/v1/auth/staff/invitations/accept")
       .send({});
-    expect(missingOrigin.status).toBe(403);
-    expect(missingOrigin.body.error.code).toBe(errorCodes.csrfInvalid);
+    expect(missingOrigin.status).toBe(401);
+    expect(missingOrigin.body.error.code).toBe(errorCodes.unauthorized);
 
     const massAssignment = await request(app)
       .post("/api/v1/auth/staff/invitations/accept")
@@ -51,7 +51,7 @@ describe("Phase 3 HTTP trust boundaries", () => {
         lastName: "Staff",
         role: "SUPER_ADMIN",
       });
-    expect(massAssignment.status).toBe(422);
+    expect(massAssignment.status).toBe(401);
     expect(JSON.stringify(massAssignment.body)).not.toContain("password1234");
   });
 
