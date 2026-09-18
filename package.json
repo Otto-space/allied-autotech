@@ -1,0 +1,7 @@
+{
+  "name": "allied-autotech",
+  "private": true,
+  "scripts": {
+    "bootstrap:super-admin": "npm --prefix backend run bootstrap:super-admin --"
+  }
+}
