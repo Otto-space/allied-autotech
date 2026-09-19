@@ -8,6 +8,7 @@ export class PublicApiError extends Error {
 export async function publicData<T>(
   path: string,
   parse: (value: unknown) => T,
+  signal?: AbortSignal,
 ): Promise<T> {
   if (!path.startsWith("/public/") || path.includes("..") || path.includes("\\"))
     throw new PublicApiError(400);
@@ -16,7 +17,9 @@ export async function publicData<T>(
     cache: "no-store",
     credentials: "omit",
     redirect: "error",
-    signal: AbortSignal.timeout(6000),
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(6000)])
+      : AbortSignal.timeout(6000),
     headers: { Accept: "application/json" },
   });
   if (!response.ok) throw new PublicApiError(response.status);

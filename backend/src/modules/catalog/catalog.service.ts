@@ -264,8 +264,24 @@ export class CatalogService {
     input: CompatibilityUpdateInput,
     context: RequestSecurityContext,
   ) {
-    return this.productChildMutation(actor, productId, context, "UPDATE", (transaction) =>
-      this.repository.updateCompatibility(productId, id, input, transaction),
+    return this.productChildMutation(
+      actor,
+      productId,
+      context,
+      "UPDATE",
+      async (transaction) => {
+        const existing = await transaction.productCompatibility.findFirst({
+          where: { id, productId },
+          select: { yearFrom: true, yearTo: true },
+        });
+        if (!existing) throw catalogResourceNotFound();
+        const yearFrom =
+          input.yearFrom === undefined ? existing.yearFrom : input.yearFrom;
+        const yearTo = input.yearTo === undefined ? existing.yearTo : input.yearTo;
+        if (yearFrom !== null && yearTo !== null && yearFrom > yearTo)
+          throw catalogConflict("Compatibility end year must not precede its start year");
+        return this.repository.updateCompatibility(productId, id, input, transaction);
+      },
     );
   }
   async deleteCompatibility(

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
@@ -11,6 +11,8 @@ import { branchRef } from "@/lib/api/commerce-schemas";
 import type { RequestBody } from "@/lib/api/contracts";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
+import { useAccountMutation } from "@/lib/api/use-account-mutation";
+import { AccountChangeNotice } from "./account-change-notice";
 import { Feedback } from "./feedback";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
@@ -45,16 +47,30 @@ export function ServiceDetail({
   );
   const [error, setError] = useState<string>();
   const [booking, setBooking] = useState<z.infer<typeof bookingSchema>>();
-  const [busy, setBusy] = useState(false);
   const [uncertain, setUncertain] = useState(false);
+  // Public support is anonymous: preserve its lock when account-scoped reads remount it.
+  const [quotationUncertain, setQuotationUncertain] = useState(false);
   const attempt = useRef<{
     fingerprint: string;
     key: string;
     body: RequestBody<"/customers/bookings", "post">;
   } | null>(null);
+  const discard = useCallback(() => {
+    setBranch("");
+    setSlot("");
+    setSlotCursor(undefined);
+    setAccepted(false);
+    setError(undefined);
+    setBooking(undefined);
+    setUncertain(false);
+    attempt.current = null;
+  }, []);
+  const operation = useAccountMutation(discard);
+  const { busy } = operation;
   async function book() {
     if (busy || !slot || !accepted || !policy.data || booking) return;
-    setBusy(true);
+    const controller = operation.begin();
+    if (!controller) return;
     setError(undefined);
     const body: RequestBody<"/customers/bookings", "post"> =
       uncertain && attempt.current
@@ -71,13 +87,16 @@ export function ServiceDetail({
       const result = await apiRequest("/customers/bookings", {
         method: "POST",
         csrf: true,
+        signal: controller.signal,
         idempotencyKey: attempt.current.key,
         body,
       });
+      if (controller.signal.aborted) return;
       const response = z.object({ booking: bookingSchema }).parse(result.data);
       setBooking(response.booking);
       setUncertain(false);
     } catch (value) {
+      if (controller.signal.aborted) return;
       if (value instanceof ApiError && value.status === 401) {
         router.push(`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`);
         return;
@@ -91,7 +110,7 @@ export function ServiceDetail({
           : "We could not confirm the booking. Check your bookings before making another request.",
       );
     } finally {
-      setBusy(false);
+      operation.finish(controller);
     }
   }
   const current = service.data;
@@ -105,6 +124,7 @@ export function ServiceDetail({
             <span aria-hidden="true">/</span>
             <span>{current?.name ?? "Service details"}</span>
           </nav>
+          <AccountChangeNotice visible={operation.sessionChanged} />
           <Feedback message={service.error} />
           {service.error && (
             <button className="button secondary" onClick={service.refresh}>
@@ -129,7 +149,12 @@ export function ServiceDetail({
               {current.pricingType === "QUOTE_REQUIRED" ? (
                 <section className="detail-section">
                   <h2>Tell us what your vehicle needs.</h2>
-                  <PublicEnquiryForm serviceId={current.id} serviceName={current.name} />
+                  <PublicEnquiryForm
+                    serviceId={current.id}
+                    serviceName={current.name}
+                    submissionLocked={quotationUncertain}
+                    onSubmissionUncertain={() => setQuotationUncertain(true)}
+                  />
                 </section>
               ) : (
                 <section className="detail-section">
@@ -170,7 +195,7 @@ export function ServiceDetail({
                         <select
                           id="service-branch"
                           value={branch}
-                          disabled={uncertain}
+                          disabled={busy || uncertain}
                           onChange={(event) => {
                             setBranch(event.target.value);
                             setSlot("");
@@ -193,7 +218,7 @@ export function ServiceDetail({
                         {slots.data?.items.map((item) => (
                           <button
                             key={item.id}
-                            disabled={uncertain || slots.loading}
+                            disabled={busy || uncertain || slots.loading}
                             className="slot"
                             aria-pressed={slot === item.id}
                             onClick={() => setSlot(item.id)}
@@ -214,7 +239,7 @@ export function ServiceDetail({
                       {slots.data?.nextCursor && (
                         <button
                           className="button secondary"
-                          disabled={uncertain}
+                          disabled={busy || uncertain}
                           onClick={() => {
                             setSlotCursor(slots.data?.nextCursor);
                             setSlot("");
@@ -245,7 +270,7 @@ export function ServiceDetail({
                             <input
                               type="checkbox"
                               checked={accepted}
-                              disabled={uncertain}
+                              disabled={busy || uncertain}
                               onChange={(event) => setAccepted(event.target.checked)}
                             />{" "}
                             I have read and accept these deposit terms.

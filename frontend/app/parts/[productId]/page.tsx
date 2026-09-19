@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { notFound } from "next/navigation";
+import { notFound, unstable_rethrow } from "next/navigation";
+import { z } from "zod";
+import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import { publicData, PublicApiError } from "@/lib/api/public-server";
 import { productSchema } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
@@ -10,11 +12,13 @@ import { SiteFooter } from "../../components/site-footer";
 import { PublicMedia } from "../../components/public-media";
 import { ProductActions } from "../../components/product-actions";
 const getProduct = cache(async (id: string) => {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  if (!z.uuid().safeParse(id).success) notFound();
   try {
-    return await publicData(`/public/catalog/products/${id}`, (value) =>
-      productSchema.parse(value),
-    );
+    return await publicData(`/public/catalog/products/${id}`, (value) => {
+      const parsed = productSchema.parse(value);
+      if (parsed.id !== id) throw new PublicApiError(502);
+      return parsed;
+    });
   } catch (error) {
     if (error instanceof PublicApiError && error.status === 404) notFound();
     throw error;
@@ -22,20 +26,25 @@ const getProduct = cache(async (id: string) => {
 });
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ productId: string }>;
+  searchParams: SearchParameters;
 }): Promise<Metadata> {
   const { productId } = await params;
   try {
     const product = await getProduct(productId);
-    return {
-      title: product.name,
-      description: (
+    return publicPageMetadata(
+      product.name,
+      (
         product.description ??
         `${product.name} at Allied AutoTech. Check vehicle compatibility and branch availability.`
       ).slice(0, 160),
-    };
-  } catch {
+      `/parts/${product.id}`,
+      searchParams,
+    );
+  } catch (error) {
+    unstable_rethrow(error);
     return { title: "Part details", robots: { index: false } };
   }
 }

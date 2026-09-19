@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { AuthShell } from "../components/auth-shell";
 import { EmailActionForm } from "../components/email-action-form";
-export const metadata: Metadata = { title: "Forgot password" };
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+  title: "Forgot password",
+};
 export default function Page() {
   return (
     <AuthShell>

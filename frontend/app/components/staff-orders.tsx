@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
-import { parseOrders } from "@/lib/api/commerce-schemas";
+import { parseOperationalOrders } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
@@ -12,7 +12,7 @@ export function StaffOrders() {
   const pagination = useCursorPage();
   const orders = useResource(
     `/staff/orders?limit=25${status ? `&status=${status}` : ""}${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
-    parseOrders,
+    parseOperationalOrders,
   );
   return (
     <>

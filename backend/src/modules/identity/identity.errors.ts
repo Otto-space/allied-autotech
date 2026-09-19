@@ -17,6 +17,14 @@ export function invalidToken(): AppError {
   });
 }
 
+export function mfaEnrollmentRequiresVerification(): AppError {
+  return new AppError({
+    code: errorCodes.mfaRequired,
+    message: "Verify an existing MFA method before enrolling another factor",
+    statusCode: 403,
+  });
+}
+
 export function identityConflict(message: string): AppError {
   return new AppError({ code: errorCodes.conflict, message, statusCode: 409 });
 }

@@ -80,7 +80,14 @@ export class VehiclesService {
     )
       throw vehicleForbidden();
     return vehicleJsonSafe(
-      vehiclePage(await this.repository.listStaff(query, branchId), query.limit),
+      vehiclePage(
+        await this.repository.listStaff(
+          query,
+          branchId,
+          actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+        ),
+        query.limit,
+      ),
     );
   }
   async staffVehicle(
@@ -89,7 +96,11 @@ export class VehiclesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleOperator(actor);
-    const vehicle = await this.repository.vehicle(id);
+    const vehicle = await this.repository.vehicle(
+      id,
+      this.database,
+      actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+    );
     if (vehicle === null) throw vehicleNotFound();
     await this.assertBranch(actor, vehicle.branchId);
     await this.audit(actor.userId, "VEHICLE", id, context, { privilegedRead: true });
@@ -101,11 +112,17 @@ export class VehiclesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleOperator(actor);
+    if (actor.role === "STAFF" && Object.hasOwn(input, "acquisitionCostKobo"))
+      throw vehicleForbidden();
     await this.assertBranch(actor, input.branchId);
     return this.database.$transaction(async (transaction) => {
       if ((await this.repository.activeBranch(input.branchId, transaction)) === null)
         throw vehicleNotFound();
-      const vehicle = await this.repository.createVehicle(input, transaction);
+      const vehicle = await this.repository.createVehicle(
+        input,
+        transaction,
+        actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+      );
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "CREATE",
@@ -124,11 +141,18 @@ export class VehiclesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleOperator(actor);
+    if (actor.role === "STAFF" && Object.hasOwn(input, "acquisitionCostKobo"))
+      throw vehicleForbidden();
     return this.database.$transaction(async (transaction) => {
       const existing = await this.repository.vehicle(id, transaction);
       if (existing === null) throw vehicleNotFound();
       await this.assertBranch(actor, existing.branchId, transaction);
-      const updated = await this.repository.updateVehicle(id, input, transaction);
+      const updated = await this.repository.updateVehicle(
+        id,
+        input,
+        transaction,
+        actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+      );
       if (updated === null) throw vehicleStale();
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,

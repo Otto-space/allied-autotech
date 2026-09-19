@@ -60,7 +60,7 @@ describe("private API handover contract", () => {
     const handbookOperations = handbook.match(
       /^### (?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) `/gmu,
     );
-    expect(operationCount).toBe(225);
+    expect(operationCount).toBe(231);
     expect(handbookOperations).toHaveLength(operationCount);
     expect(handbook).toContain("Never do this client-side");
     expect(handbook).toContain("Provider signature plus authoritative verification");

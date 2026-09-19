@@ -93,6 +93,12 @@ export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
       method: path.method,
       path: path.path,
       summary: path.summary,
+      ...(path.path.startsWith("/staff/orders")
+        ? {
+            description:
+              "Branch-authorized fulfilment. Invoice records are omitted entirely for STAFF; only ADMIN/SUPER_ADMIN receive embedded invoices. Commercial order totals and payment clearance dates remain available for fulfilment.",
+          }
+        : {}),
       security: [{ sessionCookie: [] }],
       request: {
         ...(path.params === undefined ? {} : { params: path.params }),

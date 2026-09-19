@@ -137,6 +137,9 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       path: route.path,
       tags: ["Payments"],
       summary: route.summary,
+      description: route.path.startsWith("/staff/")
+        ? "Requires ADMIN or SUPER_ADMIN with verified MFA. STAFF has no payment, evidence or refund access. Existing separation-of-duties and transactional checks also apply."
+        : "Requires the customer account that owns the payment; server verification remains authoritative.",
       security: [{ sessionCookie: [] }],
       request: {
         ...(route.params ? { params: route.params as never } : {}),

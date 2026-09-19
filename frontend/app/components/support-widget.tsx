@@ -1,18 +1,65 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { CircleHelp, MessageCircle, X } from "lucide-react";
 import { answerFaq, business, faqs } from "@/lib/business";
+import { SESSION_CHANGED } from "@/lib/api/client";
 export function SupportWidget() {
   const pathname = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const questionForm = useRef<HTMLFormElement>(null);
   const [answer, setAnswer] = useState<ReturnType<typeof answerFaq> | undefined>();
-  if (pathname.startsWith("/admin") || pathname.startsWith("/staff")) return null;
+  useEffect(() => {
+    function discard() {
+      dialog.current?.close();
+      questionForm.current?.reset();
+      setAnswer(undefined);
+    }
+    window.addEventListener(SESSION_CHANGED, discard);
+    return () => window.removeEventListener(SESSION_CHANGED, discard);
+  }, []);
+  useEffect(() => {
+    function revealFocusedField() {
+      const element = document.activeElement;
+      if (!(element instanceof HTMLElement) || !element.closest("main")) return;
+      const controls = trigger.current?.closest("nav");
+      if (!controls) return;
+      const bar = controls.getBoundingClientRect();
+      const field = element.getBoundingClientRect();
+      if (
+        field.bottom > bar.top - 12 &&
+        field.top < bar.bottom + 12 &&
+        field.right > bar.left - 12 &&
+        field.left < bar.right + 12
+      )
+        element.scrollIntoView({ block: "center", behavior: "instant" });
+    }
+    document.addEventListener("focusin", revealFocusedField);
+    window.visualViewport?.addEventListener("resize", revealFocusedField);
+    return () => {
+      document.removeEventListener("focusin", revealFocusedField);
+      window.visualViewport?.removeEventListener("resize", revealFocusedField);
+    };
+  }, []);
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/staff") ||
+    pathname.startsWith("/dashboard/support") ||
+    [
+      "/login",
+      "/register",
+      "/forgot-password",
+      "/reset-password",
+      "/verify-email",
+      "/mfa",
+    ].includes(pathname)
+  )
+    return null;
   return (
     <>
-      <div className="support-controls" aria-label="Customer support">
+      <nav className="support-controls" aria-label="Customer support">
         <button
           ref={trigger}
           className="support-trigger"
@@ -22,6 +69,9 @@ export function SupportWidget() {
           title="Quick help"
         >
           <CircleHelp size={22} aria-hidden="true" />
+          <span className="support-control-label" aria-hidden="true">
+            Help
+          </span>
         </button>
         <a
           className="whatsapp-control"
@@ -32,8 +82,11 @@ export function SupportWidget() {
           title="WhatsApp"
         >
           <MessageCircle size={22} aria-hidden="true" />
+          <span className="support-control-label" aria-hidden="true">
+            WhatsApp
+          </span>
         </a>
-      </div>
+      </nav>
       <dialog
         className="support-dialog"
         ref={dialog}
@@ -59,6 +112,7 @@ export function SupportWidget() {
           details.
         </p>
         <form
+          ref={questionForm}
           onSubmit={(event) => {
             event.preventDefault();
             setAnswer(

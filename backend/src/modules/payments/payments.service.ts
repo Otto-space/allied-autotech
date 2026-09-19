@@ -136,8 +136,7 @@ export class PaymentsService {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`payment:${keyHash}`}, 0))`;
       const profile = await this.repository.customerProfile(actor.userId, tx);
       if (!profile) throw paymentNotFound();
-      const source = await this.resolveSource(profile.id, input, tx);
-      const existing = await this.repository.byIdempotency(keyHash, tx);
+      const existing = await this.repository.byIdempotency(keyHash, profile.id, tx);
       if (existing) {
         const same =
           existing.purpose === input.purpose &&
@@ -145,11 +144,11 @@ export class PaymentsService {
           existing.invoiceId ===
             (input.targetType === "INVOICE" ? input.targetId : null) &&
           existing.vehicleTransactionId ===
-            (input.targetType === "VEHICLE_TRANSACTION" ? input.targetId : null) &&
-          existing.amountKobo === source.amountKobo;
+            (input.targetType === "VEHICLE_TRANSACTION" ? input.targetId : null);
         if (!same) throw paymentIdempotencyConflict();
         return paymentJsonSafe({ payment: existing, replayed: true });
       }
+      const source = await this.resolveSource(profile.id, input, tx);
       const expiresAt =
         source.expiresAt ?? new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
       if (expiresAt <= new Date()) throw paymentConflict("The payable has expired");
@@ -301,10 +300,27 @@ export class PaymentsService {
     if (authorizationExpiresAt <= new Date())
       throw paymentConflict("The payable expired during checkout initialization");
     await this.database.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
+      const current = await tx.paymentAttempt.findUnique({
+        where: { id: prepared.existing.id },
+        select: { status: true },
+      });
+      const payment = await this.repository.lockPayment(id, tx);
+      if (!current || !payment || payment.customerId !== profile.id)
+        throw paymentNotFound();
+      this.assertPayable(payment);
+      if (
+        !(["INITIALIZED", "PENDING", "PROCESSING"] as string[]).includes(current.status)
+      )
+        throw paymentConflict(
+          "Payment status changed during checkout initialization. Refresh the payment before continuing.",
+        );
+      if (authorizationExpiresAt <= new Date())
+        throw paymentConflict("The checkout expired during initialization");
       await tx.paymentAttempt.update({
         where: { id: prepared.existing.id },
         data: {
-          status: "PENDING",
+          status: current.status === "INITIALIZED" ? "PENDING" : current.status,
           providerReference: reference,
           encryptedCheckoutState: sealPaymentCheckoutState({
             provider,
@@ -374,6 +390,23 @@ export class PaymentsService {
     assertPaymentCustomer(actor);
     const profile = await this.repository.customerProfile(actor.userId);
     if (!profile) throw paymentNotFound();
+    if (!(await this.repository.owned(id, profile.id))) throw paymentNotFound();
+    const referenceHash = hashToken(
+      "payment-attempt-idempotency",
+      `MANUAL:${id}:${rawKey}`,
+    );
+    const reference = `AAT-MANUAL-${referenceHash.slice(0, 32)}`;
+    const requestFingerprint = createHash("sha256")
+      .update(JSON.stringify(input))
+      .digest("hex");
+    const replay = await this.manualReplay(
+      this.database,
+      profile.id,
+      id,
+      reference,
+      requestFingerprint,
+    );
+    if (replay) return replay;
     const evidence = input.evidenceToken
       ? this.readEvidence(input.evidenceToken, actor.userId, id)
       : null;
@@ -387,44 +420,18 @@ export class PaymentsService {
       }))
     )
       throw paymentConflict("Payment evidence could not be verified");
-    const referenceHash = hashToken(
-      "payment-attempt-idempotency",
-      `MANUAL:${id}:${rawKey}`,
-    );
-    const reference = `AAT-MANUAL-${referenceHash.slice(0, 32)}`;
-    const requestFingerprint = createHash("sha256")
-      .update(JSON.stringify(input))
-      .digest("hex");
     return this.database.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
-      const existing = await tx.paymentAttempt.findUnique({
-        where: { internalReference: reference },
-        select: {
-          paymentId: true,
-          provider: true,
-          redactedGatewayData: true,
-        },
-      });
-      if (existing) {
-        const metadata =
-          existing.redactedGatewayData !== null &&
-          typeof existing.redactedGatewayData === "object" &&
-          !Array.isArray(existing.redactedGatewayData)
-            ? existing.redactedGatewayData
-            : {};
-        if (
-          existing.paymentId !== id ||
-          existing.provider !== "MANUAL" ||
-          metadata["requestFingerprint"] !== requestFingerprint
-        )
-          throw paymentIdempotencyConflict();
-        return paymentJsonSafe({
-          ...(await this.repository.get(id, tx)),
-          replayed: true,
-        });
-      }
+      const committed = await this.manualReplay(
+        tx,
+        profile.id,
+        id,
+        reference,
+        requestFingerprint,
+      );
+      if (committed) return committed;
       this.assertPayable(payment);
       const latest = await tx.paymentAttempt.aggregate({
         where: { paymentId: id },
@@ -520,8 +527,8 @@ export class PaymentsService {
       if (attempt.manualReview.submittedByUserId === actor.userId)
         throw paymentConflict("A different operator must approve this payment");
       const now = new Date();
-      await tx.manualPaymentReview.update({
-        where: { id: attempt.manualReview.id },
+      const decision = await tx.manualPaymentReview.updateMany({
+        where: { id: attempt.manualReview.id, status: "PENDING" },
         data: {
           status: input.decision,
           reviewedByUserId: actor.userId,
@@ -529,6 +536,8 @@ export class PaymentsService {
           reviewerNote: input.reviewerNote,
         },
       });
+      if (decision.count !== 1)
+        throw paymentConflict("Manual payment was already reviewed");
       if (input.decision === "APPROVED") {
         await tx.paymentAttempt.update({
           where: { id: attempt.id },
@@ -1502,6 +1511,14 @@ export class PaymentsService {
     attemptId: string,
     occurredAt: Date,
   ) {
+    // The target is immutable once an attempt exists. Booking expiry and
+    // cancellation lock the booking before its payment; settlement must agree.
+    const target = await tx.payment.findUniqueOrThrow({
+      where: { id: paymentId },
+      select: { bookingId: true },
+    });
+    if (target.bookingId)
+      await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${target.bookingId}::uuid FOR UPDATE`;
     await tx.$queryRaw`SELECT "id" FROM "Payment" WHERE "id" = ${paymentId}::uuid FOR UPDATE`;
     const existingPayment = await tx.payment.findUniqueOrThrow({
       where: { id: paymentId },
@@ -1550,7 +1567,6 @@ export class PaymentsService {
       update: {},
     });
     if (payment.bookingId) {
-      await tx.$queryRaw`SELECT "id" FROM "Booking" WHERE "id" = ${payment.bookingId}::uuid FOR UPDATE`;
       const booking = await tx.booking.findUniqueOrThrow({
         where: { id: payment.bookingId },
         select: {
@@ -1623,6 +1639,7 @@ export class PaymentsService {
       return;
     }
     if (payment.orderId) {
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${payment.orderId}::uuid FOR UPDATE`;
       const order = await tx.order.findUniqueOrThrow({
         where: { id: payment.orderId },
         select: {
@@ -1677,6 +1694,7 @@ export class PaymentsService {
         data: { status: "PAID", paidAt: occurredAt, version: { increment: 1 } },
       });
     if (payment.vehicleTransactionId) {
+      await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${payment.vehicleTransactionId}::uuid FOR UPDATE`;
       const vehicle = await tx.vehicleTransaction.findUnique({
         where: { id: payment.vehicleTransactionId },
         select: { status: true, agreedPriceKobo: true, reservationExpiresAt: true },
@@ -1743,6 +1761,32 @@ export class PaymentsService {
       throw paymentConflict("Payment is no longer payable");
     if (payment.expiresAt && payment.expiresAt <= new Date())
       throw paymentConflict("Payment has expired");
+  }
+
+  private async manualReplay(
+    client: PrismaClient | Prisma.TransactionClient,
+    customerId: string,
+    paymentId: string,
+    reference: string,
+    fingerprint: string,
+  ) {
+    const existing = await client.paymentAttempt.findFirst({
+      where: { internalReference: reference, paymentId, payment: { customerId } },
+      select: { provider: true, redactedGatewayData: true },
+    });
+    if (!existing) return null;
+    const metadata =
+      existing.redactedGatewayData !== null &&
+      typeof existing.redactedGatewayData === "object" &&
+      !Array.isArray(existing.redactedGatewayData)
+        ? existing.redactedGatewayData
+        : {};
+    if (existing.provider !== "MANUAL" || metadata["requestFingerprint"] !== fingerprint)
+      throw paymentIdempotencyConflict();
+    return paymentJsonSafe({
+      ...(await this.repository.get(paymentId, client)),
+      replayed: true,
+    });
   }
 
   private readEvidence(ticket: string, actorUserId: string, paymentId: string) {

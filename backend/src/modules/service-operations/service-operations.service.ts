@@ -93,11 +93,15 @@ function customerSafeBooking<
     staffNotes: unknown;
     workOrder: null | { internalNotes: unknown };
     depositPayment: null | { settledAttemptId: unknown };
+    quotes: Array<{ status: string; issuedAt: Date | null }>;
   },
 >(booking: T) {
   const { staffNotes: _staffNotes, workOrder, depositPayment, ...safe } = booking;
   return {
     ...safe,
+    quotes: booking.quotes.filter(
+      (quote) => quote.status !== "DRAFT" && quote.issuedAt !== null,
+    ),
     depositPayment:
       depositPayment === null
         ? null
@@ -517,7 +521,7 @@ export class ServiceOperationsService {
             : undefined;
         const replay =
           typeof bookingId === "string"
-            ? await this.repository.booking(bookingId, transaction)
+            ? await this.repository.customerBooking(bookingId, transaction)
             : null;
         if (replay === null) throw serviceOperationNotFound();
         return jsonSafe({ booking: customerSafeBooking(replay), replayed: true });
@@ -640,7 +644,7 @@ export class ServiceOperationsService {
         },
         context,
       });
-      const result = await this.repository.booking(booking.id, transaction);
+      const result = await this.repository.customerBooking(booking.id, transaction);
       if (result === null) throw serviceOperationNotFound();
       return jsonSafe({ booking: customerSafeBooking(result), replayed: false });
     });
@@ -726,11 +730,11 @@ export class ServiceOperationsService {
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
-      const rescheduled = await this.repository.booking(id, transaction);
+      const rescheduled = await this.repository.customerBooking(id, transaction);
       if (rescheduled === null) throw serviceOperationNotFound();
       await cancelPendingReminders(transaction, id);
       await scheduleReminders(transaction, rescheduled);
-      const updated = await this.repository.booking(id, transaction);
+      const updated = await this.repository.customerBooking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
       await enqueueNotification(transaction, {
         userId: actor.userId,
@@ -782,7 +786,7 @@ export class ServiceOperationsService {
           data: { status: "CANCELLED", cancelledAt: now },
         });
       await cancelPendingReminders(transaction, id);
-      const updated = await this.repository.booking(id, transaction);
+      const updated = await this.repository.customerBooking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
       await enqueueNotification(transaction, {
         userId: actor.userId,
@@ -817,6 +821,7 @@ export class ServiceOperationsService {
         await this.repository.listStaffBookings(
           query,
           actor.role === "STAFF" ? profile.branchId : null,
+          actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
         ),
         query.limit,
       ),
@@ -896,7 +901,11 @@ export class ServiceOperationsService {
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
-      const updated = await this.repository.booking(id, transaction);
+      const updated = await this.repository.staffBooking(
+        id,
+        actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+        transaction,
+      );
       if (updated === null) throw serviceOperationNotFound();
       await this.auditBooking(transaction, actor, booking, updated, context);
       return jsonSafe(updated);
@@ -966,7 +975,11 @@ export class ServiceOperationsService {
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
-      const updated = await this.repository.booking(id, transaction);
+      const updated = await this.repository.staffBooking(
+        id,
+        actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+        transaction,
+      );
       if (updated === null) throw serviceOperationNotFound();
       if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
         await cancelPendingReminders(transaction, id);
@@ -1022,7 +1035,11 @@ export class ServiceOperationsService {
       );
       if (result.count !== 1) throw staleServiceOperation();
       await cancelPendingReminders(transaction, id);
-      const updated = await this.repository.booking(id, transaction);
+      const updated = await this.repository.staffBooking(
+        id,
+        actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+        transaction,
+      );
       if (updated === null) throw serviceOperationNotFound();
       const customer = await transaction.customerProfile.findUniqueOrThrow({
         where: { id: booking.customerId },
@@ -1064,7 +1081,7 @@ export class ServiceOperationsService {
           throw serviceOperationConflict(
             "The idempotency key was already used for another request",
           );
-        const replay = await this.repository.booking(id, transaction);
+        const replay = await this.repository.customerBooking(id, transaction);
         if (replay === null) throw serviceOperationNotFound();
         return jsonSafe({ booking: customerSafeBooking(replay), replayed: true });
       }
@@ -1126,7 +1143,7 @@ export class ServiceOperationsService {
           transaction,
         );
         if (changed.count !== 1) throw staleServiceOperation();
-        const updated = await this.repository.booking(id, transaction);
+        const updated = await this.repository.customerBooking(id, transaction);
         if (updated === null) throw serviceOperationNotFound();
         await scheduleReminders(transaction, updated);
         await enqueueNotification(transaction, {
@@ -1202,7 +1219,7 @@ export class ServiceOperationsService {
         });
       }
       await this.repository.completeIdempotency(scope, keyHash, id, transaction, 200);
-      const updated = await this.repository.booking(id, transaction);
+      const updated = await this.repository.customerBooking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
       await this.auditBooking(transaction, actor, booking, updated, context);
       return jsonSafe({ booking: customerSafeBooking(updated), replayed: false });
@@ -1570,7 +1587,7 @@ export class ServiceOperationsService {
   private async ownedCustomerBooking(userId: string, id: string) {
     const [profile, booking] = await Promise.all([
       this.repository.customerProfile(userId),
-      this.repository.booking(id),
+      this.repository.customerBooking(id),
     ]);
     if (profile === null || booking === null || booking.customerId !== profile.id)
       throw serviceOperationNotFound();
@@ -1593,12 +1610,16 @@ export class ServiceOperationsService {
     assertPrivilegedActor(actor);
     const [profile, booking] = await Promise.all([
       this.repository.staffProfile(actor.userId),
-      this.repository.booking(id),
+      this.repository.staffBooking(
+        id,
+        actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+      ),
     ]);
     if (profile === null || booking === null) throw serviceOperationNotFound();
     if (
       actor.role === "STAFF" &&
       (profile.branchId === null ||
+        profile.branch?.isActive !== true ||
         booking.branchId === null ||
         profile.branchId !== booking.branchId)
     )
@@ -1618,6 +1639,7 @@ export class ServiceOperationsService {
     if (
       actor.role === "STAFF" &&
       (profile.branchId === null ||
+        profile.branch?.isActive !== true ||
         booking.branchId === null ||
         profile.branchId !== booking.branchId)
     )

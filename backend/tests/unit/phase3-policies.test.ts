@@ -29,9 +29,9 @@ function actor(
 }
 
 describe("Phase 3 default-deny policy", () => {
-  it("allows admins to invite staff but only super-admins to invite admins", () => {
-    expect(() => assertCanInvite(actor("ADMIN"), "STAFF")).not.toThrow();
-    expect(() => assertCanInvite(actor("ADMIN"), "ADMIN")).toThrow(AppError);
+  it("allows administrator invitations and requires separate customer-to-staff promotion", () => {
+    expect(() => assertCanInvite(actor("ADMIN"), "STAFF")).toThrow(AppError);
+    expect(() => assertCanInvite(actor("ADMIN"), "ADMIN")).not.toThrow();
     expect(() => assertCanInvite(actor("SUPER_ADMIN"), "ADMIN")).not.toThrow();
     expect(() => assertCanInvite(actor("SUPER_ADMIN"), "SUPER_ADMIN")).toThrow(AppError);
   });
@@ -55,7 +55,7 @@ describe("Phase 3 default-deny policy", () => {
         "STAFF",
         "ADMIN",
       ),
-    ).not.toThrow();
+    ).toThrow(AppError);
     expect(() =>
       assertCanChangeRole(
         actor("ADMIN"),

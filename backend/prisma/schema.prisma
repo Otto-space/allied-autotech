@@ -571,28 +571,29 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  profile                   CustomerProfile?
-  staffProfile              StaffProfile?
-  sessions                  Session[]
-  passwordResetTokens       PasswordResetToken[]
-  emailVerificationTokens   EmailVerificationToken[]
-  mfaFactors                MfaFactor[]
-  mfaRecoveryCodes          MfaRecoveryCode[]
-  mfaChallenges             MfaChallenge[]
-  auditLogs                 AuditLog[]
-  notifications             Notification[]
-  notificationPreferences   NotificationPreference[]
-  supportMessages           SupportMessage[]
-  reviewsModerated          Review[]                          @relation("ReviewModerator")
-  inventoryTransactions     InventoryTransaction[]
-  manualPaymentsSubmitted   ManualPaymentReview[]             @relation("ManualPaymentSubmitter")
-  manualPaymentsReviewed    ManualPaymentReview[]             @relation("ManualPaymentReviewer")
-  refundsRequested          Refund[]                          @relation("RefundRequester")
-  refundsApproved           Refund[]                          @relation("RefundApprover")
-  anomaliesResolved         PaymentAnomaly[]                  @relation("AnomalyResolver")
-  vehicleStatusChanges      VehicleTransactionStatusHistory[]
-  idempotencyRecords        IdempotencyRecord[]
-  privilegedInvitationsSent PrivilegedInvitation[]            @relation("PrivilegedInvitationInviter")
+  profile                       CustomerProfile?
+  staffProfile                  StaffProfile?
+  sessions                      Session[]
+  passwordResetTokens           PasswordResetToken[]
+  emailVerificationTokens       EmailVerificationToken[]
+  mfaFactors                    MfaFactor[]
+  mfaRecoveryCodes              MfaRecoveryCode[]
+  mfaChallenges                 MfaChallenge[]
+  auditLogs                     AuditLog[]
+  notifications                 Notification[]
+  notificationPreferences       NotificationPreference[]
+  supportMessages               SupportMessage[]
+  reviewsModerated              Review[]                          @relation("ReviewModerator")
+  inventoryTransactions         InventoryTransaction[]
+  manualPaymentsSubmitted       ManualPaymentReview[]             @relation("ManualPaymentSubmitter")
+  manualPaymentsReviewed        ManualPaymentReview[]             @relation("ManualPaymentReviewer")
+  refundsRequested              Refund[]                          @relation("RefundRequester")
+  refundsApproved               Refund[]                          @relation("RefundApprover")
+  anomaliesResolved             PaymentAnomaly[]                  @relation("AnomalyResolver")
+  vehicleStatusChanges          VehicleTransactionStatusHistory[]
+  idempotencyRecords            IdempotencyRecord[]
+  privilegedInvitationsSent     PrivilegedInvitation[]            @relation("PrivilegedInvitationInviter")
+  privilegedInvitationsReceived PrivilegedInvitation[]            @relation("PrivilegedInvitationRecipient")
 
   @@index([role])
   @@index([status])
@@ -844,14 +845,17 @@ model PrivilegedInvitation {
   usedAt      DateTime?
   revokedAt   DateTime?
   invitedById String    @db.Uuid
+  recipientId String?   @db.Uuid
   createdAt   DateTime  @default(now())
 
   branch    Branch? @relation(fields: [branchId], references: [id], onDelete: Restrict)
   invitedBy User    @relation("PrivilegedInvitationInviter", fields: [invitedById], references: [id], onDelete: Restrict)
+  recipient User?   @relation("PrivilegedInvitationRecipient", fields: [recipientId], references: [id], onDelete: Restrict)
 
   @@index([email])
   @@index([expiresAt])
   @@index([invitedById])
+  @@index([recipientId])
   @@index([branchId])
 }
 
@@ -982,6 +986,8 @@ model Booking {
   @@index([status, paymentHoldExpiresAt])
   @@index([customerId, status])
   @@index([customerId, createdAt])
+  @@index([createdAt], map: "Booking_overview_created_idx")
+  @@index([branchId, createdAt], map: "Booking_overview_branch_created_idx")
 }
 
 model BookingReminder {
@@ -1037,6 +1043,7 @@ model ServiceQuote {
   @@index([bookingId, status])
   @@index([bookingId, version(sort: Desc)], map: "ServiceQuote_bookingId_version_desc_idx")
   @@index([status, expiresAt])
+  @@index([issuedAt], map: "ServiceQuote_overview_issued_idx")
 }
 
 model QuoteItem {
@@ -1336,6 +1343,8 @@ model Order {
   @@index([customerId, createdAt])
   @@index([branchId, status, createdAt])
   @@index([status, createdAt])
+  @@index([createdAt], map: "Order_overview_created_idx")
+  @@index([branchId, createdAt], map: "Order_overview_branch_created_idx")
 }
 
 model OrderItem {
@@ -1396,6 +1405,7 @@ model Payment {
   @@index([vehicleTransactionId, status])
   @@index([bookingId, status])
   @@index([status, createdAt])
+  @@index([status, succeededAt], map: "Payment_overview_settled_idx")
 }
 
 model PaymentAttempt {
@@ -1505,6 +1515,7 @@ model Refund {
   @@index([paymentAttemptId, status])
   @@index([status, createdAt])
   @@index([approvedByUserId])
+  @@index([status, processedAt], map: "Refund_overview_processed_idx")
 }
 
 model PaymentDispute {
@@ -1708,6 +1719,7 @@ model Vehicle {
   @@index([branchId])
   @@index([make, model])
   @@index([year])
+  @@index([createdAt], map: "Vehicle_overview_created_idx")
 }
 
 model VehicleListing {
@@ -1850,6 +1862,7 @@ model InspectionRequest {
   conditionReport      VehicleConditionReport?
 
   @@index([customerId, preferredStartAt])
+  @@index([createdAt], map: "InspectionRequest_overview_created_idx")
   @@index([vehicleListingId, status])
   @@index([status, preferredStartAt])
   @@index([assignedStaffId, status])

@@ -32,6 +32,7 @@ import {
   identityConflict,
   invalidAuthentication,
   invalidToken,
+  mfaEnrollmentRequiresVerification,
 } from "./identity.errors.js";
 import { identityEventTypes } from "./identity.events.js";
 import { identityRequiresMfa, mayRemoveFinalMfaFactor } from "./identity.policy.js";
@@ -44,6 +45,7 @@ import type {
 } from "./identity.schemas.js";
 import type {
   IdentityEmailPayload,
+  MfaEnrollmentSession,
   RequestSecurityContext,
   SessionIssueResult,
 } from "./identity.types.js";
@@ -588,19 +590,65 @@ export class IdentityService {
     );
   }
 
-  async setupTotp(userId: string) {
-    const user = await this.database.user.findUnique({
+  private async lockMfaAccount(tx: Prisma.TransactionClient, userId: string) {
+    // NO KEY UPDATE also serializes role/status changes without blocking child-row FK checks.
+    await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId}::uuid FOR NO KEY UPDATE`;
+    const user = await tx.user.findUnique({
       where: { id: userId },
-      select: { email: true },
+      select: { id: true, email: true, role: true, status: true, passwordHash: true },
     });
-    if (user === null) throw invalidAuthentication();
-    const enrollment = createTotpEnrollment(user.email);
-    const encrypted = encryptTotpSecret(enrollment.secret);
-    const factor = await this.database.$transaction(async (tx) => {
+    if (user === null || user.status !== "ACTIVE") throw invalidAuthentication();
+    return user;
+  }
+
+  private async assertMfaEnrollment(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    snapshot: MfaEnrollmentSession,
+  ) {
+    const user = await this.lockMfaAccount(tx, userId);
+    await tx.$queryRaw`SELECT id FROM "Session" WHERE id = ${snapshot.sessionId}::uuid AND "userId" = ${userId}::uuid FOR UPDATE`;
+    const session = await tx.session.findFirst({
+      where: { id: snapshot.sessionId, userId },
+      select: {
+        revokedAt: true,
+        expiresAt: true,
+        idleExpiresAt: true,
+        mfaVerifiedAt: true,
+        csrfTokenHash: true,
+      },
+    });
+    const now = new Date();
+    if (
+      session === null ||
+      session.revokedAt !== null ||
+      session.expiresAt <= now ||
+      session.idleExpiresAt <= now ||
+      !snapshot.csrfTokenHash ||
+      session.csrfTokenHash !== snapshot.csrfTokenHash
+    )
+      throw invalidAuthentication();
+    if (session.mfaVerifiedAt === null) {
+      const active = await tx.mfaFactor.count({
+        where: { userId, status: "ACTIVE", revokedAt: null },
+      });
+      const recovery = await tx.mfaRecoveryCode.count({
+        where: { userId, usedAt: null },
+      });
+      if (active > 0 || recovery > 0) throw mfaEnrollmentRequiresVerification();
+    }
+    return user;
+  }
+
+  async setupTotp(userId: string, session: MfaEnrollmentSession) {
+    return this.database.$transaction(async (tx) => {
+      const user = await this.assertMfaEnrollment(tx, userId, session);
+      const enrollment = createTotpEnrollment(user.email);
+      const encrypted = encryptTotpSecret(enrollment.secret);
       await tx.mfaFactor.deleteMany({
         where: { userId, type: "TOTP", status: "PENDING" },
       });
-      return tx.mfaFactor.create({
+      const factor = await tx.mfaFactor.create({
         data: {
           userId,
           type: "TOTP",
@@ -611,16 +659,19 @@ export class IdentityService {
         },
         select: { id: true },
       });
+      return { factorId: factor.id, secret: enrollment.secret, uri: enrollment.uri };
     });
-    return { factorId: factor.id, secret: enrollment.secret, uri: enrollment.uri };
   }
 
   async verifyTotpSetup(
     userId: string,
-    sessionId: string,
+    session: MfaEnrollmentSession,
     factorId: string,
     code: string,
   ) {
+    await this.database.$transaction((tx) =>
+      this.assertMfaEnrollment(tx, userId, session),
+    );
     const factor = await this.database.mfaFactor.findFirst({
       where: { id: factorId, userId, type: "TOTP", status: "PENDING", revokedAt: null },
       select: { id: true, encryptedSecret: true },
@@ -634,7 +685,8 @@ export class IdentityService {
     const recoveryCodes = generateRecoveryCodes();
     const now = new Date();
     const usedAt = verification.usedAt;
-    await this.database.$transaction(async (tx) => {
+    return this.database.$transaction(async (tx) => {
+      await this.assertMfaEnrollment(tx, userId, session);
       const activated = await tx.mfaFactor.updateMany({
         where: { id: factor.id, userId, status: "PENDING", revokedAt: null },
         data: { status: "ACTIVE", verifiedAt: now, lastUsedAt: usedAt },
@@ -652,12 +704,12 @@ export class IdentityService {
           entityId: factor.id,
         },
       });
+      const rotated = await this.completeMfaSession(userId, session.sessionId, tx);
+      return { recoveryCodes: recoveryCodes.map(({ raw }) => raw), session: rotated };
     });
-    const rotated = await this.completeMfaSession(userId, sessionId);
-    return { recoveryCodes: recoveryCodes.map(({ raw }) => raw), session: rotated };
   }
 
-  async webAuthnRegistrationOptions(userId: string, sessionId: string) {
+  async webAuthnRegistrationOptions(userId: string, session: MfaEnrollmentSession) {
     const user = await this.database.user.findUnique({
       where: { id: userId },
       select: {
@@ -677,33 +729,37 @@ export class IdentityService {
       ),
     });
     const now = new Date();
-    await this.database.$transaction([
-      this.database.mfaChallenge.deleteMany({
-        where: { sessionId, purpose: "REGISTRATION", usedAt: null },
-      }),
-      this.database.mfaChallenge.create({
+    await this.database.$transaction(async (tx) => {
+      await this.assertMfaEnrollment(tx, userId, session);
+      await tx.mfaChallenge.deleteMany({
+        where: { sessionId: session.sessionId, purpose: "REGISTRATION", usedAt: null },
+      });
+      await tx.mfaChallenge.create({
         data: {
           userId,
-          sessionId,
+          sessionId: session.sessionId,
           purpose: "REGISTRATION",
           challengeHash: hashToken("webauthn-challenge", options.challenge),
           expiresAt: addSeconds(now, env.WEBAUTHN_CHALLENGE_TTL_SECONDS),
         },
-      }),
-    ]);
+      });
+    });
     return options;
   }
 
   async verifyWebAuthnSetup(
     userId: string,
-    sessionId: string,
+    session: MfaEnrollmentSession,
     response: unknown,
     name?: string,
   ) {
+    await this.database.$transaction((tx) =>
+      this.assertMfaEnrollment(tx, userId, session),
+    );
     const challenge = await this.database.mfaChallenge.findFirst({
       where: {
         userId,
-        sessionId,
+        sessionId: session.sessionId,
         purpose: "REGISTRATION",
         usedAt: null,
         expiresAt: { gt: new Date() },
@@ -719,7 +775,8 @@ export class IdentityService {
     const { credential } = result.registrationInfo;
     const recoveryCodes = generateRecoveryCodes();
     const now = new Date();
-    await this.database.$transaction(async (tx) => {
+    return this.database.$transaction(async (tx) => {
+      await this.assertMfaEnrollment(tx, userId, session);
       const consumed = await tx.mfaChallenge.updateMany({
         where: { id: challenge.id, usedAt: null, expiresAt: { gt: now } },
         data: { usedAt: now },
@@ -750,9 +807,9 @@ export class IdentityService {
           newValues: { factorType: "WEBAUTHN" },
         },
       });
+      const rotated = await this.completeMfaSession(userId, session.sessionId, tx);
+      return { recoveryCodes: recoveryCodes.map(({ raw }) => raw), session: rotated };
     });
-    const rotated = await this.completeMfaSession(userId, sessionId);
-    return { recoveryCodes: recoveryCodes.map(({ raw }) => raw), session: rotated };
   }
 
   async mfaChallengeOptions(userId: string, sessionId: string, method: string) {
@@ -871,31 +928,35 @@ export class IdentityService {
     if (user === null || !(await verifyPassword(user.passwordHash, password))) {
       throw invalidAuthentication();
     }
-    const activeCount = await this.database.mfaFactor.count({
-      where: { userId, status: "ACTIVE", revokedAt: null },
-    });
-    if (!mayRemoveFinalMfaFactor(user.role) && activeCount <= 1) {
-      throw identityConflict("Privileged accounts must retain an active MFA factor");
-    }
-    const now = new Date();
-    const result = await this.database.mfaFactor.updateMany({
-      where: { id: factorId, userId, status: "ACTIVE", revokedAt: null },
-      data: { status: "REVOKED", revokedAt: now },
-    });
-    if (result.count !== 1) throw invalidToken();
-    await this.database.auditLog.create({
-      data: {
-        userId,
-        action: "MFA_DISABLED",
-        entityType: "MFA_FACTOR",
-        entityId: factorId,
-      },
+    await this.database.$transaction(async (tx) => {
+      const current = await this.lockMfaAccount(tx, userId);
+      if (current.passwordHash !== user.passwordHash) throw invalidAuthentication();
+      const activeCount = await tx.mfaFactor.count({
+        where: { userId, status: "ACTIVE", revokedAt: null },
+      });
+      if (!mayRemoveFinalMfaFactor(current.role) && activeCount <= 1) {
+        throw identityConflict("Privileged accounts must retain an active MFA factor");
+      }
+      const result = await tx.mfaFactor.updateMany({
+        where: { id: factorId, userId, status: "ACTIVE", revokedAt: null },
+        data: { status: "REVOKED", revokedAt: new Date() },
+      });
+      if (result.count !== 1) throw invalidToken();
+      await tx.auditLog.create({
+        data: {
+          userId,
+          action: "MFA_DISABLED",
+          entityType: "MFA_FACTOR",
+          entityId: factorId,
+        },
+      });
     });
   }
 
   async regenerateRecoveryCodes(userId: string): Promise<string[]> {
     const recoveryCodes = generateRecoveryCodes();
     await this.database.$transaction(async (tx) => {
+      await this.lockMfaAccount(tx, userId);
       await tx.mfaRecoveryCode.deleteMany({ where: { userId } });
       await tx.mfaRecoveryCode.createMany({
         data: recoveryCodes.map(({ hash }) => ({ userId, codeHash: hash })),
@@ -979,6 +1040,7 @@ export class IdentityService {
     sessionId: string,
     mfaRequired: boolean,
     mfaVerified: boolean,
+    database: Prisma.TransactionClient = this.database,
   ): Promise<SessionIssueResult> {
     const now = new Date();
     const rawToken = generateOpaqueToken();
@@ -992,8 +1054,14 @@ export class IdentityService {
         ? env.CUSTOMER_SESSION_IDLE_SECONDS
         : env.PRIVILEGED_SESSION_IDLE_SECONDS;
     const expiresAt = addSeconds(now, absoluteSeconds);
-    const result = await this.database.session.updateMany({
-      where: { id: sessionId, userId: user.id, revokedAt: null },
+    const result = await database.session.updateMany({
+      where: {
+        id: sessionId,
+        userId: user.id,
+        revokedAt: null,
+        expiresAt: { gt: now },
+        idleExpiresAt: { gt: now },
+      },
       data: {
         tokenHash: hashToken("session", rawToken),
         csrfTokenHash: csrf.hash,
@@ -1014,13 +1082,17 @@ export class IdentityService {
     };
   }
 
-  private async completeMfaSession(userId: string, sessionId: string) {
-    const user = await this.database.user.findUnique({
+  private async completeMfaSession(
+    userId: string,
+    sessionId: string,
+    database: Prisma.TransactionClient = this.database,
+  ) {
+    const user = await database.user.findUnique({
       where: { id: userId },
       select: { id: true, email: true, role: true },
     });
     if (user === null) throw invalidAuthentication();
-    return this.rotateAuthenticatedSession(user, sessionId, true, true);
+    return this.rotateAuthenticatedSession(user, sessionId, true, true, database);
   }
 
   private throttleHashes(email: string, ipAddress: string | null): string[] {

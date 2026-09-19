@@ -15,6 +15,11 @@ import {
   staffParamsSchema,
   staffRoleBodySchema,
   staffStatusBodySchema,
+  accountSearchQuerySchema,
+  invitationListQuerySchema,
+  invitationParamsSchema,
+  invitationRevokeBodySchema,
+  staffPromotionBodySchema,
 } from "./organization.schemas.js";
 
 const responseSchema = z.object({
@@ -133,7 +138,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "post",
       path: "/admin/staff/invitations",
-      summary: "Invite a staff member or administrator",
+      summary: "Invite an existing verified staff account to ADMIN",
       status: "202",
       secured: true,
       csrf: true,
@@ -142,8 +147,10 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "post",
       path: "/auth/staff/invitations/accept",
-      summary: "Accept a privileged invitation",
-      status: "201",
+      summary: "Accept the intended account administrator invitation",
+      status: "200",
+      secured: true,
+      csrf: true,
       body: privilegedInvitationAcceptBodySchema,
     },
     {
@@ -167,11 +174,42 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "patch",
       path: "/admin/staff/{staffUserId}/role",
-      summary: "Change a staff or administrator role",
+      summary: "Super administrator demotion of ADMIN to branch STAFF only",
       secured: true,
       csrf: true,
       params: staffParamsSchema,
       body: staffRoleBodySchema,
+    },
+    {
+      method: "get",
+      path: "/admin/staff/candidates",
+      summary: "Search active verified customers and staff by exact email",
+      secured: true,
+      query: accountSearchQuerySchema,
+    },
+    {
+      method: "post",
+      path: "/admin/staff/promotions",
+      summary: "Promote an existing verified customer to branch staff",
+      secured: true,
+      csrf: true,
+      body: staffPromotionBodySchema,
+    },
+    {
+      method: "get",
+      path: "/admin/staff/invitations",
+      summary: "List own invitations or all invitations for the owner",
+      secured: true,
+      query: invitationListQuerySchema,
+    },
+    {
+      method: "post",
+      path: "/admin/staff/invitations/{invitationId}/revoke",
+      summary: "Revoke an unused authorized invitation",
+      secured: true,
+      csrf: true,
+      params: invitationParamsSchema,
+      body: invitationRevokeBodySchema,
     },
   ];
 

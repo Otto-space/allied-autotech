@@ -23,6 +23,9 @@ export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
       method: "get",
       path,
       summary: "List authorized invoices",
+      description: path.startsWith("/staff/")
+        ? "ADMIN or SUPER_ADMIN with verified MFA only; STAFF is denied."
+        : "Customer-owned issued invoices only.",
       security: [{ sessionCookie: [] }],
       request: { query },
       responses: {
@@ -37,6 +40,9 @@ export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
       method: "get",
       path,
       summary: "Get an authorized invoice",
+      description: path.startsWith("/staff/")
+        ? "ADMIN or SUPER_ADMIN with verified MFA only; STAFF is denied."
+        : "Customer-owned issued invoices only.",
       security: [{ sessionCookie: [] }],
       request: { params: invoiceParamsSchema },
       responses: {
@@ -50,6 +56,8 @@ export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
     method: "post",
     path: "/staff/invoices",
     summary: "Create an invoice from a server-owned source",
+    description:
+      "ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; source prices remain server-authoritative.",
     security: [{ sessionCookie: [] }],
     request: {
       headers,
@@ -67,6 +75,8 @@ export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: `/staff/invoices/{invoiceId}/${action}`,
       summary: `${action} an invoice`,
+      description:
+        "ADMIN or SUPER_ADMIN with verified MFA and CSRF protection only. STAFF is denied; lifecycle and version checks still apply.",
       security: [{ sessionCookie: [] }],
       request: {
         params: invoiceParamsSchema,

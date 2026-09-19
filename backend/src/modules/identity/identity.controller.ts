@@ -10,7 +10,11 @@ import type {
   RegisterInput,
 } from "./identity.schemas.js";
 import { identityService, type IdentityService } from "./identity.service.js";
-import type { RequestSecurityContext, SessionIssueResult } from "./identity.types.js";
+import type {
+  MfaEnrollmentSession,
+  RequestSecurityContext,
+  SessionIssueResult,
+} from "./identity.types.js";
 
 function body<T>(response: Response): T {
   return response.locals.validated?.["body"] as T;
@@ -31,6 +35,14 @@ function context(request: Request): RequestSecurityContext {
 function actor(request: Request) {
   if (request.actor === undefined) throw invalidAuthentication();
   return request.actor;
+}
+
+function enrollmentSession(request: Request): MfaEnrollmentSession {
+  const current = actor(request);
+  const csrfTokenHash = request.authSession?.csrfTokenHash;
+  if (!csrfTokenHash || request.authSession?.id !== current.sessionId)
+    throw invalidAuthentication();
+  return { sessionId: current.sessionId, csrfTokenHash };
 }
 
 function issueCookie(response: Response, result: SessionIssueResult): void {
@@ -141,7 +153,10 @@ export class IdentityController {
   };
 
   setupTotp = async (req: Request, res: Response): Promise<void> => {
-    const enrollment = await this.service.setupTotp(actor(req).userId);
+    const enrollment = await this.service.setupTotp(
+      actor(req).userId,
+      enrollmentSession(req),
+    );
     res.status(201).json(successResponse("TOTP enrollment created", req.id, enrollment));
   };
 
@@ -150,7 +165,7 @@ export class IdentityController {
     const input = body<{ factorId: string; code: string }>(res);
     const result = await this.service.verifyTotpSetup(
       current.userId,
-      current.sessionId,
+      enrollmentSession(req),
       input.factorId,
       input.code,
     );
@@ -167,7 +182,7 @@ export class IdentityController {
     const current = actor(req);
     const options = await this.service.webAuthnRegistrationOptions(
       current.userId,
-      current.sessionId,
+      enrollmentSession(req),
     );
     res.status(200).json(successResponse("WebAuthn options created", req.id, options));
   };
@@ -177,7 +192,7 @@ export class IdentityController {
     const input = body<{ name?: string; response: unknown }>(res);
     const result = await this.service.verifyWebAuthnSetup(
       current.userId,
-      current.sessionId,
+      enrollmentSession(req),
       input.response,
       input.name,
     );

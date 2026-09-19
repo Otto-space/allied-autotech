@@ -19,7 +19,7 @@ export function StaffPicker({
   id: string;
   name?: string;
   initialId?: string;
-  onSelect?: (value: string) => void;
+  onSelect?: (value: string, label: string) => void;
   inputRef?: Ref<HTMLSelectElement>;
   error?: string;
 }) {
@@ -61,7 +61,10 @@ export function StaffPicker({
             label:
               event.target.selectedOptions[0]?.textContent ?? "Selected staff member",
           });
-          onSelect?.(event.target.value);
+          onSelect?.(
+            event.target.value,
+            event.target.selectedOptions[0]?.textContent ?? "Selected staff member",
+          );
         }}
       >
         <option value="">Choose a staff member</option>

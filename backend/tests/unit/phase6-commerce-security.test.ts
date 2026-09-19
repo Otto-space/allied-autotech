@@ -141,7 +141,10 @@ describe("Phase 6 commerce security contracts", () => {
     expect(() => assertInvoiceCustomer(actor("STAFF"))).toThrow();
     expect(() => assertInvoiceOperator(actor("CUSTOMER"))).toThrow();
     expect(() => assertInvoiceOperator(actor("STAFF", false))).toThrow();
-    expect(() => assertInvoiceOperator(actor("STAFF"))).not.toThrow();
+    expect(() => assertInvoiceOperator(actor("STAFF"))).toThrow();
+    expect(() => assertInvoiceOperator(actor("ADMIN", false))).toThrow();
+    expect(() => assertInvoiceOperator(actor("ADMIN"))).not.toThrow();
+    expect(() => assertInvoiceOperator(actor("SUPER_ADMIN"))).not.toThrow();
   });
   it("serializes money safely and emits cursors only for additional rows", () => {
     const now = new Date();

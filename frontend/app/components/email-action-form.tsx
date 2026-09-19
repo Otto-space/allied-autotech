@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { SubmitEvent } from "react";
 import { apiRequest, announceSessionChange } from "@/lib/api/client";
 import { Feedback } from "./feedback";
@@ -11,6 +11,9 @@ function getFieldValue(formData: FormData, name: string): string {
 }
 
 type EmailActionMode = "verify" | "forgot" | "reset";
+
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 function getActionPath(mode: EmailActionMode): string {
   switch (mode) {
@@ -51,7 +54,7 @@ export function EmailActionForm({
   const [busy, setBusy] = useState(false);
   const tokenInput = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (mode === "forgot") return;
     const fragment = window.location.hash.slice(1);
     history.replaceState(null, "", window.location.pathname);

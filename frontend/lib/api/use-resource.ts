@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError, SESSION_CHANGED } from "./client";
 
 type ResourceState<T> = {
@@ -7,16 +7,23 @@ type ResourceState<T> = {
   data?: T;
   error?: string;
   status: "loading" | "ready" | "error";
+  revision: number;
 };
 export function useResource<T>(
   path: string | null,
   parse: (value: unknown) => T,
   initialData?: T,
+  options?: { initialError?: string; revalidateOnMount?: boolean },
 ) {
+  const skipInitialFetch = useRef(
+    options?.revalidateOnMount === false && initialData !== undefined,
+  );
   const [state, setState] = useState<ResourceState<T> | null>(() =>
     path && initialData !== undefined
-      ? { path, data: initialData, status: "ready" }
-      : null,
+      ? { path, data: initialData, status: "ready", revision: 0 }
+      : path && options?.initialError
+        ? { path, error: options.initialError, status: "error", revision: 0 }
+        : null,
   );
   const [revision, setRevision] = useState(0);
   const refresh = useCallback(() => setRevision((value) => value + 1), []);
@@ -24,35 +31,42 @@ export function useResource<T>(
     if (!path) return;
     const controller = new AbortController();
     let active = true;
-    queueMicrotask(() => {
-      if (active)
-        setState((previous) => ({
-          path,
-          data: previous?.path === path ? previous.data : undefined,
-          status: "loading",
-        }));
-    });
-    void apiRequest<unknown>(path, { signal: controller.signal })
-      .then((response) => {
-        const data = parse(response.data);
-        if (active) setState({ path, data, status: "ready" });
-      })
-      .catch((error: unknown) => {
-        if (active && !controller.signal.aborted)
+    const shouldFetch = !skipInitialFetch.current;
+    skipInitialFetch.current = false;
+    if (shouldFetch) {
+      queueMicrotask(() => {
+        if (active)
           setState((previous) => ({
             path,
             data: previous?.path === path ? previous.data : undefined,
-            status: "error",
-            error:
-              error instanceof ApiError
-                ? error.message
-                : "We could not read this information. Please try again.",
+            status: "loading",
+            revision,
           }));
       });
+      void apiRequest<unknown>(path, { signal: controller.signal })
+        .then((response) => {
+          const data = parse(response.data);
+          if (active) setState({ path, data, status: "ready", revision });
+        })
+        .catch((error: unknown) => {
+          if (active && !controller.signal.aborted)
+            setState((previous) => ({
+              path,
+              data: previous?.path === path ? previous.data : undefined,
+              status: "error",
+              revision,
+              error:
+                error instanceof ApiError
+                  ? error.message
+                  : "We could not read this information. Please try again.",
+            }));
+        });
+    }
     function discard() {
       active = false;
       controller.abort();
       setState(null);
+      if (path?.startsWith("/public/")) refresh();
     }
     function visible() {
       if (document.visibilityState === "visible") refresh();
@@ -74,5 +88,6 @@ export function useResource<T>(
     error: current?.error,
     loading: !!path && (!current || current.status === "loading"),
     refresh,
+    settledRevision: current && current.status !== "loading" ? current.revision : null,
   };
 }

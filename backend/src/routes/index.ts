@@ -74,6 +74,7 @@ import {
   createStaffNotificationsRouter,
 } from "../modules/notifications/notifications.index.js";
 import { createAuditOperationsRouter } from "../modules/audit/audit.index.js";
+import { createOverviewRouter } from "../modules/overview/overview.routes.js";
 
 export interface ApiRouterOptions {
   checkReadiness: ReadinessCheck;
@@ -84,6 +85,8 @@ export function createApiRouter(options: ApiRouterOptions): Router {
 
   apiRouter.use("/health", createHealthRouter(options.checkReadiness));
   apiRouter.use("/auth", createIdentityRouter());
+  apiRouter.use("/customers/overview", createOverviewRouter("customer"));
+  apiRouter.use("/staff/overview", createOverviewRouter("staff"));
   apiRouter.use("/auth/staff/invitations", createPrivilegedInvitationRouter());
   apiRouter.use(publicApiPaths.branches, createPublicBranchesRouter());
   apiRouter.use("/public", createPublicBookingRouter());

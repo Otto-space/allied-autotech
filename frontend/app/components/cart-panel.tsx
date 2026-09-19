@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
@@ -8,6 +8,8 @@ import { useResource } from "@/lib/api/use-resource";
 import { branchRef, parseCart, orderSchema } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
+import { PromotionPreview } from "./promotion-preview";
+import { MutationReview, type MutationProposal } from "./mutation-review";
 const parseBranches = (value: unknown) =>
   z.object({ items: z.array(branchRef), nextCursor: z.string().optional() }).parse(value);
 type CheckoutBody = RequestBody<"/customers/orders/checkout", "post">;
@@ -19,31 +21,53 @@ export function CartPanel() {
   const [message, setMessage] = useState<string>();
   const [orderId, setOrderId] = useState<string>();
   const [uncertain, setUncertain] = useState(false);
+  const [promotionCode, setPromotionCode] = useState("");
+  const [cartUncertain, setCartUncertain] = useState(false);
+  const [proposal, setProposal] = useState<MutationProposal | null>(null);
+  const pending = useRef<AbortController | null>(null);
+  useEffect(() => () => pending.current?.abort(), []);
+  const editsDisabled =
+    busy || uncertain || cartUncertain || cart.loading || !!cart.error || !!orderId;
   const checkout = useRef<{ body: CheckoutBody; key: string } | null>(null);
   async function change(path: string, method: string, body: unknown) {
-    if (busy) return;
+    if (editsDisabled || proposal || pending.current) return;
+    const controller = new AbortController();
+    pending.current = controller;
     setBusy(true);
     setError(undefined);
     setMessage(undefined);
     try {
-      await apiRequest(path, { method, body, csrf: true });
+      await apiRequest(path, { method, body, csrf: true, signal: controller.signal });
       cart.refresh();
       setMessage("Your cart has been updated.");
     } catch (error_) {
+      if (!(error_ instanceof ApiError && error_.status >= 400 && error_.status < 500))
+        setCartUncertain(true);
       setError(
         error_ instanceof ApiError
           ? error_.message
           : "We could not confirm the cart update. Refresh your cart before making another change.",
       );
     } finally {
+      pending.current = null;
       setBusy(false);
     }
   }
   async function submitCheckout(body?: CheckoutBody) {
-    if (busy || orderId) return;
+    if (
+      busy ||
+      pending.current ||
+      orderId ||
+      cartUncertain ||
+      proposal ||
+      (body && (uncertain || cart.loading || cart.error))
+    )
+      return;
     if (body) checkout.current = { body, key: newIdempotencyKey() };
     const attempt = checkout.current;
     if (!attempt) return;
+    const controller = new AbortController();
+    pending.current = controller;
     setBusy(true);
     setError(undefined);
     try {
@@ -52,6 +76,7 @@ export function CartPanel() {
         csrf: true,
         idempotencyKey: attempt.key,
         body: attempt.body,
+        signal: controller.signal,
       });
       const parsed = z
         .object({ order: orderSchema, replayed: z.boolean() })
@@ -69,6 +94,7 @@ export function CartPanel() {
           : "Checkout confirmation is unavailable. Check your orders before starting another checkout.",
       );
     } finally {
+      pending.current = null;
       setBusy(false);
     }
   }
@@ -81,10 +107,90 @@ export function CartPanel() {
       </p>
       <Feedback message={error ?? cart.error} />
       <Feedback message={message} tone="success" />
-      {cart.error && (
-        <button className="button secondary" onClick={cart.refresh}>
+      <div className="actions">
+        <button
+          className="button secondary"
+          disabled={busy || cart.loading}
+          onClick={cart.refresh}
+        >
           Refresh cart
         </button>
+        {!!cart.data?.items.length && !orderId && (
+          <button
+            className="button secondary"
+            disabled={editsDisabled}
+            onClick={() => {
+              if (!cart.data || editsDisabled || proposal) return;
+              const reviewed = JSON.stringify(cart.data);
+              setProposal({
+                title: "Clear your cart?",
+                description:
+                  "This removes every part currently in your cart. Existing orders and payments are not cancelled. Review the contents before continuing.",
+                facts: [
+                  {
+                    label: "Parts",
+                    value: cart.data.items
+                      .map((item) => `${item.product.name} × ${item.quantity}`)
+                      .join("; "),
+                  },
+                  {
+                    label: "Current subtotal",
+                    value: formatKobo(cart.data.subtotalKobo),
+                  },
+                ],
+                retryAfterRejection: false,
+                onUncertain: () => setCartUncertain(true),
+                submit: async () => {
+                  const controller = new AbortController();
+                  pending.current = controller;
+                  setBusy(true);
+                  setError(undefined);
+                  setMessage(undefined);
+                  try {
+                    let current: ReturnType<typeof parseCart>;
+                    try {
+                      const response = await apiRequest("/customers/cart", {
+                        signal: controller.signal,
+                      });
+                      current = parseCart(response.data);
+                    } catch {
+                      cart.refresh();
+                      throw new ApiError(409, {
+                        error: { code: "PRECONDITION_UNAVAILABLE" },
+                      });
+                    }
+                    if (JSON.stringify(current) !== reviewed) {
+                      cart.refresh();
+                      throw new ApiError(409, { error: { code: "CONFLICT" } });
+                    }
+                    await apiRequest("/customers/cart", {
+                      method: "DELETE",
+                      body: {},
+                      csrf: true,
+                      signal: controller.signal,
+                    });
+                    setPromotionCode("");
+                    setMessage(
+                      "Your cart was cleared. Refresh to check its latest contents.",
+                    );
+                    cart.refresh();
+                  } finally {
+                    pending.current = null;
+                    setBusy(false);
+                  }
+                },
+              });
+            }}
+          >
+            Clear cart
+          </button>
+        )}
+      </div>
+      {cartUncertain && (
+        <p role="status" className="notice">
+          A cart change has an unknown outcome. Refresh to inspect your cart. Further
+          changes and checkout are paused in this view; the request will not be resent.
+        </p>
       )}
       {cart.loading && (
         <p role="status">{cart.data ? "Updating cart…" : "Loading cart…"}</p>
@@ -123,57 +229,59 @@ export function CartPanel() {
         </div>
       )}
       <div className="list">
-        {cart.data?.items.map((item) => (
-          <article className="cart-row" key={item.id}>
-            <div>
-              <Link className="text-link" href={`/parts/${item.product.id}`}>
-                {item.product.name}
-              </Link>
-              <p className="muted">{formatKobo(item.unitPriceKobo)} each</p>
-            </div>
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                const quantity = Number(
-                  new FormData(event.currentTarget).get("quantity"),
-                );
-                if (Number.isInteger(quantity) && quantity >= 1 && quantity <= 1000)
-                  void change(`/customers/cart/items/${item.product.id}`, "PUT", {
-                    quantity,
-                  });
-              }}
-              key={`${item.id}-${item.quantity}`}
-            >
-              <div className="field quantity-field">
-                <label htmlFor={`qty-${item.id}`}>Quantity</label>
-                <input
-                  id={`qty-${item.id}`}
-                  name="quantity"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={1000}
-                  defaultValue={item.quantity}
-                  required
-                />
+        {!cart.error &&
+          cart.data?.items.map((item) => (
+            <article className="cart-row" key={item.id}>
+              <div>
+                <Link className="text-link" href={`/parts/${item.product.id}`}>
+                  {item.product.name}
+                </Link>
+                <p className="muted">{formatKobo(item.unitPriceKobo)} each</p>
               </div>
-              <button className="button secondary" disabled={busy || uncertain}>
-                Update
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const quantity = Number(
+                    new FormData(event.currentTarget).get("quantity"),
+                  );
+                  if (Number.isInteger(quantity) && quantity >= 1 && quantity <= 1000)
+                    void change(`/customers/cart/items/${item.product.id}`, "PUT", {
+                      quantity,
+                    });
+                }}
+                key={`${item.id}-${item.quantity}`}
+              >
+                <div className="field quantity-field">
+                  <label htmlFor={`qty-${item.id}`}>Quantity</label>
+                  <input
+                    id={`qty-${item.id}`}
+                    name="quantity"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={1000}
+                    defaultValue={item.quantity}
+                    required
+                    disabled={editsDisabled}
+                  />
+                </div>
+                <button className="button secondary" disabled={editsDisabled}>
+                  Update
+                </button>
+              </form>
+              <strong>{formatKobo(item.lineSubtotalKobo)}</strong>
+              <button
+                className="text-link"
+                disabled={editsDisabled}
+                onClick={() =>
+                  void change(`/customers/cart/items/${item.product.id}`, "DELETE", {})
+                }
+                aria-label={`Remove ${item.product.name}`}
+              >
+                Remove
               </button>
-            </form>
-            <strong>{formatKobo(item.lineSubtotalKobo)}</strong>
-            <button
-              className="text-link"
-              disabled={busy || uncertain}
-              onClick={() =>
-                void change(`/customers/cart/items/${item.product.id}`, "DELETE", {})
-              }
-              aria-label={`Remove ${item.product.name}`}
-            >
-              Remove
-            </button>
-          </article>
-        ))}
+            </article>
+          ))}
       </div>
       {!cart.loading && !cart.error && cart.data?.items.length === 0 && !orderId && (
         <div className="empty">
@@ -183,7 +291,7 @@ export function CartPanel() {
           </Link>
         </div>
       )}
-      {!!cart.data?.items.length && !orderId && (
+      {!!cart.data?.items.length && !cart.error && !orderId && (
         <section className="checkout-summary">
           <h2>Order for collection</h2>
           <dl className="totals">
@@ -218,7 +326,7 @@ export function CartPanel() {
                 id="collection-branch"
                 name="branchId"
                 required
-                disabled={uncertain}
+                disabled={editsDisabled}
               >
                 <option value="">Choose a branch</option>
                 {branches.data?.items.map((branch) => (
@@ -234,23 +342,34 @@ export function CartPanel() {
                 id="promotion-code"
                 name="promotionCode"
                 maxLength={80}
-                disabled={uncertain}
+                disabled={editsDisabled}
+                value={promotionCode}
+                onChange={(event) => setPromotionCode(event.target.value)}
               />
             </div>
+            {!editsDisabled && (
+              <PromotionPreview
+                key={`${promotionCode}:${JSON.stringify(cart.data)}`}
+                code={promotionCode}
+                subtotalKobo={cart.data.subtotalKobo}
+              />
+            )}
             <button
               className="button"
-              disabled={
-                busy ||
-                uncertain ||
-                cart.loading ||
-                !!cart.error ||
-                !branches.data?.items.length
-              }
+              disabled={editsDisabled || !branches.data?.items.length}
             >
               {busy ? "Submitting…" : "Create order & review total"}
             </button>
           </form>
         </section>
+      )}
+      {proposal && (
+        <MutationReview
+          proposal={proposal}
+          onClose={() => setProposal(null)}
+          onSuccess={() => {}}
+          confirmLabel="Clear cart"
+        />
       )}
     </>
   );

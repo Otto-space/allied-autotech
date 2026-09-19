@@ -81,7 +81,10 @@ export function InspectionHistory() {
                 <p>{item.conditionReport.summary}</p>
                 <p>
                   Inspected {formatBusinessDate(item.conditionReport.inspectedAt)} ·
-                  Odometer {item.conditionReport.odometerKm.toLocaleString("en-NG")} km
+                  Odometer{" "}
+                  {item.conditionReport.odometerKm === null
+                    ? "not recorded"
+                    : `${item.conditionReport.odometerKm.toLocaleString("en-NG")} km`}
                 </p>
               </details>
             )}

@@ -3,57 +3,27 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
-  CalendarDays,
-  ShoppingCart,
-  Package,
-  CreditCard,
-  CarFront,
-  Home,
   LogOut,
-  MessageSquare,
-  Shield,
-  Star,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   UserRound,
+  X,
 } from "lucide-react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   apiRequest,
   ApiError,
   announceSessionChange,
   invalidateSession,
+  isExternalSessionChange,
   SESSION_CHANGED,
 } from "@/lib/api/client";
 import type { SessionState } from "@/lib/api/types";
 import { Brand } from "./brand";
 import { Feedback } from "./feedback";
-const links = [
-  { href: "/dashboard", label: "Overview", icon: Home },
-  { href: "/dashboard/bookings", label: "Bookings", icon: CalendarDays },
-  { href: "/dashboard/vehicles", label: "My vehicles", icon: CarFront },
-  { href: "/dashboard/inspections", label: "Inspections", icon: CalendarDays },
-  { href: "/dashboard/vehicle-transactions", label: "Vehicle purchases", icon: CarFront },
-  { href: "/dashboard/saved", label: "Saved items", icon: Star },
-  { href: "/dashboard/cart", label: "Cart", icon: ShoppingCart },
-  { href: "/dashboard/orders", label: "Orders", icon: Package },
-  { href: "/dashboard/payments", label: "Payments", icon: CreditCard },
-  { href: "/dashboard/invoices", label: "Invoices", icon: Package },
-  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
-  { href: "/dashboard/reviews", label: "Reviews", icon: Star },
-  { href: "/dashboard/support", label: "Customer care", icon: MessageSquare },
-  { href: "/dashboard/security", label: "Security", icon: Shield },
-  { href: "/dashboard/profile", label: "Profile", icon: UserRound },
-];
-const adminLinks = [
-  { href: "/admin", label: "Operations", icon: Home },
-  { href: "/admin/inventory", label: "Parts inventory", icon: Package },
-  { href: "/admin/bookings", label: "Workshop bookings", icon: CalendarDays },
-  { href: "/admin/booking-slots", label: "Appointment slots", icon: CalendarDays },
-  { href: "/admin/orders", label: "Order fulfilment", icon: Package },
-  { href: "/admin/services", label: "Services", icon: CalendarDays },
-  { href: "/admin/categories", label: "Part categories", icon: Package },
-  { href: "/admin/products", label: "Parts catalogue", icon: ShoppingCart },
-  { href: "/admin/branches", label: "Branches", icon: Home },
-];
+import { dashboardNavigation } from "@/lib/dashboard-navigation";
+import { DashboardNavigation, DashboardPageSearch } from "./dashboard-navigation";
 const SessionContext = createContext<SessionState | null>(null);
 export function useAccountSession() {
   return useContext(SessionContext);
@@ -71,20 +41,35 @@ export function DashboardShell({
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false);
-  const navigation =
-    audience === "staff"
-      ? adminLinks.filter(
-          (item) =>
-            session?.user.role !== "STAFF" ||
-            [
-              "/admin",
-              "/admin/orders",
-              "/admin/bookings",
-              "/admin/booking-slots",
-              "/admin/inventory",
-            ].includes(item.href),
-        )
-      : links;
+  const [passwordChanged, setPasswordChanged] = useState(false);
+  const [menuPath, setMenuPath] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const collapseButton = useRef<HTMLButtonElement>(null);
+  const menuOpen = menuPath === pathname;
+  const navigation = session ? dashboardNavigation(session.user.role) : [];
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 900px)");
+    function adaptNavigation() {
+      const focused = document.activeElement;
+      if (mobile.matches) {
+        setSidebarCollapsed(false);
+        if (
+          focused?.closest(
+            ".dashboard-navigation-container, .dashboard-collapse-toggle, .dashboard-logout",
+          )
+        ) {
+          setMenuPath(pathname);
+          menuButton.current?.focus();
+        }
+      } else {
+        setMenuPath(null);
+        if (focused === menuButton.current) collapseButton.current?.focus();
+      }
+    }
+    mobile.addEventListener("change", adaptNavigation);
+    return () => mobile.removeEventListener("change", adaptNavigation);
+  }, [pathname]);
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
@@ -124,9 +109,16 @@ export function DashboardShell({
             );
         }
       });
-    function clear() {
+    function clear(event: Event) {
+      const changedPassword =
+        event instanceof CustomEvent && event.detail === "password-changed";
+      setPasswordChanged(changedPassword);
       setSession(null);
-      setError("Your session changed. Verify your account to continue.");
+      setError(
+        changedPassword
+          ? "Password changed. Other sessions were signed out. Verify your session to continue securely."
+          : "Your session changed. Verify your account to continue.",
+      );
     }
     function revalidate() {
       if (document.visibilityState === "visible") {
@@ -139,8 +131,8 @@ export function DashboardShell({
         ? new BroadcastChannel("aat-session")
         : null;
     if (channel)
-      channel.onmessage = () => {
-        invalidateSession();
+      channel.onmessage = (event) => {
+        if (isExternalSessionChange(event.data)) invalidateSession();
       };
     window.addEventListener(SESSION_CHANGED, clear);
     window.addEventListener("online", revalidate);
@@ -175,11 +167,12 @@ export function DashboardShell({
         <div className="container empty">
           {error ? (
             <>
-              <Feedback message={error} />
+              <Feedback message={error} tone={passwordChanged ? "success" : "error"} />
               <button
                 className="button"
                 onClick={() => {
                   setError(null);
+                  setPasswordChanged(false);
                   setRetry((value) => value + 1);
                 }}
               >
@@ -198,44 +191,104 @@ export function DashboardShell({
       </main>
     );
   return (
-    <div className="dashboard">
-      <aside className="sidebar">
-        <Link href="/">
-          <Brand />
-        </Link>
-        <nav
-          className="side-nav"
-          aria-label={audience === "staff" ? "Administration" : "Customer dashboard"}
+    <div
+      className="dashboard"
+      data-sidebar-collapsed={sidebarCollapsed}
+      key={session.user.id}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && menuOpen) {
+          setMenuPath(null);
+          menuButton.current?.focus();
+        }
+      }}
+    >
+      <aside className="sidebar" data-menu-open={menuOpen}>
+        <div className="dashboard-brand-row">
+          <Link href="/" aria-label="Allied AutoTech home">
+            <Brand inverse />
+          </Link>
+          <button
+            className="dashboard-collapse-toggle"
+            ref={collapseButton}
+            aria-controls="dashboard-navigation"
+            aria-expanded={!sidebarCollapsed}
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            onClick={() => setSidebarCollapsed((value) => !value)}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeftOpen size={20} />
+            ) : (
+              <PanelLeftClose size={20} />
+            )}
+          </button>
+          <button
+            className="dashboard-menu-toggle"
+            ref={menuButton}
+            aria-controls="dashboard-navigation"
+            aria-expanded={menuOpen}
+            aria-label={
+              menuOpen ? "Close dashboard navigation" : "Open dashboard navigation"
+            }
+            onClick={() => setMenuPath(menuOpen ? null : pathname)}
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+        <div id="dashboard-navigation" className="dashboard-navigation-container">
+          <DashboardNavigation
+            collapsed={sidebarCollapsed}
+            onExpand={() => setSidebarCollapsed(false)}
+            groups={navigation}
+            pathname={pathname}
+            onNavigate={() => setMenuPath(null)}
+            label={audience === "staff" ? "Administration" : "Customer dashboard"}
+          />
+        </div>
+        <button
+          className="dashboard-logout"
+          aria-label="Sign out"
+          title="Sign out"
+          disabled={busy}
+          onClick={() => void logout()}
         >
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={pathname === item.href ? "page" : undefined}
-            >
-              <item.icon size={17} />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+          <LogOut size={20} aria-hidden="true" /> <span>Sign out</span>
+        </button>
       </aside>
       <div className="dashboard-main">
-        <div className="mobile-nav" aria-label="Customer dashboard mobile navigation">
-          {navigation.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.label}
-            </Link>
-          ))}
-        </div>
         <header className="dashboard-top">
-          <span className="mono">{session.user.email}</span>
-          <button
-            className="button secondary"
-            disabled={busy}
-            onClick={() => void logout()}
-          >
-            <LogOut size={16} /> Sign out
-          </button>
+          <DashboardPageSearch groups={navigation} />
+          <div className="dashboard-account-controls">
+            <Link
+              className="dashboard-icon-link"
+              aria-label="Open notifications"
+              href={
+                audience === "staff" ? "/admin/notifications" : "/dashboard/notifications"
+              }
+              prefetch={false}
+            >
+              <Bell size={19} />
+            </Link>
+            <Link
+              className="dashboard-account-link"
+              aria-label="Open your account"
+              href={audience === "staff" ? "/admin/security" : "/dashboard/profile"}
+              prefetch={false}
+            >
+              <span className="dashboard-avatar" aria-hidden="true">
+                <UserRound size={19} />
+              </span>
+              <span className="dashboard-account-email">{session.user.email}</span>
+            </Link>
+            <button
+              className="dashboard-mobile-logout"
+              disabled={busy}
+              onClick={() => void logout()}
+              aria-label="Sign out"
+            >
+              <LogOut size={20} />
+            </button>
+          </div>
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
           <Feedback message={error} />

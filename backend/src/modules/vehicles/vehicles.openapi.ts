@@ -84,14 +84,15 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "get",
       path: "/staff/vehicles",
-      summary: "List branch vehicle inventory",
+      summary: "List branch vehicle inventory; acquisition costs are administrator-only",
       query: staffVehicleListQuerySchema,
       secured: true,
     },
     {
       method: "post",
       path: "/staff/vehicles",
-      summary: "Create a physical vehicle",
+      summary:
+        "Create a physical vehicle; acquisition cost requires ADMIN or SUPER_ADMIN",
       body: vehicleCreateBodySchema,
       secured: true,
       mutation: true,
@@ -100,14 +101,14 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "get",
       path: "/staff/vehicles/{vehicleId}",
-      summary: "Get vehicle inventory details",
+      summary: "Get vehicle inventory details; acquisition costs are administrator-only",
       params: vehicleParamsSchema,
       secured: true,
     },
     {
       method: "patch",
       path: "/staff/vehicles/{vehicleId}",
-      summary: "Update vehicle inventory",
+      summary: "Update vehicle inventory; acquisition cost requires ADMIN or SUPER_ADMIN",
       params: vehicleParamsSchema,
       body: vehicleUpdateBodySchema,
       secured: true,

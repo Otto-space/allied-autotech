@@ -292,7 +292,16 @@ export class OrdersService {
   async staffOrders(actor: AuthenticatedActor, query: StaffOrderListQuery) {
     assertOrderOperator(actor);
     const branchId = await this.allowedBranch(actor);
-    return jsonSafe(page(await this.repository.listStaff(query, branchId), query.limit));
+    return jsonSafe(
+      page(
+        await this.repository.listStaff(
+          query,
+          branchId,
+          actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+        ),
+        query.limit,
+      ),
+    );
   }
   async staffOrder(
     actor: AuthenticatedActor,
@@ -300,7 +309,10 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertOrderOperator(actor);
-    const order = await this.repository.order(id);
+    const order = await this.repository.staffOrder(
+      id,
+      actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+    );
     if (order === null) throw orderNotFound();
     await this.assertBranch(actor, order.branch?.id ?? null);
     await this.database.$transaction((transaction) =>
@@ -406,7 +418,10 @@ export class OrdersService {
         context,
       });
     });
-    const updated = await this.repository.order(id);
+    const updated = await this.repository.staffOrder(
+      id,
+      actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
+    );
     if (updated === null) throw orderNotFound();
     return jsonSafe(updated);
   }
@@ -417,32 +432,18 @@ export class OrdersService {
   ) {
     assertOrderOperator(actor);
     if (actor.role !== "ADMIN" && actor.role !== "SUPER_ADMIN") throw orderForbidden();
-    const candidates = await this.repository.dueOrderIds(input.limit);
-    let expired = 0;
-    for (const candidate of candidates) {
-      await this.database.$transaction(async (transaction) => {
-        const order = await this.repository.lockOrder(candidate.id, transaction);
-        if (
-          order?.status !== "PENDING" ||
-          order.paymentDueAt === null ||
-          order.paymentDueAt > new Date()
-        )
-          return;
-        await this.cancelLocked(
-          actor,
-          order,
-          order.version,
-          "PAYMENT_WINDOW_EXPIRED",
-          transaction,
-          context,
-        );
-        expired += 1;
-      });
-    }
-    return { expired };
+    return this.expireEligibleOrders(input.limit, actor, context);
   }
 
   async expireDueSystem(limit: number) {
+    return this.expireEligibleOrders(limit, null);
+  }
+
+  private async expireEligibleOrders(
+    limit: number,
+    actor: AuthenticatedActor | null,
+    context?: RequestSecurityContext,
+  ) {
     const boundedLimit = Math.max(1, Math.min(limit, 100));
     const candidates = await this.repository.dueOrderIds(boundedLimit);
     let expired = 0;
@@ -467,12 +468,12 @@ export class OrdersService {
         });
         if (inFlightPayment !== null) return;
         await this.cancelLocked(
-          null,
+          actor,
           order,
           order.version,
           "PAYMENT_WINDOW_EXPIRED",
           transaction,
-          {
+          context ?? {
             requestId: `worker:order-expiry:${order.id}`,
             ipAddress: null,
             userAgent: null,

@@ -1,4 +1,5 @@
 "use client";
+import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
 import { useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
@@ -6,16 +7,28 @@ import { parseListings } from "@/lib/api/vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
 import { PublicMedia } from "./public-media";
-export function VehicleCatalogue() {
+export function VehicleCatalogue({
+  initial,
+}: {
+  initial?: PublicSeed<ReturnType<typeof parseListings>>;
+}) {
   const [filters, setFilters] = useState("");
   const [cursor, setCursor] = useState<string>();
   const [history, setHistory] = useState<(string | undefined)[]>([]);
   const listings = useResource(
     `/public/vehicles?limit=12${filters}${cursor ? `&cursor=${cursor}` : ""}`,
     parseListings,
+    initial?.data,
+    { initialError: initial?.error, revalidateOnMount: false },
   );
   return (
     <>
+      <noscript>
+        <p className="notice">
+          Enable JavaScript to filter, load more results or refresh this list. You can
+          still follow links on this page.
+        </p>
+      </noscript>
       <form
         className="catalogue-filters"
         onSubmit={(event) => {
@@ -115,8 +128,8 @@ export function VehicleCatalogue() {
       {listings.loading && (
         <p role="status">{listings.data ? "Updating vehicles…" : "Loading vehicles…"}</p>
       )}
-      <div className="grid">
-        {listings.data?.items.map((listing) => (
+      <div className="record-grid">
+        {(!listings.error ? listings.data : undefined)?.items.map((listing) => (
           <article className="product-card" key={listing.id}>
             <Link href={`/vehicles/${listing.id}`}>
               <PublicMedia

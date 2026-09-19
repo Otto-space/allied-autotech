@@ -104,6 +104,12 @@ export const orderSchema = z.object({
     .nullable(),
 });
 export const parseOrder = (value: unknown) => orderSchema.parse(value);
+// Operational consumers do not need invoice data; STAFF responses omit it.
+export const operationalOrderSchema = orderSchema.omit({ invoice: true });
+export const parseOperationalOrders = (value: unknown) =>
+  z
+    .object({ items: z.array(operationalOrderSchema), nextCursor: z.string().optional() })
+    .parse(value);
 export const parseOrders = (value: unknown) =>
   z
     .object({ items: z.array(orderSchema), nextCursor: z.string().optional() })

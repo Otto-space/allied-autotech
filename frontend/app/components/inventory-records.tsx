@@ -276,8 +276,8 @@ function ReservationActions({
         </button>
       </div>
       <p className="field-hint">
-        A reserved sale consumes all {reservation.quantity} units and must pass the
-        server expiry check.
+        A reserved sale consumes all {reservation.quantity} units and must pass the server
+        expiry check.
       </p>
     </form>
   );

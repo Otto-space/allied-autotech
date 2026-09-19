@@ -1,13 +1,16 @@
 # Allied AutoTech design system
 
+Consequential-action confirmations keep the heading, error feedback and action buttons visible within the viewport. Long descriptions and record facts use a named, keyboard-focusable scroll region between them. Initial focus stays on the non-submitting action; users can Shift+Tab to review details and scroll with the keyboard. This avoids opening a long mobile confirmation below its heading.
+
 The current brief supersedes earlier generated-image concepts. No AI-generated image is rendered. The original workshop asset remains on disk to preserve unrelated work. Genuine API media is displayed only from the approved host allowlist; missing or broken images use a neutral placeholder.
 
-The existing navy/cobalt/white palette and Geist typography are retained as implementation assumptions, not a newly verified brand kit. No authorized Figma file or node reference was supplied or found. The connector account was accessible, but no file inspection or pixel-level Figma match is claimed.
+The September 17 workspace update establishes red, navy and white, with a more editorial public layout. Quicksand is the user's preferred font and is now used for headings, body text and controls. The unused Nibble source file is preserved but is not loaded. No authorized Figma file or node reference was supplied or found. The connector account was accessible, but no file inspection or pixel-level Figma match is claimed.
 
 ## Tokens and composition
 
-- Canvas: true white; surfaces: cool gray; primary text: deep near-black navy; action: cobalt blue; safety state: sparse orange.
-- Type: Geist Sans for UI and Geist Mono only for identifiers, dates, and monetary detail.
+- Canvas: true white; surfaces: cool gray; primary text: deep near-black navy; action: red; marketplace band: navy; safety state: sparse orange.
+- Small red labels on navy use `--brand-red-on-dark` (`#ff625a`) through `.eyebrow.on-dark`; the primary action red does not provide sufficient small-text contrast on navy.
+- Type: self-hosted variable Quicksand via Next Font, with system fallbacks. Headings use 600–700 weight and a responsive scale; forms inherit the same family.
 - Shape: 2–12 px radii for normal controls, circular floating help buttons, restrained borders and shadows.
 - Layout: 1120 px maximum content width, strong whitespace, thin borders, and a 4/8 px spacing rhythm.
 - Imagery: approved backend product/vehicle photographs only. The homepage and authentication screens use typography and layout without invented workshop imagery.

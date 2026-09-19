@@ -26,9 +26,9 @@ export function renderIdentityEmail(payload: IdentityEmailPayload) {
 
   if (payload.template === "privileged-invitation") {
     return {
-      subject: "Your Allied AutoTech staff invitation",
-      text: `Accept your staff invitation using this link: ${payload.link}`,
-      html: `<p>You have been invited to an Allied AutoTech staff account.</p><p><a href="${link}">Accept invitation</a></p><p>This private, single-use link expires in 24 hours. Ignore this message if you were not expecting it.</p>`,
+      subject: "Your Allied AutoTech administrator invitation",
+      text: `You have been invited to become an administrator. Sign in to your existing staff account, complete MFA and explicitly accept using this private link: ${payload.link}`,
+      html: `<p>You have been invited to become an Allied AutoTech administrator.</p><p>Sign in to your existing staff account and complete MFA before accepting. Opening the link does not change your access.</p><p><a href="${link}">Review administrator invitation</a></p><p>This private link expires and can be accepted only once. Ignore this message if you were not expecting it.</p>`,
     };
   }
 

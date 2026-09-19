@@ -34,7 +34,7 @@ export const workOrderSchema = z.object({
   internalNotes: z.string().nullable(),
   items: z.array(serviceLineSchema),
 });
-export const staffBookingSchema = bookingSchema.extend({
+export const staffBookingSchema = bookingSchema.omit({ depositPayment: true }).extend({
   customerId: z.string().uuid(),
   bookingSlotId: z.string().uuid().nullable(),
   customerNotes: z.string().nullable(),

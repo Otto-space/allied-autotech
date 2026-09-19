@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError } from "@/lib/api/client";
@@ -10,6 +10,8 @@ import { nairaToKobo, koboToInput } from "@/lib/format/currency-input";
 import { Feedback } from "./feedback";
 import { useAccountSession } from "./dashboard-shell";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
+import { MutationReview, type MutationProposal } from "./mutation-review";
+import { ProductExtrasEditor } from "./product-extras-editor";
 const recordSchema = z.object({ id: z.uuid() }).catchall(z.unknown());
 const parseRecords = (value: unknown) =>
   z
@@ -223,56 +225,93 @@ function buildProposal(
   return body;
 }
 
+async function recheckAdminRecord(
+  config: AdminResource,
+  expected: RecordValue,
+  sourcePath: string,
+) {
+  let current: RecordValue | undefined;
+  try {
+    current = parseRecords((await apiRequest<unknown>(sourcePath)).data).items.find(
+      (item) => item.id === expected.id,
+    );
+    if (current) for (const field of config.fields) initialValue(current, field);
+  } catch (error) {
+    if (error instanceof ApiError && error.status >= 400 && error.status < 500)
+      throw error;
+    throw new ApiError(409, { error: { code: "PRECONDITION_UNAVAILABLE" } });
+  }
+  if (
+    !current ||
+    config.fields.some(
+      (field) => initialValue(current, field) !== initialValue(expected, field),
+    ) ||
+    (config.versioned && current.version !== expected.version)
+  )
+    throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+}
+
 export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource }>) {
   const session = useAccountSession();
   const allowed = session && ["ADMIN", "SUPER_ADMIN"].includes(session.user.role);
   const [cursor, setCursor] = useState<string>();
   const [history, setHistory] = useState<(string | undefined)[]>([]);
   let resourceUrl = allowed ? `${config.path}?limit=25` : null;
-  if (resourceUrl && cursor) {
-    resourceUrl += `&cursor=${cursor}`;
-  }
+  if (resourceUrl && cursor) resourceUrl += `&cursor=${cursor}`;
   const records = useResource(resourceUrl, parseRecords);
   const [editing, setEditing] = useState<RecordValue | null>(null);
+  const [editingSource, setEditingSource] = useState<string>();
   const [formKey, setFormKey] = useState(0);
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
-  const [busy, setBusy] = useState(false);
-  const [proposal, setProposal] = useState<Record<string, unknown> | null>(null);
-  const dialog = useRef<HTMLDialogElement>(null);
+  const [proposal, setProposal] = useState<MutationProposal | null>(null);
+  const [uncertain, setUncertain] = useState<Record<string, boolean>>({});
+  const [extras, setExtras] = useState<{ productId: string; sourcePath: string } | null>(
+    null,
+  );
+  const draftKey = editing?.id ?? "create";
   function review(form: FormData) {
+    if (proposal || uncertain[draftKey] || records.loading || records.error) return;
     setError(undefined);
+    setMessage(undefined);
     try {
       const body = buildProposal(config, editing, form);
-      setProposal(body);
-      dialog.current?.showModal();
-    } catch (error_) {
-      setError(error_ instanceof Error ? error_.message : "Check the form fields.");
-    }
-  }
-  async function save() {
-    if (busy || !proposal) return;
-    setBusy(true);
-    setError(undefined);
-    try {
-      await apiRequest(editing ? `${config.path}/${editing.id}` : config.path, {
-        method: editing ? "PATCH" : "POST",
-        csrf: true,
-        body: proposal,
+      const target = editing;
+      const source = editingSource;
+      const key = draftKey;
+      setProposal({
+        title: `Save this ${config.singular}?`,
+        description: "These changes affect the live catalogue or workshop information.",
+        facts: config.fields
+          .filter((field) => body[field.name] !== undefined)
+          .map((field) => ({
+            label: field.label,
+            value:
+              field.type === "money" && typeof body[field.name] === "string"
+                ? koboToInput(String(body[field.name]))
+                : textValue(body[field.name]) || "Not provided",
+          })),
+        onUncertain: () => setUncertain((value) => ({ ...value, [key]: true })),
+        submit: async () => {
+          if (target) {
+            if (!source)
+              throw new ApiError(409, { error: { code: "PRECONDITION_UNAVAILABLE" } });
+            await recheckAdminRecord(config, target, source);
+          }
+          const saved = recordSchema.parse(
+            (
+              await apiRequest<unknown>(
+                target ? `${config.path}/${target.id}` : config.path,
+                { method: target ? "PATCH" : "POST", csrf: true, body },
+              )
+            ).data,
+          );
+          if (target && saved.id !== target.id)
+            throw new Error("Unexpected saved record");
+        },
       });
-      dialog.current?.close();
-      records.refresh();
-      setEditing(null);
-      setFormKey((value) => value + 1);
-      setMessage(`${config.singular[0].toUpperCase()}${config.singular.slice(1)} saved.`);
-    } catch (error_) {
-      setError(
-        error_ instanceof ApiError
-          ? error_.message
-          : "The save could not be confirmed. Refresh the records before creating another.",
-      );
-    } finally {
-      setBusy(false);
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Check the form fields.");
     }
   }
   if (!allowed)
@@ -288,7 +327,11 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
       <p className="lead">{config.description}</p>
       <Feedback message={records.error ?? error} />
       <Feedback message={message} tone="success" />
-      <button className="button secondary" onClick={records.refresh}>
+      <button
+        className="button secondary"
+        disabled={records.loading || !!proposal}
+        onClick={records.refresh}
+      >
         Refresh records
       </button>
       {records.loading && <output>Loading records…</output>}
@@ -312,22 +355,37 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
                     textValue(record.slug)}
                 </td>
                 <td>
-                  {(() => {
-                    if (record.isActive === true) return "Active";
-                    if (record.isActive === false) return "Inactive";
-                    return "Not specified";
-                  })()}
+                  {record.isActive === true
+                    ? "Active"
+                    : record.isActive === false
+                      ? "Inactive"
+                      : "Not specified"}
                 </td>
                 <td>
                   <button
                     className="button secondary"
+                    disabled={!!proposal}
                     onClick={() => {
                       setEditing(record);
+                      setEditingSource(resourceUrl ?? undefined);
+                      setExtras(null);
                       setFormKey((value) => value + 1);
                     }}
                   >
-                    View & edit
+                    View &amp; edit
                   </button>
+                  {config.path === "/admin/catalog/products" && (
+                    <button
+                      className="button secondary"
+                      disabled={records.loading || !!records.error || !!proposal}
+                      onClick={() => {
+                        if (resourceUrl)
+                          setExtras({ productId: record.id, sourcePath: resourceUrl });
+                      }}
+                    >
+                      Compatibility &amp; images
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -340,7 +398,7 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
       <nav className="pagination" aria-label={`${config.title} pages`}>
         <button
           className="button secondary"
-          disabled={!history.length || records.loading}
+          disabled={!history.length || records.loading || !!proposal}
           onClick={() => {
             setCursor(history.at(-1));
             setHistory((value) => value.slice(0, -1));
@@ -351,7 +409,9 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
         <span>Page {history.length + 1}</span>
         <button
           className="button secondary"
-          disabled={!records.data?.nextCursor || records.loading || !!records.error}
+          disabled={
+            !records.data?.nextCursor || records.loading || !!records.error || !!proposal
+          }
           onClick={() => {
             setHistory((value) => [...value, cursor]);
             setCursor(records.data?.nextCursor);
@@ -360,8 +420,14 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
           Next
         </button>
       </nav>
-      <section className="detail-section">
+      <section className="detail-section" hidden={!!extras}>
         <h2>{editing ? `Edit ${config.singular}` : `Create ${config.singular}`}</h2>
+        {uncertain[draftKey] && (
+          <p className="notice" role="status">
+            The save could not be confirmed. Refresh the records and reconcile the result.
+            This draft will not be resent.
+          </p>
+        )}
         <form
           key={formKey}
           onSubmit={(event) => {
@@ -369,57 +435,71 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
             review(new FormData(event.currentTarget));
           }}
         >
-          <div className="form-row">
-            {config.fields.map((field) => (
-              <InputField key={field.name} field={field} record={editing} />
-            ))}
-          </div>
-          <div className="actions">
-            <button type="submit" className="button" disabled={busy}>
-              Review changes
-            </button>
-            {editing && (
+          <fieldset className="handover-fields" disabled={!!uncertain[draftKey]}>
+            <div className="form-row">
+              {config.fields.map((field) => (
+                <InputField key={field.name} field={field} record={editing} />
+              ))}
+            </div>
+            <div className="actions">
               <button
-                type="button"
-                className="button secondary"
-                onClick={() => {
-                  setEditing(null);
-                  setFormKey((value) => value + 1);
-                }}
+                type="submit"
+                className="button"
+                disabled={records.loading || !!records.error}
               >
-                Create a new {config.singular}
+                Review changes
               </button>
-            )}
-          </div>
+            </div>
+          </fieldset>
         </form>
+        {editing && (
+          <div className="actions">
+            <button
+              type="button"
+              className="button secondary"
+              disabled={!!proposal}
+              onClick={() => {
+                setEditing(null);
+                setEditingSource(undefined);
+                setFormKey((value) => value + 1);
+              }}
+            >
+              Create a new {config.singular}
+            </button>
+          </div>
+        )}
       </section>
-      <dialog ref={dialog} className="support-dialog" aria-labelledby="admin-save-title">
-        <h2 id="admin-save-title">Save this {config.singular}?</h2>
-        <p>These changes affect the live catalogue or workshop information.</p>
-        <Feedback message={error} />
-        <dl className="totals">
-          {config.fields
-            .filter((field) => proposal?.[field.name] !== undefined)
-            .map((field) => (
-              <div className="spec-row" key={field.name}>
-                <dt>{field.label}</dt>
-                <dd>
-                  {field.type === "money" && typeof proposal?.[field.name] === "string"
-                    ? koboToInput(String(proposal[field.name]))
-                    : textValue(proposal?.[field.name]) || "Not provided"}
-                </dd>
-              </div>
-            ))}
-        </dl>
-        <div className="actions">
-          <button className="button" disabled={busy} onClick={() => void save()}>
-            {busy ? "Saving…" : "Confirm save"}
-          </button>
-          <button className="button secondary" onClick={() => dialog.current?.close()}>
-            Go back
-          </button>
-        </div>
-      </dialog>
+      {extras && (
+        <ProductExtrasEditor
+          key={`${extras.productId}:${extras.sourcePath}`}
+          productId={extras.productId}
+          sourcePath={extras.sourcePath}
+          uncertain={!!uncertain[`extras:${extras.productId}`]}
+          onUncertain={() =>
+            setUncertain((value) => ({ ...value, [`extras:${extras.productId}`]: true }))
+          }
+          onUpdated={records.refresh}
+          onClose={() => setExtras(null)}
+        />
+      )}
+      {proposal && (
+        <MutationReview
+          proposal={proposal}
+          confirmLabel="Confirm save"
+          onClose={() => {
+            setProposal(null);
+          }}
+          onSuccess={() => {
+            records.refresh();
+            setEditing(null);
+            setEditingSource(undefined);
+            setFormKey((value) => value + 1);
+            setMessage(
+              `${config.singular[0].toUpperCase()}${config.singular.slice(1)} saved.`,
+            );
+          }}
+        />
+      )}
     </>
   );
 }

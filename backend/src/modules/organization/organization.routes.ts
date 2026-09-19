@@ -7,7 +7,7 @@ import {
   requireStaff,
   requireSuperAdministrator,
 } from "../../common/middleware/authorize.js";
-import { requireCsrf, requireTrustedOrigin } from "../../common/middleware/csrf.js";
+import { requireCsrf } from "../../common/middleware/csrf.js";
 import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import { validate } from "../../common/middleware/validate.js";
 import { OrganizationController } from "./organization.controller.js";
@@ -25,6 +25,11 @@ import {
   staffParamsSchema,
   staffRoleBodySchema,
   staffStatusBodySchema,
+  accountSearchQuerySchema,
+  invitationListQuerySchema,
+  invitationParamsSchema,
+  invitationRevokeBodySchema,
+  staffPromotionBodySchema,
 } from "./organization.schemas.js";
 
 export function createPublicBranchesRouter(): Router {
@@ -92,6 +97,35 @@ export function createAdminOrganizationRouter(): Router {
     controller.staffMembers,
   );
   router.get(
+    "/staff/candidates",
+    createSensitiveRateLimit(30),
+    validate({ query: accountSearchQuerySchema }),
+    controller.candidates,
+  );
+  router.post(
+    "/staff/promotions",
+    requireCsrf,
+    createSensitiveRateLimit(10),
+    validate({ body: staffPromotionBodySchema, query: organizationEmptyQuerySchema }),
+    controller.promote,
+  );
+  router.get(
+    "/staff/invitations",
+    validate({ query: invitationListQuerySchema }),
+    controller.invitations,
+  );
+  router.post(
+    "/staff/invitations/:invitationId/revoke",
+    requireCsrf,
+    createSensitiveRateLimit(10),
+    validate({
+      params: invitationParamsSchema,
+      body: invitationRevokeBodySchema,
+      query: organizationEmptyQuerySchema,
+    }),
+    controller.revokeInvitation,
+  );
+  router.get(
     "/staff/:staffUserId",
     validate({ params: staffParamsSchema, query: organizationEmptyQuerySchema }),
     controller.staffMember,
@@ -146,8 +180,13 @@ export function createPrivilegedInvitationRouter(): Router {
   router.post(
     "/accept",
     createSensitiveRateLimit(10, 60 * 60 * 1_000),
-    requireTrustedOrigin,
-    validate({ body: privilegedInvitationAcceptBodySchema }),
+    authenticate(),
+    requireStaff,
+    requireCsrf,
+    validate({
+      body: privilegedInvitationAcceptBodySchema,
+      query: organizationEmptyQuerySchema,
+    }),
     controller.acceptInvitation,
   );
   return router;

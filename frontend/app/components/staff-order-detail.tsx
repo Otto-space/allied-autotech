@@ -4,14 +4,14 @@ import { useState } from "react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
-import { orderSchema } from "@/lib/api/commerce-schemas";
+import { operationalOrderSchema } from "@/lib/api/commerce-schemas";
 import type { RequestBody } from "@/lib/api/contracts";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { Feedback } from "./feedback";
 const parseStaffOrder = (value: unknown) =>
-  orderSchema
+  operationalOrderSchema
     .extend({
       customerName: z.string(),
       customerEmail: z.string(),

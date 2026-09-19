@@ -1,24 +1,36 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
+import { useAccountMutation } from "@/lib/api/use-account-mutation";
+import { AccountChangeNotice } from "./account-change-notice";
 import { Feedback } from "./feedback";
 export function VehicleActions({ listingId }: { listingId: string }) {
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [login, setLogin] = useState(false);
-  async function submit(action: "save" | "enquire" | "inspect", form?: FormData) {
-    if (busy) return;
-    setBusy(true);
+  const inspectionForm = useRef<HTMLFormElement>(null);
+  const discard = useCallback(() => {
     setError(undefined);
     setMessage(undefined);
+    setLogin(false);
+    inspectionForm.current?.reset();
+  }, []);
+  const operation = useAccountMutation(discard);
+  const { busy } = operation;
+  async function submit(action: "save" | "enquire" | "inspect", form?: FormData) {
+    const controller = operation.begin();
+    if (!controller) return;
+    setError(undefined);
+    setMessage(undefined);
+    setLogin(false);
     try {
       if (action === "save")
         await apiRequest(`/customers/saved-vehicles/${listingId}`, {
           method: "PUT",
           csrf: true,
+          signal: controller.signal,
           body: {},
         });
       else if (action === "enquire") {
@@ -28,6 +40,7 @@ export function VehicleActions({ listingId }: { listingId: string }) {
         await apiRequest("/customers/vehicle-transactions", {
           method: "POST",
           csrf: true,
+          signal: controller.signal,
           body,
         });
       } else {
@@ -46,9 +59,11 @@ export function VehicleActions({ listingId }: { listingId: string }) {
         await apiRequest("/customers/vehicle-inspections", {
           method: "POST",
           csrf: true,
+          signal: controller.signal,
           body,
         });
       }
+      if (controller.signal.aborted) return;
       setMessage(
         action === "save"
           ? "Vehicle saved to your account."
@@ -57,6 +72,7 @@ export function VehicleActions({ listingId }: { listingId: string }) {
             : "Your vehicle enquiry has been created. Check your account for updates from our team.",
       );
     } catch (value) {
+      if (controller.signal.aborted) return;
       setError(
         value instanceof ApiError
           ? value.message
@@ -64,11 +80,12 @@ export function VehicleActions({ listingId }: { listingId: string }) {
       );
       setLogin(value instanceof ApiError && value.status === 401);
     } finally {
-      setBusy(false);
+      operation.finish(controller);
     }
   }
   return (
     <>
+      <AccountChangeNotice visible={operation.sessionChanged} />
       <Feedback message={error} />
       <Feedback message={message} tone="success" />
       {login && (
@@ -99,6 +116,7 @@ export function VehicleActions({ listingId }: { listingId: string }) {
           Tell us when you would like to visit. Your appointment is confirmed separately.
         </p>
         <form
+          ref={inspectionForm}
           onSubmit={(event) => {
             event.preventDefault();
             void submit("inspect", new FormData(event.currentTarget));

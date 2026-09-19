@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import {
   apiRequest,
@@ -13,25 +13,57 @@ import { parsePayment, paymentMessages } from "@/lib/api/payment-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
+import { ManualPaymentForm } from "./manual-payment-form";
 const checkoutSchema = z.object({
   attemptId: z.string().uuid(),
   authorizationUrl: z.string().url(),
   authorizationExpiresAt: z.string(),
 });
 export function PaymentDetail({ paymentId }: { paymentId: string }) {
+  const parse = useCallback(
+    (value: unknown) => {
+      const record = parsePayment(value);
+      if (record.id !== paymentId) throw new Error("Mismatched payment");
+      return record;
+    },
+    [paymentId],
+  );
   const payment = useResource(
     `/customers/payments/${encodeURIComponent(paymentId)}`,
-    parsePayment,
+    parse,
   );
   const [busy, setBusy] = useState(false);
+  const [manualActive, setManualActive] = useState(false);
   const busyRef = useRef(false);
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [uncertain, setUncertain] = useState(false);
   const [providerAttempt, setProviderAttempt] = useState<"paystack" | "monnify">();
   const keys = useRef(new Map<string, string>());
+  const [now, setNow] = useState(() => Date.now());
+  const deadline = payment.data?.expiresAt;
+  const refreshPayment = payment.refresh;
+  useEffect(() => {
+    if (!deadline) return;
+    const remaining = Date.parse(deadline) - Date.now();
+    if (remaining <= 0) return;
+    const timer = setTimeout(
+      () => {
+        setNow(Date.now());
+        if (Date.parse(deadline) <= Date.now()) refreshPayment();
+      },
+      Math.min(remaining, 2147483647),
+    );
+    return () => clearTimeout(timer);
+  }, [deadline, now, refreshPayment]);
   async function initialize(provider: "paystack" | "monnify") {
-    if (busyRef.current || payment.data?.status !== "REQUIRES_PAYMENT") return;
+    if (
+      busyRef.current ||
+      manualActive ||
+      payment.data?.status !== "REQUIRES_PAYMENT" ||
+      (payment.data.expiresAt && Date.parse(payment.data.expiresAt) <= Date.now())
+    )
+      return;
     busyRef.current = true;
     setBusy(true);
     setError(undefined);
@@ -78,7 +110,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
         `/customers/payments/${paymentId}/attempts/${attemptId}/verify`,
         { method: "POST", csrf: true, body: {} },
       );
-      const verified = parsePayment(result.data);
+      const verified = parse(result.data);
       setMessage(paymentMessages[verified.status]);
       payment.refresh();
     } catch {
@@ -118,7 +150,23 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
           {current.expiresAt && (
             <p>Payment deadline: {formatBusinessDate(current.expiresAt)}</p>
           )}
+          {current.status === "REQUIRES_PAYMENT" &&
+            current.expiresAt &&
+            Date.parse(current.expiresAt) <= now && (
+              <p className="notice">
+                The payment deadline has passed. Refresh its status and contact customer
+                care if you already paid.
+              </p>
+            )}
           <div className="actions">
+            {current.vehicleTransactionId && (
+              <Link
+                className="text-link"
+                href={`/dashboard/vehicle-transactions/${current.vehicleTransactionId}`}
+              >
+                View vehicle purchase
+              </Link>
+            )}
             {current.orderId && (
               <Link className="text-link" href={`/dashboard/orders/${current.orderId}`}>
                 View order →
@@ -134,6 +182,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
             </Link>
           </div>
           {current.status === "REQUIRES_PAYMENT" &&
+            (!current.expiresAt || Date.parse(current.expiresAt) > now) &&
             !pendingAttempt &&
             !payment.error &&
             !payment.loading &&
@@ -144,14 +193,14 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
                 <div className="actions">
                   <button
                     className="button"
-                    disabled={busy}
+                    disabled={busy || manualActive}
                     onClick={() => void initialize("paystack")}
                   >
                     Continue with Paystack
                   </button>
                   <button
                     className="button secondary"
-                    disabled={busy}
+                    disabled={busy || manualActive}
                     onClick={() => void initialize("monnify")}
                   >
                     Pay by bank with Monnify
@@ -167,13 +216,31 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
               </p>
               <button
                 className="button secondary"
-                disabled={busy || current.status !== "REQUIRES_PAYMENT"}
+                disabled={busy || manualActive || current.status !== "REQUIRES_PAYMENT"}
                 onClick={() => void initialize(providerAttempt)}
               >
                 Reopen the same checkout
               </button>
             </div>
           )}
+          <ManualPaymentForm
+            payment={current}
+            eligible={
+              current.status === "REQUIRES_PAYMENT" &&
+              !pendingAttempt &&
+              !uncertain &&
+              (!current.expiresAt || Date.parse(current.expiresAt) > now)
+            }
+            disabled={busy || !!payment.error || payment.loading}
+            onActivity={setManualActive}
+            onRefresh={payment.refresh}
+            onRecorded={() => {
+              setMessage(
+                "Payment details submitted for review. Do not pay again while confirmation is pending.",
+              );
+              payment.refresh();
+            }}
+          />
           {current.attempts.length > 0 && (
             <section className="detail-section">
               <h3>Payment attempts</h3>
@@ -191,7 +258,7 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
                     {attempt.provider !== "MANUAL" && (
                       <button
                         className="button secondary"
-                        disabled={busy}
+                        disabled={busy || manualActive}
                         onClick={() => void verify(attempt.id)}
                       >
                         Check with provider

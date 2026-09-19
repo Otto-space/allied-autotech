@@ -7,7 +7,15 @@ const API_ROOT = "/api/v1";
 let csrfToken: string | null = null;
 let csrfRequest: Promise<string> | null = null;
 let sessionGeneration = 0;
+let sessionEventSource: string | undefined;
 export const SESSION_CHANGED = "aat:session-changed";
+
+export function isExternalSessionChange(value: unknown): boolean {
+  return (
+    value === "changed" ||
+    (isRecord(value) && value.type === "changed" && value.source !== sessionEventSource)
+  );
+}
 
 export class ApiError extends Error {
   readonly code: string;
@@ -41,6 +49,9 @@ export type RequestOptions = Omit<RequestInit, "body" | "credentials" | "headers
   idempotencyKey?: string;
   headers?: Record<string, string>;
   timeoutMs?: number;
+  // Public navigation can check for a session without treating an anonymous visitor
+  // as a sign-out. This applies only to GET /auth/session, never protected actions.
+  optionalSession?: true;
 };
 
 async function decode(response: Response): Promise<unknown> {
@@ -101,6 +112,7 @@ export async function apiRequest<T>(
     });
   });
   const body = await decode(response);
+  options.signal?.throwIfAborted();
   if (generation !== sessionGeneration)
     throw new DOMException("Session changed", "AbortError");
   if (!response.ok) {
@@ -108,8 +120,16 @@ export async function apiRequest<T>(
     if (error.code === "CSRF_INVALID") clearCsrfToken();
     if (
       response.status === 401 &&
+      !(options.optionalSession && method === "GET" && path === "/auth/session") &&
+      !(
+        error.code === "AUTHENTICATION_FAILED" &&
+        (path === "/auth/password/change" ||
+          /^\/auth\/mfa\/factors\/[a-f0-9-]+$/i.test(path))
+      ) &&
       (options.csrf ||
         /^\/(customers|staff|admin)\//.test(path) ||
+        path === "/auth/sessions" ||
+        path === "/auth/mfa/factors" ||
         path === "/auth/session")
     )
       invalidateSession();
@@ -154,19 +174,21 @@ export function refreshCsrf(): Promise<string> {
   return pending;
 }
 
-export function invalidateSession(): void {
+export function invalidateSession(reason?: "password-changed"): void {
   sessionGeneration += 1;
   csrfToken = null;
   csrfRequest = null;
-  if (typeof window !== "undefined") window.dispatchEvent(new Event(SESSION_CHANGED));
+  if (typeof window !== "undefined")
+    window.dispatchEvent(new CustomEvent(SESSION_CHANGED, { detail: reason }));
 }
 
 // Share only an invalidation event, never account data or credentials.
-export function announceSessionChange(): void {
-  invalidateSession();
+export function announceSessionChange(reason?: "password-changed"): void {
+  invalidateSession(reason);
   if (typeof BroadcastChannel !== "undefined") {
     const channel = new BroadcastChannel("aat-session");
-    channel.postMessage("changed");
+    sessionEventSource ??= crypto.randomUUID();
+    channel.postMessage({ type: "changed", source: sessionEventSource });
     channel.close();
   }
 }

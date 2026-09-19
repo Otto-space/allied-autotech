@@ -1,9 +1,12 @@
 "use client";
 import { z } from "zod";
+import Link from "next/link";
 import { useResource } from "@/lib/api/use-resource";
 import { useAccountSession } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { formatBusinessDate } from "@/lib/format/date";
+import { useState } from "react";
+import { RoleOverview } from "./role-overview";
 const parseOperations = (value: unknown) =>
   z
     .object({
@@ -27,7 +30,7 @@ const parseOperations = (value: unknown) =>
         .nullable(),
     })
     .parse(value);
-export function AdminOverview() {
+function OperationsOverview() {
   const session = useAccountSession();
   const administrator = !!session && ["ADMIN", "SUPER_ADMIN"].includes(session.user.role);
   const operations = useResource(
@@ -37,7 +40,7 @@ export function AdminOverview() {
 
   return (
     <>
-      <h1>Workshop operations</h1>
+      <h2>Workshop processing</h2>
       <p className="lead">
         Monitor payment exceptions and the work waiting to be processed.
       </p>
@@ -53,6 +56,22 @@ export function AdminOverview() {
             Refresh operations
           </button>
           {operations.loading && <output>Checking operational status…</output>}
+          <section className="detail-section" aria-labelledby="expiry-maintenance-title">
+            <h2 id="expiry-maintenance-title">Overdue orders and reservations</h2>
+            <p>
+              Bulk expiry is unavailable in this workspace. A payment may still be
+              processing or awaiting review, so a passed deadline alone is not enough to
+              safely release stock or a reserved vehicle.
+            </p>
+            <div className="actions">
+              <Link className="text-link" href="/admin/orders">
+                Review orders
+              </Link>
+              <Link className="text-link" href="/admin/vehicle-sales">
+                Review vehicle purchases
+              </Link>
+            </div>
+          </section>
           <div className="metric-grid detail-section">
             <article className="metric">
               <h2>Open payment exceptions</h2>
@@ -62,6 +81,9 @@ export function AdminOverview() {
                   : (operations.data?.openPaymentAnomalies ?? "Loading…")}
               </strong>
               <p className="muted">All records currently OPEN or INVESTIGATING.</p>
+              <Link className="text-link" href="/admin/payment-exceptions">
+                Review exceptions
+              </Link>
             </article>
             <article className="metric">
               <h2>Latest reconciliation</h2>
@@ -78,19 +100,22 @@ export function AdminOverview() {
                   : "No estimated status is shown."}
               </p>
             </article>
-            <article className="metric">
-              <h2>Sales analytics</h2>
-              <strong>Unavailable</strong>
-              <p className="muted">
-                A sales aggregation endpoint is not provided. Paid revenue and order-value
-                totals are not inferred from result pages.
-              </p>
-            </article>
           </div>
           {operations.data && !operations.error && (
             <>
               <section className="detail-section">
                 <h2>Processing queues</h2>
+                <div className="actions">
+                  <Link className="text-link" href="/admin/processing-jobs">
+                    Review processing jobs
+                  </Link>
+                  <Link className="text-link" href="/admin/payment-disputes">
+                    Review disputes
+                  </Link>
+                  <Link className="text-link" href="/admin/refunds">
+                    Review refunds
+                  </Link>
+                </div>
                 <p className="muted">
                   Complete server counts grouped by queue and current status. No date
                   filter or comparison period; refresh manually or when returning to this
@@ -134,6 +159,27 @@ export function AdminOverview() {
             </>
           )}
         </>
+      )}
+    </>
+  );
+}
+
+export function AdminOverview() {
+  const session = useAccountSession();
+  const [open, setOpen] = useState(false);
+  const administrator =
+    session?.user.role === "ADMIN" || session?.user.role === "SUPER_ADMIN";
+  return (
+    <>
+      <RoleOverview />
+      {administrator && (
+        <details
+          className="overview-operations"
+          onToggle={(event) => setOpen(event.currentTarget.open)}
+        >
+          <summary>Processing queues & payment monitoring</summary>
+          {open && <OperationsOverview />}
+        </details>
       )}
     </>
   );

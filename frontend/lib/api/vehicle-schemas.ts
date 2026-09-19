@@ -32,7 +32,7 @@ export const listingSchema = z.object({
         id: z.string().uuid(),
         summary: z.string(),
         inspectedAt: z.string(),
-        odometerKm: z.number(),
+        odometerKm: z.number().nullable(),
         conditionScore: z.number().nullable(),
       }),
     ),
@@ -69,7 +69,7 @@ export const inspectionSchema = z.object({
     .object({
       summary: z.string(),
       inspectedAt: z.string(),
-      odometerKm: z.number().int(),
+      odometerKm: z.number().int().nullable(),
     })
     .nullable(),
   vehicleListing: z.object({ id: z.string().uuid(), title: z.string() }),
@@ -125,8 +125,8 @@ export const vehicleTransactionSchema = z.object({
     .object({
       id: z.string().uuid(),
       status: z.string(),
-      recipientName: z.string(),
-      odometerKm: z.number().int(),
+      recipientName: z.string().nullable(),
+      odometerKm: z.number().int().nullable(),
       keysDelivered: z.number().int(),
       readyAt: z.string().nullable(),
       completedAt: z.string().nullable(),

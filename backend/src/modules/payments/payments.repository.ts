@@ -114,9 +114,9 @@ export class PaymentsRepository {
       _sum: { amountKobo: true },
     });
   }
-  byIdempotency(hash: string, client: DatabaseClient) {
+  byIdempotency(hash: string, customerId: string, client: DatabaseClient) {
     return client.payment.findUnique({
-      where: { idempotencyKeyHash: hash },
+      where: { idempotencyKeyHash: hash, customerId },
       select: paymentSelect,
     });
   }

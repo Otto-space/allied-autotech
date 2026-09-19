@@ -16,6 +16,7 @@ import { registerSupportOpenApi } from "../modules/support/support.openapi.js";
 import { registerNotificationsOpenApi } from "../modules/notifications/notifications.openapi.js";
 import { registerAuditOpenApi } from "../modules/audit/audit.openapi.js";
 import { hardenOpenApiDocument } from "./harden-document.js";
+import { registerOverviewOpenApi } from "../modules/overview/overview.openapi.js";
 
 export interface OpenApiDocumentOptions {
   sessionCookieName: string;
@@ -38,6 +39,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerSupportOpenApi(registry);
   registerNotificationsOpenApi(registry);
   registerAuditOpenApi(registry);
+  registerOverviewOpenApi(registry);
   const generator = new OpenApiGeneratorV31(registry.definitions);
 
   return hardenOpenApiDocument(

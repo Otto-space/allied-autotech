@@ -67,8 +67,6 @@ export const staffVehicleSelect = {
   vin: true,
   chassisNumber: true,
   registrationNumber: true,
-  acquisitionCostKobo: true,
-  acquisitionCurrency: true,
   acquiredAt: true,
   version: true,
   createdAt: true,
@@ -113,6 +111,14 @@ export const staffVehicleSelect = {
     orderBy: { createdAt: "desc" as const },
   },
 } satisfies Prisma.VehicleSelect;
+
+function vehicleSelect(includeAcquisition: boolean) {
+  return {
+    ...staffVehicleSelect,
+    acquisitionCostKobo: includeAcquisition,
+    acquisitionCurrency: includeAcquisition,
+  } satisfies Prisma.VehicleSelect;
+}
 
 function publicWhere(query: PublicVehicleListQuery): Prisma.VehicleListingWhereInput {
   const vehicle: Prisma.VehicleWhereInput = {
@@ -193,7 +199,11 @@ export class VehiclesRepository {
       select: { publicId: true },
     });
   }
-  listStaff(query: StaffVehicleListQuery, branchId: string | null) {
+  listStaff(
+    query: StaffVehicleListQuery,
+    branchId: string | null,
+    includeAcquisition = false,
+  ) {
     return this.database.vehicle.findMany({
       where: {
         ...(branchId === null
@@ -222,14 +232,21 @@ export class VehiclesRepository {
               ],
             }),
       },
-      select: staffVehicleSelect,
+      select: vehicleSelect(includeAcquisition),
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });
   }
-  vehicle(id: string, client: DatabaseClient = this.database) {
-    return client.vehicle.findUnique({ where: { id }, select: staffVehicleSelect });
+  vehicle(
+    id: string,
+    client: DatabaseClient = this.database,
+    includeAcquisition = false,
+  ) {
+    return client.vehicle.findUnique({
+      where: { id },
+      select: vehicleSelect(includeAcquisition),
+    });
   }
   activeBranch(id: string, client: DatabaseClient) {
     return client.branch.findFirst({
@@ -246,7 +263,11 @@ export class VehiclesRepository {
   customer(userId: string, client: DatabaseClient = this.database) {
     return client.customerProfile.findUnique({ where: { userId }, select: { id: true } });
   }
-  createVehicle(input: VehicleCreateInput, client: DatabaseClient) {
+  createVehicle(
+    input: VehicleCreateInput,
+    client: DatabaseClient,
+    includeAcquisition = false,
+  ) {
     const data = Object.fromEntries(
       Object.entries({
         ...input,
@@ -258,10 +279,15 @@ export class VehiclesRepository {
     ) as unknown as Prisma.VehicleUncheckedCreateInput;
     return client.vehicle.create({
       data,
-      select: staffVehicleSelect,
+      select: vehicleSelect(includeAcquisition),
     });
   }
-  async updateVehicle(id: string, input: VehicleUpdateInput, client: DatabaseClient) {
+  async updateVehicle(
+    id: string,
+    input: VehicleUpdateInput,
+    client: DatabaseClient,
+    includeAcquisition = false,
+  ) {
     const { expectedVersion, acquisitionCostKobo, acquiredAt, ...fields } = input;
     const data = Object.fromEntries(
       Object.entries({
@@ -282,7 +308,7 @@ export class VehiclesRepository {
       where: { id, version: expectedVersion },
       data,
     });
-    return result.count === 1 ? this.vehicle(id, client) : null;
+    return result.count === 1 ? this.vehicle(id, client, includeAcquisition) : null;
   }
   createListing(
     vehicle: { id: string; branchId: string },

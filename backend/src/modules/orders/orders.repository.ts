@@ -184,6 +184,12 @@ export class OrdersRepository {
   order(id: string, client: DatabaseClient = this.database) {
     return client.order.findUnique({ where: { id }, select: orderSelect });
   }
+  staffOrder(id: string, includeInvoice: boolean) {
+    return this.database.order.findUnique({
+      where: { id },
+      select: { ...orderSelect, invoice: includeInvoice ? orderSelect.invoice : false },
+    });
+  }
   ownedOrder(id: string, customerId: string, client: DatabaseClient = this.database) {
     return client.order.findFirst({ where: { id, customerId }, select: orderSelect });
   }
@@ -207,7 +213,11 @@ export class OrdersRepository {
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });
   }
-  listStaff(query: StaffOrderListQuery, branchId: string | null) {
+  listStaff(
+    query: StaffOrderListQuery,
+    branchId: string | null,
+    includeInvoice: boolean,
+  ) {
     const branchFilter: { branchId?: string } = {};
     if (branchId !== null) {
       branchFilter.branchId = branchId;
@@ -220,7 +230,7 @@ export class OrdersRepository {
         ...(query.customerId === undefined ? {} : { customerId: query.customerId }),
         ...(query.status === undefined ? {} : { status: query.status }),
       },
-      select: orderSelect,
+      select: { ...orderSelect, invoice: includeInvoice ? orderSelect.invoice : false },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),

@@ -1,4 +1,5 @@
 "use client";
+import type { PublicSeed } from "@/lib/api/public-seed";
 import { useState } from "react";
 import Link from "next/link";
 import { useResource } from "@/lib/api/use-resource";
@@ -6,7 +7,11 @@ import { parseCategories, parseProducts } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
 import { PublicMedia } from "./public-media";
-export function PartsCatalogue() {
+export function PartsCatalogue({
+  initial,
+}: {
+  initial?: PublicSeed<ReturnType<typeof parseProducts>>;
+}) {
   const [filters, setFilters] = useState("");
   const [cursor, setCursor] = useState<string>();
   const [history, setHistory] = useState<(string | undefined)[]>([]);
@@ -18,7 +23,10 @@ export function PartsCatalogue() {
   );
   const productUrl =
     "/public/catalog/products?limit=12" + filters + (cursor ? "&cursor=" + cursor : "");
-  const products = useResource(productUrl, parseProducts);
+  const products = useResource(productUrl, parseProducts, initial?.data, {
+    initialError: initial?.error,
+    revalidateOnMount: false,
+  });
   function reset() {
     setFilters("");
     setCursor(undefined);
@@ -26,6 +34,12 @@ export function PartsCatalogue() {
   }
   return (
     <>
+      <noscript>
+        <p className="notice">
+          Enable JavaScript to filter, load more results or refresh this list. You can
+          still follow links on this page.
+        </p>
+      </noscript>
       <form
         className="catalogue-filters"
         onSubmit={(event) => {
@@ -142,8 +156,8 @@ export function PartsCatalogue() {
       {products.loading && (
         <output>{products.data ? "Updating results…" : "Loading parts…"}</output>
       )}
-      <div className="grid" aria-busy={products.loading}>
-        {products.data?.items.map((product) => (
+      <div className="record-grid" aria-busy={products.loading}>
+        {(!products.error ? products.data : undefined)?.items.map((product) => (
           <article className="product-card" key={product.id}>
             <Link href={`/parts/${product.id}`}>
               <PublicMedia
@@ -184,7 +198,7 @@ export function PartsCatalogue() {
       <nav className="pagination" aria-label="Parts pages">
         <button
           className="button secondary"
-          disabled={!history.length || products.loading}
+          disabled={!history.length || products.loading || !!products.error}
           onClick={() => {
             setCursor(history.at(-1));
             setHistory((value) => value.slice(0, -1));
@@ -195,7 +209,7 @@ export function PartsCatalogue() {
         <span>Page {history.length + 1}</span>
         <button
           className="button secondary"
-          disabled={!products.data?.nextCursor || products.loading}
+          disabled={!products.data?.nextCursor || products.loading || !!products.error}
           onClick={() => {
             setHistory((value) => [...value, cursor]);
             setCursor(products.data?.nextCursor);

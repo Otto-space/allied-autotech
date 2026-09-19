@@ -5,7 +5,11 @@ export function assertPaymentCustomer(actor: AuthenticatedActor): void {
   if (actor.role !== "CUSTOMER") throw paymentForbidden();
 }
 export function assertPaymentOperator(actor: AuthenticatedActor): void {
-  if (actor.role === "CUSTOMER" || actor.mfaVerifiedAt === null) throw paymentForbidden();
+  if (
+    (actor.role !== "ADMIN" && actor.role !== "SUPER_ADMIN") ||
+    actor.mfaVerifiedAt === null
+  )
+    throw paymentForbidden();
 }
 export function assertPaymentApprover(actor: AuthenticatedActor): void {
   if (

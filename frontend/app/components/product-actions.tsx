@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
+import { useAccountMutation } from "@/lib/api/use-account-mutation";
+import { AccountChangeNotice } from "./account-change-notice";
 import { Feedback } from "./feedback";
 export function ProductActions({
   productId,
@@ -19,12 +21,21 @@ export function ProductActions({
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [login, setLogin] = useState(false);
-  const [busy, setBusy] = useState(false);
-  async function mutate(action: "cart" | "favourite", quantity = 1) {
-    if (busy) return;
-    setBusy(true);
+  const { reset } = form;
+  const discard = useCallback(() => {
     setError(undefined);
     setMessage(undefined);
+    setLogin(false);
+    reset({ quantity: 1 });
+  }, [reset]);
+  const operation = useAccountMutation(discard);
+  const { busy } = operation;
+  async function mutate(action: "cart" | "favourite", quantity = 1) {
+    const controller = operation.begin();
+    if (!controller) return;
+    setError(undefined);
+    setMessage(undefined);
+    setLogin(false);
     try {
       if (action === "cart") {
         const body: RequestBody<"/customers/cart/items/{productId}", "put"> = {
@@ -33,18 +44,23 @@ export function ProductActions({
         await apiRequest(`/customers/cart/items/${productId}`, {
           method: "PUT",
           csrf: true,
+          signal: controller.signal,
           body,
         });
+        if (controller.signal.aborted) return;
         setMessage("Your cart quantity has been saved. Review your cart to continue.");
       } else {
         await apiRequest(`/customers/favourites/${productId}`, {
           method: "PUT",
           csrf: true,
+          signal: controller.signal,
           body: {},
         });
+        if (controller.signal.aborted) return;
         setMessage("Part saved to your favourites.");
       }
     } catch (value) {
+      if (controller.signal.aborted) return;
       setError(
         value instanceof ApiError
           ? value.message
@@ -52,11 +68,12 @@ export function ProductActions({
       );
       setLogin(value instanceof ApiError && value.status === 401);
     } finally {
-      setBusy(false);
+      operation.finish(controller);
     }
   }
   return (
     <>
+      <AccountChangeNotice visible={operation.sessionChanged} />
       <Feedback message={error} />
       <Feedback message={message} tone="success" />
       {login && (

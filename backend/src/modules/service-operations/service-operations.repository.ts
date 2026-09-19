@@ -388,14 +388,24 @@ export class ServiceOperationsRepository {
         customerId,
         ...(query.status === undefined ? {} : { status: query.status }),
       },
-      select: bookingSelect,
+      select: {
+        ...bookingSelect,
+        quotes: {
+          ...bookingSelect.quotes,
+          where: { issuedAt: { not: null }, status: { not: "DRAFT" } },
+        },
+      },
       orderBy: { id: "asc" },
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });
   }
 
-  listStaffBookings(query: StaffBookingListQuery, allowedBranchId: string | null) {
+  listStaffBookings(
+    query: StaffBookingListQuery,
+    allowedBranchId: string | null,
+    includePayment: boolean,
+  ) {
     const branchId = allowedBranchId ?? query.branchId;
     return this.database.booking.findMany({
       where: {
@@ -417,7 +427,10 @@ export class ServiceOperationsRepository {
               },
             }),
       },
-      select: bookingSelect,
+      select: {
+        ...bookingSelect,
+        depositPayment: includePayment ? bookingSelect.depositPayment : false,
+      },
       orderBy: { id: "asc" },
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
@@ -426,6 +439,33 @@ export class ServiceOperationsRepository {
 
   booking(id: string, client: DatabaseClient = this.database) {
     return client.booking.findUnique({ where: { id }, select: bookingSelect });
+  }
+
+  customerBooking(id: string, client: DatabaseClient = this.database) {
+    return client.booking.findUnique({
+      where: { id },
+      select: {
+        ...bookingSelect,
+        quotes: {
+          ...bookingSelect.quotes,
+          where: { issuedAt: { not: null }, status: { not: "DRAFT" } },
+        },
+      },
+    });
+  }
+
+  staffBooking(
+    id: string,
+    includePayment: boolean,
+    client: DatabaseClient = this.database,
+  ) {
+    return client.booking.findUnique({
+      where: { id },
+      select: {
+        ...bookingSelect,
+        depositPayment: includePayment ? bookingSelect.depositPayment : false,
+      },
+    });
   }
 
   async lockBooking(id: string, client: Prisma.TransactionClient) {

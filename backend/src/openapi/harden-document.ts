@@ -54,6 +54,10 @@ function accessFor(
     return { boundary: "provider-webhook", roles: ["PAYMENT_PROVIDER"] };
   if (path.startsWith("/customers/"))
     return { boundary: "authenticated-customer", roles: ["CUSTOMER"] };
+  if (path === "/auth/staff/invitations/accept")
+    return { boundary: "mfa-verified-invited-staff", roles: ["STAFF"] };
+  if (/^\/staff\/(?:payments|invoices)(?:\/|$)/.test(path))
+    return { boundary: "mfa-verified-admin", roles: ["ADMIN", "SUPER_ADMIN"] };
   if (path.startsWith("/staff/"))
     return {
       boundary: "mfa-verified-staff",

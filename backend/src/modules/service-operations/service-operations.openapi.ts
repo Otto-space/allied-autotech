@@ -151,7 +151,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
     {
       method: "get",
       path: "/customers/bookings",
-      summary: "List own bookings",
+      summary: "List own bookings with previously issued quotations only",
       query: customerBookingListQuerySchema,
       secured: true,
     },
@@ -168,7 +168,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
     {
       method: "get",
       path: "/customers/bookings/{bookingId}",
-      summary: "Get an owned booking",
+      summary: "Get an owned booking with previously issued quotations only",
       params: bookingParamsSchema,
       secured: true,
     },
@@ -356,6 +356,12 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: route.method,
       path: route.path,
       summary: route.summary,
+      ...(route.path.startsWith("/staff/bookings")
+        ? {
+            description:
+              "Branch-authorized workshop operations. Deposit payment records are omitted entirely for STAFF, including operational mutation responses. Booking policy snapshots and scheduling/payment clearance states remain available. Inactive staff branches are denied.",
+          }
+        : {}),
       tags: ["Service operations"],
       ...(route.secured ? { security: [{ sessionCookie: [] }] } : {}),
       request: {

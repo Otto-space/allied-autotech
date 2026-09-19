@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { notFound } from "next/navigation";
+import { notFound, unstable_rethrow } from "next/navigation";
+import { z } from "zod";
+import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import { publicData, PublicApiError } from "@/lib/api/public-server";
 import { listingSchema } from "@/lib/api/vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
@@ -11,11 +13,13 @@ import { SiteFooter } from "../../components/site-footer";
 import { PublicMedia } from "../../components/public-media";
 import { VehicleActions } from "../../components/vehicle-actions";
 const getListing = cache(async (id: string) => {
-  if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
+  if (!z.uuid().safeParse(id).success) notFound();
   try {
-    return await publicData(`/public/vehicles/${id}`, (value) =>
-      listingSchema.parse(value),
-    );
+    return await publicData(`/public/vehicles/${id}`, (value) => {
+      const parsed = listingSchema.parse(value);
+      if (parsed.id !== id) throw new PublicApiError(502);
+      return parsed;
+    });
   } catch (error) {
     if (error instanceof PublicApiError && error.status === 404) notFound();
     throw error;
@@ -23,19 +27,24 @@ const getListing = cache(async (id: string) => {
 });
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ listingId: string }>;
+  searchParams: SearchParameters;
 }): Promise<Metadata> {
   try {
     const listing = await getListing((await params).listingId);
-    return {
-      title: listing.title,
-      description: (
+    return publicPageMetadata(
+      listing.title,
+      (
         listing.description ??
         `Explore ${listing.title} at Allied AutoTech and request an inspection.`
       ).slice(0, 160),
-    };
-  } catch {
+      `/vehicles/${listing.id}`,
+      searchParams,
+    );
+  } catch (error) {
+    unstable_rethrow(error);
     return { title: "Vehicle details", robots: { index: false } };
   }
 }

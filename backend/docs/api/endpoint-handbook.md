@@ -1136,7 +1136,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
 ### POST `/auth/mfa/totp/verify`
 
@@ -1185,7 +1185,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
 ### POST `/auth/mfa/webauthn/options`
 
@@ -1232,7 +1232,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
 ### POST `/auth/mfa/webauthn/verify`
 
@@ -1288,7 +1288,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
 ### POST `/auth/mfa/challenge/options`
 
@@ -1610,42 +1610,40 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/auth/staff/invitations/accept`
 
 - Operation ID: `postAuthStaffInvitationsAccept`
-- Purpose: Accept a privileged invitation. Access boundary: unauthenticated. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
-- Roles: PUBLIC
-- Authentication: None
-- CSRF: Not required
+- Purpose: Accept the intended account administrator invitation. Access boundary: mfa-verified-invited-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
 - Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
 
 JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `token` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `password` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
-| `firstName` | string | Yes | First Name validated by this operation's strict request contract. |
-| `lastName` | string | Yes | Last Name validated by this operation's strict request contract. |
-| `phone` | string | No | Customer or business phone number in international format. |
-| `jobTitle` | string | No | Job Title validated by this operation's strict request contract. |
+| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
 ```json
 {
   "token": "synthetic-token-value-not-a-real-secret",
-  "password": "correct horse battery staple",
-  "firstName": "synthetic-firstname",
-  "lastName": "synthetic-lastname",
-  "phone": "+2348000000000",
-  "jobTitle": "synthetic-jobtitle"
+  "currentPassword": "correct horse battery staple"
 }
 ```
 
-Success: HTTP 201.
+Success: HTTP 200.
 
 ```json
 {
   "success": true,
-  "message": "Accept a privileged invitation",
+  "message": "Accept the intended account administrator invitation",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -1656,7 +1654,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
 
 ## Customer API
@@ -2253,7 +2251,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/bookings`
 
 - Operation ID: `getCustomersBookings`
-- Purpose: List own bookings. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: List own bookings with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -2272,7 +2270,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "List own bookings",
+  "message": "List own bookings with previously issued quotations only",
   "data": {
     "items": [
       {
@@ -2349,7 +2347,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/bookings/{bookingId}`
 
 - Operation ID: `getCustomersBookingsByBookingId`
-- Purpose: Get an owned booking. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Get an owned booking with previously issued quotations only. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -2366,7 +2364,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Get an owned booking",
+  "message": "Get an owned booking with previously issued quotations only",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -4277,6 +4275,88 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
+### GET `/customers/overview`
+
+- Operation ID: `getCustomersOverview`
+- Purpose: Read own date-filtered dashboard aggregates. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `from` | query | string (date) | Yes | From used to constrain this request. |
+| `to` | query | string (date) | Yes | To used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read own date-filtered dashboard aggregates",
+  "data": {
+    "scope": "CUSTOMER",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "range": {
+      "from": "synthetic-from",
+      "to": "synthetic-to",
+      "timeZone": "Africa/Lagos"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "counts": {
+      "bookings": 0,
+      "orders": 0,
+      "quotations": 0,
+      "inspections": 0,
+      "vehicles": 0
+    },
+    "activity": [
+      {
+        "date": "2030-01-15T10:00:00.000Z",
+        "bookings": 0,
+        "orders": 0
+      }
+    ],
+    "bookingStatuses": [
+      {
+        "status": "synthetic-status",
+        "count": 0
+      }
+    ],
+    "recentBookings": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "serviceName": "synthetic-servicename",
+        "scheduledAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "status": "synthetic-status"
+      }
+    ],
+    "recentOrders": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "orderNumber": "synthetic-ordernumber",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "status": "synthetic-status",
+        "totalKobo": "300000",
+        "currency": "NGN"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
 
 ## Staff API
 
@@ -5623,8 +5703,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/invoices`
 
 - Operation ID: `getStaffInvoices`
-- Purpose: List authorized invoices. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: List authorized invoices. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
 - Idempotency: Not required
@@ -5665,8 +5745,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/invoices`
 
 - Operation ID: `postStaffInvoices`
-- Purpose: Create an invoice from a server-owned source. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: Create an invoice from a server-owned source. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
 - Idempotency: Not required
@@ -5716,8 +5796,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/invoices/{invoiceId}`
 
 - Operation ID: `getStaffInvoicesByInvoiceId`
-- Purpose: Get an authorized invoice. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: Get an authorized invoice. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
 - Idempotency: Not required
@@ -5749,8 +5829,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/invoices/{invoiceId}/issue`
 
 - Operation ID: `postStaffInvoicesByInvoiceIdIssue`
-- Purpose: issue an invoice. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: issue an invoice. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
 - Idempotency: Not required
@@ -5797,8 +5877,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/invoices/{invoiceId}/void`
 
 - Operation ID: `postStaffInvoicesByInvoiceIdVoid`
-- Purpose: void an invoice. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: void an invoice. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
 - Idempotency: Not required
@@ -5845,7 +5925,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/vehicles`
 
 - Operation ID: `getStaffVehicles`
-- Purpose: List branch vehicle inventory. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5876,7 +5956,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "List branch vehicle inventory",
+  "message": "List branch vehicle inventory; acquisition costs are administrator-only",
   "data": {
     "items": [
       {
@@ -5897,7 +5977,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/vehicles`
 
 - Operation ID: `postStaffVehicles`
-- Purpose: Create a physical vehicle. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Create a physical vehicle; acquisition cost requires ADMIN or SUPER_ADMIN. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -5952,7 +6032,7 @@ Success: HTTP 201.
 ```json
 {
   "success": true,
-  "message": "Create a physical vehicle",
+  "message": "Create a physical vehicle; acquisition cost requires ADMIN or SUPER_ADMIN",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -5968,7 +6048,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/vehicles/{vehicleId}`
 
 - Operation ID: `getStaffVehiclesByVehicleId`
-- Purpose: Get vehicle inventory details. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Get vehicle inventory details; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5985,7 +6065,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Get vehicle inventory details",
+  "message": "Get vehicle inventory details; acquisition costs are administrator-only",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -6001,7 +6081,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/staff/vehicles/{vehicleId}`
 
 - Operation ID: `patchStaffVehiclesByVehicleId`
-- Purpose: Update vehicle inventory. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Update vehicle inventory; acquisition cost requires ADMIN or SUPER_ADMIN. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -6052,7 +6132,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Update vehicle inventory",
+  "message": "Update vehicle inventory; acquisition cost requires ADMIN or SUPER_ADMIN",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -7034,8 +7114,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/payments`
 
 - Operation ID: `getStaffPayments`
-- Purpose: List payments for review. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: List payments for review. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
 - Idempotency: Not required
@@ -7076,8 +7156,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/payments/manual-attempts/{attemptId}/review`
 
 - Operation ID: `postStaffPaymentsManualAttemptsByAttemptIdReview`
-- Purpose: Review a manual payment with separation of duties. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: Review a manual payment with separation of duties. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
 - Idempotency: Not required
@@ -7126,8 +7206,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/payments/manual-attempts/{attemptId}/evidence-access`
 
 - Operation ID: `postStaffPaymentsManualAttemptsByAttemptIdEvidenceAccess`
-- Purpose: Authorize short-lived private evidence access. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: Authorize short-lived private evidence access. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
 - Idempotency: Not required
@@ -7160,8 +7240,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/payments/refunds`
 
 - Operation ID: `postStaffPaymentsRefunds`
-- Purpose: Request a refund. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: Request a refund. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
 - Idempotency: Required in `Idempotency-Key`
@@ -7212,8 +7292,8 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/payments/refunds/{refundId}/decision`
 
 - Operation ID: `postStaffPaymentsRefundsByRefundIdDecision`
-- Purpose: Approve or cancel a refund with separation of duties. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Purpose: Approve or cancel a refund with separation of duties. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
 - Idempotency: Not required
@@ -8115,6 +8195,88 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
+### GET `/staff/overview`
+
+- Operation ID: `getStaffOverview`
+- Purpose: Read role-scoped dashboard aggregates; financial totals are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `from` | query | string (date) | Yes | From used to constrain this request. |
+| `to` | query | string (date) | Yes | To used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read role-scoped dashboard aggregates; financial totals are administrator-only",
+  "data": {
+    "scope": "CUSTOMER",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "range": {
+      "from": "synthetic-from",
+      "to": "synthetic-to",
+      "timeZone": "Africa/Lagos"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "counts": {
+      "bookings": 0,
+      "orders": 0,
+      "quotations": 0,
+      "inspections": 0,
+      "vehicles": 0
+    },
+    "activity": [
+      {
+        "date": "2030-01-15T10:00:00.000Z",
+        "bookings": 0,
+        "orders": 0
+      }
+    ],
+    "bookingStatuses": [
+      {
+        "status": "synthetic-status",
+        "count": 0
+      }
+    ],
+    "recentBookings": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "serviceName": "synthetic-servicename",
+        "scheduledAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "status": "synthetic-status"
+      }
+    ],
+    "recentOrders": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "orderNumber": "synthetic-ordernumber",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "status": "synthetic-status",
+        "totalKobo": "300000",
+        "currency": "NGN"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
 
 ## Administration
 
@@ -8381,10 +8543,50 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
+### GET `/admin/staff/invitations`
+
+- Operation ID: `getAdminStaffInvitations`
+- Purpose: List own invitations or all invitations for the owner. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `status` | query | PENDING / ACCEPTED / REVOKED / EXPIRED | No | Status used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List own invitations or all invitations for the owner",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "synthetic-status"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
 ### POST `/admin/staff/invitations`
 
 - Operation ID: `postAdminStaffInvitations`
-- Purpose: Invite a staff member or administrator. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Invite an existing verified staff account to ADMIN. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -8401,16 +8603,16 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `email` | string (email) | Yes | Normalized account email address. |
-| `role` | STAFF / ADMIN | Yes | Role validated by this operation's strict request contract. |
-| `branchId` | string / null | No | Identifier of the branch resource; ownership is resolved server-side. |
+| `role` | ADMIN | Yes | Role validated by this operation's strict request contract. |
+| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
 
 Synthetic request example:
 
 ```json
 {
   "email": "customer@example.test",
-  "role": "STAFF",
-  "branchId": "00000000-0000-4000-8000-000000000001"
+  "role": "ADMIN",
+  "currentPassword": "correct horse battery staple"
 }
 ```
 
@@ -8419,7 +8621,7 @@ Success: HTTP 202.
 ```json
 {
   "success": true,
-  "message": "Invite a staff member or administrator",
+  "message": "Invite an existing verified staff account to ADMIN",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -8531,7 +8733,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/admin/staff/{staffUserId}/role`
 
 - Operation ID: `patchAdminStaffByStaffUserIdRole`
-- Purpose: Change a staff or administrator role. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Super administrator demotion of ADMIN to branch STAFF only. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -8543,6 +8745,13 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `staffUserId` | path | string (uuid) | Yes | Identifier selecting the staff user resource. |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `role` | STAFF | Yes | Role validated by this operation's strict request contract. |
+| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
@@ -8558,11 +8767,144 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Change a staff or administrator role",
+  "message": "Super administrator demotion of ADMIN to branch STAFF only",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
   },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/staff/candidates`
+
+- Operation ID: `getAdminStaffCandidates`
+- Purpose: Search active verified customers and staff by exact email. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `email` | query | string (email) | Yes | Email used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Search active verified customers and staff by exact email",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "status": "synthetic-status"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### POST `/admin/staff/promotions`
+
+- Operation ID: `postAdminStaffPromotions`
+- Purpose: Promote an existing verified customer to branch staff. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `customerUserId` | string (uuid) | Yes | Identifier of the customer user resource; ownership is resolved server-side. |
+| `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
+| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+
+Synthetic request example:
+
+```json
+{
+  "customerUserId": "00000000-0000-4000-8000-000000000001",
+  "branchId": "00000000-0000-4000-8000-000000000001",
+  "currentPassword": "correct horse battery staple"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Promote an existing verified customer to branch staff",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### POST `/admin/staff/invitations/{invitationId}/revoke`
+
+- Operation ID: `postAdminStaffInvitationsByInvitationIdRevoke`
+- Purpose: Revoke an unused authorized invitation. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `invitationId` | path | string (uuid) | Yes | Identifier selecting the invitation resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `currentPassword` | string | Yes | Sensitive password value sent only over HTTPS and never logged or persisted by the client. |
+
+Synthetic request example:
+
+```json
+{
+  "currentPassword": "correct horse battery staple"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Revoke an unused authorized invitation",
   "meta": {
     "requestId": "req_0000000000000001"
   }

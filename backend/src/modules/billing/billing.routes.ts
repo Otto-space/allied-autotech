@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { authenticate } from "../../common/middleware/authenticate.js";
-import { requireCustomer, requireStaff } from "../../common/middleware/authorize.js";
+import {
+  requireCustomer,
+  requireAdministrator,
+} from "../../common/middleware/authorize.js";
 import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { BillingController } from "./billing.controller.js";
@@ -31,7 +34,7 @@ export function createCustomerBillingRouter(): Router {
 export function createStaffBillingRouter(): Router {
   const router = Router();
   const controller = new BillingController();
-  router.use(authenticate(), requireStaff);
+  router.use(authenticate(), requireAdministrator);
   router.get("/", validate({ query: staffInvoiceListQuerySchema }), controller.staffList);
   router.get(
     "/:invoiceId",

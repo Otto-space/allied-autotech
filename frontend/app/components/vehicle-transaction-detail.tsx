@@ -1,17 +1,27 @@
 "use client";
 import Link from "next/link";
+import { useCallback } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseVehicleTransaction } from "@/lib/api/vehicle-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
+import { VehiclePaymentRequests } from "./vehicle-payment-requests";
 
 export function VehicleTransactionDetail({ transactionId }: { transactionId: string }) {
+  const parse = useCallback(
+    (value: unknown) => {
+      const record = parseVehicleTransaction(value);
+      if (record.id !== transactionId) throw new Error("Mismatched purchase");
+      return record;
+    },
+    [transactionId],
+  );
   const transaction = useResource(
     `/customers/vehicle-transactions/${encodeURIComponent(transactionId)}`,
-    parseVehicleTransaction,
+    parse,
   );
-  const current = transaction.data;
+  const current = transaction.error ? undefined : transaction.data;
   return (
     <>
       <Link className="text-link" href="/dashboard/vehicle-transactions">
@@ -109,9 +119,13 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
               </span>
               <dl className="totals">
                 <dt>Recipient</dt>
-                <dd>{current.handover.recipientName}</dd>
+                <dd>{current.handover.recipientName ?? "Not recorded"}</dd>
                 <dt>Recorded odometer</dt>
-                <dd>{current.handover.odometerKm.toLocaleString("en-NG")} km</dd>
+                <dd>
+                  {current.handover.odometerKm === null
+                    ? "Not recorded"
+                    : `${current.handover.odometerKm.toLocaleString("en-NG")} km`}
+                </dd>
                 <dt>Keys recorded</dt>
                 <dd>{current.handover.keysDelivered}</dd>
               </dl>
@@ -122,6 +136,12 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
           )}
         </>
       )}
+      <VehiclePaymentRequests
+        key={transactionId}
+        transactionId={transactionId}
+        record={current}
+        disabled={transaction.loading || !!transaction.error}
+      />
     </>
   );
 }

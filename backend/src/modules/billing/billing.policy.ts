@@ -4,5 +4,9 @@ export function assertInvoiceCustomer(actor: AuthenticatedActor): void {
   if (actor.role !== "CUSTOMER") throw invoiceForbidden();
 }
 export function assertInvoiceOperator(actor: AuthenticatedActor): void {
-  if (actor.role === "CUSTOMER" || actor.mfaVerifiedAt === null) throw invoiceForbidden();
+  if (
+    (actor.role !== "ADMIN" && actor.role !== "SUPER_ADMIN") ||
+    actor.mfaVerifiedAt === null
+  )
+    throw invoiceForbidden();
 }

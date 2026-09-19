@@ -508,13 +508,9 @@ export class VehicleSalesService {
     id: string,
     input: TransactionTransitionInput,
     context: RequestSecurityContext,
-    internalExpiry = false,
   ) {
     assertVehicleSaleOperator(actor);
-    if (
-      ["RESERVED", "HANDOVER_PENDING", "COMPLETED", "EXPIRED"].includes(input.status) &&
-      !(internalExpiry && input.status === "EXPIRED")
-    )
+    if (["RESERVED", "HANDOVER_PENDING", "COMPLETED", "EXPIRED"].includes(input.status))
       throw vehicleSaleConflict("This transition requires its dedicated workflow");
     return this.database.$transaction(async (transaction) => {
       const initial = await this.repository.transaction(id, transaction);
@@ -606,36 +602,18 @@ export class VehicleSalesService {
   ) {
     assertVehicleSaleOperator(actor);
     if (actor.role === "STAFF") throw vehicleSaleForbidden();
-    const candidates = await this.database.vehicleTransaction.findMany({
-      where: {
-        status: { in: ["PAYMENT_PENDING", "RESERVED"] },
-        reservationExpiresAt: { lt: new Date() },
-      },
-      select: { id: true },
-      orderBy: [{ reservationExpiresAt: "asc" }, { id: "asc" }],
-      take: input.limit,
-    });
-    let expired = 0;
-    for (const candidate of candidates) {
-      const current = await this.repository.transaction(candidate.id);
-      if (current === null) continue;
-      await this.transition(
-        actor,
-        candidate.id,
-        {
-          expectedVersion: current.version,
-          status: "EXPIRED",
-          reason: "RESERVATION_EXPIRED",
-        },
-        context,
-        true,
-      );
-      expired += 1;
-    }
-    return { expired };
+    return this.expireEligibleReservations(input.limit, actor, context);
   }
 
   async expireSystem(limit: number) {
+    return this.expireEligibleReservations(limit, null);
+  }
+
+  private async expireEligibleReservations(
+    limit: number,
+    actor: AuthenticatedActor | null,
+    context?: RequestSecurityContext,
+  ) {
     const candidates = await this.database.vehicleTransaction.findMany({
       where: {
         status: { in: ["PAYMENT_PENDING", "RESERVED"] },
@@ -663,6 +641,7 @@ export class VehicleSalesService {
           sale.reservationExpiresAt > new Date()
         )
           return;
+        if (actor) await this.assertBranch(actor, listing.branchId, transaction);
         const inFlightPayment = await transaction.payment.findFirst({
           where: {
             vehicleTransactionId: sale.id,
@@ -693,20 +672,20 @@ export class VehicleSalesService {
           });
         await this.repository.history(
           sale.id,
-          null,
+          actor?.userId ?? null,
           sale.status,
           "EXPIRED",
           "RESERVATION_EXPIRED",
           transaction,
         );
         await appendAuditEvent(transaction, {
-          actorUserId: null,
+          actorUserId: actor?.userId ?? null,
           action: "VEHICLE_RELEASED",
           entityType: "VEHICLE_TRANSACTION",
           entityId: sale.id,
           oldValues: { status: sale.status, version: sale.version },
           newValues: { status: "EXPIRED", version: updated.version },
-          context: {
+          context: context ?? {
             requestId: `worker:vehicle-expiry:${sale.id}`,
             ipAddress: null,
             userAgent: null,

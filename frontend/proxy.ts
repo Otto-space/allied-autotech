@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { publicMediaHosts } from "./lib/media";
+import { assetStorageHosts } from "./lib/assets";
+import { indexingEnabled, privatePage } from "./lib/seo";
 
 function contentSecurityPolicy(nonce: string): string {
   const development = process.env.NODE_ENV !== "production";
@@ -13,7 +15,9 @@ function contentSecurityPolicy(nonce: string): string {
       .map((host) => `https://${host}`)
       .join(" ")}`,
     "font-src 'self' data:",
-    "connect-src 'self'",
+    `connect-src 'self' ${assetStorageHosts(process.env.ASSET_STORAGE_HOSTS)
+      .map((host) => `https://${host}`)
+      .join(" ")}`,
     "media-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -32,18 +36,13 @@ export function proxy(request: NextRequest) {
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", csp);
-  if (
-    request.nextUrl.pathname.startsWith("/dashboard") ||
-    request.nextUrl.pathname.startsWith("/admin") ||
-    request.nextUrl.pathname.startsWith("/staff") ||
-    request.nextUrl.pathname.startsWith("/payments") ||
-    request.nextUrl.pathname === "/mfa"
-  ) {
+  if (privatePage(request.nextUrl.pathname)) {
     response.headers.set("Cache-Control", "private, no-store, max-age=0");
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
-  if (process.env.SITE_INDEXING !== "enabled")
-    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  if (!indexingEnabled()) response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  else if (!privatePage(request.nextUrl.pathname) && request.nextUrl.search)
+    response.headers.set("X-Robots-Tag", "noindex, follow");
   return response;
 }
 

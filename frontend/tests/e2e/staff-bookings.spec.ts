@@ -88,6 +88,7 @@ test("staff no-show requires explicit review, sends the version and cannot repla
       reads++;
       return reply(route, {
         ...record(),
+        depositPayment: undefined,
         ...(mutations ? { status: "NO_SHOW", version: 8 } : {}),
       });
     }
@@ -114,9 +115,11 @@ test("staff no-show requires explicit review, sends the version and cannot repla
     page.getByLabel("Next status").locator("option[value=CANCELLED]"),
   ).toHaveCount(0);
   await expect(page.getByLabel("Assigned staff member")).toHaveValue(id(6));
+  await page.getByRole("button", { name: "Open dashboard navigation" }).click();
   await expect(
     page.getByRole("link", { name: "Workshop bookings", exact: true }).first(),
-  ).toBeAttached();
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Close dashboard navigation" }).click();
   await page.getByLabel("Next status").selectOption("NO_SHOW");
   await page.getByRole("button", { name: "Review status change" }).click();
   const dialog = page.getByRole("dialog");

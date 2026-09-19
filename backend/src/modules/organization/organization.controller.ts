@@ -6,6 +6,8 @@ import { AppError } from "../../common/errors/app-error.js";
 import { errorCodes } from "../../common/errors/error-codes.js";
 import { successResponse } from "../../common/http/api-response.js";
 import type { UserStatus } from "../../generated/prisma/enums.js";
+import { prisma } from "../../config/database.js";
+import { TeamAccessService } from "./team-access.service.js";
 import type {
   AdminBranchListQuery,
   BranchCreateInput,
@@ -15,6 +17,8 @@ import type {
   PublicBranchListQuery,
   StaffListQuery,
   StaffRoleInput,
+  StaffPromotionInput,
+  InvitationListQuery,
 } from "./organization.schemas.js";
 import { organizationService, type OrganizationService } from "./organization.service.js";
 
@@ -49,6 +53,7 @@ function pageData<T>(result: { items: readonly T[]; nextCursor?: string }) {
 }
 
 export class OrganizationController {
+  private readonly team = new TeamAccessService(prisma);
   constructor(private readonly service: OrganizationService = organizationService) {}
 
   publicBranches = async (request: Request, response: Response): Promise<void> => {
@@ -114,27 +119,83 @@ export class OrganizationController {
   };
 
   invite = async (request: Request, response: Response): Promise<void> => {
-    await this.service.invite(
+    const result = await this.service.invite(
       actor(request),
       validated<PrivilegedInvitationInput>(response, "body"),
       context(request),
     );
-    response.status(202).json(successResponse("Invitation queued", request.id));
+    response
+      .status(202)
+      .json(
+        successResponse(
+          "Invitation queued; delivery is not confirmed",
+          request.id,
+          result,
+        ),
+      );
   };
 
   acceptInvitation = async (request: Request, response: Response): Promise<void> => {
-    await this.service.acceptInvitation(
+    const result = await this.service.acceptInvitation(
+      actor(request),
       validated<PrivilegedInvitationAcceptInput>(response, "body"),
       context(request),
     );
     response
-      .status(201)
+      .status(200)
       .json(
         successResponse(
-          "Privileged account created; MFA enrollment is required",
+          "Administrator invitation accepted; sign in again",
           request.id,
+          result,
         ),
       );
+  };
+
+  candidates = async (request: Request, response: Response): Promise<void> => {
+    const result = await this.team.search(
+      actor(request),
+      validated<{ email: string }>(response, "query").email,
+      context(request),
+    );
+    response
+      .status(200)
+      .json(successResponse("Eligible account search completed", request.id, result));
+  };
+  promote = async (request: Request, response: Response): Promise<void> => {
+    const result = await this.team.promote(
+      actor(request),
+      validated<StaffPromotionInput>(response, "body"),
+      context(request),
+    );
+    response
+      .status(200)
+      .json(
+        successResponse(
+          "Customer promoted to staff; existing sessions revoked",
+          request.id,
+          result,
+        ),
+      );
+  };
+  invitations = async (request: Request, response: Response): Promise<void> => {
+    const result = await this.team.list(
+      actor(request),
+      validated<InvitationListQuery>(response, "query"),
+      context(request),
+    );
+    response
+      .status(200)
+      .json(successResponse("Invitations retrieved", request.id, result));
+  };
+  revokeInvitation = async (request: Request, response: Response): Promise<void> => {
+    const result = await this.team.revoke(
+      actor(request),
+      validated<{ invitationId: string }>(response, "params").invitationId,
+      validated<{ currentPassword: string }>(response, "body").currentPassword,
+      context(request),
+    );
+    response.status(200).json(successResponse("Invitation revoked", request.id, result));
   };
 
   staffMembers = async (request: Request, response: Response): Promise<void> => {

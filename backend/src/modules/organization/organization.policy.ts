@@ -18,8 +18,7 @@ export function assertAdministrator(actor: AuthenticatedActor): void {
 
 export function assertCanInvite(actor: AuthenticatedActor, targetRole: UserRole): void {
   assertAdministrator(actor);
-  if (targetRole === "SUPER_ADMIN" || targetRole === "CUSTOMER") deny();
-  if (actor.role === "ADMIN" && targetRole !== "STAFF") deny();
+  if (targetRole !== "ADMIN") deny();
 }
 
 export function assertCanManagePrivilegedUser(
@@ -40,7 +39,7 @@ export function assertCanChangeRole(
 ): void {
   if (actor.role !== "SUPER_ADMIN" || actor.mfaVerifiedAt === null) deny();
   if (actor.userId === targetUserId || currentRole === "SUPER_ADMIN") deny();
-  if (nextRole !== "STAFF" && nextRole !== "ADMIN") deny();
+  if (currentRole !== "ADMIN" || nextRole !== "STAFF") deny();
 }
 
 export function assertPrivilegedActor(actor: AuthenticatedActor): void {

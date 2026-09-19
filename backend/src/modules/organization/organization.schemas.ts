@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-import { isCommonPassword } from "../../common/security/passwords.js";
 import { normalizeEmail } from "../../common/security/email.js";
 
 const cleanText = (maximum: number) =>
@@ -17,12 +16,6 @@ const cleanText = (maximum: number) =>
         }),
       "Contains invalid characters",
     );
-const name = z
-  .string()
-  .trim()
-  .min(1)
-  .max(80)
-  .regex(/^[\p{L}\p{M}][\p{L}\p{M}' -]*$/u, "Contains unsupported characters");
 const phone = z
   .string()
   .trim()
@@ -30,11 +23,7 @@ const phone = z
   .max(32)
   .regex(/^\+?[0-9][0-9 ()-]*$/, "Enter a valid phone number");
 const email = z.email().max(254).transform(normalizeEmail);
-const password = z
-  .string()
-  .min(12)
-  .max(128)
-  .refine((value) => !isCommonPassword(value), "Choose a less common password");
+const currentPassword = z.string().min(1).max(128);
 const cursorPage = {
   cursor: z.uuid().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(25),
@@ -103,37 +92,34 @@ export const adminBranchListQuerySchema = z
 export const privilegedInvitationBodySchema = z
   .object({
     email,
-    role: z.enum(["STAFF", "ADMIN"]),
-    branchId: z.uuid().nullable().optional(),
+    role: z.literal("ADMIN"),
+    currentPassword,
   })
-  .strict()
-  .superRefine((value, context) => {
-    if (value.role === "STAFF" && value.branchId == null) {
-      context.addIssue({
-        code: "custom",
-        path: ["branchId"],
-        message: "A branch is required for staff",
-      });
-    }
-    if (value.role === "ADMIN" && value.branchId != null) {
-      context.addIssue({
-        code: "custom",
-        path: ["branchId"],
-        message: "Administrators are not assigned to a branch",
-      });
-    }
-  });
-
+  .strict();
 export const privilegedInvitationAcceptBodySchema = z
   .object({
     token: z.string().min(32).max(512),
-    password,
-    firstName: name,
-    lastName: name,
-    phone: phone.optional(),
-    jobTitle: cleanText(100).optional(),
+    currentPassword,
   })
   .strict();
+export const staffPromotionBodySchema = z
+  .object({
+    customerUserId: z.uuid(),
+    branchId: z.uuid(),
+    currentPassword,
+  })
+  .strict();
+export const accountSearchQuerySchema = z.object({ email }).strict();
+export const invitationParamsSchema = z.object({ invitationId: z.uuid() }).strict();
+export const invitationRevokeBodySchema = z.object({ currentPassword }).strict();
+export const invitationListQuerySchema = z
+  .object({
+    ...cursorPage,
+    status: z.enum(["PENDING", "ACCEPTED", "REVOKED", "EXPIRED"]).optional(),
+  })
+  .strict();
+export type StaffPromotionInput = z.infer<typeof staffPromotionBodySchema>;
+export type InvitationListQuery = z.infer<typeof invitationListQuerySchema>;
 
 export const staffParamsSchema = z.object({ staffUserId: z.uuid() }).strict();
 export const staffListQuerySchema = z
@@ -148,10 +134,9 @@ export const staffStatusBodySchema = z
   .object({ status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]) })
   .strict();
 export const staffBranchBodySchema = z.object({ branchId: z.uuid() }).strict();
-export const staffRoleBodySchema = z.discriminatedUnion("role", [
-  z.object({ role: z.literal("STAFF"), branchId: z.uuid() }).strict(),
-  z.object({ role: z.literal("ADMIN"), branchId: z.null().optional() }).strict(),
-]);
+export const staffRoleBodySchema = z
+  .object({ role: z.literal("STAFF"), branchId: z.uuid() })
+  .strict();
 export const organizationEmptyQuerySchema = z.object({}).strict().default({});
 export const organizationEmptyBodySchema = z.object({}).strict().default({});
 

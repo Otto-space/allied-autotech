@@ -3,7 +3,6 @@ import { authenticate } from "../../common/middleware/authenticate.js";
 import {
   requireAdministrator,
   requireCustomer,
-  requireStaff,
 } from "../../common/middleware/authorize.js";
 import { requireCsrf } from "../../common/middleware/csrf.js";
 import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
@@ -111,7 +110,7 @@ export function createCustomerPaymentsRouter(): Router {
 export function createStaffPaymentsRouter(): Router {
   const router = Router();
   const controller = new PaymentsController();
-  router.use(authenticate(), requireStaff);
+  router.use(authenticate(), requireAdministrator);
   router.get("/", validate({ query: staffPaymentListQuerySchema }), controller.staffList);
   router.post(
     "/manual-attempts/:attemptId/review",

@@ -24,7 +24,7 @@ export function SlotCatalogPicker({
   kind: "branch" | "service";
   id: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, label: string) => void;
   inputRef?: Ref<HTMLSelectElement>;
   error?: string;
 }) {
@@ -54,7 +54,10 @@ export function SlotCatalogPicker({
           setSelectedLabel(
             event.target.selectedOptions[0]?.textContent ?? "Selected record",
           );
-          onChange(event.target.value);
+          onChange(
+            event.target.value,
+            event.target.selectedOptions[0]?.textContent ?? "Selected record",
+          );
         }}
       >
         <option value="">Choose a {kind}</option>

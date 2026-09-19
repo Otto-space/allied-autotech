@@ -1,5 +1,7 @@
 export const messages: Readonly<Record<string, string>> = {
   AUTHENTICATION_FAILED: "The email or password could not be verified.",
+  SECURITY_PASSWORD_REJECTED:
+    "Your current password could not be verified. Go back and enter it again.",
   UNAUTHORIZED: "Please sign in to continue.",
   SESSION_EXPIRED: "Your session has expired. Please sign in to continue.",
   MFA_REQUIRED: "Complete the security check to continue.",
@@ -17,6 +19,8 @@ export const messages: Readonly<Record<string, string>> = {
   CONFLICT:
     "This record has changed or is no longer available. Refresh its status before continuing.",
   STALE_VERSION: "This record has changed. Refresh it and review the latest details.",
+  PRECONDITION_UNAVAILABLE:
+    "The current record could not be checked. No change was submitted. Refresh it before trying again.",
   IDEMPOTENCY_CONFLICT:
     "This submission has already been used with different details. Check the current status before starting again.",
   INSUFFICIENT_STOCK:

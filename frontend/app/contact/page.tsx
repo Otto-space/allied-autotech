@@ -1,13 +1,22 @@
+import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import { MapPin, Phone, Mail } from "lucide-react";
 import { business } from "@/lib/business";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
-export const metadata: Metadata = {
-  title: "Contact & directions",
-  description:
+import { PublicEnquiryForm } from "../components/public-enquiry-form";
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParameters;
+}): Promise<Metadata> {
+  return publicPageMetadata(
+    "Contact & directions",
     "Visit Allied AutoTech at 133 Stadium Road, beside Kilimanjaro, Port Harcourt. Call 08136075567 or message us on WhatsApp.",
-};
+    "/contact",
+    searchParams,
+  );
+}
 export default function ContactPage() {
   return (
     <>
@@ -70,6 +79,11 @@ export default function ContactPage() {
                 </article>
               </div>
             </div>
+          </div>
+        </section>
+        <section className="section">
+          <div className="container narrow">
+            <PublicEnquiryForm />
           </div>
         </section>
       </main>

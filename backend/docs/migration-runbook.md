@@ -18,3 +18,11 @@ Phase 3 follows the enum rule with `20260903210000_phase_3_enum_extensions` foll
 `20260903210100_phase_3_organization_security`. The latter creates hash-only privileged invitations,
 an active-email partial unique index, role/branch and terminal-state constraints, expiry validation,
 and restrictive foreign keys.
+
+`20260917220000_bind_admin_invitations` binds future administrator invitations to an existing
+verified staff recipient. It preserves old invitation records but revokes every unused legacy link,
+because the old acceptance contract created a new account. Coordinate this forward migration with
+the API and frontend release; operators must issue replacement invitations through Team & Access.
+The migration adds a restrictive recipient foreign key, pending-recipient uniqueness and immutable
+binding/terminal-state protection. It has been replayed only on disposable local test data; no
+shared or production database was changed by this implementation.

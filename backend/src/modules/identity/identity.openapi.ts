@@ -31,11 +31,19 @@ function registerPost(
   secured: boolean,
   statusCode: "200" | "201" | "202" = "200",
 ): void {
+  const enrollment =
+    /^\/auth\/mfa\/(totp\/(setup|verify)|webauthn\/(options|verify))$/.test(path);
   registry.registerPath({
     method: "post",
     path,
     tags: ["Identity"],
     summary,
+    ...(enrollment
+      ? {
+          description:
+            "Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. A session rotated or revoked after middleware is rejected.",
+        }
+      : {}),
     ...(secured ? { security: [{ sessionCookie: [] }] } : {}),
     ...(requestSchema === undefined
       ? secured
@@ -53,6 +61,28 @@ function registerPost(
           },
         }),
     responses: {
+      ...(enrollment
+        ? {
+            "403": {
+              description:
+                "Existing MFA verification required, or CSRF validation failed",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+            "401": {
+              description:
+                "Session unavailable, expired, revoked or changed during enrollment",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ErrorResponse" },
+                },
+              },
+            },
+          }
+        : {}),
       [statusCode]: {
         description: "Request completed",
         content: { "application/json": { schema: responseSchema } },

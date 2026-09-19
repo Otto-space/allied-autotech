@@ -1,12 +1,20 @@
+import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { HelpCentre } from "../components/help-centre";
-export const metadata: Metadata = {
-  title: "Help centre",
-  description:
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParameters;
+}): Promise<Metadata> {
+  return publicPageMetadata(
+    "Help centre",
     "Help with Allied AutoTech service bookings, payments, account access and finding our Port Harcourt workshop.",
-};
+    "/help",
+    searchParams,
+  );
+}
 export default function HelpPage() {
   return (
     <>

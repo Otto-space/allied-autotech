@@ -1,28 +1,21 @@
-import { randomUUID } from "node:crypto";
-
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
-import { encryptIdentityPayload } from "../../common/security/mfa-encryption.js";
-import { hashPassword } from "../../common/security/passwords.js";
-import { generateOpaqueToken, hashToken } from "../../common/security/session-tokens.js";
 import { prisma } from "../../config/database.js";
-import { env } from "../../config/env.js";
-import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
+import type { PrismaClient } from "../../generated/prisma/client.js";
 import type { UserStatus } from "../../generated/prisma/enums.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
-import { identityEventTypes } from "../identity/identity.events.js";
 import {
-  invalidInvitation,
   organizationConflict,
   organizationResourceNotFound,
 } from "./organization.errors.js";
 import {
   assertAdministrator,
   assertCanChangeRole,
-  assertCanInvite,
   assertCanManagePrivilegedUser,
   assertPrivilegedActor,
 } from "./organization.policy.js";
+import { TeamAccessService } from "./team-access.service.js";
+import { lockAccessActor, revokeAccessInvitations } from "./team-access-security.js";
 import { OrganizationRepository } from "./organization.repository.js";
 import type {
   AdminBranchListQuery,
@@ -34,16 +27,6 @@ import type {
   StaffListQuery,
   StaffRoleInput,
 } from "./organization.schemas.js";
-
-function invitationLink(rawToken: string): string {
-  const url = new URL(env.FRONTEND_PRIVILEGED_INVITATION_URL);
-  url.hash = `token=${encodeURIComponent(rawToken)}`;
-  return url.toString();
-}
-
-function asJson(value: unknown): Prisma.InputJsonValue {
-  return value as Prisma.InputJsonValue;
-}
 
 function page<T extends { id: string }>(rows: readonly T[], limit: number) {
   const hasMore = rows.length > limit;
@@ -198,161 +181,19 @@ export class OrganizationService {
     });
   }
 
-  async invite(
+  invite(
     actor: AuthenticatedActor,
     input: PrivilegedInvitationInput,
     context: RequestSecurityContext,
-  ): Promise<void> {
-    assertCanInvite(actor, input.role);
-    const rawToken = generateOpaqueToken();
-    const tokenHash = hashToken("privileged-invitation", rawToken);
-    const expiresAt = new Date(
-      Date.now() + env.PRIVILEGED_INVITATION_TTL_SECONDS * 1_000,
-    );
-
-    await this.database.$transaction(
-      async (transaction) => {
-        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`privileged-invitation:${input.email}`}, 0))`;
-        const existingUser = await transaction.user.findUnique({
-          where: { email: input.email },
-          select: { id: true },
-        });
-        if (existingUser !== null) {
-          throw organizationConflict("An account already exists for this email address");
-        }
-
-        const branchId: string | null =
-          input.role === "STAFF" && typeof input.branchId === "string"
-            ? input.branchId
-            : null;
-        if (input.role === "STAFF") {
-          if (typeof branchId !== "string") throw organizationResourceNotFound();
-          await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`branch:${branchId}`}, 0))`;
-          const branch = await this.repository.branch(branchId, true, transaction);
-          if (branch === null) throw organizationResourceNotFound();
-        }
-
-        await transaction.privilegedInvitation.updateMany({
-          where: { email: input.email, usedAt: null, revokedAt: null },
-          data: { revokedAt: new Date() },
-        });
-        const invitation = await transaction.privilegedInvitation.create({
-          data: {
-            email: input.email,
-            role: input.role,
-            branchId,
-            tokenHash,
-            expiresAt,
-            invitedById: actor.userId,
-          },
-          select: { id: true },
-        });
-        await transaction.outboxEvent.create({
-          data: {
-            eventId: randomUUID(),
-            aggregateType: "PrivilegedInvitation",
-            aggregateId: invitation.id,
-            eventType: identityEventTypes.privilegedInvitationEmailRequested,
-            payload: asJson({
-              encrypted: encryptIdentityPayload({
-                template: "privileged-invitation",
-                to: input.email,
-                link: invitationLink(rawToken),
-              }),
-            }),
-          },
-        });
-        await appendAuditEvent(transaction, {
-          actorUserId: actor.userId,
-          action: "INVITATION_CREATED",
-          entityType: "PRIVILEGED_INVITATION",
-          entityId: invitation.id,
-          newValues: { role: input.role, branchId },
-          context,
-        });
-      },
-      { isolationLevel: "Serializable" },
-    );
+  ) {
+    return new TeamAccessService(this.database).invite(actor, input, context);
   }
-
-  async acceptInvitation(
+  acceptInvitation(
+    actor: AuthenticatedActor,
     input: PrivilegedInvitationAcceptInput,
     context: RequestSecurityContext,
-  ): Promise<void> {
-    const tokenHash = hashToken("privileged-invitation", input.token);
-    const passwordHash = await hashPassword(input.password);
-    await this.database.$transaction(
-      async (transaction) => {
-        const now = new Date();
-        const invitation = await transaction.privilegedInvitation.findFirst({
-          where: {
-            tokenHash,
-            usedAt: null,
-            revokedAt: null,
-            expiresAt: { gt: now },
-          },
-          select: { id: true, email: true, role: true, branchId: true },
-        });
-        if (invitation === null) throw invalidInvitation();
-
-        await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`privileged-invitation:${invitation.email}`}, 0))`;
-        if (invitation.role === "STAFF") {
-          if (invitation.branchId === null) throw invalidInvitation();
-          await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`branch:${invitation.branchId}`}, 0))`;
-          const activeBranch = await this.repository.branch(
-            invitation.branchId,
-            true,
-            transaction,
-          );
-          if (activeBranch === null) throw invalidInvitation();
-        }
-
-        const consumed = await transaction.privilegedInvitation.updateMany({
-          where: {
-            id: invitation.id,
-            usedAt: null,
-            revokedAt: null,
-            expiresAt: { gt: now },
-          },
-          data: { usedAt: now },
-        });
-        if (consumed.count !== 1) throw invalidInvitation();
-
-        const user = await transaction.user.create({
-          data: {
-            email: invitation.email,
-            passwordHash,
-            role: invitation.role,
-            status: "ACTIVE",
-            emailVerifiedAt: now,
-            staffProfile: {
-              create: {
-                firstName: input.firstName,
-                lastName: input.lastName,
-                branchId: invitation.branchId,
-                ...(input.phone === undefined ? {} : { phone: input.phone }),
-                ...(input.jobTitle === undefined ? {} : { jobTitle: input.jobTitle }),
-              },
-            },
-          },
-          select: { id: true },
-        });
-        await appendAuditEvent(transaction, {
-          actorUserId: user.id,
-          action: "INVITATION_ACCEPTED",
-          entityType: "PRIVILEGED_INVITATION",
-          entityId: invitation.id,
-          newValues: {
-            userId: user.id,
-            role: invitation.role,
-            branchId: invitation.branchId,
-            mfaEnrollmentRequired: true,
-          },
-          context,
-        });
-      },
-      { isolationLevel: "Serializable" },
-    );
+  ) {
+    return new TeamAccessService(this.database).accept(actor, input, context);
   }
 
   async staffMembers(
@@ -409,6 +250,7 @@ export class OrganizationService {
     context: RequestSecurityContext,
   ) {
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff:${staffUserId}`}, 0))`;
       const existing = await this.repository.staff(staffUserId, transaction);
       if (existing === null) throw organizationResourceNotFound();
@@ -419,6 +261,7 @@ export class OrganizationService {
         data: { status },
         select: { id: true, status: true },
       });
+      await revokeAccessInvitations(transaction, staffUserId);
       await transaction.session.updateMany({
         where: { userId: staffUserId, revokedAt: null },
         data: { revokedAt: new Date() },
@@ -448,6 +291,7 @@ export class OrganizationService {
     context: RequestSecurityContext,
   ) {
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff:${staffUserId}`}, 0))`;
       const existing = await this.repository.staff(staffUserId, transaction);
       if (existing === null || existing.staffProfile === null) {
@@ -464,6 +308,7 @@ export class OrganizationService {
         data: { branchId },
         select: { id: true, branchId: true },
       });
+      await revokeAccessInvitations(transaction, staffUserId);
       await transaction.session.updateMany({
         where: { userId: staffUserId, revokedAt: null },
         data: { revokedAt: new Date() },
@@ -488,6 +333,7 @@ export class OrganizationService {
     context: RequestSecurityContext,
   ) {
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff:${staffUserId}`}, 0))`;
       const existing = await this.repository.staff(staffUserId, transaction);
       if (existing === null || existing.staffProfile === null) {
@@ -511,6 +357,7 @@ export class OrganizationService {
         where: { userId: staffUserId },
         data: { branchId: nextBranchId },
       });
+      await revokeAccessInvitations(transaction, staffUserId);
       await transaction.session.updateMany({
         where: { userId: staffUserId, revokedAt: null },
         data: { revokedAt: new Date() },
