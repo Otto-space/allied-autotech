@@ -63,7 +63,7 @@ export function DashboardShell({
   audience = "customer",
 }: {
   readonly children: React.ReactNode;
-  audience?: "customer" | "staff";
+  readonly audience?: "customer" | "staff";
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -110,16 +110,16 @@ export function DashboardShell({
         setSession(r.data);
         setError(null);
       })
-      .catch((value: unknown) => {
+      .catch((error_: unknown) => {
         if (active) {
-          if (value instanceof ApiError && value.status === 401)
+          if (error_ instanceof ApiError && error_.status === 401)
             router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-          else if (value instanceof ApiError && value.code === "MFA_REQUIRED")
+          else if (error_ instanceof ApiError && error_.code === "MFA_REQUIRED")
             router.replace("/mfa");
           else
             setError(
-              value instanceof ApiError
-                ? value.message
+              error_ instanceof ApiError
+                ? error_.message
                 : "We could not verify your session. Please retry.",
             );
         }
@@ -211,7 +211,11 @@ export function DashboardShell({
             <Link
               key={item.href}
               href={item.href}
-              aria-current={pathname === item.href ? "page" : undefined}
+              aria-current={
+                pathname === item.href || pathname.startsWith(`${item.href}/`)
+                  ? "page"
+                  : undefined
+              }
             >
               <item.icon size={17} />
               {item.label}
@@ -220,15 +224,28 @@ export function DashboardShell({
         </nav>
       </aside>
       <div className="dashboard-main">
-        <div className="mobile-nav" aria-label="Customer dashboard mobile navigation">
+        <nav className="mobile-nav" aria-label="Customer dashboard mobile navigation">
           {navigation.map((item) => (
-            <Link key={item.href} href={item.href}>
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={
+                pathname === item.href || pathname.startsWith(`${item.href}/`)
+                  ? "page"
+                  : undefined
+              }
+            >
               {item.label}
             </Link>
           ))}
-        </div>
+        </nav>
         <header className="dashboard-top">
-          <span className="mono">{session.user.email}</span>
+          <div>
+            <span className="dashboard-kicker">
+              {audience === "staff" ? "Operations workspace" : "Customer workspace"}
+            </span>
+            <strong>{session.user.email}</strong>
+          </div>
           <button
             className="button secondary"
             disabled={busy}

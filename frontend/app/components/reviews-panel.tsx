@@ -63,15 +63,16 @@ export function ReviewsPanel() {
       <span className="eyebrow">Your feedback</span>
       <h1>Reviews.</h1>
       <p className="muted">
-        Overall experience, product, and completed-service reviews all use a 1–5 rating
-        and are moderated before public display.
+        Share what went well or what we can improve. Overall experience reviews need no
+        reference number; product and service reviews use the ID from your order or
+        completed booking. Every submission is moderated before public display.
       </p>
       <Feedback message={message} tone="success" />
       <Feedback message={error} />
       <form className="card" onSubmit={submit}>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="target">Review type</label>
+            <label htmlFor="target">What would you like to review?</label>
             <select
               id="target"
               value={target}
@@ -83,7 +84,7 @@ export function ReviewsPanel() {
             </select>
           </div>
           <div className="field">
-            <label htmlFor="rating">Rating</label>
+            <label htmlFor="rating">Your rating</label>
             <select id="rating" name="rating" defaultValue="5">
               {[5, 4, 3, 2, 1].map((v) => (
                 <option key={v} value={v}>
@@ -97,15 +98,27 @@ export function ReviewsPanel() {
           <div className="form-row">
             <div className="field">
               <label htmlFor="targetId">
-                {target === "PRODUCT" ? "Product" : "Service"} ID
+                {target === "PRODUCT" ? "Product" : "Service"} reference
               </label>
-              <input id="targetId" name="targetId" required pattern="[0-9a-fA-F-]{36}" />
+              <input
+                id="targetId"
+                name="targetId"
+                required
+                pattern="[0-9a-fA-F-]{36}"
+                placeholder="Paste the ID from your account"
+              />
             </div>
             <div className="field">
               <label htmlFor="proofId">
-                {target === "PRODUCT" ? "Order item" : "Completed booking"} ID
+                {target === "PRODUCT" ? "Order item" : "Completed booking"} reference
               </label>
-              <input id="proofId" name="proofId" required pattern="[0-9a-fA-F-]{36}" />
+              <input
+                id="proofId"
+                name="proofId"
+                required
+                pattern="[0-9a-fA-F-]{36}"
+                placeholder="Paste the related reference"
+              />
             </div>
           </div>
         )}

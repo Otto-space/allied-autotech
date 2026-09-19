@@ -2,12 +2,12 @@
 
 The current brief supersedes earlier generated-image concepts. No AI-generated image is rendered. The original workshop asset remains on disk to preserve unrelated work. Genuine API media is displayed only from the approved host allowlist; missing or broken images use a neutral placeholder.
 
-The existing navy/cobalt/white palette and Geist typography are retained as implementation assumptions, not a newly verified brand kit. No authorized Figma file or node reference was supplied or found. The connector account was accessible, but no file inspection or pixel-level Figma match is claimed.
+The supplied brand palette is now implemented as the primary token set: ink `#01121A`, red `#E60301`, white `#FFFFFF`, and deep blue `#091B38`. No authorized Figma file or node reference was supplied or found. The connector account was accessible, but no file inspection or pixel-level Figma match is claimed.
 
 ## Tokens and composition
 
-- Canvas: true white; surfaces: cool gray; primary text: deep near-black navy; action: cobalt blue; safety state: sparse orange.
-- Type: Geist Sans for UI and Geist Mono only for identifiers, dates, and monetary detail.
+- Canvas: true white; surfaces: cool gray; primary text: ink; action: Allied red; marketplace and navigation surfaces: deep blue.
+- Type: Quicksand is used for body text, navigation, controls and technical values. Nibble is the selected display face for headings when it is available as a licensed local/system font. Nibble is not bundled in this repository, so the current temporary fallback is `Arial Black`, then Quicksand; this is intentionally documented until the approved Nibble font files are supplied.
 - Shape: 2–12 px radii for normal controls, circular floating help buttons, restrained borders and shadows.
 - Layout: 1120 px maximum content width, strong whitespace, thin borders, and a 4/8 px spacing rhythm.
 - Imagery: approved backend product/vehicle photographs only. The homepage and authentication screens use typography and layout without invented workshop imagery.

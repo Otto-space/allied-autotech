@@ -1,20 +1,42 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Brand } from "./brand";
+import { apiRequest, SESSION_CHANGED } from "@/lib/api/client";
+import type { SessionState } from "@/lib/api/types";
 const navigation = [
   { href: "/services", label: "Services" },
   { href: "/parts", label: "Parts" },
   { href: "/vehicles", label: "Vehicles" },
-  { href: "/help", label: "Help centre" },
-  { href: "/contact", label: "Contact" },
+  { href: "/about", label: "About" },
 ];
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
+  const [session, setSession] = useState<SessionState | null>(null);
+  const destination =
+    session?.user.role === "CUSTOMER" ? "/dashboard" : session ? "/admin" : "/login";
+  useEffect(() => {
+    let active = true;
+    const load = () =>
+      void apiRequest<SessionState>("/auth/session")
+        .then((result) => {
+          if (active && result.data?.user?.id) setSession(result.data);
+        })
+        .catch(() => {
+          if (active) setSession(null);
+        });
+    void load();
+    const refresh = () => void load();
+    window.addEventListener(SESSION_CHANGED, refresh);
+    return () => {
+      active = false;
+      window.removeEventListener(SESSION_CHANGED, refresh);
+    };
+  }, []);
   return (
     <>
       <a className="skip-link" href="#main">
@@ -30,12 +52,19 @@ export function SiteHeader() {
               <Link
                 key={item.href}
                 href={item.href}
-                aria-current={pathname === item.href ? "page" : undefined}
+                aria-current={
+                  pathname === item.href || pathname.startsWith(`${item.href}/`)
+                    ? "page"
+                    : undefined
+                }
               >
                 {item.label}
               </Link>
             ))}
-            <Link href="/login">Sign in</Link>
+            <Link href={destination}>{session ? "Dashboard" : "Sign in"}</Link>
+            <a href="https://wa.me/2348136075567" target="_blank" rel="noreferrer">
+              WhatsApp
+            </a>
             <Link href="/services" className="button">
               Book a service <span aria-hidden="true">↗</span>
             </Link>
@@ -65,7 +94,7 @@ export function SiteHeader() {
           >
             {[
               ...navigation,
-              { href: "/login", label: "Sign in" },
+              { href: destination, label: session ? "Dashboard" : "Sign in" },
               { href: "/register", label: "Create account" },
             ].map((item) => (
               <Link key={item.href} href={item.href} onClick={() => setOpen(false)}>
