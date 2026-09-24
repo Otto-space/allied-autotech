@@ -139,13 +139,13 @@ async function fixture(state: "unpaid" | "review" | "processing") {
   return { order, reservation, inventory, candidates, candidate };
 }
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
-  "Order expiry payment protection",
+  "Strict unpaid order expiry",
   () => {
     afterEach(() => vi.restoreAllMocks());
     afterAll(async () => prisma.$disconnect());
     for (const mode of ["operator", "worker"] as const) {
       for (const state of ["unpaid", "review", "processing"] as const) {
-        it(`${mode} expiry ${state === "unpaid" ? "releases unpaid stock once" : `preserves stock during ${state}`}`, async () => {
+        it(`${mode} expiry releases stock once during ${state}`, async () => {
           const f = await fixture(state);
           const administrator = await account("ADMIN");
           const service = new OrdersService(prisma);
@@ -153,31 +153,31 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             mode === "operator"
               ? service.expireDue(administrator, { limit: 100 }, context())
               : service.expireDueSystem(100);
-          expect(await expire()).toEqual({ expired: state === "unpaid" ? 1 : 0 });
+          expect(await expire()).toEqual({ expired: 1 });
           expect(await expire()).toEqual({ expired: 0 });
           expect(
             (await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } })).status,
-          ).toBe(state === "unpaid" ? "CANCELLED" : "PENDING");
+          ).toBe("CANCELLED");
           expect(
             (await prisma.inventory.findUniqueOrThrow({ where: { id: f.inventory.id } }))
               .reserved,
-          ).toBe(state === "unpaid" ? 0 : 1);
+          ).toBe(0);
           expect(
             (
               await prisma.inventoryReservation.findUniqueOrThrow({
                 where: { id: f.reservation.id },
               })
             ).status,
-          ).toBe(state === "unpaid" ? "RELEASED" : "ACTIVE");
+          ).toBe("RELEASED");
           expect(
             await prisma.inventoryTransaction.count({
               where: { referenceId: f.order.id, type: "RESERVATION_RELEASE" },
             }),
-          ).toBe(state === "unpaid" ? 1 : 0);
+          ).toBe(1);
           const audit = await prisma.auditLog.findMany({
             where: { entityType: "ORDER", entityId: f.order.id, action: "STATUS_CHANGE" },
           });
-          expect(audit).toHaveLength(state === "unpaid" ? 1 : 0);
+          expect(audit).toHaveLength(1);
           if (state === "unpaid")
             expect(audit[0]?.userId).toBe(
               mode === "operator" ? administrator.userId : null,

@@ -1,606 +1,1109 @@
-# Review template only. Replace every REPLACE_* value in a private deployment copy.
-# The intentionally invalid digest placeholders prevent accidental deployment.
-name: allied-autotech-staging
-region: REPLACE_DO_REGION
-
-alerts:
-  - rule: DEPLOYMENT_FAILED
-  - rule: DOMAIN_FAILED
-
-databases:
-  - name: staging-db
-    engine: PG
-    version: "17"
-    production: true
-    cluster_name: REPLACE_STAGING_POSTGRES_CLUSTER
-    db_name: REPLACE_STAGING_DATABASE_NAME
-    db_user: REPLACE_STAGING_DATABASE_USER
-
-services:
-  - name: api
-    image:
-      registry_type: DOCR
-      repository: allied-autotech-backend-api
-      digest: sha256:REPLACE_API_REGISTRY_DIGEST
-    http_port: 5000
-    instance_count: 1
-    instance_size_slug: REPLACE_API_INSTANCE_SIZE_SLUG
-    health_check:
-      http_path: /api/v1/health/ready
-      initial_delay_seconds: 15
-      period_seconds: 10
-      timeout_seconds: 5
-      success_threshold: 1
-      failure_threshold: 6
-    liveness_health_check:
-      http_path: /api/v1/health/live
-      initial_delay_seconds: 20
-      period_seconds: 30
-      timeout_seconds: 5
-      failure_threshold: 3
-    termination:
-      drain_seconds: 15
-      grace_period_seconds: 30
-    envs:
-      - key: NODE_ENV
-        value: production
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DEPLOYMENT_ENV
-        value: staging
-        scope: RUN_TIME
-        type: GENERAL
-      - key: SERVICE_NAME
-        value: allied-autotech-staging-api
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PORT
-        value: "5000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: FRONTEND_URL
-        value: https://REPLACE_STAGING_FRONTEND_HOST
-        scope: RUN_TIME
-        type: GENERAL
-      - key: TRUST_PROXY_HOPS
-        value: "1"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: LOG_LEVEL
-        value: info
-        scope: RUN_TIME
-        type: GENERAL
-      - key: REQUEST_BODY_LIMIT
-        value: 100kb
-        scope: RUN_TIME
-        type: GENERAL
-      - key: READINESS_TIMEOUT_MS
-        value: "2000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: GLOBAL_RATE_LIMIT
-        value: "300"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: GLOBAL_RATE_WINDOW_MS
-        value: "900000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: API_DOCS_ENABLED
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_HOST
-        value: ${staging-db.HOSTNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PORT
-        value: ${staging-db.PORT}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_NAME
-        value: ${staging-db.DATABASE}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_USER
-        value: ${staging-db.USERNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PASSWORD
-        value: ${staging-db.PASSWORD}
-        scope: RUN_TIME
-        type: SECRET
-      - key: DB_SSL_MODE
-        value: verify-full
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_FILE
-        value: /tmp/allied-autotech-secrets/database-ca.pem
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_CERT
-        value: ${staging-db.CA_CERT}
-        scope: RUN_TIME
-        type: SECRET
-      - key: DB_POOL_MAX
-        value: "10"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_CONNECTION_TIMEOUT_MS
-        value: "5000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_IDLE_TIMEOUT_MS
-        value: "30000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_STATEMENT_TIMEOUT_MS
-        value: "30000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_IDLE_TRANSACTION_TIMEOUT_MS
-        value: "15000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: TOKEN_HASH_KEY
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: TOKEN_HASH_KEY_ID
-        value: staging-identity-tokens-v1
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MFA_ENCRYPTION_KEY
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: MFA_ENCRYPTION_KEY_ID
-        value: staging-identity-mfa-v1
-        scope: RUN_TIME
-        type: GENERAL
-      - key: OUTBOX_ENCRYPTION_KEY
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: OUTBOX_ENCRYPTION_KEY_ID
-        value: staging-identity-outbox-v1
-        scope: RUN_TIME
-        type: GENERAL
-      - key: ASSET_TICKET_KEY
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: ASSET_TICKET_KEY_ID
-        value: staging-vehicle-assets-v1
-        scope: RUN_TIME
-        type: GENERAL
-      - key: WEBAUTHN_RP_ID
-        value: REPLACE_STAGING_FRONTEND_HOST
-        scope: RUN_TIME
-        type: GENERAL
-      - key: WEBAUTHN_RP_NAME
-        value: Allied AutoTech Staging
-        scope: RUN_TIME
-        type: GENERAL
-      - key: WEBAUTHN_ORIGINS
-        value: https://REPLACE_STAGING_FRONTEND_HOST
-        scope: RUN_TIME
-        type: GENERAL
-      - key: FRONTEND_VERIFY_EMAIL_URL
-        value: https://REPLACE_STAGING_FRONTEND_HOST/verify-email
-        scope: RUN_TIME
-        type: GENERAL
-      - key: FRONTEND_RESET_PASSWORD_URL
-        value: https://REPLACE_STAGING_FRONTEND_HOST/reset-password
-        scope: RUN_TIME
-        type: GENERAL
-      - key: FRONTEND_PRIVILEGED_INVITATION_URL
-        value: https://REPLACE_STAGING_FRONTEND_HOST/staff/accept-invitation
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYSTACK_SECRET_KEY
-        value: REPLACE_PAYSTACK_TEST_SECRET_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: PAYSTACK_MODE
-        value: test
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYSTACK_LIVE_ENABLED
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYSTACK_CALLBACK_URL
-        value: https://REPLACE_STAGING_FRONTEND_HOST/payments/complete
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYSTACK_REQUEST_TIMEOUT_MS
-        value: "8000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYSTACK_MAX_RESPONSE_BYTES
-        value: "262144"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_MODE
-        value: sandbox
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_LIVE_ENABLED
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_API_KEY
-        value: REPLACE_MONNIFY_SANDBOX_API_KEY_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: MONNIFY_SECRET_KEY
-        value: REPLACE_MONNIFY_SANDBOX_SECRET_KEY_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: MONNIFY_CONTRACT_CODE
-        value: REPLACE_MONNIFY_SANDBOX_CONTRACT_CODE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: MONNIFY_CALLBACK_URL
-        value: https://REPLACE_STAGING_FRONTEND_HOST/payments/complete
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_REQUEST_TIMEOUT_MS
-        value: "8000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_MAX_RESPONSE_BYTES
-        value: "262144"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYMENT_INTENT_TTL_SECONDS
-        value: "1800"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: OBJECT_STORAGE_ENDPOINT
-        value: https://REPLACE_SPACES_REGION.digitaloceanspaces.com
-        scope: RUN_TIME
-        type: GENERAL
-      - key: OBJECT_STORAGE_REGION
-        value: us-east-1
-        scope: RUN_TIME
-        type: GENERAL
-      - key: OBJECT_STORAGE_BUCKET
-        value: REPLACE_STAGING_PRIVATE_BUCKET
-        scope: RUN_TIME
-        type: GENERAL
-      - key: OBJECT_STORAGE_ACCESS_KEY_ID
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: OBJECT_STORAGE_SECRET_ACCESS_KEY
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: OBJECT_STORAGE_FORCE_PATH_STYLE
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: ASSET_UPLOAD_TTL_SECONDS
-        value: "300"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: ASSET_DOWNLOAD_TTL_SECONDS
-        value: "120"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: EMAIL_DELIVERY_ENABLED
-        value: "true"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: SMS_DELIVERY_ENABLED
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-    alerts:
-      - rule: RESTART_COUNT
-        operator: GREATER_THAN
-        value: 3
-        window: FIVE_MINUTES
-
-workers:
-  - name: identity-worker
-    image:
-      registry_type: DOCR
-      repository: allied-autotech-backend-identity-worker
-      digest: sha256:REPLACE_IDENTITY_WORKER_REGISTRY_DIGEST
-    instance_count: 1
-    instance_size_slug: REPLACE_WORKER_INSTANCE_SIZE_SLUG
-    envs:
-      - key: NODE_ENV
-        value: production
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DEPLOYMENT_ENV
-        value: staging
-        scope: RUN_TIME
-        type: GENERAL
-      - key: SERVICE_NAME
-        value: allied-autotech-staging-identity-worker
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_HOST
-        value: ${staging-db.HOSTNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PORT
-        value: ${staging-db.PORT}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_NAME
-        value: ${staging-db.DATABASE}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_USER
-        value: ${staging-db.USERNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PASSWORD
-        value: ${staging-db.PASSWORD}
-        scope: RUN_TIME
-        type: SECRET
-      - key: DB_SSL_MODE
-        value: verify-full
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_FILE
-        value: /tmp/allied-autotech-secrets/database-ca.pem
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_CERT
-        value: ${staging-db.CA_CERT}
-        scope: RUN_TIME
-        type: SECRET
-      - key: OUTBOX_ENCRYPTION_KEY
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: OUTBOX_ENCRYPTION_KEY_ID
-        value: staging-identity-outbox-v1
-        scope: RUN_TIME
-        type: GENERAL
-      - key: RESEND_API_KEY
-        value: REPLACE_RESEND_STAGING_KEY_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: RESEND_FROM_EMAIL
-        value: REPLACE_VERIFIED_STAGING_SENDER
-        scope: RUN_TIME
-        type: GENERAL
-      - key: STAGING_EMAIL_ALLOWLIST
-        value: REPLACE_STAGING_TEST_RECIPIENTS
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MESSAGING_REQUEST_TIMEOUT_MS
-        value: "8000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: WORKER_BATCH_SIZE
-        value: "25"
-        scope: RUN_TIME
-        type: GENERAL
-    alerts:
-      - rule: RESTART_COUNT
-        operator: GREATER_THAN
-        value: 3
-        window: FIVE_MINUTES
-
-  - name: general-worker
-    image:
-      registry_type: DOCR
-      repository: allied-autotech-backend-general-worker
-      digest: sha256:REPLACE_GENERAL_WORKER_REGISTRY_DIGEST
-    instance_count: 1
-    instance_size_slug: REPLACE_WORKER_INSTANCE_SIZE_SLUG
-    envs:
-      - key: NODE_ENV
-        value: production
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DEPLOYMENT_ENV
-        value: staging
-        scope: RUN_TIME
-        type: GENERAL
-      - key: SERVICE_NAME
-        value: allied-autotech-staging-general-worker
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_HOST
-        value: ${staging-db.HOSTNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PORT
-        value: ${staging-db.PORT}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_NAME
-        value: ${staging-db.DATABASE}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_USER
-        value: ${staging-db.USERNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PASSWORD
-        value: ${staging-db.PASSWORD}
-        scope: RUN_TIME
-        type: SECRET
-      - key: DB_SSL_MODE
-        value: verify-full
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_FILE
-        value: /tmp/allied-autotech-secrets/database-ca.pem
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_CERT
-        value: ${staging-db.CA_CERT}
-        scope: RUN_TIME
-        type: SECRET
-      - key: OUTBOX_ENCRYPTION_KEY
-        value: REPLACE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: OUTBOX_ENCRYPTION_KEY_ID
-        value: staging-identity-outbox-v1
-        scope: RUN_TIME
-        type: GENERAL
-      - key: EMAIL_DELIVERY_ENABLED
-        value: "true"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: SMS_DELIVERY_ENABLED
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: RESEND_API_KEY
-        value: REPLACE_RESEND_STAGING_KEY_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: RESEND_FROM_EMAIL
-        value: REPLACE_VERIFIED_STAGING_SENDER
-        scope: RUN_TIME
-        type: GENERAL
-      - key: STAGING_EMAIL_ALLOWLIST
-        value: REPLACE_STAGING_TEST_RECIPIENTS
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MESSAGING_REQUEST_TIMEOUT_MS
-        value: "8000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYSTACK_SECRET_KEY
-        value: REPLACE_PAYSTACK_TEST_SECRET_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: PAYSTACK_MODE
-        value: test
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYSTACK_LIVE_ENABLED
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_MODE
-        value: sandbox
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_LIVE_ENABLED
-        value: "false"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_API_KEY
-        value: REPLACE_MONNIFY_SANDBOX_API_KEY_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: MONNIFY_SECRET_KEY
-        value: REPLACE_MONNIFY_SANDBOX_SECRET_KEY_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: MONNIFY_CONTRACT_CODE
-        value: REPLACE_MONNIFY_SANDBOX_CONTRACT_CODE_IN_APP_PLATFORM
-        scope: RUN_TIME
-        type: SECRET
-      - key: MONNIFY_CALLBACK_URL
-        value: https://REPLACE_STAGING_FRONTEND_HOST/payments/complete
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_REQUEST_TIMEOUT_MS
-        value: "8000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: MONNIFY_MAX_RESPONSE_BYTES
-        value: "262144"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: WORKER_POLL_INTERVAL_MS
-        value: "2000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: WORKER_BATCH_SIZE
-        value: "25"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: EXPIRATION_INTERVAL_MS
-        value: "60000"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: PAYMENT_RECONCILIATION_ENABLED
-        value: "true"
-        scope: RUN_TIME
-        type: GENERAL
-      - key: RECONCILIATION_INTERVAL_MS
-        value: "3600000"
-        scope: RUN_TIME
-        type: GENERAL
-    alerts:
-      - rule: RESTART_COUNT
-        operator: GREATER_THAN
-        value: 3
-        window: FIVE_MINUTES
-
-jobs:
-  - name: migrate
-    kind: PRE_DEPLOY
-    image:
-      registry_type: DOCR
-      repository: allied-autotech-backend-migrate
-      digest: sha256:REPLACE_MIGRATION_REGISTRY_DIGEST
-    instance_count: 1
-    instance_size_slug: REPLACE_MIGRATION_INSTANCE_SIZE_SLUG
-    envs:
-      - key: NODE_ENV
-        value: production
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DEPLOYMENT_ENV
-        value: staging
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_HOST
-        value: ${staging-db.HOSTNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PORT
-        value: ${staging-db.PORT}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_NAME
-        value: ${staging-db.DATABASE}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_USER
-        value: ${staging-db.USERNAME}
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_PASSWORD
-        value: ${staging-db.PASSWORD}
-        scope: RUN_TIME
-        type: SECRET
-      - key: DB_SSL_MODE
-        value: verify-full
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_FILE
-        value: /tmp/allied-autotech-secrets/database-ca.pem
-        scope: RUN_TIME
-        type: GENERAL
-      - key: DB_SSL_CA_CERT
-        value: ${staging-db.CA_CERT}
-        scope: RUN_TIME
-        type: SECRET
-
-ingress:
-  rules:
-    - match:
-        path:
-          prefix: /api/v1
-      component:
-        name: api
-        preserve_path_prefix: true
+# Review-only App Platform spec; JSON syntax is valid YAML. Replace placeholders in a private copy.
+{
+  "name": "allied-autotech-staging",
+  "region": "REPLACE_DO_REGION",
+  "alerts": [
+    {
+      "rule": "DEPLOYMENT_FAILED"
+    },
+    {
+      "rule": "DOMAIN_FAILED"
+    }
+  ],
+  "services": [
+    {
+      "name": "api",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-api",
+        "digest": "sha256:REPLACE_API_DIGEST"
+      },
+      "http_port": 5000,
+      "instance_count": 1,
+      "instance_size_slug": "REPLACE_API_SIZE",
+      "health_check": {
+        "http_path": "/api/v1/health/ready",
+        "initial_delay_seconds": 15,
+        "period_seconds": 10,
+        "timeout_seconds": 5,
+        "success_threshold": 1,
+        "failure_threshold": 6
+      },
+      "liveness_health_check": {
+        "http_path": "/api/v1/health/live",
+        "initial_delay_seconds": 20,
+        "period_seconds": 30,
+        "timeout_seconds": 5,
+        "failure_threshold": 3
+      },
+      "termination": {
+        "drain_seconds": 15,
+        "grace_period_seconds": 30
+      },
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-staging-api",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PORT",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_URL",
+          "value": "https://staging.example.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TRUST_PROXY_HOPS",
+          "value": "0",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "LOG_LEVEL",
+          "value": "info",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "REQUEST_BODY_LIMIT",
+          "value": "100kb",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "READINESS_TIMEOUT_MS",
+          "value": "2000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "GLOBAL_RATE_LIMIT",
+          "value": "300",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "GLOBAL_RATE_WINDOW_MS",
+          "value": "60000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "API_DOCS_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_MANAGED_POSTGRES_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "25060",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "REPLACE_STAGING_RUNTIME_ROLE",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_STAGING_RUNTIME_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "10",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TOKEN_HASH_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "TOKEN_HASH_KEY_ID",
+          "value": "staging-token-hash-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MFA_ENCRYPTION_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "MFA_ENCRYPTION_KEY_ID",
+          "value": "staging-mfa-encryption-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY_ID",
+          "value": "staging-outbox-encryption-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WEBAUTHN_RP_ID",
+          "value": "staging.example.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WEBAUTHN_RP_NAME",
+          "value": "Allied AutoTech",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WEBAUTHN_ORIGINS",
+          "value": "https://staging.example.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EMAIL_DELIVERY_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SMS_DELIVERY_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_EMAIL_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_SMS_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MESSAGING_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_SECRET_KEY",
+          "value": "REPLACE_PAYSTACK_TEST_SECRET",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "PAYSTACK_MODE",
+          "value": "test",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_CALLBACK_URL",
+          "value": "https://staging.example.com/payments/complete",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MODE",
+          "value": "disabled",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_SECRET_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_CONTRACT_CODE",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_CALLBACK_URL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYMENT_INTENT_TTL_SECONDS",
+          "value": "1800",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_VERIFY_EMAIL_URL",
+          "value": "https://staging.example.com/verify-email",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_RESET_PASSWORD_URL",
+          "value": "https://staging.example.com/reset-password",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_PRIVILEGED_INVITATION_URL",
+          "value": "https://staging.example.com/staff/accept-invitation",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRIVILEGED_INVITATION_TTL_SECONDS",
+          "value": "86400",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_POLL_INTERVAL_MS",
+          "value": "2000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_BATCH_SIZE",
+          "value": "25",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EXPIRATION_INTERVAL_MS",
+          "value": "60000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYMENT_RECONCILIATION_ENABLED",
+          "value": "true",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RECONCILIATION_INTERVAL_MS",
+          "value": "3600000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ENDPOINT",
+          "value": "https://REPLACE_SPACES_REGION.digitaloceanspaces.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_REGION",
+          "value": "us-east-1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_BUCKET",
+          "value": "REPLACE_PRIVATE_STAGING_BUCKET",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ACCESS_KEY_ID",
+          "value": "REPLACE_STAGING_SPACES_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "value": "REPLACE_STAGING_SPACES_SECRET",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_FORCE_PATH_STYLE",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_TICKET_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "ASSET_TICKET_KEY_ID",
+          "value": "staging-asset-ticket-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_UPLOAD_TTL_SECONDS",
+          "value": "300",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_DOWNLOAD_TTL_SECONDS",
+          "value": "120",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TRUST_PROXY_CIDRS",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_BASE64_ENCODED_CA_PEM",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        }
+      ]
+    }
+  ],
+  "workers": [
+    {
+      "name": "identity-worker",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-identity-worker",
+        "digest": "sha256:REPLACE_IDENTITY_WORKER_DIGEST"
+      },
+      "instance_count": 1,
+      "instance_size_slug": "REPLACE_WORKER_SIZE",
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_MANAGED_POSTGRES_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "25060",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "REPLACE_STAGING_RUNTIME_ROLE",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_STAGING_RUNTIME_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_BASE64_ENCODED_CA_PEM",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "3",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY_ID",
+          "value": "staging-outbox-encryption-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EMAIL_DELIVERY_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "RESEND_FROM_EMAIL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_EMAIL_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MESSAGING_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_BATCH_SIZE",
+          "value": "25",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-staging-identity-worker",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        }
+      ],
+      "termination": {
+        "grace_period_seconds": 60
+      }
+    },
+    {
+      "name": "general-worker",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-general-worker",
+        "digest": "sha256:REPLACE_GENERAL_WORKER_DIGEST"
+      },
+      "instance_count": 1,
+      "instance_size_slug": "REPLACE_WORKER_SIZE",
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_MANAGED_POSTGRES_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "25060",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "REPLACE_STAGING_RUNTIME_ROLE",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_STAGING_RUNTIME_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_BASE64_ENCODED_CA_PEM",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "5",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TOKEN_HASH_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "TOKEN_HASH_KEY_ID",
+          "value": "staging-token-hash-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY_ID",
+          "value": "staging-outbox-encryption-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "RESEND_FROM_EMAIL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_EMAIL_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_SMS_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TERMII_BASE_URL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TERMII_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "TERMII_SENDER_ID",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_SECRET_KEY",
+          "value": "REPLACE_PAYSTACK_TEST_SECRET",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "PAYSTACK_MODE",
+          "value": "test",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_CALLBACK_URL",
+          "value": "https://staging.example.com/payments/complete",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MODE",
+          "value": "disabled",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_SECRET_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_CONTRACT_CODE",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_CALLBACK_URL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_POLL_INTERVAL_MS",
+          "value": "2000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_BATCH_SIZE",
+          "value": "25",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RECONCILIATION_INTERVAL_MS",
+          "value": "3600000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_TICKET_KEY",
+          "value": "REPLACE_INDEPENDENT_BASE64_32_BYTE_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "ASSET_TICKET_KEY_ID",
+          "value": "staging-asset-ticket-key-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_URL",
+          "value": "https://staging.example.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EMAIL_DELIVERY_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SMS_DELIVERY_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MESSAGING_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EXPIRATION_INTERVAL_MS",
+          "value": "60000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYMENT_RECONCILIATION_ENABLED",
+          "value": "true",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-staging-general-worker",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        }
+      ],
+      "termination": {
+        "grace_period_seconds": 60
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "name": "migrate",
+      "kind": "PRE_DEPLOY",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-migrate",
+        "digest": "sha256:REPLACE_MIGRATE_DIGEST"
+      },
+      "instance_count": 1,
+      "instance_size_slug": "REPLACE_MIGRATION_SIZE",
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_MANAGED_POSTGRES_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "25060",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_staging",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "REPLACE_MIGRATION_ROLE",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_MIGRATION_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_BASE64_ENCODED_CA_PEM",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "2",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-staging-migrate",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        }
+      ]
+    }
+  ],
+  "ingress": {
+    "rules": [
+      {
+        "match": {
+          "path": {
+            "prefix": "/api/v1"
+          }
+        },
+        "component": {
+          "name": "api",
+          "preserve_path_prefix": true
+        }
+      }
+    ]
+  }
+}

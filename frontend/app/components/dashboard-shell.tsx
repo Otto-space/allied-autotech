@@ -24,9 +24,19 @@ import { Brand } from "./brand";
 import { Feedback } from "./feedback";
 import { dashboardNavigation } from "@/lib/dashboard-navigation";
 import { DashboardNavigation, DashboardPageSearch } from "./dashboard-navigation";
+import { useResource } from "@/lib/api/use-resource";
+import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
 const SessionContext = createContext<SessionState | null>(null);
+const StaffPermissionContext = createContext<ReturnType<
+  typeof useResource<ReturnType<typeof parseOwnStaffProfile>>
+> | null>(null);
 export function useAccountSession() {
   return useContext(SessionContext);
+}
+export function useOwnStaffPermissions() {
+  const shared = useContext(StaffPermissionContext);
+  const local = useResource(shared ? null : "/staff/profile", parseOwnStaffProfile);
+  return shared ?? local;
 }
 export function DashboardShell({
   children,
@@ -47,7 +57,21 @@ export function DashboardShell({
   const menuButton = useRef<HTMLButtonElement>(null);
   const collapseButton = useRef<HTMLButtonElement>(null);
   const menuOpen = menuPath === pathname;
-  const navigation = session ? dashboardNavigation(session.user.role) : [];
+  const grants = useResource(
+    session?.user.role === "STAFF" ? "/staff/profile" : null,
+    parseOwnStaffProfile,
+  );
+  const navigationCapabilities =
+    !grants.error &&
+    !grants.loading &&
+    grants.data?.id === session?.user.id &&
+    grants.data?.role === "STAFF" &&
+    grants.data?.status === "ACTIVE"
+      ? grants.data.capabilities
+      : [];
+  const navigation = session
+    ? dashboardNavigation(session.user.role, navigationCapabilities)
+    : [];
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 900px)");
     function adaptNavigation() {
@@ -292,7 +316,13 @@ export function DashboardShell({
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
           <Feedback message={error} />
-          <SessionContext.Provider value={session}>{children}</SessionContext.Provider>
+          <SessionContext.Provider value={session}>
+            <StaffPermissionContext.Provider
+              value={session.user.role === "STAFF" ? grants : null}
+            >
+              {children}
+            </StaffPermissionContext.Provider>
+          </SessionContext.Provider>
         </main>
       </div>
     </div>

@@ -1,4 +1,5 @@
-﻿import { randomUUID } from "node:crypto";
+import { sessionWindow } from "../helpers/session-window.js";
+import { randomUUID } from "node:crypto";
 import { generate } from "otplib";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -53,8 +54,7 @@ async function fixture(role: UserRole = "STAFF", verified = false) {
       createdAt: new Date(Date.now() - 2000),
       mfaRequired: true,
       mfaVerifiedAt: verified ? new Date() : null,
-      expiresAt: new Date(Date.now() + 600000),
-      idleExpiresAt: new Date(Date.now() + 600000),
+      ...sessionWindow(600000),
     },
   });
   return { user, session, csrf, cookie: `aat_session=${raw}` };
@@ -232,8 +232,7 @@ describe.skipIf(!enabled)("MFA enrollment authorization and atomicity", () => {
         tokenHash: hashToken("session", generateOpaqueToken()),
         csrfTokenHash: csrf.hash,
         mfaRequired: true,
-        expiresAt: new Date(Date.now() + 600000),
-        idleExpiresAt: new Date(Date.now() + 600000),
+        ...sessionWindow(600000),
       },
     });
     const service = new IdentityService();

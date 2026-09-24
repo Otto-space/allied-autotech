@@ -116,6 +116,11 @@ const sensitiveExampleVariables = new Set([
   "ASSET_TICKET_KEY",
   "RESEND_API_KEY",
   "PAYSTACK_SECRET_KEY",
+  "MONNIFY_API_KEY",
+  "MONNIFY_SECRET_KEY",
+  "TERMII_API_KEY",
+  "OBJECT_STORAGE_ACCESS_KEY_ID",
+  "DB_SSL_CA_BASE64",
   "OBJECT_STORAGE_SECRET_ACCESS_KEY",
 ]);
 
@@ -147,7 +152,12 @@ const findings: string[] = [];
 
 for (const relativePath of paths) {
   const fileName = basename(relativePath);
-  if (/^\.env(?:\..+)?$/u.test(fileName) && fileName !== ".env.example") {
+  const isEnvironmentExample = [
+    ".env.example",
+    ".env.staging.example",
+    ".env.production.example",
+  ].includes(fileName);
+  if (/^\.env(?:\..+)?$/u.test(fileName) && !isEnvironmentExample) {
     findings.push(`environment file: ${relativePath}`);
     continue;
   }
@@ -157,6 +167,8 @@ for (const relativePath of paths) {
     findings.push(`path outside repository: ${relativePath}`);
     continue;
   }
+  // Tracked deletions may still appear in git ls-files; scan only present working files.
+  if (!existsSync(absolutePath)) continue;
   if (statSync(absolutePath).size > 5_000_000) continue;
   const value = readFileSync(absolutePath);
   if (value.includes(0)) continue;
@@ -166,7 +178,7 @@ for (const relativePath of paths) {
     if (pattern.test(text)) findings.push(`${category}: ${relativePath}`);
   }
 
-  if (fileName === ".env.example") {
+  if (isEnvironmentExample) {
     for (const line of text.split(/\r?\n/u)) {
       const assignment = parseEnvironmentAssignment(line);
       if (assignment === undefined || !sensitiveExampleVariables.has(assignment[0])) {
@@ -222,7 +234,12 @@ if (process.argv.includes("--history")) {
   }
   for (const relativePath of historicalPaths.stdout.split(/\r?\n/u).filter(Boolean)) {
     const fileName = basename(relativePath);
-    if (/^\.env(?:\..+)?$/u.test(fileName) && fileName !== ".env.example") {
+    const isEnvironmentExample = [
+      ".env.example",
+      ".env.staging.example",
+      ".env.production.example",
+    ].includes(fileName);
+    if (/^\.env(?:\..+)?$/u.test(fileName) && !isEnvironmentExample) {
       findings.push(`historical environment file: ${relativePath}`);
     }
   }

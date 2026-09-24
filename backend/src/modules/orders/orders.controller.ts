@@ -70,7 +70,7 @@ export class OrdersController {
       .status(200)
       .json(
         successResponse(
-          "Order cancelled",
+          "Order cancellation processed; review the returned order and any review request",
           req.id,
           await this.service.customerCancel(
             actor(req),

@@ -1,4 +1,5 @@
 "use client";
+import { OrderDeliveryDetails } from "./order-delivery-details";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { z } from "zod";
@@ -6,6 +7,7 @@ import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
 import { parseOrder } from "@/lib/api/commerce-schemas";
+import { aftercareSchema } from "@/lib/api/aftercare-schemas";
 import { paymentSchema } from "@/lib/api/payment-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
@@ -18,11 +20,14 @@ export function OrderDetail({ orderId }: { orderId: string }) {
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [notice, setNotice] = useState<string>();
+  const [uncertain, setUncertain] = useState(false);
   const [paymentId, setPaymentId] = useState<string>();
   const key = useRef<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   async function preparePayment() {
-    if (busy) return;
+    if (busy || uncertain || order.loading || order.error || order.data?.id !== orderId)
+      return;
     setBusy(true);
     setError(undefined);
     key.current ??= newIdempotencyKey();
@@ -51,22 +56,41 @@ export function OrderDetail({ orderId }: { orderId: string }) {
     }
   }
   async function cancel(reason: string) {
-    if (busy || !order.data) return;
+    if (busy || uncertain || order.loading || order.error || order.data?.id !== orderId)
+      return;
     setBusy(true);
     setError(undefined);
+    setNotice(undefined);
     try {
       const body: RequestBody<"/customers/orders/{orderId}/cancel", "post"> = {
         expectedVersion: order.data.version,
         reason,
       };
-      await apiRequest(`/customers/orders/${orderId}/cancel`, {
+      const response = await apiRequest(`/customers/orders/${orderId}/cancel`, {
         method: "POST",
         csrf: true,
         body,
       });
+      const saved = parseOrder(response.data);
+      const request = z
+        .object({ cancellationRequest: aftercareSchema.optional() })
+        .parse(response.data).cancellationRequest;
+      if (
+        saved.id !== orderId ||
+        (saved.status !== "CANCELLED" &&
+          (!request || request.orderId !== orderId || request.kind !== "CANCELLATION"))
+      )
+        throw new Error("Unexpected cancellation outcome");
+      setNotice(
+        saved.status === "CANCELLED"
+          ? "Order cancelled. Check payment records for any refund status."
+          : "A cancellation request was recorded for staff review. Your order has not been cancelled.",
+      );
       dialog.current?.close();
       order.refresh();
     } catch (value) {
+      if (!(value instanceof ApiError && value.status >= 400 && value.status < 500))
+        setUncertain(true);
       setError(
         value instanceof ApiError
           ? value.message
@@ -76,7 +100,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       setBusy(false);
     }
   }
-  const current = order.data;
+  const current = !order.error && order.data?.id === orderId ? order.data : undefined;
   return (
     <>
       <Link className="text-link" href="/dashboard/orders">
@@ -84,6 +108,13 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       </Link>
       <h1>Order details</h1>
       <Feedback message={error ?? order.error} />
+      <Feedback message={notice} tone="success" toast="Cancellation outcome recorded." />
+      {uncertain && (
+        <Feedback
+          tone="warning"
+          message="The cancellation outcome is uncertain. Review refreshed order and request history before reloading to make another change."
+        />
+      )}
       {order.loading && <p role="status">Checking order…</p>}
       <button
         className="button secondary"
@@ -101,6 +132,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
               {current.branch.name} · {current.fulfillmentMethod.toLowerCase()}
             </p>
             <p>Created {formatBusinessDate(current.createdAt)}</p>
+            <OrderDeliveryDetails order={current} />
             {current.paymentDueAt && (
               <p>Payment deadline: {formatBusinessDate(current.paymentDueAt)}</p>
             )}
@@ -130,12 +162,18 @@ export function OrderDetail({ orderId }: { orderId: string }) {
               ))}
             </div>
             <dl className="totals checkout-summary">
-              <dt>Parts subtotal</dt>
+              <dt>Products subtotal</dt>
               <dd>{formatKobo(current.subtotalKobo)}</dd>
               <dt>Discount</dt>
               <dd>{formatKobo(current.discountAmountKobo)}</dd>
               <dt>Delivery fee</dt>
               <dd>{formatKobo(current.deliveryFeeKobo)}</dd>
+              <dt>Tax</dt>
+              <dd>
+                {current.taxKobo === undefined
+                  ? "Not available on this record"
+                  : formatKobo(current.taxKobo)}
+              </dd>
               <dt>Order total</dt>
               <dd>{formatKobo(current.totalKobo)}</dd>
             </dl>
@@ -147,7 +185,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
                   {!paymentId && (
                     <button
                       className="button"
-                      disabled={busy}
+                      disabled={busy || uncertain}
                       onClick={() => void preparePayment()}
                     >
                       {busy ? "Checking…" : "Review payment options"}
@@ -155,13 +193,18 @@ export function OrderDetail({ orderId }: { orderId: string }) {
                   )}
                   <button
                     className="button secondary"
-                    disabled={busy}
+                    disabled={busy || uncertain}
                     onClick={() => dialog.current?.showModal()}
                   >
                     Cancel order
                   </button>
                 </div>
               )}
+            <p>
+              <Link className="text-link" href={`/dashboard/orders/${orderId}/aftercare`}>
+                Returns and cancellation requests
+              </Link>
+            </p>
             <p>
               <Link className="text-link" href="/dashboard/payments">
                 Check all your payments →
@@ -178,8 +221,8 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       >
         <h2 id="cancel-order-title">Cancel this order?</h2>
         <p>
-          This releases its stock reservation. Check any pending payment before
-          cancelling.
+          Pending orders can be cancelled immediately. If processing has advanced, your
+          request goes to staff for review. Check any pending payment before cancelling.
         </p>
         <Feedback message={error} />
         <form
@@ -193,7 +236,10 @@ export function OrderDetail({ orderId }: { orderId: string }) {
             <textarea name="reason" id="cancel-reason" required maxLength={500} />
           </div>
           <div className="actions">
-            <button className="button danger" disabled={busy}>
+            <button
+              className="button danger"
+              disabled={busy || uncertain || order.loading || !!order.error}
+            >
               Confirm cancellation
             </button>
             <button

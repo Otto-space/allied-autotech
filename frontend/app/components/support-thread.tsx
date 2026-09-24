@@ -7,6 +7,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { SupportMessages } from "./support-messages";
 import { SupportStaffActions } from "./support-staff-actions";
+import { ComplaintAcknowledgement } from "./complaint-acknowledgement";
 export function SupportThread({
   kind,
   id,
@@ -28,6 +29,7 @@ export function SupportThread({
   const result = useResource(base, parse);
   const [uncertain, setUncertain] = useState(false);
   const [message, setMessage] = useState<string>();
+  const [messageRevision, setMessageRevision] = useState(0);
   const record = result.error ? undefined : result.data;
   return (
     <>
@@ -38,7 +40,7 @@ export function SupportThread({
         {record?.subject ?? (kind === "enquiries" ? "Enquiry" : "Complaint")}
       </h1>
       <Feedback message={result.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Support update recorded." />
       {uncertain && (
         <p className="notice" role="status">
           A support change has an unknown outcome. Refresh to inspect the record. Further
@@ -75,6 +77,26 @@ export function SupportThread({
                 <>
                   <dt>Priority</dt>
                   <dd>{record.priority.toLowerCase()}</dd>
+                  <dt>Acknowledgement</dt>
+                  <dd>
+                    {record.acknowledgedAt === undefined
+                      ? "Not available on this record"
+                      : record.acknowledgedAt
+                        ? `Recorded ${formatBusinessDate(record.acknowledgedAt)}`
+                        : "Awaiting acknowledgement"}
+                  </dd>
+                  <dt>Acknowledgement target</dt>
+                  <dd>
+                    {record.acknowledgementDueAt
+                      ? formatBusinessDate(record.acknowledgementDueAt)
+                      : "Not available on this record"}
+                  </dd>
+                  {record.escalatedAt && (
+                    <>
+                      <dt>Escalated</dt>
+                      <dd>{formatBusinessDate(record.escalatedAt)}</dd>
+                    </>
+                  )}
                 </>
               ) : (
                 <>
@@ -111,6 +133,22 @@ export function SupportThread({
               </>
             )}
           </section>
+          {staff && record.kind === "complaints" && (
+            <ComplaintAcknowledgement
+              key={`${base}:${record.acknowledgedAt ?? "pending"}`}
+              record={record}
+              base={base}
+              disabled={result.loading || !!result.error || uncertain}
+              onUncertain={() => setUncertain(true)}
+              onSaved={() => {
+                setMessage(
+                  "Complaint acknowledgement is recorded. Review the conversation for the saved response.",
+                );
+                setMessageRevision((value) => value + 1);
+                result.refresh();
+              }}
+            />
+          )}
           {staff && (
             <SupportStaffActions
               key={`${id}:${record.version}`}
@@ -120,17 +158,20 @@ export function SupportThread({
               onUncertain={() => setUncertain(true)}
               onSaved={() => {
                 setMessage("Support change saved.");
+                setMessageRevision((value) => value + 1);
                 result.refresh();
               }}
             />
           )}
           <SupportMessages
             key={base}
+            refreshKey={messageRevision}
             record={record}
             base={base}
             staff={staff}
             disabled={result.loading || !!result.error || uncertain}
             onSaved={result.refresh}
+            onUncertain={() => setUncertain(true)}
           />
         </>
       )}

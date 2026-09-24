@@ -24,10 +24,10 @@ describe("Phase 5 service-operation HTTP boundaries", () => {
     const policy = await request(app).get("/api/v1/public/booking-policy");
     expect(policy.status).toBe(200);
     expect(policy.body.data).toMatchObject({
-      version: "booking-deposit-v1",
+      version: "owner-booking-request-v2",
       minimumAdvanceHours: 168,
       maximumAdvanceHours: 336,
-      depositBasisPoints: 3000,
+      depositBasisPoints: 0,
     });
     const invalid = await request(app).get(
       `/api/v1/public/services/${crypto.randomUUID()}/slots`,

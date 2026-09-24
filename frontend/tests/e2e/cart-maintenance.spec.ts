@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
 import os from "node:os";
 import { overviewFixture } from "../fixtures/overview";
+import { collectionOnlyOptions } from "../fixtures/fulfillment";
 const id = (n: number) => `e6000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const branch = { id: id(1), code: "TEST", name: "Test branch" };
 const product = {
@@ -63,6 +64,8 @@ async function fixture(page: Page, role = "CUSTOMER") {
       state.reads.push(endpoint);
       if (endpoint.endsWith("/overview")) return ok(route, overviewFixture(role));
       if (endpoint === "/public/branches") return ok(route, { items: [branch] });
+      if (endpoint === "/public/fulfillment-options")
+        return ok(route, collectionOnlyOptions);
       if (endpoint === "/customers/cart") {
         if (state.failRead) return fail(route);
         const subtotal = (BigInt(product.priceKobo) * BigInt(state.quantity)).toString();

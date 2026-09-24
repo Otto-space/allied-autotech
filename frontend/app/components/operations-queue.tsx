@@ -90,7 +90,7 @@ export function OperationsQueue<T>({
         ))}
       </div>
       <Feedback message={records.error} />
-      <Feedback message={message} tone="info" />
+      <Feedback message={message} tone="info" toast="Operation update recorded." />
       <div className="actions">
         <button
           className="button secondary"

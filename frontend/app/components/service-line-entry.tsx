@@ -12,7 +12,7 @@ import {
   toServiceLines,
   type ServiceLinesForm,
 } from "@/lib/forms/service-lines";
-import { koboToInput, nairaToKobo } from "@/lib/format/currency-input";
+import { koboToInput } from "@/lib/format/currency-input";
 import { formatBusinessDate } from "@/lib/format/date";
 import type { MutationProposal } from "./mutation-review";
 import { ServiceLineFields } from "./service-line-fields";
@@ -54,7 +54,6 @@ export function ServiceLineEntry({
             unitPrice: koboToInput(item.unitPriceKobo),
           }))
         : [emptyServiceLine()],
-      tax: quote ? koboToInput(quote.taxKobo) : "0",
       notes: quote?.notes ?? "",
       expiresAt: localExpiry(quote?.expiresAt),
     },
@@ -91,7 +90,6 @@ export function ServiceLineEntry({
       }
       body = {
         items,
-        taxKobo: nairaToKobo(values.tax),
         notes: values.notes || null,
         expiresAt,
         ...(quote ? { expectedRevision: quote.revision } : {}),
@@ -99,8 +97,8 @@ export function ServiceLineEntry({
       path = `/staff/bookings/${booking.id}/quotes${quote ? `/${quote.id}` : ""}`;
       method = quote ? "PUT" : "POST";
       facts.push(
-        { label: "Tax", value: `NGN ${values.tax}` },
-        { label: "Expires", value: formatBusinessDate(expiresAt) },
+        { label: "Tax", value: "Calculated by Allied AutoTech when the draft is saved" },
+        { label: "Draft expires", value: formatBusinessDate(expiresAt) },
       );
       if (values.notes) facts.push({ label: "Quotation notes", value: values.notes });
     } else {
@@ -152,23 +150,12 @@ export function ServiceLineEntry({
       <ServiceLineFields form={form} prefix={prefix} disabled={disabled || uncertain} />
       {mode === "quote" && (
         <>
+          <p className="field-hint">
+            Tax is calculated by Allied AutoTech when the draft is saved. Review the saved
+            subtotal, tax and total before issuing the quotation.
+          </p>
           <div className="field">
-            <label htmlFor="quote-tax">Tax amount (NGN)</label>
-            <input
-              id="quote-tax"
-              inputMode="decimal"
-              {...form.register("tax")}
-              aria-invalid={!!form.formState.errors.tax}
-              aria-describedby={form.formState.errors.tax ? "quote-tax-error" : undefined}
-            />
-            {form.formState.errors.tax && (
-              <p id="quote-tax-error" className="field-error" role="alert">
-                {form.formState.errors.tax.message}
-              </p>
-            )}
-          </div>
-          <div className="field">
-            <label htmlFor="quote-expiry">Quotation expiry (Lagos time)</label>
+            <label htmlFor="quote-expiry">Draft expiry (Lagos time)</label>
             <input
               id="quote-expiry"
               type="datetime-local"
@@ -182,13 +169,14 @@ export function ServiceLineEntry({
               role={form.formState.errors.expiresAt ? "alert" : undefined}
             >
               {form.formState.errors.expiresAt?.message ??
-                "Use local time in Port Harcourt, UTC+01:00."}
+                "Choose the draft review deadline in Lagos time, UTC+01:00. Issuing the quotation starts a separate seven-day acceptance period."}
             </p>
           </div>
           <div className="field">
             <label htmlFor="quote-notes">Quotation notes (optional)</label>
-            <input
+            <textarea
               id="quote-notes"
+              rows={4}
               {...form.register("notes")}
               maxLength={4000}
               aria-invalid={!!form.formState.errors.notes}

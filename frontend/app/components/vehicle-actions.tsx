@@ -87,7 +87,7 @@ export function VehicleActions({ listingId }: { listingId: string }) {
     <>
       <AccountChangeNotice visible={operation.sessionChanged} />
       <Feedback message={error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Vehicle request recorded." />
       {login && (
         <p>
           <Link

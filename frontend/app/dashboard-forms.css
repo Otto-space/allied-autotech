@@ -1,0 +1,490 @@
+/* Shared by customer, staff, admin and owner dashboards. Public forms keep their
+   own styling. These rules change presentation, never form state or visibility. */
+.dashboard {
+  --form-border: #aebdcd;
+  --form-focus: #254c72;
+  --form-halo: #dceaf7;
+  --form-secondary: #52647a;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.dashboard-main {
+  background: #f6f8fa;
+}
+
+.dashboard .dashboard-content {
+  padding-top: 32px;
+}
+
+.dashboard-content > h1,
+.dashboard-content .dashboard-page-heading h1 {
+  margin: 0 0 10px;
+  font-size: clamp(26px, 2.4vw, 32px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+}
+
+.dashboard-content .dashboard-page-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  max-width: 840px;
+}
+
+.dashboard-content .dashboard-page-heading .lead {
+  margin: 0;
+  color: var(--form-secondary);
+}
+
+.dashboard-content > :is(.lead, h1 + p) {
+  max-width: 72ch;
+  margin: 0 0 24px;
+  color: var(--form-secondary);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.dashboard .dashboard-content :is(form, fieldset, .field, .form-row, .record-form-grid) {
+  min-width: 0;
+}
+
+.dashboard-content form {
+  scroll-margin-block: 24px;
+}
+
+.dashboard-content :is(form.card, .checkout-summary, .line-entry-form),
+.dashboard-content .detail-section:has(> form):not(:has(> .line-entry-form)) {
+  margin-top: 28px;
+  padding: clamp(20px, 2.5vw, 32px);
+  border: 1px solid #dde4ec;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 4px #17324d03;
+}
+
+.dashboard-content :is(form.card, .checkout-summary) {
+  max-width: 840px;
+}
+
+.dashboard-content .detail-section > form {
+  max-width: 840px;
+}
+
+.dashboard-content .detail-section:has(> form):not(:has(> .line-entry-form)) {
+  max-width: 920px;
+}
+
+.dashboard-content :is(.detail-section, .checkout-summary, form.card) > :is(h2, h3) {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  text-transform: none;
+}
+
+.dashboard-content :is(.detail-section, .checkout-summary, form.card) > p,
+.dashboard-content .form-section > p {
+  max-width: 70ch;
+  color: var(--form-secondary);
+  line-height: 1.65;
+}
+
+.dashboard-content
+  :is(form > fieldset:not(.service-line-editor), form > .handover-fields) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.dashboard-content .form-section + .form-section {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.dashboard-content .form-section > legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-content .form-section > legend + * {
+  clear: both;
+}
+
+.dashboard-content .form-section > p {
+  margin: 0 0 20px;
+  font-size: 14px;
+}
+
+.dashboard .dashboard-content .field {
+  gap: 8px;
+  margin: 20px 0;
+  align-content: start;
+}
+
+.dashboard .dashboard-content :is(.form-row, .record-form-grid) {
+  gap: 20px 24px;
+  align-items: start;
+}
+
+.dashboard .dashboard-content :is(.form-row, .record-form-grid) > .field {
+  margin: 0;
+}
+
+.dashboard-content :is(.form-row, .record-form-grid) > .field:has(textarea),
+.dashboard-content .form-row > .field-wide,
+.dashboard-content .form-row > .check-label {
+  grid-column: 1 / -1;
+}
+
+.dashboard .dashboard-content :is(label, .field-label, .label) {
+  color: #273c50;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.dashboard
+  .dashboard-content
+  :where(
+    input:not(
+      [type="checkbox"],
+      [type="radio"],
+      [type="hidden"],
+      [type="range"],
+      [type="color"],
+      [type="file"],
+      [type="submit"],
+      [type="button"],
+      [type="reset"]
+    ),
+    select,
+    textarea
+  ) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 46px;
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid var(--form-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #182e43;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  box-shadow: 0 1px 2px #17324d04;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease;
+}
+
+.dashboard .dashboard-content select:not([multiple]) {
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2352647a' stroke-width='1.7'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-size: 20px;
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+}
+
+.dashboard .dashboard-content select[multiple] {
+  min-height: 132px;
+}
+
+.dashboard .dashboard-content textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
+.dashboard-content :is(input, textarea)::placeholder {
+  color: #6c7c8e;
+  opacity: 1;
+  font-weight: 400;
+}
+
+.dashboard .dashboard-content :is(input, select, textarea):focus {
+  border-color: var(--form-focus);
+  outline: 2px solid var(--form-focus);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 5px var(--form-halo);
+}
+
+.dashboard .dashboard-content :is(input, select, textarea)[aria-invalid="true"] {
+  border-color: #b42318;
+  background-color: #fffafa;
+}
+
+.dashboard .dashboard-content :is(input, select, textarea):disabled {
+  cursor: not-allowed;
+  background-color: #f0f3f6;
+  color: #596b7e;
+  border-color: #cbd5df;
+  box-shadow: none;
+  opacity: 1;
+}
+
+.dashboard .dashboard-content :is(input, textarea)[readonly] {
+  background-color: #f3f6f9;
+  color: var(--form-secondary);
+}
+
+.dashboard .dashboard-content :is(input[type="checkbox"], input[type="radio"]) {
+  width: 19px;
+  height: 19px;
+  min-width: 19px;
+  flex: 0 0 19px;
+  margin: 2px 0 0;
+  accent-color: var(--form-focus);
+}
+
+.dashboard .dashboard-content .check-label {
+  align-items: flex-start;
+  min-height: 44px;
+  gap: 10px;
+  padding: 10px 0;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.dashboard-content .check-label:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.dashboard .dashboard-content input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+  min-height: 46px;
+  padding: 8px;
+  border: 1px dashed var(--form-border);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: var(--form-secondary);
+  font-size: 14px;
+}
+
+.dashboard-content input[type="file"]::file-selector-button {
+  margin-right: 12px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid #c3cfda;
+  border-radius: 6px;
+  background: #fff;
+  color: #273c50;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.dashboard-content input[type="range"] {
+  min-height: 44px;
+  max-width: 100%;
+  accent-color: var(--form-focus);
+}
+
+.dashboard-content input[type="color"] {
+  width: 64px;
+  min-height: 44px;
+}
+
+.dashboard .dashboard-content :is(.field-hint, .field-error) {
+  display: block;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-content .field-hint {
+  color: var(--form-secondary);
+}
+
+.dashboard .dashboard-content .field-error:empty {
+  display: none;
+}
+
+.dashboard .dashboard-content .button {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: center;
+  white-space: normal;
+  box-shadow: none;
+}
+
+.dashboard .dashboard-content .button:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.dashboard .dashboard-content .button.secondary {
+  border-color: #bfccd8;
+}
+
+.dashboard .dashboard-content .button:focus-visible,
+.dashboard-content .text-link:focus-visible {
+  outline: 2px solid var(--form-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--form-halo);
+}
+
+.dashboard .dashboard-content .button:disabled {
+  border-color: #d4dde6;
+  background: #edf1f5;
+  color: #5b6d80;
+  opacity: 1;
+  transform: none;
+}
+
+.dashboard .dashboard-content .actions {
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.dashboard-content :is(form > .actions, form > fieldset > .actions, .form-actions) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.dashboard-content .form-actions > p {
+  flex: 1 1 220px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--form-secondary);
+}
+
+.dashboard-content .form-section > .profile-country {
+  margin: 16px 0 0;
+}
+
+.dashboard-content .service-line-editor {
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.dashboard-content form button.text-link {
+  min-height: 44px;
+  padding-block: 10px;
+  line-height: 1.5;
+}
+
+.dashboard .dashboard-content .support-dialog {
+  padding: clamp(20px, 4vw, 28px);
+  border-radius: 14px;
+}
+
+.dashboard .dashboard-content .support-dialog > h2 {
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.dashboard .dashboard-content .mutation-review > .actions {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.dashboard-content .account-email {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+
+.dashboard-content .account-email dd {
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid #dce4ed;
+  border-radius: 8px;
+  background: #f3f6f9;
+  color: var(--form-secondary);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 700px) {
+  .dashboard .dashboard-content :is(.form-row, .record-form-grid) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard .dashboard-content {
+    padding-inline: 16px;
+    padding-top: 24px;
+  }
+
+  .dashboard-content :is(form.card, .checkout-summary, .line-entry-form),
+  .dashboard-content .detail-section:has(> form):not(:has(> .line-entry-form)) {
+    padding: 20px 16px;
+    border-radius: 10px;
+  }
+
+  .dashboard-content
+    :is(form > .button, form > fieldset > .button, .form-actions > .button) {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .dashboard-content
+    :is(
+      form > .actions,
+      form > fieldset > .actions,
+      .form-actions,
+      .mutation-review > .actions
+    )
+    > .button {
+    flex: 1 1 100%;
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .dashboard-content .service-line-editor {
+    padding: 16px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:has(.dashboard) {
+    scroll-behavior: auto;
+  }
+
+  .dashboard .dashboard-content :is(input, select, textarea, .button) {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .dashboard .dashboard-content select:not([multiple]) {
+    appearance: auto;
+  }
+}

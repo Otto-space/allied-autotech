@@ -23,4 +23,19 @@ describe("worker resilience", () => {
       safeErrorAttributes({ name: "Error", code: "unsafe code with secret=value" }),
     ).toEqual({ errorName: "Error" });
   });
+
+  it.each(["P2021", "P2022"])(
+    "provides migration recovery guidance for %s without exposing database details",
+    (code) => {
+      const attributes = safeErrorAttributes({
+        name: "PrismaClientKnownRequestError",
+        code,
+        message: "sensitive connection details",
+        meta: { table: "private-schema-sensitive" },
+      });
+      expect(attributes.recoveryHint).toContain("npm run db:migrate");
+      expect(attributes.errorCode).toBe(code);
+      expect(JSON.stringify(attributes)).not.toContain("sensitive");
+    },
+  );
 });

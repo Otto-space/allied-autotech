@@ -11,6 +11,7 @@ export const orderSelect = {
   currency: true,
   subtotalKobo: true,
   discountAmountKobo: true,
+  taxKobo: true,
   deliveryFeeKobo: true,
   totalKobo: true,
   customerName: true,
@@ -33,6 +34,8 @@ export const orderSelect = {
   readyAt: true,
   cancelledAt: true,
   completedAt: true,
+  fulfillmentEvidenceAt: true,
+  fulfillmentEvidenceReference: true,
   branch: { select: { id: true, code: true, name: true } },
   items: {
     select: {
@@ -95,6 +98,7 @@ const inventoryCheckoutSelect = {
 } satisfies Prisma.InventorySelect;
 
 const lockedOrderSelect = {
+  paidAt: true,
   id: true,
   branchId: true,
   customerName: true,
@@ -334,7 +338,7 @@ export class OrdersRepository {
   }
   dueOrderIds(limit: number) {
     return this.database.order.findMany({
-      where: { status: "PENDING", paymentDueAt: { lte: new Date() } },
+      where: { status: "PENDING", paidAt: null, paymentDueAt: { lte: new Date() } },
       select: { id: true, version: true },
       orderBy: [{ paymentDueAt: "asc" }, { id: "asc" }],
       take: limit,

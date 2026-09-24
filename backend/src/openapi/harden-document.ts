@@ -105,7 +105,7 @@ function fieldDescription(name: string): string {
   if (lower.includes("price") && lower.includes("kobo"))
     return "Integer price in Nigerian kobo; client-calculated values are never authoritative.";
   if (lower === "acceptnonrefundabledeposit")
-    return "Must be literal true to record acceptance of the non-refundable 30% booking deposit.";
+    return "Deprecated compatibility field; new bookings require no deposit and cancellation is free.";
   if (lower === "bookingpolicyversion")
     return "Exact booking-policy version most recently presented to the customer.";
   if (lower === "status")
@@ -324,6 +324,7 @@ function ensureSuccessResponse(
   const content = isObject(response["content"])
     ? response["content"]
     : (response["content"] = {} as JsonObject);
+  if (isObject(content["text/html"])) return;
   const media = isObject(content["application/json"])
     ? content["application/json"]
     : (content["application/json"] = {} as JsonObject);
@@ -496,7 +497,9 @@ export function hardenOpenApiDocument<T>(document: T): T {
       );
       const access = accessFor(path, secured);
       operationValue["operationId"] = operationId(method, path);
+      const specificDescription = operationValue["description"];
       operationValue["description"] = [
+        ...(typeof specificDescription === "string" ? [specificDescription] : []),
         `${summary}.`,
         `Access boundary: ${access.boundary}.`,
         secured
@@ -510,7 +513,7 @@ export function hardenOpenApiDocument<T>(document: T): T {
           : "This operation has no idempotency-key contract.",
       ].join(" ");
       operationValue["x-access-boundary"] = access.boundary;
-      operationValue["x-required-roles"] = access.roles;
+      operationValue["x-required-roles"] ??= access.roles;
       operationValue["x-csrf-required"] = csrf;
       operationValue["x-idempotency-required"] = idempotent;
       for (const parameter of parameters) {
@@ -525,7 +528,9 @@ export function hardenOpenApiDocument<T>(document: T): T {
       const requestBody = operationValue["requestBody"];
       if (isObject(requestBody) && isObject(requestBody["content"])) {
         requestBody["required"] = true;
-        const media = requestBody["content"]["application/json"];
+        const media =
+          requestBody["content"]["application/json"] ??
+          requestBody["content"]["application/x-www-form-urlencoded"];
         if (isObject(media) && isObject(media["schema"])) {
           annotateSchema(media["schema"], "request body");
           media["example"] = exampleFromSchema(media["schema"], "request body");

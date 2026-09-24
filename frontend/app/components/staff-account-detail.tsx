@@ -11,6 +11,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountSession } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { StaffAccessForm } from "./staff-access-form";
+import { StaffCapabilities } from "./staff-capabilities";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 export function StaffAccountDetail({ id }: { id: string }) {
   const session = useAccountSession();
@@ -42,7 +43,7 @@ export function StaffAccountDetail({ id }: { id: string }) {
         Back to staff directory
       </Link>
       <Feedback message={record.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Account change recorded." />
       <div className="actions">
         <button
           className="button secondary"
@@ -107,11 +108,18 @@ export function StaffAccountDetail({ id }: { id: string }) {
             </>
           ) : (
             <p className="notice">
-              This account is read-only here. You cannot manage your own access or a
-              super-administrator account. Administrators can manage staff accounts only.
+              Role, status and branch changes are unavailable for your own account or a
+              Super Admin account. Administrators can manage staff accounts only.
             </p>
           )}
         </section>
+      )}
+      {member && session?.user.role === "SUPER_ADMIN" && (
+        <StaffCapabilities
+          key={member.id}
+          member={member}
+          disabled={record.loading || !!record.error || !!proposal}
+        />
       )}
       {proposal && (
         <MutationReview

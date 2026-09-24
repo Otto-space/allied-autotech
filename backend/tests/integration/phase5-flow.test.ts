@@ -1,3 +1,4 @@
+import { testBranchCapacity, testCapability } from "../helpers/owner-policy.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -147,7 +148,11 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
         year: 2022,
       },
     });
-    const scheduledAt = new Date(Date.now() + 48 * 3_600_000).toISOString();
+    await testCapability(staff.id, "BOOKING_CONFIRM");
+    await testBranchCapacity(branch.id, admin.id);
+    const appointment = new Date(Date.now() + 48 * 3_600_000);
+    appointment.setUTCHours(10, 0, 0, 0);
+    const scheduledAt = appointment.toISOString();
     const legacyBooking = await prisma.booking.create({
       data: {
         customerId: customer.profile!.id,
@@ -174,7 +179,11 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     const colleagueMutation = await request(app)
       .post(`/api/v1/staff/bookings/${bookingId}/status`)
       .set(mutation(coworkerSession))
-      .send({ status: "CONFIRMED", expectedVersion: 1 });
+      .send({
+        status: "CONFIRMED",
+        resourceReviewNote: "Synthetic staff and equipment available",
+        expectedVersion: 1,
+      });
     expect(colleagueMutation.status).toBe(403);
 
     const staleAssignment = await request(app)
@@ -187,7 +196,12 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     const confirmed = await request(app)
       .post(`/api/v1/staff/bookings/${bookingId}/status`)
       .set(mutation(staffSession))
-      .send({ status: "CONFIRMED", expectedVersion: 1, staffNotes: "Bay 2" });
+      .send({
+        status: "CONFIRMED",
+        resourceReviewNote: "Synthetic staff and equipment available",
+        expectedVersion: 1,
+        staffNotes: "Bay 2",
+      });
     expect(confirmed.status).toBe(200);
     expect(confirmed.body.data.confirmedAt).toBeTruthy();
     expect(confirmed.body.data).not.toHaveProperty("depositPayment");
@@ -204,7 +218,11 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     const overlapRejected = await request(app)
       .post(`/api/v1/staff/bookings/${overlapping.id}/status`)
       .set(mutation(staffSession))
-      .send({ status: "CONFIRMED", expectedVersion: 0 });
+      .send({
+        status: "CONFIRMED",
+        resourceReviewNote: "Synthetic staff and equipment available",
+        expectedVersion: 0,
+      });
     expect(overlapRejected.status).toBe(409);
     expect(overlapRejected.body.error.code).toBe(errorCodes.scheduleConflict);
 
@@ -243,7 +261,7 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
       });
     expect(quoteDraft.status).toBe(201);
     expect(quoteDraft.body.data.subtotalKobo).toBe("300000");
-    expect(quoteDraft.body.data.totalKobo).toBe("307500");
+    expect(quoteDraft.body.data.totalKobo).toBe("322500");
     const originalQuoteId = quoteDraft.body.data.id as string;
 
     const draftCustomerView = await request(app)
@@ -271,7 +289,7 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
     expect(revised.body.data.revision).toBe(0);
     expect(revised.body.data.id).not.toBe(originalQuoteId);
     expect(revised.body.data.version).toBe(2);
-    expect(revised.body.data.totalKobo).toBe("125000");
+    expect(revised.body.data.totalKobo).toBe("134375");
     const quoteId = revised.body.data.id as string;
     // Replaced drafts become VOID without ever being issued. They stay internal.
     const revisedCustomerList = await request(app)
@@ -287,11 +305,15 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
       .send({ expectedRevision: 0 });
     expect(issued.status).toBe(200);
     expect(issued.body.data.status).toBe("ISSUED");
+    expect(
+      new Date(issued.body.data.expiresAt).getTime() -
+        new Date(issued.body.data.issuedAt).getTime(),
+    ).toBe(7 * 86400000);
     const issuedCustomerView = await request(app)
       .get(`/api/v1/customers/bookings/${bookingId}`)
       .set("Cookie", customerSession.cookie);
     expect(issuedCustomerView.body.data.quotes).toEqual([
-      expect.objectContaining({ id: quoteId, status: "ISSUED", totalKobo: "125000" }),
+      expect.objectContaining({ id: quoteId, status: "ISSUED", totalKobo: "134375" }),
     ]);
 
     const immutable = await request(app)
@@ -318,7 +340,7 @@ describe.skipIf(!runDatabaseTests)("Phase 5 service operations", () => {
       .get(`/api/v1/customers/bookings/${bookingId}`)
       .set("Cookie", customerSession.cookie);
     expect(customerView.status).toBe(200);
-    expect(customerView.body.data.quotedPriceKobo).toBe("125000");
+    expect(customerView.body.data.quotedPriceKobo).toBe("134375");
     expect(customerView.body.data).not.toHaveProperty("staffNotes");
     expect(customerView.body.data.quotes).toEqual([
       expect.objectContaining({ id: quoteId, status: "ACCEPTED" }),

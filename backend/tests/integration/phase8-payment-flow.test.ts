@@ -1,3 +1,7 @@
+import { ManualRefundsService } from "../../src/modules/payments/manual-refunds.service.js";
+import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
+import { testCapability } from "../helpers/owner-policy.js";
+import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -100,6 +104,7 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
       user("STAFF", other.id),
       user("ADMIN"),
     ]);
+    await testCapability(admin.id, "REFUND_APPROVE");
     const [customerSession, requesterSession, otherSession, adminSession] =
       await Promise.all([
         session(customer.id, customer.role),
@@ -243,6 +248,125 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     expect(decision.status).toBe(200);
     expect(decision.body.data.status).toBe("NEEDS_ATTENTION");
 
+    // Contract mock: object storage metadata verification, not a real bank transfer.
+    const bank = new ManualRefundsService(prisma, {
+      async createUpload() {
+        return {
+          method: "PUT",
+          url: "https://private.example.test/upload",
+          expiresAt: new Date(Date.now() + 60000),
+          headers: {},
+        };
+      },
+      async verifyObject() {
+        return true;
+      },
+      async createDownload() {
+        return "https://private.example.test/download";
+      },
+      async createView() {
+        return "https://private.example.test/view";
+      },
+    });
+    const [operator, checker] = await Promise.all([user("ADMIN"), user("ADMIN")]);
+    const actorFor = (id: string): AuthenticatedActor => ({
+      userId: id,
+      role: "ADMIN",
+      email: "synthetic@example.test",
+      sessionId: randomUUID(),
+      mfaRequired: true,
+      mfaVerifiedAt: new Date(),
+    });
+    await testCapability(operator.id, "REFUND_TRANSFER");
+    await testCapability(checker.id, "REFUND_CHECK");
+    await testCapability(admin.id, "REFUND_TRANSFER");
+    await testCapability(operator.id, "REFUND_CHECK");
+    const bankContext = { requestId: randomUUID(), ipAddress: null, userAgent: null };
+    await expect(
+      bank.check(
+        actorFor(checker.id),
+        refundId,
+        true,
+        "Synthetic checker reviewed evidence",
+        bankContext,
+      ),
+    ).rejects.toMatchObject({ statusCode: 409 });
+    await expect(
+      prisma.refund.update({
+        where: { id: refundId },
+        data: { status: "SUCCEEDED", processedAt: new Date() },
+      }),
+    ).rejects.toThrow();
+    const evidenceInput = {
+      mimeType: "application/pdf" as const,
+      sizeBytes: 100,
+      checksumSha256: "a".repeat(64),
+    };
+    const wrong = await bank.evidenceUpload(actorFor(admin.id), refundId, evidenceInput);
+    const bankInput = {
+      bankReference: `BANK-${randomUUID()}`,
+      transferredAt: new Date().toISOString(),
+      beneficiary: {
+        bankName: "Synthetic Bank",
+        accountName: "Synthetic Customer",
+        accountNumber: "0000000000",
+      },
+      evidenceToken: wrong.evidenceToken,
+    };
+    await expect(
+      bank.recordTransfer(actorFor(admin.id), refundId, bankInput, bankContext),
+    ).rejects.toMatchObject({ statusCode: 409 });
+    const upload = await bank.evidenceUpload(
+      actorFor(operator.id),
+      refundId,
+      evidenceInput,
+    );
+    const recorded = await bank.recordTransfer(
+      actorFor(operator.id),
+      refundId,
+      { ...bankInput, evidenceToken: upload.evidenceToken },
+      bankContext,
+    );
+    expect(recorded.status).toBe("PROCESSING");
+    await expect(
+      bank.check(
+        actorFor(operator.id),
+        refundId,
+        true,
+        "Synthetic self-check forbidden",
+        bankContext,
+      ),
+    ).rejects.toMatchObject({ statusCode: 409 });
+    expect(
+      (
+        await bank.check(
+          actorFor(checker.id),
+          refundId,
+          true,
+          "Synthetic independent bank reference and amount checked",
+          bankContext,
+        )
+      ).status,
+    ).toBe("SUCCEEDED");
+    await bank.check(
+      actorFor(checker.id),
+      refundId,
+      true,
+      "Synthetic repeated independent check",
+      bankContext,
+    );
+    expect(
+      await prisma.paymentLedgerEntry.count({ where: { refundId, type: "REFUND" } }),
+    ).toBe(1);
+    const securedRefund = await prisma.refund.findUniqueOrThrow({
+      where: { id: refundId },
+    });
+    expect(JSON.stringify(securedRefund.beneficiaryEncrypted)).not.toContain(
+      "0000000000",
+    );
+    expect(securedRefund.dueAt).toBeNull();
+    expect(securedRefund.clockStatus).toBe("ANCHOR_AND_BANK_CALENDAR_PENDING");
+
     let activeReference = "";
     const providerRefundId = `provider-refund-${randomUUID()}`;
     const provider: PaymentProviderPort = {
@@ -359,6 +483,10 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
       { decision: "APPROVED" },
       context,
     );
+    await new RefundWorker(
+      prisma,
+      new PaymentProviderRegistry({ PAYSTACK: provider }),
+    ).runOnce(25, requested.refund.id);
     await service.ingestWebhook(
       {
         eventType: "refund.processed",

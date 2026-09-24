@@ -1,3 +1,11 @@
+import { basisPoints } from "../policies/policy-money.js";
+import {
+  approvedPolicy,
+  policySnapshot,
+  assertCapability,
+  assertFinanceGate,
+} from "../policies/policies.service.js";
+import { assertBookingCapacity } from "./booking-capacity.js";
 import { createHash, randomUUID } from "node:crypto";
 
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -125,19 +133,17 @@ function reference(prefix: "Q" | "WO"): string {
 }
 
 export const bookingPolicy = Object.freeze({
-  version: "booking-deposit-v1",
+  version: "owner-booking-request-v2",
   minimumAdvanceHours: 168,
   maximumAdvanceHours: 336,
   paymentHoldMinutes: 30,
-  depositBasisPoints: 3000,
-  depositRefundableForCustomerCancellation: false,
+  depositBasisPoints: 0,
+  depositRefundableForCustomerCancellation: true,
   customerRescheduleLimit: 1,
   customerRescheduleCutoffHours: 24,
-  reminderHoursBeforeAppointment: [168, 72, 48, 24] as const,
+  reminderHoursBeforeAppointment: [1] as const,
 });
 
-const paymentNumber = () =>
-  `PAY-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
 const refundNumber = () =>
   `REF-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
 
@@ -170,12 +176,6 @@ function assertWithinBookingWindow(startsAt: Date, now = new Date()): void {
     );
 }
 
-function formatNgn(amountKobo: bigint): string {
-  const naira = amountKobo / 100n;
-  const kobo = (amountKobo % 100n).toString().padStart(2, "0");
-  return `NGN ${naira.toString()}.${kobo}`;
-}
-
 async function cancelPendingReminders(
   transaction: Prisma.TransactionClient,
   bookingId: string,
@@ -198,17 +198,14 @@ export async function scheduleReminders(
   transaction: Prisma.TransactionClient,
   booking: { id: string; scheduledAt: Date; scheduleVersion: number },
 ): Promise<void> {
-  const definitions = [
-    ["SEVEN_DAYS", 168],
-    ["THREE_DAYS", 72],
-    ["TWO_DAYS", 48],
-    ["ONE_DAY", 24],
-  ] as const;
+  const definitions = [["ONE_HOUR", 1]] as const;
   await transaction.bookingReminder.createMany({
     data: definitions.map(([kind, hours]) => ({
       bookingId: booking.id,
       kind,
-      scheduledFor: new Date(booking.scheduledAt.getTime() - hours * 3_600_000),
+      scheduledFor: new Date(
+        Math.max(Date.now(), booking.scheduledAt.getTime() - hours * 3_600_000),
+      ),
       scheduleVersion: booking.scheduleVersion,
     })),
     skipDuplicates: true,
@@ -265,17 +262,16 @@ export class ServiceOperationsService {
   async staffBookingSlots(actor: AuthenticatedActor, query: StaffBookingSlotListQuery) {
     assertPrivilegedActor(actor);
     const profile = await this.repository.staffProfile(actor.userId);
-    if (profile === null) throw serviceOperationForbidden();
     if (
       actor.role === "STAFF" &&
-      (profile.branchId === null || profile.branch?.isActive !== true)
+      (profile === null || profile.branchId === null || profile.branch?.isActive !== true)
     )
       throw serviceOperationForbidden();
     return jsonSafe(
       page(
         await this.repository.listBookingSlots(
           query,
-          actor.role === "STAFF" ? profile.branchId : null,
+          actor.role === "STAFF" ? profile!.branchId : null,
         ),
         query.limit,
       ),
@@ -299,7 +295,6 @@ export class ServiceOperationsService {
         this.repository.branch(input.branchId, transaction),
       ]);
       if (
-        actorProfile === null ||
         targetStaff === null ||
         branch === null ||
         service === null ||
@@ -311,7 +306,9 @@ export class ServiceOperationsService {
         throw serviceOperationNotFound();
       if (
         actor.role === "STAFF" &&
-        (actorProfile.id !== targetStaff.id || actorProfile.branchId !== input.branchId)
+        (actorProfile === null ||
+          actorProfile.id !== targetStaff.id ||
+          actorProfile.branchId !== input.branchId)
       )
         throw serviceOperationForbidden();
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`booking-slot-staff:${input.staffId}`}, 0))`;
@@ -364,10 +361,13 @@ export class ServiceOperationsService {
         this.repository.staffProfile(actor.userId, transaction),
         this.repository.lockBookingSlot(id, transaction),
       ]);
-      if (profile === null || slot === null) throw serviceOperationNotFound();
+      if (slot === null) throw serviceOperationNotFound();
       if (
         actor.role === "STAFF" &&
-        (profile.id !== slot.staffId || profile.branchId !== slot.branchId)
+        (profile === null ||
+          profile.branch?.isActive !== true ||
+          profile.id !== slot.staffId ||
+          profile.branchId !== slot.branchId)
       )
         throw serviceOperationForbidden();
       const updated = await this.repository.updateBookingSlot(
@@ -549,6 +549,16 @@ export class ServiceOperationsService {
         throw serviceOperationNotFound();
       assertWithinBookingWindow(slot.startsAt);
       if (
+        await transaction.booking.findFirst({
+          where: {
+            bookingSlotId: slot.id,
+            status: { in: ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"] },
+          },
+          select: { id: true },
+        })
+      )
+        throw scheduleConflict();
+      if (
         input.vehicleId !== undefined &&
         (await this.repository.ownedVehicle(profile.id, input.vehicleId, transaction)) ===
           null
@@ -566,12 +576,7 @@ export class ServiceOperationsService {
       )
         throw scheduleConflict();
       const now = new Date();
-      const holdExpiresAt = new Date(
-        now.getTime() + bookingPolicy.paymentHoldMinutes * 60_000,
-      );
-      const depositAmountKobo =
-        (slot.service.priceKobo * BigInt(bookingPolicy.depositBasisPoints) + 5000n) /
-        10000n;
+      const policy = await approvedPolicy(transaction, "booking");
       const booking = await this.repository.createBooking(
         {
           customerId: profile.id,
@@ -580,13 +585,11 @@ export class ServiceOperationsService {
           assignedStaffId: slot.staffId,
           bookingSlotId: slot.id,
           scheduledAt: slot.startsAt,
-          status: "AWAITING_DEPOSIT",
+          status: "REQUESTED",
           quotedPriceKobo: slot.service.priceKobo,
           currency: "NGN",
-          paymentHoldExpiresAt: holdExpiresAt,
-          depositBaseKobo: slot.service.priceKobo,
-          depositBasisPoints: bookingPolicy.depositBasisPoints,
-          depositAmountKobo,
+          requestedAt: now,
+          policySnapshot: policySnapshot(policy),
           depositPolicyVersion: bookingPolicy.version,
           depositTermsAcceptedAt: now,
           ...(input.vehicleId === undefined ? {} : { vehicleId: input.vehicleId }),
@@ -596,36 +599,17 @@ export class ServiceOperationsService {
         },
         transaction,
       );
-      const payment = await transaction.payment.create({
-        data: {
-          customerId: profile.id,
-          bookingId: booking.id,
-          paymentNumber: paymentNumber(),
-          purpose: "BOOKING_DEPOSIT",
-          amountKobo: depositAmountKobo,
-          currency: "NGN",
-          status: "REQUIRES_PAYMENT",
-          idempotencyKeyHash: hashToken(
-            "payment-intent-idempotency",
-            `booking-deposit:${booking.id}`,
-          ),
-          expiresAt: holdExpiresAt,
-          description: "Non-refundable service booking deposit",
-        },
-        select: { id: true },
-      });
-      const formattedAmount = formatNgn(depositAmountKobo);
       await enqueueNotification(transaction, {
         userId: actor.userId,
         type: "BOOKING",
         category: "TRANSACTIONAL",
-        title: "Booking held for deposit payment",
-        message: `Your booking is held for 30 minutes. Pay the non-refundable 30% deposit of ${formattedAmount} by ${holdExpiresAt.toISOString()} to confirm it.`,
+        title: "Booking request received",
+        message:
+          "Your appointment request is awaiting staff confirmation and resource review. No booking deposit is required. Cancellation is free.",
         resourceType: "BOOKING",
         resourceId: booking.id,
-        deduplicationKey: `booking:${booking.id}:deposit-required`,
+        deduplicationKey: `booking:${booking.id}:requested`,
         channels: ["EMAIL"],
-        expiresAt: holdExpiresAt,
       });
       await this.repository.completeIdempotency(scope, keyHash, booking.id, transaction);
       await appendAuditEvent(transaction, {
@@ -638,8 +622,7 @@ export class ServiceOperationsService {
           serviceId: booking.serviceId,
           status: booking.status,
           scheduledAt: booking.scheduledAt.toISOString(),
-          depositAmountKobo: depositAmountKobo.toString(),
-          paymentId: payment.id,
+          confirmationRequired: true,
           policyVersion: bookingPolicy.version,
         },
         context,
@@ -676,7 +659,6 @@ export class ServiceOperationsService {
       if (
         booking.status !== "CONFIRMED" ||
         booking.bookingSlotId === null ||
-        booking.depositPaidAt === null ||
         booking.customerRescheduleCount >= bookingPolicy.customerRescheduleLimit ||
         booking.scheduledAt.getTime() - Date.now() <
           bookingPolicy.customerRescheduleCutoffHours * 3_600_000
@@ -724,6 +706,12 @@ export class ServiceOperationsService {
           branchId: replacement.branchId,
           assignedStaffId: replacement.staffId,
           scheduledAt: replacement.startsAt,
+          status: "REQUESTED",
+          confirmedAt: null,
+          attendanceConfirmedAt: null,
+          requestedAt: new Date(),
+          capacityPolicyVersionId: null,
+          resourceReviewNote: null,
           customerRescheduleCount: { increment: 1 },
           scheduleVersion: { increment: 1 },
         },
@@ -733,7 +721,6 @@ export class ServiceOperationsService {
       const rescheduled = await this.repository.customerBooking(id, transaction);
       if (rescheduled === null) throw serviceOperationNotFound();
       await cancelPendingReminders(transaction, id);
-      await scheduleReminders(transaction, rescheduled);
       const updated = await this.repository.customerBooking(id, transaction);
       if (updated === null) throw serviceOperationNotFound();
       await enqueueNotification(transaction, {
@@ -741,7 +728,7 @@ export class ServiceOperationsService {
         type: "BOOKING",
         category: "TRANSACTIONAL",
         title: "Booking rescheduled",
-        message: `Your booking has been moved to ${updated.scheduledAt.toISOString()}. Your existing deposit remains applied. Please reschedule at least 24 hours ahead if your plans change.`,
+        message: `Your booking has been moved to ${updated.scheduledAt.toISOString()}. Staff will review availability and confirm the new appointment. Cancellation remains free.`,
         resourceType: "BOOKING",
         resourceId: id,
         deduplicationKey: `booking:${id}:rescheduled:${updated.scheduleVersion}`,
@@ -762,6 +749,7 @@ export class ServiceOperationsService {
     assertCustomerActor(actor);
     return this.database.$transaction(async (transaction) => {
       const booking = await this.lockOwnedCustomerBooking(actor.userId, id, transaction);
+      if (booking.status === "CANCELLED") return jsonSafe(customerSafeBooking(booking));
       if (!bookingTransitions[booking.status].includes("CANCELLED"))
         throw invalidServiceTransition();
       const now = new Date();
@@ -772,7 +760,6 @@ export class ServiceOperationsService {
           status: "CANCELLED",
           cancellationReason: input.reason,
           cancelledAt: now,
-          ...(booking.depositPaidAt === null ? {} : { depositForfeitedAt: now }),
         },
         transaction,
       );
@@ -796,7 +783,7 @@ export class ServiceOperationsService {
         message:
           booking.depositPaidAt === null
             ? "Your booking was cancelled and the unpaid slot hold was released."
-            : "Your booking was cancelled. As accepted when booking, the 30% deposit is non-refundable and cannot be applied to the final balance.",
+            : "Your booking was cancelled without a cancellation fee. Any existing payment requires a reviewed refund; no deposit is forfeited.",
         resourceType: "BOOKING",
         resourceId: id,
         deduplicationKey: `booking:${id}:cancelled:${updated.version}`,
@@ -810,17 +797,16 @@ export class ServiceOperationsService {
   async staffBookings(actor: AuthenticatedActor, query: StaffBookingListQuery) {
     assertPrivilegedActor(actor);
     const profile = await this.repository.staffProfile(actor.userId);
-    if (profile === null) throw serviceOperationForbidden();
     if (
       actor.role === "STAFF" &&
-      (profile.branchId === null || profile.branch?.isActive !== true)
+      (profile === null || profile.branchId === null || profile.branch?.isActive !== true)
     )
       throw serviceOperationForbidden();
     return jsonSafe(
       page(
         await this.repository.listStaffBookings(
           query,
-          actor.role === "STAFF" ? profile.branchId : null,
+          actor.role === "STAFF" ? profile!.branchId : null,
           actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
         ),
         query.limit,
@@ -920,19 +906,18 @@ export class ServiceOperationsService {
   ) {
     assertPrivilegedActor(actor);
     return this.database.$transaction(async (transaction) => {
-      const booking = await this.lockAuthorizedStaffBooking(actor, id, transaction);
+      const booking = await this.lockAuthorizedStaffBooking(
+        actor,
+        id,
+        transaction,
+        input.status !== "CONFIRMED",
+      );
       if (!bookingTransitions[booking.status].includes(input.status))
         throw invalidServiceTransition();
-      if (
-        booking.bookingSlotId !== null &&
-        (input.status === "CONFIRMED" || input.status === "CANCELLED")
-      )
-        throw serviceOperationConflict(
-          input.status === "CONFIRMED"
-            ? "Deposit-backed bookings are confirmed only by verified payment"
-            : "Use the business disruption workflow for a provider-caused cancellation",
-        );
       if (input.status === "CONFIRMED") {
+        await assertCapability(transaction, actor, "BOOKING_CONFIRM");
+        await assertBookingCapacity(transaction, booking, input.resourceReviewNote);
+
         if (booking.assignedStaffId === null || booking.service.durationMinutes === null)
           throw serviceOperationConflict(
             "Assign an available staff member before confirmation",
@@ -964,9 +949,6 @@ export class ServiceOperationsService {
         ...(input.status === "CANCELLED"
           ? { cancelledAt: now, cancellationReason: input.reason! }
           : {}),
-        ...(input.status === "NO_SHOW" && booking.depositPaidAt !== null
-          ? { depositForfeitedAt: now }
-          : {}),
       };
       const result = await this.repository.updateBooking(
         id,
@@ -981,6 +963,7 @@ export class ServiceOperationsService {
         transaction,
       );
       if (updated === null) throw serviceOperationNotFound();
+      if (input.status === "CONFIRMED") await scheduleReminders(transaction, updated);
       if (["COMPLETED", "CANCELLED", "NO_SHOW"].includes(input.status))
         await cancelPendingReminders(transaction, id);
       if (input.status === "NO_SHOW") {
@@ -994,7 +977,7 @@ export class ServiceOperationsService {
           category: "TRANSACTIONAL",
           title: "Booking marked as no-show",
           message:
-            "This appointment was marked as a no-show. The accepted deposit is non-refundable. Please create a new booking and deposit to reschedule.",
+            "Staff marked this appointment as a no-show. No automatic fee or deposit forfeiture has been applied.",
           resourceType: "BOOKING",
           resourceId: id,
           deduplicationKey: `booking:${id}:no-show`,
@@ -1018,8 +1001,7 @@ export class ServiceOperationsService {
       if (
         booking.status !== "CONFIRMED" ||
         booking.bookingSlotId === null ||
-        booking.depositPaidAt === null ||
-        booking.disruptionRequestedAt !== null
+        booking.disruptionResolution === "PENDING"
       )
         throw invalidServiceTransition();
       const now = new Date();
@@ -1051,7 +1033,7 @@ export class ServiceOperationsService {
         category: "TRANSACTIONAL",
         title: "Action required: booking disruption",
         message:
-          "Allied AutoTech cannot fulfil this appointment. Choose another published slot without using your customer reschedule, or request a full deposit refund.",
+          "Allied AutoTech cannot fulfil this appointment. Request another published slot without using your customer reschedule, or cancel free. Any historical deposit is reviewed for refund.",
         resourceType: "BOOKING",
         resourceId: id,
         deduplicationKey: `booking:${id}:business-disruption:${updated.version}`,
@@ -1089,9 +1071,7 @@ export class ServiceOperationsService {
       if (
         booking.version !== input.expectedVersion ||
         booking.status !== "CONFIRMED" ||
-        booking.disruptionResolution !== "PENDING" ||
-        booking.depositPaidAt === null ||
-        booking.depositPayment?.status !== "SUCCEEDED"
+        booking.disruptionResolution !== "PENDING"
       )
         throw invalidServiceTransition();
       await this.repository.createIdempotency(
@@ -1138,6 +1118,11 @@ export class ServiceOperationsService {
             assignedStaffId: replacement.staffId,
             scheduledAt: replacement.startsAt,
             disruptionResolution: "TRANSFERRED",
+            status: "REQUESTED",
+            confirmedAt: null,
+            attendanceConfirmedAt: null,
+            capacityPolicyVersionId: null,
+            resourceReviewNote: null,
             scheduleVersion: { increment: 1 },
           },
           transaction,
@@ -1145,29 +1130,54 @@ export class ServiceOperationsService {
         if (changed.count !== 1) throw staleServiceOperation();
         const updated = await this.repository.customerBooking(id, transaction);
         if (updated === null) throw serviceOperationNotFound();
-        await scheduleReminders(transaction, updated);
+        await cancelPendingReminders(transaction, id);
         await enqueueNotification(transaction, {
           userId: actor.userId,
           type: "BOOKING",
           category: "TRANSACTIONAL",
           title: "Booking transferred",
-          message: `Your booking and deposit were transferred to ${updated.scheduledAt.toISOString()}. This did not use your customer reschedule.`,
+          message: `Your replacement appointment request for ${updated.scheduledAt.toISOString()} awaits staff confirmation. This did not use your customer reschedule.`,
           resourceType: "BOOKING",
           resourceId: id,
           deduplicationKey: `booking:${id}:disruption-transferred:${updated.scheduleVersion}`,
           channels: ["EMAIL"],
         });
       } else {
-        if (booking.depositPayment.settledAttemptId === null)
+        if (!booking.depositPayment?.settledAttemptId)
           throw serviceOperationConflict("Deposit settlement is unavailable");
+        await transaction.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${booking.depositPayment.settledAttemptId}::uuid FOR UPDATE`;
         const attempt = await transaction.paymentAttempt.findUnique({
           where: { id: booking.depositPayment.settledAttemptId },
-          select: { id: true },
+          select: { id: true, amountKobo: true, status: true, verificationStatus: true },
         });
         if (attempt === null)
           throw serviceOperationConflict("Deposit settlement is unavailable");
+        if (attempt.status !== "SUCCESSFUL" || attempt.verificationStatus !== "VERIFIED")
+          throw serviceOperationConflict("A verified captured deposit is required");
+        const committed =
+          (
+            await transaction.refund.aggregate({
+              where: {
+                paymentAttemptId: attempt.id,
+                status: { notIn: ["FAILED", "CANCELLED"] },
+              },
+              _sum: { amountKobo: true },
+            })
+          )._sum.amountKobo ?? 0n;
+        if (
+          committed + booking.depositAmountKobo! > attempt.amountKobo ||
+          (await transaction.paymentDispute.count({
+            where: { paymentAttemptId: attempt.id, status: { not: "WON" } },
+          }))
+        )
+          throw serviceOperationConflict(
+            "Reconcile existing refunds or disputes before requesting this deposit refund",
+          );
+        const refundPolicy = await approvedPolicy(transaction, "manual-refund");
         const refund = await transaction.refund.create({
           data: {
+            policyVersionId: refundPolicy.id,
+            policySnapshot: policySnapshot(refundPolicy),
             paymentAttemptId: attempt.id,
             requestedByUserId: actor.userId,
             refundNumber: refundNumber(),
@@ -1252,7 +1262,10 @@ export class ServiceOperationsService {
         reference("Q"),
         (latest._max.version ?? 0) + 1,
         lines,
-        BigInt(input.taxKobo),
+        basisPoints(
+          lines.reduce((total, line) => total + line.subtotalKobo, 0n),
+          750,
+        ),
         input.notes,
         expiresAt,
         transaction,
@@ -1299,7 +1312,10 @@ export class ServiceOperationsService {
         reference("Q"),
         (latest._max.version ?? quote.version) + 1,
         lines,
-        BigInt(input.taxKobo),
+        basisPoints(
+          lines.reduce((total, line) => total + line.subtotalKobo, 0n),
+          750,
+        ),
         input.notes,
         this.futureExpiry(input.expiresAt),
         transaction,
@@ -1341,13 +1357,19 @@ export class ServiceOperationsService {
         quote.expiresAt <= new Date()
       )
         throw invalidServiceTransition();
+      const finance = await assertFinanceGate(transaction);
       const now = new Date();
       await this.repository.voidOtherIssuedQuotes(bookingId, quoteId, now, transaction);
       const result = await this.repository.transitionQuote(
         quoteId,
         input.expectedRevision,
         ["DRAFT"],
-        { status: "ISSUED", issuedAt: now },
+        {
+          status: "ISSUED",
+          issuedAt: now,
+          expiresAt: new Date(now.getTime() + 7 * 86_400_000),
+          policySnapshot: policySnapshot(finance),
+        },
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
@@ -1615,10 +1637,11 @@ export class ServiceOperationsService {
         actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
       ),
     ]);
-    if (profile === null || booking === null) throw serviceOperationNotFound();
+    if (booking === null) throw serviceOperationNotFound();
     if (
       actor.role === "STAFF" &&
-      (profile.branchId === null ||
+      (profile === null ||
+        profile.branchId === null ||
         profile.branch?.isActive !== true ||
         booking.branchId === null ||
         profile.branchId !== booking.branchId)
@@ -1633,12 +1656,14 @@ export class ServiceOperationsService {
     transaction: Prisma.TransactionClient,
     requireAssignment = true,
   ) {
+    assertPrivilegedActor(actor);
     const profile = await this.repository.staffProfile(actor.userId, transaction);
     const booking = await this.repository.lockBooking(id, transaction);
-    if (profile === null || booking === null) throw serviceOperationNotFound();
+    if (booking === null) throw serviceOperationNotFound();
     if (
       actor.role === "STAFF" &&
-      (profile.branchId === null ||
+      (profile === null ||
+        profile.branchId === null ||
         profile.branch?.isActive !== true ||
         booking.branchId === null ||
         profile.branchId !== booking.branchId)
@@ -1647,7 +1672,7 @@ export class ServiceOperationsService {
     if (
       actor.role === "STAFF" &&
       requireAssignment &&
-      booking.assignedStaffId !== profile.id
+      booking.assignedStaffId !== profile!.id
     )
       throw serviceOperationForbidden();
     return booking;

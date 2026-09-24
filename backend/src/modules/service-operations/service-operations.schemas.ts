@@ -139,7 +139,7 @@ export const bookingCreateBodySchema = z
     vehicleId: uuid.optional(),
     customerNotes: nullableText(2_000),
     policyVersion: cleanText(80),
-    acceptNonRefundableDeposit: z.literal(true),
+    acceptNonRefundableDeposit: z.boolean().optional(),
   })
   .strict();
 export const bookingRescheduleBodySchema = z
@@ -157,6 +157,7 @@ export const bookingTransitionBodySchema = z
     expectedVersion: version,
     reason: cleanText(500).optional(),
     staffNotes: nullableText(4_000),
+    resourceReviewNote: cleanText(2000).optional(),
   })
   .strict();
 
@@ -235,7 +236,11 @@ const pricedLine = z
 export const serviceLineItemSchema = z.discriminatedUnion("type", [partLine, pricedLine]);
 const quoteFields = {
   items: z.array(serviceLineItemSchema).min(1).max(100),
-  taxKobo: kobo.default("0"),
+  taxKobo: kobo
+    .default("0")
+    .describe(
+      "Legacy compatibility field; ignored. The server calculates quotation tax from its priced subtotal.",
+    ),
   notes: nullableText(4_000),
   expiresAt: dateTime,
 } as const;

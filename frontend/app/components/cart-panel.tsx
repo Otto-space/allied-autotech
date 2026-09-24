@@ -5,21 +5,21 @@ import { z } from "zod";
 import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
-import { branchRef, parseCart, orderSchema } from "@/lib/api/commerce-schemas";
+import { parseCart, orderSchema } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
-import { PromotionPreview } from "./promotion-preview";
+import { CartCheckout } from "./cart-checkout";
+import { notify } from "@/lib/notifications";
+import { useScrollToMessage } from "@/lib/use-scroll-to-message";
 import { MutationReview, type MutationProposal } from "./mutation-review";
-const parseBranches = (value: unknown) =>
-  z.object({ items: z.array(branchRef), nextCursor: z.string().optional() }).parse(value);
 type CheckoutBody = RequestBody<"/customers/orders/checkout", "post">;
 export function CartPanel() {
   const cart = useResource("/customers/cart", parseCart);
-  const branches = useResource("/public/branches?limit=100", parseBranches);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [message, setMessage] = useState<string>();
   const [orderId, setOrderId] = useState<string>();
+  const confirmation = useScrollToMessage(orderId);
   const [uncertain, setUncertain] = useState(false);
   const [promotionCode, setPromotionCode] = useState("");
   const [cartUncertain, setCartUncertain] = useState(false);
@@ -83,6 +83,10 @@ export function CartPanel() {
         .parse(result.data);
       setOrderId(parsed.order.id);
       setUncertain(false);
+      notify("Order created. Review the total and payment deadline.", {
+        tone: "success",
+        action: { label: "View order", href: `/dashboard/orders/${parsed.order.id}` },
+      });
       cart.refresh();
     } catch (error_) {
       const knownRejection =
@@ -102,11 +106,11 @@ export function CartPanel() {
     <>
       <h1>Your cart</h1>
       <p className="muted">
-        Review your parts. Prices and branch stock are checked again when your order is
+        Review your products. Prices and branch stock are checked again when your order is
         created.
       </p>
       <Feedback message={error ?? cart.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Cart change recorded." />
       <div className="actions">
         <button
           className="button secondary"
@@ -125,10 +129,10 @@ export function CartPanel() {
               setProposal({
                 title: "Clear your cart?",
                 description:
-                  "This removes every part currently in your cart. Existing orders and payments are not cancelled. Review the contents before continuing.",
+                  "This removes every product currently in your cart. Existing orders and payments are not cancelled. Review the contents before continuing.",
                 facts: [
                   {
-                    label: "Parts",
+                    label: "Products",
                     value: cart.data.items
                       .map((item) => `${item.product.name} × ${item.quantity}`)
                       .join("; "),
@@ -196,7 +200,7 @@ export function CartPanel() {
         <p role="status">{cart.data ? "Updating cart…" : "Loading cart…"}</p>
       )}
       {orderId && (
-        <div className="notice success">
+        <div className="notice success" ref={confirmation} role="status">
           <h2>Order created</h2>
           <p>
             Your order is awaiting payment. Review its confirmed total and payment
@@ -287,81 +291,19 @@ export function CartPanel() {
         <div className="empty">
           <h2>Your cart is empty</h2>
           <Link className="button" href="/parts">
-            Explore parts
+            Visit Shop
           </Link>
         </div>
       )}
       {!!cart.data?.items.length && !cart.error && !orderId && (
-        <section className="checkout-summary">
-          <h2>Order for collection</h2>
-          <dl className="totals">
-            <dt>Current parts subtotal</dt>
-            <dd>{formatKobo(cart.data.subtotalKobo)}</dd>
-          </dl>
-          <p className="muted">
-            Collection is currently available. Your order will show the final total and
-            payment deadline. Delivery is not available.
-          </p>
-          <Feedback message={branches.error} />
-          {branches.error && (
-            <button className="button secondary" onClick={branches.refresh}>
-              Retry branches
-            </button>
-          )}
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              const values = new FormData(event.currentTarget);
-              const promotionCode = String(values.get("promotionCode") ?? "").trim();
-              void submitCheckout({
-                branchId: String(values.get("branchId")),
-                fulfillmentMethod: "COLLECTION",
-                ...(promotionCode ? { promotionCode } : {}),
-              });
-            }}
-          >
-            <div className="field">
-              <label htmlFor="collection-branch">Collection branch</label>
-              <select
-                id="collection-branch"
-                name="branchId"
-                required
-                disabled={editsDisabled}
-              >
-                <option value="">Choose a branch</option>
-                {branches.data?.items.map((branch) => (
-                  <option key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="promotion-code">Promotion code (optional)</label>
-              <input
-                id="promotion-code"
-                name="promotionCode"
-                maxLength={80}
-                disabled={editsDisabled}
-                value={promotionCode}
-                onChange={(event) => setPromotionCode(event.target.value)}
-              />
-            </div>
-            {!editsDisabled && (
-              <PromotionPreview
-                key={`${promotionCode}:${JSON.stringify(cart.data)}`}
-                code={promotionCode}
-                subtotalKobo={cart.data.subtotalKobo}
-              />
-            )}
-            <button
-              className="button"
-              disabled={editsDisabled || !branches.data?.items.length}
-            >
-              {busy ? "Submitting…" : "Create order & review total"}
-            </button>
-          </form>
-        </section>
+        <CartCheckout
+          subtotalKobo={cart.data.subtotalKobo}
+          disabled={editsDisabled || !!proposal}
+          busy={busy}
+          promotionCode={promotionCode}
+          onPromotionChange={setPromotionCode}
+          onSubmit={(body) => void submitCheckout(body)}
+        />
       )}
       {proposal && (
         <MutationReview

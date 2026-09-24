@@ -128,6 +128,8 @@ const publicBookingSlotSelect = {
 } satisfies Prisma.BookingSlotSelect;
 
 export const bookingSelect = {
+  requestedAt: true,
+  attendanceConfirmedAt: true,
   id: true,
   customerId: true,
   branchId: true,
@@ -289,7 +291,9 @@ export class ServiceOperationsRepository {
           ...(query.to === undefined ? {} : { lte: new Date(query.to) }),
         },
         bookings: {
-          none: { status: { in: ["AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"] } },
+          none: {
+            status: { in: ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"] },
+          },
         },
       },
       select: publicBookingSlotSelect,

@@ -82,7 +82,11 @@ export function NotificationPreferences({ base }: { base: string }) {
         consent for each channel. Enabled preferences do not guarantee delivery.
       </p>
       <Feedback message={records.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback
+        message={message}
+        tone="success"
+        toast="Notification preferences updated."
+      />
       {uncertain && (
         <p className="notice" role="status">
           The preference change could not be confirmed. Refresh to inspect saved

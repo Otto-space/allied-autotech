@@ -6,6 +6,7 @@ import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
 import { parseStaffBooking } from "@/lib/api/staff-booking-schemas";
+import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
@@ -33,6 +34,7 @@ const textField = (max: number) =>
     );
 export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
   const booking = useResource(`/staff/bookings/${bookingId}`, parseStaffBooking);
+  const access = useResource("/staff/profile", parseOwnStaffProfile);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
@@ -41,7 +43,10 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
   const choices = current
     ? (transitions[current.status] ?? []).filter(
         (status) =>
-          !current.bookingSlotId || !["CONFIRMED", "CANCELLED"].includes(status),
+          status !== "CONFIRMED" ||
+          (!access.loading &&
+            !access.error &&
+            access.data?.capabilities.includes("BOOKING_CONFIRM")),
       )
     : [];
   function review(kind: "assignment" | "status" | "disruption", form: FormData) {
@@ -101,13 +106,25 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
       setProposal({
         title: "Report a business disruption?",
         description:
-          "This records that Allied AutoTech cannot fulfil the appointment and notifies the customer to choose a transfer or request a deposit refund. It does not itself refund money.",
+          "This notifies the customer that Allied AutoTech cannot fulfil the appointment. They can request another slot or cancel free. Historical deposits require a reviewed refund; this action does not refund money.",
         facts: [...facts, { label: "Reason", value: reason }],
         submit: submit("disruption", "POST", body),
       });
       return;
     }
     if (!choices.includes(status)) return;
+    const resourceReviewNote = String(form.get("resourceReviewNote") ?? "").trim();
+    if (
+      status === "CONFIRMED" &&
+      (resourceReviewNote.length < 10 ||
+        !textField(2000).safeParse(resourceReviewNote).success)
+    ) {
+      setValidation(
+        "Describe the available staff and equipment in 10–2,000 characters before confirming.",
+      );
+      document.getElementById("booking-resource-review")?.focus();
+      return;
+    }
     const notes = String(form.get("staffNotes") ?? "").trim();
     if (notes && !textField(4000).safeParse(notes).success) {
       setValidation("Staff notes must be one paragraph of up to 4,000 characters.");
@@ -119,18 +136,24 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
       expectedVersion: current.version,
       ...(reason ? { reason } : {}),
       staffNotes: notes || null,
+      ...(status === "CONFIRMED" ? { resourceReviewNote } : {}),
     };
     setProposal({
       title: "Update booking status?",
       description:
         status === "NO_SHOW"
-          ? "Confirm that the customer missed this appointment. This records any paid deposit as forfeited and notifies the customer."
-          : "Confirm that this service milestone has occurred. Recorded payment is managed separately.",
+          ? "Confirm that the customer missed this appointment. The customer is notified; no automatic fee or deposit forfeiture is applied."
+          : status === "CONFIRMED"
+            ? "Confirm you have reviewed staff, equipment and the appointment time. The server checks your permission, the approved branch calendar, capacity and staff availability before confirming."
+            : "Confirm that this service milestone has occurred. Recorded payment is managed separately.",
       facts: [
         ...facts,
         { label: "From", value: current.status.replaceAll("_", " ") },
         { label: "To", value: status.replaceAll("_", " ") },
         ...(reason ? [{ label: "Reason", value: reason }] : []),
+        ...(status === "CONFIRMED"
+          ? [{ label: "People and equipment review", value: resourceReviewNote }]
+          : []),
       ],
       submit: submit("status", "POST", body),
     });
@@ -142,12 +165,16 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
       </Link>
       <h1>Manage workshop booking</h1>
       <Feedback message={booking.error} />
+      <Feedback message={access.error} />
       <Feedback message={validation} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Booking change recorded." />
       <button
         className="button secondary"
         disabled={booking.loading || !!proposal}
-        onClick={booking.refresh}
+        onClick={() => {
+          booking.refresh();
+          access.refresh();
+        }}
       >
         Refresh booking
       </button>
@@ -249,6 +276,23 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
                     ))}
                   </select>
                 </div>
+                {choices.includes("CONFIRMED") && (
+                  <div className="field">
+                    <label htmlFor="booking-resource-review">
+                      People and equipment review (required for confirmation)
+                    </label>
+                    <textarea
+                      id="booking-resource-review"
+                      name="resourceReviewNote"
+                      maxLength={2000}
+                      aria-describedby="booking-resource-hint"
+                    />
+                    <span className="field-hint" id="booking-resource-hint">
+                      Check that the assigned staff member and required workshop equipment
+                      are available for this appointment.
+                    </span>
+                  </div>
+                )}
                 <div className="field">
                   <label htmlFor="booking-status-reason">
                     Reason (required for cancellation)
@@ -270,18 +314,24 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
               </form>
             </section>
           )}
+          {current.status === "REQUESTED" && !choices.includes("CONFIRMED") && (
+            <p className="notice">
+              Confirmation requires an active booking-confirmation permission. Ask the
+              Super Admin to review your access, then refresh this booking.
+            </p>
+          )}
           {current.status === "AWAITING_DEPOSIT" && current.bookingSlotId && (
             <p>Deposit-backed bookings are confirmed by verified payment.</p>
           )}
           {current.status === "CONFIRMED" &&
             current.bookingSlotId &&
-            current.depositPaidAt &&
-            !current.disruptionRequestedAt && (
+            current.disruptionResolution !== "PENDING" && (
               <section className="detail-section">
                 <h2>Business-caused disruption</h2>
                 <p>
                   If Allied AutoTech cannot fulfil this appointment, record the reason so
-                  the customer can choose a transfer or request a refund.
+                  the customer can request another slot or cancel free. Any historical
+                  deposit requires a reviewed refund.
                 </p>
                 <form
                   onSubmit={(event) => {

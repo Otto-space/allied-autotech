@@ -212,9 +212,11 @@ describe("secure application foundation", () => {
       rateWindowMs: 60_000,
     });
 
-    expect((await request(app).get("/api/v1/health/live")).status).toBe(200);
-    const response = await request(app).get("/api/v1/health/live");
+    expect((await request(app).get("/api/v1/openapi.json")).status).toBe(200);
+    const response = await request(app).get("/api/v1/openapi.json");
 
+    expect((await request(app).get("/api/v1/health/live")).status).toBe(200);
+    expect(response.headers["retry-after"]).toBeDefined();
     expect(response.status).toBe(429);
     expect(response.body.error.code).toBe(errorCodes.rateLimited);
   });

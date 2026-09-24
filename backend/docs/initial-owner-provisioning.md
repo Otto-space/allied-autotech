@@ -6,6 +6,15 @@ Use the existing registration and email-verification flow to establish an active
 
 The project root includes a shortcut forwarding this command to the backend. Run it from either `allied-autotech` or `allied-autotech/backend`; no additional root dependency installation is needed. Running it without arguments or with `-- --help` prints usage without connecting to the database.
 
+If npm reports `Missing script: "bootstrap:super-admin"`, it has not found that shortcut in the current directory's package manifest. The current local checkout is `C:\Users\PC\Desktop\allied-autotech`; the former OneDrive path is absent. In PowerShell, verify the command from the current checkout:
+
+```powershell
+Set-Location 'C:\Users\PC\Desktop\allied-autotech'
+npm run bootstrap:super-admin -- --help
+```
+
+The equivalent direct backend command, run from the project root, is `npm --prefix backend run bootstrap:super-admin -- --help`. Both print usage without connecting to the database or changing roles.
+
 After reviewing and applying forward migrations in the target environment, inspect the selected account using the existing approved backend database configuration:
 
 ```text

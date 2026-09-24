@@ -18,12 +18,14 @@ export function SupportReplyForm({
   base,
   disabled,
   onSaved,
+  onUncertain,
 }: {
   record: SupportRecord;
   staff: boolean;
   base: string;
   disabled: boolean;
   onSaved: () => void;
+  onUncertain: () => void;
 }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [uncertain, setUncertain] = useState(false);
@@ -39,7 +41,7 @@ export function SupportReplyForm({
       <h2 id="support-reply-title">
         {staff ? "Reply or add a note" : "Reply to the team"}
       </h2>
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Reply submitted." />
       {uncertain && (
         <p className="notice" role="status">
           This reply has an unknown outcome. Check the messages before composing another
@@ -47,7 +49,7 @@ export function SupportReplyForm({
         </p>
       )}
       {record.status === "CLOSED" ? (
-        <p>This record is closed and cannot receive further messages.</p>
+        <p>This record is closed. The reply form is unavailable.</p>
       ) : (
         <form
           noValidate
@@ -70,7 +72,10 @@ export function SupportReplyForm({
                 },
                 { label: "Message", value: values.message },
               ],
-              onUncertain: () => setUncertain(true),
+              onUncertain: () => {
+                setUncertain(true);
+                onUncertain();
+              },
               retryAfterRejection: false,
               submit: async () => {
                 const controller = new AbortController();

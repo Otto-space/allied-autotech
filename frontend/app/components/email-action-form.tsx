@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { SubmitEvent } from "react";
-import { apiRequest, announceSessionChange } from "@/lib/api/client";
+import { apiRequest, ApiError, announceSessionChange } from "@/lib/api/client";
 import { Feedback } from "./feedback";
 
 function getFieldValue(formData: FormData, name: string): string {
@@ -90,7 +90,9 @@ export function EmailActionForm({
       }
     } catch (error_) {
       setError(
-        error_ instanceof Error ? error_.message : "The request could not be completed.",
+        error_ instanceof ApiError
+          ? error_.message
+          : "The request could not be completed. Please try again.",
       );
     } finally {
       setBusy(false);
@@ -123,8 +125,12 @@ export function EmailActionForm({
           ? "If the account is eligible, we will send a time-limited recovery link."
           : "Open the link in your email to complete this step. If the link has expired, request a new one."}
       </p>
-      <Feedback message={message} tone="success" />
-      <Feedback message={error} />
+      <Feedback
+        message={message}
+        tone="success"
+        toast="Account request completed. Review the instructions."
+      />
+      <Feedback message={error} toast="Please review the message on this page." />
       <form onSubmit={submit}>
         {mode === "forgot" ? (
           <div className="field">

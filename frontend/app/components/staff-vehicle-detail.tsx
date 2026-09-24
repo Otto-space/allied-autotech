@@ -39,7 +39,7 @@ export function StaffVehicleDetail({ vehicleId }: { vehicleId: string }) {
       </Link>
       <h1>Manage vehicle stock</h1>
       <Feedback message={vehicle.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Vehicle change recorded." />
       <button
         className="button secondary"
         disabled={vehicle.loading || !!proposal}

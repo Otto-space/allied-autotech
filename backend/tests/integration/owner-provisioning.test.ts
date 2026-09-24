@@ -1,3 +1,4 @@
+import { sessionWindow } from "../helpers/session-window.js";
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 import { prisma } from "../../src/config/database.js";
@@ -85,8 +86,7 @@ describe.skipIf(!enabled)(
             data: {
               userId: user.id,
               tokenHash: randomUUID(),
-              expiresAt: new Date(Date.now() + 600000),
-              idleExpiresAt: new Date(Date.now() + 600000),
+              ...sessionWindow(600000),
             },
           });
           return { user, session };

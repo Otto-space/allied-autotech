@@ -11,6 +11,7 @@ import {
 import type { SessionUser } from "@/lib/api/types";
 import { safeInternalRedirect } from "@/lib/auth/safe-redirect";
 import { Feedback } from "./feedback";
+import { notify } from "@/lib/notifications";
 
 export function LoginForm() {
   const router = useRouter();
@@ -39,17 +40,21 @@ export function LoginForm() {
       announceSessionChange();
       await refreshCsrf();
       if (result.data?.mfaRequired) {
+        notify("Password accepted. Complete your security verification.", {
+          tone: "info",
+        });
         router.replace("/mfa");
         return;
       }
       const next = safeInternalRedirect(
         new URLSearchParams(window.location.search).get("next"),
       );
-      window.location.replace(result.data?.user.role === "CUSTOMER" ? next : "/admin");
-    } catch (value) {
+      notify("Signed in successfully.", { tone: "success" });
+      router.replace(result.data?.user.role === "CUSTOMER" ? next : "/admin");
+    } catch (error_) {
       setError(
-        value instanceof ApiError
-          ? value.message
+        error_ instanceof ApiError
+          ? error_.message
           : "Sign in could not be confirmed. Please try again.",
       );
     } finally {
@@ -60,46 +65,51 @@ export function LoginForm() {
     <>
       <span className="eyebrow">Customer account</span>
       <h1>Welcome back.</h1>
-      <p className="muted">
-        Use the email and password associated with your verified account.
-      </p>
-      <Feedback message={error} />
+      <span className="muted">
+        New to Allied AutoTech?{" "}
+        <Link className="text-link" href="/register">
+          Create an account
+        </Link>
+      </span>
+      <Feedback message={error} toast="Please review the message on this page." />
       <form onSubmit={submit}>
         <div className="field">
-          <label htmlFor="email">Email address</label>
+          <label className="label" htmlFor="email">
+            Email address
+          </label>
           <input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
+            className="input"
             required
             maxLength={254}
           />
         </div>
-        <div className="field">
-          <label htmlFor="password">Password</label>
+        <div className="grid gap-1.5 mt-4 mb-4 w-full min-w-0">
+          <div className="flex items-center justify-between">
+            <label className="label" htmlFor="password">
+              Password
+            </label>
+            <Link className="text-link" href="/forgot-password">
+              Forgot your password?
+            </Link>
+          </div>
           <input
             id="password"
             name="password"
             type="password"
             autoComplete="current-password"
+            className="input"
             required
             maxLength={128}
           />
         </div>
         <div className="form-footer">
-          <button className="button" disabled={busy}>
+          <button className="button" disabled={busy} type="submit">
             {busy ? "Signing in…" : "Sign in securely"}
           </button>
-          <Link className="text-link" href="/forgot-password">
-            Forgot your password?
-          </Link>
-          <span className="muted">
-            New to Allied AutoTech?{" "}
-            <Link className="text-link" href="/register">
-              Create an account
-            </Link>
-          </span>
         </div>
       </form>
     </>

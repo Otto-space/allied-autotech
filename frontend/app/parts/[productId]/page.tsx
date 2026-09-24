@@ -60,7 +60,7 @@ export default async function ProductPage({
       <main id="main" className="section">
         <div className="container">
           <nav className="breadcrumbs" aria-label="Breadcrumb">
-            <Link href="/parts">Parts</Link>
+            <Link href="/parts">Shop</Link>
             <span aria-hidden="true">/</span>
             <span>{product.name}</span>
           </nav>
@@ -94,7 +94,7 @@ export default async function ProductPage({
               <p className="price">{formatKobo(product.priceKobo)}</p>
               <p className="lead">
                 {product.description ??
-                  "Contact our team if you need more information about this part."}
+                  "Contact our team if you need more information about this product."}
               </p>
               {product.availability.map((item) => (
                 <p key={item.branch.id} className="stock-label">
@@ -102,8 +102,8 @@ export default async function ProductPage({
                 </p>
               ))}
               <p className="field-hint">
-                Availability is checked again at checkout. Adding a part to your cart does
-                not reserve it.
+                Availability is checked again at checkout. Adding a product to your cart
+                does not reserve it.
               </p>
               <ProductActions
                 productId={product.id}
@@ -130,8 +130,8 @@ export default async function ProductPage({
               </div>
             ) : (
               <p className="muted">
-                Compatibility has not been listed. Confirm the part is suitable for your
-                vehicle with our team before ordering.
+                Compatibility has not been listed. Confirm the product is suitable for
+                your vehicle with our team before ordering.
               </p>
             )}
             <p>

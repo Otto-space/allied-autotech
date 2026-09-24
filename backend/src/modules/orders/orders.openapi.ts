@@ -55,7 +55,8 @@ export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "post",
       path: "/customers/orders/{orderId}/cancel",
-      summary: "Cancel an own pending order",
+      summary:
+        "Cancel an own pending order or record a cancellation request for staff review",
       params: orderParamsSchema,
       body: customerOrderCancelBodySchema,
       headers: csrf,

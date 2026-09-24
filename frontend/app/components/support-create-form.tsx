@@ -142,7 +142,7 @@ export function SupportCreateForm({
         Please avoid passwords, card details and private documents. There is no
         response-time guarantee.
       </p>
-      <Feedback message={error} />
+      <Feedback message={error} toast="Please review the message on this page." />
       {sessionChanged && (
         <Feedback
           tone="info"

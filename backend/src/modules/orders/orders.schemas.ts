@@ -42,6 +42,7 @@ export const orderIdempotencyHeadersSchema = z.looseObject({
 
 const deliverySchema = z
   .object({
+    zoneId: cleanText(64).optional(),
     name: cleanText(160),
     phone: cleanText(32),
     address: cleanText(500),

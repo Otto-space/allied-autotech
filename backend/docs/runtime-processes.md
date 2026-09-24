@@ -1,34 +1,7 @@
 # Runtime process configuration
 
-All release processes use the same immutable source revision but validate only the credentials and
-providers they actually execute. Configuration is injected at runtime; it is never copied into an
-image or committed.
+The current exact command and per-process environment matrix is in [the owner staging runbook](owner-staging-runbook.md#package-build-and-process-commands). Use `.env.staging.example` and `.env.production.example` as placeholder inventories, then scope secrets per process.
 
-| Process         | Required production configuration                                                                                                            |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| API             | Database settings, exact frontend/WebAuthn HTTPS origins, four independent cryptographic keys, Paystack, Monnify, and private object-storage settings |
-| Identity worker | Database settings, outbox encryption key, Resend key, and sender address                                                                     |
-| General worker  | Database settings, outbox encryption key, enabled notification providers, Paystack/Monnify reconciliation settings, and bounded expiry/reminder schedules |
-| Migration job   | Database settings only                                                                                                                       |
+The general worker runs notification delivery, webhook retry, one-hour reminders, refund submission/reconciliation, expiration and operational alerts. Payment reconciliation is separately enabled. Persisted leases/state provide recovery; worker heartbeats report starts, successes and failures. Monitor `/admin/operations/status` externally; the endpoint itself is not a paging service.
 
-The API does not require Resend or Termii credentials because it only writes encrypted outbox
-events. The identity worker does not require frontend, WebAuthn, Paystack, object-storage, session,
-MFA, or asset-ticket secrets. The general worker does not require cookie/WebAuthn/private-storage
-keys. It claims versioned booking reminders, expiries, notification delivery, webhook retries, and
-payment reconciliation in bounded PostgreSQL batches. Missing configuration fails process startup; optional channels must be explicitly disabled,
-and enabled provider work is never silently discarded.
-
-Every process also requires `DB_SSL_MODE=verify-full` and an absolute readable
-`DB_SSL_CA_FILE` in staging/production. The Node runtime supplies that CA to `pg`, keeps
-`rejectUnauthorized=true`, and retains hostname verification. Prisma migration URLs use
-`sslmode=require`, `sslaccept=strict`, and the same CA path. Local development may explicitly use
-`DB_SSL_MODE=disable` with no CA file. There is no plaintext fallback.
-
-Use separate database users in staging and production: an application role with only runtime DML,
-a worker role with the minimum outbox/cleanup permissions, and a migration role that owns schema
-changes. Size each service's pool with `DB_POOL_MAX`; API and worker replica counts must fit below
-the managed PostgreSQL connection limit with operational headroom.
-
-`npm run check:db-tls` is a live infrastructure check. It succeeds only when the configured
-certificate-verifying connection is active and PostgreSQL reports TLS for that backend. Passing unit
-configuration tests alone is not evidence that a real certificate or hosted database was verified.
+All hosted processes use strict PostgreSQL TLS through `aat-with-database-ca`. Migrations receive only DB configuration. General-worker signing keys must match the API. Identity-worker delivery can be disabled without falsely recording delivery or bypassing verification. Hosted docs remain disabled.

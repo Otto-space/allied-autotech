@@ -12,6 +12,7 @@ import type {
   InitializedPayment,
   PaymentProviderPort,
   VerifiedPayment,
+  VerifiedRefund,
 } from "./payment-provider.port.js";
 
 const envelope = <T extends z.ZodType>(data: T) =>
@@ -36,10 +37,11 @@ const verifyResponse = envelope(
       "queued",
     ]),
     reference: z.string(),
-    amount: z.number().int().positive(),
+    domain: z.enum(["test", "live"]).optional(),
+    amount: z.number().int().safe().positive(),
     currency: z.string(),
     paid_at: z.string().nullable().optional(),
-    fees: z.number().int().nonnegative().nullable().optional(),
+    fees: z.number().int().safe().nonnegative().nullable().optional(),
     channel: z.string().nullable().optional(),
   }),
 );
@@ -131,6 +133,8 @@ export class PaystackAdapter implements PaymentProviderPort {
       await this.request(`/transaction/verify/${encodeURIComponent(reference)}`),
     );
     if (!parsed.status) throw providerUnavailable();
+    if (parsed.data.domain && parsed.data.domain !== env.PAYSTACK_MODE)
+      throw providerRejected();
     const status = ["ongoing", "processing", "queued"].includes(parsed.data.status)
       ? "pending"
       : parsed.data.status;
@@ -143,6 +147,33 @@ export class PaystackAdapter implements PaymentProviderPort {
       paidAt: parsed.data.paid_at ? new Date(parsed.data.paid_at) : null,
       providerFeeKobo: parsed.data.fees == null ? null : BigInt(parsed.data.fees),
       method: parsed.data.channel ?? null,
+    };
+  }
+
+  async verifyRefund(reference: string): Promise<VerifiedRefund> {
+    const schema = envelope(
+      z.object({
+        id: z.union([z.string(), z.number()]),
+        status: z.string(),
+        amount: z.union([z.string().regex(/^\d+$/), z.number().int().safe().positive()]),
+        currency: z.string().length(3),
+      }),
+    );
+    const parsed = parseProviderResponse(
+      schema,
+      await this.request(`/refund/${encodeURIComponent(reference)}`),
+    );
+    if (!parsed.status) throw providerUnavailable();
+    return {
+      providerRefundId: String(parsed.data.id),
+      status:
+        parsed.data.status === "processed"
+          ? "succeeded"
+          : ["failed", "needs-attention"].includes(parsed.data.status)
+            ? "failed"
+            : "pending",
+      amountKobo: BigInt(parsed.data.amount),
+      currency: parsed.data.currency.toUpperCase(),
     };
   }
 

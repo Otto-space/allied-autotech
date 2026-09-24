@@ -48,6 +48,160 @@ const reply = (route: Route, data: unknown) =>
       meta: { requestId: "staff-booking-test" },
     },
   });
+
+test("booking confirmation requires an active grant and a resource review, then refreshes the confirmed request", async ({
+  page,
+}) => {
+  let permitted = false;
+  let status = "REQUESTED";
+  const writes: unknown[] = [];
+  await page.route("**/api/v1/**", async (route) => {
+    const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/auth/session")
+      return reply(route, {
+        id: id(8),
+        expiresAt: "2027-01-01T00:00:00Z",
+        idleExpiresAt: "2027-01-01T00:00:00Z",
+        mfaRequired: true,
+        mfaVerifiedAt: "2026-09-24T09:00:00Z",
+        user: { id: id(9), email: "staff@example.test", role: "STAFF" },
+      });
+    if (endpoint === "/auth/csrf")
+      return reply(route, { csrfToken: "isolated-booking-csrf-".repeat(3) });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(9),
+        email: "staff@example.test",
+        role: "STAFF",
+        status: "ACTIVE",
+        capabilities: permitted ? ["BOOKING_CONFIRM"] : [],
+        staffProfile: {
+          id: id(6),
+          firstName: "Test",
+          lastName: "Technician",
+          branchId: id(5),
+        },
+      });
+    if (endpoint === `/staff/bookings/${id(1)}`)
+      return reply(route, {
+        ...record(),
+        status,
+        depositAmountKobo: null,
+        depositPaidAt: null,
+        depositPayment: null,
+        disruptionRequestedAt: "2026-09-23T09:00:00Z",
+        disruptionResolution: "TRANSFERRED",
+        disruptionReason: "Prior appointment was moved at the workshop's request.",
+      });
+    if (endpoint === `/staff/bookings/${id(1)}/status`) {
+      writes.push(route.request().postDataJSON());
+      status = "CONFIRMED";
+      return reply(route, {});
+    }
+    return route.fulfill({
+      status: 404,
+      json: { success: false, error: { code: "NOT_FOUND" } },
+    });
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/admin/bookings/${id(1)}`);
+  await expect(
+    page.getByText(/Confirmation requires an active booking-confirmation permission/),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("Next status").locator('option[value="CONFIRMED"]'),
+  ).toHaveCount(0);
+  permitted = true;
+  await page.getByRole("button", { name: "Refresh booking", exact: true }).click();
+  await expect(
+    page.getByLabel("Next status").locator('option[value="CONFIRMED"]'),
+  ).toHaveCount(1);
+  await page.getByLabel("Next status").selectOption("CONFIRMED");
+  await page.getByRole("button", { name: "Review status change" }).click();
+  await expect(
+    page.getByLabel("People and equipment review", { exact: false }),
+  ).toBeFocused();
+  expect(writes).toEqual([]);
+  await page
+    .getByLabel("People and equipment review", { exact: false })
+    .fill("Technician, bay and required diagnostic equipment are available.");
+  await page.getByRole("button", { name: "Review status change" }).click();
+  await expect(
+    page.getByRole("dialog").getByText(/approved branch calendar/),
+  ).toBeVisible();
+  await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
+  await expect(page.locator(".status")).toHaveText("CONFIRMED");
+  expect(writes).toEqual([
+    {
+      status: "CONFIRMED",
+      expectedVersion: 7,
+      staffNotes: null,
+      resourceReviewNote:
+        "Technician, bay and required diagnostic equipment are available.",
+    },
+  ]);
+  await expect(
+    page.getByRole("heading", { name: "Business-caused disruption" }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+});
+
+for (const paid of [false, true])
+  test(`pending disruption offers the correct recovery for a ${paid ? "paid historical" : "no-deposit"} booking`, async ({
+    page,
+  }) => {
+    await page.route("**/api/v1/**", async (route) => {
+      const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+      if (endpoint === "/auth/session")
+        return reply(route, {
+          id: id(8),
+          expiresAt: "2027-01-01T00:00:00Z",
+          idleExpiresAt: "2027-01-01T00:00:00Z",
+          mfaRequired: false,
+          mfaVerifiedAt: null,
+          user: { id: id(9), email: "customer@example.test", role: "CUSTOMER" },
+        });
+      if (endpoint === `/customers/bookings/${id(1)}`)
+        return reply(route, {
+          ...record(),
+          disruptionRequestedAt: "2026-09-24T09:00:00Z",
+          disruptionResolution: "PENDING",
+          disruptionReason: "Required workshop equipment is unavailable.",
+          ...(paid
+            ? {}
+            : { depositPayment: null, depositPaidAt: null, depositAmountKobo: null }),
+        });
+      if (endpoint === "/public/booking-policy")
+        return reply(route, {
+          version: "owner-booking-request-v2",
+          minimumAdvanceHours: 2,
+          maximumAdvanceHours: 720,
+          paymentHoldMinutes: 0,
+          depositBasisPoints: 0,
+          depositRefundableForCustomerCancellation: true,
+          customerRescheduleLimit: 1,
+          customerRescheduleCutoffHours: 2,
+          reminderHoursBeforeAppointment: [1],
+        });
+      return route.fulfill({
+        status: 404,
+        json: { success: false, error: { code: "NOT_FOUND" } },
+      });
+    });
+    await page.goto(`/dashboard/bookings/${id(1)}`);
+    await expect(
+      page.getByRole("heading", { name: "Your appointment was disrupted" }),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Choose another slot" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Request refund", exact: true }),
+    ).toHaveCount(paid ? 1 : 0);
+    await expect(page.getByText("Cancel this booking", { exact: true })).toHaveCount(
+      paid ? 0 : 1,
+    );
+  });
 test("staff no-show requires explicit review, sends the version and cannot replay an uncertain result", async ({
   page,
 }) => {
@@ -77,6 +231,7 @@ test("staff no-show requires explicit review, sends the version and cannot repla
         email: "staff@example.test",
         role: "STAFF",
         status: "ACTIVE",
+        capabilities: [],
         staffProfile: {
           id: id(6),
           firstName: "Test",
@@ -113,7 +268,7 @@ test("staff no-show requires explicit review, sends the version and cannot repla
   ).toBeVisible();
   await expect(
     page.getByLabel("Next status").locator("option[value=CANCELLED]"),
-  ).toHaveCount(0);
+  ).toHaveCount(1);
   await expect(page.getByLabel("Assigned staff member")).toHaveValue(id(6));
   await page.getByRole("button", { name: "Open dashboard navigation" }).click();
   await expect(
@@ -123,7 +278,7 @@ test("staff no-show requires explicit review, sends the version and cannot repla
   await page.getByLabel("Next status").selectOption("NO_SHOW");
   await page.getByRole("button", { name: "Review status change" }).click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText(/deposit as forfeited/)).toBeVisible();
+  await expect(dialog.getByText(/no automatic fee or deposit forfeiture/)).toBeVisible();
   await expect(dialog.getByRole("button", { name: "Go back" })).toBeFocused();
   expect(mutations).toBe(0);
   const accessibility = await new AxeBuilder({ page })
@@ -209,6 +364,7 @@ test("quotation issue and work-order milestones use revisions and refresh the pa
         email: "staff@example.test",
         role: "STAFF",
         status: "ACTIVE",
+        capabilities: [],
         staffProfile: {
           id: id(6),
           firstName: "Test",
@@ -318,6 +474,9 @@ test("quotation issue and work-order milestones use revisions and refresh the pa
   await expect(
     page.getByRole("dialog").getByText(/Other issued quotations/),
   ).toBeVisible();
+  await expect(
+    page.getByRole("dialog").getByText(/seven days from issuance/),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Confirm change" }).click();
   await expect(page.getByText("ISSUED · Version 2 · Revision 3")).toBeVisible();
   await page.getByLabel("Diagnosis (customer-visible)").fill("Test diagnosis");
@@ -411,6 +570,7 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
             email: "staff@example.test",
             role: "STAFF",
             status: "ACTIVE",
+            capabilities: [],
             staffProfile: {
               id: id(6),
               firstName: "Test",
@@ -443,7 +603,6 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
                 ...(replacing ? { description: part.name } : {}),
               },
             ],
-            taxKobo: "2",
             notes: null,
             expiresAt: "2027-01-01T10:00:00+01:00",
             ...(replacing ? { expectedRevision: 0 } : {}),
@@ -457,8 +616,8 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
             revision: 0,
             status: "DRAFT",
             subtotalKobo: replacing ? "12549" : "12547",
-            totalKobo: replacing ? "12551" : "12549",
-            taxKobo: "2",
+            totalKobo: replacing ? "13490" : "13488",
+            taxKobo: "941",
             expiresAt: "2027-01-01T09:00:00Z",
             notes: null,
             items: [
@@ -512,8 +671,11 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
           .locator(`option[value='${part.id}']`),
       ).toHaveCount(1);
       await second.getByLabel("Catalogue part", { exact: true }).selectOption(part.id);
-      await page.getByLabel("Tax amount (NGN)").fill("0.02");
-      await page.getByLabel("Quotation expiry (Lagos time)").fill("2027-01-01T10:00");
+      await expect(page.getByLabel("Tax amount (NGN)")).toHaveCount(0);
+      await expect(
+        page.getByText(/Tax is calculated by Allied AutoTech when the draft is saved/),
+      ).toBeVisible();
+      await page.getByLabel("Draft expiry (Lagos time)").fill("2027-01-01T10:00");
       if (lostOperation === "none") {
         await page.setViewportSize({ width: 320, height: 740 });
         expect(
@@ -563,11 +725,15 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
         page.getByRole("heading", { name: "TEST-DRAFT", exact: true }),
       ).toBeVisible();
       expect(creates).toBe(1);
+      const draftTotals = page
+        .locator("article")
+        .filter({ has: page.getByRole("heading", { name: "TEST-DRAFT", exact: true }) });
+      await expect(draftTotals.locator("dd")).toContainText(["125.47", "9.41", "134.88"]);
       await page.getByRole("button", { name: "Edit draft" }).click();
       await expect(second.getByLabel("Catalogue part", { exact: true })).toHaveValue(
         part.id,
       );
-      await expect(page.getByLabel("Quotation expiry (Lagos time)")).toHaveValue(
+      await expect(page.getByLabel("Draft expiry (Lagos time)")).toHaveValue(
         "2027-01-01T10:00",
       );
       await first.getByLabel("Unit price (NGN)").fill("1.02");

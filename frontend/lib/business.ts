@@ -17,7 +17,7 @@ export const faqs = [
   {
     question: "How do I book a service?",
     answer:
-      "Open Services, choose a service and review its availability. Fixed-price appointments use published time slots. Sign in to submit your booking and review the deposit policy before continuing.",
+      "Open Services, choose a service and review its available appointments. Sign in to send a booking request. The workshop confirms availability before the appointment is confirmed. Current terms are shown before you submit.",
     keywords: "book appointment service slot time",
     href: "/services",
     action: "Explore services",
@@ -60,7 +60,7 @@ export const faqs = [
   {
     question: "What are your hours, warranties and refund policies?",
     answer:
-      "These business details have not been published here. Contact Allied AutoTech for the policy that applies to your request. Any booking deposit terms are shown before you submit a booking.",
+      "Contact Allied AutoTech for the policy that applies to your request. Current booking terms are shown before you submit, and any payment or refund status is available in your account.",
     keywords: "hours open closing warranty guarantee refund policy returns",
     href: business.whatsapp,
     action: "Ask Allied AutoTech",

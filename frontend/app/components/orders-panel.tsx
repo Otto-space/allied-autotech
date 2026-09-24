@@ -78,7 +78,7 @@ export function OrdersPanel() {
         <div className="empty">
           <h2>{status ? "No orders with this status" : "No orders yet"}</h2>
           <Link className="button" href="/parts">
-            Explore parts
+            Visit Shop
           </Link>
         </div>
       )}

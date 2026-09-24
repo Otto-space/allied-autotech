@@ -64,6 +64,11 @@ export class OrganizationService {
     return this.database.$transaction(async (transaction) => {
       const staff = await this.repository.staff(actor.userId, transaction);
       if (staff === null) throw organizationResourceNotFound();
+      const grants = await transaction.userCapability.findMany({
+        where: { userId: actor.userId, revokedAt: null },
+        select: { capability: true },
+        orderBy: { capability: "asc" },
+      });
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "READ",
@@ -71,7 +76,7 @@ export class OrganizationService {
         entityId: staff.staffProfile?.id ?? staff.id,
         context,
       });
-      return staff;
+      return { ...staff, capabilities: grants.map((grant) => grant.capability) };
     });
   }
 

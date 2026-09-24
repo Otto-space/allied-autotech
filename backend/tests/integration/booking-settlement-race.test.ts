@@ -258,7 +258,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(
           await prisma.booking.findUniqueOrThrow({ where: { id: f.booking.id } }),
         ).toMatchObject({
-          status: first === "expiry" ? "EXPIRED" : "CONFIRMED",
+          status: first === "expiry" ? "EXPIRED" : "REQUESTED",
           version: 1,
           depositPaidAt: first === "expiry" ? null : f.paidAt,
         });
@@ -267,7 +267,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).toMatchObject({ status: "SUCCEEDED", settledAttemptId: f.attempt.id });
         expect(
           await prisma.bookingReminder.count({ where: { bookingId: f.booking.id } }),
-        ).toBe(first === "expiry" ? 0 : 4);
+        ).toBe(0);
         await payments.verifyAttempt(f.actor, f.payment.id, f.attempt.id, context());
         expect(
           await prisma.paymentLedgerEntry.count({

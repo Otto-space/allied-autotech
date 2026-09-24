@@ -25,14 +25,12 @@ export function RegisterForm() {
           password: String(f.get("password") ?? ""),
         },
       });
-      setMessage(
-        "If registration can be completed, check your email for verification instructions before signing in.",
-      );
+      setMessage("Check your email for verification instructions before signing in.");
       form.reset();
-    } catch (v) {
+    } catch (error_) {
       setError(
-        v instanceof ApiError
-          ? v.message
+        error_ instanceof ApiError
+          ? error_.message
           : "Registration could not be confirmed. Check your email before submitting again.",
       );
     } finally {
@@ -43,64 +41,85 @@ export function RegisterForm() {
     <>
       <span className="eyebrow">Create your account</span>
       <h1>Vehicle care, organised.</h1>
-      <p className="muted">
-        Registration is for customers only. We will email a verification link before you
-        can sign in.
-      </p>
-      <Feedback message={message} tone="success" />
-      <Feedback message={error} />
+      <span className="muted">
+        Already registered?{" "}
+        <Link className="text-link" href="/login">
+          Sign in
+        </Link>
+      </span>
+      <Feedback
+        message={message}
+        tone="success"
+        toast="Check your email for the next step."
+      />
+      <Feedback message={error} toast="Please review the message on this page." />
       <form onSubmit={submit}>
         <div className="form-row">
           <div className="field">
-            <label htmlFor="firstName">First name</label>
+            <label className="label" htmlFor="firstName">
+              First name
+            </label>
             <input
               id="firstName"
               name="firstName"
               autoComplete="given-name"
+              className="input"
               required
               maxLength={80}
             />
           </div>
           <div className="field">
-            <label htmlFor="lastName">Last name</label>
+            <label className="label" htmlFor="lastName">
+              Last name
+            </label>
             <input
               id="lastName"
               name="lastName"
               autoComplete="family-name"
+              className="input"
               required
               maxLength={80}
             />
           </div>
         </div>
         <div className="field">
-          <label htmlFor="phone">Phone number</label>
+          <label className="label" htmlFor="phone">
+            Phone number
+          </label>
           <input
             id="phone"
             name="phone"
             type="tel"
             autoComplete="tel"
+            className="input"
             required
             maxLength={32}
           />
         </div>
         <div className="field">
-          <label htmlFor="email">Email address</label>
+          <label className="label" htmlFor="email">
+            Email address
+          </label>
           <input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
+            className="input"
             required
             maxLength={254}
           />
         </div>
         <div className="field">
-          <label htmlFor="password">Password</label>
+          <label className="label" htmlFor="password">
+            Password
+          </label>
           <input
             id="password"
             name="password"
             type="password"
             autoComplete="new-password"
+            className="input"
             required
             minLength={12}
             maxLength={128}
@@ -111,15 +130,9 @@ export function RegisterForm() {
           </span>
         </div>
         <div className="form-footer">
-          <button className="button" disabled={busy}>
+          <button className="button" disabled={busy} type="submit">
             {busy ? "Creating account…" : "Create customer account"}
           </button>
-          <span className="muted">
-            Already registered?{" "}
-            <Link className="text-link" href="/login">
-              Sign in
-            </Link>
-          </span>
         </div>
       </form>
     </>

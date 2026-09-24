@@ -149,7 +149,7 @@ export function VehicleRecordForm({
   }
   return (
     <>
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Vehicle record updated." />
       {changed && vehicle && (
         <div className="notice">
           <p>

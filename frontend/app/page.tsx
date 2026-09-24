@@ -12,8 +12,8 @@ export async function generateMetadata({
   searchParams: SearchParameters;
 }) {
   return publicPageMetadata(
-    "Vehicle care, parts & vehicles in Port Harcourt",
-    "Explore Allied AutoTech services, parts and vehicle listings. Find our workshop at 133 Stadium Road, beside Kilimanjaro, Port Harcourt.",
+    "Allied AutoTech | Automotive Services, Diagnostics & Vehicle Solutions in Port Harcourt",
+    "Professional automotive care, diagnostics and maintenance in Port Harcourt. Shop automotive products and explore vehicle solutions from Allied AutoTech.",
     "/",
     searchParams,
   );

@@ -57,7 +57,7 @@ export function ProductActions({
           body: {},
         });
         if (controller.signal.aborted) return;
-        setMessage("Part saved to your favourites.");
+        setMessage("Product saved to your favourites.");
       }
     } catch (value) {
       if (controller.signal.aborted) return;
@@ -74,8 +74,8 @@ export function ProductActions({
   return (
     <>
       <AccountChangeNotice visible={operation.sessionChanged} />
-      <Feedback message={error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={error} toast="Please review the message on this page." />
+      <Feedback message={message} tone="success" toast="Your selection has been saved." />
       {login && (
         <Link
           className="button"
@@ -104,7 +104,7 @@ export function ProductActions({
             })}
           />
           <span id="quantity-hint" className="field-hint">
-            This saves the total quantity of this part in your cart.
+            This saves the total quantity of this product in your cart.
           </span>
           <span id="quantity-error" className="field-error">
             {form.formState.errors.quantity?.message}

@@ -100,3 +100,36 @@ it("public content reloads after account invalidation instead of staying in load
   await waitFor(() => expect(result.current.data).toBe("current public content"));
   expect(result.current.loading).toBe(false);
 });
+it("an external refresh preserves the current page and ignores an older response", async () => {
+  let resolveOlder!: (value: { data: string }) => void;
+  request.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        resolveOlder = resolve;
+      }),
+  );
+  const { result, rerender } = renderHook(
+    ({ refreshKey }) =>
+      useResource("/staff/messages?cursor=current", parse, "saved page", {
+        revalidateOnMount: false,
+        refreshKey,
+      }),
+    { initialProps: { refreshKey: 0 } },
+  );
+  rerender({ refreshKey: 1 });
+  await waitFor(() => expect(request).toHaveBeenCalledTimes(1));
+  expect(result.current.data).toBe("saved page");
+  const olderSignal: AbortSignal = request.mock.calls[0][1].signal;
+  request.mockResolvedValueOnce({ data: "new acknowledgement" });
+  rerender({ refreshKey: 2 });
+  await waitFor(() => expect(result.current.data).toBe("new acknowledgement"));
+  expect(olderSignal.aborted).toBe(true);
+  await act(async () => {
+    resolveOlder({ data: "outdated conversation" });
+  });
+  expect(result.current.data).toBe("new acknowledgement");
+  expect(request.mock.calls.map((call) => call[0])).toEqual([
+    "/staff/messages?cursor=current",
+    "/staff/messages?cursor=current",
+  ]);
+});

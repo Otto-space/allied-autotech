@@ -4,7 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
-import type { RefundRecord } from "@/lib/api/staff-payment-schemas";
+import {
+  refundProcessingSchema,
+  type ProcessingRefund,
+} from "@/lib/api/refund-processing";
 import { paymentNote } from "@/lib/forms/payment-review";
 import { formatKobo } from "@/lib/format/money";
 import type { MutationProposal } from "./mutation-review";
@@ -26,8 +29,10 @@ export function RefundDecisionForm({
   uncertain,
   onUncertain,
   onReview,
+  actorId,
 }: {
-  refund: RefundRecord;
+  refund: ProcessingRefund;
+  actorId: string;
   disabled: boolean;
   uncertain: boolean;
   onUncertain: () => void;
@@ -44,7 +49,7 @@ export function RefundDecisionForm({
       noValidate
       onSubmit={form.handleSubmit((values) => {
         if (disabled || uncertain || refund.status !== "REQUESTED") return;
-        const body: RequestBody<"/staff/payments/refunds/{refundId}/decision", "post"> = {
+        const body: RequestBody<"/staff/refunds/{refundId}/decision", "post"> = {
           decision: values.decision,
           ...(values.decision === "CANCELLED" && values.note.trim()
             ? { note: values.note.trim() }
@@ -53,12 +58,12 @@ export function RefundDecisionForm({
         onReview({
           title:
             values.decision === "APPROVED"
-              ? "Approve and submit this refund?"
+              ? "Approve this refund?"
               : "Cancel this refund request?",
           description:
             values.decision === "APPROVED"
               ? "Approval may submit the refund to the payment provider. It does not confirm that funds were returned. Manual payments or uncertain provider submissions require operational follow-up. Review the resulting status before taking further action."
-              : "This cancels the refund request without returning money. Only a different administrator from the requester can make this decision.",
+              : "This cancels the refund request without returning money. Only a different authorized operator from the requester can make this decision.",
           facts: [
             { label: "Refund", value: refund.refundNumber },
             { label: "Amount", value: formatKobo(refund.amountKobo) },
@@ -67,12 +72,29 @@ export function RefundDecisionForm({
             ...(body.note ? [{ label: "Cancellation note", value: body.note }] : []),
           ],
           onUncertain,
-          submit: () =>
-            apiRequest(`/staff/payments/refunds/${refund.id}/decision`, {
-              method: "POST",
-              csrf: true,
-              body,
-            }),
+          retryAfterRejection: false,
+          submit: async () => {
+            const saved = refundProcessingSchema.parse(
+              (
+                await apiRequest(`/staff/refunds/${refund.id}/decision`, {
+                  method: "POST",
+                  csrf: true,
+                  body,
+                })
+              ).data,
+            );
+            if (
+              saved.id !== refund.id ||
+              saved.amountKobo !== refund.amountKobo ||
+              saved.paymentAttemptId !== refund.paymentAttemptId ||
+              (body.decision === "CANCELLED"
+                ? saved.status !== "CANCELLED"
+                : saved.approvedByUserId !== actorId ||
+                  !saved.approvedAt ||
+                  ["REQUESTED", "CANCELLED"].includes(saved.status))
+            )
+              throw new Error("Unexpected refund decision");
+          },
         });
       })}
     >
@@ -87,13 +109,14 @@ export function RefundDecisionForm({
           <label htmlFor={`${prefix}-decision`}>Refund decision</label>
           <select id={`${prefix}-decision`} {...form.register("decision")}>
             <option value="CANCELLED">Cancel request</option>
-            <option value="APPROVED">Approve and submit</option>
+            <option value="APPROVED">Approve refund</option>
           </select>
         </div>
         {decision === "CANCELLED" && (
           <div className="field">
             <label htmlFor={`${prefix}-note`}>Refund cancellation note (optional)</label>
             <input
+              className="input"
               id={`${prefix}-note`}
               {...form.register("note")}
               maxLength={1000}

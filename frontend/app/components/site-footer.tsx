@@ -4,8 +4,8 @@ import { Brand } from "./brand";
 
 export function SiteFooter() {
   return (
-    <footer className="bg-ink text-white pt-24 pb-8 overflow-hidden relative">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-32 relative z-10">
+    <footer className="site-footer bg-ink text-white py-12 overflow-hidden relative">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 relative z-10">
         <div>
           <Brand inverse />
           <p className="eyebrow text-white/60! mb-6">Allied AutoTech</p>
@@ -13,16 +13,19 @@ export function SiteFooter() {
           <p className="text-white/80 mt-6">{business.socialHandle}</p>
         </div>
         <div>
-          <p className="font-bold mb-6">Services & Parts</p>
+          <p className="font-semibold mb-6">Explore</p>
           <nav className="flex flex-col gap-4 text-white/70" aria-label="Footer Services">
             <Link href="/services" className="hover:text-white! transition-colors">
               Services
             </Link>
             <Link href="/parts" className="hover:text-white! transition-colors">
-              Parts
+              Shop
             </Link>
             <Link href="/vehicles" className="hover:text-white! transition-colors">
               Vehicles
+            </Link>
+            <Link href="/about" className="hover:text-white! transition-colors">
+              About Allied AutoTech
             </Link>
           </nav>
         </div>

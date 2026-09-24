@@ -16,6 +16,7 @@ export type DashboardDestination = {
   href: string;
   label: string;
   roles?: readonly Role[];
+  capabilitiesAny?: readonly string[];
 };
 export type DashboardGroup = {
   id: string;
@@ -87,6 +88,7 @@ const customerGroups: DashboardGroup[] = [
     links: [
       { href: "/dashboard/profile", label: "Profile" },
       { href: "/dashboard/security", label: "Security" },
+      { href: "/dashboard/privacy", label: "Privacy requests" },
       { href: "/dashboard/notifications", label: "Notifications" },
     ],
   },
@@ -105,6 +107,11 @@ const operationalGroups: DashboardGroup[] = [
     links: [
       { href: "/admin/bookings", label: "Workshop bookings" },
       { href: "/admin/booking-slots", label: "Appointment slots" },
+      {
+        href: "/admin/booking-capacity",
+        label: "Booking capacity",
+        roles: ["SUPER_ADMIN"],
+      },
       adminOnly("/admin/services", "Services"),
     ],
   },
@@ -114,10 +121,11 @@ const operationalGroups: DashboardGroup[] = [
     icon: Package,
     links: [
       { href: "/admin/orders", label: "Order fulfilment" },
-      { href: "/admin/inventory", label: "Parts inventory" },
-      adminOnly("/admin/products", "Parts catalogue"),
-      adminOnly("/admin/categories", "Part categories"),
+      { href: "/admin/inventory", label: "Product inventory" },
+      adminOnly("/admin/products", "Products"),
+      adminOnly("/admin/categories", "Product categories"),
       adminOnly("/admin/promotions", "Promotions"),
+      { href: "/admin/delivery-policy", label: "Delivery setup", roles: ["SUPER_ADMIN"] },
     ],
   },
   {
@@ -136,6 +144,7 @@ const operationalGroups: DashboardGroup[] = [
     icon: MessageSquare,
     links: [
       { href: "/admin/support", label: "Customer care" },
+      { href: "/admin/privacy", label: "Privacy review" },
       adminOnly("/admin/reviews", "Review moderation"),
     ],
   },
@@ -146,9 +155,24 @@ const operationalGroups: DashboardGroup[] = [
     links: [
       adminOnly("/admin/payments", "Payment records"),
       adminOnly("/admin/invoices", "Invoices"),
-      adminOnly("/admin/refunds", "Refund requests"),
+      {
+        ...adminOnly("/admin/refunds", "Refund requests"),
+        capabilitiesAny: ["REFUND_APPROVE", "REFUND_TRANSFER", "REFUND_CHECK"],
+      },
       adminOnly("/admin/payment-exceptions", "Payment exceptions"),
       adminOnly("/admin/payment-disputes", "Payment disputes"),
+      {
+        href: "/admin/payment-disputes/work",
+        label: "Dispute work queue",
+        roles: [],
+        capabilitiesAny: ["DISPUTE_MANAGE"],
+      },
+      { href: "/admin/finance-policy", label: "Financial policy" },
+      {
+        href: "/admin/refund-timing",
+        label: "Bank refund timing",
+        roles: ["SUPER_ADMIN"],
+      },
     ],
   },
   {
@@ -168,18 +192,38 @@ const operationalGroups: DashboardGroup[] = [
     links: [
       { href: "/admin/security", label: "My account security" },
       { href: "/admin/notifications", label: "My notifications" },
+      {
+        href: "/admin/complaint-policy",
+        label: "Complaint policy",
+        roles: ["SUPER_ADMIN"],
+      },
+      { href: "/admin/dispute-policy", label: "Dispute policy", roles: ["SUPER_ADMIN"] },
+      {
+        href: "/admin/retention-policy",
+        label: "Retention policy",
+        roles: ["SUPER_ADMIN"],
+      },
       adminOnly("/admin/branches", "Branches"),
       adminOnly("/admin/processing-jobs", "Processing jobs"),
     ],
   },
 ];
 
-export function dashboardNavigation(role: Role): DashboardGroup[] {
+export function dashboardNavigation(
+  role: Role,
+  capabilities: readonly string[] = [],
+): DashboardGroup[] {
   if (!["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"].includes(role)) return [];
   return (role === "CUSTOMER" ? customerGroups : operationalGroups)
     .map((group) => ({
       ...group,
-      links: group.links.filter((link) => !link.roles || link.roles.includes(role)),
+      links: group.links.filter(
+        (link) =>
+          !link.roles ||
+          link.roles.includes(role) ||
+          (role === "STAFF" &&
+            link.capabilitiesAny?.some((grant) => capabilities.includes(grant))),
+      ),
     }))
     .filter((group) => group.links.length > 0);
 }

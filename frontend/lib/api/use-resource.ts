@@ -13,7 +13,7 @@ export function useResource<T>(
   path: string | null,
   parse: (value: unknown) => T,
   initialData?: T,
-  options?: { initialError?: string; revalidateOnMount?: boolean },
+  options?: { initialError?: string; revalidateOnMount?: boolean; refreshKey?: number },
 ) {
   const skipInitialFetch = useRef(
     options?.revalidateOnMount === false && initialData !== undefined,
@@ -81,7 +81,7 @@ export function useResource<T>(
       window.removeEventListener("online", refresh);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, [path, parse, revision, refresh]);
+  }, [path, parse, revision, refresh, options?.refreshKey]);
   const current = state?.path === path ? state : null;
   return {
     data: current?.data,

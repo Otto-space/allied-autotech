@@ -107,7 +107,7 @@ export function StaffInvitationForm() {
           Access-change audit history
         </Link>
       </div>
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Invitation updated." />
       {uncertain && (
         <p className="notice" role="status">
           The access change has an unknown outcome. Refresh invitation status or check the

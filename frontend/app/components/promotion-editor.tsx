@@ -95,7 +95,7 @@ export function PromotionEditor({
   return (
     <section className="detail-section">
       <h2>{base ? "Edit promotion" : "Promotion settings"}</h2>
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Promotion change recorded." />
       {uncertain && (
         <p className="notice" role="status">
           The save could not be confirmed. Review the promotion records before making

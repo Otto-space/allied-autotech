@@ -41,7 +41,7 @@ export function StaffQuoteRecords({
       title: `${action === "issue" ? "Issue" : action === "void" ? "Void" : "Expire"} this quotation?`,
       description:
         action === "issue"
-          ? "The customer can accept or reject the issued quotation. Other issued quotations for this booking will be voided."
+          ? "The customer has seven days from issuance to accept or reject the quotation. The server records the new acceptance deadline. Other issued quotations for this booking will be voided."
           : "This closes the quotation for customer acceptance. It does not record a payment or refund.",
       facts: [
         { label: "Quotation", value: quote.quoteNumber },
@@ -91,7 +91,8 @@ export function StaffQuoteRecords({
             </p>
             {quote.notes && <p>{quote.notes}</p>}
             <p>
-              Expires: {quote.expiresAt ? formatBusinessDate(quote.expiresAt) : "Not set"}
+              {quote.status === "DRAFT" ? "Draft expires" : "Expires"}:{" "}
+              {quote.expiresAt ? formatBusinessDate(quote.expiresAt) : "Not set"}
             </p>
             <ServiceLineTable
               items={quote.items}

@@ -11,6 +11,7 @@ export function safeErrorAttributes(error: unknown): {
   errorName: string;
   errorCode?: string;
   retryable?: boolean;
+  recoveryHint?: string;
 } {
   if (error instanceof AppError) {
     return {
@@ -26,5 +27,11 @@ export function safeErrorAttributes(error: unknown): {
   return {
     errorName: token(record.name) ?? "Error",
     ...(errorCode === undefined ? {} : { errorCode }),
+    ...(errorCode === "P2021" || errorCode === "P2022"
+      ? {
+          recoveryHint:
+            "Database schema is out of date or the configured database is incorrect. Check the database target and apply pending migrations from backend with npm run db:migrate.",
+        }
+      : {}),
   };
 }

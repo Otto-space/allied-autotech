@@ -95,6 +95,7 @@ const environmentSchema = z.object({
   SERVICE_NAME: z.string().trim().min(1).max(100).default("allied-autotech-api"),
 
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(10).default(0),
+  TRUST_PROXY_CIDRS: optionalCommaSeparatedValues,
 
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
@@ -115,7 +116,7 @@ const environmentSchema = z.object({
     .int()
     .min(1_000)
     .max(86_400_000)
-    .default(900_000),
+    .default(60_000),
   API_DOCS_ENABLED: z.preprocess(
     (value) => (value === "" ? undefined : value),
     z
@@ -362,6 +363,10 @@ export function assertApiEnvironment(
     requireConfiguredVariables("API", ["FRONTEND_URL"], source);
     return;
   }
+  if (runtime.DEPLOYMENT_ENV === "local")
+    throw new Error(
+      "Hosted production runtime requires DEPLOYMENT_ENV=staging or production",
+    );
 
   requireConfiguredVariables(
     "API",
@@ -418,6 +423,12 @@ export function assertApiEnvironment(
   ) {
     throw new Error("Production Paystack callback URL must use HTTPS");
   }
+  if (runtime.TRUST_PROXY_HOPS > 0 && !runtime.TRUST_PROXY_CIDRS?.length)
+    throw new Error(
+      "Hosted proxy trust requires verified ingress CIDRs, not a hop count alone",
+    );
+  if (runtime.TRUST_PROXY_CIDRS?.some((range) => ["0.0.0.0/0", "::/0"].includes(range)))
+    throw new Error("Unrestricted proxy trust is prohibited");
   assertPaystackMode(runtime);
   assertMonnifyMode(runtime);
   if (runtime.API_DOCS_ENABLED) {
@@ -432,10 +443,13 @@ export function assertIdentityWorkerEnvironment(
   if (runtime.NODE_ENV !== "production") return;
   requireConfiguredVariables(
     "identity worker",
-    ["OUTBOX_ENCRYPTION_KEY", "RESEND_API_KEY", "RESEND_FROM_EMAIL"],
+    runtime.EMAIL_DELIVERY_ENABLED
+      ? ["OUTBOX_ENCRYPTION_KEY", "RESEND_API_KEY", "RESEND_FROM_EMAIL"]
+      : ["OUTBOX_ENCRYPTION_KEY"],
     source,
   );
   if (
+    runtime.EMAIL_DELIVERY_ENABLED &&
     runtime.DEPLOYMENT_ENV === "staging" &&
     runtime.STAGING_EMAIL_ALLOWLIST.length === 0
   ) {
@@ -448,7 +462,12 @@ export function assertGeneralWorkerEnvironment(
   source: NodeJS.ProcessEnv = process.env,
 ): void {
   if (runtime.NODE_ENV !== "production") return;
-  requireConfiguredVariables("general worker", ["OUTBOX_ENCRYPTION_KEY"], source);
+  requireConfiguredVariables(
+    "general worker",
+    ["OUTBOX_ENCRYPTION_KEY", "TOKEN_HASH_KEY", "ASSET_TICKET_KEY", "FRONTEND_URL"],
+    source,
+  );
+  requireHttps(runtime.FRONTEND_URL, "booking reminder origin");
   if (runtime.EMAIL_DELIVERY_ENABLED) {
     requireConfiguredVariables(
       "general worker email delivery",
@@ -517,8 +536,8 @@ export function assertMonnifyMode(runtime: typeof env = env): void {
     runtime.MONNIFY_CONTRACT_CODE,
     runtime.MONNIFY_CALLBACK_URL,
   ];
-  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.MONNIFY_MODE !== "sandbox")
-    throw new Error("Staging requires MONNIFY_MODE=sandbox");
+  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.MONNIFY_MODE === "live")
+    throw new Error("Staging cannot use live Monnify");
   if (runtime.MONNIFY_MODE === "disabled") {
     if (configured.some((value) => value !== undefined))
       throw new Error("Monnify credentials and callback must be unset when disabled");

@@ -55,7 +55,11 @@ export const customerVehicleSchema = z.object({
 export type CustomerVehicle = z.infer<typeof customerVehicleSchema>;
 export const parseCustomerVehicles = (value: unknown) =>
   z
-    .object({ items: z.array(customerVehicleSchema), nextCursor: z.string().optional() })
+    .object({
+      vehicles: z.array(customerVehicleSchema),
+      nextCursor: z.string().optional(),
+    })
+    .transform(({ vehicles, nextCursor }) => ({ items: vehicles, nextCursor }))
     .parse(value);
 export const inspectionSchema = z.object({
   id: z.string().uuid(),

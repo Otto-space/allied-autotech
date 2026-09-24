@@ -1,3 +1,5 @@
+import { env } from "../config/env.js";
+import { issueBookingActionToken } from "../common/security/booking-action-token.js";
 import { safeErrorAttributes } from "../common/observability/safe-error.js";
 import { prisma } from "../config/database.js";
 import { Prisma, type PrismaClient } from "../generated/prisma/client.js";
@@ -8,6 +10,7 @@ interface ClaimedReminder {
 }
 
 const reminderLabels = {
+  ONE_HOUR: "1 hour",
   SEVEN_DAYS: "7 days",
   THREE_DAYS: "72 hours",
   TWO_DAYS: "48 hours",
@@ -89,16 +92,32 @@ export class BookingReminderWorker {
         });
         return "cancelled";
       }
+      const token = issueBookingActionToken({
+        bookingId: reminder.booking.id,
+        userId: reminder.booking.customer.userId,
+        scheduleVersion: reminder.scheduleVersion,
+        expiresAt: reminder.booking.scheduledAt.getTime() + 2 * 3_600_000,
+      });
+      const actionUrl = new URL(
+        "/api/v1/public/booking-response",
+        env.FRONTEND_URL[0] ?? "http://localhost:3000",
+      );
+      actionUrl.searchParams.set("token", token);
       await enqueueNotification(transaction, {
         userId: reminder.booking.customer.userId,
         type: "BOOKING",
         category: "TRANSACTIONAL",
         title: `Appointment reminder: ${reminderLabels[reminder.kind]}`,
-        message: `Your Allied AutoTech appointment is scheduled for ${reminder.booking.scheduledAt.toISOString()}. If you cannot attend, use your one permitted reschedule at least 24 hours before the appointment. The 30% deposit is non-refundable for cancellation or no-show.`,
+        message: `Your Allied AutoTech appointment is scheduled for ${reminder.booking.scheduledAt.toISOString()}. Sign in to your booking to confirm attendance or cancel without a cancellation fee. No response does not cancel your appointment.`,
         resourceType: "BOOKING",
         resourceId: reminder.booking.id,
         deduplicationKey: `booking:${reminder.booking.id}:reminder:${reminder.scheduleVersion}:${reminder.kind}`,
         channels: ["EMAIL"],
+        bookingAction: {
+          url: actionUrl.toString(),
+          bookingId: reminder.booking.id,
+          scheduleVersion: reminder.scheduleVersion,
+        },
       });
       await transaction.bookingReminder.update({
         where: { id },

@@ -175,7 +175,7 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
     const winnerUser = winningIndex === 0 ? first : second;
     expect(winner.body.data.order.subtotalKobo).toBe("250000");
     expect(winner.body.data.order.discountAmountKobo).toBe("25000");
-    expect(winner.body.data.order.totalKobo).toBe("225000");
+    expect(winner.body.data.order.totalKobo).toBe("241875");
     expect(winner.body.data.order.invoice).toBeNull();
     const orderId = winner.body.data.order.id as string;
     const invoiceId = (await prisma.invoice.findUniqueOrThrow({ where: { orderId } })).id;
@@ -214,6 +214,35 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
       .get(`/api/v1/customers/invoices/${invoiceId}`)
       .set("Cookie", winnerSession.cookie);
     expect(visibleInvoice.status).toBe(200);
+    const unpaidConfirm = await request(app)
+      .post(`/api/v1/staff/orders/${orderId}/status`)
+      .set(mutation(staffSession))
+      .send({ status: "CONFIRMED", expectedVersion: 0 });
+    expect(unpaidConfirm.status).toBe(409);
+    const payment = await request(app)
+      .post("/api/v1/customers/payments")
+      .set(mutation(winnerSession, `pay-${randomUUID()}`))
+      .send({ targetType: "ORDER", targetId: orderId, purpose: "ORDER_PAYMENT" });
+    expect(payment.status).toBe(201);
+    const manual = await request(app)
+      .post(`/api/v1/customers/payments/${payment.body.data.payment.id}/manual`)
+      .set(mutation(winnerSession, `manual-${randomUUID()}`))
+      .send({
+        method: "BANK_TRANSFER",
+        payerName: "Synthetic customer",
+        transferredAt: new Date().toISOString(),
+      });
+    expect(manual.status).toBe(201);
+    const verified = await request(app)
+      .post(
+        `/api/v1/staff/payments/manual-attempts/${manual.body.data.attempts[0].id}/review`,
+      )
+      .set(mutation(adminSession))
+      .send({
+        decision: "APPROVED",
+        reviewerNote: "Synthetic exact bank evidence verified",
+      });
+    expect(verified.status).toBe(200);
     const confirmed = await request(app)
       .post(`/api/v1/staff/orders/${orderId}/status`)
       .set(mutation(staffSession))

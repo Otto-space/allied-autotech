@@ -56,7 +56,7 @@ export function SecuritySessions() {
         the page header to end this browser’s session.
       </p>
       <Feedback message={records.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Session change recorded." />
       {Object.values(uncertain).some(Boolean) && (
         <p className="notice" role="status">
           A sign-out result could not be confirmed. Refresh and review the sessions before

@@ -72,7 +72,11 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
     }
   }
   const current = booking.data;
-  const disruption = !!current?.disruptionRequestedAt && !current.disruptionResolution;
+  const disruption =
+    current?.status === "CONFIRMED" &&
+    !!current.disruptionRequestedAt &&
+    current.disruptionResolution === "PENDING";
+  const hasDeposit = !!current?.depositPayment && !!current.depositPaidAt;
   const canReschedule =
     current?.status === "CONFIRMED" &&
     !!current.branch &&
@@ -88,7 +92,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
       </Link>
       <h1>Booking details</h1>
       <Feedback message={error ?? booking.error} />
-      <Feedback message={message} tone="info" />
+      <Feedback message={message} tone="info" toast="Booking update recorded." />
       {booking.loading && <p role="status">Checking your booking…</p>}
       <button
         className="button secondary"
@@ -109,6 +113,16 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
             {current.depositAmountKobo !== null && (
               <p>Deposit: {formatKobo(current.depositAmountKobo)}</p>
             )}
+            {current.vehicle && (
+              <p>
+                Vehicle: {current.vehicle.year} {current.vehicle.make}{" "}
+                {current.vehicle.model}
+                {current.vehicle.registrationNumber
+                  ? ` · ${current.vehicle.registrationNumber}`
+                  : ""}
+              </p>
+            )}
+            {current.customerNotes && <p>Your notes: {current.customerNotes}</p>}
             {current.paymentHoldExpiresAt && current.status === "AWAITING_DEPOSIT" && (
               <p>
                 Payment hold expires {formatBusinessDate(current.paymentHoldExpiresAt)}
@@ -127,27 +141,34 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                 <h3>Your appointment was disrupted</h3>
                 <p>{current.disruptionReason}</p>
                 <p>
-                  Choose another available slot or request the refund process. A refund
-                  request does not mean a refund has been completed.
+                  Request another available slot without using your customer reschedule,
+                  or cancel free. A replacement slot still needs workshop confirmation.
+                  {hasDeposit &&
+                    " You can request review of your historical deposit; a refund request does not mean a refund has been completed."}
                 </p>
                 <div className="actions">
                   <button className="button secondary" onClick={() => setShowSlots(true)}>
                     Choose another slot
                   </button>
-                  <button
-                    className="button secondary"
-                    onClick={() =>
-                      ask({
-                        title: "Request a disruption refund?",
-                        path: `/customers/bookings/${bookingId}/disruption-resolution`,
-                        method: "POST",
-                        body: { resolution: "REFUND", expectedVersion: current.version },
-                        idempotent: true,
-                      })
-                    }
-                  >
-                    Request refund
-                  </button>
+                  {hasDeposit && (
+                    <button
+                      className="button secondary"
+                      onClick={() =>
+                        ask({
+                          title: "Request a disruption refund?",
+                          path: `/customers/bookings/${bookingId}/disruption-resolution`,
+                          method: "POST",
+                          body: {
+                            resolution: "REFUND",
+                            expectedVersion: current.version,
+                          },
+                          idempotent: true,
+                        })
+                      }
+                    >
+                      Request refund
+                    </button>
+                  )}
                 </div>
               </div>
             )}
@@ -205,7 +226,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                     disabled={!slot || slots.loading || !!slots.error}
                     onClick={() =>
                       ask({
-                        title: "Confirm the new appointment?",
+                        title: "Request the new appointment time?",
                         path: `/customers/bookings/${bookingId}/${disruption ? "disruption-resolution" : "schedule"}`,
                         method: disruption ? "POST" : "PATCH",
                         body: {
@@ -223,13 +244,15 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
               </section>
             )}
             {["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED"].includes(current.status) &&
-              !disruption && (
+              (!disruption || !hasDeposit) && (
                 <details className="detail-section">
                   <summary>Cancel this booking</summary>
                   <p>
-                    {policy.data?.depositRefundableForCustomerCancellation === false
-                      ? "Your deposit is non-refundable if you cancel."
-                      : "Review the published cancellation policy or contact customer care before cancelling."}
+                    {policy.data?.depositBasisPoints === 0
+                      ? "You can cancel this booking free of charge."
+                      : policy.data?.depositRefundableForCustomerCancellation === false
+                        ? "Your deposit is non-refundable if you cancel."
+                        : "Review the published cancellation policy or contact customer care before cancelling."}
                   </p>
                   <form
                     onSubmit={(event) => {

@@ -43,7 +43,7 @@ export const refundSchema = z.object({
   id: z.string().uuid(),
   refundNumber: z.string(),
   paymentAttemptId: z.string().uuid(),
-  requestedByUserId: z.string().uuid(),
+  requestedByUserId: z.string().uuid().nullable(),
   approvedByUserId: z.string().uuid().nullable(),
   amountKobo: z.string().regex(/^\d+$/),
   currency: z.literal("NGN"),
@@ -64,7 +64,7 @@ export const parseRefunds = (value: unknown) =>
     .parse(value);
 export const refundMessages: Record<RefundRecord["status"], string> = {
   REQUESTED:
-    "Requested. A different administrator must review this refund before it can proceed.",
+    "Requested. A different authorized operator must review this refund before it can proceed.",
   APPROVED: "Approved. This does not confirm that the customer has received a refund.",
   PENDING:
     "Submitted for provider processing. Do not submit a replacement refund while its outcome is pending.",

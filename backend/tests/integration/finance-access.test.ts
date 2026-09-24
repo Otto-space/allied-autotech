@@ -1,3 +1,4 @@
+import { sessionWindow } from "../helpers/session-window.js";
 import { randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
@@ -50,8 +51,7 @@ async function authenticated(role: UserRole, assured = true, branchId?: string) 
       createdAt: new Date(Date.now() - 1000),
       tokenHash: hashToken("session", token),
       csrfTokenHash: hashToken("csrf", csrf),
-      expiresAt: new Date(Date.now() + 600000),
-      idleExpiresAt: new Date(Date.now() + 600000),
+      ...sessionWindow(600000),
       mfaRequired: role !== "CUSTOMER",
       mfaVerifiedAt: assured && role !== "CUSTOMER" ? new Date() : null,
     },
@@ -177,6 +177,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           branchId: branch.id,
           orderNumber: `ORD-${randomUUID().slice(0, 20)}`,
           status: "CONFIRMED",
+          paidAt: new Date(),
           createdAt: new Date(Date.now() - 1000),
           confirmedAt: new Date(),
           subtotalKobo: 10000n,

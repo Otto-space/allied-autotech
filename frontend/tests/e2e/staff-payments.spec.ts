@@ -2,7 +2,8 @@ import { test, expect, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
-import type { StaffPayment, RefundRecord } from "@/lib/api/staff-payment-schemas";
+import type { StaffPayment } from "@/lib/api/staff-payment-schemas";
+import type { ProcessingRefund } from "@/lib/api/refund-processing";
 const id = (value: number) =>
   `a0000000-0000-4000-8000-${String(value).padStart(12, "0")}`;
 const paymentFixture = (): StaffPayment => ({
@@ -44,9 +45,18 @@ const paymentFixture = (): StaffPayment => ({
     },
   ],
 });
-const refundFixture = (): RefundRecord => ({
+const refundFixture = (): ProcessingRefund => ({
   id: id(20),
   refundNumber: "ISOLATED-REFUND-001",
+  paymentAttempt: { provider: "MANUAL" },
+  authorizationKind: "HUMAN",
+  dueAt: null,
+  clockStatus: "NOT_STARTED",
+  transferredByUserId: null,
+  transferRecordedAt: null,
+  bankTransferAt: null,
+  checkedByUserId: null,
+  checkedAt: null,
   paymentAttemptId: id(2),
   requestedByUserId: id(21),
   approvedByUserId: null,
@@ -87,6 +97,15 @@ async function fixture(
         expiresAt: "2027-01-01T00:00:00Z",
         idleExpiresAt: "2027-01-01T00:00:00Z",
         user: { id: id(11), email: "payments@example.test", role },
+      });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(11),
+        email: "payments@example.test",
+        role,
+        status: "ACTIVE",
+        staffProfile: null,
+        capabilities: role === "STAFF" ? [] : ["REFUND_APPROVE"],
       });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-payment-csrf-".repeat(4) });
@@ -137,6 +156,7 @@ test("refund cancellation preserves its note and failed queue loading is not an 
   await expect.poll(() => queries.at(-1)).toContain(`cursor=${id(30)}`);
   await page.getByLabel("Refund status filter").selectOption("REQUESTED");
   await expect.poll(() => queries.at(-1)).toBe("?limit=25&status=REQUESTED");
+  await page.getByRole("button", { name: "Review refund actions" }).click();
   await page
     .getByLabel("Refund cancellation note (optional)")
     .fill("  Isolated duplicate request cancelled  ");
@@ -172,6 +192,7 @@ test("an interrupted refund approval stays locked across queue filters until rec
     }
   });
   await page.goto("/admin/refunds");
+  await page.getByRole("button", { name: "Review refund actions" }).click();
   await page.getByLabel("Refund decision", { exact: true }).selectOption("APPROVED");
   await page.getByRole("button", { name: "Review refund decision" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
@@ -213,11 +234,14 @@ test("a hidden invalid cancellation note cannot block approval and is never sent
     if (endpoint.endsWith("/decision")) {
       writes.push(route.request().postDataJSON());
       refund.status = "PENDING";
+      refund.approvedByUserId = id(11);
+      refund.approvedAt = "2026-09-17T09:45:00Z";
       await reply(route, refund);
       return true;
     }
   });
   await page.goto("/admin/refunds");
+  await page.getByRole("button", { name: "Review refund actions" }).click();
   await page.getByLabel("Refund cancellation note (optional)").fill("Invalid\tcontrol");
   await page.getByRole("button", { name: "Review refund decision" }).click();
   await expect(page.getByLabel("Refund cancellation note (optional)")).toBeFocused();
@@ -483,17 +507,21 @@ test("refund queue enforces different-operator decisions and separates attention
       writes.push(route.request().postDataJSON());
       refund.status = "NEEDS_ATTENTION";
       refund.providerStatus = "OFFLINE_PROCESSING_REQUIRED";
+      refund.approvedByUserId = id(11);
+      refund.approvedAt = "2026-09-17T09:45:00Z";
       await reply(route, refund);
       return true;
     }
   });
   await page.goto("/admin/refunds");
   const self = page.getByRole("region", { name: own.refundNumber, exact: true });
-  await expect(self).toContainText("A different administrator must approve or cancel");
+  await self.getByRole("button", { name: "Review refund actions" }).click();
+  await expect(self).toContainText("An authorized operator other than the requester");
   await expect(self.getByRole("button", { name: "Review refund decision" })).toHaveCount(
     0,
   );
   const section = page.getByRole("region", { name: refund.refundNumber, exact: true });
+  await section.getByRole("button", { name: "Review refund actions" }).click();
   await section
     .getByLabel("Refund cancellation note (optional)")
     .fill("Not sent on approval");
@@ -533,7 +561,9 @@ test("staff cannot load the administrator refund queue", async ({ page }) => {
   );
   await page.goto("/admin/refunds");
   await expect(
-    page.getByText("Administrator access is required to review refund requests."),
+    page.getByText(
+      "An active refund approval, transfer or checking permission is required.",
+    ),
   ).toBeVisible();
   expect(reads).toBe(0);
 });

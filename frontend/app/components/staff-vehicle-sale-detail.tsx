@@ -30,7 +30,7 @@ export function StaffVehicleSaleDetail({ transactionId }: { transactionId: strin
       </Link>
       <h1>Manage vehicle purchase</h1>
       <Feedback message={sale.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Vehicle sale change recorded." />
       <button
         className="button secondary"
         disabled={sale.loading || !!proposal}

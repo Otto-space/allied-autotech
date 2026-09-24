@@ -1,3 +1,5 @@
+> Historical phase document. Booking-deposit, provider-activation and readiness claims below are superseded by the signed 22 September owner decisions. Use [the current implementation matrix](owner-implementation-matrix.md) and [staging runbook](owner-staging-runbook.md).
+
 # Service Operations Security and Lifecycle
 
 Phase 5 owns service definitions, customer bookings, branch-scoped staff scheduling, quote versions, and work orders.

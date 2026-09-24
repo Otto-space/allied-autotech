@@ -1,6 +1,7 @@
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
+import { env } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
 import { auditBadRequest, auditConflict, auditNotFound } from "./audit.errors.js";
 import { assertAuditAdministrator } from "./audit.policy.js";
@@ -112,10 +113,45 @@ export class AuditOperationsService {
         where: { status: { in: ["OPEN", "INVESTIGATING"] } },
       }),
     ]);
+    const heartbeats = await this.database.workerHeartbeat.findMany();
+    const expectedWorkers: Array<[string, number]> = [
+      ["identity-outbox", 600_000],
+      ["notification-delivery", 600_000],
+      ["payment-webhook-retry", 600_000],
+      ["booking-reminders", 600_000],
+      ["refunds", 600_000],
+      ["expiration", Math.max(600_000, env.EXPIRATION_INTERVAL_MS * 2)],
+      ["operational-alerts", Math.max(600_000, env.EXPIRATION_INTERVAL_MS * 2)],
+      ...(env.PAYMENT_RECONCILIATION_ENABLED
+        ? [
+            [
+              "payment-reconciliation",
+              Math.max(600_000, env.RECONCILIATION_INTERVAL_MS * 2),
+            ] as [string, number],
+          ]
+        : []),
+    ];
     const result = {
       queues: counts.map((item) => ({ ...item, count: Number(item.count) })),
       openPaymentAnomalies: anomalies,
       lastReconciliation,
+      operationalAlerts: await this.database.operationalAlert.findMany({
+        where: { resolvedAt: null },
+        orderBy: { createdAt: "asc" },
+        take: 100,
+      }),
+      workers: expectedWorkers.map(([name, staleAfterMs]) => {
+        const worker = heartbeats.find((item) => item.name === name);
+        return {
+          name,
+          ...worker,
+          missing: !worker,
+          staleAfterMs,
+          overdue:
+            !worker?.lastSucceededAt ||
+            worker.lastSucceededAt.getTime() < Date.now() - staleAfterMs,
+        };
+      }),
     };
     await this.auditRead(
       actor,

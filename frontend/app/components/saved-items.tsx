@@ -63,7 +63,11 @@ export function SavedItems() {
         reserve it.
       </p>
       <Feedback message={error} />
-      <Feedback message={message} tone="success" />
+      <Feedback
+        message={message}
+        tone="success"
+        toast="Your saved items have been updated."
+      />
       <section className="detail-section">
         <h2>Favourite parts</h2>
         <Feedback message={parts.error} />

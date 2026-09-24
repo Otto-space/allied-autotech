@@ -12,11 +12,15 @@ import type { RequestBody } from "@/lib/api/contracts";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountMutation } from "@/lib/api/use-account-mutation";
+import { notify } from "@/lib/notifications";
+import { useScrollToMessage } from "@/lib/use-scroll-to-message";
 import { AccountChangeNotice } from "./account-change-notice";
 import { Feedback } from "./feedback";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { PublicEnquiryForm } from "./public-enquiry-form";
+import { BookingAccountDetails } from "./booking-account-details";
+import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
 const parseService = (value: unknown) => serviceSchema.parse(value);
 const parseBranches = (value: unknown) =>
   z.object({ items: z.array(branchRef), nextCursor: z.string().optional() }).parse(value);
@@ -39,6 +43,9 @@ export function ServiceDetail({
   const [slot, setSlot] = useState("");
   const [slotCursor, setSlotCursor] = useState<string>();
   const [accepted, setAccepted] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [vehicle, setVehicle] = useState<CustomerVehicle | null>(null);
+  const requiresDeposit = (policy.data?.depositBasisPoints ?? 0) > 0;
   const slots = useResource(
     branch && service.data?.pricingType === "FIXED"
       ? `/public/services/${serviceId}/slots?branchId=${branch}&limit=50${slotCursor ? `&cursor=${slotCursor}` : ""}`
@@ -47,6 +54,7 @@ export function ServiceDetail({
   );
   const [error, setError] = useState<string>();
   const [booking, setBooking] = useState<z.infer<typeof bookingSchema>>();
+  const confirmation = useScrollToMessage(booking?.id);
   const [uncertain, setUncertain] = useState(false);
   // Public support is anonymous: preserve its lock when account-scoped reads remount it.
   const [quotationUncertain, setQuotationUncertain] = useState(false);
@@ -60,6 +68,8 @@ export function ServiceDetail({
     setSlot("");
     setSlotCursor(undefined);
     setAccepted(false);
+    setNotes("");
+    setVehicle(null);
     setError(undefined);
     setBooking(undefined);
     setUncertain(false);
@@ -68,7 +78,17 @@ export function ServiceDetail({
   const operation = useAccountMutation(discard);
   const { busy } = operation;
   async function book() {
-    if (busy || !slot || !accepted || !policy.data || booking) return;
+    if (busy || !slot || (requiresDeposit && !accepted) || !policy.data || booking)
+      return;
+    const customerNotes = notes.replace(/[\r\n\t]+/g, " ").trim();
+    if (
+      !uncertain &&
+      (customerNotes.length > 2000 || /[\u0000-\u001f\u007f]/.test(customerNotes))
+    ) {
+      setError("Use ordinary text of up to 2,000 characters for your booking notes.");
+      document.getElementById("booking-notes")?.focus();
+      return;
+    }
     const controller = operation.begin();
     if (!controller) return;
     setError(undefined);
@@ -78,7 +98,9 @@ export function ServiceDetail({
         : {
             slotId: slot,
             policyVersion: policy.data.version,
-            acceptNonRefundableDeposit: true,
+            ...(requiresDeposit ? { acceptNonRefundableDeposit: true } : {}),
+            ...(customerNotes ? { customerNotes } : {}),
+            ...(vehicle ? { vehicleId: vehicle.id } : {}),
           };
     const fingerprint = JSON.stringify(body);
     if (attempt.current?.fingerprint !== fingerprint)
@@ -95,6 +117,13 @@ export function ServiceDetail({
       const response = z.object({ booking: bookingSchema }).parse(result.data);
       setBooking(response.booking);
       setUncertain(false);
+      notify("Booking request received. Review its status in your account.", {
+        tone: "success",
+        action: {
+          label: "View booking",
+          href: `/dashboard/bookings/${response.booking.id}`,
+        },
+      });
     } catch (value) {
       if (controller.signal.aborted) return;
       if (value instanceof ApiError && value.status === 401) {
@@ -175,17 +204,41 @@ export function ServiceDetail({
                     </button>
                   )}
                   {booking ? (
-                    <div className="notice success">
+                    <div className="notice success" ref={confirmation} role="status">
                       <h3>Booking request received</h3>
                       <p>Status: {booking.status.replaceAll("_", " ")}</p>
-                      <p>Deposit due: {formatKobo(booking.depositAmountKobo)}</p>
+                      <p>
+                        {formatBusinessDate(booking.scheduledAt)} ·{" "}
+                        {booking.branch?.name ?? "Branch not assigned"}
+                      </p>
+                      {booking.vehicle && (
+                        <p>
+                          Vehicle: {booking.vehicle.year} {booking.vehicle.make}{" "}
+                          {booking.vehicle.model}
+                          {booking.vehicle.registrationNumber
+                            ? ` · ${booking.vehicle.registrationNumber}`
+                            : ""}
+                        </p>
+                      )}
+                      {booking.customerNotes && (
+                        <p>Your notes: {booking.customerNotes}</p>
+                      )}
+                      {booking.depositPayment && (
+                        <p>Deposit due: {formatKobo(booking.depositAmountKobo)}</p>
+                      )}
+                      {booking.status === "REQUESTED" && (
+                        <p>
+                          Your appointment is awaiting workshop confirmation. No deposit
+                          is required to submit this request.
+                        </p>
+                      )}
                       {booking.paymentHoldExpiresAt && (
                         <p>
                           Hold expires {formatBusinessDate(booking.paymentHoldExpiresAt)}.
                         </p>
                       )}
                       <Link className="button" href={`/dashboard/bookings/${booking.id}`}>
-                        Review booking & deposit
+                        View booking
                       </Link>
                     </div>
                   ) : (
@@ -250,33 +303,66 @@ export function ServiceDetail({
                       )}
                       {policy.data && (
                         <div className="notice">
-                          <h3>Booking deposit terms</h3>
-                          <p>
-                            The deposit is {policy.data.depositBasisPoints / 100}% of the
-                            service price. Available appointments are{" "}
-                            {policy.data.minimumAdvanceHours / 24}–
-                            {policy.data.maximumAdvanceHours / 24} days ahead, with a{" "}
-                            {policy.data.paymentHoldMinutes}-minute payment hold.
-                          </p>
-                          <p>
-                            {policy.data.depositRefundableForCustomerCancellation
-                              ? "The published policy allows a refundable deposit for customer cancellation."
-                              : "The deposit is non-refundable if you cancel."}{" "}
-                            You may reschedule up to {policy.data.customerRescheduleLimit}{" "}
-                            time, at least {policy.data.customerRescheduleCutoffHours}{" "}
-                            hours before your appointment.
-                          </p>
-                          <label className="check-label">
-                            <input
-                              type="checkbox"
-                              checked={accepted}
-                              disabled={busy || uncertain}
-                              onChange={(event) => setAccepted(event.target.checked)}
-                            />{" "}
-                            I have read and accept these deposit terms.
-                          </label>
+                          <h3>
+                            {requiresDeposit
+                              ? "Booking deposit terms"
+                              : "Before you request a booking"}
+                          </h3>
+                          {!requiresDeposit ? (
+                            <p>
+                              No deposit is required. The workshop will review your
+                              request and confirm availability. Submitting a request does
+                              not confirm an appointment. Cancellation is free.
+                            </p>
+                          ) : (
+                            <>
+                              <p>
+                                The deposit is {policy.data.depositBasisPoints / 100}% of
+                                the service price. Available appointments are{" "}
+                                {policy.data.minimumAdvanceHours / 24}–
+                                {policy.data.maximumAdvanceHours / 24} days ahead, with a{" "}
+                                {policy.data.paymentHoldMinutes}-minute payment hold.
+                              </p>
+                              <p>
+                                {policy.data.depositRefundableForCustomerCancellation
+                                  ? "The published policy allows a refundable deposit for customer cancellation."
+                                  : "The deposit is non-refundable if you cancel."}{" "}
+                                You may reschedule up to{" "}
+                                {policy.data.customerRescheduleLimit} time, at least{" "}
+                                {policy.data.customerRescheduleCutoffHours} hours before
+                                your appointment.
+                              </p>
+                              <label className="check-label">
+                                <input
+                                  type="checkbox"
+                                  checked={accepted}
+                                  disabled={busy || uncertain}
+                                  onChange={(event) => setAccepted(event.target.checked)}
+                                />{" "}
+                                I have read and accept these deposit terms.
+                              </label>
+                            </>
+                          )}
                         </div>
                       )}
+                      <BookingAccountDetails
+                        serviceId={serviceId}
+                        vehicle={vehicle}
+                        onVehicleChange={setVehicle}
+                        disabled={busy || uncertain}
+                      />
+                      <div className="field">
+                        <label htmlFor="booking-notes">
+                          What should we know about your vehicle? (optional)
+                        </label>
+                        <textarea
+                          id="booking-notes"
+                          maxLength={2000}
+                          value={notes}
+                          disabled={busy || uncertain}
+                          onChange={(event) => setNotes(event.target.value)}
+                        />
+                      </div>
                       {uncertain && (
                         <Feedback
                           message="Confirmation is pending. Check this same request again or view your bookings before choosing another appointment."
@@ -289,7 +375,7 @@ export function ServiceDetail({
                           disabled={
                             busy ||
                             !slot ||
-                            !accepted ||
+                            (requiresDeposit && !accepted) ||
                             !policy.data ||
                             !!slots.error ||
                             slots.loading ||
@@ -301,7 +387,7 @@ export function ServiceDetail({
                             ? "Submitting…"
                             : uncertain
                               ? "Check the same booking request"
-                              : "Request booking & review deposit"}
+                              : "Request booking"}
                         </button>
                         <Link className="text-link" href="/dashboard/bookings">
                           Your bookings →

@@ -8,6 +8,7 @@ export interface ApiErrorBody {
 export interface ApiMeta {
   requestId: string;
   nextCursor?: string;
+  serverTime?: string;
 }
 
 export interface ApiResponse<T = unknown> {
@@ -27,6 +28,6 @@ export function successResponse<T>(
     success: true,
     message,
     ...(data === undefined ? {} : { data }),
-    meta: { requestId: String(requestId) },
+    meta: { requestId: String(requestId), serverTime: new Date().toISOString() },
   };
 }

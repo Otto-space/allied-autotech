@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import type { Promotion } from "@/lib/api/promotion-schemas";
+import { collectionOnlyOptions } from "../fixtures/fulfillment";
 const id = (n: number) => `a1000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const time = "2026-09-17T09:00:37Z";
 const promotionFixture = (): Promotion => ({
@@ -75,6 +76,8 @@ async function fixture(page: Page, role = "ADMIN") {
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-promotion-csrf".repeat(3) });
     if (endpoint === "/public/branches") return reply(route, { items: [branch] });
+    if (endpoint === "/public/fulfillment-options")
+      return reply(route, collectionOnlyOptions);
     if (endpoint === "/customers/cart") {
       const product = {
         id: id(21),
@@ -198,7 +201,7 @@ test("promotion list separates errors, filters and cursor pages without inventin
   const state = await fixture(page);
   state.failList = true;
   await page.goto("/admin/promotions");
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
   await expect(page.getByRole("heading", { name: "No promotions yet" })).toHaveCount(0);
   state.failList = false;
   await page.getByRole("button", { name: "Refresh promotions" }).click();

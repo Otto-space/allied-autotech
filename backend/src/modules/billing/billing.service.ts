@@ -1,3 +1,4 @@
+import { assertFinanceGate, policySnapshot } from "../policies/policies.service.js";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -79,6 +80,7 @@ export class BillingService {
       throw invoiceConflict("Invoice due date must be in the future");
     return this.database.$transaction(async (transaction) => {
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`invoice-source:${input.sourceType}:${input.sourceId}`}, 0))`;
+      const finance = await assertFinanceGate(transaction);
       let data: Prisma.InvoiceUncheckedCreateInput;
       let branchId: string | null;
       if (input.sourceType === "ORDER") {
@@ -92,8 +94,8 @@ export class BillingService {
           customerId: source.customerId,
           orderId: source.id,
           currency: source.currency,
-          subtotalKobo: source.totalKobo,
-          taxKobo: 0n,
+          subtotalKobo: source.totalKobo - source.taxKobo,
+          taxKobo: source.taxKobo,
           totalKobo: source.totalKobo,
           dueAt,
         };
@@ -177,6 +179,7 @@ export class BillingService {
         };
       }
       await this.assertBranch(actor, branchId, transaction);
+      data.policySnapshot = policySnapshot(finance);
       const invoice = await this.repository.create(data, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -219,6 +222,7 @@ export class BillingService {
   ) {
     assertInvoiceOperator(actor);
     return this.database.$transaction(async (transaction) => {
+      if (target === "ISSUED") await assertFinanceGate(transaction);
       const invoice = await this.repository.lockInvoice(id, transaction);
       if (invoice === null) throw invoiceNotFound();
       await this.assertBranch(actor, this.branchId(invoice), transaction);

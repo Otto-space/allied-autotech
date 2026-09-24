@@ -67,7 +67,7 @@ export function StaffInspections() {
         )}
       </fieldset>
       <Feedback message={inspections.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Inspection change recorded." />
       <div className="actions">
         <button
           className="button secondary"

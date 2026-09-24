@@ -1,0 +1,106 @@
+# Private staging examples. Replace placeholders in an ignored local copy.
+# Use the Vercel frontend origin so its existing /api/v1 rewrite preserves same-origin CSRF.
+# Obtain each actor's session and CSRF value through normal verified sign-in + MFA.
+# Never paste real cookies, signed links, bank details or evidence tokens into committed files.
+@origin = https://staging.example.com
+@base = {{origin}}/api/v1
+@session = REPLACE_WITH_CURRENT_ACTOR_SESSION
+@csrf = REPLACE_WITH_CURRENT_ACTOR_CSRF
+@orderId = REPLACE_WITH_OWNED_ORDER_UUID
+@bookingId = REPLACE_WITH_BOOKING_UUID
+@refundId = REPLACE_WITH_APPROVED_REFUND_UUID
+@aftercareId = REPLACE_WITH_REQUEST_UUID
+
+### Public capabilities; draft/disabled states are server authority
+GET {{base}}/public/capabilities
+
+### Owned order: paymentDueAt/expiresAt and meta.serverTime drive countdown
+GET {{base}}/customers/orders/{{orderId}}
+Cookie: __Host-aat_session={{session}}
+
+### Customer request: exceptional timing remains reviewable
+POST {{base}}/customers/orders/{{orderId}}/returns
+Origin: {{origin}}
+Sec-Fetch-Site: same-origin
+Cookie: __Host-aat_session={{session}}
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"reason":"Please review this item and the documented condition issue."}
+
+### Assigned/branch-authorized staff: approved capacity must already exist
+# Set expectedVersion to the latest returned version; do not reuse this example's value blindly.
+POST {{base}}/staff/bookings/{{bookingId}}/status
+Origin: {{origin}}
+Sec-Fetch-Site: same-origin
+Cookie: __Host-aat_session={{session}}
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"status":"CONFIRMED","expectedVersion":1,"resourceReviewNote":"Recorded people and equipment availability for this appointment."}
+
+### Staff receives goods; a separate INSPECTED request must precede return approval
+POST {{base}}/staff/order-requests/{{aftercareId}}/review
+Origin: {{origin}}
+Sec-Fetch-Site: same-origin
+Cookie: __Host-aat_session={{session}}
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"stage":"RECEIVED","note":"Returned goods received and associated with this review request."}
+
+### Refund approver: use a different capable account from the requester
+POST {{base}}/staff/refunds/{{refundId}}/decision
+Origin: {{origin}}
+Sec-Fetch-Site: same-origin
+Cookie: __Host-aat_session={{session}}
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"decision":"APPROVED"}
+
+### Refund transfer operator: request an evidence upload, upload the exact file, then record transfer
+# Full upload and transfer schemas are in OpenAPI; use actual checksum/bytes and verified beneficiary.
+# Only the original MANUAL payment accepts a bank transfer. Gateway refunds cannot use this path.
+# POST /staff/refunds/{refundId}/evidence-upload
+# POST /staff/refunds/{refundId}/transfer
+
+### Independent checker: audited, short-lived evidence URL and decrypted beneficiary
+POST {{base}}/staff/refunds/{{refundId}}/evidence-access
+Origin: {{origin}}
+Sec-Fetch-Site: same-origin
+Cookie: __Host-aat_session={{session}}
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{}
+
+### Fourth distinct actor, REFUND_CHECK: only after actually checking evidence
+POST {{base}}/staff/refunds/{{refundId}}/check
+Origin: {{origin}}
+Sec-Fetch-Site: same-origin
+Cookie: __Host-aat_session={{session}}
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"accepted":true,"evidenceChecked":true,"note":"Independent bank evidence and beneficiary details have been checked."}
+
+### Privacy intake does not perform deletion
+POST {{base}}/customers/privacy-requests
+Origin: {{origin}}
+Sec-Fetch-Site: same-origin
+Cookie: __Host-aat_session={{session}}
+X-CSRF-Token: {{csrf}}
+Content-Type: application/json
+
+{"kind":"ANONYMIZATION","reason":"Please review anonymization of my account under the approved retention rules."}
+
+### Administrator operational queues and expected worker heartbeats
+GET {{base}}/admin/operations/status
+Cookie: __Host-aat_session={{session}}
+
+# Booking email URLs carry private, expiring purpose-bound tokens. GET renders a screen only.
+# Its form POST uses application/x-www-form-urlencoded token + action=CONFIRM or CANCEL.
+# Do not invent or hand-edit the signed token. OpenAPI documents both content types.
+# Approved policy publication: POST /admin/policies (see exact discriminated schemas).
+# Supply real signed evidence and calendars; this file intentionally invents no branch/zone values.

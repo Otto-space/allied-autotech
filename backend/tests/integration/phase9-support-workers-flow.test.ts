@@ -745,4 +745,66 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
     expect(anomaly).not.toBeNull();
     expect(ledger).toBe(1);
   }, 30_000);
+  it("rechecks withdrawn optional consent at dispatch while essential delivery remains available", async () => {
+    const recipient = await customer();
+    await prisma.notificationPreference.create({
+      data: {
+        userId: recipient.id,
+        category: "OPERATIONAL",
+        channel: "EMAIL",
+        enabled: false,
+      },
+    });
+    const events = [];
+    for (const category of ["OPERATIONAL", "TRANSACTIONAL", "MARKETING"] as const) {
+      const notification = await prisma.notification.create({
+        data: {
+          userId: recipient.id,
+          type: "SYSTEM",
+          category,
+          title: "Synthetic consent contract",
+          message: "Synthetic consent contract",
+        },
+      });
+      const event = await prisma.outboxEvent.create({
+        data: {
+          eventId: randomUUID(),
+          aggregateType: "Notification",
+          aggregateId: notification.id,
+          eventType: "notification.delivery.requested",
+          availableAt: new Date("1990-01-01Z"),
+          createdAt: new Date("1990-01-01Z"),
+          payload: {
+            encrypted: encryptNotificationPayload({
+              channel: "EMAIL",
+              recipient: recipient.email,
+              title: notification.title,
+              message: notification.message,
+            }),
+          } as unknown as Prisma.InputJsonValue,
+          notificationDelivery: {
+            create: { notificationId: notification.id, channel: "EMAIL" },
+          },
+        },
+      });
+      events.push(event);
+    }
+    const sent: TransactionalEmail[] = [];
+    await new NotificationDeliveryWorker(
+      {
+        async send(message) {
+          sent.push(message);
+        },
+      },
+      null,
+      prisma,
+    ).runOnce(3);
+    expect(sent.map((message) => message.idempotencyKey)).toEqual([events[1]!.eventId]);
+    expect(
+      await prisma.outboxEvent.findUnique({ where: { id: events[0]!.id } }),
+    ).toMatchObject({ status: "DEAD_LETTER", lastError: "CONSENT_WITHDRAWN" });
+    expect(
+      await prisma.outboxEvent.findUnique({ where: { id: events[2]!.id } }),
+    ).toMatchObject({ status: "DEAD_LETTER", lastError: "MARKETING_DISABLED" });
+  });
 });

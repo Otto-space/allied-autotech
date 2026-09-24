@@ -153,7 +153,7 @@ function InputField({
   if (field.source) {
     fieldInput = <LookupField field={field} initial={initial} />;
   } else if (field.type === "textarea") {
-    fieldInput = <textarea {...common} maxLength={field.max} />;
+    fieldInput = <textarea {...common} maxLength={field.max} rows={4} />;
   } else if (field.type === "select") {
     fieldInput = (
       <select {...common}>
@@ -177,7 +177,10 @@ function InputField({
       </label>
       {fieldInput}
       {field.name === "slug" && (
-        <span className="field-hint">Use lowercase words separated by hyphens.</span>
+        <span className="field-hint">
+          Used in the page address, for example brake-service. Use lowercase words
+          separated by hyphens.
+        </span>
       )}
     </div>
   );
@@ -326,7 +329,7 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
       <h1>{config.title}</h1>
       <p className="lead">{config.description}</p>
       <Feedback message={records.error ?? error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Changes recorded." />
       <button
         className="button secondary"
         disabled={records.loading || !!proposal}
@@ -422,10 +425,14 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
       </nav>
       <section className="detail-section" hidden={!!extras}>
         <h2>{editing ? `Edit ${config.singular}` : `Create ${config.singular}`}</h2>
+        <p>
+          Complete the details below, then review before saving. Fields marked optional
+          can be left blank.
+        </p>
         {uncertain[draftKey] && (
           <p className="notice" role="status">
-            The save could not be confirmed. Refresh the records and reconcile the result.
-            This draft will not be resent.
+            The save could not be confirmed. Refresh the records to check whether it was
+            saved. This draft will not be resent.
           </p>
         )}
         <form

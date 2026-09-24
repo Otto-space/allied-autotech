@@ -147,7 +147,11 @@ export function StaffPayments() {
         All attempts on matching payments remain visible.
       </p>
       <Feedback message={payments.error} />
-      <Feedback message={message} tone="info" />
+      <Feedback
+        message={message}
+        tone="info"
+        toast="Payment update recorded. Review the details."
+      />
       <button
         className="button secondary"
         onClick={payments.refresh}

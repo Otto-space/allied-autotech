@@ -175,14 +175,13 @@ List routes use bounded cursor pagination. Pass the returned \`nextCursor\` as \
 4. Obtain a fresh CSRF value after login/MFA/session rotation. Password change and factor administration require the documented reauthentication and assurance.
 5. Forgot/reset flows remain enumeration-safe. Reset tokens follow the same URL-fragment rule. Logout requires CSRF and clears the local in-memory CSRF value.
 
-### Branches, services, published slots and booking deposits
+### Branches, services, published slots and booking requests
 
-1. Read public branches and fixed-price services, then request published slots for a service.
-2. Read \`/public/booking-policy\` immediately before booking. Submit \`slotId\`, the exact current policy version, explicit non-refundable-term acceptance, and an idempotency key.
-3. The server locks the slot, snapshots price, calculates the 30% deposit in integer kobo, and holds it for 30 minutes. The response/payment record is server truth.
-4. Initialize Paystack or Monnify hosted checkout for the returned payment. Redirect only to the returned short-lived HTTPS URL after same-origin API receipt; do not treat the browser redirect as payment proof.
-5. Poll the owned payment/booking after returning. Only a verified provider event or authoritative server verification confirms the booking. Reminders appear in notifications and email at the scheduled cadence.
-6. A customer has one qualifying transfer at least 24 hours before the appointment. Business disruption uses the dedicated transfer/refund-choice route; refunds remain subject to four-eyes approval.
+1. Read public branches, services, published slots and the current booking policy.
+2. Submit the slot, current policy version and an idempotency key. New bookings are REQUESTED with no booking deposit.
+3. Staff with BOOKING_CONFIRM records resource review; the server enforces approved branch capacity/calendar and overlaps before confirmation.
+4. One transactional email reminder is enqueued one hour before the appointment. Confirmation less than one hour ahead uses an immediate reminder fallback. GET links only render a screen; the signed POST confirms attendance or cancels free.
+5. Rescheduling invalidates earlier links/reminders and returns the appointment to staff review. No response never auto-cancels or incurs a fee. Historical deposit records remain protected.
 
 ### Orders, invoices, vehicles and payments
 
@@ -194,7 +193,7 @@ List routes use bounded cursor pagination. Pass the returned \`nextCursor\` as \
 ### Reviews, notifications and support
 
 - Customers can submit rated overall-business, product, service and eligible transaction reviews. Public review results expose moderated anonymous projections only.
-- Fetch and update notification state through the customer routes; preferences affect transactional delivery only where policy permits.
+- Fetch and update notification state through the customer routes; preferences affect optional operational messages; essential messages remain enabled and marketing execution stays disabled.
 - Support chat uses authenticated five-second cursor polling. Stop polling when hidden/offline, resume with the last cursor, and never request another customer's conversation.
 
 ## Staff, administration and four-eyes controls
@@ -203,7 +202,7 @@ Staff/admin operations require an MFA-verified session and default-deny role, br
 
 ## Webhook restrictions
 
-Paystack and Monnify call the DigitalOcean API origin directly, not Vercel. Browser code must never invoke webhook routes. The API verifies exact raw bytes, signature policy, reference, amount, currency, state and provider truth; duplicate, late or mismatched events are idempotently recorded or escalated as anomalies.
+Paystack calls the DigitalOcean API origin directly; Monnify remains disabled, not Vercel. Browser code must never invoke webhook routes. The API verifies exact raw bytes, signature policy, reference, amount, currency, state and provider truth; duplicate, late or mismatched events are idempotently recorded or escalated as anomalies.
 
 ## Never do this client-side
 

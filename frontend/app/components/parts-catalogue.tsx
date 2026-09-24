@@ -55,13 +55,13 @@ export function PartsCatalogue({
         onReset={reset}
       >
         <div className="field">
-          <label htmlFor="parts-search">Search parts</label>
+          <label htmlFor="parts-search">Search products</label>
           <input
             id="parts-search"
             name="search"
             type="search"
             maxLength={100}
-            placeholder="Part name, brand or SKU"
+            placeholder="Product name, brand or SKU"
           />
         </div>
         <div className="field">
@@ -112,14 +112,14 @@ export function PartsCatalogue({
               />
             </div>
             <div className="field">
-              <label htmlFor="parts-brand">Part brand (optional)</label>
+              <label htmlFor="parts-brand">Brand (optional)</label>
               <input id="parts-brand" name="brand" maxLength={100} />
             </div>
           </div>
         </details>
         <div className="actions">
           <button type="submit" className="button">
-            Search parts
+            Search products
           </button>
           <button type="reset" className="button secondary">
             Reset filters
@@ -149,12 +149,12 @@ export function PartsCatalogue({
         <>
           <Feedback message={products.error} />
           <button className="button secondary" onClick={products.refresh}>
-            Retry parts
+            Retry products
           </button>
         </>
       )}
       {products.loading && (
-        <output>{products.data ? "Updating results…" : "Loading parts…"}</output>
+        <output>{products.data ? "Updating results…" : "Loading products…"}</output>
       )}
       <div className="record-grid" aria-busy={products.loading}>
         {(!products.error ? products.data : undefined)?.items.map((product) => (
@@ -184,18 +184,18 @@ export function PartsCatalogue({
       </div>
       {!products.loading && !products.error && products.data?.items.length === 0 && (
         <div className="empty">
-          <h2>{filters ? "No matching parts" : "No parts are listed yet"}</h2>
+          <h2>{filters ? "No matching products" : "No products are listed yet"}</h2>
           <p>
             {filters
               ? "Try a different search or reset your filters."
-              : "Contact our team to ask about the part you need."}
+              : "Contact our team to ask about the product you need."}
           </p>
           <Link className="text-link" href="/contact">
-            Ask about a part →
+            Ask about a product →
           </Link>
         </div>
       )}
-      <nav className="pagination" aria-label="Parts pages">
+      <nav className="pagination" aria-label="Shop pages">
         <button
           className="button secondary"
           disabled={!history.length || products.loading || !!products.error}

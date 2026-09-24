@@ -81,7 +81,7 @@ export function SecurityFactors() {
         sign-in factor.
       </p>
       <Feedback message={records.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Security change recorded." />
       <button
         className="button secondary"
         disabled={records.loading || !!proposal}

@@ -113,7 +113,11 @@ export function CustomerVehicles() {
         Keep the details you use for workshop visits in your account.
       </p>
       <Feedback message={error ?? vehicles.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback
+        message={message}
+        tone="success"
+        toast="Your vehicle records have been updated."
+      />
       {vehicles.error && (
         <button className="button secondary" onClick={vehicles.refresh}>
           Retry vehicles
@@ -176,102 +180,137 @@ export function CustomerVehicles() {
       </nav>
       <section className="checkout-summary">
         <h2>{editing ? "Edit your vehicle" : "Add a vehicle"}</h2>
+        <p>Start with the make, model and year. You can add the other details later.</p>
         <form onSubmit={form.handleSubmit(save)}>
-          <div className="form-row">
-            {(["make", "model"] as const).map((name) => (
-              <div className="field" key={name}>
-                <label htmlFor={`vehicle-${name}`}>
-                  {name === "make" ? "Make" : "Model"}
-                </label>
-                <input
-                  id={`vehicle-${name}`}
-                  {...form.register(name, {
-                    required: "This field is required.",
-                    maxLength: 80,
-                  })}
-                  aria-invalid={!!form.formState.errors[name]}
-                />
-                <span className="field-error">
-                  {form.formState.errors[name]?.message}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="field">
-            <label htmlFor="vehicle-year">Year</label>
-            <input
-              id="vehicle-year"
-              type="number"
-              inputMode="numeric"
-              min={1886}
-              max={new Date().getFullYear() + 1}
-              {...form.register("year", {
-                valueAsNumber: true,
-                required: "Enter the year.",
-                min: { value: 1886, message: "Enter a valid year." },
-                max: {
-                  value: new Date().getFullYear() + 1,
-                  message: "Enter a valid year.",
-                },
-              })}
-            />
-            <span className="field-error">{form.formState.errors.year?.message}</span>
-          </div>
-          <div className="form-row">
+          <fieldset className="form-section">
+            <legend>Vehicle details</legend>
+            <div className="form-row">
+              {(["make", "model"] as const).map((name) => (
+                <div className="field" key={name}>
+                  <label htmlFor={`vehicle-${name}`}>
+                    {name === "make" ? "Make" : "Model"}
+                  </label>
+                  <input
+                    id={`vehicle-${name}`}
+                    {...form.register(name, {
+                      required: "This field is required.",
+                      maxLength: 80,
+                    })}
+                    aria-invalid={!!form.formState.errors[name]}
+                    aria-describedby={
+                      form.formState.errors[name] ? `vehicle-${name}-error` : undefined
+                    }
+                  />
+                  <span className="field-error" id={`vehicle-${name}-error`}>
+                    {form.formState.errors[name]?.message}
+                  </span>
+                </div>
+              ))}
+            </div>
             <div className="field">
-              <label htmlFor="vehicle-registration">Registration (optional)</label>
+              <label htmlFor="vehicle-year">Year</label>
               <input
-                id="vehicle-registration"
-                maxLength={20}
-                {...form.register("registrationNumber", {
-                  validate: (value) =>
-                    !value ||
-                    /^[A-Z0-9][A-Z0-9 -]{1,19}$/i.test(value) ||
-                    "Use 2–20 letters, numbers, spaces or hyphens.",
+                id="vehicle-year"
+                type="number"
+                inputMode="numeric"
+                min={1886}
+                max={new Date().getFullYear() + 1}
+                aria-invalid={!!form.formState.errors.year}
+                aria-describedby={
+                  form.formState.errors.year ? "vehicle-year-error" : undefined
+                }
+                {...form.register("year", {
+                  valueAsNumber: true,
+                  required: "Enter the year.",
+                  min: { value: 1886, message: "Enter a valid year." },
+                  max: {
+                    value: new Date().getFullYear() + 1,
+                    message: "Enter a valid year.",
+                  },
                 })}
               />
-              <span className="field-error">
-                {form.formState.errors.registrationNumber?.message}
+              <span className="field-error" id="vehicle-year-error">
+                {form.formState.errors.year?.message}
+              </span>
+            </div>
+          </fieldset>
+          <fieldset className="form-section">
+            <legend>Additional details</legend>
+            <p>These details are optional and help our workshop identify your vehicle.</p>
+            <div className="form-row">
+              <div className="field">
+                <label htmlFor="vehicle-registration">Registration (optional)</label>
+                <input
+                  id="vehicle-registration"
+                  maxLength={20}
+                  aria-invalid={!!form.formState.errors.registrationNumber}
+                  aria-describedby={
+                    form.formState.errors.registrationNumber
+                      ? "vehicle-registration-error"
+                      : undefined
+                  }
+                  {...form.register("registrationNumber", {
+                    validate: (value) =>
+                      !value ||
+                      /^[A-Z0-9][A-Z0-9 -]{1,19}$/i.test(value) ||
+                      "Use 2–20 letters, numbers, spaces or hyphens.",
+                  })}
+                />
+                <span className="field-error" id="vehicle-registration-error">
+                  {form.formState.errors.registrationNumber?.message}
+                </span>
+              </div>
+              <div className="field">
+                <label htmlFor="vehicle-color">Colour (optional)</label>
+                <input id="vehicle-color" maxLength={50} {...form.register("color")} />
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="vehicle-vin">VIN (optional)</label>
+              <input
+                id="vehicle-vin"
+                maxLength={17}
+                aria-invalid={!!form.formState.errors.vin}
+                aria-describedby="vehicle-vin-hint vehicle-vin-error"
+                {...form.register("vin", {
+                  validate: (value) =>
+                    !value ||
+                    /^[A-HJ-NPR-Z0-9]{17}$/i.test(value) ||
+                    "Enter a 17-character VIN without I, O or Q.",
+                })}
+              />
+              <span className="field-hint" id="vehicle-vin-hint">
+                The 17-character vehicle identification number on your vehicle or
+                registration document.
+              </span>
+              <span className="field-error" id="vehicle-vin-error">
+                {form.formState.errors.vin?.message}
               </span>
             </div>
             <div className="field">
-              <label htmlFor="vehicle-color">Colour (optional)</label>
-              <input id="vehicle-color" maxLength={50} {...form.register("color")} />
+              <label htmlFor="vehicle-mileage">Mileage in km (optional)</label>
+              <input
+                id="vehicle-mileage"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={5000000}
+                aria-invalid={!!form.formState.errors.mileageKm}
+                aria-describedby={
+                  form.formState.errors.mileageKm ? "vehicle-mileage-error" : undefined
+                }
+                {...form.register("mileageKm", {
+                  validate: (value) =>
+                    !value ||
+                    (/^\d+$/.test(value) && Number(value) <= 5000000) ||
+                    "Enter a whole number from 0 to 5,000,000.",
+                })}
+              />
+              <span className="field-error" id="vehicle-mileage-error">
+                {form.formState.errors.mileageKm?.message}
+              </span>
             </div>
-          </div>
-          <div className="field">
-            <label htmlFor="vehicle-vin">VIN (optional)</label>
-            <input
-              id="vehicle-vin"
-              maxLength={17}
-              {...form.register("vin", {
-                validate: (value) =>
-                  !value ||
-                  /^[A-HJ-NPR-Z0-9]{17}$/i.test(value) ||
-                  "Enter a 17-character VIN without I, O or Q.",
-              })}
-            />
-            <span className="field-error">{form.formState.errors.vin?.message}</span>
-          </div>
-          <div className="field">
-            <label htmlFor="vehicle-mileage">Mileage in km (optional)</label>
-            <input
-              id="vehicle-mileage"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={5000000}
-              {...form.register("mileageKm", {
-                validate: (value) =>
-                  !value ||
-                  (/^\d+$/.test(value) && Number(value) <= 5000000) ||
-                  "Enter a whole number from 0 to 5,000,000.",
-              })}
-            />
-            <span className="field-error">
-              {form.formState.errors.mileageKm?.message}
-            </span>
-          </div>
+          </fieldset>
           <div className="actions">
             <button className="button" disabled={busy}>
               {busy ? "Saving…" : "Save vehicle"}

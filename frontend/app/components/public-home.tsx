@@ -1,20 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { business } from "@/lib/business";
-import { SiteHeader } from "./site-header";
-import { SiteFooter } from "./site-footer";
+import { coreServices } from "@/lib/equipment";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
-import { parseServices } from "@/lib/api/public-schemas";
 import { parseProducts } from "@/lib/api/commerce-schemas";
 import { parseListings } from "@/lib/api/vehicle-schemas";
-import { ServiceList } from "./service-list";
-import { HomePartsPreview, HomeVehiclesPreview } from "./home-catalogue-preview";
 import { parsePublicReviews } from "@/lib/api/review-schemas";
+import { SiteHeader } from "./site-header";
+import { SiteFooter } from "./site-footer";
+import { HomeHero } from "./home-hero";
+import { ServiceMarquee } from "./service-marquee";
+import { HomePartsPreview, HomeVehiclesPreview } from "./home-catalogue-preview";
 import { HomeReviewsPreview } from "./home-reviews-preview";
 
 export async function PublicHome() {
-  const [services, parts, vehicles, reviews] = await Promise.all([
-    loadPublicSeed("/public/services?limit=3", parseServices),
+  const [products, vehicles, reviews] = await Promise.all([
     loadPublicSeed("/public/catalog/products?limit=4", parseProducts),
     loadPublicSeed("/public/vehicles?limit=2", parseListings),
     loadPublicSeed("/public/support/reviews?limit=3", parsePublicReviews),
@@ -22,226 +23,194 @@ export async function PublicHome() {
   return (
     <>
       <SiteHeader />
-      <main id="main">
-        {/* 01 HERO */}
-        <section className="pt-24 pb-16 px-6 text-center md:text-left max-w-7xl mx-auto">
-          {/* <div className="max-w-4xl text-center md:text-left"> */}
-          <h1 className="font-display uppercase text-ink mb-8">
-            Precision vehicle care &{" "}
-            <span className="text-brand-red">automotive solutions</span>
-          </h1>
-          <p className="text-xl text-muted max-w-2xl mb-10">
-            Vehicle care with a clear next step. Explore services, plan your workshop
-            visit and stay connected with Allied AutoTech in Port Harcourt.
-          </p>
-          <div className="flex flex-wrap gap-4 mb-16">
-            <Link className="button" href="/services">
-              Book a Service
-            </Link>
-            <Link className="button secondary" href="/parts">
-              Explore Parts
-            </Link>
-            <Link className="button secondary" href="/vehicles">
-              View Vehicles
-            </Link>
+      <main id="main" className="public-site">
+        <HomeHero />
+        <ServiceMarquee />
+        <section className="public-wrap public-section">
+          <div className="section-heading">
+            <h2>Professional care. Every step of the way.</h2>
+            <p>
+              From everyday maintenance to finding your next vehicle, our team brings
+              practical expertise and clear communication to your journey.
+            </p>
           </div>
-          {/* </div> */}
-          <div className="w-full aspect-21/9 bg-surface rounded flex items-center justify-center border border-line">
-            <span className="text-muted font-mono text-sm uppercase tracking-widest">
-              Workshop photography coming soon
-            </span>
-          </div>
-        </section>
-
-        {/* 02 BRAND INTRODUCTION */}
-        <section className="bg-ink text-white py-24 px-6 text-center max-w-7xl mx-auto">
-          <p className="eyebrow on-dark mb-6">Allied AutoTech</p>
-          <h2 className="text-3xl md:text-4xl font-quicksand uppercase tracking-tight text-white/85! leading-tight mb-6">
-            Modern vehicle care built around precision, transparency and convenience.
-          </h2>
-          <p className="text-lg text-white/80">
-            Explore published services, review your quotations and follow your bookings
-            from your Allied AutoTech account.
-          </p>
-        </section>
-
-        {/* 03 EDITORIAL STORY COMPOSITION */}
-        <section className="py-24 px-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 gap-8 items-center">
-            <div className="space-y-6">
-              <h3 className="text-xl md:text-2xl font-display uppercase tracking-tight text-ink">
-                Engineering care you can see
-              </h3>
-              <p className="text-muted">
-                Review service details before booking. Your account brings quotations,
-                workshop progress and payment status together so you can see the next
-                step.
-              </p>
-            </div>
-            <div className="h-125 bg-surface rounded flex items-center justify-center border border-line">
-              <span className="text-muted font-mono text-sm uppercase">
-                Workshop image
-              </span>
-            </div>
-            <div className="bg-ink text-white p-8 rounded flex flex-col justify-between">
-              <p className="eyebrow on-dark mb-10">Workflow</p>
-              <ul className="space-y-4 text-sm opacity-80">
-                <li className="border-b border-white/20 pb-4">Digital Diagnostics</li>
-                <li className="border-b border-white/20 pb-4">Transparent Updates</li>
-                <li className="border-b border-white/20 pb-4">Precision Servicing</li>
-                <li>Digital Booking</li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* 04 TRUST STRIP */}
-        <section className="border-y border-line py-8 overflow-hidden bg-surface">
-          <div className="flex gap-16 px-6 font-mono uppercase text-sm tracking-widest text-muted justify-center whitespace-nowrap">
-            <span>Diagnostics</span>
-            <span>Vehicle Servicing</span>
-            <span>Parts Catalogue</span>
-            <span>Vehicle Marketplace</span>
-            <span>Inspections</span>
-            <span>Customer Care</span>
-          </div>
-        </section>
-
-        {/* 05 & 06 SERVICES */}
-        <section className="py-24 px-6 max-w-7xl mx-auto" id="services">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-16">
-            <div className="max-w-2xl relative">
-              <div className="absolute -left-6 top-2 w-2 h-16 bg-brand-red"></div>
-              <h2 className="public-section-title font-display uppercase text-ink">
-                Care built around your vehicle
-              </h2>
-            </div>
-            <Link className="text-link group flex items-center gap-2" href="/services">
-              View All Services{" "}
-              <ArrowRight
-                size={16}
-                className="group-hover:translate-x-1 transition-transform"
-              />
-            </Link>
-          </div>
-          <ServiceList preview initial={services} />
-        </section>
-
-        {/* 08 CUSTOMER GARAGE */}
-        <section className="py-24 bg-surface">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-              <p className="eyebrow mb-4">Digital Garage</p>
-              <h2 className="text-4xl md:text-5xl font-display uppercase tracking-tight text-ink mb-6">
-                Manage your vehicles effortlessly
-              </h2>
-              <p className="text-muted mb-8">
-                Keep your vehicle details, bookings and workshop records together in your
-                personal dashboard.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/dashboard/vehicles" className="button">
-                  View My Garage
-                </Link>
-                <Link href="/login" className="button secondary">
-                  Sign In
-                </Link>
-              </div>
-            </div>
-            <div className="aspect-square bg-white border border-line rounded flex items-center justify-center">
-              <span className="text-muted font-mono text-sm uppercase">
-                Your vehicles, organised in one place
-              </span>
-            </div>
-          </div>
-        </section>
-
-        {/* 09 PARTS MARKETPLACE */}
-        <section className="py-24 px-6 max-w-7xl mx-auto text-center">
-          <p className="eyebrow mb-4">Parts Catalogue</p>
-          <h2 className="public-section-title font-display uppercase text-ink mb-12">
-            Parts for the <span className="text-brand-red">road ahead</span>
-          </h2>
-          <HomePartsPreview initial={parts} />
-          <Link href="/parts" className="button secondary">
-            Explore Parts Catalogue
-          </Link>
-        </section>
-
-        {/* 10 VEHICLE MARKETPLACE */}
-        <section className="py-24 bg-marketplace-blue text-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <p className="eyebrow text-white/60! mb-4">Vehicle Marketplace</p>
-            <div className="flex flex-wrap justify-between items-end gap-8 mb-12">
-              <h2 className="public-section-title font-display uppercase">
-                Find your next vehicle
-              </h2>
-              <Link href="/vehicles" className="button secondary">
-                View Listings
+          <div className="core-services">
+            {coreServices.map((service) => (
+              <Link href={service.href} key={service.name}>
+                <h3>
+                  {service.name}
+                  <ArrowUpRight size={18} aria-hidden="true" />
+                </h3>
+                <p>{service.description}</p>
               </Link>
-            </div>
-            <HomeVehiclesPreview initial={vehicles} />
-          </div>
-        </section>
-
-        {/* 12 PROCESS */}
-        <section className="py-24 px-6 max-w-7xl mx-auto">
-          <h2 className="text-4xl font-display uppercase tracking-tight text-ink mb-16 text-center">
-            How It Works
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-            {[
-              "Choose a service",
-              "Select vehicle & schedule",
-              "Submit booking",
-              "Track progress",
-              "Receive updates",
-            ].map((step, i) => (
-              <div key={i} className="pt-4 border-t-2 border-ink">
-                <span className="block text-brand-red font-mono font-bold mb-2">
-                  0{i + 1}
-                </span>
-                <p className="font-bold text-ink">{step}</p>
-              </div>
             ))}
           </div>
         </section>
-
-        <HomeReviewsPreview initial={reviews} />
-
-        {/* 17 FINAL CTA & 15 LOCATION */}
-        <section className="py-24 bg-surface border-t border-line">
-          <div className="max-w-7xl mx-auto px-6 text-center">
-            <h2 className="public-section-title font-display uppercase text-ink mb-8">
-              Your vehicle deserves <br />
-              <span className="text-brand-red">precision care</span>
-            </h2>
-            <div className="flex flex-wrap justify-center gap-4 mb-16">
-              <Link href="/services" className="button">
-                Book a Service
-              </Link>
-              <Link href="/contact" className="button secondary">
-                Contact Customer Care
+        <section className="public-section public-surface">
+          <div className="public-wrap home-intro">
+            <div>
+              <h2>
+                Built around your vehicle.
+                <br />
+                Focused on your confidence.
+              </h2>
+              <p>
+                Allied AutoTech combines skilled technicians, modern diagnostic technology
+                and quality workmanship to help keep your vehicle safe, reliable and
+                road-ready.
+              </p>
+              <Link href="/about" className="text-link">
+                Discover our approach <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
             </div>
-
-            <div className="flex flex-col items-center pt-16 border-t border-line">
-              <MapPin size={30} className="text-brand-red mb-4" />
-              <h3 className="text-2xl font-display uppercase tracking-tight text-ink mb-2">
-                Allied AutoTech Hub
-              </h3>
-              <p className="text-muted mb-6">{business.address}</p>
+            <div className="home-values">
+              {[
+                [
+                  "Professional service",
+                  "Practical technical knowledge and care centred on your needs.",
+                ],
+                [
+                  "Clear communication",
+                  "Understand the work proposed and follow your booking and quotations.",
+                ],
+                [
+                  "Quality products",
+                  "Genuine parts and automotive essentials for dependable vehicle care.",
+                ],
+              ].map(([title, copy]) => (
+                <div key={title}>
+                  <h3>{title}</h3>
+                  <p>{copy}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="public-wrap public-section">
+          <div className="section-heading">
+            <h2>Modern equipment. Better understanding.</h2>
+            <p>
+              The right tools help us investigate the problem and make informed
+              recommendations.
+            </p>
+          </div>
+          <div className="equipment-preview">
+            {[
+              [
+                "3d-alignment",
+                "Wheel alignment",
+                "Precision checks for your vehicle’s alignment.",
+              ],
+              [
+                "injector-tester-cleaner",
+                "Fuel-system care",
+                "Equipment for injector testing and cleaning.",
+              ],
+              [
+                "thermal-camera",
+                "Temperature diagnostics",
+                "A closer look at heat patterns during diagnosis.",
+              ],
+            ].map(([slug, title, description]) => (
+              <figure key={slug}>
+                <div className="equipment-image">
+                  <Image
+                    src={`/images/equipment/${slug}.jpg`}
+                    alt={title}
+                    fill
+                    sizes="(max-width: 800px) 90vw, 360px"
+                  />
+                </div>
+                <figcaption>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <Link href="/about#equipment" className="text-link">
+            Explore our technology & equipment{" "}
+            <ArrowUpRight size={16} aria-hidden="true" />
+          </Link>
+        </section>
+        <section className="public-section public-surface">
+          <div className="public-wrap">
+            <div className="section-heading">
+              <h2>Shop automotive essentials</h2>
+              <p>
+                Explore the products currently published in our Shop. Check
+                specifications, compatibility and availability before ordering.
+              </p>
+            </div>
+            <HomePartsPreview initial={products} />
+            <Link className="button secondary" href="/parts">
+              Visit Shop
+            </Link>
+          </div>
+        </section>
+        <section className="public-section home-vehicles">
+          <div className="public-wrap">
+            <div className="section-heading">
+              <h2>Your next vehicle starts here.</h2>
+              <p>
+                View published listings, explore the details and enquire about an
+                inspection.
+              </p>
+            </div>
+            <HomeVehiclesPreview initial={vehicles} />
+            <Link className="button secondary" href="/vehicles">
+              Browse Vehicles
+            </Link>
+          </div>
+        </section>
+        <section className="public-wrap public-section">
+          <div className="section-heading">
+            <h2>A clear next step for your vehicle.</h2>
+          </div>
+          <ol className="booking-steps">
+            {[
+              [
+                "Explore services",
+                "Choose a service or tell our team what your vehicle needs.",
+              ],
+              [
+                "Send your request",
+                "Select an available appointment and add any useful notes.",
+              ],
+              [
+                "Receive confirmation",
+                "The workshop reviews availability. Follow confirmation and progress in your account.",
+              ],
+            ].map(([title, description], index) => (
+              <li key={title}>
+                <span aria-hidden="true">0{index + 1}</span>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </li>
+            ))}
+          </ol>
+          <Link href="/services" className="button">
+            Book a Service
+          </Link>
+        </section>
+        <HomeReviewsPreview initial={reviews} />
+        <section className="public-section public-surface">
+          <div className="public-wrap contact-band">
+            <div>
+              <h2>Need help with your vehicle?</h2>
+              <p>Visit us at {business.address}.</p>
+            </div>
+            <div className="actions">
+              <Link className="button" href="/contact">
+                Contact Us
+              </Link>
               <a
-                className="text-link group flex items-center gap-2"
-                href={business.directions}
+                href={business.whatsapp}
+                className="button secondary"
                 target="_blank"
                 rel="noreferrer"
               >
-                Get Directions{" "}
-                <ArrowRight
-                  size={16}
-                  className="group-hover:translate-x-1 transition-transform"
-                />
+                WhatsApp
               </a>
             </div>
           </div>

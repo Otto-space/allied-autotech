@@ -3,6 +3,7 @@ import { createHmac, randomBytes } from "node:crypto";
 import { env } from "../../config/env.js";
 
 export type TokenPurpose =
+  | "rate-limit"
   | "session"
   | "csrf"
   | "email-verification"

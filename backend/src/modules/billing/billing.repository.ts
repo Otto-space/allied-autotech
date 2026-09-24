@@ -126,6 +126,7 @@ export class BillingRepository {
         status: true,
         currency: true,
         totalKobo: true,
+        taxKobo: true,
         invoice: { select: { id: true } },
       },
     });

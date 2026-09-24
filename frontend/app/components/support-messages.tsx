@@ -12,12 +12,16 @@ export function SupportMessages({
   staff,
   disabled,
   onSaved,
+  refreshKey,
+  onUncertain,
 }: {
   record: SupportRecord;
   base: string;
   staff: boolean;
   disabled: boolean;
   onSaved: () => void;
+  refreshKey?: number;
+  onUncertain: () => void;
 }) {
   const pagination = useCursorPage();
   const parse = useCallback(
@@ -32,6 +36,8 @@ export function SupportMessages({
   const messages = useResource(
     `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
     parse,
+    undefined,
+    { refreshKey },
   );
   return (
     <>
@@ -93,6 +99,7 @@ export function SupportMessages({
         record={record}
         staff={staff}
         base={base}
+        onUncertain={onUncertain}
         disabled={disabled || messages.loading || !!messages.error}
         onSaved={() => {
           messages.refresh();

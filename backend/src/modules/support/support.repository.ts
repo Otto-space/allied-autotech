@@ -48,6 +48,9 @@ const enquiryBaseSelect = {
 } satisfies Prisma.EnquirySelect;
 
 const complaintBaseSelect = {
+  acknowledgedAt: true,
+  acknowledgementDueAt: true,
+  escalatedAt: true,
   id: true,
   branchId: true,
   bookingId: true,

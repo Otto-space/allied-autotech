@@ -15,9 +15,11 @@ export interface EnqueueNotification {
   resourceId?: string;
   channels?: readonly Exclude<NotificationChannel, "IN_APP">[];
   expiresAt?: Date;
+  bookingAction?: { url: string; bookingId: string; scheduleVersion: number } | undefined;
 }
 
 export interface NotificationDeliveryPayload {
+  bookingAction?: { url: string; bookingId: string; scheduleVersion: number } | undefined;
   channel: "EMAIL" | "SMS";
   recipient: string;
   title: string;

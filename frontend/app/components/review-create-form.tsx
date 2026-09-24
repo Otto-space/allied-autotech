@@ -118,8 +118,8 @@ export function ReviewCreateForm({ onSaved }: { onSaved: () => void }) {
         Share your experience with a 1–5 rating. Reviews are moderated before public
         display.
       </p>
-      <Feedback message={error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={error} toast="Please review the message on this page." />
+      <Feedback message={message} tone="success" toast="Review submitted." />
       {uncertain && (
         <p role="status" className="notice">
           Your submission has an unknown outcome. Check Your submissions before starting

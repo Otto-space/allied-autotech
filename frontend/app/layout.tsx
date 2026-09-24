@@ -5,8 +5,12 @@ import { Quicksand } from "next/font/google";
 
 import "./globals.css";
 import "./overview.css";
+import "./public-site.css";
+import "./feedback.css";
+import "./dashboard-forms.css";
 
 import { SupportWidget } from "./components/support-widget";
+import { ToastRegion } from "./components/toast-region";
 
 const quicksand = Quicksand({
   variable: "--font-quicksand",
@@ -34,6 +38,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         {children}
         <SupportWidget />
+        <ToastRegion />
       </body>
     </html>
   );

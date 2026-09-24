@@ -1,3 +1,5 @@
+import { OperationalAlertsWorker } from "./operational-alerts.worker.js";
+import { RefundWorker } from "./refund.worker.js";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { logger } from "../common/observability/logger.js";
@@ -16,24 +18,37 @@ type Work = () => Promise<unknown>;
 
 async function safely(name: string, work: Work): Promise<void> {
   try {
+    await prisma.workerHeartbeat.upsert({
+      where: { name },
+      update: { lastStartedAt: new Date() },
+      create: { name, lastStartedAt: new Date() },
+    });
     await work();
+    await prisma.workerHeartbeat.update({
+      where: { name },
+      data: { lastSucceededAt: new Date(), errorCode: null },
+    });
   } catch (error: unknown) {
     logger.error({ ...safeErrorAttributes(error), worker: name }, "Worker task failed");
+    await prisma.workerHeartbeat
+      .updateMany({
+        where: { name },
+        data: { lastFailedAt: new Date(), errorCode: "WORKER_TASK_FAILED" },
+      })
+      .catch(() => undefined);
   }
 }
 
 function wait(milliseconds: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolveWait) => {
     if (signal.aborted) return resolveWait();
-    const timer = setTimeout(resolveWait, milliseconds);
-    signal.addEventListener(
-      "abort",
-      () => {
-        clearTimeout(timer);
-        resolveWait();
-      },
-      { once: true },
-    );
+    const finish = () => {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", finish);
+      resolveWait();
+    };
+    const timer = setTimeout(finish, milliseconds);
+    signal.addEventListener("abort", finish, { once: true });
   });
 }
 
@@ -47,6 +62,8 @@ export async function runGeneralWorker(): Promise<void> {
   const expiration = new ExpirationWorker();
   const bookingReminders = new BookingReminderWorker();
   const reconciliation = new PaymentReconciliationWorker();
+  const refunds = new RefundWorker();
+  const operationalAlerts = new OperationalAlertsWorker();
   const stop = new AbortController();
   const stopOnce = () => stop.abort();
   process.once("SIGINT", stopOnce);
@@ -72,9 +89,11 @@ export async function runGeneralWorker(): Promise<void> {
       await safely("booking-reminders", () =>
         bookingReminders.runOnce(env.WORKER_BATCH_SIZE),
       );
+      await safely("refunds", () => refunds.runOnce(env.WORKER_BATCH_SIZE));
       const now = Date.now();
       if (now >= nextExpirationAt) {
         await safely("expiration", () => expiration.runOnce(env.WORKER_BATCH_SIZE));
+        await safely("operational-alerts", () => operationalAlerts.runOnce());
         nextExpirationAt = now + env.EXPIRATION_INTERVAL_MS;
       }
       if (env.PAYMENT_RECONCILIATION_ENABLED && now >= nextReconciliationAt) {

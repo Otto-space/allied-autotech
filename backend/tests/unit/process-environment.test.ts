@@ -29,6 +29,7 @@ const configuredApiVariables = {
 const productionApi = {
   ...env,
   NODE_ENV: "production" as const,
+  DEPLOYMENT_ENV: "production" as const,
   FRONTEND_URL: ["https://app.example.test"],
   TOKEN_HASH_KEY: Buffer.alloc(32, 21).toString("base64"),
   MFA_ENCRYPTION_KEY: Buffer.alloc(32, 22).toString("base64"),

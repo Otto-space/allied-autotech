@@ -45,6 +45,14 @@ describe("private API handover contract", () => {
         expect(success, String(id)).toBeDefined();
         const response = success?.[1] as JsonObject;
         const content = response["content"] as JsonObject;
+        if (content["text/html"]) {
+          expect(path).toBe("/public/booking-response");
+          const html = content["text/html"] as JsonObject;
+          expect(html["schema"]).toMatchObject({ type: "string" });
+          expect(html["example"]).toEqual(expect.any(String));
+          expect(operation["description"]).toContain("GET never mutates");
+          continue;
+        }
         const media = content["application/json"] as JsonObject;
         const schema = media["schema"] as JsonObject;
         const properties = schema["properties"] as JsonObject;
@@ -60,7 +68,7 @@ describe("private API handover contract", () => {
     const handbookOperations = handbook.match(
       /^### (?:GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) `/gmu,
     );
-    expect(operationCount).toBe(231);
+    expect(operationCount).toBe(268);
     expect(handbookOperations).toHaveLength(operationCount);
     expect(handbook).toContain("Never do this client-side");
     expect(handbook).toContain("Provider signature plus authoritative verification");

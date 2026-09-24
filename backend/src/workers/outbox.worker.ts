@@ -3,7 +3,7 @@ import { pathToFileURL } from "node:url";
 
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { prisma } from "../config/database.js";
-import { assertIdentityWorkerEnvironment } from "../config/env.js";
+import { assertIdentityWorkerEnvironment, env } from "../config/env.js";
 import {
   decryptIdentityPayload,
   type EncryptedEnvelope,
@@ -41,11 +41,12 @@ function readEnvelope(payload: unknown): EncryptedEnvelope {
 
 export class IdentityOutboxWorker {
   constructor(
-    private readonly provider: EmailProvider,
+    private readonly provider: EmailProvider | null,
     private readonly database: PrismaClient = prisma,
   ) {}
 
   async runOnce(batchSize = 20): Promise<number> {
+    if (!this.provider) return 0;
     const boundedBatchSize = Math.max(1, Math.min(batchSize, 100));
     const events = await this.database.$queryRaw<ClaimedEvent[]>`
       WITH candidates AS (
@@ -133,6 +134,7 @@ export class IdentityOutboxWorker {
       if (!isStagingRecipientAllowed("EMAIL", payload.to)) {
         throw new Error("Staging identity recipient is not allowlisted");
       }
+      if (!this.provider) throw new Error("Identity delivery is disabled");
       await this.provider.send({
         to: payload.to,
         ...rendered,
@@ -176,15 +178,13 @@ export class IdentityOutboxWorker {
 function wait(milliseconds: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolveWait) => {
     if (signal.aborted) return resolveWait();
-    const timer = setTimeout(resolveWait, milliseconds);
-    signal.addEventListener(
-      "abort",
-      () => {
-        clearTimeout(timer);
-        resolveWait();
-      },
-      { once: true },
-    );
+    const finish = () => {
+      clearTimeout(timer);
+      signal.removeEventListener("abort", finish);
+      resolveWait();
+    };
+    const timer = setTimeout(finish, milliseconds);
+    signal.addEventListener("abort", finish, { once: true });
   });
 }
 
@@ -200,7 +200,9 @@ export function identityWorkerBackoff(
 
 async function runIdentityWorker(): Promise<void> {
   assertIdentityWorkerEnvironment();
-  const worker = new IdentityOutboxWorker(new ResendEmailProvider());
+  const worker = new IdentityOutboxWorker(
+    env.EMAIL_DELIVERY_ENABLED ? new ResendEmailProvider() : null,
+  );
   const stop = new AbortController();
   const stopOnce = () => stop.abort();
   process.once("SIGTERM", stopOnce);
@@ -212,11 +214,26 @@ async function runIdentityWorker(): Promise<void> {
     while (!stop.signal.aborted) {
       try {
         await prisma.$connect();
+        await prisma.workerHeartbeat.upsert({
+          where: { name: "identity-outbox" },
+          update: { lastStartedAt: new Date() },
+          create: { name: "identity-outbox", lastStartedAt: new Date() },
+        });
         const count = await worker.runOnce();
         await worker.cleanupExpiredIdentityState();
+        await prisma.workerHeartbeat.update({
+          where: { name: "identity-outbox" },
+          data: { lastSucceededAt: new Date(), errorCode: null },
+        });
         consecutiveFailures = 0;
         if (count === 0) await wait(2_000, stop.signal);
       } catch (error: unknown) {
+        await prisma.workerHeartbeat
+          .updateMany({
+            where: { name: "identity-outbox" },
+            data: { lastFailedAt: new Date(), errorCode: "WORKER_TASK_FAILED" },
+          })
+          .catch(() => undefined);
         consecutiveFailures += 1;
         const retryInMilliseconds = identityWorkerBackoff(consecutiveFailures);
         logger.error(

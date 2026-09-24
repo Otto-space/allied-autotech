@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { supportService } from "./support.service.js";
+import { successResponse } from "../../common/http/api-response.js";
 import { Router } from "express";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import {
@@ -265,6 +268,29 @@ export function createStaffSupportRouter(): Router {
       query: supportEmptyQuerySchema,
     }),
     controller.moderateReview,
+  );
+  router.post(
+    "/complaints/:supportId/acknowledge",
+    requireCsrf,
+    validate({
+      params: supportIdParamsSchema,
+      body: z.object({ message: z.string().trim().min(10).max(2000) }).strict(),
+    }),
+    async (req, res) => {
+      const id = (res.locals.validated!["params"] as { supportId: string }).supportId;
+      const input = res.locals.validated!["body"] as { message: string };
+      res.json(
+        successResponse(
+          "Complaint acknowledged",
+          req.id,
+          await supportService.acknowledgeComplaint(req.actor!, id, input.message, {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          }),
+        ),
+      );
+    },
   );
   return router;
 }

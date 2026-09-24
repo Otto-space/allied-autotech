@@ -113,7 +113,11 @@ export function ProductExtrasEditor({
         and category are active.
       </p>
       <Feedback message={records.error} />
-      <Feedback message={message} tone="info" />
+      <Feedback
+        message={message}
+        tone="info"
+        toast="Product update received. Review the details."
+      />
       {uncertain && (
         <p className="notice" role="status">
           The previous change could not be confirmed. Refresh and reconcile this part’s

@@ -59,6 +59,7 @@ async function fixture(
       });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-staff-csrf-".repeat(4) });
+    if (endpoint === "/admin/capabilities") return reply(route, []);
     if (endpoint === "/admin/branches") {
       const next = new URL(route.request().url()).searchParams.has("cursor");
       return reply(route, {
@@ -74,6 +75,255 @@ async function fixture(
 }
 const confirm = (page: Page) =>
   page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
+
+test("Super Admin can grant and revoke a narrow duty on their own protected account", async ({
+  page,
+}) => {
+  const runtimeErrors: string[] = [];
+  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  page.on("console", (message) => {
+    if (["error", "warning"].includes(message.type())) runtimeErrors.push(message.text());
+  });
+  const member = { ...memberFixture(), id: id(11), role: "SUPER_ADMIN" };
+  const grants: {
+    id: string;
+    userId: string;
+    capability: string;
+    grantedByUserId: string;
+    grantedAt: string;
+    revokedAt: string | null;
+  }[] = [];
+  const writes: unknown[] = [];
+  await fixture(
+    page,
+    async (route, endpoint) => {
+      if (endpoint === `/admin/staff/${id(11)}`) {
+        await reply(route, member);
+        return true;
+      }
+      if (endpoint === "/admin/capabilities") {
+        const url = new URL(route.request().url());
+        if (route.request().method() === "GET") {
+          expect(url.searchParams.get("userId")).toBe(member.id);
+          await reply(
+            route,
+            url.searchParams.get("activeOnly") === "true"
+              ? grants.filter((grant) => !grant.revokedAt)
+              : grants,
+          );
+        } else {
+          writes.push(route.request().postDataJSON());
+          grants.push({
+            id: id(70),
+            userId: member.id,
+            capability: "BOOKING_CONFIRM",
+            grantedByUserId: id(11),
+            grantedAt: time,
+            revokedAt: null,
+          });
+          await reply(route, grants[0]);
+        }
+        return true;
+      }
+      if (endpoint === `/admin/capabilities/${id(70)}/revoke`) {
+        writes.push(route.request().postDataJSON());
+        grants[0].revokedAt = time;
+        await reply(route, { id: id(70), revoked: true });
+        return true;
+      }
+    },
+    "SUPER_ADMIN",
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/admin/staff/${member.id}`);
+  await expect(page).toHaveTitle(/Staff account/);
+  const permissions = page.getByRole("region", { name: "Operational permissions" });
+  await expect(permissions.getByText("No active operational permissions.")).toBeVisible();
+  await permissions.getByLabel("Permission to grant").selectOption("BOOKING_CONFIRM");
+  await permissions.getByRole("button", { name: "Review permission grant" }).click();
+  await expect(page.getByRole("dialog").getByText(member.email)).toBeVisible();
+  expect(writes).toEqual([]);
+  await confirm(page).click();
+  const revoke = permissions.getByRole("button", {
+    name: "Revoke confirm workshop bookings",
+  });
+  await expect(revoke).toBeEnabled();
+  await permissions.screenshot({
+    path: path.join(os.tmpdir(), "allied-permissions-active-390.png"),
+  });
+  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await revoke.click();
+  await permissions
+    .getByLabel("Reason for removal")
+    .fill("Workshop confirmation duty reassigned.");
+  await permissions.getByRole("button", { name: "Review permission removal" }).click();
+  await expect(
+    page.getByRole("dialog").getByText("Workshop confirmation duty reassigned."),
+  ).toBeVisible();
+  await confirm(page).click();
+  await expect(permissions.getByText("No active operational permissions.")).toBeVisible();
+  expect(writes).toEqual([
+    { userId: member.id, capability: "BOOKING_CONFIRM" },
+    { reason: "Workshop confirmation duty reassigned." },
+  ]);
+  await expect(
+    permissions
+      .getByLabel("Permission to grant")
+      .locator('option[value="BOOKING_CONFIRM"]'),
+  ).toHaveCount(1);
+  await permissions.getByText("Recent permission history", { exact: true }).click();
+  await expect(permissions.locator("details")).toContainText("revoked");
+  await page.getByRole("button", { name: "Dismiss notification" }).click();
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-permissions-390-viewport.png"),
+  });
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-permissions-390.png"),
+    fullPage: true,
+  });
+  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-permissions-1440-viewport.png"),
+  });
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-permissions-1440.png"),
+    fullPage: true,
+  });
+  expect(runtimeErrors).toEqual([]);
+});
+
+test("administrator cannot read or grant operational permissions", async ({ page }) => {
+  let permissionReads = 0;
+  await fixture(page, async (route, endpoint) => {
+    if (endpoint === `/admin/staff/${id(1)}`) {
+      await reply(route, memberFixture());
+      return true;
+    }
+    if (endpoint.startsWith("/admin/capabilities")) {
+      permissionReads++;
+      await reply(route, []);
+      return true;
+    }
+  });
+  await page.goto(`/admin/staff/${id(1)}`);
+  await expect(page.getByRole("heading", { name: "Test Member" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Operational permissions" })).toHaveCount(
+    0,
+  );
+  expect(permissionReads).toBe(0);
+});
+
+for (const outcome of ["interrupted", "mismatched"] as const)
+  test(`a ${outcome} permission grant cannot be repeated after closing its review`, async ({
+    page,
+  }) => {
+    let writes = 0;
+    await fixture(
+      page,
+      async (route, endpoint) => {
+        if (endpoint === `/admin/staff/${id(1)}`) {
+          await reply(route, memberFixture());
+          return true;
+        }
+        if (endpoint === "/admin/capabilities" && route.request().method() === "POST") {
+          writes++;
+          if (outcome === "interrupted") await route.abort("failed");
+          else
+            await reply(route, {
+              id: id(70),
+              userId: id(99),
+              capability: "BOOKING_CONFIRM",
+              grantedByUserId: id(11),
+              grantedAt: time,
+              revokedAt: null,
+            });
+          return true;
+        }
+      },
+      "SUPER_ADMIN",
+    );
+    await page.goto(`/admin/staff/${id(1)}`);
+    await page.getByLabel("Permission to grant").selectOption("BOOKING_CONFIRM");
+    await page.getByRole("button", { name: "Review permission grant" }).click();
+    await confirm(page).click();
+    await expect(confirm(page)).toBeDisabled();
+    await page.getByRole("button", { name: "Close & review record" }).click();
+    await expect(
+      page.getByRole("button", { name: "Review permission grant" }),
+    ).toBeDisabled();
+    expect(writes).toBe(1);
+  });
+
+test("a mismatched revocation response cannot report success or be repeated", async ({
+  page,
+}) => {
+  let writes = 0;
+  await fixture(
+    page,
+    async (route, endpoint) => {
+      if (endpoint === `/admin/staff/${id(1)}`) {
+        await reply(route, memberFixture());
+        return true;
+      }
+      if (endpoint === "/admin/capabilities") {
+        await reply(route, [
+          {
+            id: id(70),
+            userId: id(1),
+            capability: "BOOKING_CONFIRM",
+            grantedByUserId: id(11),
+            grantedAt: time,
+            revokedAt: null,
+          },
+        ]);
+        return true;
+      }
+      if (endpoint === `/admin/capabilities/${id(70)}/revoke`) {
+        writes++;
+        await reply(route, { id: id(99), revoked: true });
+        return true;
+      }
+    },
+    "SUPER_ADMIN",
+  );
+  await page.goto(`/admin/staff/${id(1)}`);
+  await page.getByRole("button", { name: "Revoke confirm workshop bookings" }).click();
+  await page.getByLabel("Reason for removal").fill("Booking duty has been reassigned.");
+  await page.getByRole("button", { name: "Review permission removal" }).click();
+  await confirm(page).click();
+  await expect(
+    page.getByRole("dialog").getByText(/outcome could not be confirmed/),
+  ).toBeVisible();
+  await expect(confirm(page)).toBeDisabled();
+  await expect(
+    page.getByText("Permission change recorded.", { exact: true }),
+  ).toHaveCount(0);
+  expect(writes).toBe(1);
+});
 for (const route of ["/admin/staff", `/admin/staff/${id(1)}`, "/admin/staff/invite"])
   test(`staff cannot enter ${route} or read administrator records`, async ({ page }) => {
     const reads: string[] = [];
@@ -164,7 +414,9 @@ test("administrator cannot manage self, peers or super-administrators", async ({
   ]) {
     target = value;
     await page.goto(`/admin/staff/${target.id}`);
-    await expect(page.getByText(/This account is read-only here/)).toBeVisible();
+    await expect(
+      page.getByText(/Role, status and branch changes are unavailable/),
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: "Review account change" })).toHaveCount(
       0,
     );

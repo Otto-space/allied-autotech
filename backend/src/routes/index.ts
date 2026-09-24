@@ -1,3 +1,8 @@
+import { createOrderAftercareRouter } from "../modules/orders/order-aftercare.routes.js";
+import { createPrivacyRouter } from "../modules/policies/privacy.routes.js";
+import { createBookingActionsRouter } from "../modules/service-operations/booking-actions.routes.js";
+import { createPoliciesRouter } from "../modules/policies/policies.routes.js";
+import { createManualRefundsRouter } from "../modules/payments/manual-refunds.routes.js";
 import { Router } from "express";
 
 import { publicApiPaths } from "../common/contracts/public-api.js";
@@ -80,8 +85,16 @@ export interface ApiRouterOptions {
   checkReadiness: ReadinessCheck;
 }
 
+import { createDisputesRouter } from "../modules/payments/disputes.routes.js";
+
 export function createApiRouter(options: ApiRouterOptions): Router {
   const apiRouter = Router();
+  apiRouter.use(createPoliciesRouter());
+  apiRouter.use(createPrivacyRouter());
+  apiRouter.use(createOrderAftercareRouter());
+  apiRouter.use("/public/booking-response", createBookingActionsRouter());
+  apiRouter.use("/staff/refunds", createManualRefundsRouter());
+  apiRouter.use("/staff/disputes", createDisputesRouter());
 
   apiRouter.use("/health", createHealthRouter(options.checkReadiness));
   apiRouter.use("/auth", createIdentityRouter());

@@ -80,7 +80,7 @@ export function StaffReviews() {
         Refresh moderation queue
       </button>
       <Feedback message={records.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Review decision saved." />
       {records.loading && <p role="status">Checking review submissions…</p>}
       {uncertain.length > 0 && (
         <p className="notice" role="status">

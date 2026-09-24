@@ -1,4 +1,5 @@
 "use client";
+import { OrderDeliveryDetails } from "./order-delivery-details";
 import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
@@ -35,7 +36,7 @@ export function StaffOrderDetail({ orderId }: { orderId: string }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
   const [validation, setValidation] = useState<string>();
-  const current = order.data;
+  const current = !order.error && order.data?.id === orderId ? order.data : undefined;
   function review(form: FormData) {
     setValidation(undefined);
     if (!current || order.error || order.loading) return;
@@ -88,7 +89,7 @@ export function StaffOrderDetail({ orderId }: { orderId: string }) {
       <h1>Manage order</h1>
       <Feedback message={order.error} />
       <Feedback message={validation} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Order change recorded." />
       <button
         className="button secondary"
         disabled={order.loading}
@@ -101,6 +102,11 @@ export function StaffOrderDetail({ orderId }: { orderId: string }) {
         <>
           <section className="detail-section">
             <h2>{current.orderNumber}</h2>
+            <p>
+              <Link className="text-link" href={`/admin/orders/${orderId}/aftercare`}>
+                Returns, cancellation review and fulfillment evidence
+              </Link>
+            </p>
             <span className="status">{current.status}</span>
             <p>
               {current.branch.name} · {current.fulfillmentMethod}
@@ -109,6 +115,7 @@ export function StaffOrderDetail({ orderId }: { orderId: string }) {
               {current.customerName} · {current.customerEmail}
             </p>
             {current.customerPhone && <p>{current.customerPhone}</p>}
+            <OrderDeliveryDetails order={current} />
             <p>
               {current.paidAt
                 ? `Payment recorded ${formatBusinessDate(current.paidAt)}`
@@ -129,7 +136,7 @@ export function StaffOrderDetail({ orderId }: { orderId: string }) {
               <table>
                 <thead>
                   <tr>
-                    <th>Part</th>
+                    <th>Product</th>
                     <th>Quantity</th>
                     <th>Unit price</th>
                     <th>Line subtotal</th>
@@ -151,7 +158,7 @@ export function StaffOrderDetail({ orderId }: { orderId: string }) {
               </table>
             </div>
             <dl className="totals">
-              <dt>Parts subtotal</dt>
+              <dt>Products subtotal</dt>
               <dd>{formatKobo(current.subtotalKobo)}</dd>
               <dt>Discount</dt>
               <dd>{formatKobo(current.discountAmountKobo)}</dd>

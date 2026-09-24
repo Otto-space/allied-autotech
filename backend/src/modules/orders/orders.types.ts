@@ -13,9 +13,13 @@ export function jsonSafe(value: unknown): unknown {
   if (typeof value === "bigint") return value.toString();
   if (value instanceof Date) return value;
   if (Array.isArray(value)) return value.map(jsonSafe);
-  if (value !== null && typeof value === "object")
-    return Object.fromEntries(
+  if (value !== null && typeof value === "object") {
+    const result = Object.fromEntries(
       Object.entries(value).map(([key, child]) => [key, jsonSafe(child)]),
     );
+    if ("orderNumber" in result && "paymentDueAt" in result)
+      result["expiresAt"] = result["paymentDueAt"];
+    return result;
+  }
   return value;
 }

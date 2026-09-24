@@ -37,6 +37,71 @@ async function changed(page: Page) {
   });
 }
 
+for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
+  test(`sign-in uses the ${role} response role and retains its success notification`, async ({
+    page,
+  }) => {
+    await page.route("**/api/v1/**", (route) => {
+      const pathname = new URL(route.request().url()).pathname;
+      let data: unknown = { items: [] };
+      if (pathname.endsWith("/auth/login"))
+        data = { user: session(role).user, mfaRequired: false };
+      else if (pathname.endsWith("/auth/csrf"))
+        data = { csrfToken: "synthetic-csrf-token-".repeat(3) };
+      else if (pathname.endsWith("/auth/session")) data = session(role);
+      else if (pathname.endsWith("/overview")) data = overviewFixture(role);
+      else if (pathname.endsWith("/operations/status"))
+        data = { queues: [], openPaymentAnomalies: 0, lastReconciliation: null };
+      return route.fulfill({
+        json: {
+          success: true,
+          message: "Isolated sign-in response",
+          data,
+          meta: { requestId: "login-role-test" },
+        },
+      });
+    });
+    await page.goto("/login");
+    await page.getByLabel("Email address").fill("role@example.test");
+    await page.getByLabel("Password", { exact: true }).fill("synthetic-password");
+    await page.getByRole("button", { name: "Sign in securely" }).click();
+    await expect(page).toHaveURL(
+      new RegExp(role === "CUSTOMER" ? "/dashboard$" : "/admin$"),
+    );
+    await expect(
+      page.getByRole("region", { name: "Notifications", exact: true }),
+    ).toContainText("Signed in successfully.");
+  });
+}
+
+test("sign-in defers dashboard access when its response requires MFA", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/**", (route) => {
+    const pathname = new URL(route.request().url()).pathname;
+    const data = pathname.endsWith("/auth/login")
+      ? { user: session("ADMIN").user, mfaRequired: true }
+      : pathname.endsWith("/auth/csrf")
+        ? { csrfToken: "synthetic-csrf-token-".repeat(3) }
+        : pathname.endsWith("/auth/session")
+          ? { ...session("ADMIN"), mfaVerifiedAt: null }
+          : { items: [] };
+    return route.fulfill({
+      json: {
+        success: true,
+        message: "Isolated MFA requirement",
+        data,
+        meta: { requestId: "login-mfa-test" },
+      },
+    });
+  });
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill("admin@example.test");
+  await page.getByLabel("Password", { exact: true }).fill("synthetic-password");
+  await page.getByRole("button", { name: "Sign in securely" }).click();
+  await expect(page).toHaveURL(/\/mfa$/);
+});
+
 for (const role of [null, "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
   for (const width of [390, 1440])
     test(`${role ?? "anonymous"} public header routes its account link at ${width}px`, async ({
@@ -84,13 +149,12 @@ for (const role of [null, "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
       await expect.poll(() => probes).toBe(1);
       if (width === 390)
         await page.getByRole("button", { name: "Open navigation", exact: true }).click();
-      const nav = page.getByRole("navigation", {
-        name: width === 390 ? "Mobile navigation" : "Primary navigation",
-        exact: true,
-      });
+      const nav =
+        width === 390
+          ? page.getByRole("dialog", { name: "Mobile navigation" })
+          : page.getByRole("banner");
       const link = nav.getByRole("link", {
-        name: role ? "Dashboard" : "Sign in",
-        exact: true,
+        name: role ? /Dashboard/ : /Sign In/,
       });
       const destination = !role
         ? "/login"
@@ -100,7 +164,7 @@ for (const role of [null, "CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"])
       await expect(link).toHaveAttribute("href", destination);
       if (role)
         await expect(
-          nav.getByRole("link", { name: "Create account", exact: true }),
+          nav.getByRole("link", { name: "Create an account", exact: true }),
         ).toHaveCount(0);
       await page.screenshot({
         path: path.join(os.tmpdir(), `allied-header-${role ?? "anonymous"}-${width}.png`),
@@ -121,7 +185,7 @@ test("public header refreshes role and sign-out across tabs without a probing lo
     await reply(route, role);
   });
   await page.goto("/help");
-  const nav = page.getByRole("navigation", { name: "Primary navigation", exact: true });
+  const nav = page.getByRole("banner");
   await expect(nav.getByRole("link", { name: "Dashboard", exact: true })).toHaveAttribute(
     "href",
     "/dashboard",
@@ -134,7 +198,7 @@ test("public header refreshes role and sign-out across tabs without a probing lo
   );
   role = null;
   await changed(page);
-  await expect(nav.getByRole("link", { name: "Sign in", exact: true })).toBeVisible();
+  await expect(nav.getByRole("link", { name: "Sign In", exact: true })).toBeVisible();
   await expect.poll(() => probes).toBe(3);
   await page.getByLabel("Search help topics").fill("booking");
   expect(probes).toBe(3);
@@ -165,9 +229,7 @@ test("an anonymous session check does not clear an in-progress public draft", as
   );
   await expect(page.getByLabel("Your question")).toHaveValue("Where is the workshop?");
   await expect(
-    page
-      .getByRole("navigation", { name: "Primary navigation", exact: true })
-      .getByRole("link", { name: "Sign in", exact: true }),
+    page.getByRole("banner").getByRole("link", { name: "Sign In", exact: true }),
   ).toBeVisible();
 });
 
@@ -186,7 +248,7 @@ test("a privileged dashboard link still requires the existing MFA gate", async (
   );
   await page.goto("/help");
   await page
-    .getByRole("navigation", { name: "Primary navigation", exact: true })
+    .getByRole("banner")
     .getByRole("link", { name: "Dashboard", exact: true })
     .click();
   await expect(page).toHaveURL(/\/mfa$/);
@@ -211,7 +273,7 @@ test("late session responses cannot restore a previous role after account switch
   await expect.poll(() => probes).toBe(1);
   await changed(page);
   const link = page
-    .getByRole("navigation", { name: "Primary navigation", exact: true })
+    .getByRole("banner")
     .getByRole("link", { name: "Dashboard", exact: true });
   await expect(link).toHaveAttribute("href", "/dashboard");
   release();

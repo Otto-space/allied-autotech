@@ -11,7 +11,11 @@ export interface EncryptedEnvelope {
 }
 
 type EncryptionPurpose =
-  "totp-secret" | "identity-outbox" | "notification-outbox" | "payment-checkout";
+  | "totp-secret"
+  | "identity-outbox"
+  | "notification-outbox"
+  | "payment-checkout"
+  | "refund-beneficiary";
 
 function deriveKey(keyMaterial: string, purpose: EncryptionPurpose): Buffer {
   return Buffer.from(
@@ -155,4 +159,24 @@ export function serializeEncryptedEnvelope(
 
 export function parseEncryptedEnvelope(value: Uint8Array): EncryptedEnvelope {
   return JSON.parse(Buffer.from(value).toString("utf8")) as EncryptedEnvelope;
+}
+
+export function encryptRefundBeneficiary(payload: unknown): EncryptedEnvelope {
+  return encrypt(
+    JSON.stringify(payload),
+    "refund-beneficiary",
+    env.OUTBOX_ENCRYPTION_KEY,
+    env.OUTBOX_ENCRYPTION_KEY_ID,
+  );
+}
+
+export function decryptRefundBeneficiary(envelope: EncryptedEnvelope): unknown {
+  return JSON.parse(
+    decrypt(
+      envelope,
+      "refund-beneficiary",
+      env.OUTBOX_ENCRYPTION_KEY,
+      env.OUTBOX_ENCRYPTION_KEY_ID,
+    ),
+  ) as unknown;
 }

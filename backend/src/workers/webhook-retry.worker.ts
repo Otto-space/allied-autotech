@@ -30,6 +30,17 @@ export class PaymentWebhookRetryWorker {
   ) {}
   async runOnce(batchSize = 25) {
     const limit = Math.max(1, Math.min(batchSize, 100));
+    await this.database.paymentWebhookEvent.updateMany({
+      where: {
+        status: { in: ["RECEIVED", "FAILED", "PROCESSING"] },
+        processingAttempts: { gte: 8 },
+      },
+      data: {
+        status: "DEAD_LETTER",
+        lockedAt: null,
+        lastErrorCode: "WEBHOOK_RETRY_EXHAUSTED",
+      },
+    });
     const claimed = await this.database.$transaction(
       async (tx) => tx.$queryRaw<
         Array<{
@@ -43,7 +54,7 @@ export class PaymentWebhookRetryWorker {
       UPDATE "PaymentWebhookEvent" SET "status" = 'PROCESSING', "lockedAt" = CURRENT_TIMESTAMP, "processingAttempts" = "processingAttempts" + 1
       WHERE "id" IN (
         SELECT "id" FROM "PaymentWebhookEvent"
-        WHERE "status" IN ('RECEIVED', 'FAILED') AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= CURRENT_TIMESTAMP)
+        WHERE (("status" IN ('RECEIVED', 'FAILED') AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= CURRENT_TIMESTAMP)) OR ("status" = 'PROCESSING' AND "lockedAt" < CURRENT_TIMESTAMP - INTERVAL '10 minutes')) AND "processingAttempts" < 8
         ORDER BY "receivedAt" ASC FOR UPDATE SKIP LOCKED LIMIT ${limit}
       )
       RETURNING "id", "provider", "payloadSha256", "redactedPayload", "processingAttempts"`,

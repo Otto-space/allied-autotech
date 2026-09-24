@@ -1,3 +1,15 @@
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { requestFreeCancellationRefund } from "../payments/refund-workflow.js";
+import { requestAftercare } from "./order-aftercare.service.js";
+import { customerAftercareView } from "./order-aftercare.schemas.js";
+import { deliverySettingsSchema } from "../policies/policies.schemas.js";
+import {
+  assertFinanceGate,
+  currentPolicy,
+  approvedPolicy,
+  policySnapshot,
+} from "../policies/policies.service.js";
+import { draftTotals } from "../policies/policy-money.js";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -61,14 +73,10 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertCustomer(actor);
-    if (input.fulfillmentMethod === "DELIVERY")
-      throw orderConflict(
-        "Delivery checkout is unavailable until delivery areas and fees are approved",
-      );
     const scope = `order-checkout:${actor.userId}`;
     const keyHash = hashToken("order-checkout-idempotency", rawKey);
     const requestHash = orderFingerprint(input);
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const checkoutLockKey = `checkout:${keyHash}`;
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${checkoutLockKey}, 0))`;
       const existing = await this.repository.idempotency(scope, keyHash, transaction);
@@ -151,9 +159,46 @@ export class OrdersService {
               subtotalKobo,
               transaction,
             );
+      const finance = await assertFinanceGate(transaction);
+      const timing = await currentPolicy(transaction, "order-payment");
       const discountAmountKobo = evaluation?.discountAmountKobo ?? 0n;
-      const deliveryFeeKobo = 0n;
-      const totalKobo = subtotalKobo - discountAmountKobo + deliveryFeeKobo;
+      let deliveryFeeKobo = 0n;
+      let taxableDeliveryKobo = 0n;
+      let deliverySnapshot: Prisma.InputJsonObject = {
+        method: "COLLECTION",
+        address:
+          "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+      };
+      if (input.fulfillmentMethod === "DELIVERY") {
+        const deliveryPolicy = await approvedPolicy(transaction, "delivery");
+        const settings = deliverySettingsSchema.parse(deliveryPolicy.settings);
+        const zone = settings.zones.find((item) => item.id === input.delivery?.zoneId);
+        if (
+          !zone ||
+          zone.city.toLowerCase() !== input.delivery?.city.toLowerCase() ||
+          zone.state.toLowerCase() !== input.delivery?.state.toLowerCase()
+        )
+          throw orderConflict("Delivery address is outside the selected approved zone");
+        const financeSettings = finance.settings as Record<string, unknown>;
+        if (typeof financeSettings["deliveryTaxable"] !== "boolean")
+          throw orderConflict(
+            "Delivery tax treatment requires accounting approval before checkout",
+          );
+        deliveryFeeKobo = BigInt(zone.feeKobo);
+        taxableDeliveryKobo = financeSettings["deliveryTaxable"] ? deliveryFeeKobo : 0n;
+        deliverySnapshot = {
+          policy: policySnapshot(deliveryPolicy),
+          zoneId: zone.id,
+          feeKobo: zone.feeKobo,
+        };
+      }
+      const { taxKobo } = draftTotals(
+        subtotalKobo + taxableDeliveryKobo,
+        discountAmountKobo,
+      );
+      const totalKobo = subtotalKobo - discountAmountKobo + deliveryFeeKobo + taxKobo;
+      if (totalKobo > MAX_MONEY_KOBO)
+        throw orderConflict("Order amount exceeds the supported limit");
       const orderId = randomUUID();
       const now = new Date();
       const paymentDueAt = new Date(now.getTime() + 30 * 60_000);
@@ -168,7 +213,13 @@ export class OrdersService {
           subtotalKobo,
           discountAmountKobo,
           deliveryFeeKobo,
+          taxKobo,
           totalKobo,
+          policySnapshot: {
+            finance: policySnapshot(finance),
+            payment: policySnapshot(timing),
+            fulfillment: deliverySnapshot,
+          },
           customerName: `${profile.firstName} ${profile.lastName}`,
           customerEmail: profile.user.email,
           customerPhone: profile.phone,
@@ -195,8 +246,9 @@ export class OrdersService {
           customerId: profile.id,
           orderId,
           currency: "NGN",
-          subtotalKobo: totalKobo,
-          taxKobo: 0n,
+          subtotalKobo: totalKobo - taxKobo,
+          taxKobo,
+          policySnapshot: policySnapshot(finance),
           totalKobo,
         },
         select: { id: true },
@@ -334,31 +386,53 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertCustomer(actor);
-    await this.database.$transaction(async (transaction) => {
-      const profile = await transaction.customerProfile.findUnique({
-        where: { userId: actor.userId },
-        select: { id: true },
-      });
-      const order = await this.repository.lockOrder(id, transaction);
-      if (
-        profile === null ||
-        order === null ||
-        (await transaction.order.count({ where: { id, customerId: profile.id } })) !== 1
-      )
-        throw orderNotFound();
-      if (order.status !== "PENDING") throw invalidOrderTransition();
-      await this.cancelLocked(
-        actor,
-        order,
-        input.expectedVersion,
-        input.reason,
-        transaction,
-        context,
-      );
-    });
+    const cancellationRequest = await withTransactionRetry(
+      this.database,
+      async (transaction) => {
+        const profile = await transaction.customerProfile.findUnique({
+          where: { userId: actor.userId },
+          select: { id: true },
+        });
+        const order = await this.repository.lockOrder(id, transaction);
+        if (
+          profile === null ||
+          order === null ||
+          (await transaction.order.count({ where: { id, customerId: profile.id } })) !== 1
+        )
+          throw orderNotFound();
+        if (order.status === "CANCELLED") return null;
+        if (order.status !== "PENDING")
+          return requestAftercare(
+            transaction,
+            actor,
+            id,
+            "CANCELLATION",
+            input.reason,
+            context,
+          );
+        await this.cancelLocked(
+          actor,
+          order,
+          input.expectedVersion,
+          input.reason,
+          transaction,
+          context,
+        );
+        return null;
+      },
+    );
     const updated = await this.repository.order(id);
     if (updated === null) throw orderNotFound();
-    return jsonSafe(updated);
+    if (updated.status === "CANCELLED" && updated.confirmedAt === null)
+      await this.database.$transaction((tx) =>
+        requestFreeCancellationRefund(tx, id, actor.userId),
+      );
+    return jsonSafe({
+      ...updated,
+      ...(cancellationRequest
+        ? { cancellationRequest: customerAftercareView(cancellationRequest) }
+        : {}),
+    });
   }
   async transition(
     actor: AuthenticatedActor,
@@ -367,13 +441,22 @@ export class OrdersService {
     context: RequestSecurityContext,
   ) {
     assertOrderOperator(actor);
-    await this.database.$transaction(async (transaction) => {
+    await withTransactionRetry(this.database, async (transaction) => {
       const order = await this.repository.lockOrder(id, transaction);
       if (order === null) throw orderNotFound();
       await this.assertBranch(actor, order.branchId, transaction);
       if (!(transitions[order.status] as readonly string[]).includes(input.status))
         throw invalidOrderTransition();
       if (input.status === "CANCELLED") {
+        if (
+          order.status !== "PENDING" &&
+          !(await transaction.orderAftercareRequest.findFirst({
+            where: { orderId: id, kind: "CANCELLATION", status: "APPROVED" },
+          }))
+        )
+          throw orderConflict(
+            "Cancellation after confirmation requires a reviewed request and fee basis",
+          );
         if (input.reason === undefined)
           throw orderConflict("A cancellation reason is required");
         await this.cancelLocked(
@@ -386,8 +469,13 @@ export class OrdersService {
         );
         return;
       }
+      if (order.paidAt === null)
+        throw orderConflict(
+          "Verified payment is required before confirming or fulfilling an order",
+        );
       if (
         input.status === "CONFIRMED" &&
+        order.paidAt === null &&
         (order.paymentDueAt === null || order.paymentDueAt <= new Date())
       )
         throw orderConflict("The checkout reservation has expired");
@@ -448,7 +536,7 @@ export class OrdersService {
     const candidates = await this.repository.dueOrderIds(boundedLimit);
     let expired = 0;
     for (const candidate of candidates) {
-      await this.database.$transaction(async (transaction) => {
+      await withTransactionRetry(this.database, async (transaction) => {
         const order = await this.repository.lockOrder(candidate.id, transaction);
         if (
           order?.status !== "PENDING" ||
@@ -456,17 +544,7 @@ export class OrdersService {
           order.paymentDueAt > new Date()
         )
           return;
-        const inFlightPayment = await transaction.payment.findFirst({
-          where: {
-            orderId: order.id,
-            OR: [
-              { status: { in: ["SUCCEEDED", "REQUIRES_REVIEW"] } },
-              { attempts: { some: { status: { in: ["PROCESSING", "SUCCESSFUL"] } } } },
-            ],
-          },
-          select: { id: true },
-        });
-        if (inFlightPayment !== null) return;
+        if (order.paidAt !== null) return;
         await this.cancelLocked(
           actor,
           order,
@@ -699,12 +777,13 @@ export class OrdersService {
   ) {
     if (!(["PENDING", "CONFIRMED", "PROCESSING"] as string[]).includes(order.status))
       throw invalidOrderTransition();
-    await this.releaseOrRestock(
-      actor?.userId ?? null,
-      order.id,
-      order.status,
-      transaction,
-    );
+    if (order.status !== "PROCESSING")
+      await this.releaseOrRestock(
+        actor?.userId ?? null,
+        order.id,
+        order.status,
+        transaction,
+      );
     const now = new Date();
     const result = await this.repository.updateOrder(
       order.id,

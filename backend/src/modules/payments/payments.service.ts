@@ -1,3 +1,12 @@
+import { snapshotRefundClock } from "../policies/refund-clock.js";
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { enqueueLateOrderRefund } from "./refund-workflow.js";
+import {
+  approvedPolicy,
+  assertFinanceGate,
+  assertCapability,
+  policySnapshot,
+} from "../policies/policies.service.js";
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -27,7 +36,6 @@ import type { ObjectStoragePort } from "../../providers/storage/object-storage.p
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
-import { scheduleReminders } from "../service-operations/service-operations.service.js";
 import {
   paymentConflict,
   paymentIdempotencyConflict,
@@ -51,6 +59,7 @@ import type {
   StaffPaymentListQuery,
 } from "./payments.schemas.js";
 import { paymentFingerprint, paymentJsonSafe, paymentPage } from "./payments.types.js";
+import { refundQueueSelect } from "./refund-record.js";
 
 const paymentNumber = () =>
   `PAY-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
@@ -132,7 +141,7 @@ export class PaymentsService {
     assertPaymentCustomer(actor);
     const keyHash = hashToken("payment-intent-idempotency", `${actor.userId}:${rawKey}`);
     const fingerprint = paymentFingerprint(input);
-    return this.database.$transaction(async (tx) => {
+    return withTransactionRetry(this.database, async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`payment:${keyHash}`}, 0))`;
       const profile = await this.repository.customerProfile(actor.userId, tx);
       if (!profile) throw paymentNotFound();
@@ -148,6 +157,8 @@ export class PaymentsService {
         if (!same) throw paymentIdempotencyConflict();
         return paymentJsonSafe({ payment: existing, replayed: true });
       }
+      const finance = await assertFinanceGate(tx);
+      if (input.targetType === "VEHICLE_TRANSACTION") await approvedPolicy(tx, "vehicle");
       const source = await this.resolveSource(profile.id, input, tx);
       const expiresAt =
         source.expiresAt ?? new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
@@ -162,6 +173,7 @@ export class PaymentsService {
           idempotencyKeyHash: keyHash,
           expiresAt,
           description: `Payment ${fingerprint.slice(0, 12)}`,
+          policySnapshot: policySnapshot(finance),
           ...(input.targetType === "ORDER" ? { orderId: input.targetId } : {}),
           ...(input.targetType === "INVOICE" ? { invoiceId: input.targetId } : {}),
           ...(input.targetType === "VEHICLE_TRANSACTION"
@@ -219,10 +231,16 @@ export class PaymentsService {
       `${provider}:${id}:${rawKey}`,
     );
     const reference = `AAT-${provider}-${attemptKey.slice(0, 32)}`;
-    const prepared = await this.database.$transaction(async (tx) => {
+    const prepared = await withTransactionRetry(this.database, async (tx) => {
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
       this.assertPayable(payment);
+      if (payment.bookingId)
+        throw paymentConflict(
+          "Booking deposits are disabled under the approved request-and-confirm policy",
+        );
+      await assertFinanceGate(tx);
+      if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
       const existing = await tx.paymentAttempt.findUnique({
         where: { internalReference: reference },
       });
@@ -299,7 +317,7 @@ export class PaymentsService {
     );
     if (authorizationExpiresAt <= new Date())
       throw paymentConflict("The payable expired during checkout initialization");
-    await this.database.$transaction(async (tx) => {
+    await withTransactionRetry(this.database, async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
       const current = await tx.paymentAttempt.findUnique({
         where: { id: prepared.existing.id },
@@ -309,6 +327,12 @@ export class PaymentsService {
       if (!current || !payment || payment.customerId !== profile.id)
         throw paymentNotFound();
       this.assertPayable(payment);
+      if (payment.bookingId)
+        throw paymentConflict(
+          "Booking deposits are disabled under the approved request-and-confirm policy",
+        );
+      await assertFinanceGate(tx);
+      if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
       if (
         !(["INITIALIZED", "PENDING", "PROCESSING"] as string[]).includes(current.status)
       )
@@ -420,7 +444,7 @@ export class PaymentsService {
       }))
     )
       throw paymentConflict("Payment evidence could not be verified");
-    return this.database.$transaction(async (tx) => {
+    return withTransactionRetry(this.database, async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
@@ -433,6 +457,12 @@ export class PaymentsService {
       );
       if (committed) return committed;
       this.assertPayable(payment);
+      if (payment.bookingId)
+        throw paymentConflict(
+          "Booking deposits are disabled under the approved request-and-confirm policy",
+        );
+      await assertFinanceGate(tx);
+      if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
       const latest = await tx.paymentAttempt.aggregate({
         where: { paymentId: id },
         _max: { attemptNumber: true },
@@ -515,7 +545,7 @@ export class PaymentsService {
     context: RequestSecurityContext,
   ) {
     assertPaymentApprover(actor);
-    return this.database.$transaction(async (tx) => {
+    return withTransactionRetry(this.database, async (tx) => {
       const attempt = await tx.paymentAttempt.findUnique({
         where: { id: attemptId },
         include: { manualReview: true, payment: true },
@@ -620,7 +650,7 @@ export class PaymentsService {
       "refund-idempotency",
       `${input.paymentAttemptId}:${rawKey}`,
     );
-    return this.database.$transaction(async (tx) => {
+    return withTransactionRetry(this.database, async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`refund:${keyHash}`}, 0))`;
       const existing = await tx.refund.findUnique({
         where: { idempotencyKeyHash: keyHash },
@@ -632,7 +662,21 @@ export class PaymentsService {
           existing.reason !== input.reason
         )
           throw paymentIdempotencyConflict();
-        return paymentJsonSafe({ refund: existing, replayed: true });
+        await this.assertBranch(
+          actor,
+          (
+            await tx.paymentAttempt.findUniqueOrThrow({
+              where: { id: existing.paymentAttemptId },
+            })
+          ).paymentId,
+          tx,
+        );
+        const {
+          beneficiaryEncrypted: _beneficiary,
+          evidenceObjectKey: _evidence,
+          ...safe
+        } = existing;
+        return paymentJsonSafe({ refund: safe, replayed: true });
       }
       const attempt = await this.repository.attempt(input.paymentAttemptId, tx);
       if (
@@ -642,6 +686,14 @@ export class PaymentsService {
       )
         throw paymentNotFound();
       await this.assertBranch(actor, attempt.paymentId, tx);
+      if (
+        await tx.paymentDispute.count({
+          where: { paymentAttemptId: attempt.id, status: { not: "WON" } },
+        })
+      )
+        throw paymentConflict(
+          "Reconcile the dispute and any chargeback before requesting a separate refund",
+        );
       await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${input.paymentAttemptId}::uuid FOR UPDATE`;
       const committed =
         (
@@ -655,8 +707,11 @@ export class PaymentsService {
         )._sum.amountKobo ?? 0n;
       if (committed + input.amountKobo > attempt.amountKobo)
         throw paymentConflict("Refund total exceeds the captured amount");
+      const refundPolicy = await approvedPolicy(tx, "manual-refund");
       const refund = await tx.refund.create({
         data: {
+          policyVersionId: refundPolicy.id,
+          policySnapshot: policySnapshot(refundPolicy),
           paymentAttemptId: input.paymentAttemptId,
           requestedByUserId: actor.userId,
           refundNumber: refundNumber(),
@@ -687,8 +742,9 @@ export class PaymentsService {
     input: RefundDecisionInput,
     context: RequestSecurityContext,
   ) {
-    assertPaymentApprover(actor);
-    const approved = await this.database.$transaction(async (tx) => {
+    await assertCapability(this.database, actor, "REFUND_APPROVE");
+    const approved = await withTransactionRetry(this.database, async (tx) => {
+      await assertCapability(tx, actor, "REFUND_APPROVE");
       const rows = await tx.$queryRaw<
         Array<{ id: string }>
       >`SELECT "id" FROM "Refund" WHERE "id" = ${id}::uuid FOR UPDATE`;
@@ -701,6 +757,17 @@ export class PaymentsService {
         throw paymentConflict("Refund was already decided");
       if (refund.requestedByUserId === actor.userId)
         throw paymentConflict("A different operator must approve this refund");
+      if (input.decision === "APPROVED") {
+        await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${refund.paymentAttemptId}::uuid FOR UPDATE`;
+        if (
+          await tx.paymentDispute.count({
+            where: { paymentAttemptId: refund.paymentAttemptId, status: { not: "WON" } },
+          })
+        )
+          throw paymentConflict(
+            "Reconcile the dispute and any chargeback before approving this refund",
+          );
+      }
       const now = new Date();
       const updated = await tx.refund.update({
         where: { id },
@@ -721,51 +788,25 @@ export class PaymentsService {
         newValues: { decision: input.decision },
         context,
       });
+      await snapshotRefundClock(tx, id);
       return { refund: updated, attempt: refund.paymentAttempt };
     });
-    if (input.decision === "CANCELLED") return paymentJsonSafe(approved.refund);
-    if (approved.attempt.provider === "MANUAL" || !approved.attempt.gatewayTransactionId)
-      return paymentJsonSafe(
-        await this.database.refund.update({
-          where: { id },
-          data: {
-            status: "NEEDS_ATTENTION",
-            providerStatus: "OFFLINE_PROCESSING_REQUIRED",
-          },
-        }),
-      );
-    let result;
-    try {
-      result = await this.providers
-        .get(approved.attempt.provider as OnlinePaymentProvider)
-        .refund({
-          gatewayTransactionId: approved.attempt.gatewayTransactionId,
-          amountKobo: approved.refund.amountKobo,
-          currency: "NGN",
-          refundReference: approved.refund.refundNumber,
-          reason: approved.refund.reason,
-          customerNote: "AAT refund",
-        });
-    } catch {
-      return paymentJsonSafe(
-        await this.database.refund.update({
-          where: { id },
-          data: {
-            status: "NEEDS_ATTENTION",
-            providerStatus: "PROVIDER_SUBMISSION_UNCONFIRMED",
-            failureMessage: "Provider submission requires reviewed follow-up",
-          },
-        }),
-      );
-    }
-    return paymentJsonSafe(
+    if (
+      input.decision === "APPROVED" &&
+      (approved.attempt.provider === "MANUAL" || !approved.attempt.gatewayTransactionId)
+    )
       await this.database.refund.update({
         where: { id },
         data: {
-          status: "PENDING",
-          providerRefundId: result.providerRefundId,
-          providerStatus: result.status,
+          status: "NEEDS_ATTENTION",
+          providerStatus: "OFFLINE_PROCESSING_REQUIRED",
         },
+      });
+    // Dispatch is durable and owned by RefundWorker, including crash recovery.
+    return paymentJsonSafe(
+      await this.database.refund.findUniqueOrThrow({
+        where: { id },
+        select: refundQueueSelect,
       }),
     );
   }
@@ -845,13 +886,21 @@ export class PaymentsService {
       return { accepted: true, duplicate };
     }
     const attempt = await this.repository.attemptByReference(event.reference);
-    if (!attempt) {
-      await this.database.$transaction(async (tx) => {
+    if (!attempt || attempt.provider !== "PAYSTACK") {
+      await withTransactionRetry(this.database, async (tx) => {
         await tx.paymentWebhookEvent.update({
           where: {
             provider_deduplicationKey: { provider: "PAYSTACK", deduplicationKey },
           },
-          data: { status: "PROCESSED", processedAt: new Date() },
+          data: {
+            status: "FAILED",
+            failedAt: new Date(),
+            nextAttemptAt: new Date(Date.now() + 60_000),
+            lockedAt: null,
+            lastErrorCode: "UNKNOWN_PAYMENT_REFERENCE",
+            lastErrorMessage:
+              "Signed event retained for reconciliation; payment reference not found",
+          },
         });
       });
       return { accepted: true, duplicate: false };
@@ -973,7 +1022,7 @@ export class PaymentsService {
         },
       });
       if (!eventMatchesProvider) {
-        await this.database.$transaction(async (tx) => {
+        await withTransactionRetry(this.database, async (tx) => {
           await tx.payment.updateMany({
             where: { id: attempt.paymentId, status: { not: "SUCCEEDED" } },
             data: { status: "REQUIRES_REVIEW" },
@@ -1102,7 +1151,7 @@ export class PaymentsService {
     webhookKey: string,
     result: z.infer<typeof monnifyRefundRetrySchema>,
   ): Promise<void> {
-    await this.database.$transaction(async (tx) => {
+    await withTransactionRetry(this.database, async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${refundId}::uuid FOR UPDATE`;
       const refund = await tx.refund.findUniqueOrThrow({ where: { id: refundId } });
       const now = new Date();
@@ -1165,58 +1214,95 @@ export class PaymentsService {
   }
 
   private async applyRefundWebhook(event: PaystackWebhookEvent, webhookKey: string) {
-    await this.database.$transaction(async (tx) => {
-      const refund = event.resourceId
-        ? await tx.refund.findUnique({
-            where: { providerRefundId: event.resourceId },
-            include: { paymentAttempt: true },
-          })
-        : null;
-      const now = new Date();
-      if (!refund) {
-        await tx.paymentWebhookEvent.update({
-          where: {
-            provider_deduplicationKey: {
-              provider: "PAYSTACK",
-              deduplicationKey: webhookKey,
-            },
+    const candidates = await this.database.refund.findMany({
+      where: event.resourceId
+        ? { providerRefundId: event.resourceId }
+        : event.reference
+          ? {
+              paymentAttempt: {
+                provider: "PAYSTACK",
+                internalReference: event.reference,
+              },
+              amountKobo: event.amountKobo ?? -1n,
+            }
+          : { id: "00000000-0000-0000-0000-000000000000" },
+      take: 2,
+    });
+    const candidate = candidates.length === 1 ? candidates[0] : undefined;
+    // A refund webhook can precede the POST response. Retain it for bounded retry.
+    if (!candidate?.providerRefundId) {
+      await this.database.paymentWebhookEvent.update({
+        where: {
+          provider_deduplicationKey: {
+            provider: "PAYSTACK",
+            deduplicationKey: webhookKey,
           },
-          data: { status: "PROCESSED", processedAt: now },
-        });
-        return;
-      }
-      const exact =
-        event.amountKobo === refund.amountKobo && event.currency === refund.currency;
-      if (!exact) {
+        },
+        data: {
+          status: "FAILED",
+          nextAttemptAt: new Date(Date.now() + 60_000),
+          lockedAt: null,
+          lastErrorCode: "REFUND_CORRELATION_PENDING",
+          lastErrorMessage: "Awaiting unique provider refund correlation",
+        },
+      });
+      return;
+    }
+    const provider = this.providers.get("PAYSTACK");
+    // Newer Paystack refund events omit the numeric refund id; fetch the stored id
+    // before applying their state, rather than guessing which partial refund moved.
+    const verified =
+      event.resourceId === null && provider.verifyRefund
+        ? await provider.verifyRefund(candidate.providerRefundId)
+        : null;
+    if (event.resourceId === null && !verified)
+      throw paymentConflict("Refund requires authoritative provider verification");
+    await this.database.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${candidate.id}::uuid FOR UPDATE`;
+      const refund = await tx.refund.findUniqueOrThrow({ where: { id: candidate.id } });
+      const exact = verified
+        ? verified.providerRefundId === refund.providerRefundId &&
+          verified.amountKobo === refund.amountKobo &&
+          verified.currency === refund.currency
+        : event.amountKobo === refund.amountKobo && event.currency === refund.currency;
+      const state =
+        verified?.status ??
+        (event.status === "processed"
+          ? "succeeded"
+          : ["failed", "needs-attention"].includes(event.status ?? "")
+            ? "failed"
+            : "pending");
+      const now = new Date();
+      if (refund.status !== "SUCCEEDED") {
         await tx.refund.update({
           where: { id: refund.id },
-          data: { status: "NEEDS_ATTENTION", providerStatus: event.status },
-        });
-        await tx.paymentAnomaly.create({
           data: {
-            refundId: refund.id,
-            paymentAttemptId: refund.paymentAttemptId,
-            type: "REFUND_MISMATCH",
-            summary: "Provider refund did not match the approved refund",
-            details: {
-              expectedAmountKobo: refund.amountKobo.toString(),
-              receivedAmountKobo: event.amountKobo?.toString() ?? null,
-              expectedCurrency: refund.currency,
-              receivedCurrency: event.currency,
-            },
+            status:
+              !exact || state === "failed"
+                ? "NEEDS_ATTENTION"
+                : state === "succeeded"
+                  ? "SUCCEEDED"
+                  : "PENDING",
+            providerStatus: exact ? event.status : "REFUND_MISMATCH",
+            ...(exact && state === "succeeded"
+              ? { processedAt: now, nextReconcileAt: null }
+              : {}),
           },
         });
-      } else if (
-        event.eventType === "refund.processed" ||
-        event.status?.toLowerCase() === "processed"
-      ) {
-        if (refund.status !== "SUCCEEDED") {
-          await tx.refund.update({
-            where: { id: refund.id },
-            data: { status: "SUCCEEDED", processedAt: now, providerStatus: event.status },
-          });
-          await tx.paymentLedgerEntry.create({
+        if (!exact)
+          await tx.paymentAnomaly.create({
             data: {
+              refundId: refund.id,
+              paymentAttemptId: refund.paymentAttemptId,
+              type: "REFUND_MISMATCH",
+              summary: "Provider refund did not match the approved refund",
+            },
+          });
+        if (exact && state === "succeeded")
+          await tx.paymentLedgerEntry.upsert({
+            where: { sourceKey: `refund:${refund.id}` },
+            update: {},
+            create: {
               refundId: refund.id,
               sourceKey: `refund:${refund.id}`,
               type: "REFUND",
@@ -1226,15 +1312,6 @@ export class PaymentsService {
               occurredAt: now,
             },
           });
-        }
-      } else if (
-        ["refund.failed", "failed"].includes(event.eventType) ||
-        event.status?.toLowerCase() === "failed"
-      ) {
-        await tx.refund.updateMany({
-          where: { id: refund.id, status: { not: "SUCCEEDED" } },
-          data: { status: "FAILED", failedAt: now, providerStatus: event.status },
-        });
       }
       await tx.paymentWebhookEvent.update({
         where: {
@@ -1247,6 +1324,7 @@ export class PaymentsService {
           refundId: refund.id,
           status: "PROCESSED",
           processedAt: now,
+          lockedAt: null,
           processingAttempts: { increment: 1 },
         },
       });
@@ -1258,14 +1336,21 @@ export class PaymentsService {
     webhookKey: string,
     context: RequestSecurityContext,
   ) {
-    await this.database.$transaction(async (tx) => {
+    await withTransactionRetry(this.database, async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`dispute:${event.resourceId}`}, 0))`;
       const attempt = event.reference
         ? await tx.paymentAttempt.findUnique({
             where: { internalReference: event.reference },
           })
         : null;
       const now = new Date();
-      if (!attempt || !event.resourceId || event.amountKobo === null || !event.currency) {
+      if (
+        !attempt ||
+        attempt.provider !== "PAYSTACK" ||
+        !event.resourceId ||
+        event.amountKobo === null ||
+        !event.currency
+      ) {
         await tx.paymentWebhookEvent.update({
           where: {
             provider_deduplicationKey: {
@@ -1273,7 +1358,15 @@ export class PaymentsService {
               deduplicationKey: webhookKey,
             },
           },
-          data: { status: "PROCESSED", processedAt: now },
+          data: {
+            status: "FAILED",
+            failedAt: now,
+            nextAttemptAt: new Date(Date.now() + 60_000),
+            lockedAt: null,
+            lastErrorCode: "UNMATCHED_DISPUTE",
+            lastErrorMessage:
+              "Signed dispute requires provider reconciliation; reference or required facts missing",
+          },
         });
         return;
       }
@@ -1305,6 +1398,11 @@ export class PaymentsService {
         ).find((value) => value === rawCategory) ?? "OTHER";
       const terminal = ["WON", "LOST", "ACCEPTED", "EXPIRED"].includes(status);
       const providerDisputeId = event.resourceId;
+      const prior = await tx.paymentDispute.findUnique({
+        where: {
+          provider_providerDisputeId: { provider: "PAYSTACK", providerDisputeId },
+        },
+      });
       const dispute = await tx.paymentDispute.upsert({
         where: {
           provider_providerDisputeId: { provider: "PAYSTACK", providerDisputeId },
@@ -1322,8 +1420,8 @@ export class PaymentsService {
           ...(terminal ? { resolvedAt: now } : {}),
         },
         update: {
-          status,
-          responseDueAt: event.responseDueAt,
+          status: prior?.resolvedAt ? prior.status : status,
+          ...(event.responseDueAt ? { responseDueAt: event.responseDueAt } : {}),
           ...(terminal ? { resolvedAt: now } : {}),
         },
       });
@@ -1339,7 +1437,7 @@ export class PaymentsService {
             summary: "Dispute amount or currency differs from the captured attempt",
           },
         });
-      if (["LOST", "ACCEPTED"].includes(status))
+      if (["LOST", "ACCEPTED"].includes(dispute.status))
         await tx.paymentLedgerEntry.upsert({
           where: { sourceKey: `chargeback:${dispute.id}` },
           create: {
@@ -1385,7 +1483,7 @@ export class PaymentsService {
     actorUserId: string | null,
     webhook?: { provider: OnlinePaymentProvider; deduplicationKey: string },
   ) {
-    await this.database.$transaction(async (tx) => {
+    await withTransactionRetry(this.database, async (tx) => {
       const rows = await tx.$queryRaw<
         Array<{ id: string }>
       >`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${attemptId}::uuid FOR UPDATE`;
@@ -1614,23 +1712,22 @@ export class PaymentsService {
         });
         return;
       }
-      const updated = await tx.booking.update({
+      await tx.booking.update({
         where: { id: booking.id },
         data: {
-          status: "CONFIRMED",
-          confirmedAt: occurredAt,
+          status: "REQUESTED",
           depositPaidAt: occurredAt,
           version: { increment: 1 },
         },
         select: { id: true, scheduledAt: true, scheduleVersion: true },
       });
-      await scheduleReminders(tx, updated);
       await enqueueNotification(tx, {
         userId: booking.customer.userId,
         type: "BOOKING",
         category: "TRANSACTIONAL",
-        title: "Booking confirmed",
-        message: `Your 30% non-refundable deposit was verified and your appointment for ${booking.scheduledAt.toISOString()} is confirmed. The retained deposit will be credited to your final service balance.`,
+        title: "Payment received; staff confirmation required",
+        message:
+          "Your existing booking payment was received. Staff must confirm availability after reviewing branch capacity and resources. No deposit is automatically forfeited.",
         resourceType: "BOOKING",
         resourceId: booking.id,
         deduplicationKey: `booking:${booking.id}:confirmed`,
@@ -1650,7 +1747,7 @@ export class PaymentsService {
       });
       if (
         order.status === "CANCELLED" ||
-        (order.paymentDueAt !== null && occurredAt > order.paymentDueAt)
+        (order.paymentDueAt !== null && new Date() >= order.paymentDueAt)
       ) {
         await tx.paymentAnomaly.create({
           data: {
@@ -1667,6 +1764,7 @@ export class PaymentsService {
             },
           },
         });
+        await enqueueLateOrderRefund(tx, attemptId);
         return;
       }
       await tx.order.update({

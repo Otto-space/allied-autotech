@@ -74,7 +74,7 @@ export default function ContactPage() {
                     {business.email}
                   </a>
                   <p className="muted">
-                    For questions about services, parts or your visit.
+                    For questions about services, products or your visit.
                   </p>
                 </article>
               </div>

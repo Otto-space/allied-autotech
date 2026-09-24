@@ -70,7 +70,7 @@ export const adminResources: Record<string, AdminResource> = {
     singular: "category",
     path: "/admin/catalog/categories",
     description:
-      "Organise the parts catalogue with clear category names and descriptions.",
+      "Organise the product catalogue with clear category names and descriptions.",
     fields: [
       name,
       slug,
@@ -121,8 +121,8 @@ export const adminResources: Record<string, AdminResource> = {
     ],
   },
   products: {
-    title: "Parts catalogue",
-    singular: "part",
+    title: "Products",
+    singular: "product",
     path: "/admin/catalog/products",
     description: "Manage product details, pricing and catalogue visibility.",
     fields: [

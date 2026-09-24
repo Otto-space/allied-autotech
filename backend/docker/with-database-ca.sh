@@ -16,7 +16,7 @@ if [ "${DB_SSL_MODE:-disable}" = "verify-full" ]; then
     exit 1
   fi
 
-  if [ -z "${DB_SSL_CA_CERT:-}" ]; then
+  if [ -z "${DB_SSL_CA_CERT:-}" ] && [ -z "${DB_SSL_CA_BASE64:-}" ]; then
     echo "Database CA material is required" >&2
     exit 1
   fi
@@ -26,7 +26,18 @@ if [ "${DB_SSL_MODE:-disable}" = "verify-full" ]; then
   temporary_ca_file="${ca_file}.tmp.$$"
   trap cleanup EXIT HUP INT TERM
 
-  printf '%s\n' "$DB_SSL_CA_CERT" >"$temporary_ca_file"
+  if [ -n "${DB_SSL_CA_BASE64:-}" ]; then
+    if [ -n "${DB_SSL_CA_CERT:-}" ]; then
+      echo "Configure exactly one database CA source" >&2
+      exit 1
+    fi
+    if ! printf '%s' "$DB_SSL_CA_BASE64" | base64 --decode >"$temporary_ca_file"; then
+      echo "Database CA base64 is invalid" >&2
+      exit 1
+    fi
+  else
+    printf '%s\n' "$DB_SSL_CA_CERT" >"$temporary_ca_file"
+  fi
 
   ca_size="$(wc -c <"$temporary_ca_file" | tr -d '[:space:]')"
   if [ "$ca_size" -lt 1 ] || [ "$ca_size" -gt 1048576 ]; then
@@ -47,6 +58,6 @@ if [ "${DB_SSL_MODE:-disable}" = "verify-full" ]; then
   trap - EXIT HUP INT TERM
 fi
 
-unset DB_SSL_CA_CERT
+unset DB_SSL_CA_CERT DB_SSL_CA_BASE64
 
 exec "$@"

@@ -53,6 +53,17 @@ export const bookingSchema = z.object({
   scheduledAt: z.string().nullable(),
   service: serviceSchema,
   branch: branchRef.nullable(),
+  vehicle: z
+    .object({
+      id: z.uuid(),
+      make: z.string(),
+      model: z.string(),
+      year: z.number().int(),
+      registrationNumber: z.string().nullable(),
+    })
+    .nullable()
+    .optional(),
+  customerNotes: z.string().nullable().optional(),
   depositAmountKobo: money.nullable(),
   depositPaidAt: z.string().nullable(),
   paymentHoldExpiresAt: z.string().nullable(),

@@ -1,5 +1,7 @@
 import { test, expect, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import os from "node:os";
+import path from "node:path";
 const id = (n: number) => `30000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const branch = { id: id(1), name: "Isolated slot branch", code: "SLOT-TEST" };
 const service = {
@@ -24,11 +26,45 @@ const reply = (route: Route, data: unknown) =>
       meta: { requestId: "slot-test" },
     },
   });
-for (const loseResponse of [false, true]) {
+
+test("staff without a profile cannot publish appointment slots", async ({ page }) => {
+  await page.route("**/api/v1/**", (route) => {
+    const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
+    if (endpoint === "/auth/session")
+      return reply(route, {
+        id: id(7),
+        expiresAt: "2027-01-01T00:00:00Z",
+        idleExpiresAt: "2027-01-01T00:00:00Z",
+        mfaRequired: true,
+        mfaVerifiedAt: "2026-09-24T09:00:00Z",
+        user: { id: id(8), email: "staff@example.test", role: "STAFF" },
+      });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(8),
+        email: "staff@example.test",
+        role: "STAFF",
+        status: "ACTIVE",
+        staffProfile: null,
+      });
+    return reply(route, { items: [] });
+  });
+  await page.goto("/admin/booking-slots");
+  await expect(
+    page.getByText("A staff profile is required", { exact: false }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Review new slot" })).toBeDisabled();
+});
+for (const { role, loseResponse } of [
+  { role: "STAFF", loseResponse: false },
+  { role: "STAFF", loseResponse: true },
+  { role: "SUPER_ADMIN", loseResponse: false },
+  { role: "ADMIN", loseResponse: false },
+]) {
   test(
     loseResponse
       ? "uncertain slot publication reconciles saved availability without resubmitting"
-      : "staff publishes and closes a slot with Lagos time and a versioned confirmation",
+      : `${role} publishes and closes a slot${role === "STAFF" ? "" : " without a staff profile"} with Lagos time and a versioned confirmation`,
     async ({ page }) => {
       let created = false;
       let status = "OPEN";
@@ -55,7 +91,7 @@ for (const loseResponse of [false, true]) {
             idleExpiresAt: "2027-01-01T00:00:00Z",
             mfaRequired: true,
             mfaVerifiedAt: "2026-09-13T09:00:00Z",
-            user: { id: id(8), email: "staff@example.test", role: "STAFF" },
+            user: { id: id(8), email: "staff@example.test", role },
           });
         if (endpoint === "/auth/csrf")
           return reply(route, { csrfToken: "isolated-test-token-".repeat(3) });
@@ -63,10 +99,23 @@ for (const loseResponse of [false, true]) {
           return reply(route, {
             id: id(8),
             email: "staff@example.test",
-            role: "STAFF",
+            role,
             status: "ACTIVE",
-            staffProfile: { ...staff, branchId: branch.id },
+            staffProfile: role === "STAFF" ? { ...staff, branchId: branch.id } : null,
           });
+        if (endpoint === "/admin/staff")
+          return reply(route, {
+            items: [
+              {
+                id: id(10),
+                email: "technician@example.test",
+                role: "STAFF",
+                status: "ACTIVE",
+                staffProfile: { ...staff, branchId: branch.id },
+              },
+            ],
+          });
+        if (endpoint === "/staff/bookings") return reply(route, { items: [] });
         if (endpoint === "/public/branches") return reply(route, { items: [branch] });
         if (endpoint === "/public/services")
           return reply(route, {
@@ -93,9 +142,10 @@ for (const loseResponse of [false, true]) {
             return loseResponse ? route.abort("failed") : reply(route, slot(true));
           }
           const filter = new URL(route.request().url()).searchParams.get("status");
-          const items = [slot(false), ...(created ? [slot(true)] : [])].filter(
-            (item) => !filter || item.status === filter,
-          );
+          const items = [
+            ...(role === "STAFF" ? [slot(false)] : []),
+            ...(created ? [slot(true)] : []),
+          ].filter((item) => !filter || item.status === filter);
           return reply(route, { items });
         }
         if (endpoint === `/staff/booking-slots/${id(4)}`) {
@@ -113,10 +163,26 @@ for (const loseResponse of [false, true]) {
           json: { success: false, error: { code: "NOT_FOUND" } },
         });
       });
+      if (role !== "STAFF") {
+        await page.goto("/admin/bookings");
+        await expect(
+          page.getByRole("heading", { name: "Workshop bookings", exact: true }),
+        ).toBeVisible();
+        await expect(
+          page.getByText("Your account does not have permission for this action."),
+        ).toHaveCount(0);
+      }
       await page.goto("/admin/booking-slots");
       await expect(
-        page.getByText("Assigned staff or administrator manages this slot."),
+        page.getByRole("heading", { name: "Appointment slots", exact: true }),
       ).toBeVisible();
+      await expect(
+        page.getByText("A staff profile is required", { exact: false }),
+      ).toHaveCount(0);
+      if (role === "STAFF")
+        await expect(
+          page.getByText("Assigned staff or administrator manages this slot."),
+        ).toBeVisible();
       await expect(
         page.getByRole("button", { name: "Close slot", exact: true }),
       ).toHaveCount(0);
@@ -183,6 +249,11 @@ for (const loseResponse of [false, true]) {
         .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
         .analyze();
       expect(accessibility.violations).toEqual([]);
+      if (role === "SUPER_ADMIN")
+        await page.screenshot({
+          path: path.join(os.tmpdir(), "allied-super-admin-slots.png"),
+          fullPage: true,
+        });
     },
   );
 }

@@ -29,7 +29,7 @@ export function OverviewActivity({ rows }: { readonly rows: Overview["activity"]
       <div className="overview-panel-heading">
         <div>
           <h2>Activity overview</h2>
-          <p>New bookings and parts orders · Lagos dates</p>
+          <p>New bookings and Shop orders · Lagos dates</p>
         </div>
         <div className="overview-legend" aria-label="Chart series">
           {(["bookings", "orders"] as const).map((key) => (

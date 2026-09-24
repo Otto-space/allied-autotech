@@ -1,3 +1,5 @@
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { currentPolicy, policySnapshot } from "../policies/policies.service.js";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -97,7 +99,7 @@ export class VehicleSalesService {
     assertVehicleSaleCustomer(actor);
     if (new Date(input.preferredStartAt) <= new Date())
       throw vehicleSaleConflict("Inspection must be requested for a future time");
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const customer = await this.repository.customer(actor.userId, transaction);
       const listing = await this.repository.publicListing(
         input.vehicleListingId,
@@ -151,7 +153,7 @@ export class VehicleSalesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleSaleOperator(actor);
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const existing = await this.repository.lockInspection(id, transaction);
       if (existing === null) throw vehicleSaleNotFound();
       await this.assertBranch(actor, existing.vehicleListing.branchId, transaction);
@@ -245,7 +247,7 @@ export class VehicleSalesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleSaleCustomer(actor);
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const customer = await this.repository.customer(actor.userId, transaction);
       const listing = await this.repository.publicListing(
         input.vehicleListingId,
@@ -351,7 +353,7 @@ export class VehicleSalesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleSaleOperator(actor);
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const initial = await this.repository.transaction(id, transaction);
       if (initial === null) throw vehicleSaleNotFound();
       const listing = await this.repository.lockListing(
@@ -420,7 +422,7 @@ export class VehicleSalesService {
     const scope = `vehicle-reservation:${actor.userId}`;
     const keyHash = hashToken("vehicle-reservation-idempotency", rawKey);
     const requestHash = vehicleSaleFingerprint({ id, ...input });
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`vehicle-reservation:${keyHash}`}, 0))`;
       const prior = await this.repository.idempotency(scope, keyHash, transaction);
       if (prior !== null) {
@@ -476,6 +478,7 @@ export class VehicleSalesService {
         {
           status: "RESERVED",
           reservationExpiresAt: expiresAt,
+          policySnapshot: policySnapshot(await currentPolicy(transaction, "vehicle")),
           termsVersion: input.termsVersion,
           termsAcceptedAt: new Date(),
         },
@@ -512,7 +515,7 @@ export class VehicleSalesService {
     assertVehicleSaleOperator(actor);
     if (["RESERVED", "HANDOVER_PENDING", "COMPLETED", "EXPIRED"].includes(input.status))
       throw vehicleSaleConflict("This transition requires its dedicated workflow");
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const initial = await this.repository.transaction(id, transaction);
       if (initial === null) throw vehicleSaleNotFound();
       const listing = await this.repository.lockListing(
@@ -625,7 +628,7 @@ export class VehicleSalesService {
     });
     let expired = 0;
     for (const candidate of candidates) {
-      await this.database.$transaction(async (transaction) => {
+      await withTransactionRetry(this.database, async (transaction) => {
         const initial = await this.repository.transaction(candidate.id, transaction);
         if (initial === null) return;
         const listing = await this.repository.lockListing(
@@ -726,7 +729,7 @@ export class VehicleSalesService {
         throw vehicleSaleConflict("Signed handover asset is invalid or expired");
       }
     }
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const initial = await this.repository.transaction(id, transaction);
       if (initial === null) throw vehicleSaleNotFound();
       const listing = await this.repository.lockListing(
@@ -790,7 +793,7 @@ export class VehicleSalesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleSaleOperator(actor);
-    return this.database.$transaction(async (transaction) => {
+    return withTransactionRetry(this.database, async (transaction) => {
       const initial = await this.repository.transaction(transactionId, transaction);
       if (initial === null) throw vehicleSaleNotFound();
       const listing = await this.repository.lockListing(

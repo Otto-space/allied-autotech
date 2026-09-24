@@ -27,6 +27,7 @@ const slotFormSchema = z.object({
 type SlotForm = z.infer<typeof slotFormSchema>;
 export function StaffBookingSlots() {
   const session = useAccountSession();
+  const requiresStaffProfile = session?.user.role === "STAFF";
   const profile = useResource("/staff/profile", parseStaffProfile);
   const pagination = useCursorPage();
   const [status, setStatus] = useState("");
@@ -70,12 +71,16 @@ export function StaffBookingSlots() {
     <>
       <h1>Appointment slots</h1>
       <p className="lead">
-        Publish service availability and manage open slots within your permitted branches.
-        Customer booking windows and availability remain controlled by the server.
+        Set available appointment times for your workshop. Customers can request a time
+        that meets the booking rules.
       </p>
       <Feedback message={slots.error} />
       <Feedback message={profile.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback
+        message={message}
+        tone="success"
+        toast="Appointment availability updated."
+      />
       <div className="field">
         <label htmlFor="slot-status-filter">Slot status</label>
         <select
@@ -166,12 +171,15 @@ export function StaffBookingSlots() {
       <SlotCreateForm
         key={formKey}
         disabled={
-          disabled || profile.loading || !!profile.error || !profile.data?.staffProfile
+          disabled ||
+          !session ||
+          (requiresStaffProfile &&
+            (profile.loading || !!profile.error || !profile.data?.staffProfile))
         }
         onReview={setProposal}
         onSaved={() => setFormKey((key) => key + 1)}
       />
-      {profile.data && !profile.data.staffProfile && (
+      {requiresStaffProfile && profile.data && !profile.data.staffProfile && (
         <Feedback message="A staff profile is required to publish or manage appointment slots. Ask an administrator to complete your staff record." />
       )}
       {proposal && (
@@ -245,8 +253,8 @@ function SlotCreateForm({
     <section className="detail-section">
       <h2>Publish an appointment slot</h2>
       <p>
-        Choose an active branch, a service with a fixed price and duration, and an
-        available staff member.
+        Choose a branch, service and staff member, then set the start time. The service
+        must have a price and duration before you can select it.
       </p>
       <Feedback
         message={

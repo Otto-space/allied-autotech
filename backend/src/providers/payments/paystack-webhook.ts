@@ -6,22 +6,24 @@ const chargeSchema = z.object({
   id: z.union([z.string(), z.number()]),
   reference: z.string().min(1).max(160),
   status: z.string().min(1).max(80),
-  amount: z.number().int().positive(),
+  amount: z.number().int().safe().positive(),
   currency: z.string().length(3),
   paid_at: z.string().nullable().optional(),
-  fees: z.number().int().nonnegative().nullable().optional(),
+  fees: z.number().int().safe().nonnegative().nullable().optional(),
   channel: z.string().max(80).nullable().optional(),
 });
 const refundSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: z.union([z.string(), z.number().int().safe()]).optional(),
+  transaction_reference: z.string().min(1).max(160).optional(),
+  refund_reference: z.string().nullable().optional(),
   status: z.string().min(1).max(80),
-  amount: z.number().int().positive(),
+  amount: z.union([z.number().int().safe().positive(), z.string().regex(/^[1-9]\d*$/)]),
   currency: z.string().length(3),
 });
 const disputeSchema = z.object({
   id: z.union([z.string(), z.number()]),
   status: z.string().min(1).max(80),
-  amount: z.number().int().positive(),
+  amount: z.number().int().safe().positive(),
   currency: z.string().length(3),
   category: z.string().max(80).nullable().optional(),
   dueAt: z.string().nullable().optional(),
@@ -83,9 +85,10 @@ export function parsePaystackWebhook(rawBody: Buffer): PaystackWebhookEvent {
     const data = refundSchema.parse(envelope.data);
     return {
       eventType: envelope.event,
-      providerEventId: `${envelope.event}:${String(data.id)}`,
-      resourceId: String(data.id),
-      reference: String(data.id),
+      providerEventId:
+        data.id === undefined ? null : `${envelope.event}:${String(data.id)}`,
+      resourceId: data.id === undefined ? null : String(data.id),
+      reference: data.transaction_reference ?? null,
       gatewayTransactionId: null,
       status: data.status,
       amountKobo: BigInt(data.amount),

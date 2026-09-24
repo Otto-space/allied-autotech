@@ -42,6 +42,9 @@ const enquiry = base.extend({
   vehicleListingId: ref,
 });
 const complaint = base.extend({
+  acknowledgedAt: stamp.nullable().optional(),
+  acknowledgementDueAt: stamp.nullable().optional(),
+  escalatedAt: stamp.nullable().optional(),
   status: z.enum(supportStatuses.complaints),
   description: z.string(),
   resolution: z.string().nullable(),

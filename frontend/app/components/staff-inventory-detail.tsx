@@ -45,7 +45,7 @@ export function StaffInventoryDetail({ inventoryId }: { inventoryId: string }) {
       </Link>
       <h1>Manage inventory</h1>
       <Feedback message={inventory.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Inventory change recorded." />
       <button
         className="button secondary"
         disabled={inventory.loading || !!proposal}

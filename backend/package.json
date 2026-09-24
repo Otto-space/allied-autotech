@@ -11,7 +11,7 @@
     "test:db:create": "tsx scripts/create-test-database.ts",
     "test:db:drop": "tsx scripts/drop-test-database.ts",
     "check:db-tls": "tsx scripts/verify-database-tls.ts",
-    "check": "npm run check:secrets && npm run check:prisma && npm run typecheck && npm run check:scripts && npm run check:openapi && npm run lint && npm run format:check && npm test && npm run check:prisma-config",
+    "check": "npm run check:secrets && npm run check:prisma && npm run typecheck && npm run check:scripts && npm run check:openapi && npm run check:routes && npm run lint && npm run format:check && npm test && npm run check:prisma-config",
     "check:secrets": "tsx scripts/check-secrets.ts",
     "check:secrets:history": "tsx scripts/check-secrets.ts --history",
     "check:prisma": "prisma validate && prisma migrate status",
@@ -29,11 +29,13 @@
     "worker:identity": "tsx src/workers/outbox.worker.ts",
     "worker:general": "tsx src/workers/worker-runtime.ts",
     "bootstrap:super-admin": "tsx scripts/bootstrap-admin.ts",
+    "db:migrate": "prisma migrate deploy",
     "prisma:format": "prisma format",
     "prisma:generate": "prisma generate",
     "phase7:preflight": "tsx scripts/verify-phase7-preflight.ts",
     "reconcile:payments": "tsx scripts/reconcile-payments.ts",
-    "seed:staging:public": "tsx scripts/seed-staging-public.ts"
+    "seed:staging:public": "tsx scripts/seed-staging-public.ts",
+    "check:routes": "tsx scripts/verify-route-coverage.ts"
   },
   "keywords": [
     "automotive",

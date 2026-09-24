@@ -50,6 +50,42 @@ const publicBranchListResponseSchema = responseSchema.extend({
   }),
 });
 const publicBranchResponseSchema = responseSchema.extend({ data: publicBranchSchema });
+const ownStaffResponseSchema = responseSchema.extend({
+  data: z.object({
+    id: z.uuid(),
+    email: z.email(),
+    role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]),
+    status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]),
+    emailVerifiedAt: z.iso.datetime({ offset: true }).nullable(),
+    createdAt: z.iso.datetime({ offset: true }),
+    updatedAt: z.iso.datetime({ offset: true }),
+    capabilities: z
+      .array(z.string())
+      .describe(
+        "Active grants for the authenticated account only. Server authorization rechecks grants for every protected mutation.",
+      ),
+    staffProfile: z
+      .object({
+        id: z.uuid(),
+        firstName: z.string(),
+        lastName: z.string(),
+        phone: z.string().nullable(),
+        jobTitle: z.string().nullable(),
+        branchId: z.uuid().nullable(),
+        createdAt: z.iso.datetime({ offset: true }),
+        updatedAt: z.iso.datetime({ offset: true }),
+        branch: z
+          .object({
+            id: z.uuid(),
+            code: z.string(),
+            name: z.string(),
+            isActive: z.boolean(),
+          })
+          .nullable(),
+      })
+      .nullable(),
+  }),
+});
 const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
 type RegisterPathInput = Parameters<OpenAPIRegistry["registerPath"]>[0];
 type RouteParameter = NonNullable<NonNullable<RegisterPathInput["request"]>["params"]>;
@@ -88,6 +124,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       path: "/staff/profile",
       summary: "Get the current privileged profile",
       secured: true,
+      response: ownStaffResponseSchema,
     },
     {
       method: "get",

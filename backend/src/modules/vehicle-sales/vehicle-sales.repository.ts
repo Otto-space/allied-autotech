@@ -63,6 +63,8 @@ export const transactionSelect = {
   currency: true,
   status: true,
   reservationExpiresAt: true,
+  paidHoldStartsAt: true,
+  paidHoldExpiresAt: true,
   termsVersion: true,
   termsAcceptedAt: true,
   cancellationReason: true,

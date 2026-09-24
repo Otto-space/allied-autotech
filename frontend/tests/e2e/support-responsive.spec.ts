@@ -83,17 +83,17 @@ test("resizing an open mobile header to a laptop closes the menu and restores de
   await page.goto("/help");
   await page.getByRole("button", { name: "Open navigation", exact: true }).click();
   await page
-    .getByRole("navigation", { name: "Mobile navigation", exact: true })
+    .getByRole("dialog", { name: "Mobile navigation", exact: true })
     .getByRole("link", { name: "Services", exact: true })
     .focus();
   await page.setViewportSize({ width: 1366, height: 768 });
   await expect(
-    page.getByRole("navigation", { name: "Mobile navigation", exact: true }),
+    page.getByRole("dialog", { name: "Mobile navigation", exact: true }),
   ).toHaveCount(0);
   await expect(
     page
       .getByRole("navigation", { name: "Primary navigation", exact: true })
-      .getByRole("link", { name: "Services", exact: true }),
+      .getByRole("link", { name: "Home", exact: true }),
   ).toBeFocused();
   await expect(
     page.getByRole("navigation", { name: "Customer support", exact: true }),

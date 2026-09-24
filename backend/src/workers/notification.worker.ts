@@ -27,6 +27,13 @@ const payloadSchema = z
     recipient: z.string().min(3).max(254),
     title: z.string().min(1).max(160),
     message: z.string().min(1).max(2_000),
+    bookingAction: z
+      .object({
+        url: z.url(),
+        bookingId: z.uuid(),
+        scheduleVersion: z.number().int().nonnegative(),
+      })
+      .optional(),
   })
   .strict();
 
@@ -102,6 +109,46 @@ export class NotificationDeliveryWorker {
       const payload = payloadSchema.parse(
         decryptNotificationPayload<NotificationDeliveryPayload>(encrypted),
       );
+      const delivery = await this.database.notificationDelivery.findUnique({
+        where: { id: event.deliveryId },
+        include: { notification: true },
+      });
+      if (delivery?.notification.category === "MARKETING") {
+        code = "MARKETING_DISABLED";
+        terminal = true;
+        throw new Error("Marketing execution disabled");
+      }
+      if (delivery?.notification.category === "OPERATIONAL") {
+        const preference = await this.database.notificationPreference.findUnique({
+          where: {
+            userId_category_channel: {
+              userId: delivery.notification.userId,
+              category: "OPERATIONAL",
+              channel: event.channel,
+            },
+          },
+        });
+        if (preference?.enabled === false) {
+          code = "CONSENT_WITHDRAWN";
+          terminal = true;
+          throw new Error("Operational messages disabled by recipient");
+        }
+      }
+      if (payload.bookingAction) {
+        const booking = await this.database.booking.findUnique({
+          where: { id: payload.bookingAction.bookingId },
+          select: { status: true, scheduleVersion: true },
+        });
+        if (
+          !booking ||
+          booking.status !== "CONFIRMED" ||
+          booking.scheduleVersion !== payload.bookingAction.scheduleVersion
+        ) {
+          code = "STALE_BOOKING_REMINDER";
+          terminal = true;
+          throw new Error("Appointment changed before reminder delivery");
+        }
+      }
       if (payload.channel !== event.channel) throw new Error("Delivery channel mismatch");
       if (!isStagingRecipientAllowed(payload.channel, payload.recipient)) {
         code = "STAGING_RECIPIENT_NOT_ALLOWLISTED";

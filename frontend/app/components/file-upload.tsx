@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ApiError, SESSION_CHANGED } from "@/lib/api/client";
 import type { PreparedUpload, UploadOptions } from "@/lib/api/signed-upload";
+import { UploadError } from "@/lib/api/signed-upload";
+import { notify } from "@/lib/notifications";
 import { useAssetStorageHosts } from "./asset-storage-context";
 import { Feedback } from "./feedback";
 
@@ -82,12 +84,15 @@ export function FileUpload({
       });
       if (!controller.signal.aborted) {
         setUploaded(true);
+        notify("File uploaded. Save the form to attach it to the record.", {
+          tone: "info",
+        });
         onChange({ name: file.name, prepared });
       }
     } catch (error) {
       if (!controller.signal.aborted)
         setError(
-          error instanceof ApiError || error instanceof Error
+          error instanceof ApiError || error instanceof UploadError
             ? error.message
             : "The upload could not be completed.",
         );

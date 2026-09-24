@@ -1,6 +1,7 @@
 "use client";
 import { z } from "zod";
 import { trustedAssetUrl } from "../assets";
+export class UploadError extends Error {}
 export type PreparedUpload = { name: string; token: string; expiresAt: number };
 export type UploadOptions = {
   file: File;
@@ -27,7 +28,7 @@ export async function prepareSignedUpload({
   prepare: (metadata: { sizeBytes: number; checksumSha256: string }) => Promise<unknown>;
 }): Promise<PreparedUpload> {
   if (!hosts.length)
-    throw new Error(
+    throw new UploadError(
       "Document uploads are unavailable. Contact customer care or an administrator.",
     );
   const bytes = await file.arrayBuffer();
@@ -41,7 +42,7 @@ export async function prepareSignedUpload({
     await prepare({ sizeBytes: file.size, checksumSha256 }),
   );
   if (!parsed.success)
-    throw new Error("The upload instructions could not be read. Try again.");
+    throw new UploadError("The upload instructions could not be read. Try again.");
   const { upload, token } = parsed.data;
   const url = trustedAssetUrl(
     upload.url,
@@ -50,7 +51,7 @@ export async function prepareSignedUpload({
   );
   const expiresAt = Date.parse(upload.expiresAt);
   if (expiresAt <= Date.now())
-    throw new Error("The upload instructions expired. Upload the file again.");
+    throw new UploadError("The upload instructions expired. Upload the file again.");
   const headers = Object.entries(upload.headers);
   const expected: Record<string, string> = {
     "content-type": file.type,
@@ -63,13 +64,13 @@ export async function prepareSignedUpload({
     ) ||
     headers.some(([key, value]) => expected[key.toLowerCase()] !== value)
   )
-    throw new Error(
+    throw new UploadError(
       "The upload headers could not be verified. Contact an administrator.",
     );
   await uploadFile(file, url, headers, signal, onProgress);
   signal.throwIfAborted();
   if (expiresAt <= Date.now())
-    throw new Error(
+    throw new UploadError(
       "The attachment authorisation expired. Upload the file again before saving.",
     );
   return { name: file.name, token, expiresAt };
@@ -103,19 +104,19 @@ function uploadFile(
       finish(
         request.status >= 200 && request.status < 300
           ? undefined
-          : new Error(
+          : new UploadError(
               "Storage did not confirm the upload. No document has been attached. Try uploading again.",
             ),
       );
     request.onerror = () =>
       finish(
-        new Error(
+        new UploadError(
           "The upload was interrupted. No document has been attached. Check your connection and try again.",
         ),
       );
     request.ontimeout = () =>
       finish(
-        new Error(
+        new UploadError(
           "The upload timed out. No document has been attached. Try uploading again.",
         ),
       );

@@ -4,6 +4,7 @@ import { business } from "./business";
 export const publicPaths = [
   "/",
   "/services",
+  "/about",
   "/parts",
   "/vehicles",
   "/contact",

@@ -52,7 +52,7 @@ export function StaffInvoiceDetail({ invoiceId }: { invoiceId: string }) {
       </Link>
       <h1>Manage invoice</h1>
       <Feedback message={invoice.error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={message} tone="success" toast="Invoice change recorded." />
       <button
         className="button secondary"
         disabled={invoice.loading || !!proposal}

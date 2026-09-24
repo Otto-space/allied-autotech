@@ -130,7 +130,9 @@ for (const [path, pathValue] of Object.entries(paths)) {
     const requestBody = operationValue["requestBody"];
     if (isObject(requestBody)) {
       const content = requestBody["content"];
-      const media = isObject(content) ? content["application/json"] : undefined;
+      const media = isObject(content)
+        ? (content["application/json"] ?? content["application/x-www-form-urlencoded"])
+        : undefined;
       if (!isObject(media) || !isObject(media["schema"]))
         failures.push(`Request body lacks an application/json schema on ${label}`);
       else if (media["example"] === undefined)
@@ -139,12 +141,12 @@ for (const [path, pathValue] of Object.entries(paths)) {
     const success = successResponse(operationValue);
     const successContent = success?.["content"];
     const successMedia = isObject(successContent)
-      ? successContent["application/json"]
+      ? (successContent["application/json"] ?? successContent["text/html"])
       : undefined;
     const successSchema = isObject(successMedia) ? successMedia["schema"] : undefined;
     if (!isObject(successMedia) || !isObject(successSchema))
       failures.push(`Success response lacks an application/json schema on ${label}`);
-    else {
+    else if (successSchema["type"] !== "string") {
       const properties = successSchema["properties"];
       const data = isObject(properties) ? properties["data"] : undefined;
       if (!isObject(data) || Object.keys(data).length === 0)

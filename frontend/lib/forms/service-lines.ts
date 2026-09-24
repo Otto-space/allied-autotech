@@ -52,7 +52,6 @@ export const serviceLineInput = z
   });
 export const serviceLinesFormSchema = z.object({
   items: z.array(serviceLineInput).min(1, "Add at least one line item.").max(100),
-  tax: nairaInput,
   notes: paragraph(4000),
   expiresAt: z.string(),
 });

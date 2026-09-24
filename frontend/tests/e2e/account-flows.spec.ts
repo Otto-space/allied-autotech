@@ -1,5 +1,8 @@
 import { test, expect, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import os from "node:os";
+import path from "node:path";
+import { collectionOnlyOptions } from "../fixtures/fulfillment";
 
 // Synthetic records remain inside intercepted browser tests. No backend mutations.
 const id = (suffix: number) =>
@@ -100,11 +103,108 @@ async function isolate(
     if (path === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-test-token-".repeat(3) });
     if (path === "/public/branches") return reply(route, { items: [branch] });
+    if (path === "/public/fulfillment-options")
+      return reply(route, collectionOnlyOptions);
     if (path === "/customers/bookings" || path === "/public/services")
       return reply(route, { items: [] });
     return failure(route, "NOT_FOUND", 404);
   });
 }
+
+test("customer vehicles load the API vehicles list and paginate", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() !== "error") return;
+    // Console Ninja's injected loopback socket is correctly blocked by the app's
+    // CSP in local development. Report this tooling warning separately.
+    if (
+      /^Connecting to 'ws:\/\/127\.0\.0\.1:\d+\/' violates the following Content Security Policy directive: "connect-src 'self'"\. The action has been blocked\.$/.test(
+        message.text(),
+      )
+    ) {
+      if (!test.info().annotations.some((entry) => entry.type === "local-tooling"))
+        test.info().annotations.push({
+          type: "local-tooling",
+          description:
+            "CSP blocked the local Console Ninja WebSocket; app CSP unchanged.",
+        });
+      return;
+    }
+    errors.push(message.text());
+  });
+  const vehicle = {
+    id: id(91),
+    make: "Toyota",
+    model: "Corolla",
+    year: 2020,
+    registrationNumber: null,
+    vin: null,
+    color: null,
+    mileageKm: 0,
+  };
+  const cursors: (string | null)[] = [];
+  await isolate(page, async (route, pathname) => {
+    if (pathname !== "/customers/vehicles") return;
+    const cursor = new URL(route.request().url()).searchParams.get("cursor");
+    cursors.push(cursor);
+    await reply(
+      route,
+      cursor
+        ? { vehicles: [{ ...vehicle, id: id(92), make: "Honda", model: "Civic" }] }
+        : { vehicles: [vehicle], nextCursor: vehicle.id },
+    );
+    return true;
+  });
+  await page.goto("/dashboard/vehicles");
+  await expect(page).toHaveURL(/\/dashboard\/vehicles$/);
+  await expect(page).toHaveTitle(/Allied/i);
+  await expect(
+    page.getByRole("heading", { name: "Your vehicles", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "2020 Toyota Corolla" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Retry vehicles" })).toHaveCount(0);
+  const pagination = page.getByRole("navigation", { name: "Your vehicle pages" });
+  await pagination.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "2020 Honda Civic" })).toBeVisible();
+  await expect(
+    pagination.getByRole("button", { name: "Next", exact: true }),
+  ).toBeDisabled();
+  expect(cursors).toContain(vehicle.id);
+  await pagination.getByRole("button", { name: "Previous", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "2020 Toyota Corolla" })).toBeVisible();
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-customer-vehicles-desktop.png"),
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("heading", { name: "2020 Toyota Corolla" })).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBe(true);
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-customer-vehicles-mobile.png"),
+  });
+  expect(errors).toEqual([]);
+});
+
+test("customer vehicles retry recovers to the API empty list", async ({ page }) => {
+  let recover = false;
+  await isolate(page, async (route, pathname) => {
+    if (pathname !== "/customers/vehicles") return;
+    if (recover) await reply(route, { vehicles: [] });
+    else await failure(route, "SERVICE_UNAVAILABLE", 503);
+    return true;
+  });
+  await page.goto("/dashboard/vehicles");
+  const empty = page.getByText("No vehicles on this page. Add your vehicle below.");
+  await expect(page.getByRole("button", { name: "Retry vehicles" })).toBeVisible();
+  await expect(empty).toHaveCount(0);
+  recover = true;
+  await page.getByRole("button", { name: "Retry vehicles" }).click();
+  await expect(empty).toBeVisible();
+  await expect(page.getByRole("button", { name: "Retry vehicles" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Save vehicle" })).toBeVisible();
+});
 
 test("uncertain checkout reuses its key and payload without initiating payment", async ({
   page,
@@ -245,10 +345,10 @@ test("customer cannot enter administrator screens", async ({ page }) => {
   const response = await page.goto("/admin/categories", {
     waitUntil: "domcontentloaded",
   });
-  expect(response?.headers()["cache-control"]).toContain("no-store");
   await expect(page).toHaveURL(/\/dashboard$/);
   await expect(page.getByRole("button", { name: "Review changes" })).toHaveCount(0);
   expect(administrativeRequests).toBe(0);
+  expect(response?.headers()["cache-control"]).toContain("no-store");
 });
 
 test("a failed orders request does not claim the account has no orders", async ({

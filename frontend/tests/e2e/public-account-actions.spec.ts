@@ -127,7 +127,7 @@ const actions = [
     name: "booking",
     url: `/services/${service.id}`,
     title: service.name,
-    button: "Request booking & review deposit",
+    button: "Request booking",
     result: "Booking request received",
     path: "/customers/bookings",
   },
@@ -144,7 +144,7 @@ const actions = [
     url: `/parts/${product.id}`,
     title: product.name,
     button: "Save to favourites",
-    result: "Part saved to your favourites.",
+    result: "Product saved to your favourites.",
     path: `/customers/favourites/${product.id}`,
   },
   {
@@ -190,10 +190,13 @@ async function prepare(page: Page, action: Action) {
   }
 }
 async function assertReset(page: Page, action: Action) {
+  await expect(
+    page.getByRole("region", { name: "Notifications", exact: true }).locator(".toast"),
+  ).toHaveCount(0);
   await expect(page.getByText(action.result, { exact: false })).toHaveCount(0);
   if (action.name === "booking") {
     await expect(
-      page.getByRole("link", { name: "Review booking & deposit" }),
+      page.getByRole("main").getByRole("link", { name: "View booking", exact: true }),
     ).toHaveCount(0);
     await expect(page.getByLabel("Workshop branch")).toHaveValue("");
     await expect(
@@ -219,7 +222,9 @@ for (const action of actions) {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(action.title);
     await prepare(page, action);
     await page.getByRole("button", { name: action.button, exact: true }).click();
-    await expect(page.getByText(action.result, { exact: false })).toBeVisible();
+    await expect(
+      page.getByRole("main").getByText(action.result, { exact: false }),
+    ).toBeVisible();
     await changeAccount(page);
     await assertReset(page, action);
     expect(api.calls).toHaveLength(1);
@@ -227,7 +232,9 @@ for (const action of actions) {
     expect(api.calls[0].csrf).toBe("s".repeat(64));
     await prepare(page, action);
     await page.getByRole("button", { name: action.button, exact: true }).click();
-    await expect(page.getByText(action.result, { exact: false })).toBeVisible();
+    await expect(
+      page.getByRole("main").getByText(action.result, { exact: false }),
+    ).toBeVisible();
     expect(api.calls).toHaveLength(2);
     if (action.name === "booking") {
       expect(api.calls[0].key).toBeTruthy();
@@ -256,7 +263,9 @@ for (const action of actions) {
     api.setMode("normal");
     await prepare(page, action);
     await page.getByRole("button", { name: action.button, exact: true }).click();
-    await expect(page.getByText(action.result, { exact: false })).toBeVisible();
+    await expect(
+      page.getByRole("main").getByText(action.result, { exact: false }),
+    ).toBeVisible();
     expect(api.calls).toHaveLength(2);
   });
 }
@@ -297,7 +306,7 @@ test("unknown booking reuses its key only within the same session", async ({ pag
   api.setMode("normal");
   await prepare(page, action);
   await page.getByRole("button", { name: action.button, exact: true }).click();
-  await expect(page.getByText(action.result)).toBeVisible();
+  await expect(page.getByRole("main").getByText(action.result)).toBeVisible();
   expect(api.calls[2].key).not.toBe(api.calls[0].key);
 });
 test("booking account recovery remains visible when the public service refresh fails", async ({
@@ -308,7 +317,7 @@ test("booking account recovery remains visible when the public service refresh f
   await page.goto(action.url);
   await prepare(page, action);
   await page.getByRole("button", { name: action.button, exact: true }).click();
-  await expect(page.getByText(action.result)).toBeVisible();
+  await expect(page.getByRole("main").getByText(action.result)).toBeVisible();
   await page.route(`**/api/v1/public/services/${service.id}`, (route) =>
     route.fulfill({
       status: 503,
@@ -320,9 +329,9 @@ test("booking account recovery remains visible when the public service refresh f
   await expect(
     page.getByRole("link", { name: "Sign in or review your account" }),
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Review booking & deposit" })).toHaveCount(
-    0,
-  );
+  await expect(
+    page.getByRole("main").getByRole("link", { name: "View booking", exact: true }),
+  ).toHaveCount(0);
   await expect(page.getByText(action.result)).toHaveCount(0);
   expect(api.calls).toHaveLength(1);
 });

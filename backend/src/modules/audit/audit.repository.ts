@@ -1,5 +1,6 @@
 import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
+import { refundQueueSelect } from "../payments/refund-record.js";
 import type {
   AnomalyListQuery,
   AuditListQuery,
@@ -160,25 +161,7 @@ export class AuditRepository {
   refunds(query: RefundListQuery) {
     return this.database.refund.findMany({
       where: query.status ? { status: query.status } : {},
-      select: {
-        id: true,
-        refundNumber: true,
-        paymentAttemptId: true,
-        requestedByUserId: true,
-        approvedByUserId: true,
-        providerRefundId: true,
-        amountKobo: true,
-        currency: true,
-        status: true,
-        reason: true,
-        providerStatus: true,
-        failureCode: true,
-        requestedAt: true,
-        approvedAt: true,
-        processedAt: true,
-        failedAt: true,
-        updatedAt: true,
-      },
+      select: refundQueueSelect,
       orderBy: [{ requestedAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,
       ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),

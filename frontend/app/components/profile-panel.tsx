@@ -115,47 +115,71 @@ function ProfileForm({
   }
   return (
     <>
-      <Feedback message={error} />
-      <Feedback message={message} tone="success" />
+      <Feedback message={error} toast="Please review the message on this page." />
+      <Feedback message={message} tone="success" toast="Your profile has been updated." />
       <form className="card" onSubmit={form.handleSubmit(save)} noValidate>
-        <p>
-          <span className="field-label">Account email</span>
-          <br />
-          {profile.user.email}
-        </p>
-        <div className="form-row">
-          {fields.map((field) => (
-            <div className="field" key={field.name}>
-              <label htmlFor={`profile-${field.name}`}>{field.label}</label>
-              <input
-                id={`profile-${field.name}`}
-                type={field.name === "phone" ? "tel" : "text"}
-                autoComplete={field.autoComplete}
-                required={field.required}
-                maxLength={field.max}
-                aria-invalid={!!form.formState.errors[field.name]}
-                aria-describedby={
-                  form.formState.errors[field.name]
-                    ? `profile-${field.name}-error`
-                    : undefined
-                }
-                {...form.register(field.name)}
-              />
-              {form.formState.errors[field.name] && (
-                <span className="field-error" id={`profile-${field.name}-error`}>
-                  {form.formState.errors[field.name]?.message}
-                </span>
-              )}
+        {[
+          {
+            title: "Personal details",
+            description:
+              "We use these details to contact you about your bookings and purchases.",
+            entries: fields.slice(0, 3),
+          },
+          {
+            title: "Address",
+            description: "Optional. Useful for delivery and service requests.",
+            entries: fields.slice(3),
+          },
+        ].map((group, index) => (
+          <fieldset className="form-section" key={group.title}>
+            <legend>{group.title}</legend>
+            <p>{group.description}</p>
+            {index === 0 && (
+              <dl className="account-email">
+                <dt className="field-label">Account email</dt>
+                <dd>{profile.user.email}</dd>
+              </dl>
+            )}
+            <div className="form-row">
+              {group.entries.map((field) => (
+                <div
+                  className={`field${field.name === "address" || field.name === "phone" ? " field-wide" : ""}`}
+                  key={field.name}
+                >
+                  <label htmlFor={`profile-${field.name}`}>{field.label}</label>
+                  <input
+                    id={`profile-${field.name}`}
+                    type={field.name === "phone" ? "tel" : "text"}
+                    autoComplete={field.autoComplete}
+                    required={field.required}
+                    maxLength={field.max}
+                    aria-invalid={!!form.formState.errors[field.name]}
+                    aria-describedby={
+                      form.formState.errors[field.name]
+                        ? `profile-${field.name}-error`
+                        : undefined
+                    }
+                    {...form.register(field.name)}
+                  />
+                  {form.formState.errors[field.name] && (
+                    <span className="field-error" id={`profile-${field.name}-error`}>
+                      {form.formState.errors[field.name]?.message}
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
+            {index === 1 && (
+              <p className="field-hint profile-country">Country: Nigeria.</p>
+            )}
+          </fieldset>
+        ))}
+        <div className="form-actions">
+          <button className="button" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Saving profile…" : "Save profile"}
+          </button>
+          <p>Your changes are saved when you select Save profile.</p>
         </div>
-        <p className="field-hint">
-          Country: Nigeria. Your profile contact details are used for your workshop and
-          purchase requests.
-        </p>
-        <button className="button" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Saving profile…" : "Save profile"}
-        </button>
       </form>
     </>
   );
@@ -164,16 +188,20 @@ export function ProfilePanel() {
   const profile = useResource("/customers/profile", parseProfile);
   return (
     <>
-      <span className="eyebrow">Customer details</span>
-      <h1>Your profile</h1>
+      <div className="dashboard-page-heading">
+        <div>
+          <h1>Your profile</h1>
+          <p className="lead">Keep your contact details up to date.</p>
+        </div>
+        <button
+          className="button secondary"
+          disabled={profile.loading}
+          onClick={profile.refresh}
+        >
+          Refresh profile
+        </button>
+      </div>
       <Feedback message={profile.error} />
-      <button
-        className="button secondary"
-        disabled={profile.loading}
-        onClick={profile.refresh}
-      >
-        Refresh profile
-      </button>
       {profile.loading && (
         <p role="status">
           {profile.data ? "Checking your latest profile…" : "Loading your profile…"}

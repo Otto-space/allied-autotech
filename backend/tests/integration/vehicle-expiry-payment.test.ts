@@ -1,3 +1,4 @@
+import { hashToken } from "../../src/common/security/session-tokens.js";
 import { randomUUID } from "node:crypto";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../../src/config/database.js";
@@ -88,44 +89,41 @@ async function fixture(state: "unpaid" | "review" | "processing") {
   });
   if (state !== "unpaid") {
     const payments = new PaymentsService(prisma);
-    await payments.createIntent(
-      owner,
-      {
-        targetType: "VEHICLE_TRANSACTION",
-        targetId: sale.id,
-        purpose: "VEHICLE_FULL_PAYMENT",
-      },
-      randomUUID(),
-      context(),
-    );
-    const payment = await prisma.payment.findFirstOrThrow({
-      where: { vehicleTransactionId: sale.id },
-    });
-    if (state === "review") {
-      await payments.submitManual(
+    await expect(
+      payments.createIntent(
         owner,
-        payment.id,
         {
-          method: "BANK_TRANSFER",
-          payerName: "Isolated Expiry",
-          transferredAt: new Date().toISOString(),
+          targetType: "VEHICLE_TRANSACTION",
+          targetId: sale.id,
+          purpose: "VEHICLE_FULL_PAYMENT",
         },
         randomUUID(),
         context(),
-      );
-    } else {
-      await prisma.paymentAttempt.create({
-        data: {
-          paymentId: payment.id,
-          attemptNumber: 1,
-          internalReference: `VX-${randomUUID()}`,
-          provider: "PAYSTACK",
-          status: "PROCESSING",
-          amountKobo: payment.amountKobo,
+      ),
+    ).rejects.toMatchObject({ statusCode: 409 });
+    // Historical in-flight money is protected without enabling new draft-policy deposits.
+    await prisma.payment.create({
+      data: {
+        customerId: profile.id,
+        vehicleTransactionId: sale.id,
+        paymentNumber: `VX-${randomUUID()}`,
+        idempotencyKeyHash: hashToken("payment-idempotency", randomUUID()),
+        purpose: "VEHICLE_FULL_PAYMENT",
+        amountKobo: sale.agreedPriceKobo,
+        status: state === "review" ? "REQUIRES_REVIEW" : "PROCESSING",
+        attempts: {
+          create: {
+            attemptNumber: 1,
+            internalReference: `VX-${randomUUID()}`,
+            provider: state === "review" ? "MANUAL" : "PAYSTACK",
+            status: "PROCESSING",
+            amountKobo: sale.agreedPriceKobo,
+          },
         },
-      });
-    }
+      },
+    });
   }
+
   await prisma.vehicleTransaction.update({
     where: { id: sale.id },
     data: { reservationExpiresAt: new Date(Date.now() - 1000) },

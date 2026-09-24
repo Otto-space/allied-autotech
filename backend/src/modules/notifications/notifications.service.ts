@@ -26,6 +26,8 @@ export async function enqueueNotification(
   transaction: Transaction,
   input: EnqueueNotification,
 ) {
+  if (input.category === "MARKETING")
+    throw new Error("Marketing execution is disabled pending owner approval");
   if (
     input.title.length < 1 ||
     input.title.length > 160 ||
@@ -75,9 +77,8 @@ export async function enqueueNotification(
   for (const channel of new Set(input.channels ?? [])) {
     const enabledByRuntime =
       channel === "EMAIL" ? env.EMAIL_DELIVERY_ENABLED : env.SMS_DELIVERY_ENABLED;
-    if (!enabledByRuntime) continue;
     const preference =
-      input.category === "OPERATIONAL" || input.category === "MARKETING"
+      input.category === "OPERATIONAL"
         ? await transaction.notificationPreference.findUnique({
             where: {
               userId_category_channel: {
@@ -90,11 +91,7 @@ export async function enqueueNotification(
           })
         : null;
     const permitted =
-      input.category === "MARKETING"
-        ? preference?.enabled === true && preference.consentedAt !== null
-        : input.category === "OPERATIONAL"
-          ? preference?.enabled !== false
-          : true;
+      input.category === "OPERATIONAL" ? preference?.enabled !== false : true;
     if (!permitted) continue;
     const address =
       channel === "EMAIL"
@@ -106,6 +103,7 @@ export async function enqueueNotification(
       recipient: address,
       title: input.title,
       message: input.message,
+      ...(input.bookingAction ? { bookingAction: input.bookingAction } : {}),
     };
     const eventId = randomUUID();
     const outbox = await transaction.outboxEvent.create({
@@ -114,6 +112,8 @@ export async function enqueueNotification(
         aggregateType: "Notification",
         aggregateId: notification.id,
         eventType: notificationEventTypes.deliveryRequested,
+        status: enabledByRuntime ? "PENDING" : "DEAD_LETTER",
+        ...(enabledByRuntime ? {} : { lastError: "CHANNEL_DISABLED" }),
         payload: {
           encrypted: encryptNotificationPayload(payload),
         } as unknown as Prisma.InputJsonValue,
@@ -123,6 +123,8 @@ export async function enqueueNotification(
     await transaction.notificationDelivery.create({
       data: {
         notificationId: notification.id,
+        status: enabledByRuntime ? "PENDING" : "DEAD_LETTER",
+        ...(enabledByRuntime ? {} : { lastErrorCode: "CHANNEL_DISABLED" }),
         outboxEventId: outbox.id,
         channel,
       },
@@ -218,6 +220,15 @@ export class NotificationsService {
           enabled: true,
           consentedAt: true,
           updatedAt: true,
+        },
+      });
+      await transaction.consentRecord.create({
+        data: {
+          userId: actor.userId,
+          scope: `${input.category}:${input.channel}`,
+          source: "authenticated-preferences",
+          wordingVersion: "owner-checklist-Q12-pending-marketing-wording",
+          granted: input.enabled,
         },
       });
       await appendAuditEvent(transaction, {

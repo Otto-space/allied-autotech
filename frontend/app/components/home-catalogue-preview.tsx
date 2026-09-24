@@ -24,10 +24,10 @@ export function HomePartsPreview({
       <Feedback message={parts.error} />
       {parts.error && (
         <button className="button secondary" onClick={parts.refresh}>
-          Retry featured parts
+          Retry products
         </button>
       )}
-      {parts.loading && <p role="status">Loading catalogue parts…</p>}
+      {parts.loading && <p role="status">Loading products…</p>}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
         {(!parts.error ? parts.data : undefined)?.items.map((part) => {
           const media = part.images.find((item) => item.isPrimary) ?? part.images[0];
@@ -51,7 +51,7 @@ export function HomePartsPreview({
         })}
       </div>
       {!parts.loading && !parts.error && parts.data?.items.length === 0 && (
-        <p>No parts are published yet. Contact the team with the part you need.</p>
+        <p>No products are published yet. Contact the team with what you need.</p>
       )}
     </div>
   );

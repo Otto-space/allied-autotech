@@ -173,7 +173,7 @@ describe("Monnify payment security", () => {
         DEPLOYMENT_ENV: "staging",
         MONNIFY_MODE: "disabled",
       }),
-    ).toThrow("Staging requires MONNIFY_MODE=sandbox");
+    ).not.toThrow();
     expect(() =>
       assertMonnifyMode({
         ...env,

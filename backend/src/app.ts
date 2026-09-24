@@ -42,7 +42,14 @@ export function createApp(options: CreateAppOptions = {}): Express {
   const trustProxyHops = options.trustProxyHops ?? env.TRUST_PROXY_HOPS;
 
   app.disable("x-powered-by");
-  app.set("trust proxy", trustProxyHops === 0 ? false : trustProxyHops);
+  app.set(
+    "trust proxy",
+    options.trustProxyHops === undefined && env.TRUST_PROXY_CIDRS?.length
+      ? env.TRUST_PROXY_CIDRS
+      : trustProxyHops === 0
+        ? false
+        : trustProxyHops,
+  );
 
   app.use(requestContext);
   app.use(
@@ -53,7 +60,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
           return {
             id: request.id,
             method: request.method,
-            path: new URL(request.url, "http://local.invalid").pathname,
+            path: new URL(request.url, "https://local.invalid").pathname,
           };
         },
         res(response) {
@@ -92,7 +99,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
         "X-CSRF-Token",
         "X-Request-ID",
       ],
-      exposedHeaders: ["X-Request-ID", "RateLimit", "RateLimit-Policy"],
+      exposedHeaders: ["X-Request-ID", "RateLimit", "RateLimit-Policy", "Retry-After"],
       maxAge: 600,
     }),
   );

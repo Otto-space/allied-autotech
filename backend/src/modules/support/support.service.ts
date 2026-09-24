@@ -1,3 +1,4 @@
+import { assignComplaintDeadline } from "./complaint-sla.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { prisma } from "../../config/database.js";
@@ -128,7 +129,10 @@ export class SupportService {
         newValues: { branchId, priority: complaint.priority },
         context,
       });
-      return complaint;
+      return {
+        ...complaint,
+        ...(await assignComplaintDeadline(transaction, complaint.id)),
+      };
     });
   }
 
@@ -166,7 +170,10 @@ export class SupportService {
         newValues: { branchId, priority: complaint.priority },
         context,
       });
-      return complaint;
+      return {
+        ...complaint,
+        ...(await assignComplaintDeadline(transaction, complaint.id)),
+      };
     });
   }
 
@@ -598,6 +605,43 @@ export class SupportService {
     });
   }
 
+  async acknowledgeComplaint(
+    actor: AuthenticatedActor,
+    id: string,
+    message: string,
+    context: RequestSecurityContext,
+  ) {
+    assertSupportOperator(actor);
+    return this.database.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR UPDATE`;
+      const current = await this.repository.staffComplaint(id, tx);
+      if (!current) throw supportNotFound();
+      await this.assertStaffBranch(actor, current.branchId, tx);
+      if (current.acknowledgedAt) return current;
+      await tx.complaint.update({
+        where: { id },
+        data: { acknowledgedAt: new Date(), acknowledgedByUserId: actor.userId },
+      });
+      await this.repository.createMessage(
+        { complaintId: id },
+        actor.userId,
+        "STAFF",
+        "CUSTOMER",
+        message,
+        tx,
+      );
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityType: "COMPLAINT",
+        entityId: id,
+        newValues: { acknowledged: true },
+        context,
+      });
+      return this.repository.staffComplaint(id, tx);
+    });
+  }
+
   async setComplaintPriority(
     actor: AuthenticatedActor,
     id: string,
@@ -626,6 +670,7 @@ export class SupportService {
         newValues: { priority: input.priority, version: current.version + 1 },
         context,
       });
+      await assignComplaintDeadline(transaction, id);
       const updated = await this.repository.staffComplaint(id, transaction);
       if (updated === null) throw supportNotFound();
       return updated;

@@ -129,7 +129,11 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
   return (
     <>
       <Feedback message={error ?? payment.error} />
-      <Feedback message={message} tone="info" />
+      <Feedback
+        message={message}
+        tone="info"
+        toast="Payment status checked. Review the result."
+      />
       {payment.loading && <p role="status">Checking payment status…</p>}
       <button
         className="button secondary"

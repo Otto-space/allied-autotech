@@ -1,4 +1,5 @@
 import { app } from "./app.js";
+import { safeErrorAttributes } from "./common/observability/safe-error.js";
 import { logger } from "./common/observability/logger.js";
 import { prisma } from "./config/database.js";
 import { assertApiEnvironment, env } from "./config/env.js";
@@ -8,7 +9,7 @@ async function startServer(): Promise<void> {
     assertApiEnvironment();
     await prisma.$connect();
 
-    const server = app.listen(env.PORT, (): void => {
+    const server = app.listen(env.PORT, "0.0.0.0", (): void => {
       logger.info({ port: env.PORT }, "API started");
     });
 
@@ -17,7 +18,7 @@ async function startServer(): Promise<void> {
     server.keepAliveTimeout = 5_000;
 
     server.on("clientError", (error, socket): void => {
-      logger.warn({ err: error }, "Rejected malformed HTTP connection");
+      logger.warn(safeErrorAttributes(error), "Rejected malformed HTTP connection");
 
       if (socket.writable) {
         socket.end("HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n");
@@ -25,7 +26,7 @@ async function startServer(): Promise<void> {
     });
 
     server.on("error", (error): void => {
-      logger.error({ err: error }, "HTTP server error");
+      logger.error(safeErrorAttributes(error), "HTTP server error");
     });
 
     let isShuttingDown = false;
@@ -52,14 +53,17 @@ async function startServer(): Promise<void> {
           await prisma.$disconnect();
 
           if (error) {
-            logger.error({ err: error }, "HTTP server shutdown failed");
+            logger.error(safeErrorAttributes(error), "HTTP server shutdown failed");
             process.exit(1);
           }
 
           logger.info("Server shut down successfully");
           process.exit(0);
         } catch (disconnectError: unknown) {
-          logger.error({ err: disconnectError }, "Database disconnection failed");
+          logger.error(
+            safeErrorAttributes(disconnectError),
+            "Database disconnection failed",
+          );
 
           process.exit(1);
         }
@@ -74,7 +78,7 @@ async function startServer(): Promise<void> {
       void shutdown("SIGINT");
     });
   } catch (error) {
-    logger.fatal({ err: error }, "Server startup failed");
+    logger.fatal(safeErrorAttributes(error), "Server startup failed");
 
     await prisma.$disconnect().catch(() => undefined);
 

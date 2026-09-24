@@ -58,6 +58,7 @@ enum BookingSlotStatus {
 }
 
 enum BookingReminderKind {
+  ONE_HOUR
   SEVEN_DAYS
   THREE_DAYS
   TWO_DAYS
@@ -571,29 +572,64 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  profile                       CustomerProfile?
-  staffProfile                  StaffProfile?
-  sessions                      Session[]
-  passwordResetTokens           PasswordResetToken[]
-  emailVerificationTokens       EmailVerificationToken[]
-  mfaFactors                    MfaFactor[]
-  mfaRecoveryCodes              MfaRecoveryCode[]
-  mfaChallenges                 MfaChallenge[]
-  auditLogs                     AuditLog[]
-  notifications                 Notification[]
-  notificationPreferences       NotificationPreference[]
-  supportMessages               SupportMessage[]
-  reviewsModerated              Review[]                          @relation("ReviewModerator")
-  inventoryTransactions         InventoryTransaction[]
-  manualPaymentsSubmitted       ManualPaymentReview[]             @relation("ManualPaymentSubmitter")
-  manualPaymentsReviewed        ManualPaymentReview[]             @relation("ManualPaymentReviewer")
-  refundsRequested              Refund[]                          @relation("RefundRequester")
-  refundsApproved               Refund[]                          @relation("RefundApprover")
-  anomaliesResolved             PaymentAnomaly[]                  @relation("AnomalyResolver")
-  vehicleStatusChanges          VehicleTransactionStatusHistory[]
-  idempotencyRecords            IdempotencyRecord[]
-  privilegedInvitationsSent     PrivilegedInvitation[]            @relation("PrivilegedInvitationInviter")
-  privilegedInvitationsReceived PrivilegedInvitation[]            @relation("PrivilegedInvitationRecipient")
+  profile                                      CustomerProfile?
+  staffProfile                                 StaffProfile?
+  sessions                                     Session[]
+  passwordResetTokens                          PasswordResetToken[]
+  emailVerificationTokens                      EmailVerificationToken[]
+  mfaFactors                                   MfaFactor[]
+  mfaRecoveryCodes                             MfaRecoveryCode[]
+  mfaChallenges                                MfaChallenge[]
+  auditLogs                                    AuditLog[]
+  notifications                                Notification[]
+  notificationPreferences                      NotificationPreference[]
+  supportMessages                              SupportMessage[]
+  reviewsModerated                             Review[]                          @relation("ReviewModerator")
+  inventoryTransactions                        InventoryTransaction[]
+  manualPaymentsSubmitted                      ManualPaymentReview[]             @relation("ManualPaymentSubmitter")
+  manualPaymentsReviewed                       ManualPaymentReview[]             @relation("ManualPaymentReviewer")
+  refundsRequested                             Refund[]                          @relation("RefundRequester")
+  refundsApproved                              Refund[]                          @relation("RefundApprover")
+  anomaliesResolved                            PaymentAnomaly[]                  @relation("AnomalyResolver")
+  vehicleStatusChanges                         VehicleTransactionStatusHistory[]
+  idempotencyRecords                           IdempotencyRecord[]
+  privilegedInvitationsSent                    PrivilegedInvitation[]            @relation("PrivilegedInvitationInviter")
+  privilegedInvitationsReceived                PrivilegedInvitation[]            @relation("PrivilegedInvitationRecipient")
+  owner_BusinessPolicyVersion_approvedByUserId BusinessPolicyVersion[]           @relation("Owner_BusinessPolicyVersion_approvedByUserId")
+
+  owner_Complaint_acknowledgedByUserId Complaint[] @relation("Owner_Complaint_acknowledgedByUserId")
+
+  owner_ConsentRecord_userId ConsentRecord[] @relation("Owner_ConsentRecord_userId")
+
+  owner_OperationalAlert_resolvedByUserId OperationalAlert[] @relation("Owner_OperationalAlert_resolvedByUserId")
+
+  owner_OrderAftercareRequest_inspectedByUserId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_inspectedByUserId")
+
+  owner_OrderAftercareRequest_reviewedByUserId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_reviewedByUserId")
+
+  owner_PaymentDispute_acknowledgedByUserId PaymentDispute[] @relation("Owner_PaymentDispute_acknowledgedByUserId")
+
+  owner_PaymentDispute_backupUserId PaymentDispute[] @relation("Owner_PaymentDispute_backupUserId")
+
+  owner_PaymentDispute_primaryUserId PaymentDispute[] @relation("Owner_PaymentDispute_primaryUserId")
+
+  owner_PrivacyRequest_reviewedByUserId PrivacyRequest[] @relation("Owner_PrivacyRequest_reviewedByUserId")
+
+  owner_PrivacyRequest_userId PrivacyRequest[] @relation("Owner_PrivacyRequest_userId")
+
+  owner_Refund_checkedByUserId Refund[] @relation("Owner_Refund_checkedByUserId")
+
+  owner_Refund_transferredByUserId Refund[] @relation("Owner_Refund_transferredByUserId")
+
+  owner_RetentionHold_createdByUserId RetentionHold[] @relation("Owner_RetentionHold_createdByUserId")
+
+  owner_RetentionHold_releasedByUserId RetentionHold[] @relation("Owner_RetentionHold_releasedByUserId")
+
+  owner_RetentionHold_userId RetentionHold[] @relation("Owner_RetentionHold_userId")
+
+  owner_UserCapability_grantedByUserId UserCapability[] @relation("Owner_UserCapability_grantedByUserId")
+
+  owner_UserCapability_userId UserCapability[] @relation("Owner_UserCapability_userId")
 
   @@index([role])
   @@index([status])
@@ -785,21 +821,22 @@ model CustomerProfile {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  customerVehicles      CustomerVehicle[]
-  bookings              Booking[]
-  cart                  Cart?
-  orders                Order[]
-  payments              Payment[]
-  vehicleTransactions   VehicleTransaction[]
-  inspectionRequests    InspectionRequest[]
-  reviews               Review[]
-  enquiries             Enquiry[]
-  complaints            Complaint[]
-  invoices              Invoice[]
-  savedVehicles         SavedVehicle[]
-  productFavourites     ProductFavourite[]
-  inventoryReservations InventoryReservation[]
+  user                                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerVehicles                       CustomerVehicle[]
+  bookings                               Booking[]
+  cart                                   Cart?
+  orders                                 Order[]
+  payments                               Payment[]
+  vehicleTransactions                    VehicleTransaction[]
+  inspectionRequests                     InspectionRequest[]
+  reviews                                Review[]
+  enquiries                              Enquiry[]
+  complaints                             Complaint[]
+  invoices                               Invoice[]
+  savedVehicles                          SavedVehicle[]
+  productFavourites                      ProductFavourite[]
+  inventoryReservations                  InventoryReservation[]
+  owner_OrderAftercareRequest_customerId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_customerId")
 
   @@index([phone])
   @@index([state])
@@ -927,6 +964,11 @@ model BookingSlot {
 }
 
 model Booking {
+  requestedAt             DateTime                     @default(now())
+  attendanceConfirmedAt   DateTime?
+  resourceReviewNote      String?
+  capacityPolicyVersionId String?                      @db.Uuid
+  policySnapshot          Json?
   id                      String                       @id @default(uuid()) @db.Uuid
   customerId              String                       @db.Uuid
   branchId                String?                      @db.Uuid
@@ -962,20 +1004,21 @@ model Booking {
   disruptionResolution    BookingDisruptionResolution?
   version                 Int                          @default(0)
 
-  customer       CustomerProfile   @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  branch         Branch?           @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  service        Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
-  vehicle        CustomerVehicle?  @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
-  assignedStaff  StaffProfile?     @relation("AssignedBookings", fields: [assignedStaffId], references: [id], onDelete: SetNull)
-  bookingSlot    BookingSlot?      @relation(fields: [bookingSlotId], references: [id], onDelete: Restrict)
-  depositPayment Payment?
-  reminders      BookingReminder[]
-  quotes         ServiceQuote[]
-  workOrder      WorkOrder?
-  enquiries      Enquiry[]
-  review         Review?
-  invoice        Invoice?
-  complaints     Complaint[]
+  customer                        CustomerProfile        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  branch                          Branch?                @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  service                         Service                @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  vehicle                         CustomerVehicle?       @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+  assignedStaff                   StaffProfile?          @relation("AssignedBookings", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  bookingSlot                     BookingSlot?           @relation(fields: [bookingSlotId], references: [id], onDelete: Restrict)
+  depositPayment                  Payment?
+  reminders                       BookingReminder[]
+  quotes                          ServiceQuote[]
+  workOrder                       WorkOrder?
+  enquiries                       Enquiry[]
+  review                          Review?
+  invoice                         Invoice?
+  complaints                      Complaint[]
+  capacityPolicyVersionIdRelation BusinessPolicyVersion? @relation("Owner_Booking_capacityPolicyVersionId", fields: [capacityPolicyVersionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   @@index([serviceId])
   @@index([branchId, status, scheduledAt])
@@ -1014,6 +1057,7 @@ model BookingReminder {
 }
 
 model ServiceQuote {
+  policySnapshot   Json?
   id               String      @id @default(uuid()) @db.Uuid
   bookingId        String      @db.Uuid
   createdByStaffId String      @db.Uuid
@@ -1299,46 +1343,51 @@ model CartItem {
 }
 
 model Order {
-  id                 String            @id @default(uuid()) @db.Uuid
-  customerId         String            @db.Uuid
-  branchId           String?           @db.Uuid
-  orderNumber        String            @unique @db.VarChar(40)
-  status             OrderStatus       @default(PENDING)
-  fulfillmentMethod  FulfillmentMethod @default(COLLECTION)
-  currency           String            @default("NGN") @db.Char(3)
-  subtotalKobo       BigInt
-  discountAmountKobo BigInt            @default(0)
-  deliveryFeeKobo    BigInt            @default(0)
-  totalKobo          BigInt
-  customerName       String
-  customerEmail      String            @db.Citext
-  customerPhone      String            @db.VarChar(32)
-  deliveryName       String?
-  deliveryPhone      String?           @db.VarChar(32)
-  deliveryAddress    String?
-  deliveryCity       String?
-  deliveryState      String?
-  deliveryCountry    String?
-  cancellationReason String?
-  version            Int               @default(0)
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  paymentDueAt       DateTime?
-  confirmedAt        DateTime?
-  paidAt             DateTime?
-  processingAt       DateTime?
-  readyAt            DateTime?
-  cancelledAt        DateTime?
-  completedAt        DateTime?
+  fulfillmentEvidenceAt        DateTime?
+  fulfillmentEvidenceReference String?           @db.VarChar(300)
+  taxKobo                      BigInt            @default(0)
+  policySnapshot               Json?
+  id                           String            @id @default(uuid()) @db.Uuid
+  customerId                   String            @db.Uuid
+  branchId                     String?           @db.Uuid
+  orderNumber                  String            @unique @db.VarChar(40)
+  status                       OrderStatus       @default(PENDING)
+  fulfillmentMethod            FulfillmentMethod @default(COLLECTION)
+  currency                     String            @default("NGN") @db.Char(3)
+  subtotalKobo                 BigInt
+  discountAmountKobo           BigInt            @default(0)
+  deliveryFeeKobo              BigInt            @default(0)
+  totalKobo                    BigInt
+  customerName                 String
+  customerEmail                String            @db.Citext
+  customerPhone                String            @db.VarChar(32)
+  deliveryName                 String?
+  deliveryPhone                String?           @db.VarChar(32)
+  deliveryAddress              String?
+  deliveryCity                 String?
+  deliveryState                String?
+  deliveryCountry              String?
+  cancellationReason           String?
+  version                      Int               @default(0)
+  createdAt                    DateTime          @default(now())
+  updatedAt                    DateTime          @updatedAt
+  paymentDueAt                 DateTime?
+  confirmedAt                  DateTime?
+  paidAt                       DateTime?
+  processingAt                 DateTime?
+  readyAt                      DateTime?
+  cancelledAt                  DateTime?
+  completedAt                  DateTime?
 
-  customer       CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  branch         Branch?         @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  items          OrderItem[]
-  payments       Payment[]
-  invoice        Invoice?
-  promotionUsage PromotionUsage?
-  review         Review?
-  complaints     Complaint[]
+  customer                            CustomerProfile         @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  branch                              Branch?                 @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  items                               OrderItem[]
+  payments                            Payment[]
+  invoice                             Invoice?
+  promotionUsage                      PromotionUsage?
+  review                              Review?
+  complaints                          Complaint[]
+  owner_OrderAftercareRequest_orderId OrderAftercareRequest[] @relation("Owner_OrderAftercareRequest_orderId")
 
   @@index([customerId, createdAt])
   @@index([branchId, status, createdAt])
@@ -1369,6 +1418,7 @@ model OrderItem {
 // Gateway/manual retries are PaymentAttempt rows. Only a verified attempt may be
 // selected as settledAttempt; duplicate successful charges remain recordable.
 model Payment {
+  policySnapshot       Json?
   id                   String              @id @default(uuid()) @db.Uuid
   customerId           String?             @db.Uuid
   orderId              String?             @db.Uuid
@@ -1482,35 +1532,58 @@ model ManualPaymentReview {
 }
 
 model Refund {
-  id                 String       @id @default(uuid()) @db.Uuid
-  paymentAttemptId   String       @db.Uuid
-  requestedByUserId  String       @db.Uuid
-  approvedByUserId   String?      @db.Uuid
-  refundNumber       String       @unique @db.VarChar(50)
-  idempotencyKeyHash String       @unique @db.Char(64)
-  providerRefundId   String?      @unique @db.VarChar(160)
-  amountKobo         BigInt
-  currency           String       @default("NGN") @db.Char(3)
-  status             RefundStatus @default(REQUESTED)
-  reason             String
-  providerStatus     String?      @db.VarChar(80)
-  failureCode        String?      @db.VarChar(100)
-  failureMessage     String?
-  requestedAt        DateTime     @default(now())
-  approvedAt         DateTime?
-  processedAt        DateTime?
-  failedAt           DateTime?
-  cancelledAt        DateTime?
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
+  reconciliationFailures Int          @default(0)
+  dueAt                  DateTime?
+  clockPolicySnapshot    Json?
+  clockStatus            String       @default("ANCHOR_AND_BANK_CALENDAR_PENDING") @db.VarChar(80)
+  authorizationKind      String       @default("HUMAN") @db.VarChar(40)
+  policyVersionId        String?      @db.Uuid
+  policySnapshot         Json?
+  submissionStartedAt    DateTime?
+  nextReconcileAt        DateTime?
+  transferredByUserId    String?      @db.Uuid
+  transferRecordedAt     DateTime?
+  bankReference          String?      @db.VarChar(160)
+  bankTransferAt         DateTime?
+  beneficiaryEncrypted   Json?
+  evidenceObjectKey      String?      @db.VarChar(512)
+  evidenceSha256         String?      @db.Char(64)
+  checkedByUserId        String?      @db.Uuid
+  checkedAt              DateTime?
+  id                     String       @id @default(uuid()) @db.Uuid
+  paymentAttemptId       String       @db.Uuid
+  requestedByUserId      String?      @db.Uuid
+  approvedByUserId       String?      @db.Uuid
+  refundNumber           String       @unique @db.VarChar(50)
+  idempotencyKeyHash     String       @unique @db.Char(64)
+  providerRefundId       String?      @unique @db.VarChar(160)
+  amountKobo             BigInt
+  currency               String       @default("NGN") @db.Char(3)
+  status                 RefundStatus @default(REQUESTED)
+  reason                 String
+  providerStatus         String?      @db.VarChar(80)
+  failureCode            String?      @db.VarChar(100)
+  failureMessage         String?
+  requestedAt            DateTime     @default(now())
+  approvedAt             DateTime?
+  processedAt            DateTime?
+  failedAt               DateTime?
+  cancelledAt            DateTime?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
 
-  paymentAttempt      PaymentAttempt              @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
-  requestedBy         User                        @relation("RefundRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
-  approvedBy          User?                       @relation("RefundApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
-  webhookEvents       PaymentWebhookEvent[]
-  ledgerEntries       PaymentLedgerEntry[]
-  anomalies           PaymentAnomaly[]
-  reconciliationItems PaymentReconciliationItem[]
+  paymentAttempt          PaymentAttempt              @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  requestedBy             User?                       @relation("RefundRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
+  approvedBy              User?                       @relation("RefundApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  webhookEvents           PaymentWebhookEvent[]
+  ledgerEntries           PaymentLedgerEntry[]
+  anomalies               PaymentAnomaly[]
+  reconciliationItems     PaymentReconciliationItem[]
+  checkedByUserIdRelation User?                       @relation("Owner_Refund_checkedByUserId", fields: [checkedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  policyVersionIdRelation BusinessPolicyVersion? @relation("Owner_Refund_policyVersionId", fields: [policyVersionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  transferredByUserIdRelation User? @relation("Owner_Refund_transferredByUserId", fields: [transferredByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   @@index([paymentAttemptId, status])
   @@index([status, createdAt])
@@ -1519,29 +1592,42 @@ model Refund {
 }
 
 model PaymentDispute {
-  id                String          @id @default(uuid()) @db.Uuid
-  paymentAttemptId  String          @db.Uuid
-  provider          PaymentProvider
-  providerDisputeId String          @db.VarChar(160)
-  status            DisputeStatus
-  category          DisputeCategory
-  amountKobo        BigInt
-  currency          String          @default("NGN") @db.Char(3)
-  reason            String?
-  responseDueAt     DateTime?
-  evidenceObjectKey String?
-  evidenceSha256    String?         @db.Char(64)
-  openedAt          DateTime
-  respondedAt       DateTime?
-  resolvedAt        DateTime?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  primaryUserId               String?         @db.Uuid
+  backupUserId                String?         @db.Uuid
+  acknowledgedAt              DateTime?
+  acknowledgedByUserId        String?         @db.Uuid
+  acknowledgementDueAt        DateTime?
+  escalatedAt                 DateTime?
+  evidenceChecklist           Json?
+  providerSubmissionReference String?         @db.VarChar(200)
+  id                          String          @id @default(uuid()) @db.Uuid
+  paymentAttemptId            String          @db.Uuid
+  provider                    PaymentProvider
+  providerDisputeId           String          @db.VarChar(160)
+  status                      DisputeStatus
+  category                    DisputeCategory
+  amountKobo                  BigInt
+  currency                    String          @default("NGN") @db.Char(3)
+  reason                      String?
+  responseDueAt               DateTime?
+  evidenceObjectKey           String?
+  evidenceSha256              String?         @db.Char(64)
+  openedAt                    DateTime
+  respondedAt                 DateTime?
+  resolvedAt                  DateTime?
+  createdAt                   DateTime        @default(now())
+  updatedAt                   DateTime        @updatedAt
 
-  paymentAttempt      PaymentAttempt              @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
-  webhookEvents       PaymentWebhookEvent[]
-  ledgerEntries       PaymentLedgerEntry[]
-  anomalies           PaymentAnomaly[]
-  reconciliationItems PaymentReconciliationItem[]
+  paymentAttempt               PaymentAttempt              @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  webhookEvents                PaymentWebhookEvent[]
+  ledgerEntries                PaymentLedgerEntry[]
+  anomalies                    PaymentAnomaly[]
+  reconciliationItems          PaymentReconciliationItem[]
+  acknowledgedByUserIdRelation User?                       @relation("Owner_PaymentDispute_acknowledgedByUserId", fields: [acknowledgedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  backupUserIdRelation User? @relation("Owner_PaymentDispute_backupUserId", fields: [backupUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  primaryUserIdRelation User? @relation("Owner_PaymentDispute_primaryUserId", fields: [primaryUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   @@unique([provider, providerDisputeId])
   @@index([paymentAttemptId])
@@ -1869,6 +1955,9 @@ model InspectionRequest {
 }
 
 model VehicleTransaction {
+  paidHoldStartsAt        DateTime?
+  paidHoldExpiresAt       DateTime?
+  policySnapshot          Json?
   id                      String                   @id @default(uuid()) @db.Uuid
   vehicleListingId        String                   @db.Uuid
   customerId              String?                  @db.Uuid
@@ -2049,6 +2138,12 @@ model Enquiry {
 }
 
 model Complaint {
+  acknowledgedAt       DateTime?
+  acknowledgedByUserId String?   @db.Uuid
+  acknowledgementDueAt DateTime?
+  slaPolicySnapshot    Json?
+  escalatedAt          DateTime?
+
   id                   String            @id @default(uuid()) @db.Uuid
   customerId           String?           @db.Uuid
   branchId             String?           @db.Uuid
@@ -2070,13 +2165,14 @@ model Complaint {
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
-  customer           CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  branch             Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  booking            Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  order              Order?              @relation(fields: [orderId], references: [id], onDelete: SetNull)
-  vehicleTransaction VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: SetNull)
-  assignedStaff      StaffProfile?       @relation("AssignedComplaints", fields: [assignedStaffId], references: [id], onDelete: SetNull)
-  messages           SupportMessage[]
+  customer                     CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  branch                       Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  booking                      Booking?            @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  order                        Order?              @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  vehicleTransaction           VehicleTransaction? @relation(fields: [vehicleTransactionId], references: [id], onDelete: SetNull)
+  assignedStaff                StaffProfile?       @relation("AssignedComplaints", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  messages                     SupportMessage[]
+  acknowledgedByUserIdRelation User?               @relation("Owner_Complaint_acknowledgedByUserId", fields: [acknowledgedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   @@index([customerId])
   @@index([branchId, status, priority, createdAt])
@@ -2149,6 +2245,7 @@ model PromotionUsage {
 }
 
 model Invoice {
+  policySnapshot       Json?
   id                   String        @id @default(uuid()) @db.Uuid
   invoiceNumber        String        @unique @db.VarChar(50)
   customerId           String        @db.Uuid
@@ -2278,4 +2375,156 @@ model OutboxEvent {
 
   @@index([status, availableAt])
   @@index([aggregateType, aggregateId])
+}
+
+// Append-only versions: approval creates a new version, never changes old terms.
+model BusinessPolicyVersion {
+  id                                    String    @id @default(uuid()) @db.Uuid
+  key                                   String    @db.VarChar(100)
+  version                               Int
+  approvalStatus                        String    @db.VarChar(24)
+  source                                String    @db.VarChar(500)
+  sourceQuestion                        String    @db.VarChar(40)
+  sourceSignatory                       String?   @db.VarChar(160)
+  approvedByUserId                      String?   @db.Uuid
+  effectiveAt                           DateTime
+  recordedAt                            DateTime  @default(now())
+  settings                              Json
+  approvalEvidence                      String?   @db.VarChar(1000)
+  owner_Booking_capacityPolicyVersionId Booking[] @relation("Owner_Booking_capacityPolicyVersionId")
+
+  approvedByUserIdRelation User? @relation("Owner_BusinessPolicyVersion_approvedByUserId", fields: [approvedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  owner_Refund_policyVersionId Refund[] @relation("Owner_Refund_policyVersionId")
+
+  @@unique([key, version])
+  @@index([key, effectiveAt])
+}
+
+model UserCapability {
+  id                      String    @id @default(uuid()) @db.Uuid
+  userId                  String    @db.Uuid
+  capability              String    @db.VarChar(100)
+  grantedByUserId         String    @db.Uuid
+  grantedAt               DateTime  @default(now())
+  revokedAt               DateTime?
+  grantedByUserIdRelation User      @relation("Owner_UserCapability_grantedByUserId", fields: [grantedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  userIdRelation User @relation("Owner_UserCapability_userId", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([userId, capability, revokedAt])
+}
+
+model RateLimitBucket {
+  key     String   @id @db.Char(64)
+  hits    Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+model OperationalAlert {
+  id                       String    @id @default(uuid()) @db.Uuid
+  key                      String    @unique @db.VarChar(200)
+  category                 String    @db.VarChar(80)
+  resourceId               String?   @db.Uuid
+  message                  String    @db.VarChar(1000)
+  createdAt                DateTime  @default(now())
+  resolvedAt               DateTime?
+  resolvedByUserId         String?   @db.Uuid
+  resolvedByUserIdRelation User?     @relation("Owner_OperationalAlert_resolvedByUserId", fields: [resolvedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([resolvedAt, createdAt])
+}
+
+model WorkerHeartbeat {
+  name            String    @id @db.VarChar(100)
+  lastStartedAt   DateTime
+  lastSucceededAt DateTime?
+  lastFailedAt    DateTime?
+  errorCode       String?   @db.VarChar(100)
+}
+
+model ConsentRecord {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @db.Uuid
+  scope          String   @db.VarChar(100)
+  source         String   @db.VarChar(100)
+  wordingVersion String   @db.VarChar(100)
+  granted        Boolean
+  recordedAt     DateTime @default(now())
+  userIdRelation User     @relation("Owner_ConsentRecord_userId", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([userId, scope, recordedAt])
+}
+
+model PrivacyRequest {
+  id                       String    @id @default(uuid()) @db.Uuid
+  userId                   String    @db.Uuid
+  kind                     String    @db.VarChar(24)
+  reason                   String    @db.VarChar(2000)
+  status                   String    @default("REQUESTED") @db.VarChar(24)
+  createdAt                DateTime  @default(now())
+  reviewedAt               DateTime?
+  reviewedByUserId         String?   @db.Uuid
+  reviewNote               String?   @db.VarChar(2000)
+  reviewedByUserIdRelation User?     @relation("Owner_PrivacyRequest_reviewedByUserId", fields: [reviewedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  userIdRelation User @relation("Owner_PrivacyRequest_userId", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+model RetentionHold {
+  id                      String    @id @default(uuid()) @db.Uuid
+  userId                  String    @db.Uuid
+  recordType              String    @db.VarChar(80)
+  recordId                String?   @db.Uuid
+  reason                  String    @db.VarChar(2000)
+  createdByUserId         String    @db.Uuid
+  createdAt               DateTime  @default(now())
+  releasedAt              DateTime?
+  releasedByUserId        String?   @db.Uuid
+  createdByUserIdRelation User      @relation("Owner_RetentionHold_createdByUserId", fields: [createdByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  releasedByUserIdRelation User? @relation("Owner_RetentionHold_releasedByUserId", fields: [releasedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  userIdRelation User @relation("Owner_RetentionHold_userId", fields: [userId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([userId, releasedAt])
+}
+
+model OrderAftercareRequest {
+  id                 String          @id @default(uuid()) @db.Uuid
+  orderId            String          @db.Uuid
+  customerId         String          @db.Uuid
+  kind               String          @db.VarChar(24)
+  status             String          @default("REQUESTED") @db.VarChar(32)
+  reason             String          @db.VarChar(2000)
+  reviewReason       String          @db.VarChar(1000)
+  requestedAt        DateTime        @default(now())
+  items              Json
+  receivedAt         DateTime?
+  inspectedAt        DateTime?
+  inspectedByUserId  String?         @db.Uuid
+  inspectionNote     String?         @db.VarChar(2000)
+  goodCondition      Boolean?
+  approvedFeeKobo    BigInt?
+  reviewedByUserId   String?         @db.Uuid
+  reviewedAt         DateTime?
+  reviewNote         String?         @db.VarChar(2000)
+  policySnapshot     Json
+  refundDueAt        DateTime?
+  refundClockStatus  String          @default("ANCHOR_AND_BANK_CALENDAR_PENDING") @db.VarChar(80)
+  customerIdRelation CustomerProfile @relation("Owner_OrderAftercareRequest_customerId", fields: [customerId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  inspectedByUserIdRelation User? @relation("Owner_OrderAftercareRequest_inspectedByUserId", fields: [inspectedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  orderIdRelation Order @relation("Owner_OrderAftercareRequest_orderId", fields: [orderId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  reviewedByUserIdRelation User? @relation("Owner_OrderAftercareRequest_reviewedByUserId", fields: [reviewedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([orderId, kind, requestedAt])
+  @@index([status, requestedAt])
 }

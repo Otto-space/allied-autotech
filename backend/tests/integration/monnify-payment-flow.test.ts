@@ -1,3 +1,5 @@
+import { testCapability } from "../helpers/owner-policy.js";
+import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 
@@ -38,6 +40,7 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
     const requesterId = randomUUID();
     const passwordHash = await hashPassword(`synthetic passphrase ${randomUUID()}`);
     const approverId = (await testOwner(passwordHash)).id;
+    await testCapability(approverId, "REFUND_APPROVE");
     const customer = await prisma.user.create({
       data: {
         id: customerId,
@@ -226,6 +229,10 @@ describe.skipIf(!runDatabaseTests)("Monnify payment flow", () => {
       { decision: "APPROVED" },
       context,
     );
+    await new RefundWorker(
+      prisma,
+      new PaymentProviderRegistry({ MONNIFY: provider }),
+    ).runOnce(25, requested.refund.id);
     await service.ingestMonnifyWebhook(
       {
         kind: "refund",

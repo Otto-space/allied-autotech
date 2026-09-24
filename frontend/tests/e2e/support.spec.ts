@@ -406,6 +406,14 @@ test("unknown reply locks resubmission and preserves the draft", async ({ page }
     "Uncertain complaint follow-up",
   );
   await expect(page.getByRole("button", { name: "Review reply" })).toBeDisabled();
+  state.failDetail = true;
+  await page.getByRole("button", { name: "Refresh record", exact: true }).click();
+  await expect(page.getByLabel("Reply text")).toHaveCount(0);
+  state.failDetail = false;
+  await page.getByRole("button", { name: "Refresh record", exact: true }).click();
+  await expect(page.getByLabel("Reply text")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Review reply" })).toBeDisabled();
+  await expect(page.getByText(/A support change has an unknown outcome/)).toBeVisible();
   expect(state.writes).toHaveLength(1);
 });
 test("uncertain creation stays locked across category switches", async ({ page }) => {
@@ -507,7 +515,7 @@ for (const kind of ["enquiries", "complaints"]) {
     await page.getByRole("button", { name: "Review support change" }).click();
     await confirm(page);
     await expect(
-      page.getByText("This record is closed and cannot receive further messages."),
+      page.getByText("This record is closed. The reply form is unavailable."),
     ).toBeVisible();
     expect(state.writes[1].body).toEqual({ expectedVersion: 1, status: "CLOSED" });
     await expect(page.getByLabel("Reply text")).toHaveCount(0);
