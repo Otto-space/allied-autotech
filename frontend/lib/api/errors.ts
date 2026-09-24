@@ -1,4 +1,5 @@
 export const messages: Readonly<Record<string, string>> = {
+  BACKEND_NOT_CONFIGURED: "Online services are not connected yet.",
   AUTHENTICATION_FAILED: "The email or password could not be verified.",
   SECURITY_PASSWORD_REJECTED:
     "Your current password could not be verified. Go back and enter it again.",
@@ -23,6 +24,10 @@ export const messages: Readonly<Record<string, string>> = {
     "The current record could not be checked. No change was submitted. Refresh it before trying again.",
   IDEMPOTENCY_CONFLICT:
     "This submission has already been used with different details. Check the current status before starting again.",
+  PAYMENT_ATTEMPT_PENDING:
+    "This payment already has an attempt awaiting confirmation or review. Check its status before making another payment.",
+  PAYMENT_TARGET_PENDING:
+    "A payment already exists for this purchase or invoice. Open Payments and check the existing request before paying again.",
   INSUFFICIENT_STOCK:
     "There is not enough available stock for this quantity. Refresh availability and review the quantity before trying again.",
   INVALID_TRANSITION: "This action is no longer available. Refresh the current status.",

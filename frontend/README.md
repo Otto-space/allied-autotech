@@ -20,6 +20,19 @@ Open `http://localhost:3000`. Browser API requests use the same-origin `/api/v1`
 
 Keep `SITE_INDEXING=disabled` and `SITE_ORIGIN` empty until the actual production domain is approved. Media and upload host allowlists are documented in `.env.example`. No additional environment setting is needed for delivery setup or checkout.
 
+## Deploy to Vercel
+
+Import the repository with **Root Directory `frontend`** and the **Next.js** preset.
+The checked-in Vercel configuration uses `npm ci`, `npm run build`, and Node.js 24.
+To see the frontend without a backend, leave `BACKEND_ORIGIN` unset in Vercel.
+No API, database or tunnel is required. Keep `SITE_INDEXING=disabled`.
+The public frontend renders; data-dependent sections show unavailable states, and
+login, protected dashboards and saves require connecting a backend later.
+
+See [Vercel deployment](docs/vercel-deployment.md) for environment variables,
+backend authentication settings and verification. Vercel uses native Next.js
+output; local and other Node-hosted builds keep the existing standalone server.
+
 ## Application flows
 
 - Public discovery: `/`, `/services`, `/parts` (labelled Shop), `/vehicles`, `/about`, `/help` and `/contact`.

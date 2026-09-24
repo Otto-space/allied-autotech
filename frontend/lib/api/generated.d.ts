@@ -2891,7 +2891,7 @@ export interface paths {
     put?: never;
     /**
      * Create a server-priced payment intent
-     * @description Requires the customer account that owns the payment; server verification remains authoritative. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+     * @description Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersPayments"];
     delete?: never;
@@ -2931,7 +2931,7 @@ export interface paths {
     put?: never;
     /**
      * Initialize Paystack checkout
-     * @description Requires the customer account that owns the payment; server verification remains authoritative. Initialize Paystack checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+     * @description Requires the customer account that owns the payment; server verification remains authoritative. Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due. Initialize Paystack checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersPaymentsByPaymentIdPaystack"];
     delete?: never;
@@ -2951,7 +2951,7 @@ export interface paths {
     put?: never;
     /**
      * Initialize Monnify hosted Pay-with-Bank checkout
-     * @description Requires the customer account that owns the payment; server verification remains authoritative. Initialize Monnify hosted Pay-with-Bank checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+     * @description Requires the customer account that owns the payment; server verification remains authoritative. Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due. Initialize Monnify hosted Pay-with-Bank checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersPaymentsByPaymentIdMonnify"];
     delete?: never;
@@ -2991,7 +2991,7 @@ export interface paths {
     put?: never;
     /**
      * Submit manual-payment evidence
-     * @description Requires the customer account that owns the payment; server verification remains authoritative. Submit manual-payment evidence. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+     * @description Requires the customer account that owns the payment; server verification remains authoritative. Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due. Submit manual-payment evidence. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersPaymentsByPaymentIdManual"];
     delete?: never;
@@ -4044,8 +4044,8 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Read safe policy capabilities and server time
-     * @description Read safe policy capabilities and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     * Read effective policy availability and server time
+     * @description Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getPublicCapabilities"];
     put?: never;
@@ -4645,13 +4645,13 @@ export interface paths {
     };
     /**
      * Render a read-only attendance confirmation screen
-     * @description Private, no-store, noindex HTML. GET and HEAD never mutate; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Render a read-only attendance confirmation screen. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Private, no-store, noindex HTML. GET never mutates. HEAD is also read-only; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Render a read-only attendance confirmation screen. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getPublicBookingResponse"];
     put?: never;
     /**
      * Confirm attendance or cancel using a purpose-bound expiring token
-     * @description Private, no-store, noindex HTML. GET and HEAD never mutate; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Confirm attendance or cancel using a purpose-bound expiring token. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Private, no-store, noindex HTML. GET never mutates. HEAD is also read-only; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Confirm attendance or cancel using a purpose-bound expiring token. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
      */
     post: operations["postPublicBookingResponse"];
     delete?: never;
@@ -4695,6 +4695,8 @@ export interface components {
           | "NOT_FOUND"
           | "CONFLICT"
           | "IDEMPOTENCY_CONFLICT"
+          | "PAYMENT_ATTEMPT_PENDING"
+          | "PAYMENT_TARGET_PENDING"
           | "INSUFFICIENT_STOCK"
           | "STALE_VERSION"
           | "INVALID_TRANSITION"
@@ -59315,7 +59317,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Success: Read safe policy capabilities and server time. */
+      /** @description Success: Read effective policy availability and server time. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -59324,10 +59326,37 @@ export interface operations {
           /**
            * @example {
            *       "success": true,
-           *       "message": "Read safe policy capabilities and server time",
+           *       "message": "Read effective policy availability and server time",
            *       "data": {
-           *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "scope": "POLICY_SUMMARY",
+           *         "serverTime": "2030-01-15T10:00:00.000Z",
+           *         "checkoutEnabled": true,
+           *         "collection": {
+           *           "enabled": true,
+           *           "address": "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+           *         },
+           *         "delivery": {
+           *           "enabled": true
+           *         },
+           *         "vehicleDeposits": {
+           *           "enabled": true
+           *         },
+           *         "finance": {
+           *           "approvalStatus": "synthetic-approvalstatus",
+           *           "draftVatBasisPoints": 750,
+           *           "pricesIncludeVat": false
+           *         },
+           *         "booking": {
+           *           "confirmation": "STAFF_REVIEW",
+           *           "cancellationFeeKobo": "0",
+           *           "reminderMinutes": 60
+           *         },
+           *         "marketing": {
+           *           "enabled": false
+           *         },
+           *         "destructiveRetention": {
+           *           "enabled": false
+           *         }
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -59339,17 +59368,92 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Read safe policy capabilities and server time. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Scope validated by this operation's strict request contract.
+               * @enum {string}
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              scope: "POLICY_SUMMARY";
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              serverTime: string;
+              /** @description Checkout Enabled validated by this operation's strict request contract. */
+              checkoutEnabled: boolean;
+              /** @description Collection validated by this operation's strict request contract. */
+              collection: {
+                /**
+                 * @description Enabled validated by this operation's strict request contract.
+                 * @enum {boolean}
+                 */
+                enabled: true;
+                /**
+                 * @description Address validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                address: "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria";
+              };
+              /** @description Delivery validated by this operation's strict request contract. */
+              delivery: {
+                /** @description Enabled validated by this operation's strict request contract. */
+                enabled: boolean;
+              };
+              /** @description Vehicle Deposits validated by this operation's strict request contract. */
+              vehicleDeposits: {
+                /** @description Enabled validated by this operation's strict request contract. */
+                enabled: boolean;
+              };
+              /** @description Finance validated by this operation's strict request contract. */
+              finance: {
+                /** @description Approval Status validated by this operation's strict request contract. */
+                approvalStatus: string | null;
+                /**
+                 * @description Draft Vat Basis Points validated by this operation's strict request contract.
+                 * @enum {number}
+                 */
+                draftVatBasisPoints: 750;
+                /**
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 * @enum {boolean}
+                 */
+                pricesIncludeVat: false;
+              };
+              /** @description Booking validated by this operation's strict request contract. */
+              booking: {
+                /**
+                 * @description Confirmation validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                confirmation: "STAFF_REVIEW";
+                /**
+                 * @description Cancellation Fee Kobo validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                cancellationFeeKobo: "0";
+                /**
+                 * @description Reminder Minutes validated by this operation's strict request contract.
+                 * @enum {number}
+                 */
+                reminderMinutes: 60;
+              };
+              /** @description Marketing validated by this operation's strict request contract. */
+              marketing: {
+                /**
+                 * @description Enabled validated by this operation's strict request contract.
+                 * @enum {boolean}
+                 */
+                enabled: false;
+              };
+              /** @description Destructive Retention validated by this operation's strict request contract. */
+              destructiveRetention: {
+                /**
+                 * @description Enabled validated by this operation's strict request contract.
+                 * @enum {boolean}
+                 */
+                enabled: false;
+              };
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {

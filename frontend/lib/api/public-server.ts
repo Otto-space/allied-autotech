@@ -1,4 +1,5 @@
 import "server-only";
+import { backendOrigin } from "../backend-origin";
 import { isRecord } from "./errors";
 export class PublicApiError extends Error {
   constructor(readonly status: number) {
@@ -12,7 +13,8 @@ export async function publicData<T>(
 ): Promise<T> {
   if (!path.startsWith("/public/") || path.includes("..") || path.includes("\\"))
     throw new PublicApiError(400);
-  const origin = process.env.BACKEND_ORIGIN ?? "http://127.0.0.1:5000";
+  const origin = backendOrigin();
+  if (!origin) throw new PublicApiError(503);
   const response = await fetch(`${origin}/api/v1${path}`, {
     cache: "no-store",
     credentials: "omit",

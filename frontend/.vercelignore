@@ -1,0 +1,10 @@
+# Local configuration must come from Vercel environment settings.
+.env*
+!.env.example
+.next/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+public/allied-workshop-hero.png

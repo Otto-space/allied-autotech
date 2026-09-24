@@ -2,6 +2,11 @@ import { access, cp } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+if (process.env.VERCEL === "1") {
+  console.log("Vercel packages Next.js output; standalone preparation is not needed.");
+  process.exit(0);
+}
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const standalone = path.join(root, ".next", "standalone");
 await access(path.join(standalone, "server.js"));
