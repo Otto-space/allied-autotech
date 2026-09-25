@@ -5,6 +5,7 @@ import {
   providerUnavailable,
 } from "../../common/errors/provider-error-mapper.js";
 import { assertPaystackMode, env } from "../../config/env.js";
+import { parsePaystackJson, paystackIdentifier } from "./paystack-json.js";
 import type {
   InitializePaymentCommand,
   InitiateRefundCommand,
@@ -26,7 +27,7 @@ const initializeResponse = envelope(
 );
 const verifyResponse = envelope(
   z.object({
-    id: z.union([z.string(), z.number()]),
+    id: paystackIdentifier,
     status: z.enum([
       "success",
       "failed",
@@ -45,9 +46,7 @@ const verifyResponse = envelope(
     channel: z.string().nullable().optional(),
   }),
 );
-const refundResponse = envelope(
-  z.object({ id: z.union([z.string(), z.number()]), status: z.string() }),
-);
+const refundResponse = envelope(z.object({ id: paystackIdentifier, status: z.string() }));
 
 function parseProviderResponse<T>(schema: z.ZodType<T>, value: unknown): T {
   const parsed = schema.safeParse(value);
@@ -82,7 +81,7 @@ export class PaystackAdapter implements PaymentProviderPort {
       const bytes = Buffer.from(await response.arrayBuffer());
       if (bytes.byteLength > env.PAYSTACK_MAX_RESPONSE_BYTES)
         throw new Error("Provider response too large");
-      const body: unknown = JSON.parse(bytes.toString("utf8"));
+      const body = parsePaystackJson(bytes.toString("utf8"));
       if (!response.ok) {
         if (
           response.status === 408 ||
@@ -153,7 +152,7 @@ export class PaystackAdapter implements PaymentProviderPort {
   async verifyRefund(reference: string): Promise<VerifiedRefund> {
     const schema = envelope(
       z.object({
-        id: z.union([z.string(), z.number()]),
+        id: paystackIdentifier,
         status: z.string(),
         amount: z.union([z.string().regex(/^\d+$/), z.number().int().safe().positive()]),
         currency: z.string().length(3),

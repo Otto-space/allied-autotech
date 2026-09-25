@@ -1,9 +1,10 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { parsePaystackJson, paystackIdentifier } from "./paystack-json.js";
 
 const eventSchema = z.object({ event: z.string().min(1).max(120), data: z.unknown() });
 const chargeSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: paystackIdentifier,
   reference: z.string().min(1).max(160),
   status: z.string().min(1).max(80),
   amount: z.number().int().safe().positive(),
@@ -13,7 +14,7 @@ const chargeSchema = z.object({
   channel: z.string().max(80).nullable().optional(),
 });
 const refundSchema = z.object({
-  id: z.union([z.string(), z.number().int().safe()]).optional(),
+  id: paystackIdentifier.optional(),
   transaction_reference: z.string().min(1).max(160).optional(),
   refund_reference: z.string().nullable().optional(),
   status: z.string().min(1).max(80),
@@ -21,7 +22,7 @@ const refundSchema = z.object({
   currency: z.string().length(3),
 });
 const disputeSchema = z.object({
-  id: z.union([z.string(), z.number()]),
+  id: paystackIdentifier,
   status: z.string().min(1).max(80),
   amount: z.number().int().safe().positive(),
   currency: z.string().length(3),
@@ -62,7 +63,7 @@ export function paystackPayloadSha256(rawBody: Buffer): string {
 }
 
 export function parsePaystackWebhook(rawBody: Buffer): PaystackWebhookEvent {
-  const envelope = eventSchema.parse(JSON.parse(rawBody.toString("utf8")) as unknown);
+  const envelope = eventSchema.parse(parsePaystackJson(rawBody.toString("utf8")));
   if (envelope.event === "charge.success") {
     const data = chargeSchema.parse(envelope.data);
     return {

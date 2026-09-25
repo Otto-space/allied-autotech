@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "60c1af9aea7c4f5f26a11347221cea51ff47751d0239e99fc698946a853a8f7a",
+  "sourceSha256": "cb47f3cedb09893ab78bc2c9c2fd976c1ab9a784e5934df6b8771dd73b07a050",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -28473,7 +28473,7 @@
       "screen": "Payments; /dashboard/vehicle-transactions/[transactionId]; /dashboard/payments/[paymentId]",
       "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx; app/components/vehicle-payment-requests.tsx; lib/api/vehicle-payment.ts",
       "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows. Purchase history scans all cursor pages (100-page bound); malformed/failed/incomplete reads never become empty history. No unsupported target filter or inferred remaining balance.",
-      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; target concurrency and mutable-source-before-replay remain documented backend gaps."
+      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; the earlier target-concurrency and mutable-source-before-replay gaps are superseded by the database fixes and results below."
     },
     {
       "operationId": "postCustomersPayments",
@@ -28703,9 +28703,9 @@
         "lib/api/vehicle-payment.ts"
       ],
       "screen": "Payments; /dashboard/vehicle-transactions/[transactionId]; /dashboard/payments/[paymentId]",
-      "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx; app/components/vehicle-payment-requests.tsx; lib/api/vehicle-payment.ts",
-      "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows.; original-key recovery uses an actor-bound, customer-scoped lookup before mutable source validation, preserving exact stored amounts and rejecting changed purpose/targets.",
-      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; target concurrency and mutable-source-before-replay remain documented backend gaps. Real API regression added for replay after a settled order advances to PROCESSING, changed-target conflict, a different customer using the same raw key and refusal to create a new payment for that now-ineligible source."
+      "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx; app/components/vehicle-payment-requests.tsx; lib/api/vehicle-payment.ts; app/components/create-payment-request.tsx; lib/api/errors.ts",
+      "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows.; original-key recovery uses an actor-bound, customer-scoped lookup before mutable source validation, preserving exact stored amounts and rejecting changed purpose/targets. A safe conflict message sends the customer to existing payments; the invoice request form removes its prepare action after a confirmed target conflict.",
+      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; the earlier target-concurrency and mutable-source-before-replay gaps are superseded by the database fixes and results below. Real API regression added for replay after a settled order advances to PROCESSING, changed-target conflict, a different customer using the same raw key and refusal to create a new payment for that now-ineligible source. September 24 payable concurrency: target-wide advisory locking rejects distinct-key and cross-purpose duplicates with PAYMENT_TARGET_PENDING, validates legacy attempt sources, preserves original-key replay and records surplus captures under review. New target-concurrency database suite: 13 passed; focused payment/expiry regression: 39 passed. Real providers remain unverified. Intercepted Edge invoice conflict recovery passes at 390x900 and 1440x900, including a working Payments link, removal of the prepare action, axe and overflow checks. Known development Console Ninja diagnostics remain; real browser-to-API/provider integration is not claimed."
     },
     {
       "operationId": "getCustomersPaymentsByPaymentId",
@@ -28846,7 +28846,7 @@
       "screen": "Payments; /dashboard/vehicle-transactions/[transactionId]; /dashboard/payments/[paymentId]",
       "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx; app/components/vehicle-payment-requests.tsx; lib/api/vehicle-payment.ts",
       "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows. Detail and verification responses must match the requested payment ID before acknowledgement.",
-      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; target concurrency and mutable-source-before-replay remain documented backend gaps."
+      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; the earlier target-concurrency and mutable-source-before-replay gaps are superseded by the database fixes and results below."
     },
     {
       "operationId": "postCustomersPaymentsByPaymentIdPaystack",
@@ -29033,8 +29033,8 @@
       ],
       "screen": "Payments; /dashboard/vehicle-transactions/[transactionId]; /dashboard/payments/[paymentId]",
       "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx; app/components/vehicle-payment-requests.tsx; lib/api/vehicle-payment.ts",
-      "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows. Checkout finalization locks attempt then payment, rechecks eligibility/expiry and preserves provider-terminal outcomes received during initialization.",
-      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; target concurrency and mutable-source-before-replay remain documented backend gaps. Four disposable PostgreSQL initialization-race cases verify early success/failed/abandoned outcomes return409 without status downgrade, while a pending result retains checkout creation and same-key replay. Shared Paystack/Monnify finalization uses the same guard; no real provider request was made."
+      "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows. Checkout finalization locks attempt then payment, rechecks eligibility/expiry and preserves provider-terminal outcomes received during initialization. Server now enforces one unresolved attempt per Payment ID across manual and both online providers while holding the Payment row lock. Different-key conflicts use PAYMENT_ATTEMPT_PENDING and the centralized frontend message directs status review before another payment. Original pending-checkout/manual submission replay is preserved; terminal checkout URLs are not replayed. Captured mismatches and uncertain initialization block new attempts. Target-wide advisory locks additionally reject competing legacy records with PAYMENT_TARGET_PENDING and recheck their source before charging.",
+      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; the earlier target-concurrency and mutable-source-before-replay gaps are superseded by the database fixes and results below. Four disposable PostgreSQL initialization-race cases verify early success/failed/abandoned outcomes return409 without status downgrade, while a pending result retains checkout creation and same-key replay. Shared Paystack/Monnify finalization uses the same guard; no real provider request was made. September 24: four isolated concurrency cases first reproduced duplicate attempts; after the guard and terminal-checkout replay fix, seven focused database cases plus ten existing replay/initialization/manual-decision regressions passed (17 total). Covered manual/manual, provider/provider, manual during in-flight initialization, providers during manual review, uncertain initialization, verified-failure recovery, original replay and captured amount mismatch without a second charge (the later capture-accounting correction records the actual positive NGN receipt under review). A loaded-machine run hit a five-second test timeout; the final run with a 20-second per-test timeout passed in 6.82 seconds overall. Providers are synthetic ports and outgoing delivery is disabled. September 24 payable concurrency: target-wide advisory locking rejects distinct-key and cross-purpose duplicates with PAYMENT_TARGET_PENDING, validates legacy attempt sources, preserves original-key replay and records surplus captures under review. New target-concurrency database suite: 13 passed; focused payment/expiry regression: 39 passed. Real providers remain unverified."
     },
     {
       "operationId": "postCustomersPaymentsByPaymentIdMonnify",
@@ -29221,8 +29221,8 @@
       ],
       "screen": "Payments; /dashboard/vehicle-transactions/[transactionId]; /dashboard/payments/[paymentId]",
       "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx; app/components/vehicle-payment-requests.tsx; lib/api/vehicle-payment.ts",
-      "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows. Checkout finalization locks attempt then payment, rechecks eligibility/expiry and preserves provider-terminal outcomes received during initialization.",
-      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; target concurrency and mutable-source-before-replay remain documented backend gaps. Four disposable PostgreSQL initialization-race cases verify early success/failed/abandoned outcomes return409 without status downgrade, while a pending result retains checkout creation and same-key replay. Shared Paystack/Monnify finalization uses the same guard; no real provider request was made."
+      "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows. Checkout finalization locks attempt then payment, rechecks eligibility/expiry and preserves provider-terminal outcomes received during initialization. Server now enforces one unresolved attempt per Payment ID across manual and both online providers while holding the Payment row lock. Different-key conflicts use PAYMENT_ATTEMPT_PENDING and the centralized frontend message directs status review before another payment. Original pending-checkout/manual submission replay is preserved; terminal checkout URLs are not replayed. Captured mismatches and uncertain initialization block new attempts. Target-wide advisory locks additionally reject competing legacy records with PAYMENT_TARGET_PENDING and recheck their source before charging.",
+      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; the earlier target-concurrency and mutable-source-before-replay gaps are superseded by the database fixes and results below. Four disposable PostgreSQL initialization-race cases verify early success/failed/abandoned outcomes return409 without status downgrade, while a pending result retains checkout creation and same-key replay. Shared Paystack/Monnify finalization uses the same guard; no real provider request was made. September 24: four isolated concurrency cases first reproduced duplicate attempts; after the guard and terminal-checkout replay fix, seven focused database cases plus ten existing replay/initialization/manual-decision regressions passed (17 total). Covered manual/manual, provider/provider, manual during in-flight initialization, providers during manual review, uncertain initialization, verified-failure recovery, original replay and captured amount mismatch without a second charge (the later capture-accounting correction records the actual positive NGN receipt under review). A loaded-machine run hit a five-second test timeout; the final run with a 20-second per-test timeout passed in 6.82 seconds overall. Providers are synthetic ports and outgoing delivery is disabled. September 24 payable concurrency: target-wide advisory locking rejects distinct-key and cross-purpose duplicates with PAYMENT_TARGET_PENDING, validates legacy attempt sources, preserves original-key replay and records surplus captures under review. New target-concurrency database suite: 13 passed; focused payment/expiry regression: 39 passed. Real providers remain unverified."
     },
     {
       "operationId": "postCustomersPaymentsByPaymentIdAttemptsByAttemptIdVerify",
@@ -29393,7 +29393,7 @@
       "screen": "Payments; /dashboard/vehicle-transactions/[transactionId]; /dashboard/payments/[paymentId]",
       "source": "app/components/payment-detail.tsx; app/components/payments-panel.tsx; app/components/create-payment-request.tsx; app/components/order-detail.tsx; app/components/vehicle-payment-requests.tsx; lib/api/vehicle-payment.ts",
       "implementation": "Implemented for orders, service invoices and vehicle transactions. Vehicle requests support reservation, partial, balance and full purposes with server-authoritative amounts, complete owned-history checks, reviewed source preflight, original-reference recovery and links to existing checkout/manual/verification flows. Settlement locks order/vehicle source rows before reading lifecycle state so concurrent expiry cannot be overwritten using a stale source snapshot.",
-      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; target concurrency and mutable-source-before-replay remain documented backend gaps. Two deterministic PostgreSQL races hold the expiry source lock and observe verification contention with pg_blocking_pids. Expiry wins, the source stays cancelled/expired, one capture and one LATE_SUCCESS anomaly are recorded, and repeated verification creates neither duplicate. The focused settlement/payment/expiry batch passed22 cases; final initialization/settlement/provider/deposit batch passed10."
+      "verification": "Backend payment creation/source/replay and history selectors inspected. All 26 intercepted vehicle-purpose/history/recovery scenarios passed, alongside account, manual-payment and vehicle-sales regressions; the seven configured storage scenarios also passed after correcting a fixture origin. No real provider charge or settlement is claimed; the earlier target-concurrency and mutable-source-before-replay gaps are superseded by the database fixes and results below. Two deterministic PostgreSQL races hold the expiry source lock and observe verification contention with pg_blocking_pids. Expiry wins, the source stays cancelled/expired, one capture and one LATE_SUCCESS anomaly are recorded, and repeated verification creates neither duplicate. The focused settlement/payment/expiry batch passed22 cases; final initialization/settlement/provider/deposit batch passed10. September 24 capture accounting: 14 focused database cases and 50 cases across ten payment/refund suites pass in a fresh disposable database. Extra successful attempts retain one receipt each without double allocation; positive NGN mismatches post the actual received amount under review. Immutable successes retain deduplicated conflicting observations. Wrong-reference, foreign-currency and non-positive successes remain held, without fabricated NGN captures or checkout replay. Providers are synthetic; external integration and an approved hold-resolution workflow remain unverified. September 25 receipt identity: per-provider transaction locking and a database partial unique index prevent one successful receipt from backing two attempts. Eight new capture cases cover both providers, sequential/concurrent claims, same-payment reuse, mismatches, provider namespaces and direct database enforcement (22 capture cases total). Duplicate claims remain held with one observation and no second credit. Paystack ID parsing preserves original 64-bit JSON tokens; 24 identity tests and 39 provider/security tests pass. Combined isolated database regression: 80 tests in 12 suites. Two new migrations are applied only to the disposable test database; real-provider/deployment verification remains open."
     },
     {
       "operationId": "postCustomersPaymentsByPaymentIdManual",
@@ -29598,9 +29598,9 @@
         "lib/api/vehicle-payment.ts"
       ],
       "screen": "/dashboard/payments/[paymentId]",
-      "source": "app/components/manual-payment-form.tsx; app/components/payment-detail.tsx",
-      "implementation": "Reviewed bank transfer/POS/cash details, Lagos paid-at time, optional receipt reference/evidence and exact server request amount. Pending attempts and deadlines block new submissions. Explicit original-body/original-key recovery supports evidence; ownership and fingerprint checks precede mutable evidence verification for committed replays, and edits remain locked after uncertain outcomes.",
-      "verification": "Twelve production Edge manual-payment cases pass, including recovery after evidence-ticket expiry with identical body/key and exactly one upload. Four disposable PostgreSQL evidence cases pass for expired-ticket/storage-outage replay, changed payload and cross-customer denial, invalid first evidence and concurrent same-key creation with one attempt/audit. Actual provider/storage integration remains unverified."
+      "source": "app/components/manual-payment-form.tsx; app/components/payment-detail.tsx; app/components/mutation-review.tsx; lib/api/errors.ts",
+      "implementation": "Reviewed bank transfer/POS/cash details, Lagos paid-at time, optional receipt reference/evidence and exact server request amount. Pending attempts and deadlines block new submissions. Explicit original-body/original-key recovery supports evidence; ownership and fingerprint checks precede mutable evidence verification for committed replays, and edits remain locked after uncertain outcomes. Server now enforces one unresolved attempt per Payment ID across manual and both online providers while holding the Payment row lock. Different-key conflicts use PAYMENT_ATTEMPT_PENDING and the centralized frontend message directs status review before another payment. Original pending-checkout/manual submission replay is preserved; terminal checkout URLs are not replayed. Captured mismatches and uncertain initialization block new attempts. Target-wide advisory locks additionally reject competing legacy records with PAYMENT_TARGET_PENDING and recheck their source before charging.",
+      "verification": "Twelve production Edge manual-payment cases pass, including recovery after evidence-ticket expiry with identical body/key and exactly one upload. Four disposable PostgreSQL evidence cases pass for expired-ticket/storage-outage replay, changed payload and cross-customer denial, invalid first evidence and concurrent same-key creation with one attempt/audit. Actual provider/storage integration remains unverified. September 24: four isolated concurrency cases first reproduced duplicate attempts; after the guard and terminal-checkout replay fix, seven focused database cases plus ten existing replay/initialization/manual-decision regressions passed (17 total). Covered manual/manual, provider/provider, manual during in-flight initialization, providers during manual review, uncertain initialization, verified-failure recovery, original replay and captured amount mismatch without a second charge (the later capture-accounting correction records the actual positive NGN receipt under review). A loaded-machine run hit a five-second test timeout; the final run with a 20-second per-test timeout passed in 6.82 seconds overall. Providers are synthetic ports and outgoing delivery is disabled. Customer review now disables confirmation after a definite rejection while keeping explicit same-key replay available for unknown outcomes only under an idempotent contract. Three new shared-review component tests passed. All nine non-storage manual-payment browser cases passed across the full run and two focused reruns after the dev server restarted; four configured-storage cases remain skipped. The focused 390px conflict case showed the safe message and disabled confirmation, suppressed raw server text, issued one write and refreshed to the competing pending review. No page exceptions. Console capture still contains known Console Ninja CSP/WebSocket messages and the expected 409 resource log; clean production browser verification remains pending. September 24 payable concurrency: target-wide advisory locking rejects distinct-key and cross-purpose duplicates with PAYMENT_TARGET_PENDING, validates legacy attempt sources, preserves original-key replay and records surplus captures under review. New target-concurrency database suite: 13 passed; focused payment/expiry regression: 39 passed. Real providers remain unverified."
     },
     {
       "operationId": "postCustomersPaymentsByPaymentIdManualEvidenceUpload",
@@ -30778,9 +30778,10 @@
       },
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [],
-      "implementation": "Excluded: direct provider-to-backend delivery; never called by a browser.",
-      "verification": "Not yet verified",
-      "screen": "Pending mapping"
+      "screen": "None: provider-to-backend delivery only",
+      "source": "../backend/src/modules/payments/payments.routes.ts; ../backend/src/modules/payments/payments.service.ts",
+      "implementation": "Excluded from browser calls. Provider webhook verification and shared verified-result processing remain server-side.",
+      "verification": "Shared payment service has isolated database coverage; provider flow regressions pass with synthetic ports. September 24 capture accounting: 14 focused database cases and 50 cases across ten payment/refund suites pass in a fresh disposable database. Extra successful attempts retain one receipt each without double allocation; positive NGN mismatches post the actual received amount under review. Immutable successes retain deduplicated conflicting observations. Wrong-reference, foreign-currency and non-positive successes remain held, without fabricated NGN captures or checkout replay. Providers are synthetic; external integration and an approved hold-resolution workflow remain unverified. September 25 receipt identity: per-provider transaction locking and a database partial unique index prevent one successful receipt from backing two attempts. Eight new capture cases cover both providers, sequential/concurrent claims, same-payment reuse, mismatches, provider namespaces and direct database enforcement (22 capture cases total). Duplicate claims remain held with one observation and no second credit. Paystack ID parsing preserves original 64-bit JSON tokens; 24 identity tests and 39 provider/security tests pass. Combined isolated database regression: 80 tests in 12 suites. Two new migrations are applied only to the disposable test database; real-provider/deployment verification remains open."
     },
     {
       "operationId": "postWebhooksMonnify",
@@ -30912,9 +30913,10 @@
       },
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [],
-      "implementation": "Excluded: direct provider-to-backend delivery; never called by a browser.",
-      "verification": "Not yet verified",
-      "screen": "Pending mapping"
+      "screen": "None: provider-to-backend delivery only",
+      "source": "../backend/src/modules/payments/payments.routes.ts; ../backend/src/modules/payments/payments.service.ts",
+      "implementation": "Excluded from browser calls. Provider webhook verification and shared verified-result processing remain server-side.",
+      "verification": "Shared payment service has isolated database coverage; provider flow regressions pass with synthetic ports. September 24 capture accounting: 14 focused database cases and 50 cases across ten payment/refund suites pass in a fresh disposable database. Extra successful attempts retain one receipt each without double allocation; positive NGN mismatches post the actual received amount under review. Immutable successes retain deduplicated conflicting observations. Wrong-reference, foreign-currency and non-positive successes remain held, without fabricated NGN captures or checkout replay. Providers are synthetic; external integration and an approved hold-resolution workflow remain unverified. September 25 receipt identity: per-provider transaction locking and a database partial unique index prevent one successful receipt from backing two attempts. Eight new capture cases cover both providers, sequential/concurrent claims, same-payment reuse, mismatches, provider namespaces and direct database enforcement (22 capture cases total). Duplicate claims remain held with one observation and no second credit. Paystack ID parsing preserves original 64-bit JSON tokens; 24 identity tests and 39 provider/security tests pass. Combined isolated database regression: 80 tests in 12 suites. Two new migrations are applied only to the disposable test database; real-provider/deployment verification remains open."
     },
     {
       "operationId": "getPublicSupportReviews",
@@ -38068,7 +38070,7 @@
       "screen": "Operational monitoring",
       "source": "app/components/admin-overview.tsx",
       "implementation": "Implemented",
-      "verification": "Server aggregate definitions inspected; runtime verification pending; no inferred revenue"
+      "verification": "Server aggregate definitions inspected; runtime verification pending; no inferred revenue September 25 reconciliation worker: 14 isolated database cases pass, including 1,003 attempts, tied timestamps, interval/provider boundaries, actual NGN receipt totals, held/conflicting observations and failed persistence. Only local-reference verification is covered, not provider statement completeness, bank settlement or recovery of missed scheduling windows. Receipt-identity follow-up: 16 reconciliation cases pass, including deduplication across batches and exclusion of receipts confirmed outside the selected period. New items retain the observed provider transaction ID; duplicate observations contribute no second amount. Historical item IDs remain nullable. Scheduling and same-period recovery are still open."
     },
     {
       "operationId": "getAdminOperationsJobs",
@@ -40226,7 +40228,7 @@
       "operationId": "getPublicCapabilities",
       "method": "GET",
       "path": "/api/v1/public/capabilities",
-      "purpose": "Read safe policy capabilities and server time",
+      "purpose": "Read effective policy availability and server time",
       "audience": "shared",
       "accessBoundary": "public",
       "roles": ["PUBLIC"],
@@ -40237,7 +40239,7 @@
       "request": null,
       "responses": {
         "200": {
-          "description": "Success: Read safe policy capabilities and server time.",
+          "description": "Success: Read effective policy availability and server time.",
           "schema": {
             "type": "object",
             "properties": {
@@ -40251,19 +40253,151 @@
               },
               "data": {
                 "type": "object",
-                "description": "Authorized response projection for: Read safe policy capabilities and server time.",
                 "properties": {
-                  "id": {
+                  "scope": {
                     "type": "string",
-                    "format": "uuid",
-                    "description": "Public or authorized resource identifier."
+                    "enum": ["POLICY_SUMMARY"],
+                    "description": "Scope validated by this operation's strict request contract."
                   },
-                  "status": {
+                  "serverTime": {
                     "type": "string",
-                    "description": "Current server-owned lifecycle state when applicable."
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "checkoutEnabled": {
+                    "type": "boolean",
+                    "description": "Checkout Enabled validated by this operation's strict request contract."
+                  },
+                  "collection": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "enum": [true],
+                        "description": "Enabled validated by this operation's strict request contract."
+                      },
+                      "address": {
+                        "type": "string",
+                        "enum": [
+                          "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+                        ],
+                        "description": "Address validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": ["enabled", "address"],
+                    "description": "Collection validated by this operation's strict request contract."
+                  },
+                  "delivery": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Enabled validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": ["enabled"],
+                    "description": "Delivery validated by this operation's strict request contract."
+                  },
+                  "vehicleDeposits": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "description": "Enabled validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": ["enabled"],
+                    "description": "Vehicle Deposits validated by this operation's strict request contract."
+                  },
+                  "finance": {
+                    "type": "object",
+                    "properties": {
+                      "approvalStatus": {
+                        "type": ["string", "null"],
+                        "description": "Approval Status validated by this operation's strict request contract."
+                      },
+                      "draftVatBasisPoints": {
+                        "type": "number",
+                        "enum": [750],
+                        "description": "Draft Vat Basis Points validated by this operation's strict request contract."
+                      },
+                      "pricesIncludeVat": {
+                        "type": "boolean",
+                        "enum": [false],
+                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                      }
+                    },
+                    "required": [
+                      "approvalStatus",
+                      "draftVatBasisPoints",
+                      "pricesIncludeVat"
+                    ],
+                    "description": "Finance validated by this operation's strict request contract."
+                  },
+                  "booking": {
+                    "type": "object",
+                    "properties": {
+                      "confirmation": {
+                        "type": "string",
+                        "enum": ["STAFF_REVIEW"],
+                        "description": "Confirmation validated by this operation's strict request contract."
+                      },
+                      "cancellationFeeKobo": {
+                        "type": "string",
+                        "enum": ["0"],
+                        "description": "Cancellation Fee Kobo validated by this operation's strict request contract."
+                      },
+                      "reminderMinutes": {
+                        "type": "number",
+                        "enum": [60],
+                        "description": "Reminder Minutes validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "confirmation",
+                      "cancellationFeeKobo",
+                      "reminderMinutes"
+                    ],
+                    "description": "Booking validated by this operation's strict request contract."
+                  },
+                  "marketing": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "enum": [false],
+                        "description": "Enabled validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": ["enabled"],
+                    "description": "Marketing validated by this operation's strict request contract."
+                  },
+                  "destructiveRetention": {
+                    "type": "object",
+                    "properties": {
+                      "enabled": {
+                        "type": "boolean",
+                        "enum": [false],
+                        "description": "Enabled validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": ["enabled"],
+                    "description": "Destructive Retention validated by this operation's strict request contract."
                   }
                 },
-                "additionalProperties": true
+                "required": [
+                  "scope",
+                  "serverTime",
+                  "checkoutEnabled",
+                  "collection",
+                  "delivery",
+                  "vehicleDeposits",
+                  "finance",
+                  "booking",
+                  "marketing",
+                  "destructiveRetention"
+                ],
+                "description": "Data validated by this operation's strict request contract."
               },
               "meta": {
                 "type": "object",
@@ -40282,7 +40416,7 @@
                 "description": "Meta validated by this operation's strict request contract."
               }
             },
-            "required": ["success", "message", "meta"],
+            "required": ["success", "message", "data", "meta"],
             "description": "Response validated by this operation's strict request contract."
           }
         },
@@ -40313,9 +40447,10 @@
       },
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [],
-      "implementation": "Pending explicit integration audit",
-      "verification": "Not yet verified",
-      "screen": "Pending mapping"
+      "screen": "Intentionally no separate browser consumer; checkout uses /public/fulfillment-options, payment actions use their protected authoritative endpoints, and booking screens use the booking contract.",
+      "source": "../backend/src/modules/policies/policies.service.ts; ../backend/src/modules/policies/policies.routes.ts; ../backend/src/modules/policies/policies.schemas.ts; app/components/cart-checkout.tsx",
+      "implementation": "Audited and intentionally omitted from browser calls: this public, no-store POLICY_SUMMARY provides effective policy availability, not authorization, provider readiness, inventory eligibility or a price quote. Delivery now shares the exact fulfillment-options policy/zone/tax/finance projection; vehicle deposits also respect the finance gate. Missing policy settings fail closed for dependent features; missing finance approvalStatus is null. One as-of timestamp and effectiveAt/version ordering are used, with private provenance omitted. Existing draft VAT fields remain explicitly draft and must not be used to calculate payable totals. No redundant screen or browser request was added merely for inventory coverage.",
+      "verification": "Eight focused tests passed for missing policies, production finance approval, preserved private staging draft behavior, malformed delivery settings, missing delivery tax decision, unapproved delivery/vehicle gates, safe field projection, current-time query boundaries, public API schema and no-store headers. Disposable PostgreSQL delivery/checkout regression passed current versus future policy selection, public summary consistency, absence of private approval data, absent historical configuration, server-calculated fees/taxes, stock reservation and snapshot-preserving idempotent checkout. No real policy, payment or user permission was changed."
     },
     {
       "operationId": "getStaffFinancePolicy",

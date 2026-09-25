@@ -35,9 +35,12 @@ export function createPoliciesRouter() {
       ),
     );
   });
-  router.get("/public/capabilities", async (req, res) =>
-    res.json(successResponse("Available capabilities", req.id, await safeCapabilities())),
-  );
+  router.get("/public/capabilities", async (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    res.json(
+      successResponse("Policy availability summary", req.id, await safeCapabilities()),
+    );
+  });
   router.get("/staff/finance-policy", authenticate(), requireStaff, async (req, res) => {
     // Delegated approvers need this version to publish safely. Other policy
     // histories remain restricted to the owner-only administrative endpoint.

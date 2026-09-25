@@ -4,7 +4,7 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
-import type { Prisma } from "../../generated/prisma/client.js";
+import type { BusinessPolicyVersion, Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { paymentConflict, paymentForbidden } from "../payments/payments.errors.js";
 
@@ -82,48 +82,69 @@ export async function assertFinanceGate(database: PolicyDatabase) {
   return policy;
 }
 
-export async function safeCapabilities(database: PolicyDatabase = prisma) {
+export async function safeCapabilities(
+  database: PolicyDatabase = prisma,
+  now = new Date(),
+) {
   const [delivery, vehicle, finance] = await Promise.all([
-    currentPolicy(database, "delivery"),
-    currentPolicy(database, "vehicle"),
-    currentPolicy(database, "finance"),
+    availabilityPolicy(database, "delivery", now),
+    availabilityPolicy(database, "vehicle", now),
+    availabilityPolicy(database, "finance", now),
   ]);
+  const fulfillment = fulfillmentAvailability(delivery, finance, now);
   return {
-    serverTime: new Date().toISOString(),
-    collection: {
-      enabled: true,
-      address:
-        "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+    scope: "POLICY_SUMMARY" as const,
+    serverTime: fulfillment.serverTime,
+    checkoutEnabled: fulfillment.checkoutEnabled,
+    collection: fulfillment.collection,
+    delivery: { enabled: fulfillment.delivery.enabled },
+    vehicleDeposits: {
+      enabled: vehicle?.approvalStatus === "APPROVED" && fulfillment.checkoutEnabled,
     },
-    delivery: { enabled: delivery.approvalStatus === "APPROVED" },
-    vehicleDeposits: { enabled: vehicle.approvalStatus === "APPROVED" },
     finance: {
-      approvalStatus: finance.approvalStatus,
-      draftVatBasisPoints: 750,
-      pricesIncludeVat: false,
+      approvalStatus: finance?.approvalStatus ?? null,
+      draftVatBasisPoints: 750 as const,
+      pricesIncludeVat: false as const,
     },
     booking: {
-      confirmation: "STAFF_REVIEW",
-      cancellationFeeKobo: "0",
-      reminderMinutes: 60,
+      confirmation: "STAFF_REVIEW" as const,
+      cancellationFeeKobo: "0" as const,
+      reminderMinutes: 60 as const,
     },
-    marketing: { enabled: false },
-    destructiveRetention: { enabled: false },
+    marketing: { enabled: false as const },
+    destructiveRetention: { enabled: false as const },
   };
+}
+
+type AvailabilityPolicy = Pick<
+  BusinessPolicyVersion,
+  "version" | "approvalStatus" | "settings"
+> | null;
+
+function availabilityPolicy(database: PolicyDatabase, key: string, now: Date) {
+  return database.businessPolicyVersion.findFirst({
+    where: { key, effectiveAt: { lte: now } },
+    orderBy: [{ effectiveAt: "desc" }, { version: "desc" }],
+    select: { version: true, approvalStatus: true, settings: true },
+  });
 }
 
 export async function publicFulfillmentOptions(
   database: PolicyDatabase = prisma,
   now = new Date(),
 ) {
-  const [delivery, finance] = await Promise.all(
-    ["delivery", "finance"].map((key) =>
-      database.businessPolicyVersion.findFirst({
-        where: { key, effectiveAt: { lte: now } },
-        orderBy: [{ effectiveAt: "desc" }, { version: "desc" }],
-      }),
-    ),
-  );
+  const [delivery, finance] = await Promise.all([
+    availabilityPolicy(database, "delivery", now),
+    availabilityPolicy(database, "finance", now),
+  ]);
+  return fulfillmentAvailability(delivery, finance, now);
+}
+
+function fulfillmentAvailability(
+  delivery: AvailabilityPolicy,
+  finance: AvailabilityPolicy,
+  now: Date,
+) {
   const checkoutEnabled =
     !!finance &&
     (env.DEPLOYMENT_ENV !== "production" || finance.approvalStatus === "APPROVED");

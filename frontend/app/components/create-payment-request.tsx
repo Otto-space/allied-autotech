@@ -20,9 +20,10 @@ export function CreatePaymentRequest({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [uncertain, setUncertain] = useState(false);
+  const [existingRequest, setExistingRequest] = useState(false);
   const [payment, setPayment] = useState<z.infer<typeof paymentSchema>>();
   async function create() {
-    if (busyRef.current || payment) return;
+    if (busyRef.current || payment || existingRequest) return;
     busyRef.current = true;
     setBusy(true);
     setError(undefined);
@@ -41,6 +42,7 @@ export function CreatePaymentRequest({
       const rejected =
         value instanceof ApiError && value.status >= 400 && value.status < 500;
       setUncertain(!rejected);
+      setExistingRequest(rejected && value.code === "PAYMENT_TARGET_PENDING");
       setError(
         rejected
           ? value.message
@@ -54,6 +56,13 @@ export function CreatePaymentRequest({
   return (
     <div className="notice">
       <Feedback message={error} />
+      {error && (
+        <p>
+          <Link className="button secondary" href="/dashboard/payments">
+            View existing payments
+          </Link>
+        </p>
+      )}
       {payment ? (
         <>
           <p>
@@ -64,6 +73,8 @@ export function CreatePaymentRequest({
             Review payment & checkout options
           </Link>
         </>
+      ) : existingRequest ? (
+        <p>Continue from the existing payment request, or refresh this invoice.</p>
       ) : (
         <>
           <p>

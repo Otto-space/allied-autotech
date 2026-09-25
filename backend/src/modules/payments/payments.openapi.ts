@@ -20,6 +20,8 @@ const response = z.object({
 const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 const idempotent = csrf.extend({ "idempotency-key": z.string().min(8).max(120) });
 const uuid = z.uuid();
+const verificationBehavior =
+  "Successful provider facts are immutable. Each distinct provider receipt is recorded once; reuse of its transaction identity on another attempt is held for review without a second credit. Different receipts on an already-settled payment are retained without settling the payable twice. Positive NGN amount mismatches record the actual received amount under review. Repeated mismatch reports are idempotent; conflicting later observations are retained as anomalies. A wrong reference, unsupported currency, missing transaction identity or non-positive successful amount is held for reconciliation without inventing NGN capture facts. Such a hold blocks checkout replay and new attempts, and is not automatically cleared by later reports. Mismatched funds are not automatically allocated or refunded.";
 type Route = {
   method: "get" | "post";
   path: string;
@@ -29,6 +31,9 @@ type Route = {
   params?: ZodType;
   headers?: ZodType;
   created?: boolean;
+  attemptCreation?: boolean;
+  intentCreation?: boolean;
+  verification?: boolean;
 };
 export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
   const routes: Route[] = [
@@ -42,6 +47,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/payments",
       summary: "Create a server-priced payment intent",
+      intentCreation: true,
       body: paymentCreateBodySchema,
       headers: idempotent,
       created: true,
@@ -56,6 +62,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/payments/{paymentId}/paystack",
       summary: "Initialize Paystack checkout",
+      attemptCreation: true,
       params: z.object({ paymentId: uuid }),
       headers: idempotent,
       created: true,
@@ -64,6 +71,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/payments/{paymentId}/monnify",
       summary: "Initialize Monnify hosted Pay-with-Bank checkout",
+      attemptCreation: true,
       params: z.object({ paymentId: uuid }),
       headers: idempotent,
       created: true,
@@ -72,6 +80,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/payments/{paymentId}/attempts/{attemptId}/verify",
       summary: "Verify an online payment attempt with its stored provider",
+      verification: true,
       params: z.object({ paymentId: uuid, attemptId: uuid }),
       headers: csrf,
     },
@@ -79,6 +88,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/payments/{paymentId}/manual",
       summary: "Submit manual-payment evidence",
+      attemptCreation: true,
       params: z.object({ paymentId: uuid }),
       body: manualPaymentBodySchema,
       headers: idempotent,
@@ -137,9 +147,17 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       path: route.path,
       tags: ["Payments"],
       summary: route.summary,
-      description: route.path.startsWith("/staff/")
-        ? "Requires ADMIN or SUPER_ADMIN with verified MFA. STAFF has no payment, evidence or refund access. Existing separation-of-duties and transactional checks also apply."
-        : "Requires the customer account that owns the payment; server verification remains authoritative.",
+      description:
+        (route.path.startsWith("/staff/")
+          ? "Requires ADMIN or SUPER_ADMIN with verified MFA. STAFF has no payment, evidence or refund access. Existing separation-of-duties and transactional checks also apply."
+          : "Requires the customer account that owns the payment; server verification remains authoritative.") +
+        (route.attemptCreation
+          ? " Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due."
+          : "") +
+        (route.intentCreation
+          ? " Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation."
+          : "") +
+        (route.verification ? ` ${verificationBehavior}` : ""),
       security: [{ sessionCookie: [] }],
       request: {
         ...(route.params ? { params: route.params as never } : {}),
@@ -166,6 +184,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     path: "/webhooks/paystack",
     tags: ["Payments"],
     summary: "Receive a signature-verified Paystack webhook",
+    description: verificationBehavior,
     request: { headers: z.object({ "x-paystack-signature": z.string() }) },
     responses: {
       "200": { description: "Webhook accepted" },
@@ -177,6 +196,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     path: "/webhooks/monnify",
     tags: ["Payments"],
     summary: "Receive a verified Monnify webhook",
+    description: verificationBehavior,
     request: {
       headers: z.object({ "monnify-signature": z.string().optional() }),
     },

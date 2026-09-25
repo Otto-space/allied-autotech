@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { createHash } from "node:crypto";
 import os from "node:os";
 import path from "node:path";
+import { writeFile } from "node:fs/promises";
 import type { PaymentRecord } from "@/lib/api/payment-schemas";
 const id = (n: number) => `b0000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const paymentFixture = (): PaymentRecord => ({
@@ -76,6 +77,72 @@ const reviewButton = (page: Page) =>
   page.getByRole("button", { name: "Review payment details", exact: true });
 const confirm = (page: Page) =>
   page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
+
+test("a competing payment attempt explains the conflict and requires status review", async ({
+  page,
+}, testInfo) => {
+  const pageErrors: string[] = [],
+    consoleMessages: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("console", (message) => {
+    if (["error", "warning"].includes(message.type()))
+      consoleMessages.push(message.text());
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  const payment = paymentFixture();
+  let writes = 0;
+  await fixture(page, payment, async (route, endpoint) => {
+    if (!endpoint.endsWith("/manual")) return;
+    writes += 1;
+    // Another tab's committed submission wins before this request reaches the server.
+    record(payment);
+    await route.fulfill({
+      status: 409,
+      json: {
+        success: false,
+        message: "Private server diagnostic must not be rendered",
+        error: { code: "PAYMENT_ATTEMPT_PENDING" },
+        meta: { requestId: "isolated-race" },
+      },
+    });
+    return true;
+  });
+  await page.goto(`/dashboard/payments/${payment.id}`);
+  await fill(page, "CASH");
+  await reviewButton(page).click();
+  await confirm(page).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("Check its status before making another payment.");
+  await expect(
+    dialog.getByText(
+      "This payment already has an attempt awaiting confirmation or review. Check its status before making another payment.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-payment-conflict-390.png"),
+    fullPage: false,
+  });
+  await expect(dialog).not.toContainText("Private server diagnostic");
+  await expect(dialog.getByRole("button", { name: "Retry same request" })).toHaveCount(0);
+  await expect(confirm(page)).toBeDisabled();
+  await dialog.getByRole("button", { name: "Go back", exact: true }).click();
+  await page.getByRole("button", { name: "Refresh payment status" }).click();
+  await expect(page.locator(".status")).toHaveText("REQUIRES REVIEW");
+  await expect(page.getByRole("button", { name: "Continue with Paystack" })).toHaveCount(
+    0,
+  );
+  expect(writes).toBe(1);
+  expect(pageErrors).toEqual([]);
+  await testInfo.attach("browser-console", {
+    body: JSON.stringify(consoleMessages, null, 2),
+    contentType: "application/json",
+  });
+  await writeFile(
+    path.join(os.tmpdir(), "allied-payment-conflict-console.json"),
+    JSON.stringify(consoleMessages, null, 2),
+  );
+});
 
 test("manual payment review validates fields, preserves cancelled input and records only the submitted method", async ({
   page,

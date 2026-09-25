@@ -77,6 +77,7 @@ export class PaymentsRepository {
         totalKobo: true,
         currency: true,
         paymentDueAt: true,
+        paidAt: true,
       },
     });
   }

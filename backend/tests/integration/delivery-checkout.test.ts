@@ -11,6 +11,7 @@ import {
 import {
   publishPolicy,
   publicFulfillmentOptions,
+  safeCapabilities,
 } from "../../src/modules/policies/policies.service.js";
 import { publicFulfillmentOptionsSchema } from "../../src/modules/policies/policies.schemas.js";
 import { testOwner } from "../helpers/owner.js";
@@ -140,10 +141,23 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         },
       });
       expect(JSON.stringify(read.body.data)).not.toContain("Private synthetic");
+      const summary = await request(app).get("/api/v1/public/capabilities");
+      expect(summary.status).toBe(200);
+      expect(summary.headers["cache-control"]).toBe("no-store");
+      expect(summary.body.data).toMatchObject({
+        scope: "POLICY_SUMMARY",
+        checkoutEnabled: true,
+        delivery: { enabled: true },
+      });
+      expect(JSON.stringify(summary.body.data)).not.toContain("Private synthetic");
       expect(read.body.data.delivery).not.toHaveProperty("approvalEvidence");
       const future = new Date(Date.now() + 86_400_000);
       const futureZone = { ...zone, feeKobo: "20202" };
       expect((await publish([futureZone], future.toISOString())).status).toBe(201);
+      expect(await safeCapabilities(prisma)).toMatchObject({
+        delivery: { enabled: true },
+        finance: { approvalStatus: "APPROVED" },
+      });
       expect(
         (await request(app).get("/api/v1/public/fulfillment-options")).body.data.delivery
           .zones,
@@ -266,6 +280,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).toMatchObject({
         checkoutEnabled: false,
         delivery: { enabled: false, zones: [] },
+      });
+      expect(
+        await safeCapabilities(prisma, new Date("1900-01-01T00:00:00Z")),
+      ).toMatchObject({
+        checkoutEnabled: false,
+        finance: { approvalStatus: null },
+        delivery: { enabled: false },
+        vehicleDeposits: { enabled: false },
       });
       const denied = await request(app)
         .get(`/api/v1/admin/policies?key=delivery`)

@@ -107,6 +107,7 @@ export function ManualPaymentForm({
         { label: "Evidence", value: selection?.name ?? "No attachment" },
       ],
       retrySafely: true,
+      retryAfterRejection: false,
       onUncertain: () => {
         setLocked(true);
         onActivity(true);

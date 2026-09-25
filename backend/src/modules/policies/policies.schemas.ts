@@ -90,6 +90,27 @@ export const publicFulfillmentOptionsSchema = z.object({
     }),
   ]),
 });
+// Informational policy gates only; never authorizes a particular transaction.
+export const publicCapabilitiesSchema = z.object({
+  scope: z.literal("POLICY_SUMMARY"),
+  serverTime: z.iso.datetime(),
+  checkoutEnabled: z.boolean(),
+  collection: publicFulfillmentOptionsSchema.shape.collection,
+  delivery: z.object({ enabled: z.boolean() }),
+  vehicleDeposits: z.object({ enabled: z.boolean() }),
+  finance: z.object({
+    approvalStatus: z.string().nullable(),
+    draftVatBasisPoints: z.literal(750),
+    pricesIncludeVat: z.literal(false),
+  }),
+  booking: z.object({
+    confirmation: z.literal("STAFF_REVIEW"),
+    cancellationFeeKobo: z.literal("0"),
+    reminderMinutes: z.literal(60),
+  }),
+  marketing: z.object({ enabled: z.literal(false) }),
+  destructiveRetention: z.object({ enabled: z.literal(false) }),
+});
 export const publishPolicyBodySchema = z.discriminatedUnion("kind", [
   z
     .object({

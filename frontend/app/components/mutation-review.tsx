@@ -49,7 +49,7 @@ export function MutationReview({
     if (
       submitting.current ||
       (uncertain && !proposal.retrySafely) ||
-      (attempted && proposal.retryAfterRejection === false)
+      (attempted && !uncertain && proposal.retryAfterRejection === false)
     )
       return;
     submitting.current = true;
@@ -120,7 +120,7 @@ export function MutationReview({
           disabled={
             busy ||
             (uncertain && !proposal.retrySafely) ||
-            (attempted && proposal.retryAfterRejection === false)
+            (attempted && !uncertain && proposal.retryAfterRejection === false)
           }
           onClick={() => void confirm()}
         >

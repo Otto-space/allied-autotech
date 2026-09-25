@@ -785,7 +785,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/capabilities`
 
 - Operation ID: `getPublicCapabilities`
-- Purpose: Read safe policy capabilities and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -796,10 +796,37 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Read safe policy capabilities and server time",
+  "message": "Read effective policy availability and server time",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "scope": "POLICY_SUMMARY",
+    "serverTime": "2030-01-15T10:00:00.000Z",
+    "checkoutEnabled": true,
+    "collection": {
+      "enabled": true,
+      "address": "133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria"
+    },
+    "delivery": {
+      "enabled": true
+    },
+    "vehicleDeposits": {
+      "enabled": true
+    },
+    "finance": {
+      "approvalStatus": "synthetic-approvalstatus",
+      "draftVatBasisPoints": 750,
+      "pricesIncludeVat": false
+    },
+    "booking": {
+      "confirmation": "STAFF_REVIEW",
+      "cancellationFeeKobo": "0",
+      "reminderMinutes": 60
+    },
+    "marketing": {
+      "enabled": false
+    },
+    "destructiveRetention": {
+      "enabled": false
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -812,7 +839,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/booking-response`
 
 - Operation ID: `getPublicBookingResponse`
-- Purpose: Private, no-store, noindex HTML. GET and HEAD never mutate; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Render a read-only attendance confirmation screen. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Private, no-store, noindex HTML. GET never mutates. HEAD is also read-only; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Render a read-only attendance confirmation screen. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -835,7 +862,7 @@ Relevant errors: 400 The request is malformed.; 403 Untrusted origin; recovery H
 ### POST `/public/booking-response`
 
 - Operation ID: `postPublicBookingResponse`
-- Purpose: Private, no-store, noindex HTML. GET and HEAD never mutate; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Confirm attendance or cancel using a purpose-bound expiring token. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Private, no-store, noindex HTML. GET never mutates. HEAD is also read-only; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action. Confirm attendance or cancel using a purpose-bound expiring token. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -3401,7 +3428,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/payments`
 
 - Operation ID: `postCustomersPayments`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Requests for the same order, service invoice or vehicle transaction are serialized across keys and vehicle purposes. An existing live request or unresolved attempt returns 409 PAYMENT_TARGET_PENDING; open the existing payment instead. Original-key replay returns its original record even after settlement. An expired unattempted record can be replaced; local expiry alone never releases an unresolved attempt. Settled vehicle payments reduce the amount due for a later balance request. Legacy surplus captures remain recorded in the ledger and flagged for review without reallocating an already-paid obligation. Create a server-priced payment intent. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3478,7 +3505,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/payments/{paymentId}/paystack`
 
 - Operation ID: `postCustomersPaymentsByPaymentIdPaystack`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Initialize Paystack checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due. Initialize Paystack checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3515,7 +3542,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/payments/{paymentId}/monnify`
 
 - Operation ID: `postCustomersPaymentsByPaymentIdMonnify`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Initialize Monnify hosted Pay-with-Bank checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due. Initialize Monnify hosted Pay-with-Bank checkout. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3552,7 +3579,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/payments/{paymentId}/attempts/{attemptId}/verify`
 
 - Operation ID: `postCustomersPaymentsByPaymentIdAttemptsByAttemptIdVerify`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Verify an online payment attempt with its stored provider. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Successful provider facts are immutable. Each distinct provider receipt is recorded once; reuse of its transaction identity on another attempt is held for review without a second credit. Different receipts on an already-settled payment are retained without settling the payable twice. Positive NGN amount mismatches record the actual received amount under review. Repeated mismatch reports are idempotent; conflicting later observations are retained as anomalies. A wrong reference, unsupported currency, missing transaction identity or non-positive successful amount is held for reconciliation without inventing NGN capture facts. Such a hold blocks checkout replay and new attempts, and is not automatically cleared by later reports. Mismatched funds are not automatically allocated or refunded. Verify an online payment attempt with its stored provider. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3587,7 +3614,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/payments/{paymentId}/manual`
 
 - Operation ID: `postCustomersPaymentsByPaymentIdManual`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Submit manual-payment evidence. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due. Submit manual-payment evidence. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -12389,7 +12416,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/webhooks/paystack`
 
 - Operation ID: `postWebhooksPaystack`
-- Purpose: Receive a signature-verified Paystack webhook. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Successful provider facts are immutable. Each distinct provider receipt is recorded once; reuse of its transaction identity on another attempt is held for review without a second credit. Different receipts on an already-settled payment are retained without settling the payable twice. Positive NGN amount mismatches record the actual received amount under review. Repeated mismatch reports are idempotent; conflicting later observations are retained as anomalies. A wrong reference, unsupported currency, missing transaction identity or non-positive successful amount is held for reconciliation without inventing NGN capture facts. Such a hold blocks checkout replay and new attempts, and is not automatically cleared by later reports. Mismatched funds are not automatically allocated or refunded. Receive a signature-verified Paystack webhook. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PAYMENT_PROVIDER
 - Authentication: Provider signature plus authoritative verification
 - CSRF: Not required
@@ -12424,7 +12451,7 @@ Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The r
 ### POST `/webhooks/monnify`
 
 - Operation ID: `postWebhooksMonnify`
-- Purpose: Receive a verified Monnify webhook. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Successful provider facts are immutable. Each distinct provider receipt is recorded once; reuse of its transaction identity on another attempt is held for review without a second credit. Different receipts on an already-settled payment are retained without settling the payable twice. Positive NGN amount mismatches record the actual received amount under review. Repeated mismatch reports are idempotent; conflicting later observations are retained as anomalies. A wrong reference, unsupported currency, missing transaction identity or non-positive successful amount is held for reconciliation without inventing NGN capture facts. Such a hold blocks checkout replay and new attempts, and is not automatically cleared by later reports. Mismatched funds are not automatically allocated or refunded. Receive a verified Monnify webhook. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PAYMENT_PROVIDER
 - Authentication: Provider signature plus authoritative verification
 - CSRF: Not required

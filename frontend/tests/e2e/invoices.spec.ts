@@ -2,6 +2,7 @@ import { test, expect, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
+import { writeFile } from "node:fs/promises";
 const id = (value: number) =>
   `50000000-0000-4000-8000-${String(value).padStart(12, "0")}`;
 const reply = (route: Route, data: unknown) =>
@@ -64,6 +65,97 @@ async function fixture(
     });
   });
 }
+for (const width of [390, 1440])
+  test(`existing invoice payment conflict has a recovery link at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    const errors: string[] = [],
+      consoleMessages: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => {
+      if (["error", "warning"].includes(message.type()))
+        consoleMessages.push(message.text());
+    });
+    const record = { ...invoice(), status: "ISSUED", issuedAt: "2026-09-17T09:00:00Z" };
+    let writes = 0;
+    await fixture(
+      page,
+      async (route, endpoint) => {
+        if (endpoint === `/customers/invoices/${record.id}`) {
+          await reply(route, record);
+          return true;
+        }
+        if (endpoint === "/customers/payments" && route.request().method() === "POST") {
+          writes++;
+          expect(route.request().postDataJSON()).toEqual({
+            targetType: "INVOICE",
+            targetId: record.id,
+            purpose: "SERVICE_INVOICE",
+          });
+          await route.fulfill({
+            status: 409,
+            json: {
+              success: false,
+              error: {
+                code: "PAYMENT_TARGET_PENDING",
+                message: "private diagnostic must not render",
+              },
+            },
+          });
+          return true;
+        }
+        if (endpoint === "/customers/payments") {
+          await reply(route, { items: [] });
+          return true;
+        }
+      },
+      "CUSTOMER",
+    );
+    await page.goto(`/dashboard/invoices/${record.id}`);
+    await expect(page.getByRole("heading", { name: "Invoice details" })).toBeVisible();
+    await expect(page).toHaveTitle(/Allied AutoTech/);
+    await page.getByRole("button", { name: "Prepare invoice payment" }).click();
+    await expect(
+      page.getByText(
+        "A payment already exists for this purchase or invoice. Open Payments and check the existing request before paying again.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(page.getByText("private diagnostic must not render")).toHaveCount(0);
+    const recovery = page.getByRole("link", {
+      name: "View existing payments",
+      exact: true,
+    });
+    await expect(recovery).toBeVisible();
+    await expect(recovery).toHaveAttribute("href", "/dashboard/payments");
+    await expect(
+      page.getByRole("button", { name: "Prepare invoice payment" }),
+    ).toHaveCount(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await expect(page.locator("nextjs-error-overlay")).toHaveCount(0);
+    await recovery.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `allied-invoice-payment-conflict-${width}.png`),
+    });
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+          .analyze()
+      ).violations,
+    ).toEqual([]);
+    await recovery.click();
+    await expect(page).toHaveURL(/\/dashboard\/payments$/);
+    expect(writes).toBe(1);
+    expect(errors).toEqual([]);
+    await writeFile(
+      path.join(os.tmpdir(), `allied-invoice-payment-conflict-${width}-console.json`),
+      JSON.stringify(consoleMessages, null, 2),
+    );
+  });
 test("invoice creation uses the selected source, server credit and versioned issue/void", async ({
   page,
 }) => {

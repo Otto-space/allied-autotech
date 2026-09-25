@@ -38,6 +38,7 @@ import { appendAuditEvent } from "../audit/audit.service.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import {
   paymentConflict,
+  paymentAttemptPending,
   paymentIdempotencyConflict,
   paymentNotFound,
   paymentVerificationFailed,
@@ -60,6 +61,22 @@ import type {
 } from "./payments.schemas.js";
 import { paymentFingerprint, paymentJsonSafe, paymentPage } from "./payments.types.js";
 import { refundQueueSelect } from "./refund-record.js";
+import { paymentCreateBodySchema } from "./payments.schemas.js";
+import {
+  assertNoCompetingPayment,
+  lockStoredTarget,
+  lockTarget,
+  paymentTarget,
+} from "./payment-target.js";
+
+function hasVerificationHold(data: Prisma.JsonValue): boolean {
+  return (
+    data !== null &&
+    typeof data === "object" &&
+    !Array.isArray(data) &&
+    data["verificationHold"] === true
+  );
+}
 
 const paymentNumber = () =>
   `PAY-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
@@ -159,7 +176,9 @@ export class PaymentsService {
       }
       const finance = await assertFinanceGate(tx);
       if (input.targetType === "VEHICLE_TRANSACTION") await approvedPolicy(tx, "vehicle");
+      await lockTarget(tx, input);
       const source = await this.resolveSource(profile.id, input, tx);
+      await assertNoCompetingPayment(tx, input);
       const expiresAt =
         source.expiresAt ?? new Date(Date.now() + env.PAYMENT_INTENT_TTL_SECONDS * 1_000);
       if (expiresAt <= new Date()) throw paymentConflict("The payable has expired");
@@ -232,6 +251,7 @@ export class PaymentsService {
     );
     const reference = `AAT-${provider}-${attemptKey.slice(0, 32)}`;
     const prepared = await withTransactionRetry(this.database, async (tx) => {
+      await lockStoredTarget(tx, id);
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
       this.assertPayable(payment);
@@ -246,6 +266,19 @@ export class PaymentsService {
       });
       if (existing) {
         if (existing.provider !== provider) throw paymentConflict();
+        if (hasVerificationHold(existing.redactedGatewayData))
+          throw paymentConflict(
+            "Payment requires manual reconciliation before continuing",
+          );
+        if (
+          existing.status !== "INITIALIZED" &&
+          existing.status !== "PENDING" &&
+          existing.status !== "PROCESSING"
+        )
+          throw paymentConflict(
+            "This checkout attempt has finished. Check the payment status before continuing.",
+          );
+        await this.assertCurrentPaymentSource(payment, tx);
         if (existing.encryptedCheckoutState && existing.authorizationExpiresAt) {
           let state;
           try {
@@ -259,10 +292,14 @@ export class PaymentsService {
             new Date(state.expiresAt) > new Date()
           )
             return { payment, existing, checkout: state };
-          throw paymentConflict("The payment checkout has expired; start a new attempt");
+          throw paymentConflict(
+            "The payment checkout has expired. Check its status before continuing.",
+          );
         }
         throw paymentConflict("Payment initialization is already in progress");
       }
+      await this.assertNoUnresolvedAttempt(id, tx);
+      await this.assertCurrentPaymentSource(payment, tx);
       const latest = await tx.paymentAttempt.aggregate({
         where: { paymentId: id },
         _max: { attemptNumber: true },
@@ -319,14 +356,16 @@ export class PaymentsService {
       throw paymentConflict("The payable expired during checkout initialization");
     await withTransactionRetry(this.database, async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "PaymentAttempt" WHERE "id" = ${prepared.existing.id}::uuid FOR UPDATE`;
+      await lockStoredTarget(tx, id);
       const current = await tx.paymentAttempt.findUnique({
         where: { id: prepared.existing.id },
-        select: { status: true },
+        select: { status: true, redactedGatewayData: true },
       });
       const payment = await this.repository.lockPayment(id, tx);
       if (!current || !payment || payment.customerId !== profile.id)
         throw paymentNotFound();
       this.assertPayable(payment);
+      await this.assertCurrentPaymentSource(payment, tx);
       if (payment.bookingId)
         throw paymentConflict(
           "Booking deposits are disabled under the approved request-and-confirm policy",
@@ -334,6 +373,7 @@ export class PaymentsService {
       await assertFinanceGate(tx);
       if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
       if (
+        hasVerificationHold(current.redactedGatewayData) ||
         !(["INITIALIZED", "PENDING", "PROCESSING"] as string[]).includes(current.status)
       )
         throw paymentConflict(
@@ -446,6 +486,7 @@ export class PaymentsService {
       throw paymentConflict("Payment evidence could not be verified");
     return withTransactionRetry(this.database, async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`manual-payment:${reference}`}, 0))`;
+      await lockStoredTarget(tx, id);
       const payment = await this.repository.lockPayment(id, tx);
       if (!payment || payment.customerId !== profile.id) throw paymentNotFound();
       const committed = await this.manualReplay(
@@ -463,6 +504,8 @@ export class PaymentsService {
         );
       await assertFinanceGate(tx);
       if (payment.vehicleTransactionId) await approvedPolicy(tx, "vehicle");
+      await this.assertNoUnresolvedAttempt(id, tx);
+      await this.assertCurrentPaymentSource(payment, tx);
       const latest = await tx.paymentAttempt.aggregate({
         where: { paymentId: id },
         _max: { attemptNumber: true },
@@ -1025,7 +1068,7 @@ export class PaymentsService {
         await withTransactionRetry(this.database, async (tx) => {
           await tx.payment.updateMany({
             where: { id: attempt.paymentId, status: { not: "SUCCEEDED" } },
-            data: { status: "REQUIRES_REVIEW" },
+            data: { status: "REQUIRES_REVIEW", cancelledAt: null, expiredAt: null },
           });
           await tx.paymentAnomaly.create({
             data: {
@@ -1498,7 +1541,69 @@ export class PaymentsService {
         result.reference === attempt.internalReference &&
         result.amountKobo === attempt.amountKobo &&
         result.currency === attempt.currency;
-      if (result.status !== "success") {
+      // Lock the provider's receipt identity before deciding who may record it.
+      // Attempt-row locks alone cannot serialize two different references.
+      const identity =
+        attempt.status === "SUCCESSFUL"
+          ? attempt.gatewayTransactionId
+          : result.status === "success"
+            ? result.gatewayTransactionId
+            : null;
+      let reusedIdentity = false;
+      if (identity) {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`provider-receipt:${attempt.provider}:${identity}`}, 0))`;
+        reusedIdentity =
+          (await tx.paymentAttempt.findFirst({
+            where: {
+              provider: attempt.provider,
+              gatewayTransactionId: identity,
+              status: "SUCCESSFUL",
+              id: { not: attempt.id },
+            },
+            select: { id: true },
+          })) !== null;
+      }
+      if (attempt.status === "SUCCESSFUL") {
+        // The first successful report is immutable. Later observations must not
+        // rewrite it, even if a provider now reports the originally expected amount.
+        if (reusedIdentity)
+          await this.recordConflictingProviderFacts(
+            tx,
+            attempt,
+            result,
+            "REUSED_PROVIDER_TRANSACTION",
+          );
+        else if (
+          attempt.verificationStatus === "VERIFIED" ||
+          attempt.verificationStatus === "MISMATCH"
+        )
+          await this.recordConfirmedCapture(tx, attempt.id, attempt.paidAt ?? now);
+        if (
+          result.status !== "success" ||
+          result.reference !== attempt.internalReference ||
+          result.gatewayTransactionId !== attempt.gatewayTransactionId ||
+          result.amountKobo !== attempt.verifiedAmountKobo ||
+          result.currency !== attempt.verifiedCurrency
+        )
+          await this.recordConflictingProviderFacts(tx, attempt, result);
+      } else if (
+        reusedIdentity ||
+        hasVerificationHold(attempt.redactedGatewayData) ||
+        result.reference !== attempt.internalReference ||
+        (result.status === "success" &&
+          (result.currency !== "NGN" ||
+            result.amountKobo <= 0n ||
+            !result.gatewayTransactionId.trim()))
+      ) {
+        await this.holdUnallocatableProviderResult(
+          tx,
+          attempt,
+          result,
+          reusedIdentity
+            ? "REUSED_PROVIDER_TRANSACTION"
+            : "UNALLOCATABLE_PROVIDER_RESULT",
+        );
+      } else if (result.status !== "success") {
         await tx.paymentAttempt.updateMany({
           where: { id: attemptId, status: { not: "SUCCESSFUL" } },
           data: {
@@ -1521,15 +1626,17 @@ export class PaymentsService {
             verificationStatus: "MISMATCH",
             verifiedAmountKobo: result.amountKobo,
             verifiedCurrency: result.currency,
+            providerReference: result.reference,
             gatewayTransactionId: result.gatewayTransactionId,
             gatewayStatus: result.status,
             paidAt: result.paidAt ?? now,
             verifiedAt: now,
           },
         });
+        await this.recordConfirmedCapture(tx, attempt.id, result.paidAt ?? now);
         await tx.payment.updateMany({
           where: { id: attempt.paymentId, status: { not: "SUCCEEDED" } },
-          data: { status: "REQUIRES_REVIEW" },
+          data: { status: "REQUIRES_REVIEW", cancelledAt: null, expiredAt: null },
         });
         await tx.paymentAnomaly.create({
           data: {
@@ -1548,7 +1655,7 @@ export class PaymentsService {
             },
           },
         });
-      } else if (attempt.status !== "SUCCESSFUL") {
+      } else {
         await tx.paymentAttempt.update({
           where: { id: attemptId },
           data: {
@@ -1565,17 +1672,7 @@ export class PaymentsService {
             verifiedAt: now,
           },
         });
-        if (attempt.payment.status === "SUCCEEDED") {
-          await tx.paymentAnomaly.create({
-            data: {
-              paymentId: attempt.paymentId,
-              paymentAttemptId: attemptId,
-              type: "DUPLICATE_SUCCESS",
-              summary:
-                "An additional successful charge was received for a settled payment",
-            },
-          });
-        } else await this.settle(tx, attempt.paymentId, attemptId, result.paidAt ?? now);
+        await this.settle(tx, attempt.paymentId, attemptId, result.paidAt ?? now);
       }
       if (webhook)
         await tx.paymentWebhookEvent.update({
@@ -1609,6 +1706,7 @@ export class PaymentsService {
     attemptId: string,
     occurredAt: Date,
   ) {
+    await lockStoredTarget(tx, paymentId);
     // The target is immutable once an attempt exists. Booking expiry and
     // cancellation lock the booking before its payment; settlement must agree.
     const target = await tx.payment.findUniqueOrThrow({
@@ -1622,9 +1720,33 @@ export class PaymentsService {
       where: { id: paymentId },
       select: { status: true, settledAttemptId: true },
     });
+    // Capture accounting precedes allocation: a second charge is real money,
+    // even though it must never settle this obligation a second time.
+    await this.recordConfirmedCapture(tx, attemptId, occurredAt);
     if (existingPayment.status === "SUCCEEDED") {
       if (existingPayment.settledAttemptId !== attemptId)
-        throw paymentConflict("Payment was already settled by another attempt");
+        await this.recordTargetCaptureAnomaly(
+          tx,
+          paymentId,
+          attemptId,
+          "DUPLICATE_SUCCESS",
+          "An additional successful charge was received for a settled payment",
+        );
+      return;
+    }
+    const current = await tx.payment.findUniqueOrThrow({ where: { id: paymentId } });
+    if (await this.hasSurplusTargetCapture(tx, current)) {
+      await tx.payment.update({
+        where: { id: paymentId },
+        data: { status: "REQUIRES_REVIEW", cancelledAt: null, expiredAt: null },
+      });
+      await this.recordTargetCaptureAnomaly(
+        tx,
+        paymentId,
+        attemptId,
+        "DUPLICATE_SUCCESS",
+        "Captured funds could not be allocated because this payable is already paid or the amount exceeds its remaining balance",
+      );
       return;
     }
     const payment = await tx.payment.update({
@@ -1645,24 +1767,6 @@ export class PaymentsService {
         amountKobo: true,
         currency: true,
       },
-    });
-    await tx.paymentLedgerEntry.upsert({
-      where: { sourceKey: `capture:${attemptId}` },
-      create: {
-        paymentAttemptId: attemptId,
-        sourceKey: `capture:${attemptId}`,
-        type: "CAPTURE",
-        direction: "CREDIT",
-        amountKobo: (
-          await tx.paymentAttempt.findUniqueOrThrow({
-            where: { id: attemptId },
-            select: { amountKobo: true },
-          })
-        ).amountKobo,
-        currency: "NGN",
-        occurredAt,
-      },
-      update: {},
     });
     if (payment.bookingId) {
       const booking = await tx.booking.findUniqueOrThrow({
@@ -1742,9 +1846,20 @@ export class PaymentsService {
         select: {
           status: true,
           paymentDueAt: true,
+          paidAt: true,
           invoice: { select: { id: true, status: true } },
         },
       });
+      if (order.paidAt !== null) {
+        await this.recordTargetCaptureAnomaly(
+          tx,
+          payment.id,
+          attemptId,
+          "DUPLICATE_SUCCESS",
+          "Additional funds were captured for an already-paid order",
+        );
+        return;
+      }
       if (
         order.status === "CANCELLED" ||
         (order.paymentDueAt !== null && new Date() >= order.paymentDueAt)
@@ -1786,11 +1901,25 @@ export class PaymentsService {
           },
         });
     }
-    if (payment.invoiceId)
-      await tx.invoice.updateMany({
+    if (payment.invoiceId) {
+      const updated = await tx.invoice.updateMany({
         where: { id: payment.invoiceId, status: "ISSUED" },
         data: { status: "PAID", paidAt: occurredAt, version: { increment: 1 } },
       });
+      if (updated.count === 0) {
+        const invoice = await tx.invoice.findUniqueOrThrow({
+          where: { id: payment.invoiceId },
+          select: { status: true },
+        });
+        await this.recordTargetCaptureAnomaly(
+          tx,
+          payment.id,
+          attemptId,
+          invoice.status === "PAID" ? "DUPLICATE_SUCCESS" : "LATE_SUCCESS",
+          "Funds were captured for an invoice that is no longer payable",
+        );
+      }
+    }
     if (payment.vehicleTransactionId) {
       await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${payment.vehicleTransactionId}::uuid FOR UPDATE`;
       const vehicle = await tx.vehicleTransaction.findUnique({
@@ -1832,6 +1961,7 @@ export class PaymentsService {
               _sum: { amountKobo: true },
             })
           )._sum.amountKobo ?? 0n;
+        if (vehicle.status === "COMPLETED") return;
         const target = total >= vehicle.agreedPriceKobo ? "PAID" : "PARTIALLY_PAID";
         if (vehicle.status !== target) {
           await tx.vehicleTransaction.update({
@@ -1854,11 +1984,222 @@ export class PaymentsService {
     }
   }
 
+  private async recordConfirmedCapture(
+    tx: Prisma.TransactionClient,
+    attemptId: string,
+    occurredAt: Date,
+  ) {
+    const attempt = await tx.paymentAttempt.findUniqueOrThrow({
+      where: { id: attemptId },
+      select: {
+        status: true,
+        verificationStatus: true,
+        verifiedAmountKobo: true,
+        verifiedCurrency: true,
+      },
+    });
+    if (
+      attempt.status !== "SUCCESSFUL" ||
+      (attempt.verificationStatus !== "VERIFIED" &&
+        attempt.verificationStatus !== "MISMATCH") ||
+      attempt.verifiedAmountKobo === null ||
+      attempt.verifiedCurrency !== "NGN"
+    )
+      throw paymentConflict("Capture requires confirmed NGN payment facts");
+    await tx.paymentLedgerEntry.upsert({
+      where: { sourceKey: `capture:${attemptId}` },
+      create: {
+        paymentAttemptId: attemptId,
+        sourceKey: `capture:${attemptId}`,
+        type: "CAPTURE",
+        direction: "CREDIT",
+        amountKobo: attempt.verifiedAmountKobo,
+        currency: "NGN",
+        occurredAt,
+      },
+      update: {},
+    });
+  }
+
+  private async holdUnallocatableProviderResult(
+    tx: Prisma.TransactionClient,
+    attempt: { id: string; paymentId: string; redactedGatewayData: Prisma.JsonValue },
+    result: VerifiedPayment,
+    reason:
+      | "REUSED_PROVIDER_TRANSACTION"
+      | "UNALLOCATABLE_PROVIDER_RESULT" = "UNALLOCATABLE_PROVIDER_RESULT",
+  ) {
+    await this.recordConflictingProviderFacts(tx, attempt, result, reason);
+    if (hasVerificationHold(attempt.redactedGatewayData)) return;
+    const metadata =
+      attempt.redactedGatewayData !== null &&
+      typeof attempt.redactedGatewayData === "object" &&
+      !Array.isArray(attempt.redactedGatewayData)
+        ? attempt.redactedGatewayData
+        : {};
+    await tx.paymentAttempt.update({
+      where: { id: attempt.id },
+      data: {
+        status: "PROCESSING",
+        redactedGatewayData: { ...metadata, verificationHold: true },
+      },
+    });
+    await tx.payment.updateMany({
+      where: { id: attempt.paymentId, status: { not: "SUCCEEDED" } },
+      data: { status: "REQUIRES_REVIEW", cancelledAt: null, expiredAt: null },
+    });
+  }
+
+  private async recordConflictingProviderFacts(
+    tx: Prisma.TransactionClient,
+    attempt: { id: string; paymentId: string },
+    result: VerifiedPayment,
+    reason:
+      | "CONFLICTING_PROVIDER_FACTS"
+      | "REUSED_PROVIDER_TRANSACTION"
+      | "UNALLOCATABLE_PROVIDER_RESULT" = "CONFLICTING_PROVIDER_FACTS",
+  ) {
+    const observed = {
+      reference: result.reference,
+      gatewayTransactionId: result.gatewayTransactionId,
+      status: result.status,
+      amountKobo: result.amountKobo.toString(),
+      currency: result.currency,
+    };
+    const fingerprint = createHash("sha256")
+      .update(JSON.stringify({ reason, observed }))
+      .digest("hex");
+    // The attempt row is locked by the caller; concurrent redeliveries cannot
+    // create duplicate observations. No immutable capture fact is updated.
+    const recorded = await tx.paymentAnomaly.findFirst({
+      where: {
+        paymentAttemptId: attempt.id,
+        type: "OTHER",
+        details: { path: ["observationFingerprint"], equals: fingerprint },
+      },
+      select: { id: true },
+    });
+    if (!recorded)
+      await tx.paymentAnomaly.create({
+        data: {
+          paymentId: attempt.paymentId,
+          paymentAttemptId: attempt.id,
+          type: "OTHER",
+          summary:
+            reason === "REUSED_PROVIDER_TRANSACTION"
+              ? "Additional credit blocked: provider transaction identity was already confirmed for another attempt"
+              : reason === "CONFLICTING_PROVIDER_FACTS"
+                ? "Provider verification conflicts with previously recorded successful payment facts"
+                : "Provider verification requires manual reconciliation before funds can be allocated",
+          details: { reason, observationFingerprint: fingerprint, observed },
+        },
+      });
+  }
+
+  private async hasSurplusTargetCapture(
+    tx: Prisma.TransactionClient,
+    payment: {
+      id: string;
+      orderId: string | null;
+      invoiceId: string | null;
+      vehicleTransactionId: string | null;
+      amountKobo: bigint;
+    },
+  ) {
+    if (payment.orderId) {
+      await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${payment.orderId}::uuid FOR UPDATE`;
+      const order = await tx.order.findUniqueOrThrow({
+        where: { id: payment.orderId },
+        select: { paidAt: true },
+      });
+      return (
+        order.paidAt !== null ||
+        (await tx.payment.count({
+          where: {
+            orderId: payment.orderId,
+            status: "SUCCEEDED",
+            id: { not: payment.id },
+          },
+        })) > 0
+      );
+    }
+    if (payment.invoiceId) {
+      await tx.$queryRaw`SELECT "id" FROM "Invoice" WHERE "id" = ${payment.invoiceId}::uuid FOR UPDATE`;
+      const invoice = await tx.invoice.findUniqueOrThrow({
+        where: { id: payment.invoiceId },
+        select: { status: true },
+      });
+      return invoice.status === "PAID";
+    }
+    if (payment.vehicleTransactionId) {
+      await tx.$queryRaw`SELECT "id" FROM "VehicleTransaction" WHERE "id" = ${payment.vehicleTransactionId}::uuid FOR UPDATE`;
+      const vehicle = await tx.vehicleTransaction.findUniqueOrThrow({
+        where: { id: payment.vehicleTransactionId },
+        select: { agreedPriceKobo: true },
+      });
+      const paid =
+        (await this.repository.settledVehicleAmount(payment.vehicleTransactionId, tx))
+          ._sum.amountKobo ?? 0n;
+      return (
+        vehicle.agreedPriceKobo !== null &&
+        paid + payment.amountKobo > vehicle.agreedPriceKobo
+      );
+    }
+    return false;
+  }
+
+  private async recordTargetCaptureAnomaly(
+    tx: Prisma.TransactionClient,
+    paymentId: string,
+    paymentAttemptId: string,
+    type: "DUPLICATE_SUCCESS" | "LATE_SUCCESS",
+    summary: string,
+  ) {
+    await tx.paymentAnomaly.create({
+      data: { paymentId, paymentAttemptId, type, summary },
+    });
+  }
+
   private assertPayable(payment: { status: string; expiresAt: Date | null }) {
     if (["SUCCEEDED", "CANCELLED", "EXPIRED"].includes(payment.status))
       throw paymentConflict("Payment is no longer payable");
     if (payment.expiresAt && payment.expiresAt <= new Date())
       throw paymentConflict("Payment has expired");
+  }
+
+  private async assertCurrentPaymentSource(
+    payment: NonNullable<Awaited<ReturnType<PaymentsRepository["get"]>>>,
+    tx: Prisma.TransactionClient,
+  ) {
+    const target = paymentTarget(payment);
+    if (!target || !payment.customerId) throw paymentNotFound();
+    const input = paymentCreateBodySchema.safeParse({
+      ...target,
+      purpose: payment.purpose,
+    });
+    if (!input.success) throw paymentConflict();
+    await assertNoCompetingPayment(tx, target, payment.id);
+    const source = await this.resolveSource(payment.customerId, input.data, tx);
+    if (source.amountKobo !== payment.amountKobo || payment.currency !== "NGN")
+      throw paymentConflict(
+        "The amount due changed. Review the existing payment before continuing.",
+      );
+    if (source.expiresAt && source.expiresAt <= new Date())
+      throw paymentConflict("The payable has expired");
+  }
+
+  // Both creation paths hold the same Payment row lock before this check.
+  // Original-key replays are resolved first. A timed-out initialization remains
+  // unresolved until verification; even a mismatched capture must block another charge.
+  private async assertNoUnresolvedAttempt(
+    paymentId: string,
+    tx: Prisma.TransactionClient,
+  ) {
+    const unresolved = await tx.paymentAttempt.findFirst({
+      where: { paymentId, status: { notIn: ["FAILED", "ABANDONED", "CANCELLED"] } },
+      select: { id: true },
+    });
+    if (unresolved) throw paymentAttemptPending();
   }
 
   private async manualReplay(
@@ -1944,6 +2285,7 @@ export class PaymentsService {
         !["PENDING", "CONFIRMED"].includes(source.status)
       )
         throw paymentNotFound();
+      if (source.paidAt !== null) throw paymentConflict("This order is already paid");
       return { amountKobo: source.totalKobo, expiresAt: source.paymentDueAt };
     }
     if (input.targetType === "INVOICE") {

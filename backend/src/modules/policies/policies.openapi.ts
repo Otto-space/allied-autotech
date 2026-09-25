@@ -16,6 +16,7 @@ import {
   capabilityListQuerySchema,
   publishPolicyBodySchema,
   publicFulfillmentOptionsSchema,
+  publicCapabilitiesSchema,
 } from "./policies.schemas.js";
 import {
   intake,
@@ -104,6 +105,7 @@ type Route = {
   capability?: string;
   roles?: string[];
   data?: z.ZodType;
+  description?: string;
 };
 
 export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
@@ -118,7 +120,10 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     {
       method: "get",
       path: "/public/capabilities",
-      summary: "Read safe policy capabilities and server time",
+      summary: "Read effective policy availability and server time",
+      description:
+        "Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store.",
+      data: publicCapabilitiesSchema,
     },
     {
       method: "get",
@@ -431,6 +436,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       path: route.path,
       tags: ["Owner policy operations"],
       summary: route.summary,
+      ...(route.description ? { description: route.description } : {}),
       ...(route.capability
         ? {
             description: `Required duty: ${route.capability}. Capability is checked against the current active verified account on every action.`,
@@ -475,7 +481,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
           ? "Render a read-only attendance confirmation screen"
           : "Confirm attendance or cancel using a purpose-bound expiring token",
       description:
-        "Private, no-store, noindex HTML. GET and HEAD never mutate; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action.",
+        "Private, no-store, noindex HTML. GET never mutates. HEAD is also read-only; current status determines available controls. POST validates the exact trusted Origin, active verified customer and current booking schedule version. Cancellation is repeat-safe and attendance confirmation is repeat-safe while confirmed. Tokens are private and must not be logged. Invalid/expired or changed links render recovery HTML; uncertain server errors direct the customer to check their account before another action.",
       security: [],
       request:
         method === "get"

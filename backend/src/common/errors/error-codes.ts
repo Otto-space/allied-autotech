@@ -14,6 +14,8 @@ export const errorCodes = {
   notFound: "NOT_FOUND",
   conflict: "CONFLICT",
   idempotencyConflict: "IDEMPOTENCY_CONFLICT",
+  paymentAttemptPending: "PAYMENT_ATTEMPT_PENDING",
+  paymentTargetPending: "PAYMENT_TARGET_PENDING",
   insufficientStock: "INSUFFICIENT_STOCK",
   staleVersion: "STALE_VERSION",
   invalidTransition: "INVALID_TRANSITION",
