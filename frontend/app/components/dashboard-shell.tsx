@@ -56,6 +56,7 @@ export function DashboardShell({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const collapseButton = useRef<HTMLButtonElement>(null);
+  const mobileDialog = useRef<HTMLDialogElement>(null);
   const menuOpen = menuPath === pathname;
   const grants = useResource(
     session?.user.role === "STAFF" ? "/staff/profile" : null,
@@ -72,6 +73,23 @@ export function DashboardShell({
   const navigation = session
     ? dashboardNavigation(session.user.role, navigationCapabilities)
     : [];
+  const currentDestination = navigation
+    .flatMap((group) => group.links.map((link) => ({ ...link, group: group.label })))
+    .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  useEffect(() => {
+    const dialog = mobileDialog.current;
+    const opener = menuButton.current;
+    if (!menuOpen || !dialog) return;
+    dialog.showModal();
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog.close();
+      document.body.style.overflow = overflow;
+      if (window.matchMedia("(max-width: 900px)").matches) opener?.focus();
+    };
+  }, [menuOpen, session]);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 900px)");
     function adaptNavigation() {
@@ -226,6 +244,9 @@ export function DashboardShell({
         }
       }}
     >
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
       <aside className="sidebar" data-menu-open={menuOpen}>
         <div className="dashboard-brand-row">
           <Link href="/" aria-label="Allied AutoTech home">
@@ -249,11 +270,9 @@ export function DashboardShell({
           <button
             className="dashboard-menu-toggle"
             ref={menuButton}
-            aria-controls="dashboard-navigation"
+            aria-controls="dashboard-mobile-navigation"
             aria-expanded={menuOpen}
-            aria-label={
-              menuOpen ? "Close dashboard navigation" : "Open dashboard navigation"
-            }
+            aria-label="Open dashboard navigation"
             onClick={() => setMenuPath(menuOpen ? null : pathname)}
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -279,6 +298,46 @@ export function DashboardShell({
           <LogOut size={20} aria-hidden="true" /> <span>Sign out</span>
         </button>
       </aside>
+      <dialog
+        ref={mobileDialog}
+        className="dashboard-drawer"
+        aria-label="Dashboard navigation"
+        onCancel={() => setMenuPath(null)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            const bounds = event.currentTarget.getBoundingClientRect();
+            if (event.clientX < bounds.left || event.clientX > bounds.right)
+              setMenuPath(null);
+          }
+        }}
+      >
+        <div className="dashboard-drawer-heading">
+          <Brand inverse />
+          <button
+            type="button"
+            aria-label="Close dashboard navigation"
+            onClick={() => setMenuPath(null)}
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <div id="dashboard-mobile-navigation" className="dashboard-drawer-content">
+          <DashboardNavigation
+            groups={navigation}
+            pathname={pathname}
+            onNavigate={() => setMenuPath(null)}
+            label={audience === "staff" ? "Administration" : "Customer dashboard"}
+          />
+        </div>
+        <button
+          className="dashboard-drawer-logout"
+          disabled={busy}
+          onClick={() => void logout()}
+        >
+          <LogOut size={18} aria-hidden="true" />
+          Sign out
+        </button>
+      </dialog>
       <div className="dashboard-main">
         <header className="dashboard-top">
           <DashboardPageSearch groups={navigation} />
@@ -315,6 +374,24 @@ export function DashboardShell({
           </div>
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
+          {currentDestination &&
+            pathname !== (audience === "staff" ? "/admin" : "/dashboard") && (
+              <nav className="breadcrumbs dashboard-breadcrumbs" aria-label="Breadcrumb">
+                <Link href={audience === "staff" ? "/admin" : "/dashboard"}>
+                  Overview
+                </Link>
+                <span aria-hidden="true">/</span>
+                {pathname === currentDestination.href ? (
+                  <span>{currentDestination.label}</span>
+                ) : (
+                  <>
+                    <Link href={currentDestination.href}>{currentDestination.label}</Link>
+                    <span aria-hidden="true">/</span>
+                    <span>Details</span>
+                  </>
+                )}
+              </nav>
+            )}
           <Feedback message={error} />
           <SessionContext.Provider value={session}>
             <StaffPermissionContext.Provider

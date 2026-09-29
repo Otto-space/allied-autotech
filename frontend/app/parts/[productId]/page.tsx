@@ -9,7 +9,7 @@ import { productSchema } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
-import { PublicMedia } from "../../components/public-media";
+import { MediaGallery } from "../../components/media-gallery";
 import { ProductActions } from "../../components/product-actions";
 const getProduct = cache(async (id: string) => {
   if (!z.uuid().safeParse(id).success) notFound();
@@ -57,7 +57,7 @@ export default async function ProductPage({
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section">
+      <main id="main" className="section public-site public-detail">
         <div className="container">
           <nav className="breadcrumbs" aria-label="Breadcrumb">
             <Link href="/parts">Shop</Link>
@@ -66,25 +66,7 @@ export default async function ProductPage({
           </nav>
           <div className="product-detail-grid">
             <div>
-              <PublicMedia
-                src={
-                  (product.images.find((image) => image.isPrimary) ?? product.images[0])
-                    ?.url
-                }
-                alt={product.name}
-                priority
-              />
-              {product.images.length > 1 && (
-                <div className="gallery-grid">
-                  {product.images.map((image) => (
-                    <PublicMedia
-                      key={image.id}
-                      src={image.url}
-                      alt={image.altText ?? product.name}
-                    />
-                  ))}
-                </div>
-              )}
+              <MediaGallery images={product.images} title={product.name} />
             </div>
             <div>
               <p className="muted">

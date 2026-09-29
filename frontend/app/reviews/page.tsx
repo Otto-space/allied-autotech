@@ -30,7 +30,7 @@ export default async function Page() {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section">
+      <main id="main" className="section public-site">
         <div className="container narrow">
           <h1>Customer reviews</h1>
           <PublicReviews initial={initial} />

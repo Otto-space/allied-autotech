@@ -5,6 +5,11 @@ import type { Metadata } from "next";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { VehicleCatalogue } from "../components/vehicle-catalogue";
+import {
+  EditorialBanner,
+  LifestyleDiscovery,
+  ContactInvitation,
+} from "../components/brand-editorial";
 export async function generateMetadata({
   searchParams,
 }: {
@@ -24,15 +29,22 @@ export default async function VehiclesPage() {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section">
-        <div className="container">
-          <h1>A new chapter starts here.</h1>
-          <p className="lead">
-            Browse current vehicle listings, explore the details and arrange a closer
-            look.
-          </p>
+      <main id="main" className="public-site marketplace-site">
+        <EditorialBanner
+          title="Find the car that fits your life."
+          description="Browse current vehicle listings, explore the details and arrange a closer look."
+          image="showroom-editorial"
+          marketplace
+        />
+        <section
+          className="public-wrap public-section"
+          id="inventory"
+          aria-label="Current vehicle listings"
+        >
           <VehicleCatalogue initial={initial} />
-        </div>
+        </section>
+        <LifestyleDiscovery />
+        <ContactInvitation />
       </main>
       <SiteFooter />
     </>

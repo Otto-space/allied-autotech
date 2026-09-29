@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { CopyControl } from "./copy-control";
 export function RecoveryCodes({
   codes,
   onDismiss,
@@ -31,7 +32,34 @@ export function RecoveryCodes({
           spellCheck={false}
           value={codes.join("\n")}
         />
+        <CopyControl
+          value={codes.join("\n")}
+          label="Copy recovery codes"
+          fieldId="new-recovery-codes"
+        />
       </div>
+      <button
+        type="button"
+        className="button secondary"
+        onClick={() => {
+          const url = URL.createObjectURL(
+            new Blob(
+              [
+                "Allied AutoTech recovery codes\nStore privately. Each code works once.\n\n" +
+                  codes.join("\n"),
+              ],
+              { type: "text/plain" },
+            ),
+          );
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "allied-autotech-recovery-codes.txt";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }}
+      >
+        Download recovery codes
+      </button>
       <button className="button secondary" onClick={onDismiss}>
         I saved these codes — hide them
       </button>

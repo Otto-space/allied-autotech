@@ -6,6 +6,36 @@ import { UploadError } from "@/lib/api/signed-upload";
 import { notify } from "@/lib/notifications";
 import { useAssetStorageHosts } from "./asset-storage-context";
 import { Feedback } from "./feedback";
+import { FileUp, ImageIcon } from "lucide-react";
+
+function SelectedFilePreview({ file }: { file: File }) {
+  const preview = useRef<HTMLImageElement>(null);
+  useEffect(() => {
+    const target = preview.current;
+    if (!target) return;
+    const url = URL.createObjectURL(file);
+    target.src = url;
+    return () => {
+      target.removeAttribute("src");
+      URL.revokeObjectURL(url);
+    };
+  }, [file]);
+  return (
+    <div className="asset-preview">
+      {file.type.startsWith("image/") ? (
+        // Local, revocable object URL: never uploaded by this preview.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img ref={preview} alt={`Selected file: ${file.name}`} />
+      ) : (
+        <FileUp size={32} aria-hidden="true" />
+      )}
+      <div>
+        <strong>{file.name}</strong>
+        <p>{(file.size / 1024 / 1024).toFixed(2)} MiB · Selected on this device</p>
+      </div>
+    </div>
+  );
+}
 
 export type AssetSelection = { name: string; prepared?: PreparedUpload } | null;
 export function FileUpload({
@@ -35,6 +65,8 @@ export function FileUpload({
   const [progress, setProgress] = useState<number>();
   const [uploaded, setUploaded] = useState(false);
   const [error, setError] = useState<string>();
+  const [valid, setValid] = useState(false);
+  const [dragging, setDragging] = useState(false);
   useEffect(() => {
     const discard = () => {
       pending.current?.abort();
@@ -42,6 +74,7 @@ export function FileUpload({
       setUploaded(false);
       setError(undefined);
       setProgress(undefined);
+      setValid(false);
       onChange(null);
       if (input.current) input.current.value = "";
     };
@@ -52,22 +85,25 @@ export function FileUpload({
     };
   }, [onChange]);
   function select(next: File | null) {
+    if (disabled || busy || !hosts.length) return;
     pending.current?.abort();
     setFile(next);
     setUploaded(false);
     setError(undefined);
     setProgress(undefined);
+    setValid(false);
     onChange(next ? { name: next.name } : null);
     if (next) {
       try {
         validate(next);
+        setValid(true);
       } catch (error) {
         setError(error instanceof Error ? error.message : "Choose a supported file.");
       }
     }
   }
   async function upload() {
-    if (!file || disabled || pending.current) return;
+    if (!file || !valid || disabled || pending.current) return;
     const controller = new AbortController();
     pending.current = controller;
     setBusy(true);
@@ -112,18 +148,41 @@ export function FileUpload({
       </p>
       {!hosts.length && (
         <p className="notice">
-          Document uploads are unavailable. Contact customer care or an administrator.
+          File uploads are unavailable. Contact customer care or an administrator.
         </p>
       )}
-      <input
-        ref={input}
-        id={uploadId}
-        type="file"
-        accept={accept}
-        disabled={disabled || busy || !hosts.length}
-        aria-describedby={`${uploadId}-hint`}
-        onChange={(event) => select(event.target.files?.[0] ?? null)}
-      />
+      <div
+        className="asset-dropzone"
+        data-dragging={dragging}
+        onDragOver={(event) => {
+          event.preventDefault();
+          if (!disabled && !busy && hosts.length) setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragging(false);
+          if (disabled || busy || !hosts.length) return;
+          if (event.dataTransfer.files.length !== 1) {
+            setError("Choose one file at a time.");
+            return;
+          }
+          select(event.dataTransfer.files[0]);
+        }}
+      >
+        <ImageIcon size={26} aria-hidden="true" />
+        <p>Drop a file here, or browse your device.</p>
+        <input
+          ref={input}
+          id={uploadId}
+          type="file"
+          accept={accept}
+          disabled={disabled || busy || !hosts.length}
+          aria-describedby={`${uploadId}-hint`}
+          onChange={(event) => select(event.target.files?.[0] ?? null)}
+        />
+      </div>
+      {file && valid && <SelectedFilePreview file={file} />}
       <Feedback message={error} />
       {busy && (
         <div role="status">
@@ -132,7 +191,7 @@ export function FileUpload({
               ? "Preparing secure upload…"
               : `Uploading: ${progress}%`}
           </p>
-          <progress aria-label="Document upload progress" value={progress} max={100} />
+          <progress aria-label="File upload progress" value={progress} max={100} />
         </div>
       )}
       {uploaded && (
@@ -143,7 +202,7 @@ export function FileUpload({
           <button
             type="button"
             className="button secondary"
-            disabled={disabled || busy || !hosts.length}
+            disabled={disabled || busy || !hosts.length || !valid}
             onClick={() => void upload()}
           >
             {uploaded ? "Upload selected file again" : "Upload selected file"}

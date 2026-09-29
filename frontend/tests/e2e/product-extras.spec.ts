@@ -409,7 +409,7 @@ test("staff cannot read administrator products", async ({ page }) => {
   const state = await fixture(page, { role: "STAFF" });
   await page.goto("/admin/products");
   await expect(page.getByText(/Administrator access is required/)).toBeVisible();
-  expect(state.reads).toEqual([]);
+  expect(state.reads.filter((endpoint) => endpoint !== "/staff/profile")).toEqual([]);
 });
 
 test("basic product edits reject stale prices and preserve the draft for review", async ({

@@ -77,6 +77,15 @@ async function fixture(
         mfaVerifiedAt: "2026-09-17T08:00:00Z",
         user: { id: id(7), email: "sale@example.test", role },
       });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(7),
+        email: "sale@example.test",
+        role,
+        status: "ACTIVE",
+        staffProfile: null,
+        capabilities: [],
+      });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-sales-token-".repeat(3) });
     return route.fulfill({
@@ -806,7 +815,7 @@ test("unconfigured document storage leaves clear unavailable controls", async ({
   await page.goto(`/admin/vehicle-sales/${sale.id}`);
   await expect(page.getByLabel("Signed handover document (optional)")).toBeDisabled();
   await expect(
-    page.getByText("Document uploads are unavailable.", { exact: false }),
+    page.getByText("File uploads are unavailable.", { exact: false }),
   ).toBeVisible();
   sale.status = "HANDOVER_PENDING";
   sale.handover = handoverFixture();

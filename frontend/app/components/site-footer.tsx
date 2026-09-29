@@ -8,7 +8,11 @@ export function SiteFooter() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 relative z-10">
         <div>
           <Brand inverse />
-          <p className="eyebrow text-white/60! mb-6">Allied AutoTech</p>
+          <p className="text-white/80 mb-6">
+            Built on Trust,
+            <br />
+            Driven by Quality.
+          </p>
           <p className="text-white/80 max-w-xs">{business.address}</p>
           <p className="text-white/80 mt-6">{business.socialHandle}</p>
         </div>

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PartsCatalogue } from "../components/parts-catalogue";
+import { EditorialBanner, ContactInvitation } from "../components/brand-editorial";
 export async function generateMetadata({
   searchParams,
 }: {
@@ -27,15 +28,19 @@ export default async function PartsPage() {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section">
-        <div className="container">
-          <h1>Shop automotive essentials</h1>
-          <p className="lead">
-            Explore parts, oils, fluids, tyres and automotive products. Check
-            specifications and suitability for your vehicle.
-          </p>
+      <main id="main" className="public-site">
+        <EditorialBanner
+          title="Quality parts. Reliable performance."
+          description="Explore parts, oils, fluids, tyres and automotive products. Check specifications and suitability for your vehicle."
+          image="parts-editorial"
+        />
+        <section
+          className="public-wrap public-section"
+          aria-label="Shop automotive essentials"
+        >
           <PartsCatalogue initial={initial} />
-        </div>
+        </section>
+        <ContactInvitation />
       </main>
       <SiteFooter />
     </>

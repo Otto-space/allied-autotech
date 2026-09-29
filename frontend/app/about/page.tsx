@@ -5,6 +5,7 @@ import { publicMetadata } from "@/lib/seo";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { EquipmentGallery } from "../components/equipment-gallery";
+import { TrustPrinciples, ContactInvitation } from "../components/brand-editorial";
 
 export const metadata = publicMetadata(
   "About Allied AutoTech",
@@ -20,9 +21,9 @@ export default function AboutPage() {
         <section className="public-wrap public-section about-intro">
           <div>
             <h1>
-              Built around your vehicle.
+              Precision Autocare
               <br />
-              Focused on your confidence.
+              You Can Trust.
             </h1>
             <p className="public-lead">
               Allied AutoTech is a modern automotive service brand in Port Harcourt,
@@ -38,8 +39,8 @@ export default function AboutPage() {
           </div>
           <div className="about-photo">
             <Image
-              src="/images/workshop/workshop-hero-01.jpg"
-              alt="Vehicles inside the Allied AutoTech workshop"
+              src="/images/allied-autotech/technician-original.webp"
+              alt="Allied AutoTech technician in the original company campaign photograph"
               fill
               sizes="(max-width: 800px) 90vw, 48vw"
               preload
@@ -68,29 +69,43 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
-        <section className="public-wrap public-section">
+        <section className="public-wrap public-section principles-full" id="principles">
           <div className="section-heading">
-            <h2>The way we work</h2>
+            <h2>Built on Trust, Driven by Quality.</h2>
             <p>
               Inspect carefully. Diagnose the issue. Explain the next step. Our approach
               keeps practical expertise and clear communication at the centre of vehicle
               care.
             </p>
           </div>
-          <ul className="values-list">
-            {[
-              "Trust",
-              "Efficiency",
-              "Quality",
-              "Transparency",
-              "Reliability",
-              "Innovation",
-              "Respect",
-              "Continuous improvement",
-            ].map((value) => (
-              <li key={value}>{value}</li>
-            ))}
-          </ul>
+          <TrustPrinciples complete />
+          <details className="brand-archive">
+            <summary>From our workshop walls</summary>
+            <p>
+              Our original campaigns reflect the principles and everyday journeys behind
+              Allied AutoTech. Pictured campaign vehicles are lifestyle inspiration;
+              current availability is shown in the marketplace.
+            </p>
+            <div className="brand-archive__grid">
+              {[
+                ["lifestyle-campaign", "Which car fits your lifestyle?"],
+                ["executive-campaign", "Executive presence"],
+                ["family-campaign", "Family comfort"],
+                ["operating-principles", "Our original operating principles"],
+              ].map(([src, caption]) => (
+                <figure key={src}>
+                  <Image
+                    src={`/images/allied-autotech/${src}.webp`}
+                    alt={`Original Allied AutoTech campaign: ${caption}`}
+                    width={1200}
+                    height={1594}
+                    sizes="(max-width: 700px) 45vw, 280px"
+                  />
+                  <figcaption>{caption}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </details>
         </section>
         <section className="public-wrap public-section equipment-section" id="equipment">
           <div className="section-heading">
@@ -123,6 +138,7 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+        <ContactInvitation />
       </main>
       <SiteFooter />
     </>

@@ -22,9 +22,11 @@ test("registration completes cleanly and clears the password after a successful 
   await page.getByLabel("Phone number").fill("+2348000000000");
   await page.getByLabel("Email address").fill("registration@example.test");
   await page.getByLabel("Password", { exact: true }).fill("test-only unique passphrase");
-  await page.getByRole("button", { name: "Create customer account" }).click();
+  await page.getByRole("button", { name: "Create account", exact: true }).click();
   await expect(
-    page.getByText("If registration can be completed", { exact: false }),
+    page.getByText("Check your email for verification instructions before signing in.", {
+      exact: false,
+    }),
   ).toBeVisible();
   await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
   await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);
@@ -59,7 +61,7 @@ test("an offscreen sign-in error scrolls into view and never exposes server exce
   await page.goto("/login");
   await page.getByLabel("Email address").fill("unknown@example.test");
   await page.getByLabel("Password", { exact: true }).fill("synthetic-password");
-  await page.getByRole("button", { name: "Sign in securely" }).click();
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   const error = page.getByRole("main").getByRole("alert");
   await expect(error).toHaveText("The email or password could not be verified.");
   await expect

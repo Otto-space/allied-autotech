@@ -1,0 +1,26 @@
+{
+  "source": "C:/Users/PC/.codex/generated_images/01a0ee83-4516-7760-bc1b-b4ceaf4d6a66",
+  "concepts": {
+    "01-home": "7f816dc4-0f3f-4711-ab14-41c8fa519772",
+    "02-services": "66250437-ba7b-4ec7-a365-efbaeb161b50",
+    "03-marketplace": "f9849a90-3206-4874-aeaa-21176185d380",
+    "04-shop": "12c6f4c6-d1e5-4e31-9eea-6d5dcc1196d2",
+    "05-trust": "9683ef4d-541a-4bc5-8d3c-1331e35d8106",
+    "06-customer": "b8f47d3d-b371-465f-87f8-fb7a9adbead8",
+    "07-staff": "a5c2101e-dea4-41e4-8d8e-ce1769683929",
+    "08-admin": "9aa221bb-485b-4304-8e31-f4c8e1b53d66",
+    "09-super-admin": "e0db94bf-3f46-4432-98fb-a296205dad52",
+    "10-customers": "d1b67767-5914-493c-a963-8e9a40c2a39e",
+    "11-forms": "e8acd4cd-2213-4dba-b0c8-f5110dbbd8d5",
+    "12-auth": "a4fa4b6a-951b-4d5b-8b02-c031bce8e504",
+    "13-media": "fe7741f4-a72f-4322-aba4-f2aa4723192d",
+    "14-help": "aea0958e-c553-47b3-a1ae-dcf89845fd80",
+    "15-mobile": "f79550fc-d52c-40ea-b2d2-ce2227445ac2"
+  },
+  "assets": {
+    "workshop-editorial": "792ad01c-17cf-4391-9172-3e48aee41d1c",
+    "showroom-editorial": "e0154ed2-7f65-47e3-b220-fe28817c2b0d",
+    "family-editorial": "bdd10f57-56a9-40e1-a3af-5d3ce69e739e",
+    "parts-editorial": "f22ee345-2aa7-472c-9e9c-b38e4cfa4c46"
+  }
+}

@@ -5,6 +5,7 @@ import { business } from "@/lib/business";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PublicEnquiryForm } from "../components/public-enquiry-form";
+import { EditorialBanner } from "../components/brand-editorial";
 export async function generateMetadata({
   searchParams,
 }: {
@@ -21,13 +22,13 @@ export default function ContactPage() {
   return (
     <>
       <SiteHeader />
-      <main id="main">
+      <main id="main" className="public-site">
+        <EditorialBanner
+          title="Let’s talk about your vehicle."
+          description="Speak with Allied AutoTech or plan your visit to our Port Harcourt workshop."
+        />
         <section className="section">
           <div className="container">
-            <h1>Let’s talk about your vehicle.</h1>
-            <p className="lead">
-              Speak with Allied AutoTech or plan your visit to our Port Harcourt workshop.
-            </p>
             <div className="contact-grid">
               <div className="location-panel">
                 <MapPin size={36} />
@@ -81,7 +82,7 @@ export default function ContactPage() {
             </div>
           </div>
         </section>
-        <section className="section">
+        <section className="section" id="enquiry">
           <div className="container narrow">
             <PublicEnquiryForm />
           </div>

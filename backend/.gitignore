@@ -97,3 +97,4 @@ Thumbs.db
 
 # Populated App Platform specifications can contain encrypted or secret values.
 ops/digitalocean/*.app.yaml
+ops/digitalocean/.private/

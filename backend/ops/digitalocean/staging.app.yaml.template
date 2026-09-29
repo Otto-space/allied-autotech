@@ -2,6 +2,16 @@
 {
   "name": "allied-autotech-staging",
   "region": "REPLACE_DO_REGION",
+  "databases": [
+    {
+      "name": "staging-postgres",
+      "engine": "PG",
+      "production": true,
+      "cluster_name": "REPLACE_EXISTING_MANAGED_POSTGRES_CLUSTER",
+      "db_name": "allied_autotech_staging",
+      "db_user": "REPLACE_STAGING_RUNTIME_ROLE"
+    }
+  ],
   "alerts": [
     {
       "rule": "DEPLOYMENT_FAILED"
@@ -21,7 +31,7 @@
       },
       "http_port": 5000,
       "instance_count": 1,
-      "instance_size_slug": "REPLACE_API_SIZE",
+      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
       "health_check": {
         "http_path": "/api/v1/health/ready",
         "initial_delay_seconds": 15,
@@ -68,7 +78,7 @@
         },
         {
           "key": "FRONTEND_URL",
-          "value": "https://staging.example.com",
+          "value": "https://staging.alliedautotech.com",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -122,7 +132,7 @@
         },
         {
           "key": "DB_PORT",
-          "value": "25060",
+          "value": "REPLACE_ACTUAL_DB_PORT",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -224,7 +234,7 @@
         },
         {
           "key": "WEBAUTHN_RP_ID",
-          "value": "staging.example.com",
+          "value": "staging.alliedautotech.com",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -236,7 +246,7 @@
         },
         {
           "key": "WEBAUTHN_ORIGINS",
-          "value": "https://staging.example.com",
+          "value": "https://staging.alliedautotech.com",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -290,7 +300,7 @@
         },
         {
           "key": "PAYSTACK_CALLBACK_URL",
-          "value": "https://staging.example.com/payments/complete",
+          "value": "https://staging.alliedautotech.com/payments/complete",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -362,19 +372,19 @@
         },
         {
           "key": "FRONTEND_VERIFY_EMAIL_URL",
-          "value": "https://staging.example.com/verify-email",
+          "value": "https://staging.alliedautotech.com/verify-email",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
         {
           "key": "FRONTEND_RESET_PASSWORD_URL",
-          "value": "https://staging.example.com/reset-password",
+          "value": "https://staging.alliedautotech.com/reset-password",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
         {
           "key": "FRONTEND_PRIVILEGED_INVITATION_URL",
-          "value": "https://staging.example.com/staff/accept-invitation",
+          "value": "https://staging.alliedautotech.com/staff/accept-invitation",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -499,7 +509,7 @@
         "digest": "sha256:REPLACE_IDENTITY_WORKER_DIGEST"
       },
       "instance_count": 1,
-      "instance_size_slug": "REPLACE_WORKER_SIZE",
+      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
       "envs": [
         {
           "key": "NODE_ENV",
@@ -521,7 +531,7 @@
         },
         {
           "key": "DB_PORT",
-          "value": "25060",
+          "value": "REPLACE_ACTUAL_DB_PORT",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -659,7 +669,7 @@
         "digest": "sha256:REPLACE_GENERAL_WORKER_DIGEST"
       },
       "instance_count": 1,
-      "instance_size_slug": "REPLACE_WORKER_SIZE",
+      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
       "envs": [
         {
           "key": "NODE_ENV",
@@ -681,7 +691,7 @@
         },
         {
           "key": "DB_PORT",
-          "value": "25060",
+          "value": "REPLACE_ACTUAL_DB_PORT",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -837,7 +847,7 @@
         },
         {
           "key": "PAYSTACK_CALLBACK_URL",
-          "value": "https://staging.example.com/payments/complete",
+          "value": "https://staging.alliedautotech.com/payments/complete",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -933,7 +943,7 @@
         },
         {
           "key": "FRONTEND_URL",
-          "value": "https://staging.example.com",
+          "value": "https://staging.alliedautotech.com",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -990,7 +1000,7 @@
         "digest": "sha256:REPLACE_MIGRATE_DIGEST"
       },
       "instance_count": 1,
-      "instance_size_slug": "REPLACE_MIGRATION_SIZE",
+      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
       "envs": [
         {
           "key": "NODE_ENV",
@@ -1012,7 +1022,7 @@
         },
         {
           "key": "DB_PORT",
-          "value": "25060",
+          "value": "REPLACE_ACTUAL_DB_PORT",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },

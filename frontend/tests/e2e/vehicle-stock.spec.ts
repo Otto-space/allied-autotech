@@ -518,6 +518,31 @@ test("approved photo upload attaches exact bytes with public review and primary 
     buffer: Buffer.from("%PDF-test"),
   });
   await expect(section).toContainText("Choose a JPEG, PNG or WebP image.");
+  await expect(
+    section.getByRole("button", { name: "Upload selected file", exact: true }),
+  ).toBeDisabled();
+  const dropped = await page.evaluateHandle(
+    (bytes) => {
+      const transfer = new DataTransfer();
+      transfer.items.add(
+        new File([new Uint8Array(bytes)], "dropped.png", { type: "image/png" }),
+      );
+      return transfer;
+    },
+    [...png],
+  );
+  await section
+    .locator(".asset-dropzone")
+    .dispatchEvent("drop", { dataTransfer: dropped });
+  await dropped.dispose();
+  await expect(
+    section.getByRole("img", { name: "Selected file: dropped.png" }),
+  ).toBeVisible();
+  expect(uploads).toBe(0);
+  await section.getByRole("button", { name: "Remove selected file" }).click();
+  await expect(
+    section.getByRole("img", { name: "Selected file: dropped.png" }),
+  ).toHaveCount(0);
   await section
     .getByLabel("Vehicle photo file")
     .setInputFiles({ name: "isolated.png", mimeType: "image/png", buffer: png });

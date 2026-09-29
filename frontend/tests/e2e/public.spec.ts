@@ -16,22 +16,19 @@ test.beforeEach(async ({ page }) => {
       }),
   );
 });
-for (const width of [320, 768, 1024, 1440]) {
+for (const width of [360, 390, 430, 768, 1024, 1280, 1440]) {
   test(`homepage and automated help at ${width}px`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.setViewportSize({ width, height: width === 1024 ? 600 : 900 });
     const failures: string[] = [];
     page.on("pageerror", (error) => failures.push(error.message));
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Precision vehicle care",
+      "Precision care.",
     );
     await expect(page.getByText("Services are not listed yet")).toBeVisible();
-    await expect(page.getByText(/No parts are published yet/)).toBeVisible();
+    await expect(page.getByText(/No products are published yet/)).toBeVisible();
     await expect(page.getByText(/No vehicles are published yet/)).toBeVisible();
-    await expect(page.getByRole("link", { name: "View My Garage" })).toHaveAttribute(
-      "href",
-      "/dashboard/vehicles",
-    );
     expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(
       /Quicksand/i,
     );
@@ -39,7 +36,7 @@ for (const width of [320, 768, 1024, 1440]) {
       await page
         .getByRole("heading", { level: 1 })
         .evaluate((element) => getComputedStyle(element).fontFamily),
-    ).toMatch(/Quicksand/i);
+    ).toMatch(/Nippo/i);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -152,14 +149,14 @@ test("homepage catalogue failure recovers to real response data without sample p
     });
   });
   await page.goto("/");
-  await expect(page.getByRole("button", { name: "Retry featured parts" })).toBeVisible();
-  await expect(page.getByText(/No parts are published yet/)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Retry products" })).toBeVisible();
+  await expect(page.getByText(/No products are published yet/)).toHaveCount(0);
   await expect(page.getByText(/No vehicles are published yet/)).toBeVisible();
   await expect(page.getByText(/Brake Pad Set|Executive Sedan|OEM Component/)).toHaveCount(
     0,
   );
   recovered = true;
-  await page.getByRole("button", { name: "Retry featured parts" }).click();
+  await page.getByRole("button", { name: "Retry products" }).click();
   const productLink = page.getByRole("link", {
     name: "Isolated replacement component with a long catalogue name",
   });

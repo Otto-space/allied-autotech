@@ -53,7 +53,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
     });
     await expect(nav).toBeVisible();
     expect(await nav.locator(":scope > a, :scope > details").count()).toBe(
-      role === "CUSTOMER" ? 7 : role === "STAFF" ? 6 : 8,
+      role === "CUSTOMER" || role === "STAFF" ? 7 : 8,
     );
     await expect(nav.locator("details[open]")).toHaveCount(0);
     const search = page.getByRole("searchbox", { name: "Search dashboard pages" });
@@ -134,7 +134,7 @@ for (const width of [320, 360, 390, 768, 850, 900, 901, 1024, 1440, 1655]) {
     await shop.focus();
     await page.keyboard.press("Enter");
     await expect(
-      nav.getByRole("link", { name: "Parts inventory", exact: true }),
+      nav.getByRole("link", { name: "Product inventory", exact: true }),
     ).toBeVisible();
     await expect(
       nav.getByRole("link", { name: "Payment records", exact: true }),
@@ -187,7 +187,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
     await expect(expand).toBeFocused();
     await expect(nav).toBeVisible();
     expect(await nav.locator(":scope > a, :scope > button").count()).toBe(
-      role === "CUSTOMER" ? 7 : role === "STAFF" ? 6 : 8,
+      role === "CUSTOMER" || role === "STAFF" ? 7 : 8,
     );
     for (const icon of await nav.locator("svg").all()) await expect(icon).toBeVisible();
     await expect(page.locator(".sidebar")).toHaveCSS("width", "80px");
@@ -266,7 +266,7 @@ test("short laptop sidebar scrolls every group while keeping its controls visibl
   expect(box!.y + box!.height).toBeLessThan(480);
   const scroller = page.locator(".dashboard-navigation-container");
   expect(await scroller.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
-  await expect(scroller).toHaveCSS("scrollbar-width", "none");
+  await expect(scroller).toHaveCSS("scrollbar-width", "thin");
   expect(
     await scroller.evaluate(
       (element) => getComputedStyle(element, "::-webkit-scrollbar").display,

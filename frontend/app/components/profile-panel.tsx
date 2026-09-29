@@ -208,6 +208,19 @@ export function ProfilePanel() {
         </p>
       )}
       {profile.data && (
+        <div className="profile-identity">
+          <span className="profile-initials" aria-hidden="true">
+            {`${profile.data.firstName.slice(0, 1)}${profile.data.lastName.slice(0, 1)}`.toUpperCase()}
+          </span>
+          <div>
+            <strong>
+              {profile.data.firstName} {profile.data.lastName}
+            </strong>
+            <p>{profile.data.user.email}</p>
+          </div>
+        </div>
+      )}
+      {profile.data && (
         <ProfileForm
           key={profile.data.user.id}
           profile={profile.data}

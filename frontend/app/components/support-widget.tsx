@@ -21,9 +21,19 @@ export function SupportWidget() {
     return () => window.removeEventListener(SESSION_CHANGED, discard);
   }, []);
   useEffect(() => {
-    function revealFocusedField() {
+    function revealFocusedField(event: Event) {
       const element = document.activeElement;
       if (!(element instanceof HTMLElement) || !element.closest("main")) return;
+      // Moving a pointer-focused button between pointerdown and pointerup cancels
+      // its click. Reveal keyboard focus and editable fields without moving a
+      // clicked action; viewport changes can still reveal any focused control.
+      if (
+        event.type === "focusin" &&
+        !element.matches(
+          ":focus-visible, input, select, textarea, [contenteditable='true']",
+        )
+      )
+        return;
       const controls = trigger.current?.closest("nav");
       if (!controls) return;
       const bar = controls.getBoundingClientRect();

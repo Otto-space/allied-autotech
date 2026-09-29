@@ -1,0 +1,14 @@
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": ["https://staging.alliedautotech.com"],
+      "AllowedMethods": ["PUT", "GET", "HEAD"],
+      "AllowedHeaders": [
+        "content-type",
+        "x-amz-checksum-sha256",
+        "x-amz-server-side-encryption"
+      ],
+      "MaxAgeSeconds": 600
+    }
+  ]
+}

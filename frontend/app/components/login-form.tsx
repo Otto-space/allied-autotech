@@ -90,10 +90,7 @@ export function LoginForm() {
       </span>
 
       <div className="w-full">
-        <Feedback
-          message={error}
-          toast="Please review the message on this page."
-        />
+        <Feedback message={error} toast="Please review the message on this page." />
       </div>
 
       <form onSubmit={submit} className="w-full space-y-4 text-left">
@@ -117,10 +114,7 @@ export function LoginForm() {
             <label className="label" htmlFor="password">
               Password
             </label>
-            <Link
-              className="text-link text-sm"
-              href="/forgot-password"
-            >
+            <Link className="text-link text-sm" href="/forgot-password">
               Forgot password?
             </Link>
           </div>

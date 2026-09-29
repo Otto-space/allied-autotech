@@ -280,6 +280,16 @@ test("first-factor setup requires all unavailable methods and explicit recovery-
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Set up authenticator app" }).click();
   await expect(page.getByLabel("Authenticator setup key")).toHaveValue(secret);
+  const qr = page.getByRole("img", { name: /Authenticator setup QR code/ });
+  await expect(qr).toBeVisible();
+  await expect
+    .poll(() => qr.evaluate((canvas) => (canvas as HTMLCanvasElement).width))
+    .toBe(224);
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.getByRole("button", { name: "Copy setup key", exact: true }).click();
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toBe(secret);
   await page.getByLabel("6-digit code").fill("123456");
   await page.getByRole("button", { name: "Verify code" }).click();
   await expect(

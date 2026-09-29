@@ -10,7 +10,7 @@ import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
-import { PublicMedia } from "../../components/public-media";
+import { MediaGallery } from "../../components/media-gallery";
 import { VehicleActions } from "../../components/vehicle-actions";
 const getListing = cache(async (id: string) => {
   if (!z.uuid().safeParse(id).success) notFound();
@@ -58,7 +58,7 @@ export default async function ListingPage({
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section">
+      <main id="main" className="section public-site public-detail marketplace-site">
         <div className="container">
           <nav className="breadcrumbs" aria-label="Breadcrumb">
             <Link href="/vehicles">Vehicles</Link>
@@ -67,23 +67,7 @@ export default async function ListingPage({
           </nav>
           <div className="product-detail-grid">
             <div>
-              <PublicMedia
-                src={
-                  (vehicle.images.find((image) => image.isPrimary) ?? vehicle.images[0])
-                    ?.url
-                }
-                alt={listing.title}
-                priority
-              />
-              <div className="gallery-grid">
-                {vehicle.images.slice(1).map((image) => (
-                  <PublicMedia
-                    src={image.url}
-                    key={image.id}
-                    alt={image.altText ?? listing.title}
-                  />
-                ))}
-              </div>
+              <MediaGallery images={vehicle.images} title={listing.title} />
               <section className="detail-section">
                 <h2>Vehicle details</h2>
                 <dl className="totals">

@@ -6,9 +6,9 @@ export function AuthShell({
   children,
 }: Readonly<{ children: ReactNode; audience?: "customer" | "staff" }>) {
   return (
-    <main className="auth-shell">
+    <main id="main" className="auth-shell">
       <section className="auth-panel">
-        <Link href="/">
+        <Link href="/" aria-label="Allied AutoTech home">
           <Brand />
         </Link>
         <div className="auth-main">

@@ -2,12 +2,12 @@
 import { Pause, Play } from "lucide-react";
 import { useState } from "react";
 const services = [
-  "Diagnostics",
-  "Maintenance",
-  "Tyres",
-  "Wheel Alignment",
+  "Professional Diagnostics",
+  "Preventive Maintenance",
+  "Clear Communication",
+  "Quality Workmanship",
   "Genuine Parts",
-  "Car Sales",
+  "Vehicle Inspections",
 ];
 export function ServiceMarquee() {
   const [paused, setPaused] = useState(false);

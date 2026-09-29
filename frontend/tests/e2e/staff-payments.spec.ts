@@ -483,7 +483,7 @@ test("refund request preserves exact kobo and its idempotency key across a lost 
     reason: refund.reason,
   });
   await expect(
-    page.getByText("A different administrator must review", { exact: false }),
+    page.getByText("A different authorized operator must review", { exact: false }),
   ).toBeVisible();
   expect(errors).toEqual([]);
 });

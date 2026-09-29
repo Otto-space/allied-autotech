@@ -41,8 +41,8 @@ async function setup(page: Page, booking = fixture(), responseStatus = 200) {
     if (post) {
       const body = new URLSearchParams(request.postData() ?? "");
       expect(body.get("token")).toBe(token);
-      expect(request.headers()["origin"]).toBe("http://localhost:3000");
-      expect(request.headers()["referer"]).toBe("http://localhost:3000/");
+      expect(request.headers()["origin"]).toBe(new URL(request.url()).origin);
+      expect(request.headers()["referer"]).toBe(`${new URL(request.url()).origin}/`);
       const action = body.get("action");
       expect(["CONFIRM", "CANCEL"]).toContain(action);
       writes.push(action!);

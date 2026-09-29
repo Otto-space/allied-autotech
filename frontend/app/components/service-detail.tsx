@@ -146,7 +146,7 @@ export function ServiceDetail({
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section">
+      <main id="main" className="section public-site public-detail service-booking">
         <div className="container narrow">
           <nav className="breadcrumbs" aria-label="Breadcrumb">
             <Link href="/services">Services</Link>
@@ -169,7 +169,11 @@ export function ServiceDetail({
                   current.shortDescription ??
                   "Discuss your vehicle’s needs with our team."}
               </p>
-              <p className="price">{formatKobo(current.priceKobo)}</p>
+              <p className="price">
+                {current.pricingType === "QUOTE_REQUIRED"
+                  ? "Quotation required"
+                  : formatKobo(current.priceKobo)}
+              </p>
               {current.durationMinutes !== null && (
                 <p className="muted">
                   Listed duration: {current.durationMinutes} minutes

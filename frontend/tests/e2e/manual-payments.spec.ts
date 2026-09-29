@@ -161,7 +161,7 @@ test("manual payment review validates fields, preserves cancelled input and reco
   if (process.env.RUN_ASSET_BROWSER_TESTS !== "true") {
     await expect(page.getByLabel("Payment evidence (optional)")).toBeDisabled();
     await expect(
-      page.getByText("Document uploads are unavailable.", { exact: false }),
+      page.getByText("File uploads are unavailable.", { exact: false }),
     ).toBeVisible();
   }
   await reviewButton(page).click();

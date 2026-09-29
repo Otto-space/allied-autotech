@@ -12,6 +12,8 @@ import { useMfaOperation } from "@/lib/api/use-mfa-operation";
 import { Feedback } from "./feedback";
 import { MfaCodeForm } from "./mfa-code-form";
 import type { z } from "zod";
+import { AuthenticatorQr } from "./authenticator-qr";
+import { CopyControl } from "./copy-control";
 export function MfaEnrollment({
   onComplete,
   onCheck,
@@ -117,7 +119,9 @@ export function MfaEnrollment({
       )}
       {totp && !operation.uncertain && !operation.requiresMfa && (
         <section className="detail-section">
-          <h3>Enter this setup key in your authenticator app</h3>
+          <h3>Connect your authenticator app</h3>
+          <p>Scan this QR code, or enter the setup key below.</p>
+          <AuthenticatorQr key={totp.factorId} uri={totp.uri} />
           <p>
             Choose a time-based code for Allied AutoTech. Keep the setup key private. It
             is shown only during this setup.
@@ -131,6 +135,11 @@ export function MfaEnrollment({
               value={totp.secret}
               autoComplete="off"
               spellCheck={false}
+            />
+            <CopyControl
+              value={totp.secret}
+              label="Copy setup key"
+              fieldId="totp-secret"
             />
           </div>
           <MfaCodeForm

@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { publicData } from "./public-server";
+import { faqs } from "../business";
 import { publicPaths } from "../seo";
 const idPage = z.object({
   items: z.array(z.object({ id: z.uuid() })),
@@ -39,7 +40,11 @@ export async function sitemapPaths() {
     const catalogues = await Promise.all(
       sources.map((source) => sourcePaths(source, controller.signal)),
     );
-    return [...publicPaths, ...catalogues.flat()];
+    return [
+      ...publicPaths,
+      ...faqs.map((faq) => `/help/${faq.id}`),
+      ...catalogues.flat(),
+    ];
   } finally {
     clearTimeout(timer);
     controller.abort();

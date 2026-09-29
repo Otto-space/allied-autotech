@@ -1,20 +1,28 @@
 import { indexingEnabled } from "@/lib/seo";
 import type { Metadata } from "next";
 import { connection } from "next/server";
-import { Quicksand } from "next/font/google";
+import localFont from "next/font/local";
 
 import "./globals.css";
 import "./overview.css";
 import "./public-site.css";
 import "./feedback.css";
 import "./dashboard-forms.css";
+import "./brand-system.css";
 
 import { SupportWidget } from "./components/support-widget";
 import { ToastRegion } from "./components/toast-region";
 
-const quicksand = Quicksand({
+const quicksand = localFont({
+  src: "../public/fonts/quicksand-variable.ttf",
   variable: "--font-quicksand",
-  subsets: ["latin"],
+  weight: "300 700",
+  display: "swap",
+});
+const nippo = localFont({
+  src: "./fonts/Nippo-Variable.woff2",
+  variable: "--font-nippo",
+  weight: "200 700",
   display: "swap",
 });
 
@@ -34,7 +42,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   await connection();
 
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={quicksand.variable}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${quicksand.variable} ${nippo.variable}`}
+    >
       <body>
         {children}
         <SupportWidget />

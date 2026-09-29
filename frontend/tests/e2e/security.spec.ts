@@ -84,12 +84,13 @@ async function fixture(page: Page, role = "CUSTOMER") {
       return state.failFactors
         ? fail(route, "DATABASE_UNAVAILABLE", 503)
         : reply(route, state.malformedFactors ? {} : { factors: state.factors });
-    state.writes.push({
-      endpoint,
-      method: request.method(),
-      body: request.postDataJSON(),
-      csrf: request.headers()["x-csrf-token"],
-    });
+    if (request.method() !== "GET")
+      state.writes.push({
+        endpoint,
+        method: request.method(),
+        body: request.postDataJSON(),
+        csrf: request.headers()["x-csrf-token"],
+      });
     if (state.unknown) return route.abort("connectionreset");
     if (endpoint === "/auth/password/change") {
       if (state.wrongPassword) return fail(route, "AUTHENTICATION_FAILED", 401);

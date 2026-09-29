@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { imageFormSchema, type ProductImageValues } from "@/lib/forms/product-extras";
 import type { ProductImage } from "@/lib/api/product-extras-schemas";
 import { isPublicMediaUrl, publicMediaHosts } from "@/lib/media";
+import { PublicMedia } from "./public-media";
 const hosts = publicMediaHosts(process.env.NEXT_PUBLIC_MEDIA_HOSTS);
 export function ProductImageForm({
   item,
@@ -44,6 +45,14 @@ export function ProductImageForm({
           This URL is not approved for display by this site. A valid HTTPS URL can be
           saved, but its image will stay unavailable until its host is approved.
         </p>
+      )}
+      {url && isPublicMediaUrl(url, hosts) && (
+        <div className="product-image-preview">
+          <PublicMedia key={url} src={url} alt="Selected product image preview" />
+          <p className="field-hint">
+            Preview only. Review and save to update this product.
+          </p>
+        </div>
       )}
       <fieldset className="handover-fields" disabled={disabled}>
         {(

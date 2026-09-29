@@ -4,6 +4,11 @@ This runbook supersedes historical phase reports where they conflict with the si
 
 ## Package, build and process commands
 
+For the current Windows DOCR build/push workflow, private input generation,
+immutable release manifests and App Platform submission, follow
+[DigitalOcean staging release](digitalocean-staging-release.md). It retains the
+process and security model below and uses commit-SHA tags for actual releases.
+
 The repository root is not an npm workspace. Run from `backend` with Node 24.13.0 and its committed npm lockfile. Frontend remains on Vercel. Docker context is `backend`, not repository root.
 
 ```sh

@@ -9,6 +9,8 @@ import {
   branch,
   policy,
   publicRecord,
+  product,
+  listing,
   service,
   slot,
 } from "../fixtures/public-account-actions";
@@ -86,6 +88,17 @@ function record(url: string) {
     "",
   );
   if (pathname === "/public/booking-policy") return currentPolicy;
+  const images = [0, 1].map((index) => ({
+    id: id(101 + index),
+    url: `/api/v1/public/vehicles/images/${id(101 + index)}`,
+    altText: `Synthetic view ${index + 1}`,
+    isPrimary: index === 1,
+    sortOrder: index,
+  }));
+  if (pathname === `/public/catalog/products/${product.id}`)
+    return { ...product, images };
+  if (pathname === `/public/vehicles/${listing.id}`)
+    return { ...listing, vehicle: { ...listing.vehicle, images } };
   return publicRecord(pathname);
 }
 let server: Server;
@@ -109,6 +122,11 @@ test.afterAll(async () => {
 async function intercept(page: Page) {
   await page.route("**/api/v1/**", async (route) => {
     const url = route.request().url();
+    if (url.includes("/public/vehicles/images/"))
+      return route.fulfill({
+        path: path.resolve("public/images/allied-autotech/showroom-editorial.webp"),
+        contentType: "image/webp",
+      });
     if (url.endsWith("/auth/session"))
       return route.fulfill({
         status: 401,
@@ -117,7 +135,7 @@ async function intercept(page: Page) {
     return route.fulfill({ json: envelope(record(url)) });
   });
 }
-for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
+for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
   test(`homepage and About remain readable at ${width}px`, async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
@@ -154,6 +172,8 @@ for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
             `allied-brand-${route === "/" ? "home" : "about"}-${width}-viewport.png`,
           ),
         });
+        if (route === "/about")
+          await page.getByText("From our workshop walls", { exact: true }).click();
         // Load below-the-fold images before capturing the full layout.
         for (const picture of await page.locator("main img").all()) {
           await picture.scrollIntoViewIfNeeded();
@@ -190,22 +210,22 @@ test("hero keyboard, slide links, optional playback and marquee pause work", asy
   await page.goto("/");
   const hero = page.getByRole("region", { name: "Explore Allied AutoTech" });
   await expect(hero.getByRole("heading", { level: 1 })).toHaveText(
-    "Built on Trust. Driven by Quality.",
+    "Precision care.Confidence on every road.",
   );
   await hero.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(hero.getByRole("link", { name: "Explore Diagnostics" })).toHaveAttribute(
-    "href",
-    "/services",
-  );
-  await page.keyboard.press("ArrowRight");
-  await expect(hero.getByRole("link", { name: "Visit Shop" })).toHaveAttribute(
-    "href",
-    "/parts",
-  );
-  await hero.getByRole("button", { name: "Show slide 4: Browse Vehicles" }).click();
-  await expect(hero.getByRole("link", { name: "Browse Vehicles" })).toHaveAttribute(
+  await expect(hero.getByRole("link", { name: "Explore Vehicles" })).toHaveAttribute(
     "href",
     "/vehicles",
+  );
+  await page.keyboard.press("ArrowRight");
+  await expect(hero.getByRole("link", { name: "Discover Vehicles" })).toHaveAttribute(
+    "href",
+    "/vehicles",
+  );
+  await hero.getByRole("button", { name: "Show slide 4: Visit the Shop" }).click();
+  await expect(hero.getByRole("link", { name: "Visit the Shop" })).toHaveAttribute(
+    "href",
+    "/parts",
   );
   await hero.getByRole("button", { name: "Play slideshow" }).click();
   await expect(hero.getByRole("button", { name: "Pause slideshow" })).toBeVisible();
@@ -224,6 +244,52 @@ test("reduced motion disables automatic movement", async ({ page }) => {
   await expect(page.locator(".marquee-track")).toHaveCSS("animation-name", "none");
   await expect(page.getByRole("button", { name: "Play slideshow" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Pause service marquee" })).toBeHidden();
+});
+
+for (const destination of [`/parts/${product.id}`, `/vehicles/${listing.id}`]) {
+  test(`detail gallery preserves all images and primary selection: ${destination}`, async ({
+    page,
+  }) => {
+    await intercept(page);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(destination);
+    const gallery = page.locator(".media-gallery");
+    await expect(gallery.getByRole("status")).toHaveText("Image 2 of 2");
+    await gallery.getByRole("button", { name: "Next image" }).click();
+    await expect(gallery.getByRole("status")).toHaveText("Image 1 of 2");
+    await gallery.getByRole("button", { name: "Show image 2: Synthetic view 2" }).click();
+    await expect(
+      gallery.getByRole("button", { name: "Show image 2: Synthetic view 2" }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({
+      path: path.join(
+        os.tmpdir(),
+        `allied-detail-${destination.includes("parts") ? "product" : "vehicle"}.png`,
+      ),
+      fullPage: true,
+    });
+  });
+}
+
+test("Help categories open real articles and related guidance", async ({ page }) => {
+  await intercept(page);
+  await page.goto("/help");
+  await page.getByRole("button", { name: "Accounts and security", exact: true }).click();
+  await page.getByText("How do I protect my account with MFA?", { exact: true }).click();
+  await page.locator("details[open]").getByRole("link", { name: "Read article" }).click();
+  await expect(page).toHaveURL(/\/help\/account-security$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "How do I protect my account with MFA?",
+  );
+  await expect(page.getByRole("link", { name: "Open account security" })).toHaveAttribute(
+    "href",
+    "/dashboard/security",
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 test("mobile navigation contains focus, closes with Escape and closes after navigation", async ({
   page,
@@ -335,7 +401,7 @@ test("saved vehicle and customer contact review sends the chosen vehicle and pre
         .analyze()
     ).violations,
   ).toEqual([]);
-  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
+  for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

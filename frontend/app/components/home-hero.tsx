@@ -1,51 +1,63 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const slides = [
   {
-    title: "Built on Trust. Driven by Quality.",
+    title: "Precision care.",
+    emphasis: "Confidence on every road.",
     description:
-      "Professional maintenance, diagnostics, tyre services and automotive solutions in Port Harcourt.",
+      "Professional diagnostics, maintenance and repairs from a team built on trust and driven by quality.",
     action: "Book a Service",
     href: "/services",
-    image: "/images/workshop/workshop-hero-01.jpg",
-    alt: "Vehicles being serviced inside Allied AutoTech",
+    image: "/images/allied-autotech/workshop-editorial.webp",
+    alt: "Editorial scene of a technician inspecting a dark SUV in a modern workshop",
+    secondary: "Request a Quote",
+    secondaryHref: "/contact#enquiry",
     caption: "Your vehicle. Our focus.",
     contain: false,
   },
   {
-    title: "A clearer picture of your vehicle’s health.",
+    title: "Find the car",
+    emphasis: "that fits your life.",
     description:
-      "Modern diagnostic equipment and practical expertise help us investigate the fault and explain the next step.",
-    action: "Explore Diagnostics",
-    href: "/services",
-    image: "/images/equipment/autel-mk808s.jpg",
-    alt: "Autel MK808S diagnostic tablet and case",
+      "Explore carefully presented vehicles for family life, daily movement, business and executive comfort.",
+    action: "Explore Vehicles",
+    href: "/vehicles",
+    image: "/images/allied-autotech/showroom-editorial.webp",
+    alt: "Editorial showroom scene with a silver sedan and dark SUV",
+    secondary: "Request an Inspection",
+    secondaryHref: "/vehicles#inventory",
     caption: "Technology that supports informed decisions.",
     contain: true,
   },
   {
-    title: "Automotive essentials for the road ahead.",
+    title: "Built for every",
+    emphasis: "journey that matters.",
     description:
-      "Explore our Shop for genuine parts, oils, maintenance products and other automotive essentials.",
-    action: "Visit Shop",
-    href: "/parts",
-    image: "/images/workshop/workshop-hero-02.jpg",
-    alt: "Tyre and wheel work at the Allied AutoTech workshop",
+      "Family comfort, everyday confidence and room for the moments that make life yours. Start your next chapter with us.",
+    action: "Discover Vehicles",
+    href: "/vehicles",
+    image: "/images/allied-autotech/family-editorial.webp",
+    alt: "Editorial scene of an African family beside a white SUV",
+    secondary: "Speak With Us",
+    secondaryHref: "https://wa.me/2348136075567",
     caption: "Quality products. Professional vehicle care.",
     contain: false,
   },
   {
-    title: "Vehicle solutions, with confidence.",
+    title: "Quality parts.",
+    emphasis: "Reliable performance.",
     description:
-      "Browse our published vehicle listings and talk to our team about inspections, enquiries and sourcing.",
-    action: "Browse Vehicles",
-    href: "/vehicles",
-    image: "/images/workshop/workshop-hero-04.jpg",
-    alt: "A vehicle at an Allied AutoTech service lift",
+      "Find the right essentials for your vehicle. Browse available parts, oils and automotive products in our Shop.",
+    action: "Visit the Shop",
+    href: "/parts",
+    image: "/images/allied-autotech/parts-editorial.webp",
+    alt: "Editorial arrangement of brake components, filters and unlabelled oil containers",
+    secondary: "Request a Quotation",
+    secondaryHref: "/contact#enquiry",
     caption: "Care and support for your next move.",
     contain: false,
   },
@@ -57,12 +69,22 @@ const subscribeMotion = (changed: () => void) => {
 };
 const motionSnapshot = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const subscribeVisibility = (changed: () => void) => {
+  document.addEventListener("visibilitychange", changed);
+  return () => document.removeEventListener("visibilitychange", changed);
+};
 
 export function HomeHero() {
   const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
   const [hovered, setHovered] = useState(false);
   const reduced = useSyncExternalStore(subscribeMotion, motionSnapshot, () => true);
+  const visible = useSyncExternalStore(
+    subscribeVisibility,
+    () => document.visibilityState === "visible",
+    () => false,
+  );
+  const advancing = playing && !hovered && !reduced && visible;
   const touch = useRef<{ x: number; y: number } | null>(null);
   const current = slides[index];
   function select(next: number) {
@@ -70,16 +92,16 @@ export function HomeHero() {
     setIndex((next + slides.length) % slides.length);
   }
   useEffect(() => {
-    if (!playing || hovered || reduced) return;
-    const timer = window.setInterval(() => {
-      if (document.visibilityState === "visible")
-        setIndex((value) => (value + 1) % slides.length);
-    }, 7000);
-    return () => window.clearInterval(timer);
-  }, [playing, hovered, reduced]);
+    if (!advancing) return;
+    const timer = window.setTimeout(
+      () => setIndex((value) => (value + 1) % slides.length),
+      7000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [advancing, index]);
   return (
     <section
-      className="home-hero"
+      className={`home-hero home-hero--slide-${index}`}
       aria-roledescription="carousel"
       aria-label="Explore Allied AutoTech"
       onMouseEnter={() => setHovered(true)}
@@ -107,36 +129,37 @@ export function HomeHero() {
           select(index + (dx < 0 ? 1 : -1));
       }}
     >
+      <div className="hero-media" key={current.image}>
+        <Image
+          src={current.image}
+          alt={current.alt}
+          fill
+          sizes="100vw"
+          preload={index === 0}
+        />
+      </div>
       <div className="public-wrap hero-layout">
         <div
           className="hero-copy"
-          aria-live={playing ? "off" : "polite"}
+          aria-live={advancing ? "off" : "polite"}
           aria-atomic="true"
         >
-          <h1>{current.title}</h1>
+          <h1>
+            {current.title}
+            <br />
+            <span>{current.emphasis}</span>
+          </h1>
           <p>{current.description}</p>
           <div className="actions">
             <Link className="button" href={current.href}>
               {current.action}
+              <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
-            <Link className="text-link" href="/about">
-              Meet Allied AutoTech
+            <Link className="button secondary" href={current.secondaryHref}>
+              {current.secondary}
             </Link>
           </div>
         </div>
-        <figure className="hero-figure">
-          <div className={`hero-photo ${current.contain ? "hero-photo--contain" : ""}`}>
-            <Image
-              key={current.image}
-              src={current.image}
-              alt={current.alt}
-              fill
-              sizes="(max-width: 800px) 100vw, 54vw"
-              preload={index === 0}
-            />
-          </div>
-          <figcaption>{current.caption}</figcaption>
-        </figure>
         <div className="hero-controls">
           <div className="hero-dots" aria-label="Choose a slide">
             {slides.map((slide, slideIndex) => (
@@ -147,7 +170,12 @@ export function HomeHero() {
                 aria-current={index === slideIndex ? "true" : undefined}
                 onClick={() => select(slideIndex)}
               >
-                <span />
+                <span>
+                  <i
+                    key={`${index}-${advancing}`}
+                    className={index === slideIndex && advancing ? "is-advancing" : ""}
+                  />
+                </span>
               </button>
             ))}
           </div>

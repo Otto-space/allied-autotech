@@ -43,7 +43,8 @@ const navigation = [
   { href: "/parts", label: "Shop" },
   { href: "/vehicles", label: "Vehicles" },
   { href: "/about", label: "About" },
-  { href: "/help", label: "Support" },
+  { href: "/help", label: "Help" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
