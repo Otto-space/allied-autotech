@@ -123,7 +123,13 @@ export class ProfilePhotoService {
   async read(actor: AuthenticatedActor, imageId: string) {
     assertCustomerActor(actor);
     const image = await this.db.resourceImage.findFirst({
-      where: { id: imageId, profile: { userId: actor.userId } },
+      where: {
+        id: imageId,
+        OR: [
+          { profile: { userId: actor.userId } },
+          { customerVehicle: { customer: { userId: actor.userId } } },
+        ],
+      },
       select: { asset: { select: { objectKey: true, sizeBytes: true, mimeType: true } } },
     });
     if (!image) throw customerResourceNotFound();

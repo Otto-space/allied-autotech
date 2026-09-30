@@ -1,0 +1,35 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 24px;
+  margin-block: 24px;
+}
+.card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--border, #dbe2e8);
+  border-radius: 8px;
+  background: white;
+}
+.image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+.fields {
+  display: grid;
+  gap: 16px;
+  margin-block: 20px;
+}
+.upload {
+  margin-block: 32px;
+}
+.upload > button {
+  margin-top: 16px;
+}
+.upload > [role="group"] + [role="group"] {
+  margin-top: 24px;
+}

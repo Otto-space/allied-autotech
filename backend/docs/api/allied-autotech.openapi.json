@@ -7384,19 +7384,134 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Get an owned customer vehicle.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
                         },
-                        "status": {
+                        "make": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "description": "Make validated by this operation's strict request contract."
+                        },
+                        "model": {
+                          "type": "string",
+                          "description": "Model validated by this operation's strict request contract."
+                        },
+                        "year": {
+                          "type": "integer",
+                          "description": "Year validated by this operation's strict request contract."
+                        },
+                        "registrationNumber": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Registration Number validated by this operation's strict request contract."
+                        },
+                        "vin": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Vin validated by this operation's strict request contract."
+                        },
+                        "color": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Color validated by this operation's strict request contract."
+                        },
+                        "mileageKm": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Mileage Km validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "mediaVersion": {
+                          "type": "integer",
+                          "description": "Media Version validated by this operation's strict request contract."
+                        },
+                        "images": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "HTTPS location validated against the operation's server-side allowlist."
+                              },
+                              "altText": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Alt Text validated by this operation's strict request contract."
+                              },
+                              "sortOrder": {
+                                "type": "integer",
+                                "description": "Sort Order validated by this operation's strict request contract."
+                              },
+                              "isPrimary": {
+                                "type": "boolean",
+                                "description": "Boolean control for is primary; authorization is still enforced server-side."
+                              },
+                              "width": {
+                                "type": "integer",
+                                "description": "Width validated by this operation's strict request contract."
+                              },
+                              "height": {
+                                "type": "integer",
+                                "description": "Height validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "url",
+                              "altText",
+                              "sortOrder",
+                              "isPrimary",
+                              "width",
+                              "height"
+                            ],
+                            "description": "Images Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 12,
+                          "description": "Images validated by this operation's strict request contract."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "id",
+                        "make",
+                        "model",
+                        "year",
+                        "registrationNumber",
+                        "vin",
+                        "color",
+                        "mileageKm",
+                        "createdAt",
+                        "updatedAt",
+                        "mediaVersion",
+                        "images"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -7415,6 +7530,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -7424,7 +7540,27 @@
                   "message": "Get an owned customer vehicle",
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "make": "synthetic-make",
+                    "model": "synthetic-model",
+                    "year": 1,
+                    "registrationNumber": "synthetic-registrationnumber",
+                    "vin": "synthetic-vin",
+                    "color": "synthetic-color",
+                    "mileageKm": "synthetic-mileagekm",
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "updatedAt": "2030-01-15T10:00:00.000Z",
+                    "mediaVersion": 1,
+                    "images": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "url": "https://example.test/continue",
+                        "altText": "synthetic-alttext",
+                        "sortOrder": 1,
+                        "isPrimary": true,
+                        "width": 1,
+                        "height": 1
+                      }
+                    ]
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -11596,42 +11732,32 @@
               }
             }
           },
-          "409": {
-            "description": "The request conflicts with current state or idempotency.",
+          "404": {
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "message": "The request conflicts with current state or idempotency.",
-                  "error": {
-                    "code": "CONFLICT"
-                  },
-                  "meta": {
-                    "requestId": "req_0000000000000001"
-                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           },
           "422": {
-            "description": "One or more request fields are invalid.",
+            "description": "VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "message": "One or more request fields are invalid.",
-                  "error": {
-                    "code": "VALIDATION_FAILED"
-                  },
-                  "meta": {
-                    "requestId": "req_0000000000000001"
-                  }
                 }
               }
             }
@@ -11672,6 +11798,16 @@
                   "meta": {
                     "requestId": "req_0000000000000001"
                   }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -11950,42 +12086,32 @@
               }
             }
           },
-          "409": {
-            "description": "The request conflicts with current state or idempotency.",
+          "404": {
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "message": "The request conflicts with current state or idempotency.",
-                  "error": {
-                    "code": "CONFLICT"
-                  },
-                  "meta": {
-                    "requestId": "req_0000000000000001"
-                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           },
           "422": {
-            "description": "One or more request fields are invalid.",
+            "description": "VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "message": "One or more request fields are invalid.",
-                  "error": {
-                    "code": "VALIDATION_FAILED"
-                  },
-                  "meta": {
-                    "requestId": "req_0000000000000001"
-                  }
                 }
               }
             }
@@ -12026,6 +12152,16 @@
                   "meta": {
                     "requestId": "req_0000000000000001"
                   }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -12286,42 +12422,32 @@
               }
             }
           },
-          "409": {
-            "description": "The request conflicts with current state or idempotency.",
+          "404": {
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "message": "The request conflicts with current state or idempotency.",
-                  "error": {
-                    "code": "CONFLICT"
-                  },
-                  "meta": {
-                    "requestId": "req_0000000000000001"
-                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
           },
           "422": {
-            "description": "One or more request fields are invalid.",
+            "description": "VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "message": "One or more request fields are invalid.",
-                  "error": {
-                    "code": "VALIDATION_FAILED"
-                  },
-                  "meta": {
-                    "requestId": "req_0000000000000001"
-                  }
                 }
               }
             }
@@ -12362,6 +12488,16 @@
                   "meta": {
                     "requestId": "req_0000000000000001"
                   }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -12475,21 +12611,11 @@
             }
           },
           "404": {
-            "description": "The requested resource is not available.",
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
-                },
-                "example": {
-                  "success": false,
-                  "message": "The requested resource is not available.",
-                  "error": {
-                    "code": "NOT_FOUND"
-                  },
-                  "meta": {
-                    "requestId": "req_0000000000000001"
-                  }
                 }
               }
             }
@@ -12553,6 +12679,16 @@
                 }
               }
             }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
           }
         },
         "operationId": "getCustomersMediaImagesByImageId",
@@ -12561,6 +12697,1509 @@
           "CUSTOMER"
         ],
         "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/customers/vehicles/{vehicleId}/assets/upload": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Prepare an owned garage image upload",
+        "description": "Customer owner only; all other roles denied. Private garage photos never publish to the marketplace. JPEG/PNG/WebP, non-animated, max 10 MiB each, 32–8192px per side, 40 million input pixels, re-encoded metadata-free WebP within 2048px; extreme aspect ratios below 32 output pixels rejected. At most 12 images. Prepare does not attach bytes. Confirmation verifies full bytes/checksum and ticket actor/owner/vehicle/purpose/expiry. expectedVersion is vehicle.mediaVersion; all gallery mutations serialize on the vehicle and reject stale versions. Exact confirmation token/body retries replay for 24 hours; changed-body replay fails. Images sort by sortOrder ascending then stable image ID; duplicate order numbers are allowed. First attachment becomes cover; select another using isPrimary:true. Cover cannot be unset without replacement. Removing the cover chooses the first remaining image by the same ordering; removing the final image is allowed. Removal or vehicle deletion revokes reads and queues owned-object cleanup transactionally; foreign-key restrictions on vehicle deletion remain intact. GET vehicle includes bounded images and mediaVersion. Display uses authenticated GET /customers/media/images/{imageId}, private/no-store. No public URLs, object keys or upload tokens appear in vehicle projections. See managed-media.md for retention and storage requirements. Prepare an owned garage image upload. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the vehicle resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "vehicleId",
+            "in": "path",
+            "description": "Identifier selecting the vehicle resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mimeType": {
+                    "type": "string",
+                    "enum": [
+                      "image/jpeg",
+                      "image/png",
+                      "image/webp"
+                    ],
+                    "description": "Mime Type validated by this operation's strict request contract."
+                  },
+                  "sizeBytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10485760,
+                    "description": "Size Bytes validated by this operation's strict request contract."
+                  },
+                  "checksumSha256": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$",
+                    "description": "Checksum Sha256 validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "mimeType",
+                  "sizeBytes",
+                  "checksumSha256"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "mimeType": "image/jpeg",
+                "sizeBytes": 1,
+                "checksumSha256": "synthetic-checksumsha256"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Prepare an owned garage image upload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "assetToken": {
+                          "type": "string",
+                          "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                        },
+                        "upload": {
+                          "type": "object",
+                          "properties": {
+                            "method": {
+                              "type": "string",
+                              "enum": [
+                                "PUT"
+                              ],
+                              "description": "Method validated by this operation's strict request contract."
+                            },
+                            "url": {
+                              "type": "string",
+                              "format": "uri",
+                              "description": "HTTPS location validated against the operation's server-side allowlist."
+                            },
+                            "expiresAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "headers": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "description": "Headers validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "url",
+                            "expiresAt",
+                            "headers"
+                          ],
+                          "description": "Upload validated by this operation's strict request contract."
+                        },
+                        "limits": {
+                          "type": "object",
+                          "properties": {
+                            "maxBytes": {
+                              "type": "integer",
+                              "description": "Max Bytes validated by this operation's strict request contract."
+                            },
+                            "count": {
+                              "type": "integer",
+                              "description": "Count validated by this operation's strict request contract."
+                            },
+                            "maxOutputDimension": {
+                              "type": "integer",
+                              "description": "Max Output Dimension validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "maxBytes",
+                            "count",
+                            "maxOutputDimension"
+                          ],
+                          "description": "Limits validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "assetToken",
+                        "upload",
+                        "limits"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Prepare an owned garage image upload",
+                  "data": {
+                    "assetToken": "synthetic-token-value-not-a-real-secret",
+                    "upload": {
+                      "method": "PUT",
+                      "url": "https://example.test/continue",
+                      "expiresAt": "2030-01-15T10:00:00.000Z",
+                      "headers": {}
+                    },
+                    "limits": {
+                      "maxBytes": 1,
+                      "count": 1,
+                      "maxOutputDimension": 1
+                    }
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postCustomersVehiclesByVehicleIdAssetsUpload",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/customers/vehicles/{vehicleId}/images": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Confirm an owned garage image",
+        "description": "Customer owner only; all other roles denied. Private garage photos never publish to the marketplace. JPEG/PNG/WebP, non-animated, max 10 MiB each, 32–8192px per side, 40 million input pixels, re-encoded metadata-free WebP within 2048px; extreme aspect ratios below 32 output pixels rejected. At most 12 images. Prepare does not attach bytes. Confirmation verifies full bytes/checksum and ticket actor/owner/vehicle/purpose/expiry. expectedVersion is vehicle.mediaVersion; all gallery mutations serialize on the vehicle and reject stale versions. Exact confirmation token/body retries replay for 24 hours; changed-body replay fails. Images sort by sortOrder ascending then stable image ID; duplicate order numbers are allowed. First attachment becomes cover; select another using isPrimary:true. Cover cannot be unset without replacement. Removing the cover chooses the first remaining image by the same ordering; removing the final image is allowed. Removal or vehicle deletion revokes reads and queues owned-object cleanup transactionally; foreign-key restrictions on vehicle deletion remain intact. GET vehicle includes bounded images and mediaVersion. Display uses authenticated GET /customers/media/images/{imageId}, private/no-store. No public URLs, object keys or upload tokens appear in vehicle projections. See managed-media.md for retention and storage requirements. Confirm an owned garage image. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the vehicle resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "vehicleId",
+            "in": "path",
+            "description": "Identifier selecting the vehicle resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "assetToken": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{43}$",
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "altText": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 240,
+                    "description": "Alt Text validated by this operation's strict request contract."
+                  },
+                  "sortOrder": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000,
+                    "default": 0,
+                    "description": "Sort Order validated by this operation's strict request contract."
+                  },
+                  "isPrimary": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Boolean control for is primary; authorization is still enforced server-side."
+                  }
+                },
+                "required": [
+                  "expectedVersion",
+                  "assetToken"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedVersion": 0,
+                "assetToken": "synthetic-token-value-not-a-real-secret",
+                "altText": "synthetic-alttext",
+                "sortOrder": 0,
+                "isPrimary": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Confirm an owned garage image.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "images": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "HTTPS location validated against the operation's server-side allowlist."
+                              },
+                              "altText": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Alt Text validated by this operation's strict request contract."
+                              },
+                              "sortOrder": {
+                                "type": "integer",
+                                "description": "Sort Order validated by this operation's strict request contract."
+                              },
+                              "isPrimary": {
+                                "type": "boolean",
+                                "description": "Boolean control for is primary; authorization is still enforced server-side."
+                              },
+                              "width": {
+                                "type": "integer",
+                                "description": "Width validated by this operation's strict request contract."
+                              },
+                              "height": {
+                                "type": "integer",
+                                "description": "Height validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "url",
+                              "altText",
+                              "sortOrder",
+                              "isPrimary",
+                              "width",
+                              "height"
+                            ],
+                            "description": "Images Item validated by this operation's strict request contract."
+                          },
+                          "description": "Images validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "images"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Confirm an owned garage image",
+                  "data": {
+                    "version": 1,
+                    "images": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "url": "https://example.test/continue",
+                        "altText": "synthetic-alttext",
+                        "sortOrder": 1,
+                        "isPrimary": true,
+                        "width": 1,
+                        "height": 1
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postCustomersVehiclesByVehicleIdImages",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/customers/vehicles/{vehicleId}/images/{imageId}": {
+      "patch": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Edit garage image alt text, order or cover",
+        "description": "Customer owner only; all other roles denied. Private garage photos never publish to the marketplace. JPEG/PNG/WebP, non-animated, max 10 MiB each, 32–8192px per side, 40 million input pixels, re-encoded metadata-free WebP within 2048px; extreme aspect ratios below 32 output pixels rejected. At most 12 images. Prepare does not attach bytes. Confirmation verifies full bytes/checksum and ticket actor/owner/vehicle/purpose/expiry. expectedVersion is vehicle.mediaVersion; all gallery mutations serialize on the vehicle and reject stale versions. Exact confirmation token/body retries replay for 24 hours; changed-body replay fails. Images sort by sortOrder ascending then stable image ID; duplicate order numbers are allowed. First attachment becomes cover; select another using isPrimary:true. Cover cannot be unset without replacement. Removing the cover chooses the first remaining image by the same ordering; removing the final image is allowed. Removal or vehicle deletion revokes reads and queues owned-object cleanup transactionally; foreign-key restrictions on vehicle deletion remain intact. GET vehicle includes bounded images and mediaVersion. Display uses authenticated GET /customers/media/images/{imageId}, private/no-store. No public URLs, object keys or upload tokens appear in vehicle projections. See managed-media.md for retention and storage requirements. Edit garage image alt text, order or cover. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the vehicle resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "vehicleId",
+            "in": "path",
+            "description": "Identifier selecting the vehicle resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the image resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "imageId",
+            "in": "path",
+            "description": "Identifier selecting the image resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "altText": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 240,
+                    "description": "Alt Text validated by this operation's strict request contract."
+                  },
+                  "sortOrder": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000,
+                    "description": "Sort Order validated by this operation's strict request contract."
+                  },
+                  "isPrimary": {
+                    "type": "boolean",
+                    "enum": [
+                      true
+                    ],
+                    "description": "Boolean control for is primary; authorization is still enforced server-side."
+                  }
+                },
+                "required": [
+                  "expectedVersion"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedVersion": 0,
+                "altText": "synthetic-alttext",
+                "sortOrder": 0,
+                "isPrimary": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Edit garage image alt text, order or cover.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "images": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "HTTPS location validated against the operation's server-side allowlist."
+                              },
+                              "altText": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Alt Text validated by this operation's strict request contract."
+                              },
+                              "sortOrder": {
+                                "type": "integer",
+                                "description": "Sort Order validated by this operation's strict request contract."
+                              },
+                              "isPrimary": {
+                                "type": "boolean",
+                                "description": "Boolean control for is primary; authorization is still enforced server-side."
+                              },
+                              "width": {
+                                "type": "integer",
+                                "description": "Width validated by this operation's strict request contract."
+                              },
+                              "height": {
+                                "type": "integer",
+                                "description": "Height validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "url",
+                              "altText",
+                              "sortOrder",
+                              "isPrimary",
+                              "width",
+                              "height"
+                            ],
+                            "description": "Images Item validated by this operation's strict request contract."
+                          },
+                          "description": "Images validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "images"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Edit garage image alt text, order or cover",
+                  "data": {
+                    "version": 1,
+                    "images": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "url": "https://example.test/continue",
+                        "altText": "synthetic-alttext",
+                        "sortOrder": 1,
+                        "isPrimary": true,
+                        "width": 1,
+                        "height": 1
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchCustomersVehiclesByVehicleIdImagesByImageId",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      },
+      "delete": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Remove an owned garage image",
+        "description": "Customer owner only; all other roles denied. Private garage photos never publish to the marketplace. JPEG/PNG/WebP, non-animated, max 10 MiB each, 32–8192px per side, 40 million input pixels, re-encoded metadata-free WebP within 2048px; extreme aspect ratios below 32 output pixels rejected. At most 12 images. Prepare does not attach bytes. Confirmation verifies full bytes/checksum and ticket actor/owner/vehicle/purpose/expiry. expectedVersion is vehicle.mediaVersion; all gallery mutations serialize on the vehicle and reject stale versions. Exact confirmation token/body retries replay for 24 hours; changed-body replay fails. Images sort by sortOrder ascending then stable image ID; duplicate order numbers are allowed. First attachment becomes cover; select another using isPrimary:true. Cover cannot be unset without replacement. Removing the cover chooses the first remaining image by the same ordering; removing the final image is allowed. Removal or vehicle deletion revokes reads and queues owned-object cleanup transactionally; foreign-key restrictions on vehicle deletion remain intact. GET vehicle includes bounded images and mediaVersion. Display uses authenticated GET /customers/media/images/{imageId}, private/no-store. No public URLs, object keys or upload tokens appear in vehicle projections. See managed-media.md for retention and storage requirements. Remove an owned garage image. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the vehicle resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "vehicleId",
+            "in": "path",
+            "description": "Identifier selecting the vehicle resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the image resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "imageId",
+            "in": "path",
+            "description": "Identifier selecting the image resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483647,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  }
+                },
+                "required": [
+                  "expectedVersion"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedVersion": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Remove an owned garage image.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "integer",
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "images": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "url": {
+                                "type": "string",
+                                "description": "HTTPS location validated against the operation's server-side allowlist."
+                              },
+                              "altText": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Alt Text validated by this operation's strict request contract."
+                              },
+                              "sortOrder": {
+                                "type": "integer",
+                                "description": "Sort Order validated by this operation's strict request contract."
+                              },
+                              "isPrimary": {
+                                "type": "boolean",
+                                "description": "Boolean control for is primary; authorization is still enforced server-side."
+                              },
+                              "width": {
+                                "type": "integer",
+                                "description": "Width validated by this operation's strict request contract."
+                              },
+                              "height": {
+                                "type": "integer",
+                                "description": "Height validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "url",
+                              "altText",
+                              "sortOrder",
+                              "isPrimary",
+                              "width",
+                              "height"
+                            ],
+                            "description": "Images Item validated by this operation's strict request contract."
+                          },
+                          "description": "Images validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "images"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Remove an owned garage image",
+                  "data": {
+                    "version": 1,
+                    "images": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "url": "https://example.test/continue",
+                        "altText": "synthetic-alttext",
+                        "sortOrder": 1,
+                        "isPrimary": true,
+                        "width": 1,
+                        "height": 1
+                      }
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteCustomersVehiclesByVehicleIdImagesByImageId",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": true,
         "x-idempotency-required": false
       }
     },

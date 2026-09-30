@@ -19,6 +19,20 @@ const profileResponse = z.object({
   mediaVersion: z.number().int(),
   photo: mediaImageSchema.nullable(),
 });
+const garageVehicleResponse = z.object({
+  id: z.uuid(),
+  make: z.string(),
+  model: z.string(),
+  year: z.number().int(),
+  registrationNumber: z.string().nullable(),
+  vin: z.string().nullable(),
+  color: z.string().nullable(),
+  mileageKm: z.number().int().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  mediaVersion: z.number().int(),
+  images: z.array(mediaImageSchema).max(12),
+});
 
 import {
   customerProfileUpdateBodySchema,
@@ -134,7 +148,10 @@ export function registerCustomersOpenApi(registry: OpenAPIRegistry): void {
               schema:
                 path.path === "/customers/profile"
                   ? responseSchema.extend({ data: profileResponse })
-                  : responseSchema,
+                  : path.path === "/customers/vehicles/{vehicleId}" &&
+                      path.method === "get"
+                    ? responseSchema.extend({ data: garageVehicleResponse })
+                    : responseSchema,
             },
           },
         },

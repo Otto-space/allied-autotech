@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+import { mediaErrorResponses } from "../media/media.openapi.js";
 import {
   mediaConfirmSchema,
   mediaPreparationSchema,
@@ -46,6 +47,7 @@ export function registerProfilePhotoOpenApi(registry: OpenAPIRegistry) {
         body: { required: true, content: { "application/json": { schema: route.body } } },
       },
       responses: {
+        ...mediaErrorResponses,
         200: {
           description: "Photo request completed",
           content: {
@@ -71,6 +73,8 @@ export function registerProfilePhotoOpenApi(registry: OpenAPIRegistry) {
     security: [{ sessionCookie: [] }],
     request: { params: z.object({ imageId: z.uuid() }) },
     responses: {
+      404: mediaErrorResponses[404],
+      503: mediaErrorResponses[503],
       200: {
         description: "Validated image bytes",
         content: { "image/webp": { schema: { type: "string", format: "binary" } } },

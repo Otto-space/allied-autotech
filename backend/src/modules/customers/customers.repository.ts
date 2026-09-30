@@ -1,6 +1,7 @@
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { projectResourceImage, resourceImageSelect } from "../media/media.projection.js";
+import { enqueueMediaCleanup } from "../media/media.service.js";
 import type {
   CustomerProfileUpdateInput,
   CustomerVehicleCreateInput,
@@ -119,10 +120,27 @@ export class CustomersRepository {
   }
 
   vehicle(userId: string, vehicleId: string, client: DatabaseClient = this.database) {
-    return client.customerVehicle.findFirst({
-      where: { id: vehicleId, customer: { userId } },
-      select: vehicleSelect,
-    });
+    return client.customerVehicle
+      .findFirst({
+        where: { id: vehicleId, customer: { userId } },
+        select: {
+          ...vehicleSelect,
+          mediaVersion: true,
+          mediaImages: {
+            select: resourceImageSelect,
+            orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+            take: 12,
+          },
+        },
+      })
+      .then((row) => {
+        if (!row) return null;
+        const { mediaImages, ...vehicle } = row;
+        return {
+          ...vehicle,
+          images: mediaImages.map((image) => projectResourceImage(image)),
+        };
+      });
   }
 
   async createVehicle(
@@ -181,9 +199,15 @@ export class CustomersRepository {
   }
 
   async deleteVehicle(userId: string, vehicleId: string, client: DatabaseClient) {
+    await client.$queryRaw`SELECT "id" FROM "CustomerVehicle" WHERE "id" = ${vehicleId}::uuid FOR UPDATE`;
     const owned = await this.vehicle(userId, vehicleId, client);
     if (owned === null) return null;
+    const images = await client.resourceImage.findMany({
+      where: { customerVehicleId: vehicleId },
+      select: { asset: { select: { objectKey: true } } },
+    });
     await client.customerVehicle.delete({ where: { id: vehicleId } });
+    for (const image of images) await enqueueMediaCleanup(client, image.asset.objectKey);
     return owned;
   }
 }

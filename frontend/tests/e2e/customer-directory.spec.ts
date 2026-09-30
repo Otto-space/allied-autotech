@@ -9,7 +9,11 @@ test.skip(
   !fixturePath,
   "Requires the isolated directory API and synthetic role sessions",
 );
-function fixture(): { sessions: Record<string, string>; ids: string[] } {
+function fixture(): {
+  sessions: Record<string, string>;
+  ids: string[];
+  directoryPrefix?: string;
+} {
   if (!fixturePath) throw new Error("Missing isolated session fixture");
   return JSON.parse(readFileSync(fixturePath, "utf8"));
 }
@@ -46,7 +50,7 @@ test("real customer search, filters, pagination and responsive detail", async ({
   await expect(
     page.getByRole("heading", { name: "Customers", exact: true }),
   ).toBeVisible();
-  await search(page, "Browserdemo");
+  await search(page, fixture().directoryPrefix ?? "Browserdemo");
   await expect(
     page.getByRole("region", { name: "Customer results" }).locator("tbody tr"),
   ).toHaveCount(25);
@@ -69,7 +73,9 @@ test("real customer search, filters, pagination and responsive detail", async ({
   });
   await page.goto(`/admin/customers/${fixture().ids[0]}`);
   await expect(
-    page.getByRole("heading", { name: "Browserdemo Customer 00" }),
+    page.getByRole("heading", {
+      name: `${fixture().directoryPrefix ?? "Browserdemo"} Customer 00`,
+    }),
   ).toBeVisible();
   await expect(page.getByText("2020 Toyota Corolla", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Orders", exact: true }).click();

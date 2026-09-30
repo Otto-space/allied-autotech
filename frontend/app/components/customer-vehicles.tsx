@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
@@ -136,6 +137,12 @@ export function CustomerVehicles() {
               </p>
             </div>
             <div className="actions">
+              <Link
+                className="button secondary"
+                href={`/dashboard/vehicles/${vehicle.id}`}
+              >
+                Manage photos
+              </Link>
               <button className="button secondary" onClick={() => edit(vehicle)}>
                 Edit details
               </button>
