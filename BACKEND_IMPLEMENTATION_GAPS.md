@@ -1,5 +1,7 @@
 # Allied AutoTech — Backend Implementation Gaps
 
+**Implementation update (30 September 2026):** BG-01 through BG-06 are implemented and have local API/database/browser acceptance evidence. See the [final implementation handoff](backend/docs/backend-gaps-handoff.md) for current contracts, regression results and remaining staging storage verification. This update supersedes earlier implementation-status notes below.
+
 Prepared: 30 September 2026  
 Basis: completed frontend redesign and read-only review of the current backend routes, schemas and exported OpenAPI contract.  
 Status: implementation backlog; the additions below are not implemented by this document.

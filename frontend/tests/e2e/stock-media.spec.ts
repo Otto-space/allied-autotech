@@ -271,16 +271,13 @@ test("stock media keeps stale drafts and requires the refreshed vehicle version"
     .data;
   expect(
     (
-      await request.patch(
-        `/api/v1/staff/vehicles/${id}/images/${current.images[0].id}`,
-        {
-          headers: await adminHeaders(request),
-          data: {
-            expectedVersion: current.version,
-            altText: "Another operator's description",
-          },
+      await request.patch(`/api/v1/staff/vehicles/${id}/images/${current.images[0].id}`, {
+        headers: await adminHeaders(request),
+        data: {
+          expectedVersion: current.version,
+          altText: "Another operator's description",
         },
-      )
+      })
     ).status(),
   ).toBe(200);
   await gallery

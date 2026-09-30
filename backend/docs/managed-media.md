@@ -24,7 +24,7 @@ Successful preparation, replacement and removal use existing audit facilities wi
 
 ## Deployment verification still required
 
-Configure a private bucket, region (default `us-east-1`), credentials or workload identity, and an endpoint for non-AWS S3 storage using the existing `OBJECT_STORAGE_*` variables. The API/worker identity needs GetObject, PutObject and DeleteObject on managed prefixes. Bucket CORS must allow the frontend origin's PUT and the signed content-type, checksum and encryption headers. Set frontend `ASSET_STORAGE_HOSTS` to the actual signed-upload hostname. Keep public access blocked. Run the normal migrations and general worker; do not use database reset or `db push`.
+Configure a private bucket, region (default `us-east-1`), credentials and an endpoint using the existing `OBJECT_STORAGE_*` variables. The existing production environment validator requires explicit access-key variables and an HTTPS endpoint, even though the underlying S3 adapter supports its default credential chain. The API/worker identity needs GetObject, PutObject and DeleteObject on managed prefixes. Bucket CORS must allow the frontend origin's PUT and the signed content-type, checksum and encryption headers. Set frontend `ASSET_STORAGE_HOSTS` to the actual signed-upload hostname. Keep public access blocked. Run the normal migrations and general worker; do not use database reset or `db push`.
 
 Live storage credentials/bucket are absent in this workspace. Before release, verify real signed PUT/checksum/SSE/CORS, confirm/read/replace/remove, expiry, storage outage, worker retries and private-bucket access denial in staging. No live-storage or staging pass is claimed by the local tests.
 
@@ -90,11 +90,11 @@ Local evidence: backend build/typecheck/lint passed; 132 unit/product/HTTP/legac
 
 Existing `POST /staff/vehicles/{vehicleId}/assets/upload` and `POST /staff/vehicles/{vehicleId}/images` paths and original request/response fields remain supported. IMAGE preparation now uses persisted managed tickets and fails closed without real storage. Non-image document, condition-report and handover contracts are unchanged. Still-valid encrypted legacy IMAGE tickets can be adopted once, with full byte verification, expiry and binding checks; already attached legacy objects cannot be reconfirmed. Legacy uploads that were never confirmed and whose tickets have expired have no database inventory: review old storage prefixes using provider inventory before any operator-directed cleanup.
 
-| Method | Route | Result |
-| --- | --- | --- |
-| PATCH | `/staff/vehicles/{vehicleId}/images/{imageId}` | Edit description, numeric order and primary state |
-| DELETE | `/staff/vehicles/{vehicleId}/images/{imageId}` | Detach, select cover fallback and queue owned cleanup |
-| GET | `/staff/vehicles/{vehicleId}/images/{imageId}/content` | Authenticated preview before or after publication |
+| Method | Route                                                  | Result                                                |
+| ------ | ------------------------------------------------------ | ----------------------------------------------------- |
+| PATCH  | `/staff/vehicles/{vehicleId}/images/{imageId}`         | Edit description, numeric order and primary state     |
+| DELETE | `/staff/vehicles/{vehicleId}/images/{imageId}`         | Detach, select cover fallback and queue owned cleanup |
+| GET    | `/staff/vehicles/{vehicleId}/images/{imageId}/content` | Authenticated preview before or after publication     |
 
 STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. Verified MFA is required. CUSTOMER and anonymous mutations/previews are denied. The image must belong to the path's vehicle. All writes require CSRF; preparation and confirmation are rate limited. No new migration is needed: the shared nullable VehicleImage.mediaAssetId and existing Vehicle.version are reused.
 

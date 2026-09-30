@@ -1,5 +1,7 @@
 # Backend capabilities requiring a separate implementation
 
+**Implementation update (30 September 2026):** All six originally identified gaps are implemented and integrated. See the [final implementation handoff](../../backend/docs/backend-gaps-handoff.md) for current contracts, local acceptance evidence and remaining staging storage verification. The original redesign gap inventory below is retained as historical context.
+
 The backend and OpenAPI were inspected read-only. These are contract gaps, not disabled working frontend features. Existing backend deployment edits were present before this work and are unrelated.
 
 | Requested capability                                   | Existing contract                                                                                                                                                                                                                  | Missing contract and boundary                                                                                                                                                                                                                                                                                                                                                 |

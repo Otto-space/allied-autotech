@@ -191,7 +191,7 @@ test("service image upload, failed replacement, alt text, public display and rem
     .getByRole("article")
     .filter({ has: publicPage.getByRole("heading", { name, exact: true }) });
   for (let index = 0; index < 30; index++) {
-    await expect(publicPage.locator(".service-discovery")).toHaveAttribute(
+    await expect(publicPage.locator("main [aria-busy]")).toHaveAttribute(
       "aria-busy",
       "false",
     );

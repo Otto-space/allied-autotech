@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { env } from "../../src/config/env.js";
 import { prisma } from "../../src/config/database.js";
+import type { Prisma } from "../../src/generated/prisma/client.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 import { RefundWorker } from "../../src/workers/refund.worker.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
@@ -185,13 +186,36 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     });
     it("blocks live financial operations until accounting approval while preserving private draft testing", async () => {
       const prior = env.DEPLOYMENT_ENV;
+      const rollback = new Error("Rollback isolated draft finance fixture");
       try {
-        env.DEPLOYMENT_ENV = "production";
-        await expect(assertFinanceGate(prisma)).rejects.toMatchObject({
-          statusCode: 409,
-        });
-        env.DEPLOYMENT_ENV = "staging";
-        expect((await assertFinanceGate(prisma)).approvalStatus).toBe("DRAFT");
+        // Other integration suites legitimately approve the shared policy. Use
+        // a transaction-local draft, then roll it back to preserve their state.
+        await expect(
+          prisma.$transaction(async (tx) => {
+            const latest = await tx.businessPolicyVersion.findFirstOrThrow({
+              where: { key: "finance" },
+              orderBy: { version: "desc" },
+            });
+            await tx.businessPolicyVersion.create({
+              data: {
+                key: "finance",
+                version: latest.version + 1,
+                approvalStatus: "DRAFT",
+                source: "Synthetic rollback-only finance gate fixture",
+                sourceQuestion: "TEST",
+                effectiveAt: new Date(),
+                settings: latest.settings as Prisma.InputJsonObject,
+              },
+            });
+            env.DEPLOYMENT_ENV = "production";
+            await expect(assertFinanceGate(tx)).rejects.toMatchObject({
+              statusCode: 409,
+            });
+            env.DEPLOYMENT_ENV = "staging";
+            expect((await assertFinanceGate(tx)).approvalStatus).toBe("DRAFT");
+            throw rollback;
+          }),
+        ).rejects.toBe(rollback);
       } finally {
         env.DEPLOYMENT_ENV = prior;
       }

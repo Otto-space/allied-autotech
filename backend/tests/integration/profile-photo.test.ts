@@ -257,12 +257,22 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: image.assetId },
         data: { createdAt: new Date(Date.now() - 7200000) },
       });
-      await worker.runOnce(100);
-      expect(storage.objects.has(image.asset.objectKey)).toBe(false);
+      // Cleanup is bounded and may have older jobs from other integration fixtures.
+      // Run successive batches until this orphan is processed, without changing
+      // another fixture's deadlines or increasing the production batch limit.
+      await expect
+        .poll(
+          async () => {
+            await worker.runOnce(100);
+            return storage.objects.has(image.asset.objectKey);
+          },
+          { timeout: 60_000, interval: 25 },
+        )
+        .toBe(false);
       expect(
         (await prisma.storedMedia.findUniqueOrThrow({ where: { id: image.assetId } }))
           .deletedAt,
       ).not.toBeNull();
-    });
+    }, 90_000);
   },
 );
