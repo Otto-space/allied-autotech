@@ -1,5 +1,7 @@
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
+import { resourceImageSelect } from "../media/media.projection.js";
+import { projectServiceImage } from "./service-media.service.js";
 import type {
   AdminServiceListQuery,
   CustomerBookingListQuery,
@@ -201,8 +203,8 @@ export const bookingSelect = {
 export class ServiceOperationsRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
-  listServices(query: AdminServiceListQuery, activeOnly: boolean) {
-    return this.database.service.findMany({
+  async listServices(query: AdminServiceListQuery, activeOnly: boolean) {
+    const rows = await this.database.service.findMany({
       where: {
         ...(activeOnly
           ? { isActive: true }
@@ -211,18 +213,32 @@ export class ServiceOperationsRepository {
             : { isActive: query.isActive }),
         ...(query.pricingType === undefined ? {} : { pricingType: query.pricingType }),
       },
-      select: serviceSelect,
+      select: { ...serviceSelect, mediaImages: { select: resourceImageSelect, take: 1 } },
       orderBy: { id: "asc" },
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });
+    return rows.map(({ mediaImages, ...service }) => ({
+      ...service,
+      image: mediaImages[0]
+        ? projectServiceImage(mediaImages[0], service.id, activeOnly)
+        : null,
+    }));
   }
 
-  service(id: string, activeOnly: boolean, client: DatabaseClient = this.database) {
-    return client.service.findFirst({
+  async service(id: string, activeOnly: boolean, client: DatabaseClient = this.database) {
+    const row = await client.service.findFirst({
       where: { id, ...(activeOnly ? { isActive: true } : {}) },
-      select: serviceSelect,
+      select: { ...serviceSelect, mediaImages: { select: resourceImageSelect, take: 1 } },
     });
+    if (!row) return null;
+    const { mediaImages, ...service } = row;
+    return {
+      ...service,
+      image: mediaImages[0]
+        ? projectServiceImage(mediaImages[0], service.id, activeOnly)
+        : null,
+    };
   }
 
   createService(input: ServiceCreateInput, client: DatabaseClient) {

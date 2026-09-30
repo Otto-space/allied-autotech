@@ -1,5 +1,7 @@
 "use client";
 import Link from "next/link";
+import { ServicePhoto } from "./service-photo";
+import imageStyles from "./service-image.module.css";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { z } from "zod";
@@ -154,6 +156,17 @@ export function ServiceDetail({
             <span>{current?.name ?? "Service details"}</span>
           </nav>
           <AccountChangeNotice visible={operation.sessionChanged} />
+          {current?.image && (
+            <div className={imageStyles.detail}>
+              <ServicePhoto
+                key={current.image.id}
+                url={current.image.url}
+                alt={current.image.altText || current.name}
+                width={900}
+                height={600}
+              />
+            </div>
+          )}
           <Feedback message={service.error} />
           {service.error && (
             <button className="button secondary" onClick={service.refresh}>

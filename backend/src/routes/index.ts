@@ -14,6 +14,10 @@ import { createCustomerDirectoryRouter } from "../modules/customers/customer-dir
 import { createProfilePhotoRouter } from "../modules/customers/profile-photo.routes.js";
 import { createGarageMediaRouter } from "../modules/customers/garage-media.routes.js";
 import {
+  createServiceMediaRouter,
+  createPublicServiceMediaRouter,
+} from "../modules/service-operations/service-media.routes.js";
+import {
   createAdminCatalogRouter,
   createCustomerCatalogRouter,
   createPublicCatalogRouter,
@@ -106,6 +110,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/auth/staff/invitations", createPrivilegedInvitationRouter());
   apiRouter.use(publicApiPaths.branches, createPublicBranchesRouter());
   apiRouter.use("/public", createPublicBookingRouter());
+  apiRouter.use("/public", createPublicServiceMediaRouter());
   apiRouter.use("/public/catalog", createPublicCatalogRouter());
   apiRouter.use(publicApiPaths.services, createPublicServicesRouter());
   apiRouter.use("/public/vehicles", createPublicVehiclesRouter());
@@ -137,6 +142,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/admin/catalog", createAdminCatalogRouter());
   apiRouter.use("/admin/inventory", createAdminInventoryRouter());
   apiRouter.use("/admin/services", createAdminServicesRouter());
+  apiRouter.use("/admin/services", createServiceMediaRouter());
   apiRouter.use("/admin/orders", createAdminOrderOperationsRouter());
   apiRouter.use("/admin/promotions", createAdminPromotionsRouter());
   apiRouter.use("/admin", createAdminVehicleSalesRouter());

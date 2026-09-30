@@ -17,6 +17,11 @@ import { ProfilePhotoService } from "../../src/modules/customers/profile-photo.s
 import { createProfilePhotoRouter } from "../../src/modules/customers/profile-photo.routes.js";
 import { GarageMediaService } from "../../src/modules/customers/garage-media.service.js";
 import { createGarageMediaRouter } from "../../src/modules/customers/garage-media.routes.js";
+import { ServiceMediaService } from "../../src/modules/service-operations/service-media.service.js";
+import {
+  createServiceMediaRouter,
+  createPublicServiceMediaRouter,
+} from "../../src/modules/service-operations/service-media.routes.js";
 import { MemoryMediaStorage } from "./media-storage.js";
 
 // Test-only executable, excluded from the production build. Never mount these test routes in src.
@@ -144,6 +149,14 @@ router.use(
 router.use(
   "/customers",
   createGarageMediaRouter(new GarageMediaService(prisma, storage)),
+);
+router.use(
+  "/admin/services",
+  createServiceMediaRouter(new ServiceMediaService(prisma, storage)),
+);
+router.use(
+  "/public",
+  createPublicServiceMediaRouter(new ServiceMediaService(prisma, storage)),
 );
 router.use(createApiRouter({ checkReadiness: async () => undefined }));
 const server = createApp({ apiRouter: router }).listen(5011, "127.0.0.1", () => {

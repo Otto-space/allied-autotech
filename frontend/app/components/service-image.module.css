@@ -1,0 +1,37 @@
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--surface-muted, #f1f3f5);
+}
+.editor,
+.upload {
+  max-width: 600px;
+  margin-top: 24px;
+}
+.editor form {
+  margin-top: 20px;
+}
+.card {
+  width: 100%;
+}
+.withImage {
+  flex-direction: column;
+}
+.fallback {
+  display: grid;
+  place-items: center;
+  color: var(--brand-red-dark, #b91c1c);
+}
+.detail {
+  margin: 24px 0;
+}
+@media (max-width: 600px) {
+  .card {
+    width: 100%;
+    flex: none;
+  }
+}

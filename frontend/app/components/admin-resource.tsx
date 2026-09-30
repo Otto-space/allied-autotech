@@ -12,6 +12,7 @@ import { useAccountSession } from "./dashboard-shell";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { ProductExtrasEditor } from "./product-extras-editor";
+import { ServiceImageEditor } from "./service-image-editor";
 const recordSchema = z.object({ id: z.uuid() }).catchall(z.unknown());
 const parseRecords = (value: unknown) =>
   z
@@ -263,6 +264,9 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
   if (resourceUrl && cursor) resourceUrl += `&cursor=${cursor}`;
   const records = useResource(resourceUrl, parseRecords);
   const [editing, setEditing] = useState<RecordValue | null>(null);
+  const [serviceImage, setServiceImage] = useState<{ id: string; name: string } | null>(
+    null,
+  );
   const [editingSource, setEditingSource] = useState<string>();
   const [formKey, setFormKey] = useState(0);
   const [error, setError] = useState<string>();
@@ -338,67 +342,85 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
         Refresh records
       </button>
       {records.loading && <output>Loading records…</output>}
-      <section className="table-region" aria-label={config.title}>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Reference</th>
-              <th>Visibility</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {records.data?.items.map((record) => (
-              <tr key={record.id}>
-                <td>{textValue(record.name)}</td>
-                <td>
-                  {textValue(record.sku) ||
-                    textValue(record.code) ||
-                    textValue(record.slug)}
-                </td>
-                <td>
-                  {record.isActive === true
-                    ? "Active"
-                    : record.isActive === false
-                      ? "Inactive"
-                      : "Not specified"}
-                </td>
-                <td>
-                  <button
-                    className="button secondary"
-                    disabled={!!proposal}
-                    onClick={() => {
-                      setEditing(record);
-                      setEditingSource(resourceUrl ?? undefined);
-                      setExtras(null);
-                      setFormKey((value) => value + 1);
-                    }}
-                  >
-                    View &amp; edit
-                  </button>
-                  {config.path === "/admin/catalog/products" && (
+      {!serviceImage && (
+        <section className="table-region" aria-label={config.title}>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Reference</th>
+                <th>Visibility</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {records.data?.items.map((record) => (
+                <tr key={record.id}>
+                  <td>{textValue(record.name)}</td>
+                  <td>
+                    {textValue(record.sku) ||
+                      textValue(record.code) ||
+                      textValue(record.slug)}
+                  </td>
+                  <td>
+                    {record.isActive === true
+                      ? "Active"
+                      : record.isActive === false
+                        ? "Inactive"
+                        : "Not specified"}
+                  </td>
+                  <td>
                     <button
                       className="button secondary"
-                      disabled={records.loading || !!records.error || !!proposal}
+                      disabled={!!proposal}
                       onClick={() => {
-                        if (resourceUrl)
-                          setExtras({ productId: record.id, sourcePath: resourceUrl });
+                        setEditing(record);
+                        setEditingSource(resourceUrl ?? undefined);
+                        setExtras(null);
+                        setServiceImage(null);
+                        setFormKey((value) => value + 1);
                       }}
                     >
-                      Compatibility &amp; images
+                      View &amp; edit
                     </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+                    {config.path === "/admin/catalog/products" && (
+                      <button
+                        className="button secondary"
+                        disabled={records.loading || !!records.error || !!proposal}
+                        onClick={() => {
+                          if (resourceUrl)
+                            setExtras({ productId: record.id, sourcePath: resourceUrl });
+                        }}
+                      >
+                        Compatibility &amp; images
+                      </button>
+                    )}
+                    {config.path === "/admin/services" && (
+                      <button
+                        className="button secondary"
+                        disabled={records.loading || !!records.error || !!proposal}
+                        onClick={() =>
+                          setServiceImage({ id: record.id, name: textValue(record.name) })
+                        }
+                      >
+                        Manage image
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
       {!records.loading && !records.error && records.data?.items.length === 0 && (
         <div className="empty">No records on this page.</div>
       )}
-      <nav className="pagination" aria-label={`${config.title} pages`}>
+      <nav
+        className="pagination"
+        aria-label={`${config.title} pages`}
+        style={serviceImage ? { display: "none" } : undefined}
+      >
         <button
           className="button secondary"
           disabled={!history.length || records.loading || !!proposal}
@@ -423,7 +445,7 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
           Next
         </button>
       </nav>
-      <section className="detail-section" hidden={!!extras}>
+      <section className="detail-section" hidden={!!extras || !!serviceImage}>
         <h2>{editing ? `Edit ${config.singular}` : `Create ${config.singular}`}</h2>
         <p>
           Complete the details below, then review before saving. Fields marked optional
@@ -487,6 +509,15 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
           }
           onUpdated={records.refresh}
           onClose={() => setExtras(null)}
+        />
+      )}
+      {serviceImage && (
+        <ServiceImageEditor
+          key={serviceImage.id}
+          serviceId={serviceImage.id}
+          name={serviceImage.name}
+          onUpdated={records.refresh}
+          onClose={() => setServiceImage(null)}
         />
       )}
       {proposal && (

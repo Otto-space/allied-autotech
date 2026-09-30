@@ -1,5 +1,15 @@
 import { z } from "zod";
 export const serviceSchema = z.object({
+  image: z
+    .object({
+      id: z.uuid(),
+      url: z.string().regex(/^\/api\/v1\/public\/media\/images\/[0-9a-f-]{36}$/i),
+      altText: z.string().nullable(),
+      width: z.number().int().positive(),
+      height: z.number().int().positive(),
+    })
+    .nullable()
+    .default(null),
   id: z.uuid(),
   name: z.string(),
   slug: z.string(),

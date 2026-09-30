@@ -2,6 +2,8 @@
 import type { PublicSeed } from "@/lib/api/public-seed";
 import { useState } from "react";
 import Link from "next/link";
+import { ServicePhoto } from "./service-photo";
+import imageStyles from "./service-image.module.css";
 import { ArrowUpRight, Wrench } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseServices } from "@/lib/api/public-schemas";
@@ -71,8 +73,23 @@ export function ServiceList({
         aria-busy={resource.loading}
       >
         {(!resource.error ? resource.data : undefined)?.items.map((service) => (
-          <article className="service-discovery__item" key={service.id}>
-            <Wrench className="service-discovery__icon" size={22} aria-hidden="true" />
+          <article
+            className={`service-discovery__item${service.image ? ` ${imageStyles.withImage}` : ""}`}
+            key={service.id}
+          >
+            {service.image ? (
+              <div className={imageStyles.card}>
+                <ServicePhoto
+                  key={service.image.id}
+                  url={service.image.url}
+                  alt={service.image.altText || service.name}
+                  width={288}
+                  height={192}
+                />
+              </div>
+            ) : (
+              <Wrench className="service-discovery__icon" size={22} aria-hidden="true" />
+            )}
             <div className="service-discovery__body">
               <p className="service-discovery__type">
                 {service.pricingType === "QUOTE_REQUIRED"

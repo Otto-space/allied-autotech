@@ -5,6 +5,7 @@ import { registerCustomersOpenApi } from "../modules/customers/customers.openapi
 import { registerCustomerDirectoryOpenApi } from "../modules/customers/customer-directory.openapi.js";
 import { registerProfilePhotoOpenApi } from "../modules/customers/profile-photo.openapi.js";
 import { registerGarageMediaOpenApi } from "../modules/customers/garage-media.openapi.js";
+import { registerServiceMediaOpenApi } from "../modules/service-operations/service-media.openapi.js";
 import { registerOrganizationOpenApi } from "../modules/organization/organization.openapi.js";
 import { registerCatalogOpenApi } from "../modules/catalog/catalog.openapi.js";
 import { registerInventoryOpenApi } from "../modules/inventory/inventory.openapi.js";
@@ -33,6 +34,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerCustomerDirectoryOpenApi(registry);
   registerProfilePhotoOpenApi(registry);
   registerGarageMediaOpenApi(registry);
+  registerServiceMediaOpenApi(registry);
   registerOrganizationOpenApi(registry);
   registerCatalogOpenApi(registry);
   registerInventoryOpenApi(registry);

@@ -2,6 +2,7 @@ import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 
 import { publicApiPaths } from "../../common/contracts/public-api.js";
+import { mediaImageSchema } from "../media/media.schemas.js";
 import {
   adminServiceListQuerySchema,
   bookingAssignmentBodySchema,
@@ -40,6 +41,7 @@ const responseSchema = z.object({
   meta: z.object({ requestId: z.string() }),
 });
 const publicServiceSchema = z.object({
+  image: mediaImageSchema.nullable(),
   id: z.uuid(),
   name: z.string(),
   slug: z.string(),
@@ -51,7 +53,7 @@ const publicServiceSchema = z.object({
     .regex(/^(?:0|[1-9][0-9]*)$/u)
     .nullable(),
   currency: z.literal("NGN"),
-  durationMinutes: z.number().int(),
+  durationMinutes: z.number().int().nullable(),
   isActive: z.boolean(),
   version: z.number().int(),
   createdAt: z.iso.datetime({ offset: true }),
