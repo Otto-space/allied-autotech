@@ -342,7 +342,7 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
         Refresh records
       </button>
       {records.loading && <output>Loading records…</output>}
-      {!serviceImage && (
+      {!serviceImage && !extras && (
         <section className="table-region" aria-label={config.title}>
           <table>
             <thead>
@@ -419,7 +419,7 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
       <nav
         className="pagination"
         aria-label={`${config.title} pages`}
-        style={serviceImage ? { display: "none" } : undefined}
+        style={serviceImage || extras ? { display: "none" } : undefined}
       >
         <button
           className="button secondary"

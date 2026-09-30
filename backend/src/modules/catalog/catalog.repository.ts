@@ -1,5 +1,9 @@
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
+import { productImageSelect, projectProductImage } from "./product-media.projection.js";
+import { mediaLimits } from "../media/media.schemas.js";
+import { mediaError } from "../media/media.errors.js";
+import { enqueueMediaCleanup } from "../media/media.service.js";
 import type {
   AdminCategoryListQuery,
   AdminProductListQuery,
@@ -29,6 +33,7 @@ export const categorySelect = {
 } satisfies Prisma.CategorySelect;
 
 export const productSelect = {
+  mediaVersion: true,
   id: true,
   name: true,
   slug: true,
@@ -45,14 +50,7 @@ export const productSelect = {
   updatedAt: true,
   category: { select: categorySelect },
   images: {
-    select: {
-      id: true,
-      url: true,
-      altText: true,
-      sortOrder: true,
-      isPrimary: true,
-      createdAt: true,
-    },
+    select: productImageSelect,
     orderBy: [{ sortOrder: "asc" as const }, { id: "asc" as const }],
   },
   compatibilities: {
@@ -297,12 +295,17 @@ export class CatalogRepository {
   }
 
   async createImage(productId: string, input: ImageCreateInput, client: DatabaseClient) {
+    if (
+      (await client.productImage.count({ where: { productId } })) >=
+      mediaLimits.PRODUCT.count
+    )
+      throw mediaError("MEDIA_COUNT_LIMIT", 409);
     if (input.isPrimary)
       await client.productImage.updateMany({
         where: { productId, isPrimary: true },
         data: { isPrimary: false },
       });
-    return client.productImage.create({
+    const image = await client.productImage.create({
       data: {
         productId,
         url: input.url,
@@ -310,15 +313,9 @@ export class CatalogRepository {
         sortOrder: input.sortOrder,
         isPrimary: input.isPrimary,
       },
-      select: {
-        id: true,
-        url: true,
-        altText: true,
-        sortOrder: true,
-        isPrimary: true,
-        createdAt: true,
-      },
+      select: productImageSelect,
     });
+    return projectProductImage(image, productId, true);
   }
   async updateImage(
     productId: string,
@@ -326,6 +323,12 @@ export class CatalogRepository {
     input: ImageUpdateInput,
     client: DatabaseClient,
   ) {
+    const previous = await client.productImage.findFirst({
+      where: { id, productId },
+      select: { mediaAssetId: true },
+    });
+    if (previous?.mediaAssetId && input.url !== undefined)
+      throw mediaError("MEDIA_MANAGED_URL_IMMUTABLE", 409);
     if (input.isPrimary)
       await client.productImage.updateMany({
         where: { productId, isPrimary: true, id: { not: id } },
@@ -337,21 +340,20 @@ export class CatalogRepository {
       ...(input.sortOrder === undefined ? {} : { sortOrder: input.sortOrder }),
       ...(input.isPrimary === undefined ? {} : { isPrimary: input.isPrimary }),
     };
-    return client.productImage.update({
+    const image = await client.productImage.update({
       where: { id, productId },
       data,
-      select: {
-        id: true,
-        url: true,
-        altText: true,
-        sortOrder: true,
-        isPrimary: true,
-        createdAt: true,
-      },
+      select: productImageSelect,
     });
+    return projectProductImage(image, productId, true);
   }
-  deleteImage(productId: string, id: string, client: DatabaseClient) {
-    return client.productImage.delete({ where: { id, productId }, select: { id: true } });
+  async deleteImage(productId: string, id: string, client: DatabaseClient) {
+    const image = await client.productImage.delete({
+      where: { id, productId },
+      select: { id: true, mediaAsset: { select: { objectKey: true } } },
+    });
+    if (image.mediaAsset) await enqueueMediaCleanup(client, image.mediaAsset.objectKey);
+    return { id: image.id };
   }
 
   listFavourites(userId: string, query: FavouriteListQuery) {

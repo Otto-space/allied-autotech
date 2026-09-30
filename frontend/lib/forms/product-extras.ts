@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isManagedProductPreviewUrl } from "@/lib/media";
 const singleLine = (maximum: number) =>
   z
     .string()
@@ -58,6 +59,11 @@ export const imageFormSchema = z.object({
   isPrimary: z.boolean(),
 });
 export type ProductImageValues = z.infer<typeof imageFormSchema>;
+export const uploadedImageFormSchema = imageFormSchema.extend({
+  url: z
+    .string()
+    .refine(isManagedProductPreviewUrl, "Refresh the uploaded image before editing."),
+});
 export const compatibilityBody = (value: CompatibilityValues) => ({
   make: value.make,
   model: value.model || null,

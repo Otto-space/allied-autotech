@@ -8,6 +8,9 @@ export const compatibilitySchema = z.object({
   notes: z.string().nullable(),
 });
 export const productImageSchema = z.object({
+  source: z.enum(["UPLOADED", "EXTERNAL"]).optional(),
+  width: z.number().int().nullable().optional(),
+  height: z.number().int().nullable().optional(),
   id: z.uuid(),
   url: z.string(),
   altText: z.string().nullable(),
@@ -16,6 +19,7 @@ export const productImageSchema = z.object({
   createdAt: z.iso.datetime({ offset: true }),
 });
 export const productExtrasSchema = z.object({
+  mediaVersion: z.number().int().nonnegative().optional(),
   id: z.uuid(),
   name: z.string(),
   sku: z.string(),
@@ -31,7 +35,7 @@ export const parseProductExtrasPage = (value: unknown) =>
   z
     .object({ items: z.array(productExtrasSchema), nextCursor: z.uuid().optional() })
     .parse(value);
-// Child writes do not advance Product.updatedAt, so compare the actual child projection.
+// Compatibility writes have no version counter; compare the complete child projection too.
 export const productExtrasRevision = (product: ProductExtras) => JSON.stringify(product);
 export const parseCompatibilityChange = (value: unknown) =>
   compatibilitySchema.extend({ productId: z.uuid() }).parse(value);

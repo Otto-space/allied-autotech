@@ -936,6 +936,86 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/admin/catalog/products/{productId}/assets/upload": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Prepare a product-bound binary image upload
+     * @description ADMIN/SUPER_ADMIN with verified MFA. Preserves the separate hosted-URL POST /admin/catalog/products/{productId}/images contract. JPEG/PNG/WebP up to 10 MiB, non-animated, 32–8192px per side, 40 million pixels, re-encoded metadata-free WebP within 2048px. Full bytes/signature/checksum/decoding verified. Tickets bind actor/product/purpose/expiry. Confirmation uses Product.mediaVersion and returns the new image only plus the new version; reread the product for the complete gallery. Exact token/body retries replay for 24h, changed replay fails. All image mutations share a product lock and increment mediaVersion; legacy hosted CRUD may omit expectedVersion, new clients should send it. At most 12 total hosted/uploaded images can be attached; older larger galleries remain readable/editable/removable. Ordering is sortOrder then image ID. isPrimary:true clears the prior primary; false is allowed and first attachment is not automatically primary. Deleting/clearing a primary does not select another, preserving existing behavior. Managed URLs are server-owned and cannot be edited through hosted metadata PATCH. Removal queues only owned storage for cleanup; external files are never deleted. Public bytes require active product and category. Read projections expose source UPLOADED/EXTERNAL, nullable dimensions and safe display URLs; never storage keys or tokens. See managed-media.md. Prepare a product-bound binary image upload. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    post: operations["postAdminCatalogProductsByProductIdAssetsUpload"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/catalog/products/{productId}/images/confirm": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Verify and attach an uploaded product image
+     * @description ADMIN/SUPER_ADMIN with verified MFA. Preserves the separate hosted-URL POST /admin/catalog/products/{productId}/images contract. JPEG/PNG/WebP up to 10 MiB, non-animated, 32–8192px per side, 40 million pixels, re-encoded metadata-free WebP within 2048px. Full bytes/signature/checksum/decoding verified. Tickets bind actor/product/purpose/expiry. Confirmation uses Product.mediaVersion and returns the new image only plus the new version; reread the product for the complete gallery. Exact token/body retries replay for 24h, changed replay fails. All image mutations share a product lock and increment mediaVersion; legacy hosted CRUD may omit expectedVersion, new clients should send it. At most 12 total hosted/uploaded images can be attached; older larger galleries remain readable/editable/removable. Ordering is sortOrder then image ID. isPrimary:true clears the prior primary; false is allowed and first attachment is not automatically primary. Deleting/clearing a primary does not select another, preserving existing behavior. Managed URLs are server-owned and cannot be edited through hosted metadata PATCH. Removal queues only owned storage for cleanup; external files are never deleted. Public bytes require active product and category. Read projections expose source UPLOADED/EXTERNAL, nullable dimensions and safe display URLs; never storage keys or tokens. See managed-media.md. Verify and attach an uploaded product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    post: operations["postAdminCatalogProductsByProductIdImagesConfirm"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/public/catalog/products/images/{imageId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read an uploaded image from an active product and category
+     * @description Validated WebP bytes. private, no-store and nosniff. Deleted images return 404; external URLs are not proxied. Public reads deny inactive products/categories. Administrator previews retain MFA and product/image binding. No access to customer personal media. Read an uploaded image from an active product and category. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicCatalogProductsImagesByImageId"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/catalog/products/{productId}/images/{imageId}/content": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Preview an uploaded product image as administrator
+     * @description Validated WebP bytes. private, no-store and nosniff. Deleted images return 404; external URLs are not proxied. Public reads deny inactive products/categories. Administrator previews retain MFA and product/image binding. No access to customer personal media. Preview an uploaded product image as administrator. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getAdminCatalogProductsByProductIdImagesByImageIdContent"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/public/branches": {
     parameters: {
       query?: never;
@@ -1563,7 +1643,7 @@ export interface paths {
     put?: never;
     /**
      * Add product image
-     * @description Add product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Hosted HTTPS URL metadata only. Backward compatible; optional expectedVersion checks Product.mediaVersion. New attachments are limited to 12 total images. External files are not fetched or storage-owned. isPrimary:false permits no primary image. Add product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
      */
     post: operations["postAdminCatalogProductsByProductIdImages"];
     delete?: never;
@@ -1584,14 +1664,14 @@ export interface paths {
     post?: never;
     /**
      * Delete product image
-     * @description Delete product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Backward compatible empty body; optional expectedVersion checks Product.mediaVersion. Managed storage cleanup is queued transactionally, external files are never deleted. Removing a primary selects no replacement; empty galleries are valid. Delete product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
      */
     delete: operations["deleteAdminCatalogProductsByProductIdImagesByImageId"];
     options?: never;
     head?: never;
     /**
      * Update product image
-     * @description Update product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Edits alt text/order/primary for uploaded and external images. Only external image URLs can be changed. Optional expectedVersion checks Product.mediaVersion; new clients should supply it. Clearing primary does not select another image. Update product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
      */
     patch: operations["patchAdminCatalogProductsByProductIdImagesByImageId"];
     trace?: never;
@@ -5188,6 +5268,7 @@ export interface components {
           | "MEDIA_WRONG_PURPOSE"
           | "MEDIA_WRONG_RESOURCE"
           | "MEDIA_COUNT_LIMIT"
+          | "MEDIA_MANAGED_URL_IMMUTABLE"
           | "MEDIA_STORAGE_UNAVAILABLE"
           | "VALIDATION_FAILED"
           | "MALFORMED_JSON"
@@ -17381,6 +17462,849 @@ export interface operations {
       };
     };
   };
+  postAdminCatalogProductsByProductIdAssetsUpload: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path: {
+        /**
+         * @description Identifier selecting the product resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        productId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "mimeType": "image/jpeg",
+         *       "sizeBytes": 1,
+         *       "checksumSha256": "synthetic-checksumsha256"
+         *     }
+         */
+        "application/json": {
+          /**
+           * @description Mime Type validated by this operation's strict request contract.
+           * @enum {string}
+           */
+          mimeType: "image/jpeg" | "image/png" | "image/webp";
+          /** @description Size Bytes validated by this operation's strict request contract. */
+          sizeBytes: number;
+          /** @description Checksum Sha256 validated by this operation's strict request contract. */
+          checksumSha256: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Prepare a product-bound binary image upload. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Prepare a product-bound binary image upload",
+           *       "data": {
+           *         "assetToken": "synthetic-token-value-not-a-real-secret",
+           *         "upload": {
+           *           "method": "PUT",
+           *           "url": "https://example.test/continue",
+           *           "expiresAt": "2030-01-15T10:00:00.000Z",
+           *           "headers": {}
+           *         },
+           *         "limits": {
+           *           "maxBytes": 1,
+           *           "count": 1,
+           *           "maxOutputDimension": 1
+           *         }
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+              assetToken: string;
+              /** @description Upload validated by this operation's strict request contract. */
+              upload: {
+                /**
+                 * @description Method validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                method: "PUT";
+                /**
+                 * Format: uri
+                 * @description HTTPS location validated against the operation's server-side allowlist.
+                 */
+                url: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                expiresAt: string;
+                /** @description Headers validated by this operation's strict request contract. */
+                headers: {
+                  [key: string]: string;
+                };
+              };
+              /** @description Limits validated by this operation's strict request contract. */
+              limits: {
+                /** @description Max Bytes validated by this operation's strict request contract. */
+                maxBytes: number;
+                /** @description Count validated by this operation's strict request contract. */
+                count: number;
+                /** @description Max Output Dimension validated by this operation's strict request contract. */
+                maxOutputDimension: number;
+              };
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              serverTime: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  postAdminCatalogProductsByProductIdImagesConfirm: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path: {
+        /**
+         * @description Identifier selecting the product resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        productId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "expectedVersion": 0,
+         *       "assetToken": "synthetic-token-value-not-a-real-secret",
+         *       "altText": "synthetic-alttext",
+         *       "sortOrder": 0,
+         *       "isPrimary": true
+         *     }
+         */
+        "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
+          /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+          assetToken: string;
+          /** @description Alt Text validated by this operation's strict request contract. */
+          altText?: string | null;
+          /**
+           * @description Sort Order validated by this operation's strict request contract.
+           * @default 0
+           */
+          sortOrder?: number;
+          /**
+           * @description Boolean control for is primary; authorization is still enforced server-side.
+           * @default false
+           */
+          isPrimary?: boolean;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Verify and attach an uploaded product image. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Verify and attach an uploaded product image",
+           *       "data": {
+           *         "version": 1,
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "width": 1,
+           *             "height": 1
+           *           }
+           *         ]
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /** @description Width validated by this operation's strict request contract. */
+                width: number;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number;
+              }[];
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              serverTime: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicCatalogProductsImagesByImageId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the image resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        imageId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Read an uploaded image from an active product and category. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "image/webp": string;
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getAdminCatalogProductsByProductIdImagesByImageIdContent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the product resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        productId: string;
+        /**
+         * @description Identifier selecting the image resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        imageId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Preview an uploaded product image as administrator. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "image/webp": string;
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
   getPublicBranches: {
     parameters: {
       query?: {
@@ -21935,7 +22859,62 @@ export interface operations {
            *         "items": [
            *           {
            *             "id": "00000000-0000-4000-8000-000000000001",
-           *             "status": "synthetic-status"
+           *             "name": "synthetic-name",
+           *             "slug": "synthetic-slug",
+           *             "sku": "synthetic-sku",
+           *             "brand": "synthetic-brand",
+           *             "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+           *             "description": "synthetic-description",
+           *             "priceKobo": "300000",
+           *             "compareAtPriceKobo": "300000",
+           *             "currency": "NGN",
+           *             "isActive": true,
+           *             "featured": true,
+           *             "mediaVersion": 0,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z",
+           *             "category": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "name": "synthetic-name",
+           *               "slug": "synthetic-slug",
+           *               "description": "synthetic-description",
+           *               "isActive": true,
+           *               "createdAt": "2030-01-15T10:00:00.000Z",
+           *               "updatedAt": "2030-01-15T10:00:00.000Z"
+           *             },
+           *             "images": [
+           *               {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "url": "https://example.test/continue",
+           *                 "altText": "synthetic-alttext",
+           *                 "sortOrder": 1,
+           *                 "isPrimary": true,
+           *                 "createdAt": "2030-01-15T10:00:00.000Z",
+           *                 "source": "UPLOADED",
+           *                 "width": "synthetic-width",
+           *                 "height": "synthetic-height"
+           *               }
+           *             ],
+           *             "compatibilities": [
+           *               {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "make": "synthetic-make",
+           *                 "model": "synthetic-model",
+           *                 "yearFrom": "synthetic-yearfrom",
+           *                 "yearTo": "synthetic-yearto",
+           *                 "notes": "synthetic-notes"
+           *               }
+           *             ],
+           *             "availability": [
+           *               {
+           *                 "branch": {
+           *                   "id": "00000000-0000-4000-8000-000000000001",
+           *                   "code": "synthetic-code",
+           *                   "name": "synthetic-name"
+           *                 },
+           *                 "inStock": true
+           *               }
+           *             ]
            *           }
            *         ],
            *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -21950,25 +22929,149 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Cursor-paginated result for: Search active products. */
-            data?: {
-              /** @description Authorized resource projections for this page. */
-              items: ({
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
                 /**
                  * Format: uuid
-                 * @description Public or authorized resource identifier.
+                 * @description Identifier of the id resource; ownership is resolved server-side.
                  */
-                id?: string;
-                /** @description Current server-owned lifecycle state when applicable. */
-                status?: string;
-              } & {
-                [key: string]: unknown;
-              })[];
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Sku validated by this operation's strict request contract. */
+                sku: string;
+                /** @description Brand validated by this operation's strict request contract. */
+                brand: string | null;
+                /** @description Manufacturer Part Number validated by this operation's strict request contract. */
+                manufacturerPartNumber: string | null;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                priceKobo: string;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                compareAtPriceKobo: string | null;
+                /**
+                 * @description Currency validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                currency: "NGN";
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /** @description Featured validated by this operation's strict request contract. */
+                featured: boolean;
+                /** @description Media Version validated by this operation's strict request contract. */
+                mediaVersion: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+                /** @description Category validated by this operation's strict request contract. */
+                category: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                  /** @description Slug validated by this operation's strict request contract. */
+                  slug: string;
+                  /** @description Description validated by this operation's strict request contract. */
+                  description: string | null;
+                  /** @description Boolean control for is active; authorization is still enforced server-side. */
+                  isActive: boolean;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  updatedAt: string;
+                };
+                /** @description Images validated by this operation's strict request contract. */
+                images: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description HTTPS location validated against the operation's server-side allowlist. */
+                  url: string;
+                  /** @description Alt Text validated by this operation's strict request contract. */
+                  altText: string | null;
+                  /** @description Sort Order validated by this operation's strict request contract. */
+                  sortOrder: number;
+                  /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                  isPrimary: boolean;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * @description Source validated by this operation's strict request contract.
+                   * @enum {string}
+                   */
+                  source: "UPLOADED" | "EXTERNAL";
+                  /** @description Width validated by this operation's strict request contract. */
+                  width: number | null;
+                  /** @description Height validated by this operation's strict request contract. */
+                  height: number | null;
+                }[];
+                /** @description Compatibilities validated by this operation's strict request contract. */
+                compatibilities: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Make validated by this operation's strict request contract. */
+                  make: string;
+                  /** @description Model validated by this operation's strict request contract. */
+                  model: string | null;
+                  /** @description Year From validated by this operation's strict request contract. */
+                  yearFrom: number | null;
+                  /** @description Year To validated by this operation's strict request contract. */
+                  yearTo: number | null;
+                  /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                  notes: string | null;
+                }[];
+                /** @description Availability validated by this operation's strict request contract. */
+                availability: {
+                  /** @description Branch validated by this operation's strict request contract. */
+                  branch: {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    code: string;
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                  };
+                  /** @description In Stock validated by this operation's strict request contract. */
+                  inStock: boolean;
+                }[];
+              }[];
               /**
                * Format: uuid
-               * @description Cursor for the next page, or null/omitted when exhausted.
+               * @description Next Cursor validated by this operation's strict request contract.
                */
-              nextCursor?: string | null;
+              nextCursor?: string;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -22091,7 +23194,62 @@ export interface operations {
            *       "message": "Get an active product",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "name": "synthetic-name",
+           *         "slug": "synthetic-slug",
+           *         "sku": "synthetic-sku",
+           *         "brand": "synthetic-brand",
+           *         "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+           *         "description": "synthetic-description",
+           *         "priceKobo": "300000",
+           *         "compareAtPriceKobo": "300000",
+           *         "currency": "NGN",
+           *         "isActive": true,
+           *         "featured": true,
+           *         "mediaVersion": 0,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z",
+           *         "category": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "name": "synthetic-name",
+           *           "slug": "synthetic-slug",
+           *           "description": "synthetic-description",
+           *           "isActive": true,
+           *           "createdAt": "2030-01-15T10:00:00.000Z",
+           *           "updatedAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "source": "UPLOADED",
+           *             "width": "synthetic-width",
+           *             "height": "synthetic-height"
+           *           }
+           *         ],
+           *         "compatibilities": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "make": "synthetic-make",
+           *             "model": "synthetic-model",
+           *             "yearFrom": "synthetic-yearfrom",
+           *             "yearTo": "synthetic-yearto",
+           *             "notes": "synthetic-notes"
+           *           }
+           *         ],
+           *         "availability": [
+           *           {
+           *             "branch": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "code": "synthetic-code",
+           *               "name": "synthetic-name"
+           *             },
+           *             "inStock": true
+           *           }
+           *         ]
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -22103,17 +23261,141 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Get an active product. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description Name validated by this operation's strict request contract. */
+              name: string;
+              /** @description Slug validated by this operation's strict request contract. */
+              slug: string;
+              /** @description Sku validated by this operation's strict request contract. */
+              sku: string;
+              /** @description Brand validated by this operation's strict request contract. */
+              brand: string | null;
+              /** @description Manufacturer Part Number validated by this operation's strict request contract. */
+              manufacturerPartNumber: string | null;
+              /** @description Description validated by this operation's strict request contract. */
+              description: string | null;
+              /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+              priceKobo: string;
+              /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+              compareAtPriceKobo: string | null;
+              /**
+               * @description Currency validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              currency: "NGN";
+              /** @description Boolean control for is active; authorization is still enforced server-side. */
+              isActive: boolean;
+              /** @description Featured validated by this operation's strict request contract. */
+              featured: boolean;
+              /** @description Media Version validated by this operation's strict request contract. */
+              mediaVersion: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+              /** @description Category validated by this operation's strict request contract. */
+              category: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              };
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * @description Source validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                source: "UPLOADED" | "EXTERNAL";
+                /** @description Width validated by this operation's strict request contract. */
+                width: number | null;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number | null;
+              }[];
+              /** @description Compatibilities validated by this operation's strict request contract. */
+              compatibilities: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Make validated by this operation's strict request contract. */
+                make: string;
+                /** @description Model validated by this operation's strict request contract. */
+                model: string | null;
+                /** @description Year From validated by this operation's strict request contract. */
+                yearFrom: number | null;
+                /** @description Year To validated by this operation's strict request contract. */
+                yearTo: number | null;
+                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                notes: string | null;
+              }[];
+              /** @description Availability validated by this operation's strict request contract. */
+              availability: {
+                /** @description Branch validated by this operation's strict request contract. */
+                branch: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                  code: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                };
+                /** @description In Stock validated by this operation's strict request contract. */
+                inStock: boolean;
+              }[];
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -24511,7 +25793,62 @@ export interface operations {
            *         "items": [
            *           {
            *             "id": "00000000-0000-4000-8000-000000000001",
-           *             "status": "synthetic-status"
+           *             "name": "synthetic-name",
+           *             "slug": "synthetic-slug",
+           *             "sku": "synthetic-sku",
+           *             "brand": "synthetic-brand",
+           *             "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+           *             "description": "synthetic-description",
+           *             "priceKobo": "300000",
+           *             "compareAtPriceKobo": "300000",
+           *             "currency": "NGN",
+           *             "isActive": true,
+           *             "featured": true,
+           *             "mediaVersion": 0,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z",
+           *             "category": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "name": "synthetic-name",
+           *               "slug": "synthetic-slug",
+           *               "description": "synthetic-description",
+           *               "isActive": true,
+           *               "createdAt": "2030-01-15T10:00:00.000Z",
+           *               "updatedAt": "2030-01-15T10:00:00.000Z"
+           *             },
+           *             "images": [
+           *               {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "url": "https://example.test/continue",
+           *                 "altText": "synthetic-alttext",
+           *                 "sortOrder": 1,
+           *                 "isPrimary": true,
+           *                 "createdAt": "2030-01-15T10:00:00.000Z",
+           *                 "source": "UPLOADED",
+           *                 "width": "synthetic-width",
+           *                 "height": "synthetic-height"
+           *               }
+           *             ],
+           *             "compatibilities": [
+           *               {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "make": "synthetic-make",
+           *                 "model": "synthetic-model",
+           *                 "yearFrom": "synthetic-yearfrom",
+           *                 "yearTo": "synthetic-yearto",
+           *                 "notes": "synthetic-notes"
+           *               }
+           *             ],
+           *             "availability": [
+           *               {
+           *                 "branch": {
+           *                   "id": "00000000-0000-4000-8000-000000000001",
+           *                   "code": "synthetic-code",
+           *                   "name": "synthetic-name"
+           *                 },
+           *                 "inStock": true
+           *               }
+           *             ]
            *           }
            *         ],
            *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -24526,25 +25863,149 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Cursor-paginated result for: List all products. */
-            data?: {
-              /** @description Authorized resource projections for this page. */
-              items: ({
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
                 /**
                  * Format: uuid
-                 * @description Public or authorized resource identifier.
+                 * @description Identifier of the id resource; ownership is resolved server-side.
                  */
-                id?: string;
-                /** @description Current server-owned lifecycle state when applicable. */
-                status?: string;
-              } & {
-                [key: string]: unknown;
-              })[];
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Sku validated by this operation's strict request contract. */
+                sku: string;
+                /** @description Brand validated by this operation's strict request contract. */
+                brand: string | null;
+                /** @description Manufacturer Part Number validated by this operation's strict request contract. */
+                manufacturerPartNumber: string | null;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                priceKobo: string;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                compareAtPriceKobo: string | null;
+                /**
+                 * @description Currency validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                currency: "NGN";
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /** @description Featured validated by this operation's strict request contract. */
+                featured: boolean;
+                /** @description Media Version validated by this operation's strict request contract. */
+                mediaVersion: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+                /** @description Category validated by this operation's strict request contract. */
+                category: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                  /** @description Slug validated by this operation's strict request contract. */
+                  slug: string;
+                  /** @description Description validated by this operation's strict request contract. */
+                  description: string | null;
+                  /** @description Boolean control for is active; authorization is still enforced server-side. */
+                  isActive: boolean;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  updatedAt: string;
+                };
+                /** @description Images validated by this operation's strict request contract. */
+                images: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description HTTPS location validated against the operation's server-side allowlist. */
+                  url: string;
+                  /** @description Alt Text validated by this operation's strict request contract. */
+                  altText: string | null;
+                  /** @description Sort Order validated by this operation's strict request contract. */
+                  sortOrder: number;
+                  /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                  isPrimary: boolean;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * @description Source validated by this operation's strict request contract.
+                   * @enum {string}
+                   */
+                  source: "UPLOADED" | "EXTERNAL";
+                  /** @description Width validated by this operation's strict request contract. */
+                  width: number | null;
+                  /** @description Height validated by this operation's strict request contract. */
+                  height: number | null;
+                }[];
+                /** @description Compatibilities validated by this operation's strict request contract. */
+                compatibilities: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Make validated by this operation's strict request contract. */
+                  make: string;
+                  /** @description Model validated by this operation's strict request contract. */
+                  model: string | null;
+                  /** @description Year From validated by this operation's strict request contract. */
+                  yearFrom: number | null;
+                  /** @description Year To validated by this operation's strict request contract. */
+                  yearTo: number | null;
+                  /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                  notes: string | null;
+                }[];
+                /** @description Availability validated by this operation's strict request contract. */
+                availability: {
+                  /** @description Branch validated by this operation's strict request contract. */
+                  branch: {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    code: string;
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                  };
+                  /** @description In Stock validated by this operation's strict request contract. */
+                  inStock: boolean;
+                }[];
+              }[];
               /**
                * Format: uuid
-               * @description Cursor for the next page, or null/omitted when exhausted.
+               * @description Next Cursor validated by this operation's strict request contract.
                */
-              nextCursor?: string | null;
+              nextCursor?: string;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -24760,7 +26221,62 @@ export interface operations {
            *       "message": "Create a product",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "name": "synthetic-name",
+           *         "slug": "synthetic-slug",
+           *         "sku": "synthetic-sku",
+           *         "brand": "synthetic-brand",
+           *         "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+           *         "description": "synthetic-description",
+           *         "priceKobo": "300000",
+           *         "compareAtPriceKobo": "300000",
+           *         "currency": "NGN",
+           *         "isActive": true,
+           *         "featured": true,
+           *         "mediaVersion": 0,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z",
+           *         "category": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "name": "synthetic-name",
+           *           "slug": "synthetic-slug",
+           *           "description": "synthetic-description",
+           *           "isActive": true,
+           *           "createdAt": "2030-01-15T10:00:00.000Z",
+           *           "updatedAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "source": "UPLOADED",
+           *             "width": "synthetic-width",
+           *             "height": "synthetic-height"
+           *           }
+           *         ],
+           *         "compatibilities": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "make": "synthetic-make",
+           *             "model": "synthetic-model",
+           *             "yearFrom": "synthetic-yearfrom",
+           *             "yearTo": "synthetic-yearto",
+           *             "notes": "synthetic-notes"
+           *           }
+           *         ],
+           *         "availability": [
+           *           {
+           *             "branch": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "code": "synthetic-code",
+           *               "name": "synthetic-name"
+           *             },
+           *             "inStock": true
+           *           }
+           *         ]
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -24772,17 +26288,141 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Create a product. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description Name validated by this operation's strict request contract. */
+              name: string;
+              /** @description Slug validated by this operation's strict request contract. */
+              slug: string;
+              /** @description Sku validated by this operation's strict request contract. */
+              sku: string;
+              /** @description Brand validated by this operation's strict request contract. */
+              brand: string | null;
+              /** @description Manufacturer Part Number validated by this operation's strict request contract. */
+              manufacturerPartNumber: string | null;
+              /** @description Description validated by this operation's strict request contract. */
+              description: string | null;
+              /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+              priceKobo: string;
+              /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+              compareAtPriceKobo: string | null;
+              /**
+               * @description Currency validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              currency: "NGN";
+              /** @description Boolean control for is active; authorization is still enforced server-side. */
+              isActive: boolean;
+              /** @description Featured validated by this operation's strict request contract. */
+              featured: boolean;
+              /** @description Media Version validated by this operation's strict request contract. */
+              mediaVersion: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+              /** @description Category validated by this operation's strict request contract. */
+              category: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              };
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * @description Source validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                source: "UPLOADED" | "EXTERNAL";
+                /** @description Width validated by this operation's strict request contract. */
+                width: number | null;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number | null;
+              }[];
+              /** @description Compatibilities validated by this operation's strict request contract. */
+              compatibilities: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Make validated by this operation's strict request contract. */
+                make: string;
+                /** @description Model validated by this operation's strict request contract. */
+                model: string | null;
+                /** @description Year From validated by this operation's strict request contract. */
+                yearFrom: number | null;
+                /** @description Year To validated by this operation's strict request contract. */
+                yearTo: number | null;
+                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                notes: string | null;
+              }[];
+              /** @description Availability validated by this operation's strict request contract. */
+              availability: {
+                /** @description Branch validated by this operation's strict request contract. */
+                branch: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                  code: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                };
+                /** @description In Stock validated by this operation's strict request contract. */
+                inStock: boolean;
+              }[];
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -25010,7 +26650,62 @@ export interface operations {
            *       "message": "Update a product",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "name": "synthetic-name",
+           *         "slug": "synthetic-slug",
+           *         "sku": "synthetic-sku",
+           *         "brand": "synthetic-brand",
+           *         "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+           *         "description": "synthetic-description",
+           *         "priceKobo": "300000",
+           *         "compareAtPriceKobo": "300000",
+           *         "currency": "NGN",
+           *         "isActive": true,
+           *         "featured": true,
+           *         "mediaVersion": 0,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z",
+           *         "category": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "name": "synthetic-name",
+           *           "slug": "synthetic-slug",
+           *           "description": "synthetic-description",
+           *           "isActive": true,
+           *           "createdAt": "2030-01-15T10:00:00.000Z",
+           *           "updatedAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "source": "UPLOADED",
+           *             "width": "synthetic-width",
+           *             "height": "synthetic-height"
+           *           }
+           *         ],
+           *         "compatibilities": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "make": "synthetic-make",
+           *             "model": "synthetic-model",
+           *             "yearFrom": "synthetic-yearfrom",
+           *             "yearTo": "synthetic-yearto",
+           *             "notes": "synthetic-notes"
+           *           }
+           *         ],
+           *         "availability": [
+           *           {
+           *             "branch": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "code": "synthetic-code",
+           *               "name": "synthetic-name"
+           *             },
+           *             "inStock": true
+           *           }
+           *         ]
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -25022,17 +26717,141 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Update a product. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description Name validated by this operation's strict request contract. */
+              name: string;
+              /** @description Slug validated by this operation's strict request contract. */
+              slug: string;
+              /** @description Sku validated by this operation's strict request contract. */
+              sku: string;
+              /** @description Brand validated by this operation's strict request contract. */
+              brand: string | null;
+              /** @description Manufacturer Part Number validated by this operation's strict request contract. */
+              manufacturerPartNumber: string | null;
+              /** @description Description validated by this operation's strict request contract. */
+              description: string | null;
+              /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+              priceKobo: string;
+              /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+              compareAtPriceKobo: string | null;
+              /**
+               * @description Currency validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              currency: "NGN";
+              /** @description Boolean control for is active; authorization is still enforced server-side. */
+              isActive: boolean;
+              /** @description Featured validated by this operation's strict request contract. */
+              featured: boolean;
+              /** @description Media Version validated by this operation's strict request contract. */
+              mediaVersion: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+              /** @description Category validated by this operation's strict request contract. */
+              category: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              };
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * @description Source validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                source: "UPLOADED" | "EXTERNAL";
+                /** @description Width validated by this operation's strict request contract. */
+                width: number | null;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number | null;
+              }[];
+              /** @description Compatibilities validated by this operation's strict request contract. */
+              compatibilities: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Make validated by this operation's strict request contract. */
+                make: string;
+                /** @description Model validated by this operation's strict request contract. */
+                model: string | null;
+                /** @description Year From validated by this operation's strict request contract. */
+                yearFrom: number | null;
+                /** @description Year To validated by this operation's strict request contract. */
+                yearTo: number | null;
+                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                notes: string | null;
+              }[];
+              /** @description Availability validated by this operation's strict request contract. */
+              availability: {
+                /** @description Branch validated by this operation's strict request contract. */
+                branch: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                  code: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                };
+                /** @description In Stock validated by this operation's strict request contract. */
+                inStock: boolean;
+              }[];
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -25984,6 +27803,7 @@ export interface operations {
       content: {
         /**
          * @example {
+         *       "expectedVersion": 0,
          *       "url": "https://example.test/continue",
          *       "altText": "synthetic-alttext",
          *       "sortOrder": 0,
@@ -25991,6 +27811,8 @@ export interface operations {
          *     }
          */
         "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion?: number;
           /**
            * Format: uri
            * @description HTTPS location validated against the operation's server-side allowlist.
@@ -26024,7 +27846,14 @@ export interface operations {
            *       "message": "Add product image",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "url": "https://example.test/continue",
+           *         "altText": "synthetic-alttext",
+           *         "sortOrder": 1,
+           *         "isPrimary": true,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "source": "UPLOADED",
+           *         "width": "synthetic-width",
+           *         "height": "synthetic-height"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -26036,17 +27865,35 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Add product image. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description HTTPS location validated against the operation's server-side allowlist. */
+              url: string;
+              /** @description Alt Text validated by this operation's strict request contract. */
+              altText: string | null;
+              /** @description Sort Order validated by this operation's strict request contract. */
+              sortOrder: number;
+              /** @description Boolean control for is primary; authorization is still enforced server-side. */
+              isPrimary: boolean;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * @description Source validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              source: "UPLOADED" | "EXTERNAL";
+              /** @description Width validated by this operation's strict request contract. */
+              width: number | null;
+              /** @description Height validated by this operation's strict request contract. */
+              height: number | null;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -26250,7 +28097,19 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "expectedVersion": 0
+         *     }
+         */
+        "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion?: number;
+        };
+      };
+    };
     responses: {
       /** @description Success: Delete product image. */
       200: {
@@ -26480,6 +28339,7 @@ export interface operations {
       content: {
         /**
          * @example {
+         *       "expectedVersion": 0,
          *       "url": "https://example.test/continue",
          *       "altText": "synthetic-alttext",
          *       "sortOrder": 0,
@@ -26487,6 +28347,8 @@ export interface operations {
          *     }
          */
         "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion?: number;
           /**
            * Format: uri
            * @description HTTPS location validated against the operation's server-side allowlist.
@@ -26514,7 +28376,14 @@ export interface operations {
            *       "message": "Update product image",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "url": "https://example.test/continue",
+           *         "altText": "synthetic-alttext",
+           *         "sortOrder": 1,
+           *         "isPrimary": true,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "source": "UPLOADED",
+           *         "width": "synthetic-width",
+           *         "height": "synthetic-height"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -26526,17 +28395,35 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Update product image. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description HTTPS location validated against the operation's server-side allowlist. */
+              url: string;
+              /** @description Alt Text validated by this operation's strict request contract. */
+              altText: string | null;
+              /** @description Sort Order validated by this operation's strict request contract. */
+              sortOrder: number;
+              /** @description Boolean control for is primary; authorization is still enforced server-side. */
+              isPrimary: boolean;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * @description Source validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              source: "UPLOADED" | "EXTERNAL";
+              /** @description Width validated by this operation's strict request contract. */
+              width: number | null;
+              /** @description Height validated by this operation's strict request contract. */
+              height: number | null;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {

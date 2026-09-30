@@ -22,6 +22,11 @@ import {
   createPublicServiceMediaRouter,
 } from "../../src/modules/service-operations/service-media.routes.js";
 import { MemoryMediaStorage } from "../helpers/media-storage.js";
+import { ProductMediaService } from "../../src/modules/catalog/product-media.service.js";
+import {
+  createProductMediaRouter,
+  createPublicProductMediaRouter,
+} from "../../src/modules/catalog/product-media.routes.js";
 import { testOwner } from "../helpers/owner.js";
 
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
@@ -38,6 +43,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       createGarageMediaRouter(new GarageMediaService(prisma, storage)),
     );
     const sessions = new Map<string, { cookie: string; csrf: string }>();
+    router.use(
+      "/admin/catalog",
+      createProductMediaRouter(new ProductMediaService(prisma, storage)),
+    );
+    router.use(
+      "/public/catalog",
+      createPublicProductMediaRouter(new ProductMediaService(prisma, storage)),
+    );
     router.use(
       "/admin/services",
       createServiceMediaRouter(new ServiceMediaService(prisma, storage)),
@@ -222,6 +235,40 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         (await request(app).get(`/api/v1/public/media/images/${randomUUID()}`)).status,
       ).toBe(404);
     });
+    it("enforces product upload authentication, roles, CSRF and strict input", async () => {
+      for (const suffix of ["assets/upload", "images/confirm"]) {
+        const url = `/api/v1/admin/catalog/products/${randomUUID()}/${suffix}`;
+        expect((await request(app).post(url).send({})).status).toBe(401);
+        for (const role of ["CUSTOMER", "STAFF"]) {
+          const session = sessions.get(role)!;
+          expect(
+            (
+              await request(app)
+                .post(url)
+                .set("Cookie", session.cookie)
+                .set("Origin", env.FRONTEND_URL[0]!)
+                .set("X-CSRF-Token", session.csrf)
+                .send({})
+            ).status,
+          ).toBe(403);
+        }
+        const admin = sessions.get("ADMIN")!;
+        expect(
+          (await request(app).post(url).set("Cookie", admin.cookie).send({})).body.error
+            .code,
+        ).toBe("CSRF_INVALID");
+        expect(
+          (
+            await request(app)
+              .post(url)
+              .set("Cookie", admin.cookie)
+              .set("Origin", env.FRONTEND_URL[0]!)
+              .set("X-CSRF-Token", admin.csrf)
+              .send({ url: "https://images.example.test/not-a-ticket.jpg" })
+          ).status,
+        ).toBe(422);
+      }
+    });
     it("validates strict input, confirms real bytes and serves them only to the owner", async () => {
       expect(
         (
@@ -249,6 +296,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         confirmed.body.data,
       );
       const url = confirmed.body.data.images[0].url as string;
+      expect(
+        (
+          await request(app).get(
+            `/api/v1/public/catalog/products/images/${confirmed.body.data.images[0].id}`,
+          )
+        ).status,
+      ).toBe(404);
       const image = await request(app)
         .get(url)
         .set("Cookie", sessions.get("CUSTOMER")!.cookie);

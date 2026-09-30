@@ -263,7 +263,7 @@ test("image validation, primary replacement and deletion never fetch unapproved 
     return route.abort();
   });
   await open(page);
-  await page.getByRole("button", { name: "Add product image", exact: true }).click();
+  await page.getByRole("button", { name: "Use hosted image URL", exact: true }).click();
   await page.getByLabel("Public image URL").fill("not a URL");
   await page.getByRole("button", { name: "Review product image", exact: true }).click();
   await expect(page.getByText("Enter a valid image URL.")).toBeVisible();

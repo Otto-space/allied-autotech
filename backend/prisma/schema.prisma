@@ -1172,6 +1172,7 @@ model Category {
 }
 
 model Product {
+  mediaVersion           Int      @default(0)
   id                     String   @id @default(uuid()) @db.Uuid
   categoryId             String   @db.Uuid
   name                   String

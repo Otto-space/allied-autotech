@@ -55,14 +55,32 @@ export async function saveProductImage(
   productId: string,
   itemId: string | undefined,
   values: ProductImageValues,
+  expectedVersion?: number,
+  uploaded = false,
 ) {
-  const body: RequestBody<"/admin/catalog/products/{productId}/images", "post"> =
-    imageBody(values);
+  const fields = imageBody(values) satisfies RequestBody<
+    "/admin/catalog/products/{productId}/images",
+    "post"
+  >;
+  const body = uploaded
+    ? {
+        altText: fields.altText,
+        sortOrder: fields.sortOrder,
+        isPrimary: fields.isPrimary,
+      }
+    : fields;
   const result = parseImageChange(
     (
       await apiRequest<unknown>(
         `/admin/catalog/products/${productId}/images${itemId ? `/${itemId}` : ""}`,
-        { method: itemId ? "PATCH" : "POST", csrf: true, body },
+        {
+          method: itemId ? "PATCH" : "POST",
+          csrf: true,
+          body: {
+            ...body,
+            ...(expectedVersion === undefined ? {} : { expectedVersion }),
+          },
+        },
       )
     ).data,
   );
@@ -78,10 +96,11 @@ export function removeProductExtra(
   productId: string,
   kind: "compatibilities" | "images",
   itemId: string,
+  expectedVersion?: number,
 ) {
   return apiRequest(`/admin/catalog/products/${productId}/${kind}/${itemId}`, {
     method: "DELETE",
     csrf: true,
-    body: {},
+    body: kind === "images" && expectedVersion !== undefined ? { expectedVersion } : {},
   });
 }

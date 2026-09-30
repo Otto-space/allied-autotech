@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { koboToInput, nairaToKobo } from "../../lib/format/currency-input";
-import { isPublicMediaUrl, publicMediaHosts } from "../../lib/media";
+import {
+  isPublicMediaUrl,
+  publicMediaHosts,
+  isManagedProductPreviewUrl,
+} from "../../lib/media";
 
 describe("exact currency input", () => {
   it.each([
@@ -19,6 +23,23 @@ describe("exact currency input", () => {
 });
 
 describe("public media boundary", () => {
+  it("separates public product images from authenticated preview and personal-media routes", () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    const publicImage = `/api/v1/public/catalog/products/images/${id}`;
+    const preview = `/api/v1/admin/catalog/products/${id}/images/${id}/content`;
+    expect(isPublicMediaUrl(publicImage, [])).toBe(true);
+    expect(isPublicMediaUrl(preview, [])).toBe(false);
+    expect(isManagedProductPreviewUrl(preview)).toBe(true);
+    for (const url of [
+      `${publicImage}?redirect=/private`,
+      "/api/v1/public/catalog/products/images/../../private",
+      `/api/v1/customers/media/images/${id}`,
+      `${preview}/../secret`,
+    ]) {
+      expect(isPublicMediaUrl(url, [])).toBe(false);
+      expect(isManagedProductPreviewUrl(url)).toBe(false);
+    }
+  });
   it("accepts explicit hosts and rejects wildcard or policy injection", () => {
     expect(
       publicMediaHosts(

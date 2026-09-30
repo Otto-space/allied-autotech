@@ -23,6 +23,11 @@ import {
   createPublicServiceMediaRouter,
 } from "../../src/modules/service-operations/service-media.routes.js";
 import { MemoryMediaStorage } from "./media-storage.js";
+import { ProductMediaService } from "../../src/modules/catalog/product-media.service.js";
+import {
+  createProductMediaRouter,
+  createPublicProductMediaRouter,
+} from "../../src/modules/catalog/product-media.routes.js";
 
 // Test-only executable, excluded from the production build. Never mount these test routes in src.
 if (
@@ -157,6 +162,14 @@ router.use(
 router.use(
   "/public",
   createPublicServiceMediaRouter(new ServiceMediaService(prisma, storage)),
+);
+router.use(
+  "/admin/catalog",
+  createProductMediaRouter(new ProductMediaService(prisma, storage)),
+);
+router.use(
+  "/public/catalog",
+  createPublicProductMediaRouter(new ProductMediaService(prisma, storage)),
 );
 router.use(createApiRouter({ checkReadiness: async () => undefined }));
 const server = createApp({ apiRouter: router }).listen(5011, "127.0.0.1", () => {

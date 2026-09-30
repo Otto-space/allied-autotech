@@ -6,6 +6,11 @@ import { appendAuditEvent } from "../audit/audit.service.js";
 import { catalogConflict, catalogResourceNotFound } from "./catalog.errors.js";
 import { assertCatalogueAdministrator, assertCustomer } from "./catalog.policy.js";
 import { CatalogRepository } from "./catalog.repository.js";
+import {
+  projectProductImage,
+  type ProductImageRecord,
+} from "./product-media.projection.js";
+import { mediaError } from "../media/media.errors.js";
 import type {
   AdminCategoryListQuery,
   AdminProductListQuery,
@@ -31,14 +36,17 @@ interface InventoryAvailability {
 
 function productView<
   T extends {
+    id: string;
+    images: ProductImageRecord[];
     priceKobo: bigint;
     compareAtPriceKobo: bigint | null;
     inventories: InventoryAvailability[];
   },
->(product: T) {
+>(product: T, admin = false) {
   const { inventories, ...safe } = product;
   return {
     ...safe,
+    images: product.images.map((image) => projectProductImage(image, product.id, admin)),
     priceKobo: product.priceKobo.toString(),
     compareAtPriceKobo: product.compareAtPriceKobo?.toString() ?? null,
     availability: inventories.map(({ branch, quantity, reserved }) => ({
@@ -50,14 +58,15 @@ function productView<
 
 function productPage<
   T extends {
+    images: ProductImageRecord[];
     id: string;
     priceKobo: bigint;
     compareAtPriceKobo: bigint | null;
     inventories: InventoryAvailability[];
   },
->(rows: T[], limit: number) {
+>(rows: T[], limit: number, admin = false) {
   const result = page(rows, limit);
-  return { ...result, items: result.items.map(productView) };
+  return { ...result, items: result.items.map((product) => productView(product, admin)) };
 }
 
 export class CatalogService {
@@ -88,7 +97,11 @@ export class CatalogService {
   }
   async products(actor: AuthenticatedActor, query: AdminProductListQuery) {
     assertCatalogueAdministrator(actor);
-    return productPage(await this.repository.listProducts(query, false), query.limit);
+    return productPage(
+      await this.repository.listProducts(query, false),
+      query.limit,
+      true,
+    );
   }
 
   async createCategory(
@@ -183,7 +196,7 @@ export class CatalogService {
         },
         context,
       });
-      return productView(product);
+      return productView(product, true);
     });
   }
 
@@ -243,7 +256,7 @@ export class CatalogService {
         },
         context,
       });
-      return productView(product);
+      return productView(product, true);
     });
   }
 
@@ -300,8 +313,14 @@ export class CatalogService {
     input: ImageCreateInput,
     context: RequestSecurityContext,
   ) {
-    return this.productChildMutation(actor, productId, context, "CREATE", (transaction) =>
-      this.repository.createImage(productId, input, transaction),
+    return this.productChildMutation(
+      actor,
+      productId,
+      context,
+      "CREATE",
+      (transaction) => this.repository.createImage(productId, input, transaction),
+      true,
+      input.expectedVersion,
     );
   }
   async updateImage(
@@ -311,8 +330,14 @@ export class CatalogService {
     input: ImageUpdateInput,
     context: RequestSecurityContext,
   ) {
-    return this.productChildMutation(actor, productId, context, "UPDATE", (transaction) =>
-      this.repository.updateImage(productId, id, input, transaction),
+    return this.productChildMutation(
+      actor,
+      productId,
+      context,
+      "UPDATE",
+      (transaction) => this.repository.updateImage(productId, id, input, transaction),
+      true,
+      input.expectedVersion,
     );
   }
   async deleteImage(
@@ -320,9 +345,16 @@ export class CatalogService {
     productId: string,
     id: string,
     context: RequestSecurityContext,
+    expectedVersion?: number,
   ) {
-    await this.productChildMutation(actor, productId, context, "DELETE", (transaction) =>
-      this.repository.deleteImage(productId, id, transaction),
+    await this.productChildMutation(
+      actor,
+      productId,
+      context,
+      "DELETE",
+      (transaction) => this.repository.deleteImage(productId, id, transaction),
+      true,
+      expectedVersion,
     );
   }
 
@@ -332,13 +364,26 @@ export class CatalogService {
     context: RequestSecurityContext,
     action: "CREATE" | "UPDATE" | "DELETE",
     operation: (transaction: Prisma.TransactionClient) => Promise<T>,
+    imageMutation = false,
+    expectedVersion?: number,
   ): Promise<T> {
     assertCatalogueAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`product:${productId}`}, 0))`;
-      if ((await this.repository.product(productId, false, transaction)) === null)
-        throw catalogResourceNotFound();
+      const product = await this.repository.product(productId, false, transaction);
+      if (product === null) throw catalogResourceNotFound();
+      if (
+        imageMutation &&
+        expectedVersion !== undefined &&
+        product.mediaVersion !== expectedVersion
+      )
+        throw mediaError("STALE_VERSION", 409);
       const result = await operation(transaction);
+      if (imageMutation)
+        await transaction.product.update({
+          where: { id: productId },
+          data: { mediaVersion: { increment: 1 } },
+        });
       const childId =
         typeof result === "object" && result !== null && "id" in result
           ? String(result.id)

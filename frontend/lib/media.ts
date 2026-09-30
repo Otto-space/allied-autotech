@@ -12,6 +12,8 @@ export function publicMediaHosts(value: string | undefined): string[] {
 }
 
 export function isPublicMediaUrl(src: string, hosts: readonly string[]): boolean {
+  if (/^\/api\/v1\/public\/catalog\/products\/images\/[0-9a-f-]{36}$/i.test(src))
+    return true;
   if (/^\/api\/v1\/public\/vehicles\/images\/[0-9a-f-]{36}$/i.test(src)) return true;
   try {
     const url = new URL(src);
@@ -25,4 +27,10 @@ export function isPublicMediaUrl(src: string, hosts: readonly string[]): boolean
   } catch {
     return false;
   }
+}
+
+export function isManagedProductPreviewUrl(src: string): boolean {
+  return /^\/api\/v1\/admin\/catalog\/products\/[0-9a-f-]{36}\/images\/[0-9a-f-]{36}\/content$/i.test(
+    src,
+  );
 }

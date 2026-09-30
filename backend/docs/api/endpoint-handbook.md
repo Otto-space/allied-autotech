@@ -84,6 +84,26 @@ Binary image/webp bytes (no JSON envelope).
 
 Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
+### GET `/public/catalog/products/images/{imageId}`
+
+- Operation ID: `getPublicCatalogProductsImagesByImageId`
+- Purpose: Validated WebP bytes. private, no-store and nosniff. Deleted images return 404; external URLs are not proxied. Public reads deny inactive products/categories. Administrator previews retain MFA and product/image binding. No access to customer personal media. Read an uploaded image from an active product and category. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+
+Success: HTTP 200.
+Binary image/webp bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
 ### GET `/public/branches`
 
 - Operation ID: `getPublicBranches`
@@ -286,7 +306,62 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "name": "synthetic-name",
+        "slug": "synthetic-slug",
+        "sku": "synthetic-sku",
+        "brand": "synthetic-brand",
+        "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+        "description": "synthetic-description",
+        "priceKobo": "300000",
+        "compareAtPriceKobo": "300000",
+        "currency": "NGN",
+        "isActive": true,
+        "featured": true,
+        "mediaVersion": 0,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "category": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug",
+          "description": "synthetic-description",
+          "isActive": true,
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "updatedAt": "2030-01-15T10:00:00.000Z"
+        },
+        "images": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "createdAt": "2030-01-15T10:00:00.000Z",
+            "source": "UPLOADED",
+            "width": "synthetic-width",
+            "height": "synthetic-height"
+          }
+        ],
+        "compatibilities": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "make": "synthetic-make",
+            "model": "synthetic-model",
+            "yearFrom": "synthetic-yearfrom",
+            "yearTo": "synthetic-yearto",
+            "notes": "synthetic-notes"
+          }
+        ],
+        "availability": [
+          {
+            "branch": {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "code": "synthetic-code",
+              "name": "synthetic-name"
+            },
+            "inStock": true
+          }
+        ]
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -322,7 +397,62 @@ Success: HTTP 200.
   "message": "Get an active product",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "sku": "synthetic-sku",
+    "brand": "synthetic-brand",
+    "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+    "description": "synthetic-description",
+    "priceKobo": "300000",
+    "compareAtPriceKobo": "300000",
+    "currency": "NGN",
+    "isActive": true,
+    "featured": true,
+    "mediaVersion": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "category": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug",
+      "description": "synthetic-description",
+      "isActive": true,
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "source": "UPLOADED",
+        "width": "synthetic-width",
+        "height": "synthetic-height"
+      }
+    ],
+    "compatibilities": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "yearFrom": "synthetic-yearfrom",
+        "yearTo": "synthetic-yearto",
+        "notes": "synthetic-notes"
+      }
+    ],
+    "availability": [
+      {
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "code": "synthetic-code",
+          "name": "synthetic-name"
+        },
+        "inStock": true
+      }
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -11386,6 +11516,155 @@ Binary image/webp bytes (no JSON envelope).
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
+### POST `/admin/catalog/products/{productId}/assets/upload`
+
+- Operation ID: `postAdminCatalogProductsByProductIdAssetsUpload`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA. Preserves the separate hosted-URL POST /admin/catalog/products/{productId}/images contract. JPEG/PNG/WebP up to 10 MiB, non-animated, 32–8192px per side, 40 million pixels, re-encoded metadata-free WebP within 2048px. Full bytes/signature/checksum/decoding verified. Tickets bind actor/product/purpose/expiry. Confirmation uses Product.mediaVersion and returns the new image only plus the new version; reread the product for the complete gallery. Exact token/body retries replay for 24h, changed replay fails. All image mutations share a product lock and increment mediaVersion; legacy hosted CRUD may omit expectedVersion, new clients should send it. At most 12 total hosted/uploaded images can be attached; older larger galleries remain readable/editable/removable. Ordering is sortOrder then image ID. isPrimary:true clears the prior primary; false is allowed and first attachment is not automatically primary. Deleting/clearing a primary does not select another, preserving existing behavior. Managed URLs are server-owned and cannot be edited through hosted metadata PATCH. Removal queues only owned storage for cleanup; external files are never deleted. Public bytes require active product and category. Read projections expose source UPLOADED/EXTERNAL, nullable dimensions and safe display URLs; never storage keys or tokens. See managed-media.md. Prepare a product-bound binary image upload. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `mimeType` | image/jpeg / image/png / image/webp | Yes | Mime Type validated by this operation's strict request contract. |
+| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
+| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "mimeType": "image/jpeg",
+  "sizeBytes": 1,
+  "checksumSha256": "synthetic-checksumsha256"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Prepare a product-bound binary image upload",
+  "data": {
+    "assetToken": "synthetic-token-value-not-a-real-secret",
+    "upload": {
+      "method": "PUT",
+      "url": "https://example.test/continue",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "headers": {}
+    },
+    "limits": {
+      "maxBytes": 1,
+      "count": 1,
+      "maxOutputDimension": 1
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### POST `/admin/catalog/products/{productId}/images/confirm`
+
+- Operation ID: `postAdminCatalogProductsByProductIdImagesConfirm`
+- Purpose: ADMIN/SUPER_ADMIN with verified MFA. Preserves the separate hosted-URL POST /admin/catalog/products/{productId}/images contract. JPEG/PNG/WebP up to 10 MiB, non-animated, 32–8192px per side, 40 million pixels, re-encoded metadata-free WebP within 2048px. Full bytes/signature/checksum/decoding verified. Tickets bind actor/product/purpose/expiry. Confirmation uses Product.mediaVersion and returns the new image only plus the new version; reread the product for the complete gallery. Exact token/body retries replay for 24h, changed replay fails. All image mutations share a product lock and increment mediaVersion; legacy hosted CRUD may omit expectedVersion, new clients should send it. At most 12 total hosted/uploaded images can be attached; older larger galleries remain readable/editable/removable. Ordering is sortOrder then image ID. isPrimary:true clears the prior primary; false is allowed and first attachment is not automatically primary. Deleting/clearing a primary does not select another, preserving existing behavior. Managed URLs are server-owned and cannot be edited through hosted metadata PATCH. Removal queues only owned storage for cleanup; external files are never deleted. Public bytes require active product and category. Read projections expose source UPLOADED/EXTERNAL, nullable dimensions and safe display URLs; never storage keys or tokens. See managed-media.md. Verify and attach an uploaded product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
+| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
+| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "assetToken": "synthetic-token-value-not-a-real-secret",
+  "altText": "synthetic-alttext",
+  "sortOrder": 0,
+  "isPrimary": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Verify and attach an uploaded product image",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### GET `/admin/catalog/products/{productId}/images/{imageId}/content`
+
+- Operation ID: `getAdminCatalogProductsByProductIdImagesByImageIdContent`
+- Purpose: Validated WebP bytes. private, no-store and nosniff. Deleted images return 404; external URLs are not proxied. Public reads deny inactive products/categories. Administrator previews retain MFA and product/image binding. No access to customer personal media. Preview an uploaded product image as administrator. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+
+Success: HTTP 200.
+Binary image/webp bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
 ### GET `/admin/branches`
 
 - Operation ID: `getAdminBranches`
@@ -12201,7 +12480,62 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "name": "synthetic-name",
+        "slug": "synthetic-slug",
+        "sku": "synthetic-sku",
+        "brand": "synthetic-brand",
+        "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+        "description": "synthetic-description",
+        "priceKobo": "300000",
+        "compareAtPriceKobo": "300000",
+        "currency": "NGN",
+        "isActive": true,
+        "featured": true,
+        "mediaVersion": 0,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "category": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug",
+          "description": "synthetic-description",
+          "isActive": true,
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "updatedAt": "2030-01-15T10:00:00.000Z"
+        },
+        "images": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "createdAt": "2030-01-15T10:00:00.000Z",
+            "source": "UPLOADED",
+            "width": "synthetic-width",
+            "height": "synthetic-height"
+          }
+        ],
+        "compatibilities": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "make": "synthetic-make",
+            "model": "synthetic-model",
+            "yearFrom": "synthetic-yearfrom",
+            "yearTo": "synthetic-yearto",
+            "notes": "synthetic-notes"
+          }
+        ],
+        "availability": [
+          {
+            "branch": {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "code": "synthetic-code",
+              "name": "synthetic-name"
+            },
+            "inStock": true
+          }
+        ]
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -12266,7 +12600,62 @@ Success: HTTP 201.
   "message": "Create a product",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "sku": "synthetic-sku",
+    "brand": "synthetic-brand",
+    "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+    "description": "synthetic-description",
+    "priceKobo": "300000",
+    "compareAtPriceKobo": "300000",
+    "currency": "NGN",
+    "isActive": true,
+    "featured": true,
+    "mediaVersion": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "category": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug",
+      "description": "synthetic-description",
+      "isActive": true,
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "source": "UPLOADED",
+        "width": "synthetic-width",
+        "height": "synthetic-height"
+      }
+    ],
+    "compatibilities": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "yearFrom": "synthetic-yearfrom",
+        "yearTo": "synthetic-yearto",
+        "notes": "synthetic-notes"
+      }
+    ],
+    "availability": [
+      {
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "code": "synthetic-code",
+          "name": "synthetic-name"
+        },
+        "inStock": true
+      }
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12323,7 +12712,62 @@ Success: HTTP 200.
   "message": "Update a product",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "sku": "synthetic-sku",
+    "brand": "synthetic-brand",
+    "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+    "description": "synthetic-description",
+    "priceKobo": "300000",
+    "compareAtPriceKobo": "300000",
+    "currency": "NGN",
+    "isActive": true,
+    "featured": true,
+    "mediaVersion": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "category": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug",
+      "description": "synthetic-description",
+      "isActive": true,
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "source": "UPLOADED",
+        "width": "synthetic-width",
+        "height": "synthetic-height"
+      }
+    ],
+    "compatibilities": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "yearFrom": "synthetic-yearfrom",
+        "yearTo": "synthetic-yearto",
+        "notes": "synthetic-notes"
+      }
+    ],
+    "availability": [
+      {
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "code": "synthetic-code",
+          "name": "synthetic-name"
+        },
+        "inStock": true
+      }
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12480,7 +12924,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/admin/catalog/products/{productId}/images`
 
 - Operation ID: `postAdminCatalogProductsByProductIdImages`
-- Purpose: Add product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Hosted HTTPS URL metadata only. Backward compatible; optional expectedVersion checks Product.mediaVersion. New attachments are limited to 12 total images. External files are not fetched or storage-owned. isPrimary:false permits no primary image. Add product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -12497,6 +12941,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
 | `url` | string (uri) | Yes | HTTPS location validated against the operation's server-side allowlist. |
 | `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
 | `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
@@ -12506,6 +12951,7 @@ Synthetic request example:
 
 ```json
 {
+  "expectedVersion": 0,
   "url": "https://example.test/continue",
   "altText": "synthetic-alttext",
   "sortOrder": 0,
@@ -12521,7 +12967,14 @@ Success: HTTP 201.
   "message": "Add product image",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "url": "https://example.test/continue",
+    "altText": "synthetic-alttext",
+    "sortOrder": 1,
+    "isPrimary": true,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "source": "UPLOADED",
+    "width": "synthetic-width",
+    "height": "synthetic-height"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12534,7 +12987,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/admin/catalog/products/{productId}/images/{imageId}`
 
 - Operation ID: `patchAdminCatalogProductsByProductIdImagesByImageId`
-- Purpose: Update product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Edits alt text/order/primary for uploaded and external images. Only external image URLs can be changed. Optional expectedVersion checks Product.mediaVersion; new clients should supply it. Clearing primary does not select another image. Update product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -12552,6 +13005,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
 | `url` | string (uri) | No | HTTPS location validated against the operation's server-side allowlist. |
 | `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
 | `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
@@ -12561,6 +13015,7 @@ Synthetic request example:
 
 ```json
 {
+  "expectedVersion": 0,
   "url": "https://example.test/continue",
   "altText": "synthetic-alttext",
   "sortOrder": 0,
@@ -12576,7 +13031,14 @@ Success: HTTP 200.
   "message": "Update product image",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "url": "https://example.test/continue",
+    "altText": "synthetic-alttext",
+    "sortOrder": 1,
+    "isPrimary": true,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "source": "UPLOADED",
+    "width": "synthetic-width",
+    "height": "synthetic-height"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12589,7 +13051,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/admin/catalog/products/{productId}/images/{imageId}`
 
 - Operation ID: `deleteAdminCatalogProductsByProductIdImagesByImageId`
-- Purpose: Delete product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Backward compatible empty body; optional expectedVersion checks Product.mediaVersion. Managed storage cleanup is queued transactionally, external files are never deleted. Removing a primary selects no replacement; empty galleries are valid. Delete product image. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -12602,6 +13064,20 @@ Parameters:
 | `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
 | `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0
+}
+```
 
 Success: HTTP 200.
 

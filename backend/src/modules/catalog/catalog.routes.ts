@@ -22,6 +22,7 @@ import {
   compatibilityUpdateBodySchema,
   favouriteListQuerySchema,
   imageCreateBodySchema,
+  imageDeleteBodySchema,
   imageParamsSchema,
   imageUpdateBodySchema,
   productCreateBodySchema,
@@ -217,7 +218,7 @@ export function createAdminCatalogRouter(): Router {
     validate({
       params: imageParamsSchema,
       query: catalogEmptyQuerySchema,
-      body: catalogEmptyBodySchema,
+      body: imageDeleteBodySchema,
     }),
     controller.deleteImage,
   );

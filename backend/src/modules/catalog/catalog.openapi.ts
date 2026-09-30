@@ -1,6 +1,10 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import {
+  productResponseSchema,
+  productImageResponseSchema,
+} from "./product-media.schemas.js";
+import {
   adminCategoryListQuerySchema,
   adminProductListQuerySchema,
   cartItemBodySchema,
@@ -13,6 +17,7 @@ import {
   compatibilityUpdateBodySchema,
   favouriteListQuerySchema,
   imageCreateBodySchema,
+  imageDeleteBodySchema,
   imageParamsSchema,
   imageUpdateBodySchema,
   productCreateBodySchema,
@@ -31,6 +36,8 @@ const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
 type RegisterPathInput = Parameters<OpenAPIRegistry["registerPath"]>[0];
 type RouteParameter = NonNullable<NonNullable<RegisterPathInput["request"]>["params"]>;
 interface Path {
+  response?: ZodType;
+  description?: string;
   method: "get" | "post" | "put" | "patch" | "delete";
   path: string;
   summary: string;
@@ -60,12 +67,19 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "get",
       path: "/public/catalog/products",
       summary: "Search active products",
+      response: responseSchema.extend({
+        data: z.object({
+          items: z.array(productResponseSchema),
+          nextCursor: z.uuid().optional(),
+        }),
+      }),
       query: productListQuerySchema,
     },
     {
       method: "get",
       path: "/public/catalog/products/{productId}",
       summary: "Get an active product",
+      response: responseSchema.extend({ data: productResponseSchema }),
       params: productParamsSchema,
     },
     {
@@ -145,6 +159,12 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "get",
       path: "/admin/catalog/products",
       summary: "List all products",
+      response: responseSchema.extend({
+        data: z.object({
+          items: z.array(productResponseSchema),
+          nextCursor: z.uuid().optional(),
+        }),
+      }),
       query: adminProductListQuerySchema,
       secured: true,
     },
@@ -152,6 +172,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/admin/catalog/products",
       summary: "Create a product",
+      response: responseSchema.extend({ data: productResponseSchema }),
       status: "201",
       body: productCreateBodySchema,
       secured: true,
@@ -161,6 +182,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "patch",
       path: "/admin/catalog/products/{productId}",
       summary: "Update a product",
+      response: responseSchema.extend({ data: productResponseSchema }),
       params: productParamsSchema,
       body: productUpdateBodySchema,
       secured: true,
@@ -197,6 +219,9 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/admin/catalog/products/{productId}/images",
       summary: "Add product image",
+      response: responseSchema.extend({ data: productImageResponseSchema }),
+      description:
+        "Hosted HTTPS URL metadata only. Backward compatible; optional expectedVersion checks Product.mediaVersion. New attachments are limited to 12 total images. External files are not fetched or storage-owned. isPrimary:false permits no primary image.",
       status: "201",
       params: productParamsSchema,
       body: imageCreateBodySchema,
@@ -207,6 +232,9 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "patch",
       path: "/admin/catalog/products/{productId}/images/{imageId}",
       summary: "Update product image",
+      response: responseSchema.extend({ data: productImageResponseSchema }),
+      description:
+        "Edits alt text/order/primary for uploaded and external images. Only external image URLs can be changed. Optional expectedVersion checks Product.mediaVersion; new clients should supply it. Clearing primary does not select another image.",
       params: imageParamsSchema,
       body: imageUpdateBodySchema,
       secured: true,
@@ -216,6 +244,9 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "delete",
       path: "/admin/catalog/products/{productId}/images/{imageId}",
       summary: "Delete product image",
+      body: imageDeleteBodySchema,
+      description:
+        "Backward compatible empty body; optional expectedVersion checks Product.mediaVersion. Managed storage cleanup is queued transactionally, external files are never deleted. Removing a primary selects no replacement; empty galleries are valid.",
       params: imageParamsSchema,
       secured: true,
       csrf: true,
@@ -227,6 +258,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       path: path.path,
       tags: ["Catalogue"],
       summary: path.summary,
+      ...(path.description ? { description: path.description } : {}),
       ...(path.secured === true ? { security: [{ sessionCookie: [] }] } : {}),
       request: {
         ...(path.params === undefined ? {} : { params: path.params }),
@@ -244,7 +276,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         [path.status ?? "200"]: {
           description: "Request completed",
-          content: { "application/json": { schema: responseSchema } },
+          content: { "application/json": { schema: path.response ?? responseSchema } },
         },
       },
     });

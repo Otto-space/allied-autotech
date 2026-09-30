@@ -13,6 +13,7 @@ export const errorCodes = {
   mediaWrongPurpose: "MEDIA_WRONG_PURPOSE",
   mediaWrongResource: "MEDIA_WRONG_RESOURCE",
   mediaCountLimit: "MEDIA_COUNT_LIMIT",
+  mediaManagedUrlImmutable: "MEDIA_MANAGED_URL_IMMUTABLE",
   mediaStorageUnavailable: "MEDIA_STORAGE_UNAVAILABLE",
   validationFailed: "VALIDATION_FAILED",
   malformedJson: "MALFORMED_JSON",

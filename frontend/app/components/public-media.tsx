@@ -2,19 +2,27 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Package } from "lucide-react";
-import { publicMediaHosts, isPublicMediaUrl } from "@/lib/media";
+import {
+  publicMediaHosts,
+  isPublicMediaUrl,
+  isManagedProductPreviewUrl,
+} from "@/lib/media";
 const allowed = publicMediaHosts(process.env.NEXT_PUBLIC_MEDIA_HOSTS);
 export function PublicMedia({
   src,
   alt,
   priority = false,
+  adminPreview = false,
 }: {
   src?: string;
   alt: string;
   priority?: boolean;
+  adminPreview?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const safe = !!src && isPublicMediaUrl(src, allowed);
+  const safe =
+    !!src &&
+    (isPublicMediaUrl(src, allowed) || (adminPreview && isManagedProductPreviewUrl(src)));
   return (
     <div className="product-media">
       {safe && src && !failed ? (

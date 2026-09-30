@@ -1,4 +1,6 @@
 export const messages: Readonly<Record<string, string>> = {
+  MEDIA_MANAGED_URL_IMMUTABLE:
+    "Uploaded image addresses cannot be edited. Upload a new file to replace this image.",
   MEDIA_INVALID: "This image could not be read. Choose another JPEG, PNG or WebP file.",
   MEDIA_UNSUPPORTED_FORMAT: "Choose a non-animated JPEG, PNG or WebP image.",
   MEDIA_TOO_LARGE: "This image exceeds the size limit. Choose a smaller file.",

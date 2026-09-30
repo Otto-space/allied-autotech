@@ -184,6 +184,7 @@ const publicImageUrl = z
   }, "Use a public HTTPS URL without credentials");
 export const imageCreateBodySchema = z
   .object({
+    expectedVersion: z.number().int().min(0).max(2147483647).optional(),
     url: publicImageUrl,
     altText: nullableText(250),
     sortOrder: z.number().int().min(0).max(10_000).default(0),
@@ -192,13 +193,21 @@ export const imageCreateBodySchema = z
   .strict();
 export const imageUpdateBodySchema = z
   .object({
+    expectedVersion: z.number().int().min(0).max(2147483647).optional(),
     url: publicImageUrl.optional(),
     altText: nullableText(250),
     sortOrder: z.number().int().min(0).max(10_000).optional(),
     isPrimary: z.boolean().optional(),
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required");
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedVersion"),
+    "At least one field is required",
+  );
+
+export const imageDeleteBodySchema = z
+  .object({ expectedVersion: z.number().int().min(0).max(2147483647).optional() })
+  .strict();
 
 export const favouriteListQuerySchema = z.object(pageFields).strict();
 export const cartItemBodySchema = z
