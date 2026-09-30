@@ -6,6 +6,7 @@ import {
   publicMediaHosts,
   isPublicMediaUrl,
   isManagedProductPreviewUrl,
+  isStockPreviewUrl,
 } from "@/lib/media";
 const allowed = publicMediaHosts(process.env.NEXT_PUBLIC_MEDIA_HOSTS);
 export function PublicMedia({
@@ -13,16 +14,20 @@ export function PublicMedia({
   alt,
   priority = false,
   adminPreview = false,
+  stockPreview = false,
 }: {
   src?: string;
   alt: string;
   priority?: boolean;
   adminPreview?: boolean;
+  stockPreview?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   const safe =
     !!src &&
-    (isPublicMediaUrl(src, allowed) || (adminPreview && isManagedProductPreviewUrl(src)));
+    (isPublicMediaUrl(src, allowed) ||
+      (adminPreview && isManagedProductPreviewUrl(src)) ||
+      (stockPreview && isStockPreviewUrl(src)));
   return (
     <div className="product-media">
       {safe && src && !failed ? (

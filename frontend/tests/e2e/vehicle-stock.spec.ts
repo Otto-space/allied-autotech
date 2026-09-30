@@ -501,7 +501,8 @@ test("approved photo upload attaches exact bytes with public review and primary 
           sortOrder: 2,
         },
       ];
-      await reply(route, vehicle.images[0]);
+      vehicle.version++;
+      await reply(route, { ...vehicle.images[0], version: vehicle.version });
       return true;
     }
     if (endpoint === `/public/vehicles/images/${id(75)}`) {
@@ -560,10 +561,11 @@ test("approved photo upload attaches exact bytes with public review and primary 
   expect(attachment).toBeUndefined();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
   await expect(section).toContainText("Primary photo");
-  await expect(section).toContainText("Preview becomes available");
+  await expect(section.getByRole("img", { name: "Isolated side view" })).toBeVisible();
   expect(uploads).toBe(1);
   expect(attachment).toEqual({
     assetToken: ticket,
+    expectedVersion: 0,
     altText: "Isolated side view",
     sortOrder: 2,
     isPrimary: true,

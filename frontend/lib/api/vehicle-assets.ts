@@ -37,13 +37,22 @@ export function validateAssetFile(file: Pick<File, "type" | "size">, kind: Asset
 }
 
 export async function prepareVehicleAsset(
-  options: UploadOptions & { kind: AssetKind; vehicleId: string },
+  options: UploadOptions & {
+    kind: AssetKind;
+    vehicleId: string;
+    replaceImageId?: string;
+  },
 ) {
   const mimeType = validateAssetFile(options.file, options.kind);
   return prepareSignedUpload({
     ...options,
     prepare: async (metadata) => {
-      const body: UploadBody = { ...metadata, kind: options.kind, mimeType };
+      const body: UploadBody = {
+        ...metadata,
+        kind: options.kind,
+        mimeType,
+        ...(options.replaceImageId ? { replaceImageId: options.replaceImageId } : {}),
+      };
       const result = await apiRequest(
         `/staff/vehicles/${options.vehicleId}/assets/upload`,
         {

@@ -1,3 +1,9 @@
+import {
+  createStaffVehiclesRouter,
+  createPublicVehiclesRouter,
+} from "../../src/modules/vehicles/vehicles.routes.js";
+import { VehiclesService } from "../../src/modules/vehicles/vehicles.service.js";
+import { StockMediaService } from "../../src/modules/vehicles/stock-media.service.js";
 import { randomUUID, createHash } from "node:crypto";
 import { Router } from "express";
 import request from "supertest";
@@ -42,6 +48,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       "/customers",
       createGarageMediaRouter(new GarageMediaService(prisma, storage)),
     );
+    const stock = new VehiclesService(
+      prisma,
+      undefined,
+      new StockMediaService(prisma, storage),
+    );
+    router.use("/staff/vehicles", createStaffVehiclesRouter(stock));
+    router.use("/public/vehicles", createPublicVehiclesRouter(stock));
     const sessions = new Map<string, { cookie: string; csrf: string }>();
     router.use(
       "/admin/catalog",
@@ -269,6 +282,51 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).toBe(422);
       }
     });
+    it("guards stock mutations and previews at the HTTP boundary", async () => {
+      const base = `/api/v1/staff/vehicles/${randomUUID()}`;
+      for (const [method, suffix] of [
+        ["post", "/assets/upload"],
+        ["post", "/images"],
+        ["patch", `/images/${randomUUID()}`],
+        ["delete", `/images/${randomUUID()}`],
+      ] as const) {
+        expect((await request(app)[method](`${base}${suffix}`).send({})).status).toBe(
+          401,
+        );
+        expect(
+          (
+            await request(app)
+              [method](`${base}${suffix}`)
+              .set("Cookie", sessions.get("CUSTOMER")!.cookie)
+              .send({})
+          ).status,
+        ).toBe(403);
+        for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"]) {
+          const session = sessions.get(role)!;
+          expect(
+            (
+              await request(app)
+                [method](`${base}${suffix}`)
+                .set("Cookie", session.cookie)
+                .send({})
+            ).body.error.code,
+          ).toBe("CSRF_INVALID");
+          expect(
+            (
+              await request(app)
+                [method](`${base}${suffix}`)
+                .set("Cookie", session.cookie)
+                .set("Origin", env.FRONTEND_URL[0]!)
+                .set("X-CSRF-Token", session.csrf)
+                .send({})
+            ).status,
+          ).toBe(422);
+        }
+      }
+      expect(
+        (await request(app).get(`${base}/images/${randomUUID()}/content`)).status,
+      ).toBe(401);
+    });
     it("validates strict input, confirms real bytes and serves them only to the owner", async () => {
       expect(
         (
@@ -296,6 +354,13 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         confirmed.body.data,
       );
       const url = confirmed.body.data.images[0].url as string;
+      expect(
+        (
+          await request(app).get(
+            `/api/v1/public/vehicles/images/${confirmed.body.data.images[0].id}`,
+          )
+        ).status,
+      ).toBe(404);
       expect(
         (
           await request(app).get(

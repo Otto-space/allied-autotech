@@ -1,4 +1,6 @@
 export const messages: Readonly<Record<string, string>> = {
+  MEDIA_LAST_PUBLISHED_IMAGE:
+    "Keep at least one photo while this vehicle has an available or reserved listing. Replace the photo, or update the listing before removing it.",
   MEDIA_MANAGED_URL_IMMUTABLE:
     "Uploaded image addresses cannot be edited. Upload a new file to replace this image.",
   MEDIA_INVALID: "This image could not be read. Choose another JPEG, PNG or WebP file.",

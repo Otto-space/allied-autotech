@@ -1,3 +1,11 @@
+import { mediaErrorResponses } from "../media/media.openapi.js";
+import { mediaVersionSchema, mediaPreparationSchema } from "../media/media.schemas.js";
+import {
+  stockImageParams,
+  stockImageUpdateSchema,
+  stockImageResultSchema,
+  stockImageSchema,
+} from "./stock-media.schemas.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import {
@@ -36,8 +44,12 @@ type Path = {
   secured?: boolean;
   mutation?: boolean;
   created?: boolean;
-  redirect?: boolean;
+  binary?: boolean;
+  output?: ZodType;
+  description?: string;
 };
+const stockDescription =
+  "STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md.";
 export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
   const paths: Path[] = [
     {
@@ -55,9 +67,11 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "get",
       path: "/public/vehicles/images/{imageId}",
-      summary: "Resolve short-lived public listing image access",
+      summary: "Read a verified image from an available listing at an active branch",
+      description:
+        "Returns sanitized WebP bytes with private, no-store and nosniff. No signed read redirects. Removed or unpublished images return 404. Previously issued legacy signed URLs expire at their original TTL; already downloaded bytes cannot be revoked.",
       params: imageParamsSchema,
-      redirect: true,
+      binary: true,
     },
     {
       method: "get",
@@ -154,6 +168,10 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/staff/vehicles/{vehicleId}/assets/upload",
       summary: "Authorize a bounded object upload",
+      output: mediaPreparationSchema
+        .omit({ limits: true })
+        .extend({ limits: mediaPreparationSchema.shape.limits.optional() }),
+      description: stockDescription,
       params: vehicleParamsSchema,
       body: assetUploadBodySchema,
       secured: true,
@@ -163,12 +181,48 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "post",
       path: "/staff/vehicles/{vehicleId}/images",
-      summary: "Confirm uploaded vehicle image",
+      summary: "Verify and attach a stock vehicle image",
+      output: stockImageSchema.extend({
+        version: z.number().int(),
+        createdAt: z.iso.datetime(),
+      }),
+      description: stockDescription,
       params: vehicleParamsSchema,
       body: imageCreateBodySchema,
       secured: true,
       mutation: true,
       created: true,
+    },
+    {
+      method: "patch",
+      path: "/staff/vehicles/{vehicleId}/images/{imageId}",
+      summary: "Edit stock image metadata, ordering and primary selection",
+      description: stockDescription,
+      params: stockImageParams,
+      body: stockImageUpdateSchema,
+      output: stockImageResultSchema,
+      secured: true,
+      mutation: true,
+    },
+    {
+      method: "delete",
+      path: "/staff/vehicles/{vehicleId}/images/{imageId}",
+      summary: "Remove a stock image and queue owned object cleanup",
+      description: stockDescription,
+      params: stockImageParams,
+      body: mediaVersionSchema,
+      output: stockImageResultSchema,
+      secured: true,
+      mutation: true,
+    },
+    {
+      method: "get",
+      path: "/staff/vehicles/{vehicleId}/images/{imageId}/content",
+      summary: "Read branch-scoped stock image preview",
+      description: stockDescription,
+      params: stockImageParams,
+      binary: true,
+      secured: true,
     },
     {
       method: "post",
@@ -214,6 +268,7 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
       path: route.path,
       tags: ["Vehicles"],
       summary: route.summary,
+      ...(route.description ? { description: route.description } : {}),
       ...(route.secured ? { security: [{ sessionCookie: [] }] } : {}),
       request: {
         ...(route.params ? { params: route.params as never } : {}),
@@ -228,12 +283,25 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
             }
           : {}),
       },
-      responses: route.redirect
-        ? { "302": { description: "Redirect to a short-lived signed image URL" } }
+      responses: route.binary
+        ? {
+            ...mediaErrorResponses,
+            "200": {
+              description: "Sanitized WebP bytes; private, no-store and nosniff",
+              content: { "image/webp": { schema: { type: "string", format: "binary" } } },
+            },
+          }
         : {
+            ...(route.description ? mediaErrorResponses : {}),
             [route.created ? "201" : "200"]: {
               description: "Request completed",
-              content: { "application/json": { schema: responseSchema } },
+              content: {
+                "application/json": {
+                  schema: route.output
+                    ? responseSchema.extend({ data: route.output })
+                    : responseSchema,
+                },
+              },
             },
           },
     });

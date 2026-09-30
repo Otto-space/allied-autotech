@@ -169,6 +169,7 @@ export const listingPriceBodySchema = z
 export const assetUploadBodySchema = z
   .object({
     kind: z.enum(["IMAGE", "DOCUMENT", "CONDITION_REPORT", "HANDOVER"]),
+    replaceImageId: uuid.optional(),
     mimeType: z.enum(["image/jpeg", "image/png", "image/webp", "application/pdf"]),
     sizeBytes: z
       .number()
@@ -179,6 +180,12 @@ export const assetUploadBodySchema = z
   })
   .strict()
   .superRefine((value, context) => {
+    if (value.replaceImageId !== undefined && value.kind !== "IMAGE")
+      context.addIssue({
+        code: "custom",
+        path: ["replaceImageId"],
+        message: "Only image uploads support replacement",
+      });
     if (value.kind === "IMAGE" && value.mimeType === "application/pdf")
       context.addIssue({
         code: "custom",
@@ -204,12 +211,18 @@ export const assetUploadBodySchema = z
 const assetToken = z.string().min(40).max(4096);
 export const imageCreateBodySchema = z
   .object({
+    expectedVersion: version.optional(),
+    replaceImageId: uuid.optional(),
     assetToken,
     altText: nullableClean(240),
     sortOrder: z.number().int().min(0).max(10_000).default(0),
     isPrimary: z.boolean().default(false),
   })
-  .strict();
+  .strict()
+  .refine(
+    (value) => value.replaceImageId === undefined || value.expectedVersion !== undefined,
+    "Replacement requires expectedVersion",
+  );
 export const documentCreateBodySchema = z
   .object({
     assetToken,

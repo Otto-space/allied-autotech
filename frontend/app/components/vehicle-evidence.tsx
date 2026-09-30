@@ -1,7 +1,7 @@
 "use client";
 import type { StaffVehicle } from "@/lib/api/staff-vehicle-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
-import { PublicMedia } from "./public-media";
+import { StockImageGallery } from "./stock-image-gallery";
 import { PrivateDocumentAccess } from "./private-document-access";
 import { VehicleAttachmentForm } from "./vehicle-attachment-form";
 import { VehicleDocumentReview } from "./vehicle-document-review";
@@ -12,58 +12,21 @@ export function VehicleEvidence({
   vehicle,
   disabled,
   onReview,
+  onVersion,
 }: {
   vehicle: StaffVehicle;
   disabled: boolean;
   onReview: (proposal: MutationProposal) => void;
+  onVersion: (version: number) => void;
 }) {
-  const publicImages =
-    vehicle.branch.isActive &&
-    vehicle.listings.some((listing) => listing.status === "AVAILABLE");
   return (
     <>
-      <section className="detail-section" aria-labelledby="vehicle-photos-heading">
-        <h2 id="vehicle-photos-heading">Vehicle photos</h2>
-        <p>
-          Photos are shared across this vehicle’s public listings. Only upload approved
-          public images.
-        </p>
-        {!vehicle.images.length && <p>No photos have been attached.</p>}
-        <div className="record-grid">
-          {vehicle.images.map((photo) => (
-            <figure className="vehicle-photo" key={photo.id}>
-              {publicImages ? (
-                <PublicMedia
-                  src={photo.url}
-                  alt={photo.altText ?? `${vehicle.make} ${vehicle.model}`}
-                />
-              ) : (
-                <p className="notice">
-                  Preview becomes available with an available listing at an active branch.
-                </p>
-              )}
-              <figcaption>
-                {photo.altText ?? "No photo description recorded"}
-                <span className="muted">
-                  {" "}
-                  — order {photo.sortOrder}
-                  {photo.isPrimary ? " · Primary photo" : ""}
-                </span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-        <details>
-          <summary>Add a vehicle photo</summary>
-          <VehicleAttachmentForm
-            key={`image-${vehicle.images.map((image) => image.id).join(",")}`}
-            vehicleId={vehicle.id}
-            kind="IMAGE"
-            disabled={disabled}
-            onReview={onReview}
-          />
-        </details>
-      </section>
+      <StockImageGallery
+        vehicle={vehicle}
+        disabled={disabled}
+        onReview={onReview}
+        onVersion={onVersion}
+      />
       <section className="detail-section" aria-labelledby="vehicle-documents-heading">
         <h2 id="vehicle-documents-heading">Private vehicle documents</h2>
         <p>

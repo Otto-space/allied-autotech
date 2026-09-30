@@ -37,11 +37,22 @@ export function VehicleAttachmentForm({
   kind,
   disabled,
   onReview,
+  expectedVersion,
+  replacement,
+  onVersion,
 }: {
   vehicleId: string;
   kind: "IMAGE" | "DOCUMENT";
   disabled: boolean;
   onReview: (proposal: MutationProposal) => void;
+  expectedVersion?: number;
+  replacement?: {
+    id: string;
+    altText: string | null;
+    sortOrder: number;
+    isPrimary: boolean;
+  };
+  onVersion?: (version: number) => void;
 }) {
   const [selection, setSelection] = useState<AssetSelection>(null);
   const [error, setError] = useState<string>();
@@ -53,9 +64,9 @@ export function VehicleAttachmentForm({
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      altText: "",
-      sortOrder: "0",
-      isPrimary: false,
+      altText: replacement?.altText ?? "",
+      sortOrder: String(replacement?.sortOrder ?? 0),
+      isPrimary: replacement?.isPrimary ?? false,
       type: "OTHER",
       issuedAt: "",
       expiresAt: "",
@@ -77,6 +88,8 @@ export function VehicleAttachmentForm({
       kind === "IMAGE"
         ? {
             assetToken: selection.prepared.token,
+            ...(expectedVersion === undefined ? {} : { expectedVersion }),
+            ...(replacement ? { replaceImageId: replacement.id } : {}),
             altText: values.altText || null,
             sortOrder: Number(values.sortOrder),
             isPrimary: values.isPrimary,
@@ -90,11 +103,15 @@ export function VehicleAttachmentForm({
     onReview({
       title:
         kind === "IMAGE"
-          ? "Attach this public vehicle photo?"
+          ? replacement
+            ? "Replace this vehicle photo?"
+            : "Attach this public vehicle photo?"
           : "Attach this private vehicle document?",
       description:
         kind === "IMAGE"
-          ? "This photo can appear on all available listings for this vehicle. A new primary photo replaces the previous primary selection. Attached photos cannot be edited or removed through the current application."
+          ? replacement
+            ? "The current photo remains until the new file is verified and attached. A failed replacement preserves the current photo; a successful replacement removes its old public access."
+            : "This photo can appear on all available listings for this vehicle. A new primary photo replaces the previous primary selection."
           : "This creates a private document with a pending review. Its type and dates cannot be edited or removed through the current application. Authorized staff must request temporary download access.",
       facts: [
         { label: "File", value: selection.name },
@@ -120,12 +137,15 @@ export function VehicleAttachmentForm({
               },
             ]),
       ],
+      ...(kind === "IMAGE" ? { retrySafely: true, retryAfterRejection: false } : {}),
       onUncertain: () => setLocked(true),
       submit: async () => {
-        await apiRequest(
+        const result = await apiRequest(
           `/staff/vehicles/${vehicleId}/${kind === "IMAGE" ? "images" : "documents"}`,
           { method: "POST", csrf: true, body },
         );
+        if (kind === "IMAGE" && onVersion)
+          onVersion(z.object({ version: z.number().int() }).parse(result.data).version);
         setLocked(true);
       },
     });
@@ -149,6 +169,7 @@ export function VehicleAttachmentForm({
         <VehicleAssetUpload
           vehicleId={vehicleId}
           kind={kind}
+          replaceImageId={replacement?.id}
           label={
             kind === "IMAGE" ? "Vehicle photo file" : "Private vehicle document file"
           }
@@ -190,9 +211,16 @@ export function VehicleAttachmentForm({
               </p>
             </div>
             <label className="checkbox">
-              <input type="checkbox" {...form.register("isPrimary")} />
+              <input
+                type="checkbox"
+                disabled={replacement?.isPrimary === true}
+                {...form.register("isPrimary")}
+              />
               Use as the primary photo
             </label>
+            {replacement?.isPrimary && (
+              <p className="field-hint">Replacement keeps this as the primary photo.</p>
+            )}
           </>
         ) : (
           <>

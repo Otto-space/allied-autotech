@@ -1,4 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { mediaUploadSchema } from "../media/media.schemas.js";
+import { StockMediaService } from "./stock-media.service.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import {
@@ -52,6 +53,7 @@ export class VehiclesService {
   constructor(
     private readonly database: PrismaClient = prisma,
     private readonly storage: ObjectStoragePort = objectStorage,
+    readonly imageMedia: StockMediaService = new StockMediaService(database),
   ) {
     this.repository = new VehiclesRepository(database);
   }
@@ -66,9 +68,7 @@ export class VehiclesService {
     return vehicleJsonSafe(listing);
   }
   async publicImage(id: string) {
-    const image = await this.repository.publicImage(id);
-    if (image?.publicId == null) throw vehicleNotFound();
-    return this.storage.createView(image.publicId);
+    return this.imageMedia.read(id);
   }
   async staffVehicles(actor: AuthenticatedActor, query: StaffVehicleListQuery) {
     assertVehicleOperator(actor);
@@ -300,7 +300,18 @@ export class VehiclesService {
     actor: AuthenticatedActor,
     vehicleId: string,
     input: AssetUploadInput,
+    context: RequestSecurityContext,
   ) {
+    if (input.kind === "IMAGE") {
+      const { kind: _kind, replaceImageId, ...metadata } = input;
+      return this.imageMedia.prepare(
+        actor,
+        vehicleId,
+        mediaUploadSchema.parse(metadata),
+        context,
+        replaceImageId,
+      );
+    }
     assertVehicleOperator(actor);
     const vehicle = await this.repository.vehicle(vehicleId);
     if (vehicle === null) throw vehicleNotFound();
@@ -324,28 +335,7 @@ export class VehiclesService {
     input: ImageCreateInput,
     context: RequestSecurityContext,
   ) {
-    const imageId = randomUUID();
-    return this.addAsset(
-      actor,
-      vehicleId,
-      input.assetToken,
-      "IMAGE",
-      context,
-      async (asset, transaction) =>
-        this.repository.addImage(
-          vehicleId,
-          {
-            id: imageId,
-            url: `/api/v1/public/vehicles/images/${imageId}`,
-            objectKey: asset.objectKey,
-            checksum: asset.checksumSha256,
-            ...(input.altText === undefined ? {} : { altText: input.altText }),
-            sortOrder: input.sortOrder,
-            isPrimary: input.isPrimary,
-          },
-          transaction,
-        ),
-    );
+    return this.imageMedia.confirm(actor, vehicleId, input, context);
   }
   async addDocument(
     actor: AuthenticatedActor,

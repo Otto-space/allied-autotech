@@ -10,6 +10,9 @@ export const documentTypes = [
   "OTHER",
 ] as const;
 export const vehicleImageSchema = z.object({
+  source: z.enum(["UPLOADED", "LEGACY", "EXTERNAL"]).optional(),
+  width: z.number().int().nullable().optional(),
+  height: z.number().int().nullable().optional(),
   id: z.string().uuid(),
   url: z.string(),
   altText: z.string().nullable(),

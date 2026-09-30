@@ -736,7 +736,7 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 ### GET `/public/vehicles/images/{imageId}`
 
 - Operation ID: `getPublicVehiclesImagesByImageId`
-- Purpose: Resolve short-lived public listing image access. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Returns sanitized WebP bytes with private, no-store and nosniff. No signed read redirects. Removed or unpublished images return 404. Previously issued legacy signed URLs expire at their original TTL; already downloaded bytes cannot be revoked. Read a verified image from an available listing at an active branch. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -749,27 +749,9 @@ Parameters:
 | `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
 
 Success: HTTP 200.
+Binary image/webp bytes (no JSON envelope).
 
-```json
-{
-  "success": true,
-  "message": "Resolve short-lived public listing image access",
-  "data": {
-    "items": [
-      {
-        "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
-      }
-    ],
-    "nextCursor": "00000000-0000-4000-8000-000000000001"
-  },
-  "meta": {
-    "requestId": "req_0000000000000001"
-  }
-}
-```
-
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### GET `/public/support/reviews`
 
@@ -2399,7 +2381,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### PUT `/customers/profile/photo`
 
@@ -2460,7 +2442,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### DELETE `/customers/profile/photo`
 
@@ -2517,7 +2499,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### GET `/customers/media/images/{imageId}`
 
@@ -2599,7 +2581,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### POST `/customers/vehicles/{vehicleId}/images`
 
@@ -2665,7 +2647,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### PATCH `/customers/vehicles/{vehicleId}/images/{imageId}`
 
@@ -2730,7 +2712,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### DELETE `/customers/vehicles/{vehicleId}/images/{imageId}`
 
@@ -2789,7 +2771,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### GET `/customers/favourites`
 
@@ -7529,7 +7511,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/staff/vehicles/{vehicleId}/assets/upload`
 
 - Operation ID: `postStaffVehiclesByVehicleIdAssetsUpload`
-- Purpose: Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -7547,6 +7529,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `kind` | IMAGE / DOCUMENT / CONDITION_REPORT / HANDOVER | Yes | Kind validated by this operation's strict request contract. |
+| `replaceImageId` | string (uuid) | No | Identifier of the replace image resource; ownership is resolved server-side. |
 | `mimeType` | image/jpeg / image/png / image/webp / application/pdf | Yes | Mime Type validated by this operation's strict request contract. |
 | `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
 | `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
@@ -7556,6 +7539,7 @@ Synthetic request example:
 ```json
 {
   "kind": "IMAGE",
+  "replaceImageId": "00000000-0000-4000-8000-000000000001",
   "mimeType": "image/jpeg",
   "sizeBytes": 1,
   "checksumSha256": "synthetic-checksumsha256"
@@ -7569,8 +7553,18 @@ Success: HTTP 201.
   "success": true,
   "message": "Authorize a bounded object upload",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "assetToken": "synthetic-token-value-not-a-real-secret",
+    "upload": {
+      "method": "PUT",
+      "url": "https://example.test/continue",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "headers": {}
+    },
+    "limits": {
+      "maxBytes": 1,
+      "count": 1,
+      "maxOutputDimension": 1
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -7578,12 +7572,12 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### POST `/staff/vehicles/{vehicleId}/images`
 
 - Operation ID: `postStaffVehiclesByVehicleIdImages`
-- Purpose: Confirm uploaded vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Verify and attach a stock vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -7600,6 +7594,8 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
+| `replaceImageId` | string (uuid) | No | Identifier of the replace image resource; ownership is resolved server-side. |
 | `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 | `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
 | `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
@@ -7609,6 +7605,8 @@ Synthetic request example:
 
 ```json
 {
+  "expectedVersion": 0,
+  "replaceImageId": "00000000-0000-4000-8000-000000000001",
   "assetToken": "synthetic-token-value-not-a-real-secret",
   "altText": "synthetic-alttext",
   "sortOrder": 0,
@@ -7621,10 +7619,18 @@ Success: HTTP 201.
 ```json
 {
   "success": true,
-  "message": "Confirm uploaded vehicle image",
+  "message": "Verify and attach a stock vehicle image",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "url": "https://example.test/continue",
+    "altText": "synthetic-alttext",
+    "sortOrder": 1,
+    "isPrimary": true,
+    "width": "synthetic-width",
+    "height": "synthetic-height",
+    "source": "UPLOADED",
+    "version": 1,
+    "createdAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -7632,7 +7638,154 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### PATCH `/staff/vehicles/{vehicleId}/images/{imageId}`
+
+- Operation ID: `patchStaffVehiclesByVehicleIdImagesByImageId`
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Edit stock image metadata, ordering and primary selection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
+| `sortOrder` | integer | No | Sort Order validated by this operation's strict request contract. |
+| `isPrimary` | boolean | No | Boolean control for is primary; authorization is still enforced server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "altText": "synthetic-alttext",
+  "sortOrder": 0,
+  "isPrimary": true
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Edit stock image metadata, ordering and primary selection",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": "synthetic-width",
+        "height": "synthetic-height",
+        "source": "UPLOADED"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### DELETE `/staff/vehicles/{vehicleId}/images/{imageId}`
+
+- Operation ID: `deleteStaffVehiclesByVehicleIdImagesByImageId`
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Remove a stock image and queue owned object cleanup. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Remove a stock image and queue owned object cleanup",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": "synthetic-width",
+        "height": "synthetic-height",
+        "source": "UPLOADED"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### GET `/staff/vehicles/{vehicleId}/images/{imageId}/content`
+
+- Operation ID: `getStaffVehiclesByVehicleIdImagesByImageIdContent`
+- Purpose: STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Read branch-scoped stock image preview. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `vehicleId` | path | string (uuid) | Yes | Identifier selecting the vehicle resource. |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+
+Success: HTTP 200.
+Binary image/webp bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### POST `/staff/vehicles/{vehicleId}/documents`
 
@@ -11249,7 +11402,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### POST `/admin/services/{serviceId}/assets/upload`
 
@@ -11311,7 +11464,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### PUT `/admin/services/{serviceId}/image`
 
@@ -11373,7 +11526,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### PATCH `/admin/services/{serviceId}/images/{imageId}`
 
@@ -11434,7 +11587,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### DELETE `/admin/services/{serviceId}/images/{imageId}`
 
@@ -11493,7 +11646,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### GET `/admin/services/{serviceId}/images/{imageId}/content`
 
@@ -11576,7 +11729,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### POST `/admin/catalog/products/{productId}/images/confirm`
 
@@ -11642,7 +11795,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### GET `/admin/catalog/products/{productId}/images/{imageId}/content`
 

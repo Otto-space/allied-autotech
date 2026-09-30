@@ -1,4 +1,14 @@
-import { randomUUID } from "node:crypto";
+import sharp from "sharp";
+import { Router } from "express";
+import { createApiRouter } from "../../src/routes/index.js";
+import {
+  createStaffVehiclesRouter,
+  createPublicVehiclesRouter,
+} from "../../src/modules/vehicles/vehicles.routes.js";
+import { VehiclesService } from "../../src/modules/vehicles/vehicles.service.js";
+import { StockMediaService } from "../../src/modules/vehicles/stock-media.service.js";
+import { MemoryMediaStorage } from "../helpers/media-storage.js";
+import { createHash, randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, describe, expect, it } from "vitest";
 import { createApp } from "../../src/app.js";
@@ -79,7 +89,17 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
   afterAll(async () => prisma.$disconnect());
 
   it("enforces branch isolation, private assets, immutable history, and one reservation winner", async () => {
-    const app = createApp({ checkReadiness: async () => undefined });
+    const imageStorage = new MemoryMediaStorage();
+    const vehicles = new VehiclesService(
+      prisma,
+      undefined,
+      new StockMediaService(prisma, imageStorage),
+    );
+    const router = Router()
+      .use("/staff/vehicles", createStaffVehiclesRouter(vehicles))
+      .use("/public/vehicles", createPublicVehiclesRouter(vehicles))
+      .use(createApiRouter({ checkReadiness: async () => undefined }));
+    const app = createApp({ apiRouter: router, checkReadiness: async () => undefined });
     const branch = await prisma.branch.create({
       data: {
         code: `P7-${randomUUID().slice(0, 8)}`,
@@ -219,16 +239,22 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
     expect(savedVehicles.body.data).toHaveLength(1);
 
     const checksum = "7".repeat(64);
+    const imageBytes = await sharp({
+      create: { width: 96, height: 64, channels: 3, background: "blue" },
+    })
+      .webp()
+      .toBuffer();
     const imageUpload = await request(app)
       .post(`/api/v1/staff/vehicles/${vehicleId}/assets/upload`)
       .set(mutation(staffSession))
       .send({
         kind: "IMAGE",
         mimeType: "image/webp",
-        sizeBytes: 1_024,
-        checksumSha256: "6".repeat(64),
+        sizeBytes: imageBytes.length,
+        checksumSha256: createHash("sha256").update(imageBytes).digest("hex"),
       });
     expect(imageUpload.status).toBe(201);
+    imageStorage.objects.set(imageStorage.prepared.at(-1)!.key, imageBytes);
     const imageResponse = await request(app)
       .post(`/api/v1/staff/vehicles/${vehicleId}/images`)
       .set(mutation(staffSession))
@@ -236,8 +262,9 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
     expect(imageResponse.status).toBe(201);
     expect(imageResponse.body.data.url).toMatch(/^\/api\/v1\/public\/vehicles\/images\//);
     const imageAccess = await request(app).get(imageResponse.body.data.url);
-    expect(imageAccess.status).toBe(302);
-    expect(imageAccess.headers.location).toMatch(/^https:\/\/storage\.invalid\/view\//);
+    expect(imageAccess.status).toBe(200);
+    expect(imageAccess.headers["content-type"]).toBe("image/webp");
+    expect(imageAccess.headers["cache-control"]).toBe("private, no-store");
 
     const documentUpload = await request(app)
       .post(`/api/v1/staff/vehicles/${vehicleId}/assets/upload`)

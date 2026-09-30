@@ -1,3 +1,7 @@
+import { vehiclesService } from "./vehicles.service.js";
+import { stockImageParams, stockImageUpdateSchema } from "./stock-media.schemas.js";
+import { mediaVersionSchema } from "../media/media.schemas.js";
+import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import { Router } from "express";
 import { authenticate } from "../../common/middleware/authenticate.js";
 import { requireCustomer, requireStaff } from "../../common/middleware/authorize.js";
@@ -25,9 +29,9 @@ import {
   vehicleUpdateBodySchema,
 } from "./vehicles.schemas.js";
 
-export function createPublicVehiclesRouter(): Router {
+export function createPublicVehiclesRouter(service = vehiclesService): Router {
   const router = Router();
-  const controller = new VehiclesController();
+  const controller = new VehiclesController(service);
   router.get(
     "/",
     validate({ query: publicVehicleListQuerySchema }),
@@ -76,9 +80,9 @@ export function createCustomerVehiclesDiscoveryRouter(): Router {
   );
   return router;
 }
-export function createStaffVehiclesRouter(): Router {
+export function createStaffVehiclesRouter(service = vehiclesService): Router {
   const router = Router();
-  const controller = new VehiclesController();
+  const controller = new VehiclesController(service);
   router.use(authenticate(), requireStaff);
   router.get("/", validate({ query: staffVehicleListQuerySchema }), controller.staffList);
   router.post(
@@ -141,6 +145,7 @@ export function createStaffVehiclesRouter(): Router {
   router.post(
     "/:vehicleId/assets/upload",
     requireCsrf,
+    createSensitiveRateLimit(20, 60000),
     validate({
       params: vehicleParamsSchema,
       query: vehicleEmptySchema,
@@ -151,12 +156,38 @@ export function createStaffVehiclesRouter(): Router {
   router.post(
     "/:vehicleId/images",
     requireCsrf,
+    createSensitiveRateLimit(20, 60000),
     validate({
       params: vehicleParamsSchema,
       query: vehicleEmptySchema,
       body: imageCreateBodySchema,
     }),
     controller.addImage,
+  );
+  router.patch(
+    "/:vehicleId/images/:imageId",
+    requireCsrf,
+    validate({
+      params: stockImageParams,
+      query: vehicleEmptySchema,
+      body: stockImageUpdateSchema,
+    }),
+    controller.updateImage,
+  );
+  router.delete(
+    "/:vehicleId/images/:imageId",
+    requireCsrf,
+    validate({
+      params: stockImageParams,
+      query: vehicleEmptySchema,
+      body: mediaVersionSchema,
+    }),
+    controller.removeImage,
+  );
+  router.get(
+    "/:vehicleId/images/:imageId/content",
+    validate({ params: stockImageParams, query: vehicleEmptySchema }),
+    controller.previewImage,
   );
   router.post(
     "/:vehicleId/documents",

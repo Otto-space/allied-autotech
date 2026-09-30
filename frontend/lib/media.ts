@@ -34,3 +34,9 @@ export function isManagedProductPreviewUrl(src: string): boolean {
     src,
   );
 }
+
+export function isStockPreviewUrl(src: string): boolean {
+  return /^\/api\/v1\/staff\/vehicles\/[0-9a-f-]{36}\/images\/[0-9a-f-]{36}\/content$/i.test(
+    src,
+  );
+}

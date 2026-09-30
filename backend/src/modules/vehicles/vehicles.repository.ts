@@ -30,7 +30,14 @@ const publicVehicleSelect = {
   doors: true,
   seats: true,
   images: {
-    select: { id: true, url: true, altText: true, sortOrder: true, isPrimary: true },
+    select: {
+      id: true,
+      url: true,
+      altText: true,
+      sortOrder: true,
+      isPrimary: true,
+      mediaAsset: { select: { width: true, height: true } },
+    },
     orderBy: [{ sortOrder: "asc" as const }, { id: "asc" as const }],
   },
   conditionReports: {

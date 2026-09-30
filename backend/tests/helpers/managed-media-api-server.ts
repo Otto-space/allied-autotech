@@ -1,4 +1,10 @@
 import "../setup/environment.js";
+import {
+  createStaffVehiclesRouter,
+  createPublicVehiclesRouter,
+} from "../../src/modules/vehicles/vehicles.routes.js";
+import { VehiclesService } from "../../src/modules/vehicles/vehicles.service.js";
+import { StockMediaService } from "../../src/modules/vehicles/stock-media.service.js";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -61,6 +67,25 @@ for (const output of [fixturePath, imagePath]) {
 }
 const sessions: Record<string, string> = {};
 const garageIds: Record<string, string> = {};
+const stockBranch = await prisma.branch.create({
+  data: {
+    code: `BG-${randomUUID().slice(0, 8)}`,
+    name: "Browser stock branch",
+    address: "Test",
+    city: "Lagos",
+    state: "Lagos",
+  },
+});
+const otherStockBranch = await prisma.branch.create({
+  data: {
+    code: `BG-${randomUUID().slice(0, 8)}`,
+    name: "Other stock branch",
+    address: "Test",
+    city: "Abuja",
+    state: "FCT",
+  },
+});
+
 for (const name of ["ADMIN", "STAFF", "CUSTOMER", "OTHER"] as const) {
   const role = name === "OTHER" ? "CUSTOMER" : name;
   const user = await prisma.user.create({
@@ -92,6 +117,15 @@ for (const name of ["ADMIN", "STAFF", "CUSTOMER", "OTHER"] as const) {
     },
   });
   sessions[name] = token;
+  if (role === "STAFF")
+    await prisma.staffProfile.create({
+      data: {
+        userId: user.id,
+        firstName: "Browser",
+        lastName: "Staff",
+        branchId: stockBranch.id,
+      },
+    });
   if (role === "CUSTOMER") {
     const profile = await prisma.customerProfile.findUniqueOrThrow({
       where: { userId: user.id },
@@ -126,7 +160,14 @@ await prisma.customerVehicle.create({
 });
 await writeFile(
   fixturePath,
-  JSON.stringify({ sessions, ids, garageIds, directoryPrefix }),
+  JSON.stringify({
+    sessions,
+    ids,
+    garageIds,
+    directoryPrefix,
+    stockBranchId: stockBranch.id,
+    otherStockBranchId: otherStockBranch.id,
+  }),
   { mode: 0o600 },
 );
 await sharp({ create: { width: 320, height: 320, channels: 3, background: "#e07a38" } })
@@ -171,6 +212,13 @@ router.use(
   "/public/catalog",
   createPublicProductMediaRouter(new ProductMediaService(prisma, storage)),
 );
+const stockService = new VehiclesService(
+  prisma,
+  undefined,
+  new StockMediaService(prisma, storage),
+);
+router.use("/staff/vehicles", createStaffVehiclesRouter(stockService));
+router.use("/public/vehicles", createPublicVehiclesRouter(stockService));
 router.use(createApiRouter({ checkReadiness: async () => undefined }));
 const server = createApp({ apiRouter: router }).listen(5011, "127.0.0.1", () => {
   process.stdout.write(

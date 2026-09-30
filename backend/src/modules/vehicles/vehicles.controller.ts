@@ -1,3 +1,4 @@
+import type { StockImageUpdate } from "./stock-media.schemas.js";
 import type { Request, Response } from "express";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -61,7 +62,9 @@ export class VehiclesController {
       );
   publicImage = async (_req: Request, res: Response) => {
     res.setHeader("Cache-Control", "private, no-store");
-    res.redirect(302, await this.service.publicImage(ids(res).imageId!));
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    const image = await this.service.publicImage(ids(res).imageId!);
+    res.type(image.mimeType).send(image.bytes);
   };
   staffList = async (req: Request, res: Response) =>
     res
@@ -176,6 +179,7 @@ export class VehiclesController {
       );
   createUpload = async (req: Request, res: Response) =>
     res
+      .setHeader("Cache-Control", "private, no-store")
       .status(201)
       .json(
         successResponse(
@@ -185,9 +189,47 @@ export class VehiclesController {
             actor(req),
             ids(res).vehicleId!,
             validated<AssetUploadInput>(res, "body"),
+            context(req),
           ),
         ),
       );
+  updateImage = async (req: Request, res: Response) =>
+    res.json(
+      successResponse(
+        "Vehicle image updated",
+        req.id,
+        await this.service.imageMedia.update(
+          actor(req),
+          ids(res).vehicleId!,
+          ids(res).imageId!,
+          validated<StockImageUpdate>(res, "body"),
+          context(req),
+        ),
+      ),
+    );
+  removeImage = async (req: Request, res: Response) =>
+    res.json(
+      successResponse(
+        "Vehicle image removed",
+        req.id,
+        await this.service.imageMedia.remove(
+          actor(req),
+          ids(res).vehicleId!,
+          ids(res).imageId!,
+          validated<{ expectedVersion: number }>(res, "body").expectedVersion,
+          context(req),
+        ),
+      ),
+    );
+  previewImage = async (req: Request, res: Response) => {
+    const image = await this.service.imageMedia.read(ids(res).imageId!, {
+      actor: actor(req),
+      vehicleId: ids(res).vehicleId!,
+    });
+    res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.type(image.mimeType).send(image.bytes);
+  };
   addImage = async (req: Request, res: Response) =>
     res
       .status(201)

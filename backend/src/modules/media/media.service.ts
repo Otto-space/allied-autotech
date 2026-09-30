@@ -110,7 +110,9 @@ export class MediaService {
   }
   async confirm(
     binding: MediaBinding,
-    input: MediaConfirmInput,
+    input: Omit<MediaConfirmInput, "expectedVersion"> & {
+      expectedVersion?: number | undefined;
+    },
     attach: (tx: Prisma.TransactionClient, asset: StoredMedia) => Promise<MediaResult>,
   ) {
     const tokenHash = hash(input.assetToken);

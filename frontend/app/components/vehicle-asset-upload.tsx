@@ -12,12 +12,14 @@ export function VehicleAssetUpload({
   label,
   disabled,
   onChange,
+  replaceImageId,
 }: {
   vehicleId: string;
   kind: AssetKind;
   label: string;
   disabled: boolean;
   onChange: (selection: AssetSelection) => void;
+  replaceImageId?: string;
 }) {
   const pdf = kind === "HANDOVER" || kind === "CONDITION_REPORT";
   return (
@@ -41,7 +43,14 @@ export function VehicleAssetUpload({
             : "application/pdf,image/jpeg,image/png,image/webp"
       }
       validate={(file) => validateAssetFile(file, kind)}
-      prepare={(options) => prepareVehicleAsset({ ...options, vehicleId, kind })}
+      prepare={(options) =>
+        prepareVehicleAsset({
+          ...options,
+          vehicleId,
+          kind,
+          ...(replaceImageId ? { replaceImageId } : {}),
+        })
+      }
     />
   );
 }

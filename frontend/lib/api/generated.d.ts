@@ -2796,8 +2796,8 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Resolve short-lived public listing image access
-     * @description Resolve short-lived public listing image access. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     * Read a verified image from an available listing at an active branch
+     * @description Returns sanitized WebP bytes with private, no-store and nosniff. No signed read redirects. Removed or unpublished images return 404. Previously issued legacy signed URLs expire at their original TTL; already downloaded bytes cannot be revoked. Read a verified image from an available listing at an active branch. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getPublicVehiclesImagesByImageId"];
     put?: never;
@@ -2991,7 +2991,7 @@ export interface paths {
     put?: never;
     /**
      * Authorize a bounded object upload
-     * @description Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Authorize a bounded object upload. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
      */
     post: operations["postStaffVehiclesByVehicleIdAssetsUpload"];
     delete?: never;
@@ -3010,10 +3010,54 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Confirm uploaded vehicle image
-     * @description Confirm uploaded vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * Verify and attach a stock vehicle image
+     * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Verify and attach a stock vehicle image. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
      */
     post: operations["postStaffVehiclesByVehicleIdImages"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/staff/vehicles/{vehicleId}/images/{imageId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remove a stock image and queue owned object cleanup
+     * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Remove a stock image and queue owned object cleanup. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    delete: operations["deleteStaffVehiclesByVehicleIdImagesByImageId"];
+    options?: never;
+    head?: never;
+    /**
+     * Edit stock image metadata, ordering and primary selection
+     * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Edit stock image metadata, ordering and primary selection. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    patch: operations["patchStaffVehiclesByVehicleIdImagesByImageId"];
+    trace?: never;
+  };
+  "/staff/vehicles/{vehicleId}/images/{imageId}/content": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read branch-scoped stock image preview
+     * @description STAFF requires an active assigned branch matching the vehicle; ADMIN/SUPER_ADMIN retain existing cross-branch authority. All require verified MFA. Writes require CSRF. IMAGE preparation and confirmation retain their original paths and response fields; image confirmations may omit expectedVersion for old clients, but new clients send Vehicle.version. Every image mutation serializes on the vehicle row and increments that same version. PATCH/DELETE require expectedVersion. IMAGE uploads use shared actor/owner/vehicle/purpose/branch-bound tickets, 10 MiB, 20-image limit, JPEG/PNG/WebP, full checksum/signature/decoding, 32-8192px sides and 40MP, sanitized WebP output within 2048px. Still-valid old encrypted IMAGE tickets undergo the same verification; non-image asset contracts are unchanged. Exact confirmation token/body replay lasts 24h; changed replay conflicts. Failed attachments preserve old images. Optional replaceImageId on IMAGE preparation/confirmation supports replacement at the gallery limit; confirmation also requires expectedVersion. It attaches verified new bytes before detaching the old image in the same transaction, preserves its primary selection and queues owned cleanup. The old image remains intact on any failure. sortOrder is an integer 0-10000; ties use image ID, deletion leaves remaining positions unchanged. isPrimary:true replaces the previous primary; false may clear it. Deleting the primary selects the first remaining image. Deleting the last image while any AVAILABLE or RESERVED listing exists fails MEDIA_LAST_PUBLISHED_IMAGE (409), including inactive branches. Existing publication transitions and prices are unchanged. Deletion queues managed or recognized legacy owned keys in the same transaction; external files are never deleted. Preview is authenticated and branch scoped; public bytes require an AVAILABLE listing at an active branch. All byte responses are no-store; subsequent reads revoke immediately on detach. Read projections contain safe URLs, source and nullable dimensions, no keys/tickets. See managed-media.md. Read branch-scoped stock image preview. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getStaffVehiclesByVehicleIdImagesByImageIdContent"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -5268,6 +5312,7 @@ export interface components {
           | "MEDIA_WRONG_PURPOSE"
           | "MEDIA_WRONG_RESOURCE"
           | "MEDIA_COUNT_LIMIT"
+          | "MEDIA_LAST_PUBLISHED_IMAGE"
           | "MEDIA_MANAGED_URL_IMMUTABLE"
           | "MEDIA_STORAGE_UNAVAILABLE"
           | "VALIDATION_FAILED"
@@ -14082,7 +14127,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -14333,7 +14378,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -14578,7 +14623,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -15019,7 +15064,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -15288,7 +15333,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -15544,7 +15589,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -15812,7 +15857,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -16045,7 +16090,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -16316,7 +16361,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -16573,7 +16618,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -16829,7 +16874,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -17088,7 +17133,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -17662,7 +17707,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -17931,7 +17976,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
@@ -43542,69 +43587,14 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Success: Resolve short-lived public listing image access. */
+      /** @description Success: Read a verified image from an available listing at an active branch. */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": true,
-           *       "message": "Resolve short-lived public listing image access",
-           *       "data": {
-           *         "items": [
-           *           {
-           *             "id": "00000000-0000-4000-8000-000000000001",
-           *             "status": "synthetic-status"
-           *           }
-           *         ],
-           *         "nextCursor": "00000000-0000-4000-8000-000000000001"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
-          "application/json": {
-            /** @description Success validated by this operation's strict request contract. */
-            success: boolean;
-            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
-            message: string;
-            /** @description Meta validated by this operation's strict request contract. */
-            meta: {
-              /** @description Identifier of the request resource; ownership is resolved server-side. */
-              requestId: string;
-            };
-            /** @description Cursor-paginated result for: Resolve short-lived public listing image access. */
-            data?: {
-              /** @description Authorized resource projections for this page. */
-              items: ({
-                /**
-                 * Format: uuid
-                 * @description Public or authorized resource identifier.
-                 */
-                id?: string;
-                /** @description Current server-owned lifecycle state when applicable. */
-                status?: string;
-              } & {
-                [key: string]: unknown;
-              })[];
-              /**
-               * Format: uuid
-               * @description Cursor for the next page, or null/omitted when exhausted.
-               */
-              nextCursor?: string | null;
-            };
-          };
+          "image/webp": string;
         };
-      };
-      /** @description Redirect to a short-lived signed image URL */
-      302: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
       };
       /** @description The request is malformed. */
       400: {
@@ -43627,45 +43617,30 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description The requested resource is not available. */
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
       404: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "The requested resource is not available.",
-           *       "error": {
-           *         "code": "NOT_FOUND"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description One or more request fields are invalid. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
       422: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "One or more request fields are invalid.",
-           *       "error": {
-           *         "code": "VALIDATION_FAILED"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
@@ -43708,6 +43683,15 @@ export interface operations {
            *       }
            *     }
            */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
@@ -46545,6 +46529,7 @@ export interface operations {
         /**
          * @example {
          *       "kind": "IMAGE",
+         *       "replaceImageId": "00000000-0000-4000-8000-000000000001",
          *       "mimeType": "image/jpeg",
          *       "sizeBytes": 1,
          *       "checksumSha256": "synthetic-checksumsha256"
@@ -46556,6 +46541,11 @@ export interface operations {
            * @enum {string}
            */
           kind: "IMAGE" | "DOCUMENT" | "CONDITION_REPORT" | "HANDOVER";
+          /**
+           * Format: uuid
+           * @description Identifier of the replace image resource; ownership is resolved server-side.
+           */
+          replaceImageId?: string;
           /**
            * @description Mime Type validated by this operation's strict request contract.
            * @enum {string}
@@ -46580,8 +46570,18 @@ export interface operations {
            *       "success": true,
            *       "message": "Authorize a bounded object upload",
            *       "data": {
-           *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "assetToken": "synthetic-token-value-not-a-real-secret",
+           *         "upload": {
+           *           "method": "PUT",
+           *           "url": "https://example.test/continue",
+           *           "expiresAt": "2030-01-15T10:00:00.000Z",
+           *           "headers": {}
+           *         },
+           *         "limits": {
+           *           "maxBytes": 1,
+           *           "count": 1,
+           *           "maxOutputDimension": 1
+           *         }
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -46593,17 +46593,41 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Authorize a bounded object upload. */
-            data?: {
-              /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
-               */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+              assetToken: string;
+              /** @description Upload validated by this operation's strict request contract. */
+              upload: {
+                /**
+                 * @description Method validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                method: "PUT";
+                /**
+                 * Format: uri
+                 * @description HTTPS location validated against the operation's server-side allowlist.
+                 */
+                url: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                expiresAt: string;
+                /** @description Headers validated by this operation's strict request contract. */
+                headers: {
+                  [key: string]: string;
+                };
+              };
+              /** @description Limits validated by this operation's strict request contract. */
+              limits?: {
+                /** @description Max Bytes validated by this operation's strict request contract. */
+                maxBytes: number;
+                /** @description Count validated by this operation's strict request contract. */
+                count: number;
+                /** @description Max Output Dimension validated by this operation's strict request contract. */
+                maxOutputDimension: number;
+              };
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -46676,66 +46700,30 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description The requested resource is not available. */
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
       404: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "The requested resource is not available.",
-           *       "error": {
-           *         "code": "NOT_FOUND"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description The request conflicts with current state or idempotency. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "The request conflicts with current state or idempotency.",
-           *       "error": {
-           *         "code": "CONFLICT"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description One or more request fields are invalid. */
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
       422: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "One or more request fields are invalid.",
-           *       "error": {
-           *         "code": "VALIDATION_FAILED"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
@@ -46778,6 +46766,15 @@ export interface operations {
            *       }
            *     }
            */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
@@ -46806,6 +46803,8 @@ export interface operations {
       content: {
         /**
          * @example {
+         *       "expectedVersion": 0,
+         *       "replaceImageId": "00000000-0000-4000-8000-000000000001",
          *       "assetToken": "synthetic-token-value-not-a-real-secret",
          *       "altText": "synthetic-alttext",
          *       "sortOrder": 0,
@@ -46813,6 +46812,13 @@ export interface operations {
          *     }
          */
         "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion?: number;
+          /**
+           * Format: uuid
+           * @description Identifier of the replace image resource; ownership is resolved server-side.
+           */
+          replaceImageId?: string;
           /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
           assetToken: string;
           /** @description Alt Text validated by this operation's strict request contract. */
@@ -46831,7 +46837,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Success: Confirm uploaded vehicle image. */
+      /** @description Success: Verify and attach a stock vehicle image. */
       201: {
         headers: {
           [name: string]: unknown;
@@ -46840,10 +46846,18 @@ export interface operations {
           /**
            * @example {
            *       "success": true,
-           *       "message": "Confirm uploaded vehicle image",
+           *       "message": "Verify and attach a stock vehicle image",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "url": "https://example.test/continue",
+           *         "altText": "synthetic-alttext",
+           *         "sortOrder": 1,
+           *         "isPrimary": true,
+           *         "width": "synthetic-width",
+           *         "height": "synthetic-height",
+           *         "source": "UPLOADED",
+           *         "version": 1,
+           *         "createdAt": "2030-01-15T10:00:00.000Z"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -46855,17 +46869,37 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Confirm uploaded vehicle image. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description HTTPS location validated against the operation's server-side allowlist. */
+              url: string;
+              /** @description Alt Text validated by this operation's strict request contract. */
+              altText: string | null;
+              /** @description Sort Order validated by this operation's strict request contract. */
+              sortOrder: number;
+              /** @description Boolean control for is primary; authorization is still enforced server-side. */
+              isPrimary: boolean;
+              /** @description Width validated by this operation's strict request contract. */
+              width: number | null;
+              /** @description Height validated by this operation's strict request contract. */
+              height: number | null;
+              /**
+               * @description Source validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              source: "UPLOADED" | "LEGACY" | "EXTERNAL";
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -46938,66 +46972,30 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description The requested resource is not available. */
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
       404: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "The requested resource is not available.",
-           *       "error": {
-           *         "code": "NOT_FOUND"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description The request conflicts with current state or idempotency. */
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
       409: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "The request conflicts with current state or idempotency.",
-           *       "error": {
-           *         "code": "CONFLICT"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description One or more request fields are invalid. */
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
       422: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "One or more request fields are invalid.",
-           *       "error": {
-           *         "code": "VALIDATION_FAILED"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
@@ -47040,6 +47038,704 @@ export interface operations {
            *       }
            *     }
            */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  deleteStaffVehiclesByVehicleIdImagesByImageId: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path: {
+        /**
+         * @description Identifier selecting the vehicle resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        vehicleId: string;
+        /**
+         * @description Identifier selecting the image resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        imageId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "expectedVersion": 0
+         *     }
+         */
+        "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Remove a stock image and queue owned object cleanup. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Remove a stock image and queue owned object cleanup",
+           *       "data": {
+           *         "version": 1,
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "width": "synthetic-width",
+           *             "height": "synthetic-height",
+           *             "source": "UPLOADED"
+           *           }
+           *         ]
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /** @description Width validated by this operation's strict request contract. */
+                width: number | null;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number | null;
+                /**
+                 * @description Source validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                source: "UPLOADED" | "LEGACY" | "EXTERNAL";
+              }[];
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  patchStaffVehiclesByVehicleIdImagesByImageId: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path: {
+        /**
+         * @description Identifier selecting the vehicle resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        vehicleId: string;
+        /**
+         * @description Identifier selecting the image resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        imageId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "expectedVersion": 0,
+         *       "altText": "synthetic-alttext",
+         *       "sortOrder": 0,
+         *       "isPrimary": true
+         *     }
+         */
+        "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
+          /** @description Alt Text validated by this operation's strict request contract. */
+          altText?: string | null;
+          /** @description Sort Order validated by this operation's strict request contract. */
+          sortOrder?: number;
+          /** @description Boolean control for is primary; authorization is still enforced server-side. */
+          isPrimary?: boolean;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Edit stock image metadata, ordering and primary selection. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Edit stock image metadata, ordering and primary selection",
+           *       "data": {
+           *         "version": 1,
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "width": "synthetic-width",
+           *             "height": "synthetic-height",
+           *             "source": "UPLOADED"
+           *           }
+           *         ]
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /** @description Width validated by this operation's strict request contract. */
+                width: number | null;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number | null;
+                /**
+                 * @description Source validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                source: "UPLOADED" | "LEGACY" | "EXTERNAL";
+              }[];
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getStaffVehiclesByVehicleIdImagesByImageIdContent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the vehicle resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        vehicleId: string;
+        /**
+         * @description Identifier selecting the image resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        imageId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Read branch-scoped stock image preview. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "image/webp": string;
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };

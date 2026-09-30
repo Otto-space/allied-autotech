@@ -4,6 +4,7 @@ import {
   isPublicMediaUrl,
   publicMediaHosts,
   isManagedProductPreviewUrl,
+  isStockPreviewUrl,
 } from "../../lib/media";
 
 describe("exact currency input", () => {
@@ -39,6 +40,15 @@ describe("public media boundary", () => {
       expect(isPublicMediaUrl(url, [])).toBe(false);
       expect(isManagedProductPreviewUrl(url)).toBe(false);
     }
+  });
+  it("allows stock previews only through their explicit authenticated opt-in", () => {
+    const id = "11111111-1111-4111-8111-111111111111";
+    const url = `/api/v1/staff/vehicles/${id}/images/${id}/content`;
+    expect(isStockPreviewUrl(url)).toBe(true);
+    expect(isPublicMediaUrl(url, [])).toBe(false);
+    expect(isManagedProductPreviewUrl(url)).toBe(false);
+    expect(isStockPreviewUrl(`${url}?redirect=/private`)).toBe(false);
+    expect(isStockPreviewUrl(`${url}/../private`)).toBe(false);
   });
   it("accepts explicit hosts and rejects wildcard or policy injection", () => {
     expect(

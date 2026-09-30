@@ -25,8 +25,10 @@ export function StaffVehicleDetail({ vehicleId }: { vehicleId: string }) {
   );
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
+  const [minimumVersion, setMinimumVersion] = useState(0);
   const current = vehicle.data;
-  const disabled = vehicle.loading || !!vehicle.error || !!proposal;
+  const awaitingVersion = !!current && current.version < minimumVersion;
+  const disabled = vehicle.loading || !!vehicle.error || !!proposal || awaitingVersion;
   function review(proposal: MutationProposal) {
     if (disabled) return;
     setMessage(undefined);
@@ -47,6 +49,11 @@ export function StaffVehicleDetail({ vehicleId }: { vehicleId: string }) {
       >
         Refresh stock record
       </button>
+      {awaitingVersion && (
+        <p role="status" className="notice">
+          Waiting for the updated stock record. Refresh if this message remains.
+        </p>
+      )}
       {vehicle.loading && <p role="status">Checking vehicle record…</p>}
       {current && (
         <>
@@ -160,7 +167,12 @@ export function StaffVehicleDetail({ vehicleId }: { vehicleId: string }) {
               onReview={review}
             />
           </details>
-          <VehicleEvidence vehicle={current} disabled={disabled} onReview={review} />
+          <VehicleEvidence
+            vehicle={current}
+            disabled={disabled}
+            onReview={review}
+            onVersion={setMinimumVersion}
+          />
         </>
       )}
       {proposal && (
