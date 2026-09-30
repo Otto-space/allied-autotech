@@ -143,6 +143,7 @@ const operationalGroups: DashboardGroup[] = [
     label: "Customers & Support",
     icon: MessageSquare,
     links: [
+      adminOnly("/admin/customers", "Customers"),
       { href: "/admin/support", label: "Customer care" },
       { href: "/admin/privacy", label: "Privacy review" },
       adminOnly("/admin/reviews", "Review moderation"),

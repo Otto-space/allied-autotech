@@ -10,6 +10,7 @@ import { sessionCookieName } from "../common/security/cookies.js";
 import { createHealthRouter } from "../modules/health/health.routes.js";
 import { createIdentityRouter } from "../modules/identity/identity.index.js";
 import { createCustomersRouter } from "../modules/customers/customers.index.js";
+import { createCustomerDirectoryRouter } from "../modules/customers/customer-directory.routes.js";
 import {
   createAdminCatalogRouter,
   createCustomerCatalogRouter,
@@ -109,6 +110,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/public/support", createPublicSupportRouter());
   apiRouter.use("/customers", createCustomerCatalogRouter());
   apiRouter.use("/customers", createCustomersRouter());
+  apiRouter.use("/admin/customers", createCustomerDirectoryRouter());
   apiRouter.use("/customers", createCustomerServiceOperationsRouter());
   apiRouter.use("/customers/orders", createCustomerOrdersRouter());
   apiRouter.use("/customers/promotions", createCustomerPromotionsRouter());

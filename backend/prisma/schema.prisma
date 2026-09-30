@@ -915,6 +915,7 @@ model CustomerVehicle {
   @@index([customerId])
   @@index([registrationNumber])
   @@index([make, model])
+  @@index([customerId, id], map: "CustomerVehicle_directory_idx")
 }
 
 model Service {
@@ -1031,6 +1032,7 @@ model Booking {
   @@index([customerId, createdAt])
   @@index([createdAt], map: "Booking_overview_created_idx")
   @@index([branchId, createdAt], map: "Booking_overview_branch_created_idx")
+  @@index([customerId, id], map: "Booking_directory_idx")
 }
 
 model BookingReminder {
@@ -1394,6 +1396,7 @@ model Order {
   @@index([status, createdAt])
   @@index([createdAt], map: "Order_overview_created_idx")
   @@index([branchId, createdAt], map: "Order_overview_branch_created_idx")
+  @@index([customerId, id], map: "Order_directory_idx")
 }
 
 model OrderItem {
@@ -1456,6 +1459,7 @@ model Payment {
   @@index([bookingId, status])
   @@index([status, createdAt])
   @@index([status, succeededAt], map: "Payment_overview_settled_idx")
+  @@index([customerId, id], map: "Payment_directory_idx")
 }
 
 model PaymentAttempt {
@@ -2139,6 +2143,7 @@ model Enquiry {
   @@index([type, status])
   @@index([status, createdAt])
   @@index([assignedStaffId, status])
+  @@index([customerId, id], map: "Enquiry_directory_idx")
 }
 
 model Complaint {
@@ -2185,6 +2190,7 @@ model Complaint {
   @@index([vehicleTransactionId])
   @@index([status, priority, createdAt])
   @@index([assignedStaffId, status])
+  @@index([customerId, id], map: "Complaint_directory_idx")
 }
 
 model SupportMessage {

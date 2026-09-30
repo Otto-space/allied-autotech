@@ -10118,6 +10118,409 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 
 ## Administration
 
+### GET `/admin/customers`
+
+- Operation ID: `getAdminCustomers`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. Search the customer directory. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `search` | query | string | No | Search used to constrain this request. |
+| `field` | query | name / email / phone / id | No | Field used to constrain this request. |
+| `status` | query | ACTIVE / SUSPENDED / DEACTIVATED | No | Status used to constrain this request. |
+| `verified` | query | true / false | No | Verified used to constrain this request. |
+| `sort` | query | newest / oldest | No | Sort used to constrain this request. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Search the customer directory",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname",
+        "email": "customer@example.test",
+        "phone": "+2348000000000",
+        "status": "ACTIVE",
+        "emailVerified": "customer@example.test",
+        "phoneVerified": "+2348000000000",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/customers/{customerId}`
+
+- Operation ID: `getAdminCustomersByCustomerId`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. Read a bounded customer summary. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read a bounded customer summary",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "firstName": "synthetic-firstname",
+    "lastName": "synthetic-lastname",
+    "email": "customer@example.test",
+    "phone": "+2348000000000",
+    "status": "ACTIVE",
+    "emailVerified": "customer@example.test",
+    "phoneVerified": "+2348000000000",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "address": "synthetic-address",
+    "city": "synthetic-city",
+    "state": "synthetic-state",
+    "country": "synthetic-country"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/customers/{customerId}/vehicles`
+
+- Operation ID: `getAdminCustomersByCustomerIdVehicles`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. List customer vehicles. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List customer vehicles",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "status": "synthetic-status",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "amountKobo": "300000",
+        "currency": "NGN"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/customers/{customerId}/bookings`
+
+- Operation ID: `getAdminCustomersByCustomerIdBookings`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. List customer bookings. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List customer bookings",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "status": "synthetic-status",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "amountKobo": "300000",
+        "currency": "NGN"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/customers/{customerId}/quotations`
+
+- Operation ID: `getAdminCustomersByCustomerIdQuotations`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. List customer quotations. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List customer quotations",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "status": "synthetic-status",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "amountKobo": "300000",
+        "currency": "NGN"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/customers/{customerId}/orders`
+
+- Operation ID: `getAdminCustomersByCustomerIdOrders`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. List customer orders. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List customer orders",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "status": "synthetic-status",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "amountKobo": "300000",
+        "currency": "NGN"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/customers/{customerId}/payments`
+
+- Operation ID: `getAdminCustomersByCustomerIdPayments`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. List customer payments. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List customer payments",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "status": "synthetic-status",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "amountKobo": "300000",
+        "currency": "NGN"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+
+### GET `/admin/customers/{customerId}/enquiries`
+
+- Operation ID: `getAdminCustomersByCustomerIdEnquiries`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. List customer enquiries. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List customer enquiries",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "status": "synthetic-status",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "amountKobo": "300000",
+        "currency": "NGN"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/admin/customers/{customerId}/complaints`
+
+- Operation ID: `getAdminCustomersByCustomerIdComplaints`
+- Purpose: MFA-verified Admin/Super Admin only; Staff and Customers denied. Read-only, private/no-store; reads audited without search text or returned PII. Customer IDs identify CustomerProfile records. Search is trimmed, whitespace-collapsed, case-insensitive prefix matching by selected field: full name or surname, email, or phone digits with punctuation removed (no country-code inference). ID requires an exact UUID. Empty search lists all customers. Name/email minimum 2 characters; phone minimum 3 digits; maximum 120 characters. Sort allowlist newest/oldest uses immutable account registration time then unique user ID. Opaque keyset cursors are bound to normalized filters and sorting, not a snapshot: new/changed matches may appear on subsequent pages; restart to refresh. No totals. Related endpoints independently authorize their domain and return at most 50 minimal summaries, ordered by ID. Private media and payment credentials are excluded. No mutation, CSRF or idempotency key is required for these GET operations. List customer complaints. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `customerId` | path | string (uuid) | Yes | Identifier selecting the customer resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List customer complaints",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "status": "synthetic-status",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "amountKobo": "300000",
+        "currency": "NGN"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
 ### GET `/admin/branches`
 
 - Operation ID: `getAdminBranches`
