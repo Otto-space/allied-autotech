@@ -1,4 +1,26 @@
 export const messages: Readonly<Record<string, string>> = {
+  MEDIA_INVALID: "This image could not be read. Choose another JPEG, PNG or WebP file.",
+  MEDIA_UNSUPPORTED_FORMAT: "Choose a non-animated JPEG, PNG or WebP image.",
+  MEDIA_TOO_LARGE: "This image exceeds the size limit. Choose a smaller file.",
+  MEDIA_INVALID_DIMENSIONS:
+    "Choose an image between 32 and 8192 pixels on each side with a less extreme aspect ratio.",
+  MEDIA_CHECKSUM_MISMATCH:
+    "The uploaded file does not match the selected image. Upload it again.",
+  MEDIA_OBJECT_MISSING: "The uploaded image is unavailable. Upload the file again.",
+  MEDIA_TICKET_EXPIRED:
+    "The upload expired. Upload the selected file again before saving.",
+  MEDIA_TICKET_CONSUMED:
+    "This upload has already been used. Refresh the images before making another change.",
+  MEDIA_TICKET_INVALID: "The upload is no longer valid. Upload the file again.",
+  MEDIA_WRONG_OWNER: "This upload does not belong to your account.",
+  MEDIA_WRONG_PURPOSE:
+    "This upload cannot be used for this image. Upload the file here again.",
+  MEDIA_WRONG_RESOURCE:
+    "This upload belongs to a different record. Upload the file here again.",
+  MEDIA_COUNT_LIMIT:
+    "This gallery has reached its image limit. Remove an image before uploading another.",
+  MEDIA_STORAGE_UNAVAILABLE:
+    "Image storage is temporarily unavailable. Your existing images are unchanged. Please try again later.",
   BACKEND_NOT_CONFIGURED: "Online services are not connected yet.",
   AUTHENTICATION_FAILED: "The email or password could not be verified.",
   SECURITY_PASSWORD_REJECTED:

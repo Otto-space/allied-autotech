@@ -1,5 +1,24 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
+import { mediaImageSchema } from "../media/media.schemas.js";
+
+const profileResponse = z.object({
+  id: z.uuid(),
+  firstName: z.string(),
+  lastName: z.string(),
+  phone: z.string(),
+  phoneVerifiedAt: z.iso.datetime().nullable(),
+  address: z.string().nullable(),
+  city: z.string().nullable(),
+  state: z.string().nullable(),
+  country: z.string(),
+  avatarUrl: z.string().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  user: z.object({ id: z.uuid(), email: z.string() }),
+  mediaVersion: z.number().int(),
+  photo: mediaImageSchema.nullable(),
+});
 
 import {
   customerProfileUpdateBodySchema,
@@ -110,7 +129,14 @@ export function registerCustomersOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         [path.status]: {
           description: "Request completed",
-          content: { "application/json": { schema: responseSchema } },
+          content: {
+            "application/json": {
+              schema:
+                path.path === "/customers/profile"
+                  ? responseSchema.extend({ data: profileResponse })
+                  : responseSchema,
+            },
+          },
         },
       },
     });

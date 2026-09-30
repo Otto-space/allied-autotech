@@ -1,5 +1,16 @@
 import { z } from "zod";
+export const profilePhotoSchema = z.object({
+  id: z.string().uuid(),
+  url: z.string().regex(/^\/api\/v1\/customers\/media\/images\/[0-9a-f-]{36}$/i),
+  altText: z.string().nullable(),
+  sortOrder: z.number().int(),
+  isPrimary: z.boolean(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+});
 export const profileSchema = z.object({
+  mediaVersion: z.number().int().nonnegative(),
+  photo: profilePhotoSchema.nullable(),
   firstName: z.string(),
   lastName: z.string(),
   phone: z.string(),

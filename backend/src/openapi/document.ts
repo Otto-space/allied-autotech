@@ -3,6 +3,7 @@ import { OpenApiGeneratorV31, OpenAPIRegistry } from "@asteasolutions/zod-to-ope
 import { registerIdentityOpenApi } from "../modules/identity/identity.openapi.js";
 import { registerCustomersOpenApi } from "../modules/customers/customers.openapi.js";
 import { registerCustomerDirectoryOpenApi } from "../modules/customers/customer-directory.openapi.js";
+import { registerProfilePhotoOpenApi } from "../modules/customers/profile-photo.openapi.js";
 import { registerOrganizationOpenApi } from "../modules/organization/organization.openapi.js";
 import { registerCatalogOpenApi } from "../modules/catalog/catalog.openapi.js";
 import { registerInventoryOpenApi } from "../modules/inventory/inventory.openapi.js";
@@ -29,6 +30,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerIdentityOpenApi(registry, options.sessionCookieName);
   registerCustomersOpenApi(registry);
   registerCustomerDirectoryOpenApi(registry);
+  registerProfilePhotoOpenApi(registry);
   registerOrganizationOpenApi(registry);
   registerCatalogOpenApi(registry);
   registerInventoryOpenApi(registry);

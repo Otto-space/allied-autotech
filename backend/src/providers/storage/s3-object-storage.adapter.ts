@@ -1,5 +1,6 @@
 import {
   GetObjectCommand,
+  DeleteObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -7,6 +8,8 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { env } from "../../config/env.js";
+import { mediaError } from "../../modules/media/media.errors.js";
+import type { MediaStoragePort } from "./media-storage.port.js";
 import type {
   ObjectStoragePort,
   SignedUpload,
@@ -33,7 +36,7 @@ export function matchesAllowedFileSignature(
   return false;
 }
 
-export class S3ObjectStorageAdapter implements ObjectStoragePort {
+export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePort {
   private readonly client = new S3Client({
     region: env.OBJECT_STORAGE_REGION,
     ...(env.OBJECT_STORAGE_ENDPOINT === undefined
@@ -136,6 +139,72 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort {
       throw new Error("Object storage is not configured");
     return env.OBJECT_STORAGE_BUCKET;
   }
+
+  async read(key: string, maximumBytes: number): Promise<Buffer> {
+    try {
+      const response = await this.client.send(
+        new GetObjectCommand({ Bucket: this.bucket(), Key: key }),
+        { abortSignal: AbortSignal.timeout(20_000) },
+      );
+      if (!response.Body) throw mediaError("MEDIA_OBJECT_MISSING", 404);
+      if (response.ContentLength !== undefined && response.ContentLength > maximumBytes)
+        throw mediaError("MEDIA_TOO_LARGE");
+      const reader = response.Body.transformToWebStream().getReader();
+      const chunks: Uint8Array[] = [];
+      let size = 0;
+      try {
+        while (true) {
+          const result = await reader.read();
+          if (result.done) break;
+          size += result.value.length;
+          if (size > maximumBytes) throw mediaError("MEDIA_TOO_LARGE");
+          chunks.push(result.value);
+        }
+      } finally {
+        await reader.cancel().catch(() => undefined);
+      }
+      return Buffer.concat(chunks);
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        "code" in error &&
+        typeof error.code === "string" &&
+        error.code.startsWith("MEDIA_")
+      )
+        throw error;
+      if (error instanceof Error && error.name === "NoSuchKey")
+        throw mediaError("MEDIA_OBJECT_MISSING", 404);
+      throw mediaError("MEDIA_STORAGE_UNAVAILABLE", 503);
+    }
+  }
+  async write(key: string, bytes: Buffer, mimeType: string): Promise<void> {
+    try {
+      await this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucket(),
+          Key: key,
+          Body: bytes,
+          ContentType: mimeType,
+          ContentLength: bytes.length,
+          ServerSideEncryption: "AES256",
+          CacheControl: "private, no-store",
+        }),
+        { abortSignal: AbortSignal.timeout(20_000) },
+      );
+    } catch {
+      throw mediaError("MEDIA_STORAGE_UNAVAILABLE", 503);
+    }
+  }
+  async delete(key: string): Promise<void> {
+    try {
+      await this.client.send(
+        new DeleteObjectCommand({ Bucket: this.bucket(), Key: key }),
+        { abortSignal: AbortSignal.timeout(20_000) },
+      );
+    } catch {
+      throw mediaError("MEDIA_STORAGE_UNAVAILABLE", 503);
+    }
+  }
 }
 
 class SyntheticObjectStorageAdapter implements ObjectStoragePort {
@@ -162,3 +231,6 @@ export const objectStorage: ObjectStoragePort =
   env.OBJECT_STORAGE_BUCKET === undefined
     ? new SyntheticObjectStorageAdapter()
     : new S3ObjectStorageAdapter();
+
+// New managed media never uses the legacy synthetic fallback. Tests inject storage explicitly.
+export const mediaStorage: MediaStoragePort = new S3ObjectStorageAdapter();

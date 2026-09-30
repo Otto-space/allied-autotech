@@ -1814,7 +1814,31 @@ Success: HTTP 200.
   "message": "Get own customer profile",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "firstName": "synthetic-firstname",
+    "lastName": "synthetic-lastname",
+    "phone": "+2348000000000",
+    "phoneVerifiedAt": "2030-01-15T10:00:00.000Z",
+    "address": "synthetic-address",
+    "city": "synthetic-city",
+    "state": "synthetic-state",
+    "country": "synthetic-country",
+    "avatarUrl": "https://example.test/continue",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "user": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test"
+    },
+    "mediaVersion": 1,
+    "photo": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "url": "https://example.test/continue",
+      "altText": "synthetic-alttext",
+      "sortOrder": 1,
+      "isPrimary": true,
+      "width": 1,
+      "height": 1
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -1873,7 +1897,31 @@ Success: HTTP 200.
   "message": "Update own customer profile",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "firstName": "synthetic-firstname",
+    "lastName": "synthetic-lastname",
+    "phone": "+2348000000000",
+    "phoneVerifiedAt": "2030-01-15T10:00:00.000Z",
+    "address": "synthetic-address",
+    "city": "synthetic-city",
+    "state": "synthetic-state",
+    "country": "synthetic-country",
+    "avatarUrl": "https://example.test/continue",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "user": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test"
+    },
+    "mediaVersion": 1,
+    "photo": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "url": "https://example.test/continue",
+      "altText": "synthetic-alttext",
+      "sortOrder": 1,
+      "isPrimary": true,
+      "width": 1,
+      "height": 1
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -2103,6 +2151,205 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### POST `/customers/profile/photo/upload`
+
+- Operation ID: `postCustomersProfilePhotoUpload`
+- Purpose: Customer owner only. Admin/Staff/Super Admin are denied personal-media access. CSRF required. Profile uploads allow JPEG/PNG/WebP up to 5 MiB, 32–8192 pixels per dimension and at most 40 million pixels, one non-animated image. Backend checks bytes, checksum, signature and complete decoding, rotates and re-encodes to WebP (maximum 1024px), stripping metadata. Upload does not publish media. Confirmation binds the token to actor/owner/profile/purpose/object/checksum/expiry. expectedVersion is profile.mediaVersion, independent of profile text editing. Exact confirmation retries with the same token and body replay the safe result for 24 hours; different replay is MEDIA_TICKET_CONSUMED. Expired unconfirmed tickets fail even if transfer finished. On uncertain confirmation, reread the profile before another mutation. Replacement failure preserves the previous image. Removed/replaced objects use transactional retryable cleanup; unattached uploads are cleaned after upload expiry plus one hour, cascaded resource deletions after one hour. Signed PUT credentials are present only in this preparation response, never resource reads or audits. Private bytes are served via authenticated no-store media routes; no signed read URL is returned. No separate Idempotency-Key is required: the confirmation token is the idempotency identity. Prepare an owner-bound profile photo upload. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `mimeType` | image/jpeg / image/png / image/webp | Yes | Mime Type validated by this operation's strict request contract. |
+| `sizeBytes` | integer | Yes | Size Bytes validated by this operation's strict request contract. |
+| `checksumSha256` | string | Yes | Checksum Sha256 validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "mimeType": "image/jpeg",
+  "sizeBytes": 1,
+  "checksumSha256": "synthetic-checksumsha256"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Prepare an owner-bound profile photo upload",
+  "data": {
+    "assetToken": "synthetic-token-value-not-a-real-secret",
+    "upload": {
+      "method": "PUT",
+      "url": "https://example.test/continue",
+      "expiresAt": "2030-01-15T10:00:00.000Z",
+      "headers": {}
+    },
+    "limits": {
+      "maxBytes": 1,
+      "count": 1,
+      "maxOutputDimension": 1
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### PUT `/customers/profile/photo`
+
+- Operation ID: `putCustomersProfilePhoto`
+- Purpose: Customer owner only. Admin/Staff/Super Admin are denied personal-media access. CSRF required. Profile uploads allow JPEG/PNG/WebP up to 5 MiB, 32–8192 pixels per dimension and at most 40 million pixels, one non-animated image. Backend checks bytes, checksum, signature and complete decoding, rotates and re-encodes to WebP (maximum 1024px), stripping metadata. Upload does not publish media. Confirmation binds the token to actor/owner/profile/purpose/object/checksum/expiry. expectedVersion is profile.mediaVersion, independent of profile text editing. Exact confirmation retries with the same token and body replay the safe result for 24 hours; different replay is MEDIA_TICKET_CONSUMED. Expired unconfirmed tickets fail even if transfer finished. On uncertain confirmation, reread the profile before another mutation. Replacement failure preserves the previous image. Removed/replaced objects use transactional retryable cleanup; unattached uploads are cleaned after upload expiry plus one hour, cascaded resource deletions after one hour. Signed PUT credentials are present only in this preparation response, never resource reads or audits. Private bytes are served via authenticated no-store media routes; no signed read URL is returned. No separate Idempotency-Key is required: the confirmation token is the idempotency identity. Confirm and atomically replace the profile photo. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+| `assetToken` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `altText` | string / null | No | Alt Text validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0,
+  "assetToken": "synthetic-token-value-not-a-real-secret",
+  "altText": "synthetic-alttext"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Confirm and atomically replace the profile photo",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### DELETE `/customers/profile/photo`
+
+- Operation ID: `deleteCustomersProfilePhoto`
+- Purpose: Customer owner only. Admin/Staff/Super Admin are denied personal-media access. CSRF required. Profile uploads allow JPEG/PNG/WebP up to 5 MiB, 32–8192 pixels per dimension and at most 40 million pixels, one non-animated image. Backend checks bytes, checksum, signature and complete decoding, rotates and re-encodes to WebP (maximum 1024px), stripping metadata. Upload does not publish media. Confirmation binds the token to actor/owner/profile/purpose/object/checksum/expiry. expectedVersion is profile.mediaVersion, independent of profile text editing. Exact confirmation retries with the same token and body replay the safe result for 24 hours; different replay is MEDIA_TICKET_CONSUMED. Expired unconfirmed tickets fail even if transfer finished. On uncertain confirmation, reread the profile before another mutation. Replacement failure preserves the previous image. Removed/replaced objects use transactional retryable cleanup; unattached uploads are cleaned after upload expiry plus one hour, cascaded resource deletions after one hour. Signed PUT credentials are present only in this preparation response, never resource reads or audits. Private bytes are served via authenticated no-store media routes; no signed read URL is returned. No separate Idempotency-Key is required: the confirmation token is the idempotency identity. Remove the profile photo. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Remove the profile photo",
+  "data": {
+    "version": 1,
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "width": 1,
+        "height": 1
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+
+### GET `/customers/media/images/{imageId}`
+
+- Operation ID: `getCustomersMediaImagesByImageId`
+- Purpose: Owner-authenticated bytes. Cross-customer IDs return NOT_FOUND. No public access or administrative original-image access. Cache-Control: private, no-store. URLs contain a stable image ID only; removed images return NOT_FOUND immediately after commit. Read an owned private image. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `imageId` | path | string (uuid) | Yes | Identifier selecting the image resource. |
+
+Success: HTTP 200.
+Binary image/webp bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
 
 ### GET `/customers/favourites`
 

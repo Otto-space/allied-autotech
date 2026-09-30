@@ -140,12 +140,15 @@ for (const [path, pathValue] of Object.entries(paths)) {
     }
     const success = successResponse(operationValue);
     const successContent = success?.["content"];
+    const imageMedia = isObject(successContent)
+      ? Object.entries(successContent).find(([mime]) => mime.startsWith("image/"))?.[1]
+      : undefined;
     const successMedia = isObject(successContent)
-      ? (successContent["application/json"] ?? successContent["text/html"])
+      ? (successContent["application/json"] ?? successContent["text/html"] ?? imageMedia)
       : undefined;
     const successSchema = isObject(successMedia) ? successMedia["schema"] : undefined;
     if (!isObject(successMedia) || !isObject(successSchema))
-      failures.push(`Success response lacks an application/json schema on ${label}`);
+      failures.push(`Success response lacks a supported media schema on ${label}`);
     else if (successSchema["type"] !== "string") {
       const properties = successSchema["properties"];
       const data = isObject(properties) ? properties["data"] : undefined;
@@ -156,6 +159,13 @@ for (const [path, pathValue] of Object.entries(paths)) {
       if (successMedia["example"] === undefined)
         failures.push(`Success response lacks a synthetic example on ${label}`);
     }
+    if (
+      imageMedia !== undefined &&
+      (!isObject(successSchema) ||
+        successSchema["type"] !== "string" ||
+        successSchema["format"] !== "binary")
+    )
+      failures.push(`Image response lacks a binary string schema on ${label}`);
     const documentedResponses = isObject(operationValue["responses"])
       ? operationValue["responses"]
       : {};

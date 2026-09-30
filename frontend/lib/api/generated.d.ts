@@ -684,6 +684,70 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/customers/profile/photo/upload": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Prepare an owner-bound profile photo upload
+     * @description Customer owner only. Admin/Staff/Super Admin are denied personal-media access. CSRF required. Profile uploads allow JPEG/PNG/WebP up to 5 MiB, 32–8192 pixels per dimension and at most 40 million pixels, one non-animated image. Backend checks bytes, checksum, signature and complete decoding, rotates and re-encodes to WebP (maximum 1024px), stripping metadata. Upload does not publish media. Confirmation binds the token to actor/owner/profile/purpose/object/checksum/expiry. expectedVersion is profile.mediaVersion, independent of profile text editing. Exact confirmation retries with the same token and body replay the safe result for 24 hours; different replay is MEDIA_TICKET_CONSUMED. Expired unconfirmed tickets fail even if transfer finished. On uncertain confirmation, reread the profile before another mutation. Replacement failure preserves the previous image. Removed/replaced objects use transactional retryable cleanup; unattached uploads are cleaned after upload expiry plus one hour, cascaded resource deletions after one hour. Signed PUT credentials are present only in this preparation response, never resource reads or audits. Private bytes are served via authenticated no-store media routes; no signed read URL is returned. No separate Idempotency-Key is required: the confirmation token is the idempotency identity. Prepare an owner-bound profile photo upload. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    post: operations["postCustomersProfilePhotoUpload"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/customers/profile/photo": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Confirm and atomically replace the profile photo
+     * @description Customer owner only. Admin/Staff/Super Admin are denied personal-media access. CSRF required. Profile uploads allow JPEG/PNG/WebP up to 5 MiB, 32–8192 pixels per dimension and at most 40 million pixels, one non-animated image. Backend checks bytes, checksum, signature and complete decoding, rotates and re-encodes to WebP (maximum 1024px), stripping metadata. Upload does not publish media. Confirmation binds the token to actor/owner/profile/purpose/object/checksum/expiry. expectedVersion is profile.mediaVersion, independent of profile text editing. Exact confirmation retries with the same token and body replay the safe result for 24 hours; different replay is MEDIA_TICKET_CONSUMED. Expired unconfirmed tickets fail even if transfer finished. On uncertain confirmation, reread the profile before another mutation. Replacement failure preserves the previous image. Removed/replaced objects use transactional retryable cleanup; unattached uploads are cleaned after upload expiry plus one hour, cascaded resource deletions after one hour. Signed PUT credentials are present only in this preparation response, never resource reads or audits. Private bytes are served via authenticated no-store media routes; no signed read URL is returned. No separate Idempotency-Key is required: the confirmation token is the idempotency identity. Confirm and atomically replace the profile photo. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    put: operations["putCustomersProfilePhoto"];
+    post?: never;
+    /**
+     * Remove the profile photo
+     * @description Customer owner only. Admin/Staff/Super Admin are denied personal-media access. CSRF required. Profile uploads allow JPEG/PNG/WebP up to 5 MiB, 32–8192 pixels per dimension and at most 40 million pixels, one non-animated image. Backend checks bytes, checksum, signature and complete decoding, rotates and re-encodes to WebP (maximum 1024px), stripping metadata. Upload does not publish media. Confirmation binds the token to actor/owner/profile/purpose/object/checksum/expiry. expectedVersion is profile.mediaVersion, independent of profile text editing. Exact confirmation retries with the same token and body replay the safe result for 24 hours; different replay is MEDIA_TICKET_CONSUMED. Expired unconfirmed tickets fail even if transfer finished. On uncertain confirmation, reread the profile before another mutation. Replacement failure preserves the previous image. Removed/replaced objects use transactional retryable cleanup; unattached uploads are cleaned after upload expiry plus one hour, cascaded resource deletions after one hour. Signed PUT credentials are present only in this preparation response, never resource reads or audits. Private bytes are served via authenticated no-store media routes; no signed read URL is returned. No separate Idempotency-Key is required: the confirmation token is the idempotency identity. Remove the profile photo. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    delete: operations["deleteCustomersProfilePhoto"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/customers/media/images/{imageId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read an owned private image
+     * @description Owner-authenticated bytes. Cross-customer IDs return NOT_FOUND. No public access or administrative original-image access. Cache-Control: private, no-store. URLs contain a stable image ID only; removed images return NOT_FOUND immediately after commit. Read an owned private image. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getCustomersMediaImagesByImageId"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/public/branches": {
     parameters: {
       query?: never;
@@ -4923,6 +4987,20 @@ export interface components {
          */
         code:
           | "BAD_REQUEST"
+          | "MEDIA_INVALID"
+          | "MEDIA_UNSUPPORTED_FORMAT"
+          | "MEDIA_TOO_LARGE"
+          | "MEDIA_INVALID_DIMENSIONS"
+          | "MEDIA_CHECKSUM_MISMATCH"
+          | "MEDIA_OBJECT_MISSING"
+          | "MEDIA_TICKET_EXPIRED"
+          | "MEDIA_TICKET_CONSUMED"
+          | "MEDIA_TICKET_INVALID"
+          | "MEDIA_WRONG_OWNER"
+          | "MEDIA_WRONG_PURPOSE"
+          | "MEDIA_WRONG_RESOURCE"
+          | "MEDIA_COUNT_LIMIT"
+          | "MEDIA_STORAGE_UNAVAILABLE"
           | "VALIDATION_FAILED"
           | "MALFORMED_JSON"
           | "PAYLOAD_TOO_LARGE"
@@ -9491,7 +9569,31 @@ export interface operations {
            *       "message": "Get own customer profile",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "firstName": "synthetic-firstname",
+           *         "lastName": "synthetic-lastname",
+           *         "phone": "+2348000000000",
+           *         "phoneVerifiedAt": "2030-01-15T10:00:00.000Z",
+           *         "address": "synthetic-address",
+           *         "city": "synthetic-city",
+           *         "state": "synthetic-state",
+           *         "country": "synthetic-country",
+           *         "avatarUrl": "https://example.test/continue",
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z",
+           *         "user": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "email": "customer@example.test"
+           *         },
+           *         "mediaVersion": 1,
+           *         "photo": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "url": "https://example.test/continue",
+           *           "altText": "synthetic-alttext",
+           *           "sortOrder": 1,
+           *           "isPrimary": true,
+           *           "width": 1,
+           *           "height": 1
+           *         }
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -9503,17 +9605,76 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Get own customer profile. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description First Name validated by this operation's strict request contract. */
+              firstName: string;
+              /** @description Last Name validated by this operation's strict request contract. */
+              lastName: string;
+              /** @description Customer or business phone number in international format. */
+              phone: string;
+              /**
+               * Format: date-time
+               * @description Customer or business phone number in international format.
+               */
+              phoneVerifiedAt: string | null;
+              /** @description Address validated by this operation's strict request contract. */
+              address: string | null;
+              /** @description City validated by this operation's strict request contract. */
+              city: string | null;
+              /** @description State validated by this operation's strict request contract. */
+              state: string | null;
+              /** @description Country validated by this operation's strict request contract. */
+              country: string;
+              /** @description HTTPS location validated against the operation's server-side allowlist. */
+              avatarUrl: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+              /** @description User validated by this operation's strict request contract. */
+              user: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Normalized account email address. */
+                email: string;
+              };
+              /** @description Media Version validated by this operation's strict request contract. */
+              mediaVersion: number;
+              /** @description Photo validated by this operation's strict request contract. */
+              photo: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /** @description Width validated by this operation's strict request contract. */
+                width: number;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number;
+              } | null;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -9711,7 +9872,31 @@ export interface operations {
            *       "message": "Update own customer profile",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "firstName": "synthetic-firstname",
+           *         "lastName": "synthetic-lastname",
+           *         "phone": "+2348000000000",
+           *         "phoneVerifiedAt": "2030-01-15T10:00:00.000Z",
+           *         "address": "synthetic-address",
+           *         "city": "synthetic-city",
+           *         "state": "synthetic-state",
+           *         "country": "synthetic-country",
+           *         "avatarUrl": "https://example.test/continue",
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z",
+           *         "user": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "email": "customer@example.test"
+           *         },
+           *         "mediaVersion": 1,
+           *         "photo": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "url": "https://example.test/continue",
+           *           "altText": "synthetic-alttext",
+           *           "sortOrder": 1,
+           *           "isPrimary": true,
+           *           "width": 1,
+           *           "height": 1
+           *         }
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -9723,17 +9908,76 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Update own customer profile. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /** @description First Name validated by this operation's strict request contract. */
+              firstName: string;
+              /** @description Last Name validated by this operation's strict request contract. */
+              lastName: string;
+              /** @description Customer or business phone number in international format. */
+              phone: string;
+              /**
+               * Format: date-time
+               * @description Customer or business phone number in international format.
+               */
+              phoneVerifiedAt: string | null;
+              /** @description Address validated by this operation's strict request contract. */
+              address: string | null;
+              /** @description City validated by this operation's strict request contract. */
+              city: string | null;
+              /** @description State validated by this operation's strict request contract. */
+              state: string | null;
+              /** @description Country validated by this operation's strict request contract. */
+              country: string;
+              /** @description HTTPS location validated against the operation's server-side allowlist. */
+              avatarUrl: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+              /** @description User validated by this operation's strict request contract. */
+              user: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Normalized account email address. */
+                email: string;
+              };
+              /** @description Media Version validated by this operation's strict request contract. */
+              mediaVersion: number;
+              /** @description Photo validated by this operation's strict request contract. */
+              photo: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /** @description Width validated by this operation's strict request contract. */
+                width: number;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number;
+              } | null;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -13162,6 +13406,958 @@ export interface operations {
               serverTime: string;
             };
           };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The requested resource is not available. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The requested resource is not available.",
+           *       "error": {
+           *         "code": "NOT_FOUND"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  postCustomersProfilePhotoUpload: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "mimeType": "image/jpeg",
+         *       "sizeBytes": 1,
+         *       "checksumSha256": "synthetic-checksumsha256"
+         *     }
+         */
+        "application/json": {
+          /**
+           * @description Mime Type validated by this operation's strict request contract.
+           * @enum {string}
+           */
+          mimeType: "image/jpeg" | "image/png" | "image/webp";
+          /** @description Size Bytes validated by this operation's strict request contract. */
+          sizeBytes: number;
+          /** @description Checksum Sha256 validated by this operation's strict request contract. */
+          checksumSha256: string;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Prepare an owner-bound profile photo upload. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Prepare an owner-bound profile photo upload",
+           *       "data": {
+           *         "assetToken": "synthetic-token-value-not-a-real-secret",
+           *         "upload": {
+           *           "method": "PUT",
+           *           "url": "https://example.test/continue",
+           *           "expiresAt": "2030-01-15T10:00:00.000Z",
+           *           "headers": {}
+           *         },
+           *         "limits": {
+           *           "maxBytes": 1,
+           *           "count": 1,
+           *           "maxOutputDimension": 1
+           *         }
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+              assetToken: string;
+              /** @description Upload validated by this operation's strict request contract. */
+              upload: {
+                /**
+                 * @description Method validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                method: "PUT";
+                /**
+                 * Format: uri
+                 * @description HTTPS location validated against the operation's server-side allowlist.
+                 */
+                url: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                expiresAt: string;
+                /** @description Headers validated by this operation's strict request contract. */
+                headers: {
+                  [key: string]: string;
+                };
+              };
+              /** @description Limits validated by this operation's strict request contract. */
+              limits: {
+                /** @description Max Bytes validated by this operation's strict request contract. */
+                maxBytes: number;
+                /** @description Count validated by this operation's strict request contract. */
+                count: number;
+                /** @description Max Output Dimension validated by this operation's strict request contract. */
+                maxOutputDimension: number;
+              };
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              serverTime: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The request conflicts with current state or idempotency. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request conflicts with current state or idempotency.",
+           *       "error": {
+           *         "code": "CONFLICT"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  putCustomersProfilePhoto: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "expectedVersion": 0,
+         *       "assetToken": "synthetic-token-value-not-a-real-secret",
+         *       "altText": "synthetic-alttext"
+         *     }
+         */
+        "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
+          /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+          assetToken: string;
+          /** @description Alt Text validated by this operation's strict request contract. */
+          altText?: string | null;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Confirm and atomically replace the profile photo. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Confirm and atomically replace the profile photo",
+           *       "data": {
+           *         "version": 1,
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "width": 1,
+           *             "height": 1
+           *           }
+           *         ]
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /** @description Width validated by this operation's strict request contract. */
+                width: number;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number;
+              }[];
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              serverTime: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The request conflicts with current state or idempotency. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request conflicts with current state or idempotency.",
+           *       "error": {
+           *         "code": "CONFLICT"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  deleteCustomersProfilePhoto: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "expectedVersion": 0
+         *     }
+         */
+        "application/json": {
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Remove the profile photo. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Remove the profile photo",
+           *       "data": {
+           *         "version": 1,
+           *         "images": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "url": "https://example.test/continue",
+           *             "altText": "synthetic-alttext",
+           *             "sortOrder": 1,
+           *             "isPrimary": true,
+           *             "width": 1,
+           *             "height": 1
+           *           }
+           *         ]
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /** @description Images validated by this operation's strict request contract. */
+              images: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description HTTPS location validated against the operation's server-side allowlist. */
+                url: string;
+                /** @description Alt Text validated by this operation's strict request contract. */
+                altText: string | null;
+                /** @description Sort Order validated by this operation's strict request contract. */
+                sortOrder: number;
+                /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                isPrimary: boolean;
+                /** @description Width validated by this operation's strict request contract. */
+                width: number;
+                /** @description Height validated by this operation's strict request contract. */
+                height: number;
+              }[];
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              serverTime: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The request conflicts with current state or idempotency. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request conflicts with current state or idempotency.",
+           *       "error": {
+           *         "code": "CONFLICT"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getCustomersMediaImagesByImageId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the image resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        imageId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Read an owned private image. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "image/webp": string;
         };
       };
       /** @description The request is malformed. */

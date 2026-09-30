@@ -9,6 +9,7 @@ import { assertGeneralWorkerEnvironment, env } from "../config/env.js";
 import { ResendEmailProvider } from "../providers/messaging/resend-email.adapter.js";
 import { TermiiSmsProvider } from "../providers/messaging/termii-sms.adapter.js";
 import { ExpirationWorker } from "./expiration.worker.js";
+import { MediaCleanupWorker } from "./media-cleanup.worker.js";
 import { BookingReminderWorker } from "./booking-reminder.worker.js";
 import { NotificationDeliveryWorker } from "./notification.worker.js";
 import { PaymentReconciliationWorker } from "./reconciliation.worker.js";
@@ -60,6 +61,7 @@ export async function runGeneralWorker(): Promise<void> {
   );
   const webhook = new PaymentWebhookRetryWorker();
   const expiration = new ExpirationWorker();
+  const mediaCleanup = new MediaCleanupWorker();
   const bookingReminders = new BookingReminderWorker();
   const reconciliation = new PaymentReconciliationWorker();
   const refunds = new RefundWorker();
@@ -92,6 +94,7 @@ export async function runGeneralWorker(): Promise<void> {
       await safely("refunds", () => refunds.runOnce(env.WORKER_BATCH_SIZE));
       const now = Date.now();
       if (now >= nextExpirationAt) {
+        await safely("media-cleanup", () => mediaCleanup.runOnce(env.WORKER_BATCH_SIZE));
         await safely("expiration", () => expiration.runOnce(env.WORKER_BATCH_SIZE));
         await safely("operational-alerts", () => operationalAlerts.runOnce());
         nextExpirationAt = now + env.EXPIRATION_INTERVAL_MS;

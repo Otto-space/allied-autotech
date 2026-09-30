@@ -1,5 +1,6 @@
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
+import { projectResourceImage, resourceImageSelect } from "../media/media.projection.js";
 import type {
   CustomerProfileUpdateInput,
   CustomerVehicleCreateInput,
@@ -25,24 +26,35 @@ export class CustomersRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
   profile(userId: string, client: DatabaseClient = this.database) {
-    return client.customerProfile.findUnique({
-      where: { userId },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        phoneVerifiedAt: true,
-        address: true,
-        city: true,
-        state: true,
-        country: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        user: { select: { id: true, email: true } },
-      },
-    });
+    return client.customerProfile
+      .findUnique({
+        where: { userId },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          phoneVerifiedAt: true,
+          address: true,
+          city: true,
+          state: true,
+          country: true,
+          avatarUrl: true,
+          mediaVersion: true,
+          mediaImages: { select: resourceImageSelect, take: 1 },
+          createdAt: true,
+          updatedAt: true,
+          user: { select: { id: true, email: true } },
+        },
+      })
+      .then((row) => {
+        if (!row) return null;
+        const { mediaImages, ...profile } = row;
+        return {
+          ...profile,
+          photo: mediaImages[0] ? projectResourceImage(mediaImages[0]) : null,
+        };
+      });
   }
 
   updateProfile(
@@ -59,25 +71,35 @@ export class CustomersRepository {
       ...(input.state === undefined ? {} : { state: input.state }),
       ...(input.country === undefined ? {} : { country: input.country }),
     };
-    return client.customerProfile.update({
-      where: { userId },
-      data,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        phoneVerifiedAt: true,
-        address: true,
-        city: true,
-        state: true,
-        country: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true,
-        user: { select: { id: true, email: true } },
-      },
-    });
+    return client.customerProfile
+      .update({
+        where: { userId },
+        data,
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          phoneVerifiedAt: true,
+          address: true,
+          city: true,
+          state: true,
+          country: true,
+          avatarUrl: true,
+          mediaVersion: true,
+          mediaImages: { select: resourceImageSelect, take: 1 },
+          createdAt: true,
+          updatedAt: true,
+          user: { select: { id: true, email: true } },
+        },
+      })
+      .then((row) => {
+        const { mediaImages, ...profile } = row;
+        return {
+          ...profile,
+          photo: mediaImages[0] ? projectResourceImage(mediaImages[0]) : null,
+        };
+      });
   }
 
   async listVehicles(userId: string, cursor: string | undefined, limit: number) {

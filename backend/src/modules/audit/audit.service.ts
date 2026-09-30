@@ -121,6 +121,7 @@ export class AuditOperationsService {
       ["booking-reminders", 600_000],
       ["refunds", 600_000],
       ["expiration", Math.max(600_000, env.EXPIRATION_INTERVAL_MS * 2)],
+      ["media-cleanup", Math.max(600_000, env.EXPIRATION_INTERVAL_MS * 2)],
       ["operational-alerts", Math.max(600_000, env.EXPIRATION_INTERVAL_MS * 2)],
       ...(env.PAYMENT_RECONCILIATION_ENABLED
         ? [

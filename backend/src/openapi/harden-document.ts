@@ -325,6 +325,12 @@ function ensureSuccessResponse(
     ? response["content"]
     : (response["content"] = {} as JsonObject);
   if (isObject(content["text/html"])) return;
+  if (
+    Object.entries(content).some(
+      ([mime, value]) => mime.startsWith("image/") && isObject(value),
+    )
+  )
+    return;
   const media = isObject(content["application/json"])
     ? content["application/json"]
     : (content["application/json"] = {} as JsonObject);

@@ -83,12 +83,14 @@ function responseDetails(operation: JsonObject): {
   status: string;
   example: unknown;
   errors: string;
+  binaryType?: string;
 } {
   const responses = isObject(operation["responses"]) ? operation["responses"] : {};
   const success = Object.entries(responses).find(([status]) => /^2\d\d$/u.test(status));
   const successResponse = success && isObject(success[1]) ? success[1] : {};
   const content = isObject(successResponse["content"]) ? successResponse["content"] : {};
   const media = isObject(content["application/json"]) ? content["application/json"] : {};
+  const binaryType = Object.keys(content).find((type) => type.startsWith("image/"));
   const errors = Object.entries(responses)
     .filter(([status]) => /^[45]\d\d$/u.test(status))
     .map(
@@ -100,6 +102,7 @@ function responseDetails(operation: JsonObject): {
     status: success?.[0] ?? "200",
     example: media["example"] ?? {},
     errors,
+    ...(binaryType ? { binaryType } : {}),
   };
 }
 
@@ -141,7 +144,9 @@ function operationMarkdown(method: string, path: string, operation: JsonObject):
       : []),
     "",
     `Success: HTTP ${response.status}.`,
-    compact(response.example),
+    response.binaryType
+      ? `Binary ${response.binaryType} bytes (no JSON envelope).`
+      : compact(response.example),
     "",
     `Relevant errors: ${response.errors || "No operation-specific error response."}`,
     "",

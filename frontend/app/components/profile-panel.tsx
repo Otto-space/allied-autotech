@@ -1,5 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
+import Image from "next/image";
+import { ProfilePhoto } from "./profile-photo";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -209,9 +211,20 @@ export function ProfilePanel() {
       )}
       {profile.data && (
         <div className="profile-identity">
-          <span className="profile-initials" aria-hidden="true">
-            {`${profile.data.firstName.slice(0, 1)}${profile.data.lastName.slice(0, 1)}`.toUpperCase()}
-          </span>
+          {profile.data.photo ? (
+            <Image
+              unoptimized
+              src={profile.data.photo.url}
+              width={64}
+              height={64}
+              alt={profile.data.photo.altText || "Your profile photo"}
+              style={{ borderRadius: "50%", objectFit: "cover", width: 64, height: 64 }}
+            />
+          ) : (
+            <span className="profile-initials" aria-hidden="true">
+              {`${profile.data.firstName.slice(0, 1)}${profile.data.lastName.slice(0, 1)}`.toUpperCase()}
+            </span>
+          )}
           <div>
             <strong>
               {profile.data.firstName} {profile.data.lastName}
@@ -219,6 +232,13 @@ export function ProfilePanel() {
             <p>{profile.data.user.email}</p>
           </div>
         </div>
+      )}
+      {profile.data && (
+        <ProfilePhoto
+          version={profile.data.mediaVersion}
+          hasPhoto={!!profile.data.photo}
+          refresh={profile.refresh}
+        />
       )}
       {profile.data && (
         <ProfileForm
