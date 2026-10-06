@@ -46,6 +46,7 @@ export function RefundDecisionForm({
   const prefix = `refund-decision-${refund.id}`;
   return (
     <form
+      data-draft-key={JSON.stringify(["refund-decision-form:1", refund?.id])}
       noValidate
       onSubmit={form.handleSubmit((values) => {
         if (disabled || uncertain || refund.status !== "REQUESTED") return;

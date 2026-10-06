@@ -51,6 +51,7 @@ export function PasswordChangeForm() {
         </p>
       )}
       <form
+        data-draft-key="password-change-form:1"
         noValidate
         onSubmit={(event) =>
           void form.handleSubmit((values) => {

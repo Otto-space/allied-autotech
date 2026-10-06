@@ -162,6 +162,7 @@ export function AftercareIntake({
       <Feedback message={validation} />
       <Feedback message={message} tone="success" toast="Order request recorded." />
       <form
+        data-draft-key={JSON.stringify(["aftercare-intake:1", order?.id])}
         ref={formRef}
         className="line-entry-form"
         onSubmit={(e) => {

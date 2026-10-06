@@ -17,11 +17,13 @@ export function MutationReview({
   onClose,
   onSuccess,
   confirmLabel = "Confirm change",
+  exposeBusyState = false,
 }: {
   proposal: MutationProposal;
   onClose: () => void;
   onSuccess: () => void;
   confirmLabel?: string;
+  exposeBusyState?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const cancel = useRef<HTMLButtonElement>(null);
@@ -117,6 +119,7 @@ export function MutationReview({
         </button>
         <button
           className="button"
+          aria-busy={exposeBusyState ? busy : undefined}
           disabled={
             busy ||
             (uncertain && !proposal.retrySafely) ||

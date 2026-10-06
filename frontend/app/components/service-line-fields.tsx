@@ -34,10 +34,16 @@ export function ServiceLineFields({
         server saves the record.
       </p>
       {fields.map((field, index) => (
-        <fieldset className="service-line-editor" key={field.id} disabled={disabled}>
+        <fieldset
+          data-draft-row="items"
+          className="service-line-editor"
+          key={field.id}
+          disabled={disabled}
+        >
           <legend>Line {index + 1}</legend>
           <ServiceLineFieldsRow form={form} prefix={`${prefix}-${index}`} index={index} />
           <button
+            data-draft-remove="items"
             className="text-link"
             type="button"
             onClick={() => {
@@ -55,6 +61,7 @@ export function ServiceLineFields({
         <Feedback message={form.formState.errors.items.root.message} />
       )}
       <button
+        data-draft-add="items"
         id={`${prefix}-add`}
         type="button"
         className="button secondary"

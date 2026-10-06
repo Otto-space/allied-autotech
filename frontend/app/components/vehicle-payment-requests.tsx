@@ -264,6 +264,11 @@ export function VehiclePaymentRequests({
         <>
           {unavailable && <p className="notice">{unavailable}</p>}
           <form
+            data-draft-key={JSON.stringify([
+              "vehicle-payment-requests:1",
+              record?.id,
+              transactionId,
+            ])}
             onSubmit={(event) => {
               event.preventDefault();
               if (

@@ -1,0 +1,279 @@
+"use client";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
+import { Check, ChevronDown, Search } from "lucide-react";
+export type ServiceChoiceItem = { id: string; label: string };
+export function ServiceChoice({
+  id,
+  label,
+  items,
+  value,
+  onChange,
+  disabled: locked = false,
+  loading = false,
+  loadError,
+  error,
+  required = true,
+  onRetry,
+  children,
+}: {
+  id: string;
+  label: string;
+  items: ServiceChoiceItem[];
+  value?: ServiceChoiceItem;
+  onChange: (value: ServiceChoiceItem) => void;
+  disabled?: boolean;
+  loading?: boolean;
+  loadError?: string;
+  error?: string;
+  required?: boolean;
+  onRetry?: () => void;
+  children?: ReactNode;
+}) {
+  const records = { data: { items }, loading, error: loadError, refresh: onRetry };
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+  const [position, setPosition] = useState({
+    left: 0,
+    top: 0,
+    width: 280,
+    maxHeight: 240,
+    transform: "none",
+  });
+  const input = useRef<HTMLInputElement>(null);
+  const draftSelection = useRef<HTMLSelectElement>(null);
+  const popup = useRef<HTMLDivElement>(null);
+  const listId = useId();
+  const options = (records.data?.items ?? []).filter((row) =>
+    row.label.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+  );
+  const highlighted = options[active];
+  const disabled = locked || records.loading || !!records.error;
+  const expanded = open && !disabled;
+  const choose = (row: ServiceChoiceItem) => {
+    onChange(row);
+    if (draftSelection.current) {
+      draftSelection.current.value = row.id;
+      draftSelection.current.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+    setOpen(false);
+    setQuery("");
+    input.current?.focus();
+  };
+  useLayoutEffect(() => {
+    if (!expanded) return;
+    const reposition = () => {
+      const rect = input.current?.getBoundingClientRect();
+      if (!rect) return;
+      const viewport = window.visualViewport;
+      const height = viewport?.height ?? innerHeight;
+      const offset = viewport?.offsetTop ?? 0;
+      const below = height + offset - rect.bottom - 12;
+      const above = rect.top - offset - 12;
+      const down = below >= 190 || below >= above;
+      const maxHeight = Math.max(80, Math.min(260, down ? below : above));
+      setPosition({
+        left: Math.max(12, Math.min(rect.left, innerWidth - rect.width - 12)),
+        top: down ? rect.bottom + 5 : rect.top - 5,
+        width: Math.min(rect.width, innerWidth - 24),
+        maxHeight,
+        transform: down ? "none" : "translateY(-100%)",
+      });
+    };
+    reposition();
+    const dismiss = (event: PointerEvent) => {
+      if (
+        !input.current?.contains(event.target as Node) &&
+        !popup.current?.contains(event.target as Node)
+      )
+        setOpen(false);
+    };
+    addEventListener("resize", reposition);
+    addEventListener("scroll", reposition, true);
+    window.visualViewport?.addEventListener("resize", reposition);
+    document.addEventListener("pointerdown", dismiss);
+    return () => {
+      removeEventListener("resize", reposition);
+      removeEventListener("scroll", reposition, true);
+      window.visualViewport?.removeEventListener("resize", reposition);
+      document.removeEventListener("pointerdown", dismiss);
+    };
+  }, [expanded]);
+  useEffect(() => {
+    if (expanded && highlighted)
+      document
+        .getElementById(`${listId}-${highlighted.id}`)
+        ?.scrollIntoView({ block: "nearest" });
+  }, [expanded, highlighted, listId]);
+  return (
+    <>
+      <select
+        hidden
+        aria-hidden="true"
+        tabIndex={-1}
+        ref={draftSelection}
+        name={`${id}:selection`}
+        value={value?.id ?? ""}
+        disabled={disabled}
+        onChange={(event) => {
+          const selected = records.data?.items.find(
+            (row) => row.id === event.target.value,
+          );
+          if (selected) onChange(selected);
+        }}
+      >
+        <option value="" />
+        {value && !records.data?.items.some((row) => row.id === value.id) && (
+          <option value={value.id}>{value.label}</option>
+        )}
+        {records.data?.items.map((row) => (
+          <option key={row.id} value={row.id}>
+            {row.label}
+          </option>
+        ))}
+      </select>
+      <div className="contact-choice">
+        <input
+          data-no-draft
+          ref={input}
+          id={id}
+          role="combobox"
+          aria-required={required}
+          aria-expanded={expanded}
+          aria-controls={expanded ? listId : undefined}
+          aria-autocomplete="list"
+          aria-activedescendant={
+            expanded && highlighted ? `${listId}-${highlighted.id}` : undefined
+          }
+          aria-invalid={!!error}
+          aria-describedby={`${id}-help${error ? ` ${id}-error` : ""}`}
+          autoComplete="off"
+          disabled={disabled}
+          placeholder={
+            records.loading ? "Loading choices…" : `Choose ${label.toLowerCase()}`
+          }
+          value={expanded ? query : (value?.label ?? "")}
+          onFocus={() => {
+            // Focus can scroll an input clear of the support controls before the
+            // pointer is released. Open here so that movement cannot lose the click.
+            setOpen(true);
+            setQuery("");
+            setActive(0);
+          }}
+          onClick={() => {
+            setOpen(true);
+            setQuery("");
+            setActive(0);
+          }}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setActive(0);
+            setOpen(true);
+          }}
+          onBlur={(event) => {
+            if (!popup.current?.contains(event.relatedTarget)) setOpen(false);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              setOpen(false);
+              return;
+            }
+            if (event.key === "Tab") {
+              setOpen(false);
+              return;
+            }
+            if (["ArrowDown", "ArrowUp"].includes(event.key)) {
+              event.preventDefault();
+              setOpen(true);
+              setActive((index) =>
+                expanded
+                  ? Math.max(
+                      0,
+                      Math.min(
+                        options.length - 1,
+                        index + (event.key === "ArrowDown" ? 1 : -1),
+                      ),
+                    )
+                  : 0,
+              );
+            }
+            if (expanded && (event.key === "Home" || event.key === "End")) {
+              event.preventDefault();
+              setActive(event.key === "Home" ? 0 : Math.max(0, options.length - 1));
+            }
+            if (expanded && event.key === "Enter") {
+              event.preventDefault();
+              if (highlighted) choose(highlighted);
+            }
+          }}
+        />
+        {expanded ? (
+          <Search aria-hidden="true" size={16} />
+        ) : (
+          <ChevronDown aria-hidden="true" size={16} />
+        )}
+      </div>
+      <p className="contact-field-help" id={`${id}-help`}>
+        {records.loading
+          ? "Loading choices…"
+          : records.error
+            ? "Choices could not be loaded. Please retry."
+            : "Type to find a choice on this page."}
+      </p>
+      {error && (
+        <p id={`${id}-error`} className="field-error" role="alert">
+          {error}
+        </p>
+      )}
+      {records.error && (
+        <button type="button" className="text-link" onClick={records.refresh}>
+          Retry {label.toLowerCase()}
+        </button>
+      )}
+      {!records.loading && !records.error && records.data?.items.length === 0 && (
+        <p role="status">No {label.toLowerCase()} available on this page.</p>
+      )}
+      {children}
+      {expanded &&
+        createPortal(
+          <div ref={popup} className="contact-choice-popover" style={position}>
+            <ul id={listId} role="listbox" aria-label={label}>
+              {options.map((row, index) => (
+                <li
+                  key={row.id}
+                  id={`${listId}-${row.id}`}
+                  role="option"
+                  aria-selected={row.id === value?.id}
+                  className={index === active ? "is-active" : undefined}
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                  }}
+                  onClick={() => choose(row)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") choose(row);
+                  }}
+                  onPointerMove={() => setActive(index)}
+                >
+                  {row.label}
+                  {row.id === value?.id && <Check size={16} aria-hidden="true" />}
+                </li>
+              ))}
+            </ul>
+            {options.length === 0 && (
+              <p role="status">No matching choices on this page.</p>
+            )}
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}

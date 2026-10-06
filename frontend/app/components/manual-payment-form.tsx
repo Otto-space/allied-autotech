@@ -211,6 +211,7 @@ export function ManualPaymentForm({
       )}
       {!receipt && (
         <form
+          data-draft-key={JSON.stringify(["manual-payment-form:1", payment?.id])}
           noValidate
           onSubmit={(event) =>
             void form.handleSubmit((values) => review(values, Date.now()))(event)

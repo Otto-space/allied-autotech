@@ -35,6 +35,7 @@ export function ComplaintAcknowledgement({
       </p>
       <Feedback message={validation} />
       <form
+        data-draft-key={JSON.stringify(["complaint-acknowledgement:1", record?.id, base])}
         onSubmit={(event) => {
           event.preventDefault();
           if (disabled || proposal) return;

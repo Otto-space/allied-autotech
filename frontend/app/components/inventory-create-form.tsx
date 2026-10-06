@@ -81,6 +81,7 @@ export function InventoryCreateForm({ onSaved }: { onSaved: () => void }) {
         }
       />
       <form
+        data-draft-key="inventory-create-form:1"
         onSubmit={form.handleSubmit(review, (validation) => {
           const first = (["branchId", "productId", "reorderLevel"] as const).find(
             (name) => validation[name],

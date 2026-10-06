@@ -76,6 +76,7 @@ export function PrivacyRequestForm({
       <Feedback message={validation} />
       <Feedback message={message} tone="success" toast="Privacy request recorded." />
       <form
+        data-draft-key={JSON.stringify(["privacy-request-form:1", userId])}
         ref={form}
         className="line-entry-form"
         onSubmit={(event) => {

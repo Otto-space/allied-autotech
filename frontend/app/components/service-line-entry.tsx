@@ -130,6 +130,7 @@ export function ServiceLineEntry({
   }
   return (
     <form
+      data-draft-key={JSON.stringify(["service-line-entry:1", booking?.id, mode])}
       className="line-entry-form"
       onSubmit={(event) => {
         const submittedAt = Date.now();

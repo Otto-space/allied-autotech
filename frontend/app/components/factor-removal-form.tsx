@@ -17,6 +17,7 @@ export function FactorRemovalForm({
   });
   return (
     <form
+      data-draft-key="factor-removal-form:1"
       noValidate
       onSubmit={form.handleSubmit((value) => {
         if (!disabled)

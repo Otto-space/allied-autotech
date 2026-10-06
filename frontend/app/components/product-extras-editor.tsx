@@ -119,7 +119,11 @@ export function ProductExtrasEditor({
     setEpoch((value) => value + 1);
   }
   return (
-    <section className="detail-section" aria-labelledby="product-extras-heading">
+    <section
+      data-draft-scope={productId}
+      className="detail-section"
+      aria-labelledby="product-extras-heading"
+    >
       <h2 id="product-extras-heading" ref={heading} tabIndex={-1}>
         Compatibility &amp; images{product ? ` · ${product.name}` : ""}
       </h2>

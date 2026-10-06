@@ -1,3 +1,4 @@
+import { chooseServiceRecord } from "../fixtures/service-choice";
 import { test, expect, type Page } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import os from "node:os";
@@ -49,6 +50,8 @@ const savedVehicle = {
   mileageKm: null,
 };
 const contact = {
+  mediaVersion: 0,
+  photo: null,
   firstName: "Test",
   lastName: "Customer",
   phone: "+2348000000000",
@@ -109,7 +112,7 @@ test.beforeAll(async () => {
   });
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
-    server.listen(5011, "127.0.0.1", resolve);
+    server.listen(Number(process.env.BRAND_FIXTURE_PORT ?? 5011), "127.0.0.1", resolve);
   });
 });
 test.afterAll(async () => {
@@ -373,13 +376,17 @@ test("saved vehicle and customer contact review sends the chosen vehicle and pre
     .getByRole("button", { name: "Load saved vehicles & contact details" })
     .click();
   await expect(page.getByText(contact.user.email, { exact: true })).toBeVisible();
-  await page.getByLabel("Saved vehicle (optional)").selectOption(savedVehicle.id);
+  await chooseServiceRecord(page, "Saved vehicle (optional)", savedVehicle.id);
   await page.getByRole("button", { name: "More saved vehicles" }).click();
-  await expect(page.getByLabel("Saved vehicle (optional)")).toHaveValue(savedVehicle.id);
-  await page.getByLabel("Saved vehicle (optional)").selectOption(second.id);
+  await expect(page.locator('select[name="booking-vehicle:selection"]')).toHaveValue(
+    savedVehicle.id,
+  );
+  await chooseServiceRecord(page, "Saved vehicle (optional)", second.id);
   await page.getByRole("button", { name: "First vehicle page" }).click();
-  await expect(page.getByLabel("Saved vehicle (optional)")).toHaveValue(second.id);
-  await page.getByLabel("Workshop branch").selectOption(branch.id);
+  await expect(page.locator('select[name="booking-vehicle:selection"]')).toHaveValue(
+    second.id,
+  );
+  await chooseServiceRecord(page, "Workshop branch", branch.id);
   await page.locator(".slot").first().click();
   await page
     .getByLabel("What should we know about your vehicle? (optional)")
@@ -407,6 +414,7 @@ test("saved vehicle and customer contact review sends the chosen vehicle and pre
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
   }
+  await page.getByRole("button", { name: "Review booking request", exact: true }).click();
   await page.getByRole("button", { name: "Request booking", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Booking request received" }),
@@ -472,7 +480,7 @@ for (const delayed of [false, true])
       .click();
     if (delayed) await expect.poll(() => reads).toBe(1);
     else {
-      await page.getByLabel("Saved vehicle (optional)").selectOption(savedVehicle.id);
+      await chooseServiceRecord(page, "Saved vehicle (optional)", savedVehicle.id);
       await expect(page.getByText(contact.user.email, { exact: true })).toBeVisible();
     }
     await page.evaluate(() => {
@@ -560,9 +568,10 @@ test("an uncertain booking locks its selected vehicle and repeats only the origi
   await page
     .getByRole("button", { name: "Load saved vehicles & contact details" })
     .click();
-  await page.getByLabel("Saved vehicle (optional)").selectOption(savedVehicle.id);
-  await page.getByLabel("Workshop branch").selectOption(branch.id);
+  await chooseServiceRecord(page, "Saved vehicle (optional)", savedVehicle.id);
+  await chooseServiceRecord(page, "Workshop branch", branch.id);
   await page.locator(".slot").first().click();
+  await page.getByRole("button", { name: "Review booking request", exact: true }).click();
   await page.getByRole("button", { name: "Request booking", exact: true }).click();
   await expect(page.getByLabel("Saved vehicle (optional)")).toBeDisabled();
   await page.getByRole("button", { name: "Check the same booking request" }).click();
@@ -577,7 +586,7 @@ test("an uncertain booking locks its selected vehicle and repeats only the origi
 test("current booking policy submits a request without obsolete deposit consent", async ({
   page,
 }) => {
-  await intercept(page);
+  await customerDetails(page);
   await page.route("**/api/v1/auth/csrf", (route) =>
     route.fulfill({ json: envelope({ csrfToken: "s".repeat(64) }) }),
   );
@@ -587,7 +596,7 @@ test("current booking policy submits a request without obsolete deposit consent"
     return route.fulfill({ json: envelope({ booking: requestedBooking }) });
   });
   await page.goto(`/services/${service.id}`);
-  await page.getByLabel("Workshop branch").selectOption(branch.id);
+  await chooseServiceRecord(page, "Workshop branch", branch.id);
   await page.locator(".slot").first().click();
   await expect(page.getByText("I have read and accept these deposit terms.")).toHaveCount(
     0,
@@ -595,6 +604,7 @@ test("current booking policy submits a request without obsolete deposit consent"
   await page
     .getByLabel("What should we know about your vehicle? (optional)")
     .fill("Synthetic diagnostic request");
+  await page.getByRole("button", { name: "Review booking request", exact: true }).click();
   await page.getByRole("button", { name: "Request booking", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Booking request received" }),

@@ -105,6 +105,7 @@ export function ServiceImageEditor({
                 height={400}
               />
               <form
+                data-draft-key={JSON.stringify(["service-image-editor:1", serviceId])}
                 key={`${image.id}:${resource.data.version}`}
                 onSubmit={(event) => {
                   event.preventDefault();

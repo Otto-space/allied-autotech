@@ -84,6 +84,7 @@ export function InvoiceCreateForm({ onSaved }: { onSaved: () => void }) {
         }
       />
       <form
+        data-draft-key="invoice-create-form:1"
         noValidate
         onSubmit={form.handleSubmit(review, (validation) => {
           const first = (["sourceType", "sourceId", "dueAt"] as const).find(

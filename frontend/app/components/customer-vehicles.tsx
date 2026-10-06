@@ -188,7 +188,13 @@ export function CustomerVehicles() {
       <section className="checkout-summary">
         <h2>{editing ? "Edit your vehicle" : "Add a vehicle"}</h2>
         <p>Start with the make, model and year. You can add the other details later.</p>
-        <form onSubmit={form.handleSubmit(save)}>
+        <form
+          data-draft-key={JSON.stringify([
+            "customer-vehicles:1",
+            editing?.id ?? "create",
+          ])}
+          onSubmit={form.handleSubmit(save)}
+        >
           <fieldset className="form-section">
             <legend>Vehicle details</legend>
             <div className="form-row">

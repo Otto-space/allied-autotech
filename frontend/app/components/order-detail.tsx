@@ -226,6 +226,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
         </p>
         <Feedback message={error} />
         <form
+          data-draft-key={JSON.stringify(["order-detail:1", orderId])}
           onSubmit={(event) => {
             event.preventDefault();
             void cancel(String(new FormData(event.currentTarget).get("reason")));

@@ -180,6 +180,7 @@ export function RetentionHolds({
                 <p>Released {formatBusinessDate(hold.releasedAt)}</p>
               ) : (
                 <form
+                  data-draft-key={JSON.stringify(["retention-holds:1", userId, hold.id])}
                   onSubmit={(event) => {
                     event.preventDefault();
                     release(hold, new FormData(event.currentTarget));
@@ -206,6 +207,7 @@ export function RetentionHolds({
             </article>
           ))}
           <form
+            data-draft-key={JSON.stringify(["retention-holds:2", userId])}
             ref={creation}
             className="line-entry-form"
             onSubmit={(event) => {

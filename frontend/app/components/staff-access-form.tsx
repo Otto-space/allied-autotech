@@ -84,6 +84,7 @@ export function StaffAccessForm({
   const changed = staffRevision(member) !== draftRevision;
   return (
     <form
+      data-draft-key={JSON.stringify(["staff-access-form:1", member?.id])}
       noValidate
       onSubmit={form.handleSubmit((value) => {
         if (disabled || uncertain || changed) return;

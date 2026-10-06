@@ -41,6 +41,11 @@ export function VehicleDocumentReview({
   const prefix = `document-${document.id}`;
   return (
     <form
+      data-draft-key={JSON.stringify([
+        "vehicle-document-review:1",
+        document?.id,
+        vehicleId,
+      ])}
       noValidate
       onSubmit={form.handleSubmit((values) => {
         if (disabled || changed) return;

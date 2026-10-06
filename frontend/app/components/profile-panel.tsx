@@ -119,7 +119,12 @@ function ProfileForm({
     <>
       <Feedback message={error} toast="Please review the message on this page." />
       <Feedback message={message} tone="success" toast="Your profile has been updated." />
-      <form className="card" onSubmit={form.handleSubmit(save)} noValidate>
+      <form
+        data-draft-key={JSON.stringify(["profile-panel:1", profile.user.id])}
+        className="card"
+        onSubmit={form.handleSubmit(save)}
+        noValidate
+      >
         {[
           {
             title: "Personal details",

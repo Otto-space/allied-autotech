@@ -9,7 +9,11 @@ export default function Page() {
         Back to vehicle stock
       </Link>
       <h1>Add vehicle record</h1>
-      <p>Record the stock vehicle first, then create its sale listing.</p>
+      <p>Save the vehicle details, add its photos, then create its sale listing.</p>
+      <p className="notice">
+        Vehicle photos are added after this record is saved. You will go straight to the
+        photo editor, where you can upload images and choose the primary photo.
+      </p>
       <NewVehicleRecord />
     </>
   );

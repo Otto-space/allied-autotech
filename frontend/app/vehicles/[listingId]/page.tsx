@@ -1,22 +1,44 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
+import { Suspense } from "react";
+import { ArrowRight, ChevronRight, MapPin } from "lucide-react";
 import { cache } from "react";
 import { notFound, unstable_rethrow } from "next/navigation";
 import { z } from "zod";
-import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
+import {
+  indexingEnabled,
+  publicPageMetadata,
+  serializeStructuredData,
+  siteOrigin,
+  type SearchParameters,
+} from "@/lib/seo";
 import { publicData, PublicApiError } from "@/lib/api/public-server";
-import { listingSchema } from "@/lib/api/vehicle-schemas";
+import { listingSchema, parseListings } from "@/lib/api/vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
-import { MediaGallery } from "../../components/media-gallery";
+import { PublicMedia } from "../../components/public-media";
+import { VehicleGallery } from "./vehicle-gallery";
+import { mileageLabel } from "@/lib/vehicle-detail";
+import { vehicleLabel } from "@/lib/vehicle-discovery";
+import "./vehicle-detail.css";
 import { VehicleActions } from "../../components/vehicle-actions";
 const getListing = cache(async (id: string) => {
   if (!z.uuid().safeParse(id).success) notFound();
   try {
     return await publicData(`/public/vehicles/${id}`, (value) => {
-      const parsed = listingSchema.parse(value);
+      const parsed = listingSchema
+        .extend({
+          vehicle: listingSchema.shape.vehicle.extend({
+            engineSize: z.string().nullable().optional(),
+            driveType: z.string().nullable().optional(),
+            doors: z.number().nullable().optional(),
+            seats: z.number().nullable().optional(),
+          }),
+        })
+        .parse(value);
       if (parsed.id !== id) throw new PublicApiError(502);
       return parsed;
     });
@@ -48,72 +70,267 @@ export async function generateMetadata({
     return { title: "Vehicle details", robots: { index: false } };
   }
 }
+async function RelatedVehicles({ make, listingId }: { make: string; listingId: string }) {
+  const query = new URLSearchParams({ make, limit: "3" });
+  let items: ReturnType<typeof parseListings>["items"] = [];
+  let unavailable = false;
+  try {
+    items = (await publicData(`/public/vehicles?${query}`, parseListings)).items
+      .filter(
+        (item) =>
+          item.id !== listingId && item.vehicle.make.toLowerCase() === make.toLowerCase(),
+      )
+      .slice(0, 2);
+  } catch (error) {
+    unstable_rethrow(error);
+    unavailable = true;
+  }
+  return (
+    <section className="vd-related" aria-labelledby="vd-related-title">
+      <div className="vd-section-heading">
+        <h2 id="vd-related-title">Explore more from {make}</h2>
+        <Link href={`/vehicles?${new URLSearchParams({ make })}`}>
+          Browse vehicles <ArrowRight size={17} aria-hidden="true" />
+        </Link>
+      </div>
+      {items.length ? (
+        <div className="vd-related-grid">
+          {items.map((item) => (
+            <Link className="vd-related-item" key={item.id} href={`/vehicles/${item.id}`}>
+              <PublicMedia
+                src={
+                  (
+                    item.vehicle.images.find((image) => image.isPrimary) ??
+                    item.vehicle.images[0]
+                  )?.url
+                }
+                alt={item.title}
+              />
+              <div>
+                <h3>{item.title}</h3>
+                <p>
+                  {item.vehicle.year} &middot; {mileageLabel(item.vehicle.mileageKm)}
+                </p>
+                <strong>{formatKobo(item.priceKobo)}</strong>
+              </div>
+              <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="vd-muted">
+          {unavailable
+            ? "Other listings are temporarily unavailable. You can try the vehicle catalogue."
+            : "No other matching listings are shown right now. Browse all vehicles or ask our team about what you need."}
+        </p>
+      )}
+    </section>
+  );
+}
+
 export default async function ListingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ listingId: string }>;
+  searchParams: SearchParameters;
 }) {
   const listing = await getListing((await params).listingId);
   const vehicle = listing.vehicle;
+  const label = (value: string | null | undefined) =>
+    value ? vehicleLabel(value) : "Not listed";
+  const specs = {
+    Year: vehicle.year,
+    Make: vehicle.make,
+    Model: vehicle.model,
+    Trim: vehicle.trim || "Not listed",
+    "Body type": label(vehicle.bodyType),
+    Mileage: mileageLabel(vehicle.mileageKm),
+    Transmission: label(vehicle.transmission),
+    "Fuel type": label(vehicle.fuelType),
+    Condition: label(vehicle.condition),
+    Colour: vehicle.color || "Not listed",
+    ...(vehicle.engineSize ? { "Engine size": vehicle.engineSize } : {}),
+    ...(vehicle.driveType
+      ? { "Drive type": vehicle.driveType === "FOUR_WD" ? "4WD" : vehicle.driveType }
+      : {}),
+    ...(vehicle.doors != null ? { Doors: vehicle.doors } : {}),
+    ...(vehicle.seats != null ? { Seats: vehicle.seats } : {}),
+  };
+  const origin = siteOrigin();
+  const structured =
+    indexingEnabled() && origin && !Object.keys(await searchParams).length
+      ? {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: `${origin}/` },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Vehicles",
+                  item: `${origin}/vehicles`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: listing.title,
+                  item: `${origin}/vehicles/${listing.id}`,
+                },
+              ],
+            },
+            {
+              "@type": "Vehicle",
+              name: listing.title,
+              brand: { "@type": "Brand", name: vehicle.make },
+              model: vehicle.model,
+              ...(listing.description ? { description: listing.description } : {}),
+              offers: {
+                "@type": "Offer",
+                priceCurrency: listing.currency,
+                price: `${BigInt(listing.priceKobo) / BigInt(100)}.${(BigInt(listing.priceKobo) % BigInt(100)).toString().padStart(2, "0")}`,
+                url: `${origin}/vehicles/${listing.id}`,
+              },
+            },
+          ],
+        }
+      : undefined;
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section public-site public-detail marketplace-site">
-        <div className="container">
-          <nav className="breadcrumbs" aria-label="Breadcrumb">
-            <Link href="/vehicles">Vehicles</Link>
-            <span aria-hidden="true">/</span>
-            <span>{listing.title}</span>
+      <main id="main" className="public-site vehicle-detail">
+        {structured && (
+          <script
+            type="application/ld+json"
+            nonce={(await headers()).get("x-nonce") ?? undefined}
+            dangerouslySetInnerHTML={{ __html: serializeStructuredData(structured) }}
+          />
+        )}
+        <div className="vd-container">
+          <nav className="vd-breadcrumb" aria-label="Breadcrumb">
+            <ol>
+              <li>
+                <Link href="/">Home</Link>
+              </li>
+              <li>
+                <ChevronRight size={14} aria-hidden="true" />
+                <Link href="/vehicles">Vehicles</Link>
+              </li>
+              <li>
+                <ChevronRight size={14} aria-hidden="true" />
+                <span aria-current="page" title={listing.title}>
+                  {listing.title}
+                </span>
+              </li>
+            </ol>
           </nav>
-          <div className="product-detail-grid">
-            <div>
-              <MediaGallery images={vehicle.images} title={listing.title} />
-              <section className="detail-section">
-                <h2>Vehicle details</h2>
-                <dl className="totals">
+          <header className="vd-heading">
+            <p>
+              {vehicle.year} &middot; {label(vehicle.condition)} &middot;{" "}
+              {listing.branch.city}
+            </p>
+            <h1>{listing.title}</h1>
+            <p className="vd-mobile-price">{formatKobo(listing.priceKobo)}</p>
+          </header>
+          <VehicleActions
+            key={listing.id}
+            listingId={listing.id}
+            gallery={<VehicleGallery images={vehicle.images} title={listing.title} />}
+            summary={
+              <>
+                <p className="vd-price-label">Listed price</p>
+                <p className="vd-price">{formatKobo(listing.priceKobo)}</p>
+                <dl className="vd-quick-facts">
                   {Object.entries({
-                    Year: vehicle.year,
-                    Make: vehicle.make,
-                    Model: vehicle.model,
-                    Mileage:
-                      vehicle.mileageKm === null
-                        ? "Not listed"
-                        : `${vehicle.mileageKm.toLocaleString("en-NG")} km`,
-                    Transmission: vehicle.transmission ?? "Not listed",
-                    Fuel: vehicle.fuelType ?? "Not listed",
-                    Condition: vehicle.condition,
-                    Colour: vehicle.color ?? "Not listed",
-                  }).map(([label, value]) => (
-                    <div className="spec-row" key={label}>
-                      <dt>{label}</dt>
+                    Mileage: mileageLabel(vehicle.mileageKm),
+                    Transmission: label(vehicle.transmission),
+                    Fuel: label(vehicle.fuelType),
+                  }).map(([key, value]) => (
+                    <div key={key}>
+                      <dt>{key}</dt>
                       <dd>{value}</dd>
                     </div>
                   ))}
                 </dl>
-              </section>
-              {vehicle.conditionReports.map((report) => (
-                <section className="detail-section" key={report.id}>
-                  <h2>Listed condition report</h2>
-                  <p>{report.summary}</p>
-                  <p className="muted">
-                    Inspected {formatBusinessDate(report.inspectedAt)}
-                  </p>
+                <p className="vd-branch">
+                  <MapPin size={19} aria-hidden="true" />
+                  <span>
+                    {listing.branch.name}
+                    <small>
+                      {listing.branch.city}, {listing.branch.state}
+                    </small>
+                  </span>
+                </p>
+              </>
+            }
+          >
+            <section className="vd-details" aria-labelledby="vd-details-title">
+              <h2 id="vd-details-title">The details that matter.</h2>
+              <div className="vd-details-grid">
+                <div>
+                  <dl className="vd-specs">
+                    {Object.entries(specs).map(([key, value]) => (
+                      <div key={key}>
+                        <dt>{key}</dt>
+                        <dd>{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="vd-description">
+                    <h3>About this vehicle</h3>
+                    <p>
+                      {listing.description ||
+                        "Ask our team for more information about this vehicle, or request an inspection to see it in person."}
+                    </p>
+                  </div>
+                </div>
+                <section className="vd-condition" aria-labelledby="vd-condition-title">
+                  <h3 id="vd-condition-title">Listed condition report</h3>
+                  {vehicle.conditionReports.length ? (
+                    vehicle.conditionReports.map((report) => (
+                      <div key={report.id}>
+                        <p className="vd-muted">
+                          Inspected {formatBusinessDate(report.inspectedAt)}
+                        </p>
+                        <p className="vd-report-copy">{report.summary}</p>
+                        <dl className="vd-report-facts">
+                          {report.odometerKm !== null && (
+                            <div>
+                              <dt>Recorded odometer</dt>
+                              <dd>{mileageLabel(report.odometerKm)}</dd>
+                            </div>
+                          )}
+                          {report.conditionScore !== null && (
+                            <div>
+                              <dt>Listed condition score</dt>
+                              <dd>{report.conditionScore} / 100</dd>
+                            </div>
+                          )}
+                        </dl>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="vd-muted">
+                      No condition report is published for this listing. Ask our team
+                      about its condition when arranging your inspection.
+                    </p>
+                  )}
                 </section>
-              ))}
-            </div>
-            <div>
-              <p className="muted">
-                {listing.branch.name} · {listing.branch.city}
-              </p>
-              <h1>{listing.title}</h1>
-              <p className="price">{formatKobo(listing.priceKobo)}</p>
-              <p className="lead">
-                {listing.description ??
-                  "Speak with our team for more information about this vehicle."}
-              </p>
-              <VehicleActions listingId={listing.id} />
-            </div>
-          </div>
+              </div>
+            </section>
+          </VehicleActions>
+          <Suspense
+            fallback={
+              <section className="vd-related" aria-busy="true">
+                <h2>More vehicles</h2>
+                <p role="status">Loading related listings?</p>
+              </section>
+            }
+          >
+            <RelatedVehicles make={vehicle.make} listingId={listing.id} />
+          </Suspense>
         </div>
       </main>
       <SiteFooter />

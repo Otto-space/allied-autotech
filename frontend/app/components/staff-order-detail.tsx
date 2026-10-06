@@ -172,6 +172,7 @@ export function StaffOrderDetail({ orderId }: { orderId: string }) {
             <section className="detail-section">
               <h2>Update fulfilment</h2>
               <form
+                data-draft-key={JSON.stringify(["staff-order-detail:1", orderId])}
                 key={current.version}
                 onSubmit={(event) => {
                   event.preventDefault();

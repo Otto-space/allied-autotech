@@ -126,7 +126,11 @@ export function ReviewCreateForm({ onSaved }: { onSaved: () => void }) {
           another review. This form will not resend it.
         </p>
       )}
-      <form noValidate onSubmit={form.handleSubmit(review)}>
+      <form
+        data-draft-key="review-create-form:1"
+        noValidate
+        onSubmit={form.handleSubmit(review)}
+      >
         <fieldset disabled={uncertain}>
           <div className="field">
             <label htmlFor="review-target">Review type</label>

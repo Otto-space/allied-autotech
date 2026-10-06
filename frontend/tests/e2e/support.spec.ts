@@ -200,8 +200,17 @@ const thread = (kind = "enquiries", staffMode = false) =>
 async function confirm(page: Page) {
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: "Confirm change", exact: true })
+    .getByRole("button", { name: /^(Confirm change|Send enquiry|Send complaint)$/ })
     .click();
+}
+async function chooseBranch(page: Page) {
+  const control = page.getByLabel("Handling branch");
+  if (await control.evaluate((element) => element.tagName === "SELECT"))
+    await control.selectOption(id(2));
+  else {
+    await control.click();
+    await page.getByRole("option", { name: "Test handling branch", exact: true }).click();
+  }
 }
 async function fillCreation(page: Page, kind = "enquiries") {
   await page.getByLabel("Subject", { exact: true }).fill("Created test record");
@@ -227,7 +236,7 @@ for (const [type, source, field] of [
     await page.locator("#support-type").selectOption(type);
     if (source) await page.locator("#support-source").selectOption(id(source));
     const explicitBranch = ["GENERAL", "PRODUCT", "SERVICE"].includes(type);
-    if (explicitBranch) await page.getByLabel("Handling branch").selectOption(id(2));
+    if (explicitBranch) await chooseBranch(page);
     await fillCreation(page);
     await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
     await expect(page.getByRole("dialog")).toContainText(
@@ -263,7 +272,7 @@ for (const [type, source, field] of [
     await page.getByLabel("Record category").selectOption("complaints");
     await page.getByLabel("Related transaction").selectOption(type);
     if (source) await page.locator("#support-source").selectOption(id(source));
-    else await page.getByLabel("Handling branch").selectOption(id(2));
+    else await chooseBranch(page);
     await fillCreation(page, "complaints");
     await page.getByRole("button", { name: "Review complaint", exact: true }).click();
     await confirm(page);
@@ -281,7 +290,12 @@ for (const kind of ["enquiries", "complaints"]) {
   }) => {
     const state = await fixture(page);
     await page.goto("/contact");
-    await page.getByLabel("Contact reason").selectOption(kind);
+    await page
+      .getByRole("radio", {
+        name: kind === "enquiries" ? "Enquiry" : "Complaint",
+        exact: true,
+      })
+      .check();
     await fillCreation(page, kind);
     const review = page.getByRole("button", {
       name: kind === "enquiries" ? "Review enquiry" : "Review complaint",
@@ -292,10 +306,11 @@ for (const kind of ["enquiries", "complaints"]) {
     await page.getByLabel("Your name").fill("Test Guest");
     await page.getByLabel("Email address", { exact: true }).fill("Guest@Example.Test");
     await review.click();
-    await expect(
-      page.getByText("Choose the branch handling your request."),
-    ).toBeVisible();
-    await page.getByLabel("Handling branch").selectOption(id(2));
+    await expect(page.locator("#support-branch-error")).toHaveText(
+      "Choose the branch handling your request.",
+    );
+    await expect(page.getByRole("combobox", { name: "Handling branch" })).toBeFocused();
+    await chooseBranch(page);
     await review.click();
     await confirm(page);
     await expect(
@@ -346,8 +361,9 @@ test("public product enquiry review shows contact details and fits a narrow scre
   await page.getByLabel("Your name").fill("Test Guest");
   await page.getByLabel("Email address", { exact: true }).fill("guest@example.test");
   await page.locator("#support-type").selectOption("PRODUCT");
-  await page.locator("#support-source").selectOption(id(30));
-  await page.getByLabel("Handling branch").selectOption(id(2));
+  await page.locator("#support-source").click();
+  await page.getByRole("listbox").getByRole("option", { name: "Test part" }).click();
+  await chooseBranch(page);
   await fillCreation(page);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(
@@ -420,7 +436,7 @@ test("uncertain creation stays locked across category switches", async ({ page }
   const state = await fixture(page);
   state.contradictory = true;
   await page.goto("/dashboard/support");
-  await page.getByLabel("Handling branch").selectOption(id(2));
+  await chooseBranch(page);
   await fillCreation(page);
   await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
   await confirm(page);
@@ -564,7 +580,7 @@ for (const unknown of [false, true]) {
     await expect(
       page
         .getByRole("dialog")
-        .getByRole("button", { name: "Confirm change", exact: true }),
+        .getByRole("button", { name: /^(Confirm change|Send enquiry|Send complaint)$/ }),
     ).toBeDisabled();
     await page.keyboard.press("Escape");
     if (unknown)
@@ -724,11 +740,16 @@ for (const [width, staffMode] of [
 }
 
 async function guestDraft(page: Page, kind: string) {
-  await page.getByLabel("Contact reason").selectOption(kind);
+  await page
+    .getByRole("radio", {
+      name: kind === "enquiries" ? "Enquiry" : "Complaint",
+      exact: true,
+    })
+    .check();
   await page.getByLabel("Your name").fill("Previous Guest");
   await page.getByLabel("Email address", { exact: true }).fill("previous@example.test");
   await page.getByLabel("Phone number (optional)").fill("08012345678");
-  await page.getByLabel("Handling branch").selectOption(id(2));
+  await chooseBranch(page);
   await fillCreation(page, kind);
 }
 async function changePublicSession(page: Page) {
@@ -792,9 +813,17 @@ for (const kind of ["enquiries", "complaints"]) {
           page.getByText("This submission has an unknown outcome.", { exact: false }),
         ).toBeVisible();
         await page
-          .getByLabel("Contact reason")
-          .selectOption(kind === "enquiries" ? "complaints" : "enquiries");
-        await page.getByLabel("Contact reason").selectOption(kind);
+          .getByRole("radio", {
+            name: kind === "enquiries" ? "Complaint" : "Enquiry",
+            exact: true,
+          })
+          .check();
+        await page
+          .getByRole("radio", {
+            name: kind === "enquiries" ? "Enquiry" : "Complaint",
+            exact: true,
+          })
+          .check();
         await expect(review).toBeDisabled();
         await changePublicSession(page);
         await expect(review).toBeDisabled();

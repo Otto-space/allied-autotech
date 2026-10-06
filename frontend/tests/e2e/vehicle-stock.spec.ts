@@ -714,7 +714,7 @@ test("private document upload uses Lagos dates, pending review and authorized te
   });
   expect(errors).toEqual([]);
 });
-for (const role of ["STAFF", "ADMIN"] as const)
+for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"] as const)
   test(`${role} creates stock and edits vehicle details within its acquisition-cost permissions`, async ({
     page,
   }) => {
@@ -761,7 +761,7 @@ for (const role of ["STAFF", "ADMIN"] as const)
     await page.getByRole("button", { name: "Review new vehicle" }).click();
     await expect(page.getByLabel("Stock number", { exact: true })).toBeFocused();
     await fillRecord(page);
-    if (role === "ADMIN")
+    if (role !== "STAFF")
       await page.getByLabel("Acquisition cost (optional, NGN)").fill("99999999999999.99");
     else await expect(page.getByLabel("Acquisition cost (optional, NGN)")).toHaveCount(0);
     await page.getByLabel("Acquired at (optional, Lagos time)").fill("2026-09-16T14:05");
@@ -787,11 +787,16 @@ for (const role of ["STAFF", "ADMIN"] as const)
       .getByRole("dialog")
       .getByRole("button", { name: "Confirm change" })
       .click();
-    await expect(page).toHaveURL(new RegExp(`/admin/vehicles/${vehicle.id}$`));
+    await expect(page).toHaveURL(
+      new RegExp(`/admin/vehicles/${vehicle.id}#vehicle-photos$`),
+    );
+    await expect(page.locator("#vehicle-photos")).toBeFocused();
+    await expect(page.locator("#vehicle-photos details")).toHaveAttribute("open", "");
+    await expect(page.locator("#vehicle-photos input[type=file]")).toBeVisible();
     expect(writes[0].body).toMatchObject({
       branchId: id(2),
       stockNumber: "ISOLATED-STOCK-001",
-      ...(role === "ADMIN" ? { acquisitionCostKobo: "9999999999999999" } : {}),
+      ...(role !== "STAFF" ? { acquisitionCostKobo: "9999999999999999" } : {}),
       acquiredAt: "2026-09-16T14:05:00+01:00",
       vin: "1HGCM82633A004352",
       mileageKm: null,

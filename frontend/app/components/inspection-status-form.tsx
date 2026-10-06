@@ -83,6 +83,7 @@ export function InspectionStatusForm({
     );
   return (
     <form
+      data-draft-key={JSON.stringify(["inspection-status-form:1", inspection?.id])}
       noValidate
       onSubmit={form.handleSubmit((values) => {
         if (disabled || changed || !choices.includes(values.status)) return;

@@ -16,6 +16,7 @@ export function ResendVerification() {
       <Feedback message={error} />
       <Feedback message={message} tone="info" />
       <form
+        data-draft-key="resend-verification:1"
         onSubmit={async (event) => {
           event.preventDefault();
           if (busy) return;

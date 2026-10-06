@@ -35,6 +35,7 @@ export function ManualPaymentReview({
   const prefix = `manual-${attempt.id}`;
   return (
     <form
+      data-draft-key={JSON.stringify(["manual-payment-review:1", attempt?.id])}
       noValidate
       onSubmit={form.handleSubmit((values) => {
         if (disabled || uncertain) return;

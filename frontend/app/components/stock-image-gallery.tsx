@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
@@ -21,6 +21,19 @@ export function StockImageGallery({
   onReview: (proposal: MutationProposal) => void;
   onVersion: (version: number) => void;
 }) {
+  const gallery = useRef<HTMLElement>(null);
+  const uploadPanel = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    function showPhotos() {
+      if (window.location.hash !== "#vehicle-photos") return;
+      if (uploadPanel.current) uploadPanel.current.open = true;
+      gallery.current?.focus({ preventScroll: true });
+      gallery.current?.scrollIntoView({ block: "start" });
+    }
+    showPhotos();
+    window.addEventListener("hashchange", showPhotos);
+    return () => window.removeEventListener("hashchange", showPhotos);
+  }, [vehicle.id]);
   const [editor, setEditor] = useState<{
     kind: "edit" | "replace";
     photo: Photo;
@@ -57,7 +70,13 @@ export function StockImageGallery({
     });
   }
   return (
-    <section className="detail-section" aria-labelledby="vehicle-photos-heading">
+    <section
+      id="vehicle-photos"
+      ref={gallery}
+      tabIndex={-1}
+      className="detail-section"
+      aria-labelledby="vehicle-photos-heading"
+    >
       <h2 id="vehicle-photos-heading">Vehicle photos</h2>
       <p>
         Photos are shared across this vehicle’s available listings. Upload approved public
@@ -174,7 +193,7 @@ export function StockImageGallery({
             another.
           </p>
         ) : (
-          <details>
+          <details ref={uploadPanel}>
             <summary>Add a vehicle photo</summary>
             <VehicleAttachmentForm
               key={`image-${vehicle.version}`}
@@ -211,6 +230,7 @@ function PhotoEditor({
   const [error, setError] = useState<string>();
   return (
     <form
+      data-draft-key={JSON.stringify(["stock-image-gallery:1", photo?.id, vehicleId])}
       noValidate
       onSubmit={(event) => {
         event.preventDefault();

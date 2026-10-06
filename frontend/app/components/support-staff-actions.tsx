@@ -54,6 +54,7 @@ export function SupportStaffActions({
     <section className="detail-section" aria-labelledby="support-action-title">
       <h2 id="support-action-title">Manage this record</h2>
       <form
+        data-draft-key={JSON.stringify(["support-staff-actions:1", record?.id, base])}
         noValidate
         onSubmit={form.handleSubmit((values) => {
           if (disabled || proposal) return;

@@ -93,7 +93,11 @@ export function LoginForm() {
         <Feedback message={error} toast="Please review the message on this page." />
       </div>
 
-      <form onSubmit={submit} className="w-full space-y-4 text-left">
+      <form
+        data-draft-key="login-form:1"
+        onSubmit={submit}
+        className="w-full space-y-4 text-left"
+      >
         <div className="field">
           <label className="label" htmlFor="email">
             Email address

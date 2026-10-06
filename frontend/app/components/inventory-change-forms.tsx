@@ -185,7 +185,15 @@ export function InventoryMovementForm({
           </button>
         </div>
       )}
-      <form onSubmit={form.handleSubmit(review)} noValidate>
+      <form
+        data-draft-key={JSON.stringify([
+          "inventory-change-forms:1",
+          inventory?.id,
+          reservation?.id,
+        ])}
+        onSubmit={form.handleSubmit(review)}
+        noValidate
+      >
         <fieldset disabled={disabled}>
           <div className="field">
             <label htmlFor="movement-type">Movement type</label>
@@ -339,6 +347,7 @@ export function InventoryReservationForm({ inventory, disabled, onReview }: Comm
         Use a future expiry within seven days. The server checks current available stock.
       </p>
       <form
+        data-draft-key={JSON.stringify(["inventory-change-forms:2", inventory?.id])}
         onSubmit={(event) => {
           const now = Date.now();
           void form.handleSubmit((values) => review(values, now))(event);
@@ -458,7 +467,11 @@ export function ReorderLevelForm({ inventory, disabled, onReview }: Common) {
   return (
     <section className="detail-section">
       <h2>Reorder level</h2>
-      <form onSubmit={form.handleSubmit(review)} noValidate>
+      <form
+        data-draft-key={JSON.stringify(["inventory-change-forms:3", inventory?.id])}
+        onSubmit={form.handleSubmit(review)}
+        noValidate
+      >
         <div className="field">
           <label htmlFor="reorder-level">Low-stock threshold</label>
           <input

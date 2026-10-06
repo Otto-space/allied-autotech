@@ -243,6 +243,7 @@ export function CartPanel() {
                 <p className="muted">{formatKobo(item.unitPriceKobo)} each</p>
               </div>
               <form
+                data-draft-key="cart-panel:1"
                 onSubmit={(event) => {
                   event.preventDefault();
                   const quantity = Number(

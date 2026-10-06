@@ -136,6 +136,7 @@ export function AcceptStaffInvitation() {
           )}
           {eligible && (
             <form
+              data-draft-key="accept-staff-invitation:1"
               noValidate
               onSubmit={form.handleSubmit((value) => {
                 if (proposal || uncertain) return;

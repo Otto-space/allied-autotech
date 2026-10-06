@@ -117,6 +117,7 @@ export function StaffInvitationForm() {
       <section className="detail-section">
         <h2>Find an existing account</h2>
         <form
+          data-draft-key="staff-invitation-form:1"
           noValidate
           onSubmit={search.handleSubmit((value) => {
             if (disabled) return;
@@ -164,6 +165,7 @@ export function StaffInvitationForm() {
               Current role: {candidate.role} · Account reference: {candidate.id}
             </p>
             <form
+              data-draft-key="staff-invitation-form:2"
               noValidate
               onSubmit={form.handleSubmit((value) => {
                 if (disabled) return;
@@ -397,6 +399,7 @@ function RevokeInvitation({
   });
   return (
     <form
+      data-draft-key={JSON.stringify(["staff-invitation-form:3", email])}
       noValidate
       onSubmit={form.handleSubmit((value) => {
         onReview(value.currentPassword);

@@ -52,6 +52,7 @@ export function SupportReplyForm({
         <p>This record is closed. The reply form is unavailable.</p>
       ) : (
         <form
+          data-draft-key={JSON.stringify(["support-reply-form:1", record?.id, base])}
           noValidate
           onSubmit={form.handleSubmit((values) => {
             if (disabled || uncertain || proposal) return;

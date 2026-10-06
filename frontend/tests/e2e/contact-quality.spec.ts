@@ -1,0 +1,531 @@
+import { test, expect, type Page } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+import os from "node:os";
+import path from "node:path";
+
+const branchId = "f6000000-0000-4000-8000-000000000001";
+const sourceId = "f6000000-0000-4000-8000-000000000002";
+async function fixture(page: Page) {
+  const state = {
+    status: 202,
+    code: "",
+    fields: undefined as Record<string, string[]> | undefined,
+    branchError: false,
+    empty: false,
+    delay: 0,
+    postDelay: 0,
+    holdPost: false,
+    releasePost: undefined as (() => void) | undefined,
+    disconnect: false,
+    writes: [] as Record<string, unknown>[],
+  };
+  await page.route("**/api/v1/**", async (route) => {
+    const endpoint = new URL(route.request().url()).pathname;
+    const ok = (data: unknown, status = 200) =>
+      route.fulfill({
+        status,
+        json: {
+          success: true,
+          data,
+          message: "Isolated test",
+          meta: { requestId: "contact-test" },
+        },
+      });
+    if (endpoint.endsWith("/auth/session"))
+      return route.fulfill({
+        status: 401,
+        json: { success: false, error: { code: "UNAUTHORIZED" } },
+      });
+    if (endpoint.endsWith("/public/branches")) {
+      if (state.delay) await new Promise((resolve) => setTimeout(resolve, state.delay));
+      if (state.branchError)
+        return route.fulfill({
+          status: 503,
+          json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
+        });
+      return ok({
+        items: state.empty
+          ? []
+          : [{ id: branchId, name: "Port Harcourt test branch", code: "TEST" }],
+      });
+    }
+    if (endpoint.endsWith("/public/catalog/products"))
+      return ok({
+        items: [
+          {
+            id: sourceId,
+            name: "A very long synthetic product name for checking searchable selection and narrow viewport boundaries",
+          },
+        ],
+      });
+    if (endpoint.endsWith("/public/services"))
+      return ok({ items: [{ id: sourceId, name: "Test service" }] });
+    if (endpoint.endsWith("/public/vehicles"))
+      return ok({ items: [{ id: sourceId, title: "Test vehicle" }] });
+    if (route.request().method() === "POST") {
+      state.writes.push(route.request().postDataJSON());
+      if (state.holdPost)
+        await new Promise<void>((resolve) => {
+          state.releasePost = resolve;
+        });
+      if (state.postDelay)
+        await new Promise((resolve) => setTimeout(resolve, state.postDelay));
+      if (state.disconnect) return route.abort("connectionfailed");
+      if (state.status !== 202)
+        return route.fulfill({
+          status: state.status,
+          json: { success: false, error: { code: state.code, fields: state.fields } },
+        });
+      return ok({ id: sourceId, status: "OPEN", createdAt: "2026-09-30T00:00:00Z" }, 202);
+    }
+    return ok({ items: [] });
+  });
+  return state;
+}
+async function draft(page: Page, kind = "enquiry") {
+  await page.getByLabel("Your name", { exact: true }).fill("Contact Test");
+  await page.getByLabel("Email address", { exact: true }).fill("Contact@Example.Test");
+  await page.getByLabel("Subject", { exact: true }).fill("Workshop question");
+  await page
+    .getByLabel(kind === "enquiry" ? "Your message" : "Complaint details", {
+      exact: true,
+    })
+    .fill("An isolated test of customer care.");
+  const branch = page.getByRole("combobox", { name: "Handling branch" });
+  await branch.click();
+  await branch.fill("Port Harcourt");
+  await page.getByRole("option", { name: "Port Harcourt test branch" }).click();
+}
+
+for (const width of [360, 390, 430, 768, 1024, 1280, 1440]) {
+  test(`Contact quality and anchor navigation at ${width}px`, async ({ page }) => {
+    await fixture(page);
+    await page.setViewportSize({ width, height: 900 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => {
+      if (/hydration|hydrating|uncaught/i.test(message.text()))
+        errors.push(message.text());
+    });
+    await page.goto("/contact");
+    await page.evaluate(() => document.fonts.ready);
+    await expect(page).toHaveTitle(/Contact & customer care/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Let’s talk about your vehicle.",
+    );
+    await expect(
+      page
+        .getByRole("navigation", { name: "Breadcrumb" })
+        .locator('[aria-current="page"]'),
+    ).toHaveText("Contact");
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `contact-quality-${width}-viewport.png`),
+    });
+    await page.getByRole("link", { name: "Send an enquiry", exact: true }).click();
+    await expect(page.locator("#enquiry")).toBeFocused();
+    await expect
+      .poll(() =>
+        page
+          .locator("#enquiry")
+          .evaluate((el) => Math.round(el.getBoundingClientRect().top)),
+      )
+      .toBeGreaterThanOrEqual(68);
+    await expect(page.getByLabel("Your name", { exact: true })).toHaveCSS(
+      "border-top-width",
+      "1px",
+    );
+    await expect(page.getByLabel("Your name", { exact: true })).toHaveCSS(
+      "border-top-color",
+      "rgb(130, 147, 159)",
+    );
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `contact-quality-${width}-form.png`),
+    });
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `contact-quality-${width}-full.png`),
+      fullPage: true,
+    });
+    if (width === 390 || width === 1440)
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await expect(page.locator(".contact-map iframe")).toHaveCount(0);
+    await expect(page.locator(".contact-map-fallback")).toContainText("133 Stadium Road");
+    await page.locator(".contact-location").scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `contact-quality-${width}-location.png`),
+    });
+    for (const photo of await page.locator("main img").all())
+      await expect
+        .poll(() =>
+          photo.evaluate(
+            (image: HTMLImageElement) => image.complete && image.naturalWidth > 0,
+          ),
+        )
+        .toBe(true);
+    expect(errors).toEqual([]);
+  });
+}
+
+for (const kind of ["enquiry", "complaint"] as const) {
+  test(`Contact ${kind} validates, reviews exact payload, prevents duplicates and focuses confirmation`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    state.holdPost = true;
+    await page.setViewportSize({ width: kind === "complaint" ? 390 : 1280, height: 900 });
+    await page.goto("/contact");
+    if (kind === "complaint")
+      await page.getByRole("radio", { name: "Complaint", exact: true }).check();
+    await page.getByRole("button", { name: `Review ${kind}`, exact: true }).click();
+    await expect(page.getByLabel("Your name", { exact: true })).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+    await draft(page, kind);
+    await page.getByRole("button", { name: `Review ${kind}`, exact: true }).click();
+    const confirm = page
+      .getByRole("dialog")
+      .getByRole("button", { name: `Send ${kind}`, exact: true });
+    await confirm.click();
+    const submitting = page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Submitting…", exact: true });
+    await expect(submitting).toBeDisabled();
+    await expect(submitting).toHaveAttribute("aria-busy", "true");
+    await expect.poll(() => typeof state.releasePost).toBe("function");
+    state.releasePost?.();
+    await expect(
+      page.getByRole("heading", {
+        name: kind === "enquiry" ? "Enquiry received" : "Complaint received",
+        exact: true,
+      }),
+    ).toBeFocused();
+    expect(state.writes).toEqual([
+      {
+        subject: "Workshop question",
+        ...(kind === "enquiry"
+          ? { type: "GENERAL", message: "An isolated test of customer care." }
+          : { description: "An isolated test of customer care." }),
+        branchId,
+        name: "Contact Test",
+        email: "contact@example.test",
+      },
+    ]);
+    await expect(page.getByRole("link", { name: "Continue on WhatsApp" })).toBeVisible();
+    await expect(page.locator(".contact-success")).toHaveCSS("padding-left", "24px");
+    await expect(
+      page.getByText("Please review the message on this page.", { exact: true }),
+    ).toHaveCount(0);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `contact-quality-${kind}-success.png`),
+    });
+  });
+}
+
+test("Contact searchable choices support keyboard, Escape, long names and viewport containment", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("/contact");
+  await page.getByLabel("Enquiry type").selectOption("PRODUCT");
+  const source = page.getByRole("combobox", { name: "Related record" });
+  await source.focus();
+  await page.keyboard.press("ArrowDown");
+  await source.fill("long synthetic");
+  const bounds = await page.getByRole("listbox").boundingBox();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(360);
+  await page.keyboard.press("Enter");
+  await expect(source).toHaveValue(/very long synthetic/);
+  await source.click();
+  await page.keyboard.press("Escape");
+  await expect(source).toBeFocused();
+  await expect(page.getByRole("listbox")).toHaveCount(0);
+  await expect(source).toHaveValue(/very long synthetic/);
+  await source.click();
+  await source.fill("no matching item");
+  await expect(page.getByText("No matching choices on this page.")).toBeVisible();
+});
+
+for (const type of ["PRODUCT", "SERVICE", "VEHICLE"] as const) {
+  test(`Contact ${type} enquiry submits only its selected resource and correct branch scope`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    await page.goto("/contact");
+    await draft(page);
+    await page.getByLabel("Enquiry type").selectOption(type);
+    await page.getByRole("combobox", { name: "Related record" }).click();
+    await page.getByRole("listbox").getByRole("option").first().click();
+    if (type === "VEHICLE") {
+      await expect(page.getByRole("combobox", { name: "Handling branch" })).toHaveCount(
+        0,
+      );
+      await expect(
+        page.getByText("The related record determines the handling branch."),
+      ).toBeVisible();
+    }
+    await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Send enquiry", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Enquiry received", exact: true }),
+    ).toBeVisible();
+    expect(state.writes).toEqual([
+      {
+        name: "Contact Test",
+        email: "contact@example.test",
+        subject: "Workshop question",
+        message: "An isolated test of customer care.",
+        type,
+        [type === "PRODUCT"
+          ? "productId"
+          : type === "SERVICE"
+            ? "serviceId"
+            : "vehicleListingId"]: sourceId,
+        ...(type === "VEHICLE" ? {} : { branchId }),
+      },
+    ]);
+  });
+}
+
+test("Contact branch selection survives real cursor navigation without implying global search", async ({
+  page,
+}) => {
+  await fixture(page);
+  const reads: string[] = [];
+  await page.route("**/api/v1/public/branches?*", (route) => {
+    const cursor = new URL(route.request().url()).searchParams.get("cursor");
+    reads.push(cursor ?? "first");
+    return route.fulfill({
+      json: {
+        success: true,
+        data: {
+          items: [
+            {
+              id: cursor ? sourceId : branchId,
+              name: cursor ? "Second page branch" : "First page branch",
+            },
+          ],
+          ...(cursor ? {} : { nextCursor: branchId }),
+        },
+        message: "Isolated pagination",
+        meta: { requestId: "contact-pagination" },
+      },
+    });
+  });
+  await page.goto("/contact");
+  const branch = page.getByRole("combobox", { name: "Handling branch" });
+  await branch.click();
+  await page.getByRole("option", { name: "First page branch" }).click();
+  const pagination = page.getByRole("navigation", { name: "branch choices pages" });
+  await pagination.getByRole("button", { name: "Next" }).click();
+  await expect(pagination).toContainText("Page 2");
+  await expect(branch).toHaveValue("First page branch");
+  await branch.click();
+  await expect(page.getByRole("option", { name: "Second page branch" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await pagination.getByRole("button", { name: "Previous" }).click();
+  await branch.click();
+  await expect(page.getByRole("option", { name: "First page branch" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  expect(reads).toEqual(["first", branchId, "first"]);
+});
+
+test("Contact touch choices scroll without accidental selection and remain usable with a short viewport", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 500 },
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  try {
+    await fixture(page);
+    await page.route("**/api/v1/public/branches?*", (route) =>
+      route.fulfill({
+        json: {
+          success: true,
+          message: "Isolated touch choices",
+          meta: { requestId: "contact-touch" },
+          data: {
+            items: Array.from({ length: 20 }, (_, index) => ({
+              id: `f6000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`,
+              name: `Test branch ${String(index + 1).padStart(2, "0")}`,
+            })),
+          },
+        },
+      }),
+    );
+    await page.goto("/contact");
+    const branch = page.getByRole("combobox", { name: "Handling branch" });
+    await branch.tap();
+    const popover = page.locator(".contact-choice-popover");
+    const bounds = await popover.boundingBox();
+    expect(bounds!.y).toBeGreaterThanOrEqual(0);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(500);
+    const cdp = await context.newCDPSession(page);
+    const x = bounds!.x + bounds!.width / 2;
+    const start = bounds!.y + bounds!.height - 25;
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x, y: start }],
+    });
+    for (let step = 1; step <= 6; step++)
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x, y: start - step * 18 }],
+      });
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await expect(popover).toBeVisible();
+    await expect.poll(() => popover.evaluate((el) => el.scrollTop)).toBeGreaterThan(20);
+    await expect(branch).toHaveValue("");
+    await page.getByRole("option", { name: "Test branch 15", exact: true }).tap();
+    await expect(branch).toHaveValue("Test branch 15");
+    await expect(popover).toHaveCount(0);
+  } finally {
+    await context.close();
+  }
+});
+
+test("Contact branch loading, unavailable and empty states offer safe recovery", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.delay = 900;
+  state.branchError = true;
+  await page.goto("/contact");
+  await expect(page.getByRole("combobox", { name: "Handling branch" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Retry branch choices" })).toBeVisible();
+  state.branchError = false;
+  state.empty = true;
+  state.delay = 0;
+  await page.getByRole("button", { name: "Retry branch choices" }).click();
+  await expect(page.getByText("No branches available on this page.")).toBeVisible();
+});
+
+test("Contact picker opens when pointer focus scrolls it clear of floating support controls", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/contact");
+  const branch = page.getByRole("combobox", { name: "Handling branch" });
+  await expect(branch).toBeEnabled();
+  await branch.evaluate((el) =>
+    window.scrollTo({
+      top: scrollY + el.getBoundingClientRect().bottom - innerHeight + 45,
+      behavior: "instant",
+    }),
+  );
+  await branch.click();
+  await expect(branch).toHaveAttribute("aria-expanded", "true");
+  await page
+    .getByRole("listbox")
+    .getByRole("option", { name: "Port Harcourt test branch" })
+    .click();
+  await expect(branch).toHaveValue("Port Harcourt test branch");
+});
+
+test("Contact maps backend field validation to the retained field and moves focus", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.status = 400;
+  state.code = "VALIDATION_FAILED";
+  state.fields = { "body.email": ["Rejected value"] };
+  await page.goto("/contact");
+  await draft(page);
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Send enquiry", exact: true })
+    .click();
+  const email = page.getByLabel("Email address", { exact: true });
+  await expect(email).toBeFocused();
+  await expect(email).toHaveAttribute("aria-invalid", "true");
+  await expect(email).toHaveValue("Contact@Example.Test");
+  await expect(
+    page.getByText("Check this field and enter a valid value.", { exact: true }),
+  ).toBeVisible();
+});
+
+for (const failure of ["rate-limit", "server", "network"] as const) {
+  test(`Contact ${failure} preserves values and never fakes success`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    state.status = failure === "rate-limit" ? 429 : 503;
+    state.code = failure === "rate-limit" ? "RATE_LIMITED" : "DATABASE_UNAVAILABLE";
+    state.disconnect = failure === "network";
+    await page.goto("/contact");
+    await draft(page);
+    await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Send enquiry", exact: true })
+      .click();
+    await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
+      failure === "rate-limit" ? "Too many requests" : "outcome could not be confirmed",
+    );
+    await page.keyboard.press("Escape");
+    await expect(page.getByLabel("Your name", { exact: true })).toHaveValue(
+      "Contact Test",
+    );
+    await expect(
+      page.getByRole("heading", { name: "Enquiry received", exact: true }),
+    ).toHaveCount(0);
+    if (failure !== "rate-limit")
+      await expect(
+        page.getByRole("button", { name: "Review enquiry", exact: true }),
+      ).toBeDisabled();
+    expect(state.writes).toHaveLength(1);
+  });
+}
+
+test("Contact reduced-motion anchor and direct channels use verified destinations", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/contact");
+  await page.getByRole("link", { name: "Call or WhatsApp", exact: true }).click();
+  await expect(page.locator("#contact-channels")).toBeFocused();
+  await expect(
+    page.locator('.contact-channels a[href="tel:+2348136075567"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('.contact-channels a[href="https://wa.me/2348136075567"]'),
+  ).toBeVisible();
+  await expect(
+    page.locator('.contact-channels a[href="mailto:alliedautotech26@gmail.com"]'),
+  ).toBeVisible();
+  const url = new URL(
+    (await page
+      .getByRole("link", { name: "Get directions", exact: true })
+      .getAttribute("href")) as string,
+  );
+  expect(url.searchParams.get("destination")).toBe(
+    "Allied AutoTech, 133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria",
+  );
+  const question = page.locator(".contact-faq summary").first();
+  await question.focus();
+  await page.keyboard.press("Enter");
+  await expect(question.locator("..")).toHaveAttribute("open", "");
+  await page.keyboard.press("Enter");
+  await expect(question.locator("..")).not.toHaveAttribute("open", "");
+  await expect(page.locator(".contact-faq a[href='/help']")).toHaveCount(1);
+  await expect(page.locator(".contact-faq a[href='/services']")).toHaveCount(1);
+});

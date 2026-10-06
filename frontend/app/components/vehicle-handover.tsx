@@ -114,6 +114,7 @@ export function VehicleHandoverCreate({ sale, disabled, onReview }: Props) {
         </p>
       )}
       <form
+        data-draft-key={JSON.stringify(["vehicle-handover:1", sale?.id])}
         noValidate
         onSubmit={(event) => {
           const reviewedAt = Date.now();
@@ -277,6 +278,7 @@ export function VehicleHandoverRecord({ sale, disabled, onReview }: Props) {
       />
       {choices.length > 0 && (
         <form
+          data-draft-key={JSON.stringify(["vehicle-handover:2", sale?.id])}
           onSubmit={(event) => {
             event.preventDefault();
             review();

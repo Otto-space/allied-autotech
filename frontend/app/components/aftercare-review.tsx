@@ -166,6 +166,7 @@ export function AftercareReview({
       <Feedback message={validation} />
       {stages.length > 0 && (
         <form
+          data-draft-key={JSON.stringify(["aftercare-review:1", record?.id, order?.id])}
           onSubmit={(e) => {
             e.preventDefault();
             review(new FormData(e.currentTarget));

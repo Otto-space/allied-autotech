@@ -26,6 +26,20 @@ export function CursorPagination({
 }) {
   return (
     <nav className="pagination" aria-label={`${label} pages`}>
+      <input
+        hidden
+        aria-hidden="true"
+        tabIndex={-1}
+        data-draft-context
+        name={`draft-page:${label}`}
+        value={pagination.cursor ?? ""}
+        onChange={(event) => {
+          const cursor = event.target.value;
+          if (cursor === (pagination.cursor ?? "")) return;
+          if (!cursor) pagination.reset();
+          else if (/^[A-Za-z0-9_-]{1,1024}$/.test(cursor)) pagination.next(cursor);
+        }}
+      />
       <button
         type="button"
         className="button secondary"

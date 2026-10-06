@@ -24,6 +24,7 @@ export function DisputeProgress({
       <Feedback message={error} />
       {!record.acknowledgedAt && (
         <form
+          data-draft-key={JSON.stringify(["dispute-progress:1", record?.id])}
           onSubmit={(event) => {
             event.preventDefault();
             if (disabled) return;
@@ -70,6 +71,7 @@ export function DisputeProgress({
       {!record.respondedAt &&
         (record.hasEvidence ? (
           <form
+            data-draft-key={JSON.stringify(["dispute-progress:2", record?.id])}
             onSubmit={(event) => {
               event.preventDefault();
               if (disabled) return;

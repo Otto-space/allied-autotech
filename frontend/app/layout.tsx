@@ -12,6 +12,7 @@ import "./brand-system.css";
 
 import { SupportWidget } from "./components/support-widget";
 import { ToastRegion } from "./components/toast-region";
+import { FormDrafts } from "./components/form-drafts";
 
 const quicksand = localFont({
   src: "../public/fonts/quicksand-variable.ttf",
@@ -51,6 +52,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <SupportWidget />
         <ToastRegion />
+        <FormDrafts />
       </body>
     </html>
   );

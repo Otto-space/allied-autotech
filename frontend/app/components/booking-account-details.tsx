@@ -7,6 +7,7 @@ import { useAccountMutation } from "@/lib/api/use-account-mutation";
 import { parseProfile } from "@/lib/api/profile-schemas";
 import { parseCustomerVehicles, type CustomerVehicle } from "@/lib/api/vehicle-schemas";
 import { Feedback } from "./feedback";
+import { ServiceChoice } from "../services/[serviceId]/service-choice";
 
 const identitySchema = z.object({
   user: z.object({
@@ -171,26 +172,34 @@ export function BookingAccountDetails({
         <>
           <div className="field">
             <label htmlFor="booking-vehicle">Saved vehicle (optional)</label>
-            <select
+            <ServiceChoice
               id="booking-vehicle"
-              value={vehicle?.id ?? ""}
+              label="Saved vehicles"
+              required={false}
+              items={vehicles.items.map((item) => ({
+                id: item.id,
+                label: vehicleLabel(item),
+              }))}
+              value={
+                vehicle ? { id: vehicle.id, label: vehicleLabel(vehicle) } : undefined
+              }
               disabled={disabled || operation.busy}
-              onChange={(event) =>
+              onChange={(choice) =>
                 onVehicleChange(
-                  vehicles.items.find((item) => item.id === event.target.value) ?? null,
+                  vehicles.items.find((item) => item.id === choice.id) ?? null,
                 )
               }
-            >
-              <option value="">Describe my vehicle in the notes</option>
-              {vehicle && !vehicles.items.some((item) => item.id === vehicle.id) && (
-                <option value={vehicle.id}>{vehicleLabel(vehicle)} (selected)</option>
-              )}
-              {vehicles.items.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {vehicleLabel(item)}
-                </option>
-              ))}
-            </select>
+            />
+            {vehicle && (
+              <button
+                type="button"
+                className="text-link"
+                disabled={disabled || operation.busy}
+                onClick={() => onVehicleChange(null)}
+              >
+                Describe my vehicle in the notes instead
+              </button>
+            )}
           </div>
           {vehicles.items.length === 0 && (
             <p>

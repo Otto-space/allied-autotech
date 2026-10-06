@@ -121,14 +121,17 @@ export function DashboardShell({
         if (!r.data?.user?.id || typeof r.data.mfaRequired !== "boolean")
           throw new Error("Session response is unavailable. Please retry.");
         if (r.data.mfaRequired && !r.data.mfaVerifiedAt) {
+          setSession(null);
           router.replace("/mfa");
           return;
         }
         if (audience === "customer" && r.data.user.role !== "CUSTOMER") {
+          setSession(null);
           router.replace("/admin");
           return;
         }
         if (audience === "staff" && r.data.user.role === "CUSTOMER") {
+          setSession(null);
           router.replace("/dashboard");
           return;
         }
@@ -138,17 +141,22 @@ export function DashboardShell({
         setError(null);
       })
       .catch((value: unknown) => {
-        if (active) {
-          if (value instanceof ApiError && value.status === 401)
+        if (active && !controller.signal.aborted) {
+          if (value instanceof ApiError && value.status === 401) {
+            setSession(null);
             router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-          else if (value instanceof ApiError && value.code === "MFA_REQUIRED")
+          } else if (value instanceof ApiError && value.code === "MFA_REQUIRED") {
+            setSession(null);
             router.replace("/mfa");
-          else
+          } else {
+            if (!(value instanceof ApiError) || (value.status > 0 && value.status < 500))
+              setSession(null);
             setError(
               value instanceof ApiError
                 ? value.message
                 : "We could not verify your session. Please retry.",
             );
+          }
         }
       });
     function clear(event: Event) {
@@ -164,7 +172,7 @@ export function DashboardShell({
     }
     function revalidate() {
       if (document.visibilityState === "visible") {
-        setSession(null);
+        // Recheck in place: unmounting here discards every unfinished form.
         setRetry((value) => value + 1);
       }
     }
@@ -236,7 +244,7 @@ export function DashboardShell({
     <div
       className="dashboard"
       data-sidebar-collapsed={sidebarCollapsed}
-      key={session.user.id}
+      key={`${session.id}:${session.user.id}:${session.user.role}`}
       onKeyDown={(event) => {
         if (event.key === "Escape" && menuOpen) {
           setMenuPath(null);

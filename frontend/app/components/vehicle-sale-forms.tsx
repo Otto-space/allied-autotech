@@ -93,7 +93,11 @@ export function VehicleNegotiationForm({ sale, disabled, onReview }: ReviewProps
   return (
     <section className="detail-section">
       <h2>Negotiated price</h2>
-      <form noValidate onSubmit={form.handleSubmit(review)}>
+      <form
+        data-draft-key={JSON.stringify(["vehicle-sale-forms:1", sale?.id])}
+        noValidate
+        onSubmit={form.handleSubmit(review)}
+      >
         <fieldset disabled={disabled}>
           <div className="field">
             <label htmlFor="sale-agreed-price">Agreed price (NGN)</label>
@@ -234,7 +238,11 @@ export function VehicleSaleStatusForm({ sale, disabled, onReview }: ReviewProps)
   return (
     <section className="detail-section">
       <h2>Purchase progress</h2>
-      <form noValidate onSubmit={form.handleSubmit(review)}>
+      <form
+        data-draft-key={JSON.stringify(["vehicle-sale-forms:2", sale?.id])}
+        noValidate
+        onSubmit={form.handleSubmit(review)}
+      >
         <fieldset disabled={disabled}>
           <div className="field">
             <label htmlFor="sale-next-status">Next purchase status</label>

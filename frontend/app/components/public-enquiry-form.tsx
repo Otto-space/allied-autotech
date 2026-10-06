@@ -7,30 +7,59 @@ export function PublicEnquiryForm({
   serviceName,
   submissionLocked = false,
   onSubmissionUncertain,
+  presentation,
 }: {
   serviceId?: string;
   serviceName?: string;
   submissionLocked?: boolean;
   onSubmissionUncertain?: () => void;
+  presentation?: "contact";
 }) {
   const [kind, setKind] = useState<SupportKind>("enquiries");
   const [locked, setLocked] = useState<SupportKind[]>([]);
   return (
     <>
       {!serviceId && (
-        <div className="field">
-          <label htmlFor="public-support-kind">Contact reason</label>
-          <select
-            id="public-support-kind"
-            value={kind}
-            onChange={(event) =>
-              setKind(event.target.value === "complaints" ? "complaints" : "enquiries")
-            }
-          >
-            <option value="enquiries">Enquiry</option>
-            <option value="complaints">Complaint</option>
-          </select>
-        </div>
+        <form
+          data-draft-key="public-enquiry-kind"
+          onSubmit={(event) => event.preventDefault()}
+        >
+          {presentation === "contact" ? (
+            <fieldset className="contact-reason">
+              <legend>Contact reason</legend>
+              {(["enquiries", "complaints"] as const).map((value) => (
+                <label key={value}>
+                  <input
+                    type="radio"
+                    name="contact-reason"
+                    value={value}
+                    checked={kind === value}
+                    onChange={() => setKind(value)}
+                  />
+                  <span>{value === "enquiries" ? "Enquiry" : "Complaint"}</span>
+                </label>
+              ))}
+            </fieldset>
+          ) : (
+            !serviceId && (
+              <div className="field">
+                <label htmlFor="public-support-kind">Contact reason</label>
+                <select
+                  id="public-support-kind"
+                  value={kind}
+                  onChange={(event) =>
+                    setKind(
+                      event.target.value === "complaints" ? "complaints" : "enquiries",
+                    )
+                  }
+                >
+                  <option value="enquiries">Enquiry</option>
+                  <option value="complaints">Complaint</option>
+                </select>
+              </div>
+            )
+          )}
+        </form>
       )}
       <SupportCreateForm
         key={kind}
@@ -44,6 +73,7 @@ export function PublicEnquiryForm({
         onSaved={() => {}}
         serviceId={serviceId}
         serviceName={serviceName}
+        presentation={presentation}
       />
     </>
   );

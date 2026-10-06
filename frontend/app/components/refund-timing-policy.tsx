@@ -250,6 +250,7 @@ function ClockEditor() {
             </p>
           )}
           <form
+            data-draft-key="refund-timing-policy:1"
             className="line-entry-form"
             key={latest?.version ?? 0}
             onSubmit={(event) => {

@@ -259,6 +259,7 @@ function FinanceEditor({
             <Feedback message="An active financial-policy approval permission is required to publish a version, including for Super Admin." />
           ) : (
             <form
+              data-draft-key="finance-policy:1"
               key={latest?.version ?? 0}
               onSubmit={(event) => {
                 event.preventDefault();

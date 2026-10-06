@@ -458,6 +458,11 @@ export function AdminResourcePanel({ config }: Readonly<{ config: AdminResource 
           </p>
         )}
         <form
+          data-draft-key={JSON.stringify([
+            "admin-resource:1",
+            config.path,
+            editing?.id ?? "create",
+          ])}
           key={formKey}
           onSubmit={(event) => {
             event.preventDefault();

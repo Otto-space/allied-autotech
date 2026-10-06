@@ -122,6 +122,7 @@ export function SupportWidget() {
           details.
         </p>
         <form
+          data-draft-key="support-widget:1"
           ref={questionForm}
           onSubmit={(event) => {
             event.preventDefault();

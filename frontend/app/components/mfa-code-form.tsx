@@ -31,6 +31,7 @@ export function MfaCodeForm({
   }, [setFocus, chooseFactor]);
   return (
     <form
+      data-draft-key="mfa-code-form:1"
       noValidate
       onSubmit={form.handleSubmit(async (values) => {
         if (disabled) return;

@@ -244,7 +244,15 @@ function ReservationActions({
     });
   }
   return (
-    <form onSubmit={form.handleSubmit(review)} noValidate>
+    <form
+      data-draft-key={JSON.stringify([
+        "inventory-records:1",
+        reservation?.id,
+        inventoryId,
+      ])}
+      onSubmit={form.handleSubmit(review)}
+      noValidate
+    >
       <div className="field">
         <label htmlFor={`release-note-${reservation.id}`}>Release note (optional)</label>
         <input

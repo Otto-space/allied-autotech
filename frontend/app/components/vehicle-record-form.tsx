@@ -175,7 +175,11 @@ export function VehicleRecordForm({
           starting another record. This form will not resend the request.
         </p>
       )}
-      <form noValidate onSubmit={form.handleSubmit(review)}>
+      <form
+        data-draft-key={JSON.stringify(["vehicle-record-form:1", vehicle?.id, branchId])}
+        noValidate
+        onSubmit={form.handleSubmit(review)}
+      >
         <fieldset
           className="handover-fields"
           disabled={disabled || !!proposal || uncertain || changed}
@@ -311,7 +315,8 @@ export function VehicleRecordForm({
             onSaved?.();
           }}
           onSuccess={() => {
-            if (createdId.current) router.push(`/admin/vehicles/${createdId.current}`);
+            if (createdId.current)
+              router.push(`/admin/vehicles/${createdId.current}#vehicle-photos`);
             else setMessage("Vehicle changes recorded. Review the refreshed details.");
           }}
         />

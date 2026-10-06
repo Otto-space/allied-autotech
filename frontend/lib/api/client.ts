@@ -2,6 +2,12 @@
 
 import type { ApiErrorBody, ApiSuccess } from "./types";
 import { errorMessage, fieldErrors, isRecord } from "./errors";
+import {
+  captureDraftSubmission,
+  clearAccountDrafts,
+  completeDraftSubmission,
+  setDraftIdentity,
+} from "../forms/drafts";
 
 const API_ROOT = "/api/v1";
 let csrfToken: string | null = null;
@@ -80,6 +86,7 @@ export async function apiRequest<T>(
     throw new Error("Invalid API path");
   const generation = sessionGeneration;
   const method = (options.method ?? "GET").toUpperCase();
+  const draft = captureDraftSubmission(path, method);
   const headers: Record<string, string> = {
     Accept: "application/json",
     ...options.headers,
@@ -147,6 +154,18 @@ export async function apiRequest<T>(
       error: { code: "INVALID_RESPONSE" },
     });
   }
+  if (
+    path === "/auth/session" &&
+    isRecord(body.data) &&
+    isRecord(body.data.user) &&
+    typeof body.data.user.id === "string" &&
+    typeof body.data.user.role === "string" &&
+    ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"].includes(body.data.user.role) &&
+    typeof body.data.mfaRequired === "boolean" &&
+    (!body.data.mfaRequired || body.data.mfaVerifiedAt)
+  )
+    setDraftIdentity(`${body.data.user.id}:${body.data.user.role}`);
+  completeDraftSubmission(draft);
   return body as ApiSuccess<T>;
 }
 
@@ -175,6 +194,7 @@ export function refreshCsrf(): Promise<string> {
 }
 
 export function invalidateSession(reason?: "password-changed"): void {
+  clearAccountDrafts();
   sessionGeneration += 1;
   csrfToken = null;
   csrfRequest = null;

@@ -211,6 +211,7 @@ export function RoleOverview() {
         </div>
       </div>
       <form
+        data-draft-key="role-overview:1"
         className="overview-range"
         onSubmit={(event) => {
           event.preventDefault();

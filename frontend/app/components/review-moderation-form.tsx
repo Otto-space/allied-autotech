@@ -31,6 +31,7 @@ export function ReviewModerationForm({
   return (
     <>
       <form
+        data-draft-key={JSON.stringify(["review-moderation-form:1", review?.id])}
         noValidate
         onSubmit={form.handleSubmit((values) => {
           if (disabled || proposal) return;

@@ -90,6 +90,7 @@ export function PrivacyRequestReview({
       <h4>Customer response</h4>
       <Feedback message={validation} />
       <form
+        data-draft-key={JSON.stringify(["privacy-request-review:1", record?.id])}
         className="line-entry-form"
         onSubmit={(event) => {
           event.preventDefault();

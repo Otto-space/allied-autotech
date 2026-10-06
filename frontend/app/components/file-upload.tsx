@@ -148,7 +148,8 @@ export function FileUpload({
       </p>
       {!hosts.length && (
         <p className="notice">
-          File uploads are unavailable. Contact customer care or an administrator.
+          File uploads are unavailable. File storage has not been configured for this
+          site.
         </p>
       )}
       <div

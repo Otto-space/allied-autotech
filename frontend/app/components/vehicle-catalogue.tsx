@@ -1,26 +1,75 @@
-"use client";
+﻿"use client";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
-import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowRight, CarFront, ChevronDown, MapPin, X } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseListings } from "@/lib/api/vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
+import {
+  normalizeVehicleQuery,
+  vehicleApiPath,
+  vehicleFilterKeys,
+  vehicleLabel,
+  advancedVehicleKeys,
+} from "@/lib/vehicle-discovery";
+import {
+  VehicleFilters,
+  VehicleSearch,
+  type UpdateVehicleQuery,
+} from "../vehicles/vehicle-filters";
 import { Feedback } from "./feedback";
 import { PublicMedia } from "./public-media";
+
 export function VehicleCatalogue({
   initial,
 }: {
   initial?: PublicSeed<ReturnType<typeof parseListings>>;
 }) {
-  const [filters, setFilters] = useState("");
-  const [cursor, setCursor] = useState<string>();
-  const [history, setHistory] = useState<(string | undefined)[]>([]);
-  const listings = useResource(
-    `/public/vehicles?limit=12${filters}${cursor ? `&cursor=${cursor}` : ""}`,
-    parseListings,
-    initial?.data,
-    { initialError: initial?.error, revalidateOnMount: false },
+  const searchParams = useSearchParams();
+  const { params, invalid } = normalizeVehicleQuery(
+    new URLSearchParams(searchParams.toString()),
   );
+  const listings = useResource(vehicleApiPath(params), parseListings, initial?.data, {
+    initialError: initial?.error,
+    revalidateOnMount: false,
+  });
+  const selected = vehicleFilterKeys.filter((key) => params.has(key));
+  const advanced = new URLSearchParams(
+    [...params].filter(([key]) =>
+      (advancedVehicleKeys as readonly string[]).includes(key),
+    ),
+  ).toString();
+  const trail = params.get("_trail")?.split(",") ?? [];
+  function navigate(next: URLSearchParams) {
+    const normalized = normalizeVehicleQuery(next).params.toString();
+    const url = `/vehicles${normalized ? `?${normalized}` : ""}${window.location.hash}`;
+    if (
+      url !==
+      `${window.location.pathname}${window.location.search}${window.location.hash}`
+    )
+      window.history.pushState(null, "", url);
+  }
+  const update: UpdateVehicleQuery = (change) => {
+    const next = normalizeVehicleQuery(
+      new URLSearchParams(window.location.search),
+    ).params;
+    change(next);
+    next.delete("cursor");
+    next.delete("_trail");
+    navigate(next);
+  };
+  function clear() {
+    update((next) => {
+      for (const key of vehicleFilterKeys) next.delete(key);
+    });
+  }
+  function focusResults() {
+    document.getElementById("vehicle-results-heading")?.focus({ preventScroll: true });
+    document
+      .getElementById("inventory")
+      ?.scrollIntoView({ behavior: "instant", block: "start" });
+  }
   return (
     <>
       <noscript>
@@ -29,168 +78,206 @@ export function VehicleCatalogue({
           still follow links on this page.
         </p>
       </noscript>
-      <form
-        className="catalogue-filters"
-        onSubmit={(event) => {
-          event.preventDefault();
-          const values = new FormData(event.currentTarget);
-          const params = new URLSearchParams();
-          for (const [key, value] of values)
-            if (String(value).trim()) params.set(key, String(value).trim());
-          setFilters(`&${params}`);
-          setCursor(undefined);
-          setHistory([]);
-        }}
-        onReset={() => {
-          setFilters("");
-          setCursor(undefined);
-          setHistory([]);
-        }}
-      >
-        <div className="field">
-          <label htmlFor="vehicle-search">Search vehicles</label>
-          <input
-            id="vehicle-search"
-            type="search"
-            name="search"
-            maxLength={100}
-            placeholder="Make, model or title"
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="listing-make">Make (optional)</label>
-          <input id="listing-make" name="make" maxLength={80} />
-        </div>
-        <div className="field">
+      <div className="vehicle-inventory-heading">
+        <h2 id="vehicle-results-heading" tabIndex={-1}>
+          Explore current listings
+        </h2>
+        <p role="status" aria-live="polite">
+          {listings.loading
+            ? "Loading vehicles…"
+            : listings.error
+              ? "Listings unavailable"
+              : `${listings.data?.items.length ?? 0} vehicle${listings.data?.items.length === 1 ? "" : "s"} on this page`}
+        </p>
+      </div>
+      {invalid && (
+        <p className="notice">
+          Some filters in this link were invalid and have been ignored. Review the filters
+          below.
+        </p>
+      )}
+      <div className="vehicle-toolbar">
+        <VehicleSearch value={params.get("search") ?? ""} update={update} />
+        <VehicleFilters query={advanced} count={selected.length} update={update} />
+        <div className="vehicle-sort">
           <label htmlFor="vehicle-sort">Sort by</label>
-          <select id="vehicle-sort" name="sort">
-            <option value="newest">Newest listings</option>
-            <option value="price_asc">Price: low to high</option>
-            <option value="price_desc">Price: high to low</option>
-            <option value="year_desc">Newest model year</option>
-          </select>
+          <div className="vehicle-select">
+            <select
+              id="vehicle-sort"
+              value={params.get("sort") ?? "newest"}
+              onChange={(e) => update((next) => next.set("sort", e.target.value))}
+            >
+              <option value="newest">Newest listings</option>
+              <option value="price_asc">Price: low to high</option>
+              <option value="price_desc">Price: high to low</option>
+              <option value="year_desc">Newest model year</option>
+            </select>
+            <ChevronDown size={16} aria-hidden="true" />
+          </div>
         </div>
-        <details className="fitment-filters">
-          <summary>More vehicle filters</summary>
-          <div className="form-row">
-            <div className="field">
-              <label htmlFor="listing-model">Model (optional)</label>
-              <input id="listing-model" name="model" maxLength={80} />
-            </div>
-            <div className="field">
-              <label htmlFor="listing-year">Year (optional)</label>
-              <input
-                id="listing-year"
-                name="year"
-                type="number"
-                inputMode="numeric"
-                min={1886}
-                max={2200}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="listing-transmission">Transmission</label>
-              <select id="listing-transmission" name="transmission">
-                <option value="">Any transmission</option>
-                {["AUTOMATIC", "MANUAL", "CVT", "OTHER"].map((value) => (
-                  <option key={value} value={value}>
-                    {value.toLowerCase()}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="field">
-              <label htmlFor="listing-fuel">Fuel type</label>
-              <select id="listing-fuel" name="fuelType">
-                <option value="">Any fuel type</option>
-                {["PETROL", "DIESEL", "HYBRID", "ELECTRIC", "OTHER"].map((value) => (
-                  <option key={value} value={value}>
-                    {value.toLowerCase()}
-                  </option>
-                ))}
-              </select>
+      </div>
+      <div className="vehicle-active-filters" aria-label="Active vehicle filters">
+        {selected.length ? (
+          <>
+            {selected.map((key) => {
+              const value = params.get(key)!;
+              const label =
+                key === "search"
+                  ? `Search: ${value}`
+                  : key.endsWith("Kobo")
+                    ? `${key === "minPriceKobo" ? "From" : "Up to"} ${formatKobo(value)}`
+                    : key === "featured"
+                      ? value === "true"
+                        ? "Featured only"
+                        : "Non-featured only"
+                      : `${vehicleLabel(key === "bodyType" ? "Body" : key === "fuelType" ? "Fuel" : key)}: ${["make", "model", "year"].includes(key) ? value : vehicleLabel(value)}`;
+              return (
+                <button
+                  type="button"
+                  key={key}
+                  className="vehicle-chip"
+                  aria-label={`Remove ${label}`}
+                  title={label}
+                  onClick={() => update((next) => next.delete(key))}
+                >
+                  <span>{label}</span>
+                  <X size={14} aria-hidden="true" />
+                </button>
+              );
+            })}
+            <button type="button" className="vehicle-clear" onClick={clear}>
+              Clear all
+            </button>
+          </>
+        ) : (
+          <span>Search by name, or refine by price and vehicle details.</span>
+        )}
+      </div>
+      <div className="vehicle-results" aria-busy={listings.loading}>
+        {listings.error ? (
+          <div className="vehicle-empty">
+            <Feedback message={listings.error} />
+            <button className="button secondary" onClick={listings.refresh}>
+              Retry vehicles
+            </button>
+          </div>
+        ) : listings.loading ? (
+          <div className="vehicle-results-grid" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <div className="vehicle-skeleton" key={i}>
+                <div />
+                <span />
+                <span />
+                <span />
+              </div>
+            ))}
+          </div>
+        ) : listings.data?.items.length ? (
+          <div className="vehicle-results-grid">
+            {listings.data.items.map((listing) => (
+              <article className="product-card vehicle-card" key={listing.id}>
+                <Link href={`/vehicles/${listing.id}`}>
+                  <PublicMedia
+                    src={
+                      (
+                        listing.vehicle.images.find((image) => image.isPrimary) ??
+                        listing.vehicle.images[0]
+                      )?.url
+                    }
+                    alt={listing.title}
+                  />
+                  <div className="product-copy">
+                    <span className="vehicle-card-meta">
+                      {listing.vehicle.year} · {vehicleLabel(listing.vehicle.condition)}
+                    </span>
+                    <h3>{listing.title}</h3>
+                    <p>
+                      {listing.vehicle.mileageKm === null
+                        ? "Mileage not listed"
+                        : `${listing.vehicle.mileageKm.toLocaleString("en-NG")} km`}{" "}
+                      ·{" "}
+                      {listing.vehicle.transmission
+                        ? vehicleLabel(listing.vehicle.transmission)
+                        : "Transmission not listed"}
+                    </p>
+                    <strong>{formatKobo(listing.priceKobo)}</strong>
+                    <div className="vehicle-card-location">
+                      <MapPin size={15} aria-hidden="true" />
+                      <span>{listing.branch.name}</span>
+                      <ArrowRight size={17} aria-hidden="true" />
+                    </div>
+                  </div>
+                </Link>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="vehicle-empty">
+            <CarFront size={30} strokeWidth={1.4} aria-hidden="true" />
+            <h3>
+              {selected.length ? "No matching vehicles" : "No vehicles are listed yet"}
+            </h3>
+            <p>
+              {selected.length
+                ? "Try a broader search or contact our team about the vehicle you have in mind."
+                : "Speak with our team about what you are looking for, or check back for current listings."}
+            </p>
+            <div className="actions">
+              {selected.length > 0 && (
+                <button className="button secondary" onClick={clear}>
+                  Clear filters
+                </button>
+              )}
+              <Link className="button" href="/contact">
+                Contact our team
+              </Link>
             </div>
           </div>
-        </details>
-        <div className="actions">
-          <button className="button">Find vehicles</button>
-          <button className="button secondary" type="reset">
-            Reset filters
-          </button>
-        </div>
-      </form>
-      <Feedback message={listings.error} />
-      {listings.error && (
-        <button className="button secondary" onClick={listings.refresh}>
-          Retry vehicles
-        </button>
-      )}
-      {listings.loading && (
-        <p role="status">{listings.data ? "Updating vehicles…" : "Loading vehicles…"}</p>
-      )}
-      <div className="record-grid">
-        {(!listings.error ? listings.data : undefined)?.items.map((listing) => (
-          <article className="product-card" key={listing.id}>
-            <Link href={`/vehicles/${listing.id}`}>
-              <PublicMedia
-                src={
-                  (
-                    listing.vehicle.images.find((image) => image.isPrimary) ??
-                    listing.vehicle.images[0]
-                  )?.url
-                }
-                alt={listing.title}
-              />
-              <div className="product-copy">
-                <span className="muted">
-                  {listing.vehicle.year} · {listing.vehicle.condition.toLowerCase()}
-                </span>
-                <h2>{listing.title}</h2>
-                <p>
-                  {listing.vehicle.mileageKm === null
-                    ? "Mileage not listed"
-                    : `${listing.vehicle.mileageKm.toLocaleString("en-NG")} km`}{" "}
-                  ·{" "}
-                  {listing.vehicle.transmission?.toLowerCase() ??
-                    "Transmission not listed"}
-                </p>
-                <strong>{formatKobo(listing.priceKobo)}</strong>
-                <p>{listing.branch.name}</p>
-              </div>
-            </Link>
-          </article>
-        ))}
+        )}
       </div>
-      {!listings.loading && !listings.error && listings.data?.items.length === 0 && (
-        <div className="empty">
-          <h2>{filters ? "No matching vehicles" : "No vehicles are listed yet"}</h2>
-          <p>Contact our team to discuss what you are looking for.</p>
-          <Link className="button secondary" href="/contact">
-            Contact Allied AutoTech
-          </Link>
-        </div>
-      )}
-      <nav className="pagination" aria-label="Vehicle listing pages">
+      <nav className="vehicle-pagination" aria-label="Vehicle listing pages">
         <button
           className="button secondary"
-          disabled={!history.length || listings.loading}
+          disabled={!params.has("cursor") || listings.loading}
           onClick={() => {
-            setCursor(history.at(-1));
-            setHistory((value) => value.slice(0, -1));
+            const next = new URLSearchParams(params);
+            const previous = trail.at(-1);
+            next.delete("cursor");
+            next.delete("_trail");
+            if (previous && previous !== "start") {
+              next.set("cursor", previous);
+              if (trail.length > 1) next.set("_trail", trail.slice(0, -1).join(","));
+            }
+            navigate(next);
+            focusResults();
           }}
         >
-          Previous
+          <ArrowLeft size={16} aria-hidden="true" />
+          {params.has("cursor") && !trail.length ? "First page" : "Previous"}
         </button>
-        <span>Page {history.length + 1}</span>
+        <span>
+          {!params.has("cursor")
+            ? "Page 1"
+            : trail.length
+              ? `Page ${trail.length + 1}`
+              : "More listings"}
+        </span>
         <button
           className="button secondary"
           disabled={!listings.data?.nextCursor || listings.loading || !!listings.error}
           onClick={() => {
-            setHistory((value) => [...value, cursor]);
-            setCursor(listings.data?.nextCursor);
+            const next = new URLSearchParams(params);
+            next.set("cursor", listings.data!.nextCursor!);
+            const previous = params.get("cursor");
+            if (!previous || (trail.length && trail.length < 50))
+              next.set("_trail", [...trail, previous ?? "start"].join(","));
+            else next.delete("_trail");
+            navigate(next);
+            focusResults();
           }}
         >
           Next
+          <ArrowRight size={16} aria-hidden="true" />
         </button>
       </nav>
     </>

@@ -187,6 +187,7 @@ export function RefundEvidenceCheck({
             The document link is temporary. Load the evidence again if it expires.
           </p>
           <form
+            data-draft-key={JSON.stringify(["refund-evidence-check:1", refund?.id])}
             onSubmit={(event) => {
               event.preventDefault();
               review(new FormData(event.currentTarget));

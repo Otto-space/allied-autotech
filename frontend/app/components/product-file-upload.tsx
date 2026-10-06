@@ -42,6 +42,7 @@ export function ProductFileUpload({
         prepare={(options) => prepareProductImage(productId, options)}
       />
       <form
+        data-draft-key={JSON.stringify(["product-file-upload:1", productId])}
         onSubmit={(event) => {
           event.preventDefault();
           if (disabled || proposal || !selection?.prepared) return;

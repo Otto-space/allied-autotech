@@ -171,7 +171,11 @@ function WorkOrderNotes({ booking, disabled, onReview }: Props) {
     });
   }
   return (
-    <form onSubmit={handleSubmit(review)} noValidate>
+    <form
+      data-draft-key={JSON.stringify(["staff-work-order:1", booking?.id])}
+      onSubmit={handleSubmit(review)}
+      noValidate
+    >
       <h3>{work ? "Edit notes" : "Open work order"}</h3>
       <p className="field-hint">Use one paragraph per field.</p>
       <div className="field">

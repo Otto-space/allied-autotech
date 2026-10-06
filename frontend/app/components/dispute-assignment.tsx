@@ -47,6 +47,7 @@ export function DisputeAssignment({
       </p>
       <Feedback message={error ?? accounts.error} />
       <form
+        data-draft-key={JSON.stringify(["dispute-assignment:1", record?.id])}
         onSubmit={(event) => {
           event.preventDefault();
           if (disabled || accounts.loading || accounts.error) return;

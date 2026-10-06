@@ -189,6 +189,11 @@ export function StaffCapabilities({
           )}
           {selected && (
             <form
+              data-draft-key={JSON.stringify([
+                "staff-capabilities:1",
+                member?.id,
+                revokeId,
+              ])}
               onSubmit={(event) => {
                 event.preventDefault();
                 reviewRevoke(new FormData(event.currentTarget));
@@ -224,6 +229,7 @@ export function StaffCapabilities({
           {eligible ? (
             available.length > 0 && (
               <form
+                data-draft-key={JSON.stringify(["staff-capabilities:2", member?.id])}
                 onSubmit={(event) => {
                   event.preventDefault();
                   reviewGrant(new FormData(event.currentTarget));

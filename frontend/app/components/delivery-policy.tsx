@@ -86,6 +86,7 @@ function DeliveryForm({
   }
   return (
     <form
+      data-draft-key="delivery-policy:1"
       className="line-entry-form"
       onSubmit={(event) => {
         event.preventDefault();

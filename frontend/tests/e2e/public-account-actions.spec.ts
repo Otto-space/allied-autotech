@@ -1,3 +1,4 @@
+import { chooseServiceRecord } from "../fixtures/service-choice";
 import { test, expect, type Page, type Route } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import AxeBuilder from "@axe-core/playwright";
@@ -19,6 +20,7 @@ test.skip(
   process.env.RUN_PUBLIC_ACTION_TESTS !== "true",
   "Requires isolated public detail API on port 5011",
 );
+const fixturePort = Number(process.env.PUBLIC_ACTION_FIXTURE_PORT ?? 5011);
 let server: Server;
 const envelope = (data: unknown) => ({
   success: true,
@@ -40,7 +42,7 @@ test.beforeAll(async () => {
   });
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
-    server.listen(5011, "127.0.0.1", resolve);
+    server.listen(fixturePort, "127.0.0.1", resolve);
   });
 });
 test.afterAll(async () => {
@@ -80,7 +82,35 @@ async function fixture(page: Page) {
         key: request.headers()["idempotency-key"],
         csrf: request.headers()["x-csrf-token"],
       });
-      const response = pathname === "/customers/bookings" ? { booking } : {};
+      const response =
+        pathname === "/customers/bookings"
+          ? { booking }
+          : [
+                "/customers/vehicle-transactions",
+                "/customers/vehicle-inspections",
+              ].includes(pathname)
+            ? { id: id(88) }
+            : pathname.startsWith("/customers/cart/items/")
+              ? {
+                  subtotalKobo: String(
+                    BigInt(product.priceKobo) * BigInt(request.postDataJSON().quantity),
+                  ),
+                  items: [
+                    {
+                      id: id(87),
+                      quantity: request.postDataJSON().quantity,
+                      unitPriceKobo: product.priceKobo,
+                      lineSubtotalKobo: String(
+                        BigInt(product.priceKobo) *
+                          BigInt(request.postDataJSON().quantity),
+                      ),
+                      product,
+                    },
+                  ],
+                }
+              : pathname.startsWith("/customers/favourites/")
+                ? { product }
+                : {};
       if (mode === "hold") {
         const paused = new Promise<void>((resolve) => {
           release = resolve;
@@ -152,7 +182,7 @@ const actions = [
     url: `/vehicles/${listing.id}`,
     title: listing.title,
     button: "Enquire about this vehicle",
-    result: "Your vehicle enquiry has been created.",
+    result: "Your vehicle enquiry has been received.",
     path: "/customers/vehicle-transactions",
   },
   {
@@ -160,7 +190,7 @@ const actions = [
     url: `/vehicles/${listing.id}`,
     title: listing.title,
     button: "Save vehicle",
-    result: "Vehicle saved to your account.",
+    result: "This vehicle is saved to your account.",
     path: `/customers/saved-vehicles/${listing.id}`,
   },
   {
@@ -168,16 +198,19 @@ const actions = [
     url: `/vehicles/${listing.id}`,
     title: listing.title,
     button: "Request inspection",
-    result: "Inspection requested.",
+    result: "Inspection requested",
     path: "/customers/vehicle-inspections",
   },
 ] as const;
 type Action = (typeof actions)[number];
 async function prepare(page: Page, action: Action) {
   if (action.name === "booking") {
-    await page.getByLabel("Workshop branch").selectOption(branch.id);
+    await chooseServiceRecord(page, "Workshop branch", branch.id);
     await page.locator("button.slot").click();
     await page.getByLabel("I have read and accept these deposit terms.").check();
+    await page
+      .getByRole("button", { name: "Review booking request", exact: true })
+      .click();
   } else if (action.url.startsWith("/parts/")) {
     await page.getByLabel("Quantity", { exact: true }).fill("7");
   } else {
@@ -203,7 +236,7 @@ async function assertReset(page: Page, action: Action) {
       page.getByLabel("I have read and accept these deposit terms."),
     ).not.toBeChecked();
     await expect(
-      page.getByRole("button", { name: action.button, exact: true }),
+      page.getByRole("button", { name: "Review booking request", exact: true }),
     ).toBeDisabled();
   } else if (action.url.startsWith("/parts/")) {
     await expect(page.getByLabel("Quantity", { exact: true })).toHaveValue("1");
@@ -325,7 +358,7 @@ test("booking account recovery remains visible when the public service refresh f
     }),
   );
   await changeAccount(page);
-  await expect(page.getByRole("button", { name: "Retry service" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Retry service details" })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Sign in or review your account" }),
   ).toBeVisible();
@@ -431,14 +464,14 @@ for (const outcome of ["unknown", "pending"]) {
     await page.goto(`/services/${quoteService.id}`);
     await page.getByLabel("Your name").fill("Prior guest");
     await page.getByLabel("Email address", { exact: true }).fill("prior@example.test");
-    await page.getByLabel("Handling branch").selectOption(branch.id);
+    await chooseServiceRecord(page, "Handling branch", branch.id);
     await page
       .getByLabel("Your message", { exact: true })
       .fill("Private quotation message");
     await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
     await page
       .getByRole("dialog")
-      .getByRole("button", { name: "Confirm change", exact: true })
+      .getByRole("button", { name: "Send enquiry", exact: true })
       .click();
     await expect.poll(() => writes).toBe(1);
     if (outcome === "unknown")

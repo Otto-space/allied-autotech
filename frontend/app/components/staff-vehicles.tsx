@@ -60,6 +60,7 @@ export function StaffVehicles() {
         Add vehicle record
       </Link>
       <form
+        data-draft-key="staff-vehicles:1"
         className="catalogue-filters"
         noValidate
         onSubmit={form.handleSubmit((values) => {

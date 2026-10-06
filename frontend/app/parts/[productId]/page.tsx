@@ -1,15 +1,31 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { cache } from "react";
+import { cache, Suspense } from "react";
+import { headers } from "next/headers";
+import {
+  ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  MapPin,
+  MessageCircle,
+} from "lucide-react";
 import { notFound, unstable_rethrow } from "next/navigation";
 import { z } from "zod";
-import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
+import {
+  indexingEnabled,
+  siteOrigin,
+  serializeStructuredData,
+  publicPageMetadata,
+  type SearchParameters,
+} from "@/lib/seo";
 import { publicData, PublicApiError } from "@/lib/api/public-server";
-import { productSchema } from "@/lib/api/commerce-schemas";
+import { productSchema, parseProducts, type Product } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
-import { MediaGallery } from "../../components/media-gallery";
+import { ProductGallery } from "./product-gallery";
+import { PublicMedia } from "../../components/public-media";
+import "./product-detail.css";
 import { ProductActions } from "../../components/product-actions";
 const getProduct = cache(async (id: string) => {
   if (!z.uuid().safeParse(id).success) notFound();
@@ -48,80 +64,296 @@ export async function generateMetadata({
     return { title: "Part details", robots: { index: false } };
   }
 }
+async function RelatedProducts({ product }: { product: Product }) {
+  let items: Product[] = [];
+  let failed = false;
+  const query = new URLSearchParams({ categoryId: product.category.id, limit: "3" });
+  try {
+    items = (await publicData(`/public/catalog/products?${query}`, parseProducts)).items
+      .filter(
+        (item) => item.id !== product.id && item.category.id === product.category.id,
+      )
+      .slice(0, 2);
+  } catch (error) {
+    unstable_rethrow(error);
+    failed = true;
+  }
+  return (
+    <section className="pd-related" aria-labelledby="pd-related-title">
+      <div className="pd-section-heading">
+        <h2 id="pd-related-title">More in {product.category.name}</h2>
+        <Link
+          className="pd-link"
+          href={`/parts?${new URLSearchParams({ categoryId: product.category.id })}`}
+        >
+          Browse category <ArrowRight size={17} aria-hidden="true" />
+        </Link>
+      </div>
+      {items.length ? (
+        <div className="pd-related-grid">
+          {items.map((item) => (
+            <Link className="pd-related-item" key={item.id} href={`/parts/${item.id}`}>
+              <PublicMedia
+                src={
+                  (item.images.find((photo) => photo.isPrimary) ?? item.images[0])?.url
+                }
+                alt={item.name}
+              />
+              <div>
+                <h3>{item.name}</h3>
+                {item.brand && <p>{item.brand}</p>}
+                <strong>{formatKobo(item.priceKobo)}</strong>
+                <span>
+                  View product <ArrowRight size={16} aria-hidden="true" />
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="pd-muted">
+          {failed
+            ? "Other products are temporarily unavailable. You can try the shop catalogue."
+            : "No other products in this category are shown right now. Browse the shop or ask our team for help."}
+        </p>
+      )}
+    </section>
+  );
+}
 export default async function ProductPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ productId: string }>;
+  searchParams: SearchParameters;
 }) {
   const product = await getProduct((await params).productId);
+  const available = product.availability.some((item) => item.inStock);
+  const compare =
+    product.compareAtPriceKobo &&
+    BigInt(product.compareAtPriceKobo) > BigInt(product.priceKobo)
+      ? product.compareAtPriceKobo
+      : null;
+  const origin = siteOrigin();
+  const structured =
+    indexingEnabled() && origin && !Object.keys(await searchParams).length
+      ? {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: `${origin}/` },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Shop",
+                  item: `${origin}/parts`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: product.name,
+                  item: `${origin}/parts/${product.id}`,
+                },
+              ],
+            },
+            {
+              "@type": "Product",
+              name: product.name,
+              sku: product.sku,
+              ...(product.brand
+                ? { brand: { "@type": "Brand", name: product.brand } }
+                : {}),
+              ...(product.manufacturerPartNumber
+                ? { mpn: product.manufacturerPartNumber }
+                : {}),
+              ...(product.description ? { description: product.description } : {}),
+              offers: {
+                "@type": "Offer",
+                priceCurrency: "NGN",
+                price: `${BigInt(product.priceKobo) / BigInt(100)}.${String(BigInt(product.priceKobo) % BigInt(100)).padStart(2, "0")}`,
+                url: `${origin}/parts/${product.id}`,
+                ...(product.availability.length
+                  ? {
+                      availability: `https://schema.org/${available ? "InStock" : "OutOfStock"}`,
+                    }
+                  : {}),
+              },
+            },
+          ],
+        }
+      : null;
+  const specs = {
+    Brand: product.brand || "Not listed",
+    Category: product.category.name,
+    SKU: product.sku,
+    "Part number": product.manufacturerPartNumber || "Not listed",
+  };
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section public-site public-detail">
-        <div className="container">
-          <nav className="breadcrumbs" aria-label="Breadcrumb">
-            <Link href="/parts">Shop</Link>
-            <span aria-hidden="true">/</span>
-            <span>{product.name}</span>
+      <main id="main" className="public-site product-detail">
+        {structured && (
+          <script
+            type="application/ld+json"
+            nonce={(await headers()).get("x-nonce") ?? undefined}
+            dangerouslySetInnerHTML={{ __html: serializeStructuredData(structured) }}
+          />
+        )}
+        <div className="pd-container">
+          <nav className="pd-breadcrumb" aria-label="Breadcrumb">
+            <ol>
+              <li>
+                <Link href="/">Home</Link>
+              </li>
+              <li>
+                <ChevronRight size={14} aria-hidden="true" />
+                <Link href="/parts">Shop</Link>
+              </li>
+              <li>
+                <ChevronRight size={14} aria-hidden="true" />
+                <span aria-current="page" title={product.name}>
+                  {product.name}
+                </span>
+              </li>
+            </ol>
           </nav>
-          <div className="product-detail-grid">
-            <div>
-              <MediaGallery images={product.images} title={product.name} />
-            </div>
-            <div>
-              <p className="muted">
-                {product.category.name} · {product.sku}
-              </p>
-              <h1>{product.name}</h1>
-              <p className="price">{formatKobo(product.priceKobo)}</p>
-              <p className="lead">
-                {product.description ??
+          <header className="pd-heading">
+            <h1>{product.name}</h1>
+            <p>
+              {product.brand && <>{product.brand} &middot; </>}
+              {product.category.name}
+            </p>
+            <p className="pd-mobile-price">{formatKobo(product.priceKobo)}</p>
+          </header>
+          <div className="pd-top-grid">
+            <ProductGallery
+              key={product.id}
+              images={product.images}
+              title={product.name}
+            />
+            <section className="pd-purchase" aria-label="Price and ordering">
+              <div className="pd-price-row">
+                <strong>{formatKobo(product.priceKobo)}</strong>
+                {compare && (
+                  <span>
+                    <span className="sr-only">Comparison price </span>
+                    <del>{formatKobo(compare)}</del>
+                  </span>
+                )}
+              </div>
+              <p className="pd-hint">Price per item</p>
+              <section className="pd-availability" aria-labelledby="pd-stock-heading">
+                <h2 id="pd-stock-heading">Branch availability</h2>
+                {product.availability.length ? (
+                  <ul>
+                    {product.availability.map((item) => (
+                      <li key={item.branch.id}>
+                        <span>
+                          <MapPin size={17} aria-hidden="true" />
+                          {item.branch.name}
+                        </span>
+                        <strong className={item.inStock ? "pd-in-stock" : ""}>
+                          {item.inStock && <CheckCircle2 size={16} aria-hidden="true" />}
+                          {item.inStock ? "In stock" : "Unavailable"}
+                        </strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Availability has not been listed. Contact our team to check.</p>
+                )}
+                {!available && !!product.availability.length && (
+                  <p>
+                    Currently unavailable. Save this product or contact our team for help.
+                  </p>
+                )}
+              </section>
+              <ProductActions
+                key={product.id}
+                productId={product.id}
+                available={available}
+              />
+            </section>
+          </div>
+          <aside className="pd-assistance">
+            <MessageCircle size={28} aria-hidden="true" />
+            <h2>Need help choosing the right part?</h2>
+            <p>Check the part number and compatibility before ordering.</p>
+            <Link href="/contact#enquiry">
+              Ask our team <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          </aside>
+          <div className="pd-details-grid">
+            <section aria-labelledby="pd-info-title">
+              <h2 id="pd-info-title">Product information</h2>
+              <p className="pd-description">
+                {product.description ||
                   "Contact our team if you need more information about this product."}
               </p>
-              {product.availability.map((item) => (
-                <p key={item.branch.id} className="stock-label">
-                  {item.branch.name}: {item.inStock ? "In stock" : "Unavailable"}
-                </p>
-              ))}
-              <p className="field-hint">
-                Availability is checked again at checkout. Adding a product to your cart
-                does not reserve it.
-              </p>
-              <ProductActions
-                productId={product.id}
-                available={product.availability.some((item) => item.inStock)}
-              />
-            </div>
-          </div>
-          <section className="detail-section">
-            <h2>Vehicle compatibility</h2>
-            {product.compatibilities.length ? (
-              <div className="list">
-                {product.compatibilities.map((item) => (
-                  <article className="card" key={item.id}>
-                    <h3>
-                      {item.make} {item.model}
-                    </h3>
-                    <p>
-                      {item.yearFrom ?? "Start year not specified"} –{" "}
-                      {item.yearTo ?? "End year not specified"}
-                    </p>
-                    {item.notes && <p>{item.notes}</p>}
-                  </article>
+              <dl className="pd-specs">
+                {Object.entries(specs).map(([name, value]) => (
+                  <div key={name}>
+                    <dt>{name}</dt>
+                    <dd>{value}</dd>
+                  </div>
                 ))}
-              </div>
-            ) : (
-              <p className="muted">
-                Compatibility has not been listed. Confirm the product is suitable for
-                your vehicle with our team before ordering.
+              </dl>
+            </section>
+            <section
+              className="pd-compatibility"
+              aria-labelledby="pd-compatibility-title"
+            >
+              <h2 id="pd-compatibility-title">Vehicle compatibility</h2>
+              <p>
+                Match your make, model and year. Confirm fitment with our team before
+                ordering.
               </p>
-            )}
-            <p>
-              <Link className="text-link" href="/contact">
-                Ask about compatibility →
+              {product.compatibilities.length ? (
+                <ul>
+                  {product.compatibilities.map((item) => (
+                    <li key={item.id}>
+                      <div>
+                        <h3>
+                          {item.make}
+                          {item.model ? ` ${item.model}` : " (model not listed)"}
+                        </h3>
+                        <span>
+                          {item.yearFrom != null && item.yearTo != null
+                            ? `${item.yearFrom}–${item.yearTo}`
+                            : item.yearFrom != null
+                              ? `From ${item.yearFrom}`
+                              : item.yearTo != null
+                                ? `Up to ${item.yearTo}`
+                                : "Years not listed"}
+                        </span>
+                      </div>
+                      {item.notes && <p>{item.notes}</p>}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="pd-empty">
+                  Compatibility has not been listed. Confirm the product is suitable for
+                  your vehicle with our team before ordering.
+                </p>
+              )}
+              <Link className="pd-link" href="/contact#enquiry">
+                Ask about compatibility <ArrowRight size={17} aria-hidden="true" />
               </Link>
-            </p>
-          </section>
+            </section>
+          </div>
+          <Suspense
+            fallback={
+              <section className="pd-related" role="status">
+                <h2>More in {product.category.name}</h2>
+                <p>Loading related products…</p>
+              </section>
+            }
+          >
+            <RelatedProducts product={product} />
+          </Suspense>
         </div>
       </main>
       <SiteFooter />

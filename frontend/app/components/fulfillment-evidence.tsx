@@ -110,6 +110,7 @@ export function FulfillmentEvidence({
           </p>
           <Feedback message={validation} />
           <form
+            data-draft-key={JSON.stringify(["fulfillment-evidence:1", order?.id])}
             onSubmit={(e) => {
               e.preventDefault();
               review(new FormData(e.currentTarget), new Date().getTime());

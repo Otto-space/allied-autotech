@@ -255,6 +255,7 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                         : "Review the published cancellation policy or contact customer care before cancelling."}
                   </p>
                   <form
+                    data-draft-key={JSON.stringify(["booking-detail:1", bookingId])}
                     onSubmit={(event) => {
                       event.preventDefault();
                       ask({

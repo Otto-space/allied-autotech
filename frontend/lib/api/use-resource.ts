@@ -6,7 +6,8 @@ type ResourceState<T> = {
   path: string;
   data?: T;
   error?: string;
-  status: "loading" | "ready" | "error";
+  refreshError?: string;
+  status: "loading" | "refreshing" | "ready" | "error";
   revision: number;
 };
 export function useResource<T>(
@@ -26,12 +27,18 @@ export function useResource<T>(
         : null,
   );
   const [revision, setRevision] = useState(0);
-  const refresh = useCallback(() => setRevision((value) => value + 1), []);
+  const backgroundRefresh = useRef(false);
+  const refresh = useCallback(() => {
+    backgroundRefresh.current = false;
+    setRevision((value) => value + 1);
+  }, []);
   useEffect(() => {
     if (!path) return;
     const controller = new AbortController();
     let active = true;
     const shouldFetch = !skipInitialFetch.current;
+    const background = backgroundRefresh.current;
+    backgroundRefresh.current = false;
     skipInitialFetch.current = false;
     if (shouldFetch) {
       queueMicrotask(() => {
@@ -39,7 +46,10 @@ export function useResource<T>(
           setState((previous) => ({
             path,
             data: previous?.path === path ? previous.data : undefined,
-            status: "loading",
+            status:
+              background && previous?.path === path && previous.data !== undefined
+                ? "refreshing"
+                : "loading",
             revision,
           }));
       });
@@ -50,16 +60,36 @@ export function useResource<T>(
         })
         .catch((error: unknown) => {
           if (active && !controller.signal.aborted)
-            setState((previous) => ({
-              path,
-              data: previous?.path === path ? previous.data : undefined,
-              status: "error",
-              revision,
-              error:
+            setState((previous) => {
+              const message =
                 error instanceof ApiError
                   ? error.message
-                  : "We could not read this information. Please try again.",
-            }));
+                  : "We could not read this information. Please try again.";
+              const denied =
+                error instanceof ApiError &&
+                (error.status === 401 || error.status === 403 || error.status === 404);
+              // A temporary background failure must not replace a mounted form.
+              if (
+                background &&
+                !denied &&
+                previous?.path === path &&
+                previous.data !== undefined
+              )
+                return {
+                  path,
+                  data: previous.data,
+                  status: "ready",
+                  revision,
+                  refreshError: message,
+                };
+              return {
+                path,
+                data: !denied && previous?.path === path ? previous.data : undefined,
+                status: "error",
+                revision,
+                error: message,
+              };
+            });
         });
     }
     function discard() {
@@ -69,16 +99,20 @@ export function useResource<T>(
       if (path?.startsWith("/public/")) refresh();
     }
     function visible() {
-      if (document.visibilityState === "visible") refresh();
+      if (document.visibilityState === "visible") revalidate();
+    }
+    function revalidate() {
+      backgroundRefresh.current = true;
+      setRevision((value) => value + 1);
     }
     window.addEventListener(SESSION_CHANGED, discard);
-    window.addEventListener("online", refresh);
+    window.addEventListener("online", revalidate);
     document.addEventListener("visibilitychange", visible);
     return () => {
       active = false;
       controller.abort();
       window.removeEventListener(SESSION_CHANGED, discard);
-      window.removeEventListener("online", refresh);
+      window.removeEventListener("online", revalidate);
       document.removeEventListener("visibilitychange", visible);
     };
   }, [path, parse, revision, refresh, options?.refreshKey]);
@@ -86,8 +120,15 @@ export function useResource<T>(
   return {
     data: current?.data,
     error: current?.error,
+    refreshError: current?.refreshError,
+    refreshing: current?.status === "refreshing",
     loading: !!path && (!current || current.status === "loading"),
     refresh,
-    settledRevision: current && current.status !== "loading" ? current.revision : null,
+    settledRevision:
+      current &&
+      !current.refreshError &&
+      (current.status === "ready" || current.status === "error")
+        ? current.revision
+        : null,
   };
 }

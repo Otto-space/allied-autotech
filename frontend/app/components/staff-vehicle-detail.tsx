@@ -40,6 +40,13 @@ export function StaffVehicleDetail({ vehicleId }: { vehicleId: string }) {
         Back to vehicle stock
       </Link>
       <h1>Manage vehicle stock</h1>
+      {current && (
+        <p>
+          <a className="text-link" href="#vehicle-photos">
+            {current.images.length ? "Manage vehicle photos" : "Add vehicle photos"}
+          </a>
+        </p>
+      )}
       <Feedback message={vehicle.error} />
       <Feedback message={message} tone="success" toast="Vehicle change recorded." />
       <button

@@ -265,6 +265,7 @@ function PolicyEditor({ kind }: { kind: OperationalPolicyKind }) {
             </p>
           )}
           <form
+            data-draft-key={JSON.stringify(["operational-policy:1", kind])}
             className="line-entry-form operational-policy-form"
             key={latest?.version ?? 0}
             onSubmit={(e) => {

@@ -83,7 +83,11 @@ export function VehicleListingForm({
   if (final)
     return <p className="notice">Sold and archived listing content cannot be edited.</p>;
   return (
-    <form noValidate onSubmit={form.handleSubmit(review)}>
+    <form
+      data-draft-key={JSON.stringify(["vehicle-listing-forms:1", listing?.id, vehicleId])}
+      noValidate
+      onSubmit={form.handleSubmit(review)}
+    >
       {changed && listing && (
         <div className="notice">
           <p>
@@ -223,7 +227,11 @@ export function VehicleListingPrice({
     });
   }
   return (
-    <form noValidate onSubmit={form.handleSubmit(review)}>
+    <form
+      data-draft-key={JSON.stringify(["vehicle-listing-forms:2", listing?.id])}
+      noValidate
+      onSubmit={form.handleSubmit(review)}
+    >
       {changed && (
         <div className="notice">
           <p>
@@ -317,6 +325,7 @@ export function VehicleListingStatus({
   if (!choices.length) return null;
   return (
     <form
+      data-draft-key={JSON.stringify(["vehicle-listing-forms:3", listing?.id])}
       onSubmit={(event) => {
         event.preventDefault();
         if (disabled || !target || !choices.includes(target)) return;

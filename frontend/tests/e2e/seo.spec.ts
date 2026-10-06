@@ -5,7 +5,9 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 
-// Dedicated loopback fixture: the standalone app must use BACKEND_ORIGIN=http://127.0.0.1:5011.
+// Point the standalone app's BACKEND_ORIGIN at this dedicated loopback fixture.
+// Override the port when independent QA runs share the same workstation.
+const fixturePort = Number(process.env.SEO_FIXTURE_PORT ?? 5011);
 test.skip(
   process.env.RUN_SEO_SERVER_TESTS !== "true",
   "Requires the isolated SEO server fixture configuration",
@@ -89,7 +91,7 @@ let mode = "normal";
 const calls: { path: string; headers: IncomingHttpHeaders }[] = [];
 test.beforeAll(async () => {
   server = createServer((req, res) => {
-    const url = new URL(req.url ?? "/", "http://127.0.0.1:5011");
+    const url = new URL(req.url ?? "/", `http://127.0.0.1:${fixturePort}`);
     calls.push({ path: url.pathname + url.search, headers: req.headers });
     let data: unknown;
     let status = 200;
@@ -143,7 +145,7 @@ test.beforeAll(async () => {
   });
   await new Promise<void>((resolve, reject) => {
     server!.once("error", reject);
-    server!.listen(5011, "127.0.0.1", resolve);
+    server!.listen(fixturePort, "127.0.0.1", resolve);
   });
 });
 test.afterAll(async () => {
@@ -240,9 +242,14 @@ test("SSR requests do not forward browser credentials", async ({ request }) => {
       Authorization: "Bearer synthetic-test-only",
     },
   });
-  expect(calls).toHaveLength(1);
-  expect(calls[0].headers.cookie).toBeUndefined();
-  expect(calls[0].headers.authorization).toBeUndefined();
+  expect(calls.filter((call) => call.path.endsWith(`/products/${id(1)}`))).toHaveLength(
+    1,
+  );
+  expect(calls.length).toBeGreaterThanOrEqual(1);
+  for (const call of calls) {
+    expect(call.headers.cookie).toBeUndefined();
+    expect(call.headers.authorization).toBeUndefined();
+  }
 });
 for (const route of ["/parts/not-a-uuid", `/services/${id(80)}`, `/vehicles/${id(81)}`]) {
   test(`missing detail returns crawler 404 and noindex: ${route}`, async ({
@@ -420,9 +427,9 @@ const publicCollections = [
     api: "/public/catalog/products",
     row: product,
     title: product.name,
-    label: "Search parts",
+    label: "Search products",
     value: "filter",
-    button: "Search parts",
+    button: "Search products",
   },
   {
     route: "/vehicles",
@@ -431,7 +438,7 @@ const publicCollections = [
     title: listing.title,
     label: "Search vehicles",
     value: "filter",
-    button: "Find vehicles",
+    button: "Search vehicles",
   },
   {
     route: "/reviews",
@@ -459,7 +466,7 @@ for (const collection of publicCollections) {
         : collection.route === "/services"
           ? "Services are not listed yet"
           : collection.route === "/parts"
-            ? "No parts are listed yet"
+            ? "No products are listed yet"
             : "No vehicles are listed yet",
     );
     mode = "malformed";
@@ -526,14 +533,22 @@ for (const collection of publicCollections) {
       page.getByRole("heading", { name: collection.title, exact: true }),
     ).toBeVisible();
     if (collection.button) {
-      await page.getByLabel(collection.label, { exact: true }).fill(collection.value);
       expect(reads).toHaveLength(0);
+      if (collection.route === "/vehicles" || collection.route === "/parts")
+        await page
+          .getByRole("searchbox", { name: collection.label })
+          .fill(collection.value);
+      else
+        await page.getByLabel(collection.label, { exact: true }).fill(collection.value);
       await page.getByRole("button", { name: collection.button, exact: true }).click();
     } else {
       expect(reads).toHaveLength(0);
-      await page
-        .getByLabel(collection.label, { exact: true })
-        .selectOption(collection.value);
+      if (collection.route === "/services")
+        await page.getByRole("radio", { name: "Fixed price", exact: true }).check();
+      else
+        await page
+          .getByLabel(collection.label, { exact: true })
+          .selectOption(collection.value);
     }
     await expect(
       page.getByRole("heading", { name: "Updated first page", exact: true }),
@@ -559,7 +574,17 @@ for (const collection of publicCollections) {
       page.getByRole("heading", { name: "Updated first page", exact: true }),
     ).toBeVisible();
     if (collection.button)
-      await page.getByRole("button", { name: "Reset filters", exact: true }).click();
+      await page
+        .getByRole("button", {
+          name:
+            collection.route === "/vehicles" || collection.route === "/parts"
+              ? "Clear all"
+              : "Reset filters",
+          exact: true,
+        })
+        .click();
+    else if (collection.route === "/services")
+      await page.getByRole("radio", { name: "All services", exact: true }).check();
     else await page.getByLabel(collection.label, { exact: true }).selectOption("");
     await expect.poll(() => reads.length).toBe(4);
     expect(reads.at(-1)?.searchParams.has("cursor")).toBe(false);
@@ -587,7 +612,7 @@ for (const collection of publicCollections) {
     expect(html).toContain('name="robots" content="noindex, nofollow"');
     expect(html).not.toContain("PRIVATE FIXTURE DETAIL");
     expect(html).not.toContain("No published reviews match");
-    expect(html).not.toContain("No parts are listed yet");
+    expect(html).not.toContain("No products are listed yet");
     expect(html).not.toContain("No vehicles are listed yet");
     expect(html).not.toContain("Services are not listed yet");
   });

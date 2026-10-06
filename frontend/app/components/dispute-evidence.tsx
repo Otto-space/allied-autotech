@@ -104,6 +104,7 @@ export function DisputeEvidence({
         </>
       ) : !record.resolvedAt ? (
         <form
+          data-draft-key={JSON.stringify(["dispute-evidence:1", record?.id])}
           onSubmit={(event) => {
             event.preventDefault();
             if (disabled) return;

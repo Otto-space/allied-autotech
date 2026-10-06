@@ -53,6 +53,7 @@ export function AuditLog() {
         Back to operations
       </Link>
       <form
+        data-draft-key="audit-log:1"
         noValidate
         onSubmit={form.handleSubmit((value) => {
           setApplied(value);

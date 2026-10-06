@@ -2,26 +2,89 @@
 
 **Implementation update (30 September 2026):** BG-01 through BG-06 are implemented and have local API/database/browser acceptance evidence. See the [final implementation handoff](backend/docs/backend-gaps-handoff.md) for current contracts, regression results and remaining staging storage verification. This update supersedes earlier implementation-status notes below.
 
-Prepared: 30 September 2026  
-Basis: completed frontend redesign and read-only review of the current backend routes, schemas and exported OpenAPI contract.  
-Status: implementation backlog; the additions below are not implemented by this document.
+Prepared: 30 September 2026
+
+Basis: completed frontend milestones, recorded backend acceptance, and read-only review of the current backend routes, schemas and exported OpenAPI contract.
+
+Status: BG-01 through BG-06 have recorded local acceptance evidence. Remaining work consists of deployed integration verification and the optional discovery enhancements below. This documentation review checked current source contracts and existing acceptance records; it did not rerun application tests or verify staging.
 
 ## Purpose and scope
 
-Implement the missing backend capabilities needed to complete the redesigned customer management and media workflows. Preserve existing authentication, authorization, response envelopes, CSRF protection, idempotency, concurrency handling and domain rules.
+Use this handoff to plan remaining backend and deployment work without rebuilding capabilities that already exist. Preserve existing authentication, authorization, response envelopes, CSRF protection, idempotency, concurrency handling and domain rules.
 
-There are six confirmed gaps. Proposed endpoint paths and fields below are design recommendations, not existing API contracts. Paths omit the deployment's API prefix. Final names, DTOs and permissions must be documented in OpenAPI before frontend integration.
+The redesign identified six gaps. All six now have backend routes, frontend integration and recorded local acceptance. The original requirements below are retained as historical acceptance baselines; they must not be treated as a new list of absent endpoints. Paths omit `/api/v1`. Current contracts are authoritative where they differ from the original proposals. Later page audits identified optional discovery enhancements, documented separately below.
 
-| ID    | Missing capability                                      | Current frontend behavior                                            | Suggested sequence                 |
-| ----- | ------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------- |
-| BG-01 | Admin customer directory and aggregate customer details | No general customer directory is fabricated                          | First: enables customer management |
-| BG-02 | Customer profile photo                                  | Initials displayed; profile metadata remains editable                | After shared media contract        |
-| BG-03 | Customer garage images                                  | Vehicle metadata CRUD remains available                              | After shared media contract        |
-| BG-04 | Service image management                                | Service rows use icons                                               | After shared media contract        |
-| BG-05 | Direct product image upload                             | Approved hosted-image URL management remains available               | Extend existing catalogue media    |
-| BG-06 | Editing/removing attached stock vehicle images          | Upload and attachment work; existing images cannot be edited/deleted | Extend existing stock media        |
+| ID    | Originally identified capability                        | Current implementation                                                                 | Remaining work             |
+| ----- | ------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------- |
+| BG-01 | Admin customer directory and aggregate customer details | Real directory and bounded related-record reads; local acceptance recorded             | Retain regression coverage |
+| BG-02 | Customer profile photo                                  | Managed upload, replacement and removal; initials fallback                             | Verify deployed storage    |
+| BG-03 | Customer garage images                                  | Owner-only gallery, order, cover and removal                                           | Verify deployed storage    |
+| BG-04 | Service image management                                | Editor, public image projections and local acceptance recorded                         | Verify deployed storage    |
+| BG-05 | Direct product image upload                             | Binary upload and hosted-image management; local acceptance recorded                   | Verify deployed storage    |
+| BG-06 | Editing/removing attached stock vehicle images          | Metadata, ordering, cover, replacement, removal and preview; local acceptance recorded | Verify deployed storage    |
+
+### Current status and release boundaries
+
+- **BG-01 — locally verified:** mounted administrator-only directory and related-record reads have recorded local acceptance. See the implementation audit below for the actual contract and results; this is not a deployment claim.
+- **BG-02 and BG-03 — locally verified, staging pending:** managed profile and garage media now exist. Their contracts and local evidence are documented in [Managed image lifecycle](backend/docs/managed-media.md). Real object-storage configuration and end-to-end staging checks remain outstanding.
+- **BG-04 and BG-05 — locally verified, staging pending:** service media and product binary uploads have separate recorded backend, frontend and browser acceptance results in [Managed image lifecycle](backend/docs/managed-media.md). Product hosted-image management remains compatible. These records do not certify deployed storage.
+- **BG-06 — locally verified, staging pending:** stock image mutations, authenticated preview and frontend integration have recorded local lifecycle, branch/role, concurrency and publication checks. See [stock-media acceptance](backend/docs/managed-media.md#stock-vehicle-images-bg-06). Existing upload, hosted/legacy image and non-image asset behavior remain supported. Deployed storage remains unverified.
+- **Contact — no new submission endpoint required:** public enquiries and complaints already have backend routes. Branch setup and Maps configuration are tracked separately below.
+- **Verification scope:** the original redesign handoff records completed frontend checks. The later Contact refinement passed its separate page gate; see its milestone report for scoped browser and real API evidence. Customer-directory implementation has its own acceptance record and must not inherit either frontend completion claim.
+
+Suggested ownership: backend owns DTOs, authorization, persistence and media lifecycle; frontend owns integration after the contracts are available; deployment owners configure storage and Maps and verify the deployed integrations. No implementation is considered complete solely because an endpoint or button exists.
+
+### Remaining delivery order
+
+1. **Verify deployed media:** configure private object storage, frontend upload-host allowlisting, CORS and the cleanup worker. Apply reviewed migrations through the normal deployment process. Exercise actual upload/read/replace/delete and failure recovery in staging; injected storage tests do not satisfy this gate.
+2. **Complete Contact configuration:** verify the deployed active handling branch and provider delivery. Add the Maps key when available; the address-based fallback already works without a Place ID.
+3. **Retain regression coverage:** preserve all six completed capabilities. Keep backend capability acceptance separate from each frontend page's visual acceptance gate.
+4. **Implement optional discovery extensions only when selected:** finalize their contracts and tests before enabling additional catalogue controls. Existing fallbacks work with the current APIs.
+
+### Actionable remaining backlog
+
+Priority P1 means a release verification requirement for the affected integration. P2 means an optional product enhancement; it does not block the current supported browsing experience. These priorities are proposed for planning.
+
+| ID     | Priority / owner                             | Remaining task                                                                                                                                                                | Acceptance evidence                                                                                                                                                                                                           |
+| ------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| REL-01 | P1 — deployment + backend                    | Configure private object storage, signed-upload host allowlisting, CORS, migrations and the general cleanup worker. Verify all five media resources against deployed storage. | Real browser upload/confirm/read/replace/remove succeeds; invalid replacement preserves existing media; unauthorized personal reads fail; unpublished public media is inaccessible; cleanup retries retain referenced assets. |
+| REL-02 | P1 — backend + operations                    | Verify the deployed active handling branch and existing enquiry/complaint delivery.                                                                                           | A synthetic submission persists against the intended branch and its configured notification delivery is observed. Record API receipt separately from provider delivery.                                                       |
+| REL-03 | P1 — QA + deployment                         | Verify existing role/session, payment-provider sandbox and email/recovery integrations in staging.                                                                            | Record real integration outcomes, unauthorized requests and server-confirmed payment state. This is verification of existing features, not a request for replacement endpoints.                                               |
+| CFG-01 | When available — owner + frontend/deployment | Configure the Google Maps key and verify the workshop location. No key or verified Place ID has been supplied.                                                                | The keyed map matches the approved address; the existing address and external directions remain usable without it. No backend Maps endpoint is required.                                                                      |
+| API-01 | P2 — backend, then frontend                  | Add bounded vehicle make/model options and, if required, filtered total counts.                                                                                               | Options use public inventory visibility, models belong to the selected make, traversal is bounded and stable, and any totals match the filtered dataset.                                                                      |
+| API-02 | P2 — backend, then frontend                  | Add catalogue-wide category search, brand/compatibility options and, if selected, product price/availability filters and totals.                                              | Queries are documented and validated; results follow active catalogue and stock rules; option searches and filters operate across the catalogue, not one fetched page.                                                        |
+| API-03 | P2 — backend, then frontend                  | Add service search, category taxonomy/options, sorting and totals if required.                                                                                                | Active-service visibility, search semantics, category ownership, cursor behavior and query performance are documented and tested before UI integration.                                                                       |
+
+For REL-01, the existing configuration uses `OBJECT_STORAGE_ENDPOINT`, `OBJECT_STORAGE_REGION`, `OBJECT_STORAGE_BUCKET`, `OBJECT_STORAGE_ACCESS_KEY_ID`, `OBJECT_STORAGE_SECRET_ACCESS_KEY` and frontend `ASSET_STORAGE_HOSTS`. Configure secrets through the deployment secret manager. The detailed staging procedure is in the [implementation handoff](backend/docs/backend-gaps-handoff.md#19-missing-credentialsinfrastructure-and-remaining-verification).
+
+For API-01 through API-03, proposed endpoints and fields below are design proposals, not callable contracts. Delivery must include exported OpenAPI, regenerated frontend types, authorization/visibility and pagination tests, and frontend loading/empty/error integration. Do not derive global facets or totals from a single page.
+
+### Handoff and closure evidence
+
+Create implementation tickets from API-01 through API-03 only after the corresponding enhancement is selected. Track REL-01 through REL-03 as deployment verification tasks and CFG-01 as a configuration dependency. BG-01 through BG-06 are completed local implementations; reopen one only for a reproduced defect or a newly agreed requirement.
+
+For each remaining item, record the assigned owner, target environment, deployed revision, prerequisites, actual result and evidence link. Verification records should identify the tested workflow and resulting record or request ID without including credentials or customer data. Close an item only when its acceptance evidence above is recorded; an API receipt alone does not establish email delivery, and a local storage fixture does not establish deployed storage readiness.
+
+**Confirmed workshop configuration:** use **133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria**. Pizza Jungle is inside Kilimanjaro; do not substitute “beside Pizza Jungle” in customer-facing copy. The owner has not supplied a Maps key or verified Place ID. Preserve the address panel and address-based directions until the embedded map can be configured and checked. This does not create a backend endpoint requirement.
+
+Optional discovery enhancements below are separate from these required media gaps. The page-by-page frontend quality work remains tracked in its [milestone register](frontend/docs/page-quality/README.md).
+
+### Completed-page coverage
+
+The current page-quality register records seven completed local milestones: Contact, Vehicles listing, Shop listing, Services listing, Vehicle detail, Product detail and [Service detail](frontend/docs/page-quality/service-detail.md). The later transactional, account and dashboard milestones have not yet passed that gate. This document does not certify the entire frontend or deployment as complete.
+
+| Completed surface                   | Backend handoff                                                                                                                                                                                                                                                                                    |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contact and Customer Care           | Existing enquiry/complaint APIs are integrated. Verify the deployed handling branch and notification delivery under REL-02; retain the address fallback until CFG-01 can be configured.                                                                                                            |
+| Vehicles listing and Vehicle detail | Existing public inventory, detail and media reads are available. API-01 is optional discovery work; deployed stock-media lifecycle verification remains under REL-01.                                                                                                                              |
+| Shop listing and Product detail     | Existing catalogue, detail, cart and saved-item APIs are available. API-02 is optional discovery work; deployed product-media verification remains under REL-01. Checkout and provider verification are separate from product-page acceptance.                                                     |
+| Services listing and Service detail | Existing service reads, pricing filters, availability, booking requests and service enquiries are integrated and locally verified. API-03 remains optional discovery work; deployed service-media verification remains under REL-01. Separate Booking and Quotation page gates remain outstanding. |
+
+**Implementation decision:** no additional mandatory endpoint gap has been established by these completed page audits beyond the six capabilities already implemented. REL-01 through REL-03 require integration verification; CFG-01 requires configuration when available; API-01 through API-03 require new backend implementation only if those optional enhancements are selected. Reassess this inventory as each remaining page passes its audit.
 
 ## BG-01 — Admin customer directory and detail views
+
+**Current status:** implementation and local acceptance recorded. This section preserves the original requirements; the implementation audit below describes the routes and evidence. Unchecked criteria below are the original checklist, not a claim that the implementation is absent.
 
 ### Existing capability
 
@@ -57,9 +120,11 @@ There are six confirmed gaps. Proposed endpoint paths and fields below are desig
 
 ## BG-02 — Customer profile photo
 
+**Current status:** implemented with recorded local acceptance; deployed storage verification remains. Actual routes are `POST /customers/profile/photo/upload`, `PUT/DELETE /customers/profile/photo`, and owner-authorized `GET /customers/media/images/{imageId}`. Profile reads include `mediaVersion` and nullable `photo`. See [managed-media evidence](backend/docs/managed-media.md). The requirements below describe the original gap and remain the acceptance baseline.
+
 ### Existing capability
 
-`GET/PATCH /customers/profile` supports personal/contact/address metadata. There is no profile image field, upload workflow, replacement or removal contract.
+At the original audit, `GET/PATCH /customers/profile` supported personal/contact/address metadata and exposed `CustomerProfile.avatarUrl`, but provided no managed media mutations. The lifecycle described below has since been implemented through separate photo routes.
 
 ### Required implementation
 
@@ -82,9 +147,11 @@ There are six confirmed gaps. Proposed endpoint paths and fields below are desig
 
 ## BG-03 — Customer garage images
 
+**Current status:** implemented with recorded local acceptance; deployed storage verification remains. The four routes proposed below now exist, with owner-only image reads, up to 12 images and version-checked mutations. See [garage lifecycle and evidence](backend/docs/managed-media.md#bg-03-private-garage-galleries). The requirements below remain the original acceptance baseline.
+
 ### Existing capability
 
-`/customers/vehicles` and `/customers/vehicles/{vehicleId}` support customer-owned vehicle metadata CRUD. Garage records are distinct from staff stock vehicles; staff stock upload endpoints cannot substitute for owner-scoped garage media.
+At the original audit, `/customers/vehicles` and `/customers/vehicles/{vehicleId}` supported customer-owned vehicle metadata CRUD only. Owner-scoped media has since been added. Garage records remain distinct from staff stock vehicles.
 
 ### Required implementation
 
@@ -110,9 +177,11 @@ There are six confirmed gaps. Proposed endpoint paths and fields below are desig
 
 ## BG-04 — Service image management
 
+**Current status:** implemented with recorded local acceptance; deployed storage verification remains. Actual routes use `GET /admin/services/{serviceId}/images`, `POST /admin/services/{serviceId}/assets/upload`, `PUT /admin/services/{serviceId}/image`, and `PATCH/DELETE /admin/services/{serviceId}/images/{imageId}`. Separate administrator preview and public active-service image reads exist. Mutations use `Service.version`. See [current service contract and evidence](backend/docs/managed-media.md#service-image-checkpoint-bg-04); the original proposed paths below are superseded by that contract.
+
 ### Existing capability
 
-`GET/POST /admin/services` and `PATCH /admin/services/{serviceId}` manage service records. Current service DTOs and mutations do not include service media.
+At the original audit, `GET/POST /admin/services` and `PATCH /admin/services/{serviceId}` managed service records without media. The current implementation adds separate media routes and nullable public image projections, as described in the status note above.
 
 ### Required implementation
 
@@ -134,11 +203,13 @@ There are six confirmed gaps. Proposed endpoint paths and fields below are desig
 
 ## BG-05 — Direct product binary uploads
 
+**Current status:** implemented with recorded local acceptance; deployed storage verification remains. The two upload/confirmation routes proposed below now exist. `Product.mediaVersion` supports gallery concurrency, uploaded and hosted images have distinct projections, and existing metadata/removal routes handle both sources. See [product contract and evidence](backend/docs/managed-media.md#product-binary-upload-checkpoint-bg-05). The requirements below preserve the original acceptance baseline.
+
 ### Existing capability
 
 - `POST /admin/catalog/products/{productId}/images` accepts approved hosted image metadata: `url`, `altText`, `sortOrder`, `isPrimary`.
 - `PATCH/DELETE /admin/catalog/products/{productId}/images/{imageId}` already supports metadata updates and removal.
-- There is no direct binary upload preparation/confirmation contract. Do not reimplement working hosted-image CRUD as a missing feature.
+- The original audit found no direct binary upload preparation/confirmation contract. That gap has since been implemented; retain working hosted-image CRUD alongside the new binary workflow.
 
 ### Required implementation
 
@@ -161,12 +232,14 @@ There are six confirmed gaps. Proposed endpoint paths and fields below are desig
 
 ## BG-06 — Editing/removing attached stock vehicle images
 
+**Current status:** implemented with recorded local acceptance; deployed storage verification remains. `PATCH/DELETE /staff/vehicles/{vehicleId}/images/{imageId}` and `GET /staff/vehicles/{vehicleId}/images/{imageId}/content` are integrated with the stock editor. The update schema requires `expectedVersion` plus at least one change and supports nullable alt text, display order and primary selection. The [stock-media acceptance record](backend/docs/managed-media.md#stock-vehicle-images-bg-06) reports 13 stock-media integration tests, six media HTTP tests, two live stock browser scenarios and all 12 existing stock browser scenarios passing. These are recorded prior results using isolated storage, not tests rerun by this documentation review.
+
 ### Existing capability
 
 - `POST /staff/vehicles/{vehicleId}/assets/upload` prepares a signed upload.
 - `POST /staff/vehicles/{vehicleId}/images` confirms an `assetToken` with `altText`, `sortOrder` and `isPrimary`.
 - `GET /public/vehicles/images/{imageId}` serves media through the public proxy subject to existing visibility rules.
-- Existing image records have no PATCH/DELETE routes. A newly attached image can become primary, but existing images cannot otherwise be reordered, edited or removed.
+- At the original audit, existing images had no PATCH/DELETE routes. These operations and their frontend integration are now implemented with recorded local acceptance.
 
 ### Required implementation
 
@@ -188,6 +261,8 @@ There are six confirmed gaps. Proposed endpoint paths and fields below are desig
 
 ## Shared media implementation requirements
 
+The shared managed-media infrastructure is now implemented for profile, garage, service, product and stock vehicle resources. Reuse it for future extensions instead of building another ticket/storage/cleanup system. The following requirements remain the baseline; live storage verification is still required.
+
 Extend the existing signed asset infrastructure where appropriate. Do not route unrelated resources through stock vehicle authorization merely to reuse an upload URL.
 
 1. **Preparation:** bind the upload ticket to the authenticated principal, resource, purpose, permitted MIME type, size and checksum. Return expiry and the precise upload method/headers required by storage.
@@ -202,6 +277,8 @@ Extend the existing signed asset infrastructure where appropriate. Do not route 
 
 ## Contract, persistence and delivery checklist
 
+This is the original implementation checklist, retained as a baseline. Its unchecked boxes are not the current backlog. Implementation and local evidence for all six capabilities are recorded in the [handoff](backend/docs/backend-gaps-handoff.md); outstanding work is listed in the actionable backlog above.
+
 - [ ] Inspect current models and infrastructure before selecting new tables or fields; add reviewed, backward-compatible migrations only where required.
 - [ ] Add validated DTOs, policy checks, repository/service/controller logic and routes within the existing module architecture.
 - [ ] Extend module OpenAPI definitions and regenerate `backend/docs/api/allied-autotech.openapi.json`.
@@ -210,7 +287,7 @@ Extend the existing signed asset infrastructure where appropriate. Do not route 
 - [ ] Integrate real customer search and supported media actions into the redesigned frontend, retaining loading, empty, error, conflict and permission states.
 - [ ] Run backend contract/tests and frontend lint, type checking, tests and build; verify browser flows against staging rather than fixtures alone.
 
-Suggested delivery order: BG-01 can proceed independently; establish shared media contracts, implement BG-02/BG-03/BG-04, then extend BG-05/BG-06 using the same validated infrastructure. Sequence may be adjusted to prioritize existing catalogue and stock workflows.
+The original six-gap checklists above are acceptance requirements, not a current list of absent endpoints. Follow the remaining delivery order at the top of this document and retain links to each capability's actual verification record.
 
 ## Deployment verification — separate from missing features
 
@@ -223,12 +300,71 @@ The redesign's browser tests used isolated fixtures. The following are integrati
 
 Existing booking requests, quotations, checkout/payment authority, MFA, support history, notifications and local Help articles are outside these six implementation gaps. Preserve their current behavior and do not introduce booking deposits or expose disabled payment providers as part of this work.
 
+### Contact and workshop configuration
+
+The current Contact page uses existing `POST /public/support/enquiries` and `POST /public/support/complaints` routes. These routes validate real submissions and return an accepted receipt; they are not missing backend features. Attachment upload is not part of the public submission contract and must not be added to the form without a separately specified backend capability.
+
+| Item                   | Remaining action                                                                                                                                                                                                       | Completion evidence                                                                                                                                                 |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Active handling branch | Confirm the deployed backend contains the correct active branch and that public branch reads expose it. Enquiries/complaints require an active handling branch; vehicle enquiries derive it from the selected listing. | A real submission creates the intended support record against the correct branch. An empty dataset shows a recoverable empty state.                                 |
+| Google Maps embed      | Configure `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` with appropriate API/referrer restrictions, then rebuild and verify the embedded map. The owner has no key or verified Place ID yet.                                       | The map loads at the correct workshop in each configured environment; without a key, the existing address panel and external Maps links remain usable.              |
+| Workshop address       | Retain **133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria**. The owner confirmed that Pizza Jungle is within Kilimanjaro and that the site must say “beside Kilimanjaro.”                    | Visible address, map query and directions agree with the approved address. A Place ID or coordinates are used only after verification.                              |
+| Contact acceptance     | Local page gate passed, including browser, real API/database and shared-component checks. Deployed provider delivery and the keyed map remain separate configuration checks.                                           | See the [Contact milestone report](frontend/docs/page-quality/contact.md) for exact results and limitations; fixture success is not deployed delivery verification. |
+
+The Maps item is frontend/deployment configuration, not a requirement for a new backend Maps endpoint. A Place ID is optional while the address query is used. The existing fallback permits the page to work before a key is supplied.
+
+### Vehicle discovery metadata — optional API enhancement
+
+The page-by-page Vehicles audit confirmed that `GET /public/vehicles` supports exact-name make/model filters and cursor pagination, but returns neither a complete make/model options dataset nor a total match count. The redesigned frontend therefore uses optional exact-name text fields and reports the number of vehicles on the current page. This is a truthful, working fallback, not a missing listing integration.
+
+To enable searchable make/model pickers and a global result count later:
+
+- Define an anonymous, bounded catalogue-options endpoint, for example a proposed `GET /public/vehicles/facets`. Support searching make/model names and selecting models within a make; document pagination and completeness. Do not derive an allegedly exhaustive list from one inventory page.
+- Apply the same AVAILABLE-listing and active-branch visibility rules as public inventory. Return display labels and filter values without private stock, VIN, acquisition or customer information.
+- If adding `totalMatches` to the listing response, count the same filtered public dataset before cursor pagination. Specify whether the count is exact, its consistency during concurrent inventory changes, and its performance/caching policy.
+- Publish the DTOs, validation, query semantics, limits and empty/error responses in OpenAPI before changing the frontend integration. Existing public queries must remain compatible.
+
+Acceptance: options exclude unavailable inventory, make/model relationships are correct, empty and paginated option searches work, counts agree with filtered inventory, and performance is verified against representative stock volumes. Neither capability is required to ship the current truthful page-count/exact-name fallback. No implementation of this proposed enhancement is claimed here.
+
+### Shop discovery metadata — optional API enhancement
+
+The [Shop audit](frontend/docs/page-quality/shop.md) confirms that product search, category, exact brand/make/model, year, featured status and sorting already work through `GET /public/catalog/products`. Category reads accept only `cursor` and `limit`; product and category collections return `items` and `nextCursor`, without totals. These are limitations of discovery metadata, not missing product-list endpoints.
+
+If broader discovery is required later:
+
+- Add bounded server-side category search or a separately documented options endpoint. Until then, category picker search must clearly say it searches loaded categories and allow loading additional pages.
+- Define searchable brand and compatibility options sourced from publicly visible products. Do not present values from one product page as a complete catalogue.
+- Define a filtered `totalMatches` only if required, with matching visibility/filter semantics, consistency and performance guarantees. The current-page count remains a valid fallback.
+- Specify price-range or availability filters before adding them to the UI. Neither query exists today; filtering a single fetched page cannot implement catalogue-wide filtering. Availability must follow the existing active-branch, unreserved-stock rules without exposing internal quantities.
+
+Acceptance for any extension: strict validated queries and exported OpenAPI, stable bounded pagination, active product/category visibility, matching option/filter semantics, accurate empty states and representative-volume query checks. These are proposed API enhancements. The current Shop page has passed its separate local acceptance gate using the existing contract; no implementation of these enhancements is claimed here.
+
+### Service discovery — optional API enhancement
+
+The Services listing audit confirms that `GET /public/services` accepts only `pricingType` (`FIXED` or `QUOTE_REQUIRED`), a UUID `cursor`, and `limit` (1–100, default 25). Public reads include active services only, ordered by ID, and return `items` plus an optional `nextCursor`. The API already supports pricing filters and pagination; it does not expose catalogue search, category filters, configurable sorting or total match counts.
+
+If catalogue-wide search or richer discovery is required later:
+
+- Specify a bounded search query with normalization, matching fields, minimum/maximum length and indexed query behavior. Do not implement apparent catalogue-wide search by filtering one fetched page.
+- Define category data and its public options endpoint before adding category controls. No service category taxonomy is supplied by the current contract.
+- Allowlist any new sorting and bind pagination semantics to the chosen filters/sort. Define behavior under concurrent service edits.
+- Add a filtered total only if needed, using the same active-service and filter rules before pagination, with documented consistency and query costs.
+
+Acceptance: anonymous queries exclude inactive services; invalid query values fail predictably; search, filters, cursor traversal and totals agree on the same public dataset; OpenAPI and representative-volume tests cover the extension. The current pricing filter and page-count fallback require no new backend capability. Services page visual acceptance remains a separate milestone.
+
 ## Repository evidence and frontend handoff
 
 - [Exported API contract](backend/docs/api/allied-autotech.openapi.json)
 - [Customer routes](backend/src/modules/customers/customers.routes.ts) and [schemas](backend/src/modules/customers/customers.schemas.ts)
+- [Directory routes](backend/src/modules/customers/customer-directory.routes.ts) and [directory contract](backend/src/modules/customers/customer-directory.openapi.ts)
+- [Profile read projection](backend/src/modules/customers/customers.repository.ts) and [data models](backend/prisma/schema.prisma)
 - [Catalogue routes](backend/src/modules/catalog/catalog.routes.ts) and [schemas](backend/src/modules/catalog/catalog.schemas.ts)
+- [Product binary media routes](backend/src/modules/catalog/product-media.routes.ts) and [managed-media contracts and acceptance](backend/docs/managed-media.md)
+- [Service routes](backend/src/modules/service-operations/service-operations.routes.ts) and [schemas](backend/src/modules/service-operations/service-operations.schemas.ts)
 - [Stock vehicle routes](backend/src/modules/vehicles/vehicles.routes.ts) and [schemas](backend/src/modules/vehicles/vehicles.schemas.ts)
+- [Stock image mutation schemas](backend/src/modules/vehicles/stock-media.schemas.ts) and [service implementation](backend/src/modules/vehicles/stock-media.service.ts)
+- [Storage adapter](backend/src/providers/storage/s3-object-storage.adapter.ts)
+- [Support routes](backend/src/modules/support/support.routes.ts) and [schemas](backend/src/modules/support/support.schemas.ts)
 - [Identity routes](backend/src/modules/identity/identity.routes.ts)
 - [Original redesign gap summary](frontend/docs/redesign-backend-gaps.md)
 - [Completed frontend handoff](frontend/docs/redesign-handoff.md)
@@ -236,6 +372,8 @@ Existing booking requests, quotations, checkout/payment authority, MFA, support 
 This document records the implementation work required. It does not authorize changes to role boundaries, existing domain rules or unrelated deployment files.
 
 ## Implementation audit — 30 September 2026
+
+This section preserves the earlier BG-01 implementation checkpoint. Statements below about missing media infrastructure describe that checkpoint, before BG-02 through BG-06 were completed. Use the current status table and [managed-media record](backend/docs/managed-media.md) for present media capabilities and verification boundaries.
 
 The supplied brief refers to `Pasted markdown(6).md`; that filename is absent from the workspace and attachment directory. This repository document contains the matching six-gap specification and was read in full before implementation.
 

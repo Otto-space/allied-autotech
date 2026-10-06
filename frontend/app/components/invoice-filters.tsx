@@ -28,6 +28,7 @@ export function InvoiceFilters({
   const errors = form.formState.errors;
   return (
     <form
+      data-draft-key="invoice-filters:1"
       className="catalogue-filters"
       noValidate
       onSubmit={form.handleSubmit(

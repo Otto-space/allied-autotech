@@ -264,6 +264,7 @@ function SlotCreateForm({
         }
       />
       <form
+        data-draft-key="staff-booking-slots:1"
         onSubmit={(event) => {
           const submittedAt = Date.now();
           void form.handleSubmit(

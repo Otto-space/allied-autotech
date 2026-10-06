@@ -34,6 +34,7 @@ export function ProductImageForm({
   const url = useWatch({ control: form.control, name: "url" });
   return (
     <form
+      data-draft-key={JSON.stringify(["product-image-form:1", item?.id])}
       noValidate
       onSubmit={form.handleSubmit((value) => {
         if (!disabled) onReview(value);

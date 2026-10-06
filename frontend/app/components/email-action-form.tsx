@@ -131,7 +131,10 @@ export function EmailActionForm({
         toast="Account request completed. Review the instructions."
       />
       <Feedback message={error} toast="Please review the message on this page." />
-      <form onSubmit={submit}>
+      <form
+        data-draft-key={JSON.stringify(["email-action-form:1", mode])}
+        onSubmit={submit}
+      >
         {mode === "forgot" ? (
           <div className="field">
             <label htmlFor="email">Email address</label>

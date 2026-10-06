@@ -69,7 +69,11 @@ export function RegisterForm() {
         <Feedback message={error} toast="Please review the message on this page." />
       </div>
 
-      <form onSubmit={submit} className="w-full space-y-4 text-left">
+      <form
+        data-draft-key="register-form:1"
+        onSubmit={submit}
+        className="w-full space-y-4 text-left"
+      >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="field min-w-0">
             <label className="label" htmlFor="firstName">

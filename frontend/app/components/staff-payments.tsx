@@ -72,6 +72,7 @@ export function StaffPayments() {
         </Link>
       )}
       <form
+        data-draft-key="staff-payments:1"
         noValidate
         onSubmit={filterForm.handleSubmit((values) => {
           if (!proposal && !recovery) {

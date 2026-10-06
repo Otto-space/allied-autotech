@@ -254,6 +254,7 @@ function CapacityEditor({
             </p>
           )}
           <form
+            data-draft-key={JSON.stringify(["booking-capacity:1", branchId])}
             key={latest?.version ?? 0}
             onSubmit={(event) => {
               event.preventDefault();

@@ -1,9 +1,23 @@
 "use client";
 import Link from "next/link";
 import { ServicePhoto } from "./service-photo";
-import imageStyles from "./service-image.module.css";
-import { useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import {
+  ArrowDown,
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  ChevronRight,
+  Clock3,
+  MessageCircle,
+  Phone,
+  Wrench,
+} from "lucide-react";
+import { business } from "@/lib/business";
+import { ServiceChoice } from "../services/[serviceId]/service-choice";
+import { CursorPagination, useCursorPage } from "./cursor-pagination";
+import "../contact/contact.css";
+import "../services/[serviceId]/service-detail.css";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
@@ -14,16 +28,24 @@ import type { RequestBody } from "@/lib/api/contracts";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountMutation } from "@/lib/api/use-account-mutation";
-import { notify } from "@/lib/notifications";
-import { useScrollToMessage } from "@/lib/use-scroll-to-message";
 import { AccountChangeNotice } from "./account-change-notice";
 import { Feedback } from "./feedback";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { PublicEnquiryForm } from "./public-enquiry-form";
 import { BookingAccountDetails } from "./booking-account-details";
+import { CopyControl } from "./copy-control";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
-const parseService = (value: unknown) => serviceSchema.parse(value);
+type BookingReview = {
+  body: RequestBody<"/customers/bookings", "post">;
+  serviceName: string;
+  branchName: string;
+  startsAt: string;
+  endsAt: string;
+  vehicleName: string;
+  priceKobo: string;
+  terms: ReturnType<typeof parseBookingPolicy>;
+};
 const parseBranches = (value: unknown) =>
   z.object({ items: z.array(branchRef), nextCursor: z.string().optional() }).parse(value);
 export function ServiceDetail({
@@ -33,14 +55,36 @@ export function ServiceDetail({
   serviceId: string;
   initialService: z.infer<typeof serviceSchema>;
 }) {
-  const router = useRouter();
+  const parseService = useCallback(
+    (value: unknown) => {
+      const parsed = serviceSchema.parse(value);
+      if (parsed.id !== serviceId) throw new Error("Unconfirmed service identity");
+      return parsed;
+    },
+    [serviceId],
+  );
   const service = useResource(
     `/public/services/${encodeURIComponent(serviceId)}`,
     parseService,
     initialService,
+    { revalidateOnMount: false },
   );
-  const policy = useResource("/public/booking-policy", parseBookingPolicy);
-  const branches = useResource("/public/branches?limit=100", parseBranches);
+  const current = service.data;
+  const fixed = current?.pricingType === "FIXED";
+  const bookable =
+    fixed && current.priceKobo !== null && current.durationMinutes !== null;
+  const policy = useResource(
+    bookable ? "/public/booking-policy" : null,
+    parseBookingPolicy,
+  );
+  const branchPages = useCursorPage();
+  const branches = useResource(
+    bookable
+      ? `/public/branches?limit=20${branchPages.cursor ? `&cursor=${branchPages.cursor}` : ""}`
+      : null,
+    parseBranches,
+  );
+  const [branchName, setBranchName] = useState("");
   const [branch, setBranch] = useState("");
   const [slot, setSlot] = useState("");
   const [slotCursor, setSlotCursor] = useState<string>();
@@ -48,15 +92,39 @@ export function ServiceDetail({
   const [notes, setNotes] = useState("");
   const [vehicle, setVehicle] = useState<CustomerVehicle | null>(null);
   const requiresDeposit = (policy.data?.depositBasisPoints ?? 0) > 0;
+  const parseAvailableSlots = useCallback(
+    (value: unknown) => {
+      const parsed = parseSlots(value);
+      if (
+        parsed.items.some(
+          (item) =>
+            item.branchId !== branch ||
+            item.serviceId !== serviceId ||
+            !Number.isFinite(Date.parse(item.startsAt)) ||
+            !Number.isFinite(Date.parse(item.endsAt)) ||
+            Date.parse(item.endsAt) <= Date.parse(item.startsAt),
+        )
+      )
+        throw new Error("Unconfirmed appointment details");
+      return parsed;
+    },
+    [branch, serviceId],
+  );
   const slots = useResource(
-    branch && service.data?.pricingType === "FIXED"
+    branch && bookable
       ? `/public/services/${serviceId}/slots?branchId=${branch}&limit=50${slotCursor ? `&cursor=${slotCursor}` : ""}`
       : null,
-    parseSlots,
+    parseAvailableSlots,
   );
   const [error, setError] = useState<string>();
   const [booking, setBooking] = useState<z.infer<typeof bookingSchema>>();
-  const confirmation = useScrollToMessage(booking?.id);
+  const [review, setReview] = useState<BookingReview>();
+  const confirmation = useRef<HTMLHeadingElement>(null);
+  const errorHeading = useRef<HTMLHeadingElement>(null);
+  const [login, setLogin] = useState(false);
+  const [notesError, setNotesError] = useState<string>();
+  const formHeading = useRef<HTMLHeadingElement>(null);
+  const notice = useRef<HTMLDivElement>(null);
   const [uncertain, setUncertain] = useState(false);
   // Public support is anonymous: preserve its lock when account-scoped reads remount it.
   const [quotationUncertain, setQuotationUncertain] = useState(false);
@@ -67,6 +135,9 @@ export function ServiceDetail({
   } | null>(null);
   const discard = useCallback(() => {
     setBranch("");
+    setBranchName("");
+    setLogin(false);
+    setNotesError(undefined);
     setSlot("");
     setSlotCursor(undefined);
     setAccepted(false);
@@ -74,40 +145,152 @@ export function ServiceDetail({
     setVehicle(null);
     setError(undefined);
     setBooking(undefined);
+    setReview(undefined);
     setUncertain(false);
     attempt.current = null;
   }, []);
   const operation = useAccountMutation(discard);
   const { busy } = operation;
-  async function book() {
-    if (busy || !slot || (requiresDeposit && !accepted) || !policy.data || booking)
+  const selectedSlot = slots.data?.items.find(
+    (item) =>
+      item.id === slot && item.branchId === branch && item.serviceId === serviceId,
+  );
+  function focus(element: HTMLElement | null) {
+    element?.focus({ preventScroll: true });
+    element?.scrollIntoView({
+      block: "center",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  }
+  useEffect(() => {
+    if (booking) focus(confirmation.current);
+  }, [booking]);
+  useEffect(() => {
+    if (review) focus(formHeading.current);
+  }, [review]);
+  useEffect(() => {
+    if (error)
+      focus(notesError ? document.getElementById("booking-notes") : errorHeading.current);
+  }, [error, notesError]);
+  useEffect(() => {
+    if (operation.sessionChanged) focus(notice.current);
+  }, [operation.sessionChanged]);
+  function reviewBooking() {
+    if (
+      busy ||
+      uncertain ||
+      booking ||
+      !current ||
+      service.error ||
+      !selectedSlot ||
+      !policy.data ||
+      policy.error ||
+      slots.loading ||
+      slots.error ||
+      (requiresDeposit && !accepted) ||
+      current.priceKobo === null
+    )
       return;
     const customerNotes = notes.replace(/[\r\n\t]+/g, " ").trim();
-    if (
-      !uncertain &&
-      (customerNotes.length > 2000 || /[\u0000-\u001f\u007f]/.test(customerNotes))
-    ) {
-      setError("Use ordinary text of up to 2,000 characters for your booking notes.");
+    if (customerNotes.length > 2000 || /[\u0000-\u001f\u007f]/.test(customerNotes)) {
+      setNotesError(
+        "Use ordinary text of up to 2,000 characters for your booking notes.",
+      );
+      setError("Please review your booking notes.");
       document.getElementById("booking-notes")?.focus();
       return;
     }
+    setError(undefined);
+    setLogin(false);
+    setNotesError(undefined);
+    setReview({
+      body: {
+        slotId: selectedSlot.id,
+        policyVersion: policy.data.version,
+        ...(requiresDeposit ? { acceptNonRefundableDeposit: true } : {}),
+        ...(customerNotes ? { customerNotes } : {}),
+        ...(vehicle ? { vehicleId: vehicle.id } : {}),
+      },
+      serviceName: current.name,
+      branchName,
+      startsAt: selectedSlot.startsAt,
+      endsAt: selectedSlot.endsAt,
+      vehicleName: vehicle
+        ? `${vehicle.year} ${vehicle.make} ${vehicle.model}${vehicle.registrationNumber ? ` · ${vehicle.registrationNumber}` : ""}`
+        : "No saved vehicle selected",
+      priceKobo: String(current.priceKobo),
+      terms: policy.data,
+    });
+  }
+  function editDetails() {
+    if (busy || uncertain) return;
+    setReview(undefined);
+    setError(undefined);
+    setLogin(false);
+    requestAnimationFrame(() => focus(formHeading.current));
+  }
+  const reviewChanged =
+    !!review &&
+    (review.body.policyVersion !== policy.data?.version ||
+      JSON.stringify(review.terms) !== JSON.stringify(policy.data) ||
+      review.body.slotId !== selectedSlot?.id ||
+      review.startsAt !== selectedSlot?.startsAt ||
+      review.endsAt !== selectedSlot?.endsAt ||
+      review.priceKobo !== String(current?.priceKobo) ||
+      review.serviceName !== current?.name ||
+      !!policy.error ||
+      !!slots.error);
+  async function book() {
+    if (
+      busy ||
+      booking ||
+      !current ||
+      !review ||
+      service.error ||
+      (!uncertain &&
+        (reviewChanged ||
+          !selectedSlot ||
+          (requiresDeposit && !accepted) ||
+          !policy.data ||
+          slots.loading ||
+          !!slots.error ||
+          !!policy.error))
+    )
+      return;
     const controller = operation.begin();
     if (!controller) return;
     setError(undefined);
+    setLogin(false);
+    setNotesError(undefined);
     const body: RequestBody<"/customers/bookings", "post"> =
-      uncertain && attempt.current
-        ? attempt.current.body
-        : {
-            slotId: slot,
-            policyVersion: policy.data.version,
-            ...(requiresDeposit ? { acceptNonRefundableDeposit: true } : {}),
-            ...(customerNotes ? { customerNotes } : {}),
-            ...(vehicle ? { vehicleId: vehicle.id } : {}),
-          };
+      uncertain && attempt.current ? attempt.current.body : review.body;
     const fingerprint = JSON.stringify(body);
     if (attempt.current?.fingerprint !== fingerprint)
       attempt.current = { fingerprint, key: newIdempotencyKey(), body };
+    let submitted = false;
     try {
+      const session = z
+        .object({
+          user: z.object({ role: z.enum(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) }),
+        })
+        .parse(
+          (
+            await apiRequest("/auth/session", {
+              optionalSession: true,
+              signal: controller.signal,
+            })
+          ).data,
+        );
+      if (controller.signal.aborted) return;
+      if (session.user.role !== "CUSTOMER") {
+        setError(
+          "Booking requests are available to customer accounts. Contact our team for help.",
+        );
+        return;
+      }
+      submitted = true;
       const result = await apiRequest("/customers/bookings", {
         method: "POST",
         csrf: true,
@@ -117,24 +300,25 @@ export function ServiceDetail({
       });
       if (controller.signal.aborted) return;
       const response = z.object({ booking: bookingSchema }).parse(result.data);
+      if (response.booking.service.id !== serviceId)
+        throw new Error("Unconfirmed service identity");
       setBooking(response.booking);
       setUncertain(false);
-      notify("Booking request received. Review its status in your account.", {
-        tone: "success",
-        action: {
-          label: "View booking",
-          href: `/dashboard/bookings/${response.booking.id}`,
-        },
-      });
     } catch (value) {
       if (controller.signal.aborted) return;
       if (value instanceof ApiError && value.status === 401) {
-        router.push(`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`);
+        setLogin(true);
+        setError("Sign in to your customer account, then request your appointment.");
         return;
       }
-      setUncertain(
-        !(value instanceof ApiError && value.status >= 400 && value.status < 500),
-      );
+      if (submitted)
+        setUncertain(
+          !(value instanceof ApiError && value.status >= 400 && value.status < 500),
+        );
+      if (value instanceof ApiError && value.fields?.["body.customerNotes"]) {
+        setReview(undefined);
+        setNotesError("Check your booking notes and enter a valid value.");
+      }
       setError(
         value instanceof ApiError
           ? value.message
@@ -144,229 +328,496 @@ export function ServiceDetail({
       operation.finish(controller);
     }
   }
-  const current = service.data;
+
+  const locked = busy || uncertain;
   return (
     <>
       <SiteHeader />
-      <main id="main" className="section public-site public-detail service-booking">
-        <div className="container narrow">
-          <nav className="breadcrumbs" aria-label="Breadcrumb">
-            <Link href="/services">Services</Link>
-            <span aria-hidden="true">/</span>
-            <span>{current?.name ?? "Service details"}</span>
+      <main id="main" className="public-site contact-page service-detail">
+        <div className="sd-container">
+          <nav className="sd-breadcrumb" aria-label="Breadcrumb">
+            <ol>
+              <li>
+                <Link href="/">Home</Link>
+              </li>
+              <li>
+                <ChevronRight size={14} aria-hidden="true" />
+                <Link href="/services">Services</Link>
+              </li>
+              <li>
+                <ChevronRight size={14} aria-hidden="true" />
+                <span aria-current="page" title={current?.name}>
+                  {current?.name ?? "Service details"}
+                </span>
+              </li>
+            </ol>
           </nav>
-          <AccountChangeNotice visible={operation.sessionChanged} />
-          {current?.image && (
-            <div className={imageStyles.detail}>
-              <ServicePhoto
-                key={current.image.id}
-                url={current.image.url}
-                alt={current.image.altText || current.name}
-                width={900}
-                height={600}
-              />
+          <div ref={notice} tabIndex={-1}>
+            <AccountChangeNotice visible={operation.sessionChanged} />
+          </div>
+          {service.error && (
+            <div className="sd-recovery">
+              <Feedback message={service.error} />
+              <button
+                type="button"
+                className="button secondary"
+                onClick={service.refresh}
+              >
+                Retry service details
+              </button>
+              <Link className="text-link" href="/services">
+                Browse services
+              </Link>
             </div>
           )}
-          <Feedback message={service.error} />
-          {service.error && (
-            <button className="button secondary" onClick={service.refresh}>
-              Retry service
-            </button>
+          {!current && service.loading && (
+            <p role="status" className="sd-recovery">
+              Loading service details…
+            </p>
           )}
-          {service.loading && <p role="status">Loading service…</p>}
           {current && (
             <>
-              <h1>{current.name}</h1>
-              <p className="lead">
-                {current.description ??
-                  current.shortDescription ??
-                  "Discuss your vehicle’s needs with our team."}
-              </p>
-              <p className="price">
-                {current.pricingType === "QUOTE_REQUIRED"
-                  ? "Quotation required"
-                  : formatKobo(current.priceKobo)}
-              </p>
-              {current.durationMinutes !== null && (
-                <p className="muted">
-                  Listed duration: {current.durationMinutes} minutes
-                </p>
-              )}
-              {current.pricingType === "QUOTE_REQUIRED" ? (
-                <section className="detail-section">
-                  <h2>Tell us what your vehicle needs.</h2>
-                  <PublicEnquiryForm
-                    serviceId={current.id}
-                    serviceName={current.name}
-                    submissionLocked={quotationUncertain}
-                    onSubmissionUncertain={() => setQuotationUncertain(true)}
-                  />
-                </section>
-              ) : (
-                <section className="detail-section">
-                  <h2>Choose an available appointment.</h2>
-                  <Feedback
-                    message={error ?? policy.error ?? branches.error ?? slots.error}
-                  />
-                  {(policy.error || branches.error || slots.error) && (
-                    <button
-                      className="button secondary"
-                      onClick={() => {
-                        policy.refresh();
-                        branches.refresh();
-                        slots.refresh();
+              <section className="sd-hero" aria-labelledby="sd-title">
+                <div className="sd-identity">
+                  <p className="sd-eyebrow">Workshop services</p>
+                  <h1 id="sd-title">{current.name}</h1>
+                  {current.shortDescription && (
+                    <p className="sd-intro">{current.shortDescription}</p>
+                  )}
+                  <p className="sd-price">
+                    {fixed && current.priceKobo !== null
+                      ? formatKobo(current.priceKobo)
+                      : fixed
+                        ? "Contact us for pricing"
+                        : "Quotation required"}
+                  </p>
+                  {current.durationMinutes !== null && (
+                    <p className="sd-duration">
+                      <Clock3 size={20} aria-hidden="true" />
+                      Listed duration: {current.durationMinutes} minutes
+                    </p>
+                  )}
+                  <div className="sd-actions">
+                    <a
+                      className="button"
+                      href="#service-request"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        focus(booking ? confirmation.current : formHeading.current);
                       }}
                     >
-                      Refresh availability & terms
-                    </button>
-                  )}
-                  {booking ? (
-                    <div className="notice success" ref={confirmation} role="status">
-                      <h3>Booking request received</h3>
-                      <p>Status: {booking.status.replaceAll("_", " ")}</p>
-                      <p>
-                        {formatBusinessDate(booking.scheduledAt)} ·{" "}
-                        {booking.branch?.name ?? "Branch not assigned"}
-                      </p>
-                      {booking.vehicle && (
-                        <p>
-                          Vehicle: {booking.vehicle.year} {booking.vehicle.make}{" "}
-                          {booking.vehicle.model}
-                          {booking.vehicle.registrationNumber
-                            ? ` · ${booking.vehicle.registrationNumber}`
-                            : ""}
-                        </p>
-                      )}
-                      {booking.customerNotes && (
-                        <p>Your notes: {booking.customerNotes}</p>
-                      )}
-                      {booking.depositPayment && (
-                        <p>Deposit due: {formatKobo(booking.depositAmountKobo)}</p>
-                      )}
-                      {booking.status === "REQUESTED" && (
-                        <p>
-                          Your appointment is awaiting workshop confirmation. No deposit
-                          is required to submit this request.
-                        </p>
-                      )}
-                      {booking.paymentHoldExpiresAt && (
-                        <p>
-                          Hold expires {formatBusinessDate(booking.paymentHoldExpiresAt)}.
-                        </p>
-                      )}
-                      <Link className="button" href={`/dashboard/bookings/${booking.id}`}>
-                        View booking
-                      </Link>
-                    </div>
+                      {fixed ? "Choose an appointment" : "Send an enquiry"}
+                      <ArrowDown size={17} aria-hidden="true" />
+                    </a>
+                    <Link className="button secondary" href="/contact">
+                      Talk to our team
+                    </Link>
+                  </div>
+                </div>
+                <div className={`sd-media${current.image ? "" : " sd-media-empty"}`}>
+                  {current.image ? (
+                    <ServicePhoto
+                      key={current.image.url}
+                      url={current.image.url}
+                      alt={current.image.altText ?? current.name}
+                      width={current.image.width}
+                      height={current.image.height}
+                    />
                   ) : (
                     <>
+                      <Wrench size={52} strokeWidth={1.25} aria-hidden="true" />
+                      <span>Service photo not available</span>
+                    </>
+                  )}
+                </div>
+              </section>
+            </>
+          )}
+        </div>
+        {current && (
+          <section className="sd-workspace">
+            <div className="sd-container sd-layout">
+              <aside className="sd-context" aria-label="About this service">
+                <div>
+                  <h2>About this service</h2>
+                  <p className="sd-description">
+                    {current.description ??
+                      "Contact our team to discuss this service and what your vehicle needs."}
+                  </p>
+                </div>
+                <ol className="sd-process">
+                  <li>
+                    <span>1</span>
+                    {fixed
+                      ? "Choose a branch and time"
+                      : "Tell us what your vehicle needs"}
+                  </li>
+                  <li>
+                    <span>2</span>
+                    {fixed ? "Send your booking request" : "Review and send your enquiry"}
+                  </li>
+                  <li>
+                    <span>3</span>
+                    {fixed
+                      ? "Review updates in your account"
+                      : "Discuss the next steps with our team"}
+                  </li>
+                </ol>
+                <div className="sd-help">
+                  <h2>Need a hand?</h2>
+                  <p>Speak with our team about your vehicle before you send a request.</p>
+                  <a href={`tel:${business.internationalPhone}`}>
+                    <Phone size={18} aria-hidden="true" />
+                    {business.phone}
+                  </a>
+                  <a href={business.whatsapp} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle size={18} aria-hidden="true" />
+                    Chat on WhatsApp <span className="sr-only">(new tab)</span>
+                    <ArrowRight size={16} aria-hidden="true" />
+                  </a>
+                </div>
+              </aside>
+              <div className="sd-panel" id="service-request">
+                {bookable && (
+                  <ol className="sd-booking-progress" aria-label="Booking progress">
+                    {["Details", "Review", "Received"].map((label, index) => {
+                      const step = booking ? 2 : review ? 1 : 0;
+                      return (
+                        <li
+                          key={label}
+                          aria-current={index === step ? "step" : undefined}
+                          data-complete={index < step}
+                        >
+                          <span aria-hidden="true">
+                            {index < step ? <CheckCircle2 size={16} /> : index + 1}
+                          </span>
+                          {label}
+                        </li>
+                      );
+                    })}
+                  </ol>
+                )}
+                <h2 ref={formHeading} tabIndex={-1} className={booking ? "sr-only" : "sd-form-title"}>
+                  {fixed
+                    ? booking
+                      ? "Your booking request"
+                      : review
+                        ? "Review your booking request"
+                        : "Choose an available appointment."
+                    : "Tell us what you need."}
+                </h2>
+                {!fixed ? (
+                  <>
+                    <p className="sd-muted">
+                      Send an enquiry about {current.name}. Our team can discuss your
+                      requirements before preparing a quotation.
+                    </p>
+                    <div className="contact-form-panel">
+                      <PublicEnquiryForm
+                        serviceId={serviceId}
+                        serviceName={current.name}
+                        submissionLocked={quotationUncertain}
+                        onSubmissionUncertain={() => setQuotationUncertain(true)}
+                        presentation="contact"
+                      />
+                    </div>
+                  </>
+                ) : !bookable ? (
+                  <div className="sd-recovery">
+                    <p>
+                      Online appointments are unavailable for this service while its price
+                      or duration is being updated.
+                    </p>
+                    <Link className="button secondary" href="/contact">
+                      Contact our team
+                    </Link>
+                  </div>
+                ) : booking ? (
+                  <div className="sd-confirmation" role="status">
+                    <CheckCircle2 size={32} aria-hidden="true" />
+                    <h3 ref={confirmation} tabIndex={-1}>
+                      Booking request received
+                    </h3>
+                    <p>
+                      {booking.status === "REQUESTED"
+                        ? "Your request is waiting for workshop review. Check your account for the confirmed appointment and updates."
+                        : "Review your booking for its current status and next steps."}
+                    </p>
+                    <div className="sd-booking-reference">
+                      <label htmlFor="booking-reference">Booking reference</label>
+                      <textarea
+                        id="booking-reference"
+                        rows={2}
+                        readOnly
+                        value={booking.id}
+                      />
+                      <CopyControl
+                        value={booking.id}
+                        label="Copy booking reference"
+                        fieldId="booking-reference"
+                      />
+                    </div>
+                    <dl>
+                      <dt>Status</dt>
+                      <dd>{booking.status.replaceAll("_", " ")}</dd>
+                      <dt>Service</dt>
+                      <dd>{booking.service.name}</dd>
+                      {booking.branch && (
+                        <>
+                          <dt>Branch</dt>
+                          <dd>{booking.branch.name}</dd>
+                        </>
+                      )}
+                      {booking.scheduledAt && (
+                        <>
+                          <dt>Appointment</dt>
+                          <dd>{formatBusinessDate(booking.scheduledAt)}</dd>
+                        </>
+                      )}
+                    </dl>
+                    {booking.vehicle && (
+                      <p>
+                        Vehicle: {booking.vehicle.year} {booking.vehicle.make}{" "}
+                        {booking.vehicle.model}
+                        {booking.vehicle.registrationNumber
+                          ? ` · ${booking.vehicle.registrationNumber}`
+                          : ""}
+                      </p>
+                    )}
+                    {booking.customerNotes && <p>Your notes: {booking.customerNotes}</p>}
+                    {booking.depositAmountKobo !== null &&
+                      BigInt(booking.depositAmountKobo) > BigInt(0) && (
+                        <p>Deposit due: {formatKobo(booking.depositAmountKobo)}</p>
+                      )}
+                    {booking.paymentHoldExpiresAt && (
+                      <p>
+                        Payment hold expires:{" "}
+                        {formatBusinessDate(booking.paymentHoldExpiresAt)}
+                      </p>
+                    )}
+                    <Link className="button" href={`/dashboard/bookings/${booking.id}`}>
+                      View booking
+                      <ArrowRight size={17} aria-hidden="true" />
+                    </Link>
+                  </div>
+                ) : (
+                  <form
+                    className="sd-booking-form"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      if (review) void book();
+                      else reviewBooking();
+                    }}
+                    aria-busy={busy}
+                  >
+                    {review && (
+                      <section
+                        className="sd-booking-review"
+                        aria-label="Booking request review"
+                      >
+                        <p className="sd-muted">
+                          Check these details before sending your request. All appointment
+                          times are in Lagos time (UTC+1).
+                        </p>
+                        <dl>
+                          <div>
+                            <dt>Service</dt>
+                            <dd>{review.serviceName}</dd>
+                          </div>
+                          <div>
+                            <dt>Branch</dt>
+                            <dd>{review.branchName}</dd>
+                          </div>
+                          <div>
+                            <dt>Appointment</dt>
+                            <dd>{formatBusinessDate(review.startsAt)}</dd>
+                          </div>
+                          <div>
+                            <dt>Vehicle</dt>
+                            <dd>{review.vehicleName}</dd>
+                          </div>
+                          <div>
+                            <dt>Service price</dt>
+                            <dd>{formatKobo(review.priceKobo)}</dd>
+                          </div>
+                          <div>
+                            <dt>Your notes</dt>
+                            <dd>{review.body.customerNotes || "No additional notes"}</dd>
+                          </div>
+                        </dl>
+                        <div className="sd-terms">
+                          {review.terms.depositBasisPoints === 0 && (
+                            <p>No deposit is required to send your booking request.</p>
+                          )}
+                          {review.terms.depositBasisPoints > 0 && (
+                            <p>
+                              You accepted the published{" "}
+                              {review.terms.depositBasisPoints / 100}% deposit terms shown
+                              in the details step.
+                            </p>
+                          )}
+                          <p>
+                            The workshop reviews your request before confirming an
+                            appointment. Your request uses the contact details in your
+                            customer account.
+                          </p>
+                        </div>
+                        {reviewChanged && !uncertain && (
+                          <p role="alert" className="field-error">
+                            The appointment or booking terms have changed. Edit your
+                            details and review the latest information before sending.
+                          </p>
+                        )}
+                      </section>
+                    )}
+                    <div className="sd-booking-details" hidden={!!review}>
+                      <p className="sd-muted">
+                        All appointment times are shown in Lagos time (UTC+1).
+                      </p>
                       <div className="field">
-                        <label htmlFor="service-branch">Workshop branch</label>
-                        <select
-                          id="service-branch"
-                          value={branch}
-                          disabled={busy || uncertain}
-                          onChange={(event) => {
-                            setBranch(event.target.value);
+                        <label htmlFor="booking-branch">Workshop branch</label>
+                        <ServiceChoice
+                          id="booking-branch"
+                          label="Branches"
+                          items={(branches.data?.items ?? []).map((item) => ({
+                            id: item.id,
+                            label: item.name,
+                          }))}
+                          value={branch ? { id: branch, label: branchName } : undefined}
+                          onChange={(item) => {
+                            setBranch(item.id);
+                            setBranchName(item.label);
                             setSlot("");
                             setSlotCursor(undefined);
                             setAccepted(false);
                           }}
+                          disabled={locked}
+                          loading={branches.loading}
+                          loadError={branches.error}
+                          onRetry={branches.refresh}
                         >
-                          <option value="">Choose a branch</option>
-                          {branches.data?.items.map((item) => (
-                            <option value={item.id} key={item.id}>
-                              {item.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      {slots.loading && (
-                        <p role="status">Checking available appointments…</p>
-                      )}
-                      <div className="slot-grid">
-                        {slots.data?.items.map((item) => (
-                          <button
-                            key={item.id}
-                            disabled={busy || uncertain || slots.loading}
-                            className="slot"
-                            aria-pressed={slot === item.id}
-                            onClick={() => setSlot(item.id)}
-                          >
-                            {formatBusinessDate(item.startsAt)}
-                          </button>
-                        ))}
-                      </div>
-                      {branch &&
-                        !slots.loading &&
-                        !slots.error &&
-                        slots.data?.items.length === 0 && (
-                          <div className="empty">
-                            No published appointments on this page. Try another branch or
-                            contact our team.
-                          </div>
-                        )}
-                      {slots.data?.nextCursor && (
-                        <button
-                          className="button secondary"
-                          disabled={busy || uncertain}
-                          onClick={() => {
-                            setSlotCursor(slots.data?.nextCursor);
-                            setSlot("");
-                          }}
-                        >
-                          More appointments
-                        </button>
-                      )}
-                      {policy.data && (
-                        <div className="notice">
-                          <h3>
-                            {requiresDeposit
-                              ? "Booking deposit terms"
-                              : "Before you request a booking"}
-                          </h3>
-                          {!requiresDeposit ? (
-                            <p>
-                              No deposit is required. The workshop will review your
-                              request and confirm availability. Submitting a request does
-                              not confirm an appointment. Cancellation is free.
-                            </p>
-                          ) : (
-                            <>
-                              <p>
-                                The deposit is {policy.data.depositBasisPoints / 100}% of
-                                the service price. Available appointments are{" "}
-                                {policy.data.minimumAdvanceHours / 24}–
-                                {policy.data.maximumAdvanceHours / 24} days ahead, with a{" "}
-                                {policy.data.paymentHoldMinutes}-minute payment hold.
-                              </p>
-                              <p>
-                                {policy.data.depositRefundableForCustomerCancellation
-                                  ? "The published policy allows a refundable deposit for customer cancellation."
-                                  : "The deposit is non-refundable if you cancel."}{" "}
-                                You may reschedule up to{" "}
-                                {policy.data.customerRescheduleLimit} time, at least{" "}
-                                {policy.data.customerRescheduleCutoffHours} hours before
-                                your appointment.
-                              </p>
-                              <label className="check-label">
-                                <input
-                                  type="checkbox"
-                                  checked={accepted}
-                                  disabled={busy || uncertain}
-                                  onChange={(event) => setAccepted(event.target.checked)}
-                                />{" "}
-                                I have read and accept these deposit terms.
-                              </label>
-                            </>
+                          {(branchPages.page > 1 || branches.data?.nextCursor) && (
+                            <CursorPagination
+                              pagination={branchPages}
+                              nextCursor={branches.data?.nextCursor}
+                              disabled={locked || branches.loading}
+                              label="Branches"
+                            />
                           )}
-                        </div>
-                      )}
+                        </ServiceChoice>
+                      </div>
+                      <fieldset className="sd-appointments" disabled={locked}>
+                        <legend>Available appointments</legend>
+                        {!branch ? (
+                          <p className="sd-empty">
+                            <CalendarDays size={22} aria-hidden="true" />
+                            Choose a workshop branch to see available times.
+                          </p>
+                        ) : slots.loading ? (
+                          <p className="sd-empty" role="status">
+                            Loading available appointments…
+                          </p>
+                        ) : slots.error ? (
+                          <div className="sd-recovery">
+                            <Feedback message={slots.error} />
+                            <button
+                              className="button secondary"
+                              type="button"
+                              onClick={slots.refresh}
+                            >
+                              Retry appointments
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            {slots.data?.items.length ? (
+                              <div className="sd-slots">
+                                {slots.data.items
+                                  .filter(
+                                    (item) =>
+                                      item.branchId === branch &&
+                                      item.serviceId === serviceId,
+                                  )
+                                  .map((item) => (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      className="slot"
+                                      aria-pressed={slot === item.id}
+                                      onClick={() => {
+                                        setSlot(item.id);
+                                        setAccepted(false);
+                                      }}
+                                    >
+                                      <span>
+                                        {new Intl.DateTimeFormat("en-GB", {
+                                          timeZone: "Africa/Lagos",
+                                          weekday: "short",
+                                          day: "numeric",
+                                          month: "short",
+                                          year: "numeric",
+                                        }).format(new Date(item.startsAt))}
+                                      </span>
+                                      <strong>
+                                        {new Intl.DateTimeFormat("en-GB", {
+                                          timeZone: "Africa/Lagos",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                          hour12: false,
+                                        }).format(new Date(item.startsAt))}{" "}
+                                        –{" "}
+                                        {new Intl.DateTimeFormat("en-GB", {
+                                          timeZone: "Africa/Lagos",
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                          hour12: false,
+                                        }).format(new Date(item.endsAt))}
+                                      </strong>
+                                    </button>
+                                  ))}
+                              </div>
+                            ) : (
+                              <p className="sd-empty">
+                                No appointments are available on this page. Try another
+                                branch or contact our team.
+                              </p>
+                            )}
+                            {(slotCursor || slots.data?.nextCursor) && (
+                              <nav className="sd-actions" aria-label="Appointment pages">
+                                {slotCursor && (
+                                  <button
+                                    type="button"
+                                    className="button secondary"
+                                    onClick={() => {
+                                      setSlotCursor(undefined);
+                                      setSlot("");
+                                    }}
+                                  >
+                                    First appointments
+                                  </button>
+                                )}
+                                {slots.data?.nextCursor && (
+                                  <button
+                                    type="button"
+                                    className="button secondary"
+                                    onClick={() => {
+                                      setSlotCursor(slots.data?.nextCursor);
+                                      setSlot("");
+                                    }}
+                                  >
+                                    More appointments
+                                  </button>
+                                )}
+                              </nav>
+                            )}
+                          </>
+                        )}
+                      </fieldset>
                       <BookingAccountDetails
                         serviceId={serviceId}
                         vehicle={vehicle}
                         onVehicleChange={setVehicle}
-                        disabled={busy || uncertain}
+                        disabled={locked}
                       />
                       <div className="field">
                         <label htmlFor="booking-notes">
@@ -374,49 +825,163 @@ export function ServiceDetail({
                         </label>
                         <textarea
                           id="booking-notes"
+                          name="customerNotes"
+                          rows={3}
                           maxLength={2000}
                           value={notes}
-                          disabled={busy || uncertain}
-                          onChange={(event) => setNotes(event.target.value)}
+                          disabled={locked}
+                          onChange={(event) => {
+                            setNotes(event.target.value);
+                            setNotesError(undefined);
+                          }}
+                          aria-invalid={!!notesError}
+                          aria-describedby={`booking-notes-help${notesError ? " booking-notes-error" : ""}`}
                         />
+                        <div id="booking-notes-help" className="sd-field-help">
+                          <span>Describe the vehicle, symptoms or any concerns.</span>
+                          <span>{notes.length.toLocaleString()} / 2,000</span>
+                        </div>
+                        {notesError && (
+                          <p id="booking-notes-error" className="field-error">
+                            {notesError}
+                          </p>
+                        )}
                       </div>
-                      {uncertain && (
-                        <Feedback
-                          message="Confirmation is pending. Check this same request again or view your bookings before choosing another appointment."
-                          tone="info"
-                        />
+                      {policy.loading ? (
+                        <p role="status">Loading booking terms…</p>
+                      ) : policy.error ? (
+                        <div className="sd-recovery">
+                          <Feedback message={policy.error} />
+                          <button
+                            type="button"
+                            className="button secondary"
+                            onClick={policy.refresh}
+                            disabled={busy}
+                          >
+                            Retry booking terms
+                          </button>
+                        </div>
+                      ) : (
+                        policy.data && (
+                          <div className="sd-terms">
+                            <h3>Before you request</h3>
+                            <p>
+                              Appointments can be requested{" "}
+                              {policy.data.minimumAdvanceHours / 24}–
+                              {policy.data.maximumAdvanceHours / 24} days in advance. The
+                              workshop reviews each request before confirming it.
+                            </p>
+                            {!requiresDeposit ? (
+                              <p>No deposit is required to send your booking request.</p>
+                            ) : (
+                              <>
+                                <p>
+                                  The published policy requires a{" "}
+                                  {policy.data.depositBasisPoints / 100}% deposit.{" "}
+                                  {policy.data.depositRefundableForCustomerCancellation
+                                    ? "The deposit is refundable for customer cancellation under the published policy."
+                                    : "The deposit is non-refundable for customer cancellation."}{" "}
+                                  The payment hold lasts {policy.data.paymentHoldMinutes}{" "}
+                                  minutes.
+                                </p>
+                                <label className="sd-consent">
+                                  <input
+                                    type="checkbox"
+                                    checked={accepted}
+                                    disabled={locked}
+                                    onChange={(event) =>
+                                      setAccepted(event.target.checked)
+                                    }
+                                  />
+                                  <span>I have read and accept these deposit terms.</span>
+                                </label>
+                              </>
+                            )}
+                            <p>
+                              Customer rescheduling: up to{" "}
+                              {policy.data.customerRescheduleLimit} change
+                              {policy.data.customerRescheduleLimit === 1 ? "" : "s"}, at
+                              least {policy.data.customerRescheduleCutoffHours} hours
+                              before the appointment.
+                            </p>
+                          </div>
+                        )
                       )}
-                      <div className="actions">
-                        <button
-                          className="button"
-                          disabled={
-                            busy ||
-                            !slot ||
-                            (requiresDeposit && !accepted) ||
-                            !policy.data ||
-                            !!slots.error ||
-                            slots.loading ||
-                            !!policy.error
-                          }
-                          onClick={() => void book()}
-                        >
-                          {busy
-                            ? "Submitting…"
-                            : uncertain
-                              ? "Check the same booking request"
-                              : "Request booking"}
-                        </button>
-                        <Link className="text-link" href="/dashboard/bookings">
-                          Your bookings →
-                        </Link>
+                    </div>
+                    {error && (
+                      <div className="sd-error" role="alert">
+                        <h3 ref={errorHeading} tabIndex={-1}>
+                          {uncertain
+                            ? "Your request needs checking"
+                            : "We couldn’t send your request"}
+                        </h3>
+                        <p>{error}</p>
+                        {login && (
+                          <Link
+                            className="text-link"
+                            href={`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`}
+                          >
+                            Sign in to your account
+                          </Link>
+                        )}
+                        {uncertain && (
+                          <p>
+                            The request may have reached us. Review your bookings or check
+                            the same request below. Your original details will be reused
+                            to avoid a duplicate.
+                          </p>
+                        )}
                       </div>
-                    </>
-                  )}
-                </section>
-              )}
-            </>
-          )}
-        </div>
+                    )}
+                    <div className="sd-submit">
+                      {review && (
+                        <button
+                          type="button"
+                          className="button secondary"
+                          disabled={locked}
+                          onClick={editDetails}
+                        >
+                          Edit details
+                        </button>
+                      )}
+                      <button
+                        type="submit"
+                        className="button"
+                        disabled={
+                          busy ||
+                          !!service.error ||
+                          (!uncertain &&
+                            (reviewChanged ||
+                              !selectedSlot ||
+                              !policy.data ||
+                              !!policy.error ||
+                              slots.loading ||
+                              !!slots.error ||
+                              (requiresDeposit && !accepted)))
+                        }
+                      >
+                        {busy
+                          ? "Sending request…"
+                          : uncertain
+                            ? "Check the same booking request"
+                            : review
+                              ? "Request booking"
+                              : "Review booking request"}
+                        <ArrowRight size={17} aria-hidden="true" />
+                      </button>
+                      <Link className="text-link" href="/dashboard/bookings">
+                        View my bookings
+                      </Link>
+                    </div>
+                    <p className="sd-small">
+                      A customer account is needed to request an appointment.
+                    </p>
+                  </form>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
       <SiteFooter />
     </>

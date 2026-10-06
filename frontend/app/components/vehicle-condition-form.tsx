@@ -102,7 +102,11 @@ export function VehicleConditionForm({
     });
   }
   return (
-    <form noValidate onSubmit={form.handleSubmit(review)}>
+    <form
+      data-draft-key={JSON.stringify(["vehicle-condition-form:1", vehicle?.id])}
+      noValidate
+      onSubmit={form.handleSubmit(review)}
+    >
       {locked && (
         <p className="notice" role="status">
           {confirmedId
@@ -192,7 +196,7 @@ export function VehicleConditionForm({
         </div>
         <h3>Additional public findings</h3>
         {fields.fields.map((field, index) => (
-          <div className="detail-section" key={field.id}>
+          <div data-draft-row="findings" className="detail-section" key={field.id}>
             <div className="field">
               <label htmlFor={`finding-${field.id}-name`}>Finding {index + 1} name</label>
               <input
@@ -239,6 +243,7 @@ export function VehicleConditionForm({
             <button
               type="button"
               className="button secondary"
+              data-draft-remove="findings"
               onClick={() => fields.remove(index)}
             >
               Remove finding {index + 1}
@@ -248,6 +253,7 @@ export function VehicleConditionForm({
         <button
           type="button"
           className="button secondary"
+          data-draft-add="findings"
           onClick={() => fields.append({ name: "", type: "TEXT", value: "" })}
         >
           Add a finding

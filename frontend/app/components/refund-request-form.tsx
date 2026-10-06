@@ -38,6 +38,7 @@ export function RefundRequestForm({
   const prefix = `refund-request-${attempt.id}`;
   return (
     <form
+      data-draft-key={JSON.stringify(["refund-request-form:1", attempt?.id])}
       noValidate
       onSubmit={form.handleSubmit((values) => {
         if (disabled || receipt) return;

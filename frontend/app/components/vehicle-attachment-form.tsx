@@ -153,6 +153,12 @@ export function VehicleAttachmentForm({
   const prefix = `attachment-${kind}`;
   return (
     <form
+      data-draft-key={JSON.stringify([
+        "vehicle-attachment-form:1",
+        vehicleId,
+        kind,
+        replacement?.id,
+      ])}
       noValidate
       onSubmit={(event) => {
         const now = Date.now();

@@ -122,6 +122,7 @@ export function RefundTransferForm({
       </p>
       <Feedback message={error} />
       <form
+        data-draft-key={JSON.stringify(["refund-transfer-form:1", refund?.id])}
         onSubmit={(event) => {
           event.preventDefault();
           review(new FormData(event.currentTarget), new Date().getTime());

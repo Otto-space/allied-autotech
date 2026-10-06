@@ -42,6 +42,7 @@ export function OperationActionForm({
   const changed = revision !== draftRevision;
   return (
     <form
+      data-draft-key={JSON.stringify(["operation-action-form:1", id])}
       noValidate
       onSubmit={form.handleSubmit((values) => {
         if (!disabled && !uncertain && !changed) onReview(proposal(values));

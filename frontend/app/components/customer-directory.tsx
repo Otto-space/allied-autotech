@@ -37,6 +37,7 @@ export function CustomerDirectory() {
       <h1>Customers</h1>
       <p className="lead">Find a customer and review their account and activity.</p>
       <form
+        data-draft-key="customer-directory:1"
         onSubmit={(event) => {
           event.preventDefault();
           const search = draft.search.trim();

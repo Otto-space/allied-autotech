@@ -122,6 +122,7 @@ export function CartCheckout({
         Refresh delivery options
       </button>
       <form
+        data-draft-key="cart-checkout:1"
         onSubmit={(event) => {
           event.preventDefault();
           submit(new FormData(event.currentTarget));

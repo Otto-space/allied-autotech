@@ -235,6 +235,7 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
               <section className="detail-section">
                 <h2>Staff assignment</h2>
                 <form
+                  data-draft-key={JSON.stringify(["staff-booking-detail:1", bookingId])}
                   key={`assignment-${current.version}`}
                   onSubmit={(event) => {
                     event.preventDefault();
@@ -259,6 +260,7 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
             <section className="detail-section">
               <h2>Service progress</h2>
               <form
+                data-draft-key={JSON.stringify(["staff-booking-detail:2", bookingId])}
                 key={`status-${current.version}`}
                 onSubmit={(event) => {
                   event.preventDefault();
@@ -334,6 +336,7 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
                   deposit requires a reviewed refund.
                 </p>
                 <form
+                  data-draft-key={JSON.stringify(["staff-booking-detail:3", bookingId])}
                   onSubmit={(event) => {
                     event.preventDefault();
                     review("disruption", new FormData(event.currentTarget));

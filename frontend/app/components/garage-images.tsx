@@ -140,6 +140,7 @@ function Gallery({
               {image.isPrimary ? " · Cover" : ""}
             </h2>
             <form
+              data-draft-key={JSON.stringify(["garage-images:1", vehicle?.id])}
               onSubmit={(event) => {
                 event.preventDefault();
                 const values = new FormData(event.currentTarget);
