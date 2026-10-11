@@ -119,8 +119,7 @@ async function fixture(kind: "order" | "vehicle") {
           askingPriceKobo: 10000n,
           agreedPriceKobo: 10000n,
           status: "PAYMENT_PENDING",
-          termsVersion: "synthetic-race-test",
-          termsAcceptedAt: paidAt,
+          ...(await testReservationAcceptance(customer.id)),
           reservationExpiresAt: deadline,
         },
       })
@@ -309,3 +308,4 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     }
   },
 );
+import { testReservationAcceptance } from "../helpers/reservation-terms.js";

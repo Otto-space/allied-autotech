@@ -130,6 +130,16 @@ export class VehicleSalesController {
           ),
         ),
       );
+  reservationTerms = async (req: Request, res: Response) => {
+    res.set("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Reservation agreement retrieved",
+        req.id,
+        await this.service.reservationTerms(actor(req), ids(res).transactionId!),
+      ),
+    );
+  };
   reserve = async (req: Request, res: Response) =>
     res
       .status(200)

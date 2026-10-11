@@ -82,8 +82,7 @@ async function fixture(state: "unpaid" | "review" | "processing") {
       customerEmail: owner.email,
       customerPhone: "+2348000000000",
       status: "PAYMENT_PENDING",
-      termsVersion: "synthetic-expiry-test",
-      termsAcceptedAt: new Date(),
+      ...(await testReservationAcceptance(profile.id)),
       reservationExpiresAt: new Date(Date.now() + 3600000),
     },
   });
@@ -233,3 +232,4 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     });
   },
 );
+import { testReservationAcceptance } from "../helpers/reservation-terms.js";

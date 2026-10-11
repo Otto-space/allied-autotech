@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
+import { reservationTermsResponseSchema } from "./reservation-terms.js";
 import {
   customerInspectionListQuerySchema,
   customerTransactionListQuerySchema,
@@ -41,6 +42,8 @@ type Path = {
   method: "get" | "post";
   path: string;
   summary: string;
+  description?: string;
+  data?: ZodType;
   body?: ZodType;
   params?: ZodType;
   query?: ZodType;
@@ -91,10 +94,21 @@ export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/vehicle-transactions/{transactionId}/reserve",
       summary: "Reserve an agreed vehicle",
+      description:
+        "Requires explicit acceptance of the current approved reservation agreement returned by reservation-terms. Missing, withdrawn, future, forged or superseded terms return 409 without creating a hold. A retained matching idempotency receipt replays the original owned reservation even after publication changes; changed input conflicts. Acceptance links immutable document content, customer and server timestamp. Existing reservation/payment policy still applies; publishing terms does not activate deposits.",
       params: transactionParamsSchema,
       body: reservationBodySchema,
       mutation: true,
       idempotent: true,
+    },
+    {
+      method: "get",
+      path: "/customers/vehicle-transactions/{transactionId}/reservation-terms",
+      summary: "Read the applicable reservation agreement and own acceptance evidence",
+      description:
+        "Customer-owned purchase only; 404 for missing or foreign purchases. Private, no-store. current is null when no effective approved enabled agreement exists. accepted preserves the exact historical document despite later supersession or withdrawal. legacyAcceptance identifies older metadata without claiming document evidence. Plain text body must be rendered as text, never HTML. Refresh before accepting; the reservation endpoint revalidates the version atomically.",
+      params: transactionParamsSchema,
+      data: reservationTermsResponseSchema,
     },
     {
       method: "get",
@@ -176,6 +190,7 @@ export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
       path: route.path,
       tags: ["Vehicle Sales"],
       summary: route.summary,
+      ...(route.description ? { description: route.description } : {}),
       security: [{ sessionCookie: [] }],
       request: {
         ...(route.params ? { params: route.params as never } : {}),
@@ -223,7 +238,13 @@ export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
           : {}),
         [route.created ? "201" : "200"]: {
           description: "Request completed",
-          content: { "application/json": { schema: responseSchema } },
+          content: {
+            "application/json": {
+              schema: route.data
+                ? responseSchema.extend({ data: route.data })
+                : responseSchema,
+            },
+          },
         },
       },
     });

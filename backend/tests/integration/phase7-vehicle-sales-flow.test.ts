@@ -1,4 +1,5 @@
 import sharp from "sharp";
+import { testReservationTerms } from "../helpers/reservation-terms.js";
 import { Router } from "express";
 import { createApiRouter } from "../../src/routes/index.js";
 import {
@@ -425,15 +426,16 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
       .set("Cookie", staffSession.cookie);
     expect(staffTransaction.status).toBe(200);
 
+    const terms = await testReservationTerms();
     const reservations = await Promise.all([
       request(app)
         .post(`/api/v1/customers/vehicle-transactions/${firstId}/reserve`)
         .set(mutation(firstSession, "phase7-first-reservation"))
-        .send({ expectedVersion: 1, termsVersion: "v1", termsAccepted: true }),
+        .send({ expectedVersion: 1, termsVersion: terms.id, termsAccepted: true }),
       request(app)
         .post(`/api/v1/customers/vehicle-transactions/${secondId}/reserve`)
         .set(mutation(secondSession, "phase7-second-reservation"))
-        .send({ expectedVersion: 1, termsVersion: "v1", termsAccepted: true }),
+        .send({ expectedVersion: 1, termsVersion: terms.id, termsAccepted: true }),
     ]);
     expect(reservations.map(({ status }) => status).sort()).toEqual([200, 409]);
     const winningIndex = reservations.findIndex(({ status }) => status === 200);
@@ -445,7 +447,7 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
     const replay = await request(app)
       .post(`/api/v1/customers/vehicle-transactions/${winnerId}/reserve`)
       .set(mutation(winnerSession, winnerKey))
-      .send({ expectedVersion: 1, termsVersion: "v1", termsAccepted: true });
+      .send({ expectedVersion: 1, termsVersion: terms.id, termsAccepted: true });
     expect(replay.status).toBe(200);
     expect(replay.body.data.replayed).toBe(true);
     expect(

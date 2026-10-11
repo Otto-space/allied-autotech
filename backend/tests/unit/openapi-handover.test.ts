@@ -93,7 +93,7 @@ describe("private API handover contract", () => {
     ]) {
       expect(paths[path], path).toBeDefined();
     }
-    expect(operationCount).toBe(314);
+    expect(operationCount).toBe(315);
     expect(handbookOperations).toHaveLength(operationCount);
     expect(handbook).toContain("Never do this client-side");
     expect(handbook).toContain("Provider signature plus authoritative verification");

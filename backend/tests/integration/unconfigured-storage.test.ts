@@ -111,8 +111,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           agreedPriceKobo: 100000n,
           status: "PAID",
           paidAt: new Date(),
-          termsVersion: "synthetic-storage-test",
-          termsAcceptedAt: new Date(),
+          ...(await testReservationAcceptance()),
         },
       });
       const handover = issueVehicleAssetTicket({
@@ -210,3 +209,4 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     });
   },
 );
+import { testReservationAcceptance } from "../helpers/reservation-terms.js";

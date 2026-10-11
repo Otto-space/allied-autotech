@@ -290,6 +290,7 @@ export async function publishPolicy(
           DISPUTES: "Q9",
           RETENTION: "Q13",
           BANK_REFUND_CLOCK: "Q6",
+          VEHICLE_RESERVATION_TERMS: "Q3",
         }[input.kind],
         approvedByUserId: actor.userId,
         effectiveAt,

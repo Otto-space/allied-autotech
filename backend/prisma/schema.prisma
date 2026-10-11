@@ -595,6 +595,7 @@ model User {
   refundsApproved                              Refund[]                          @relation("RefundApprover")
   anomaliesResolved                            PaymentAnomaly[]                  @relation("AnomalyResolver")
   vehicleStatusChanges                         VehicleTransactionStatusHistory[]
+  vehicleTermsAcceptances                      VehicleTransaction[]              @relation("VehicleTermsAcceptedBy")
   idempotencyRecords                           IdempotencyRecord[]
   privilegedInvitationsSent                    PrivilegedInvitation[]            @relation("PrivilegedInvitationInviter")
   privilegedInvitationsReceived                PrivilegedInvitation[]            @relation("PrivilegedInvitationRecipient")
@@ -1998,52 +1999,58 @@ model InspectionRequest {
 }
 
 model VehicleTransaction {
-  paidHoldStartsAt        DateTime?
-  paidHoldExpiresAt       DateTime?
-  policySnapshot          Json?
-  id                      String                   @id @default(uuid()) @db.Uuid
-  vehicleListingId        String                   @db.Uuid
-  customerId              String?                  @db.Uuid
-  sourceEnquiryId         String?                  @unique @db.Uuid
-  sourceInspectionId      String?                  @unique @db.Uuid
-  transactionNumber       String                   @unique @db.VarChar(50)
-  customerName            String
-  customerPhone           String                   @db.VarChar(32)
-  customerEmail           String?                  @db.Citext
-  askingPriceKobo         BigInt
-  agreedPriceKobo         BigInt?
-  reservationRequiredKobo BigInt?
-  currency                String                   @default("NGN") @db.Char(3)
-  status                  VehicleTransactionStatus @default(ENQUIRY)
-  reservationExpiresAt    DateTime?
-  termsVersion            String?                  @db.VarChar(40)
-  termsAcceptedAt         DateTime?
-  notes                   String?
-  cancellationReason      String?
-  version                 Int                      @default(0)
-  paidAt                  DateTime?
-  handoverPendingAt       DateTime?
-  completedAt             DateTime?
-  cancelledAt             DateTime?
-  expiredAt               DateTime?
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
+  paidHoldStartsAt                 DateTime?
+  paidHoldExpiresAt                DateTime?
+  policySnapshot                   Json?
+  id                               String                   @id @default(uuid()) @db.Uuid
+  vehicleListingId                 String                   @db.Uuid
+  customerId                       String?                  @db.Uuid
+  sourceEnquiryId                  String?                  @unique @db.Uuid
+  sourceInspectionId               String?                  @unique @db.Uuid
+  transactionNumber                String                   @unique @db.VarChar(50)
+  customerName                     String
+  customerPhone                    String                   @db.VarChar(32)
+  customerEmail                    String?                  @db.Citext
+  askingPriceKobo                  BigInt
+  agreedPriceKobo                  BigInt?
+  reservationRequiredKobo          BigInt?
+  currency                         String                   @default("NGN") @db.Char(3)
+  status                           VehicleTransactionStatus @default(ENQUIRY)
+  reservationExpiresAt             DateTime?
+  termsVersion                     String?                  @db.VarChar(40)
+  termsAcceptedAt                  DateTime?
+  reservationTermsPolicyId         String?                  @db.Uuid
+  reservationTermsAcceptedByUserId String?                  @db.Uuid
+  notes                            String?
+  cancellationReason               String?
+  version                          Int                      @default(0)
+  paidAt                           DateTime?
+  handoverPendingAt                DateTime?
+  completedAt                      DateTime?
+  cancelledAt                      DateTime?
+  expiredAt                        DateTime?
+  createdAt                        DateTime                 @default(now())
+  updatedAt                        DateTime                 @updatedAt
 
-  vehicleListing   VehicleListing                    @relation(fields: [vehicleListingId], references: [id], onDelete: Restrict)
-  customer         CustomerProfile?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  sourceEnquiry    Enquiry?                          @relation(fields: [sourceEnquiryId], references: [id], onDelete: SetNull)
-  sourceInspection InspectionRequest?                @relation(fields: [sourceInspectionId], references: [id], onDelete: SetNull)
-  payments         Payment[]
-  statusHistory    VehicleTransactionStatusHistory[]
-  invoice          Invoice?
-  handover         VehicleHandover?
-  review           Review?
-  complaints       Complaint[]
+  vehicleListing             VehicleListing                    @relation(fields: [vehicleListingId], references: [id], onDelete: Restrict)
+  reservationTermsPolicy     BusinessPolicyVersion?            @relation("VehicleReservationTerms", fields: [reservationTermsPolicyId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  reservationTermsAcceptedBy User?                             @relation("VehicleTermsAcceptedBy", fields: [reservationTermsAcceptedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  customer                   CustomerProfile?                  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  sourceEnquiry              Enquiry?                          @relation(fields: [sourceEnquiryId], references: [id], onDelete: SetNull)
+  sourceInspection           InspectionRequest?                @relation(fields: [sourceInspectionId], references: [id], onDelete: SetNull)
+  payments                   Payment[]
+  statusHistory              VehicleTransactionStatusHistory[]
+  invoice                    Invoice?
+  handover                   VehicleHandover?
+  review                     Review?
+  complaints                 Complaint[]
 
   @@index([vehicleListingId, status])
   @@index([customerId, createdAt])
   @@index([status, createdAt])
   @@index([reservationExpiresAt])
+  @@index([reservationTermsPolicyId])
+  @@index([reservationTermsAcceptedByUserId])
 }
 
 model VehicleTransactionStatusHistory {
@@ -2426,19 +2433,20 @@ model OutboxEvent {
 
 // Append-only versions: approval creates a new version, never changes old terms.
 model BusinessPolicyVersion {
-  id                                    String    @id @default(uuid()) @db.Uuid
-  key                                   String    @db.VarChar(100)
+  vehicleReservations                   VehicleTransaction[] @relation("VehicleReservationTerms")
+  id                                    String               @id @default(uuid()) @db.Uuid
+  key                                   String               @db.VarChar(100)
   version                               Int
-  approvalStatus                        String    @db.VarChar(24)
-  source                                String    @db.VarChar(500)
-  sourceQuestion                        String    @db.VarChar(40)
-  sourceSignatory                       String?   @db.VarChar(160)
-  approvedByUserId                      String?   @db.Uuid
+  approvalStatus                        String               @db.VarChar(24)
+  source                                String               @db.VarChar(500)
+  sourceQuestion                        String               @db.VarChar(40)
+  sourceSignatory                       String?              @db.VarChar(160)
+  approvedByUserId                      String?              @db.Uuid
   effectiveAt                           DateTime
-  recordedAt                            DateTime  @default(now())
+  recordedAt                            DateTime             @default(now())
   settings                              Json
-  approvalEvidence                      String?   @db.VarChar(1000)
-  owner_Booking_capacityPolicyVersionId Booking[] @relation("Owner_Booking_capacityPolicyVersionId")
+  approvalEvidence                      String?              @db.VarChar(1000)
+  owner_Booking_capacityPolicyVersionId Booking[]            @relation("Owner_Booking_capacityPolicyVersionId")
 
   approvedByUserIdRelation User? @relation("Owner_BusinessPolicyVersion_approvedByUserId", fields: [approvedByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 

@@ -3507,9 +3507,29 @@ export interface paths {
     put?: never;
     /**
      * Reserve an agreed vehicle
-     * @description Reserve an agreed vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+     * @description Requires explicit acceptance of the current approved reservation agreement returned by reservation-terms. Missing, withdrawn, future, forged or superseded terms return 409 without creating a hold. A retained matching idempotency receipt replays the original owned reservation even after publication changes; changed input conflicts. Acceptance links immutable document content, customer and server timestamp. Existing reservation/payment policy still applies; publishing terms does not activate deposits. Reserve an agreed vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersVehicleTransactionsByTransactionIdReserve"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/customers/vehicle-transactions/{transactionId}/reservation-terms": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read the applicable reservation agreement and own acceptance evidence
+     * @description Customer-owned purchase only; 404 for missing or foreign purchases. Private, no-store. current is null when no effective approved enabled agreement exists. accepted preserves the exact historical document despite later supersession or withdrawal. legacyAcceptance identifies older metadata without claiming document evidence. Plain text body must be rendered as text, never HTML. Refresh before accepting; the reservation endpoint revalidates the version atomically. Read the applicable reservation agreement and own acceptance evidence. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getCustomersVehicleTransactionsByTransactionIdReservationTerms"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -57939,6 +57959,296 @@ export interface operations {
       };
     };
   };
+  getCustomersVehicleTransactionsByTransactionIdReservationTerms: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the transaction resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        transactionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Read the applicable reservation agreement and own acceptance evidence. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Read the applicable reservation agreement and own acceptance evidence",
+           *       "data": {
+           *         "current": {
+           *           "version": "00000000-0000-4000-8000-000000000001",
+           *           "revision": 1,
+           *           "title": "synthetic-title",
+           *           "body": "synthetic-body",
+           *           "contentSha256": "synthetic-contentsha256",
+           *           "effectiveAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "accepted": {
+           *           "document": {
+           *             "version": "00000000-0000-4000-8000-000000000001",
+           *             "revision": 1,
+           *             "title": "synthetic-title",
+           *             "body": "synthetic-body",
+           *             "contentSha256": "synthetic-contentsha256",
+           *             "effectiveAt": "2030-01-15T10:00:00.000Z"
+           *           },
+           *           "acceptedAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "legacyAcceptance": true
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Current validated by this operation's strict request contract. */
+              current: {
+                /**
+                 * Format: uuid
+                 * @description Immutable approved policy ID; submit as termsVersion.
+                 */
+                version: string;
+                /** @description Revision validated by this operation's strict request contract. */
+                revision: number;
+                /** @description Title validated by this operation's strict request contract. */
+                title: string;
+                /** @description Plain text; render as text, never as HTML. */
+                body: string;
+                /** @description SHA-256 of the UTF-8 body. */
+                contentSha256: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                effectiveAt: string;
+              } | null;
+              /** @description Accepted validated by this operation's strict request contract. */
+              accepted: {
+                /** @description Document validated by this operation's strict request contract. */
+                document: {
+                  /**
+                   * Format: uuid
+                   * @description Immutable approved policy ID; submit as termsVersion.
+                   */
+                  version: string;
+                  /** @description Revision validated by this operation's strict request contract. */
+                  revision: number;
+                  /** @description Title validated by this operation's strict request contract. */
+                  title: string;
+                  /** @description Plain text; render as text, never as HTML. */
+                  body: string;
+                  /** @description SHA-256 of the UTF-8 body. */
+                  contentSha256: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  effectiveAt: string;
+                };
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                acceptedAt: string;
+              } | null;
+              /** @description Historical acceptance exists without a verified document link; no document is invented. */
+              legacyAcceptance: boolean;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The requested resource is not available. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The requested resource is not available.",
+           *       "error": {
+           *         "code": "NOT_FOUND"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
   getStaffVehicleInspections: {
     parameters: {
       query?: {
@@ -78780,22 +79090,55 @@ export interface operations {
          *       "effectiveAt": "2030-01-15T10:00:00.000Z",
          *       "source": "synthetic-source",
          *       "approvalEvidence": "synthetic-approvalevidence",
-         *       "kind": "BANK_REFUND_CLOCK",
+         *       "kind": "VEHICLE_RESERVATION_TERMS",
          *       "settings": {
-         *         "startEvent": "REQUESTED",
-         *         "businessDays": 10,
-         *         "countingConvention": "EXCLUDE_START_SAME_LOCAL_TIME",
-         *         "bankingDays": [
-         *           0
-         *         ],
-         *         "holidays": [
-         *           "synthetic-holidays-item"
-         *         ],
-         *         "timezone": "Africa/Lagos"
+         *         "enabled": true,
+         *         "title": "synthetic-title",
+         *         "body": "synthetic-body"
          *       }
          *     }
          */
         "application/json":
+          | {
+              /** @description Last server version observed by the client; stale writes are rejected. */
+              expectedVersion: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              effectiveAt: string;
+              /** @description Source validated by this operation's strict request contract. */
+              source: string;
+              /** @description Approval Evidence validated by this operation's strict request contract. */
+              approvalEvidence: string;
+              /**
+               * @description Kind validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              kind: "VEHICLE_RESERVATION_TERMS";
+              /** @description Settings validated by this operation's strict request contract. */
+              settings:
+                | {
+                    /**
+                     * @description Enabled validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    enabled: true;
+                    /** @description Title validated by this operation's strict request contract. */
+                    title: string;
+                    /** @description Body validated by this operation's strict request contract. */
+                    body: string;
+                  }
+                | {
+                    /**
+                     * @description Enabled validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    enabled: false;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    reason: string;
+                  };
+            }
           | {
               /** @description Last server version observed by the client; stale writes are rejected. */
               expectedVersion: number;

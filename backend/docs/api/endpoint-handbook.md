@@ -4735,7 +4735,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/vehicle-transactions/{transactionId}/reserve`
 
 - Operation ID: `postCustomersVehicleTransactionsByTransactionIdReserve`
-- Purpose: Reserve an agreed vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
+- Purpose: Requires explicit acceptance of the current approved reservation agreement returned by reservation-terms. Missing, withdrawn, future, forged or superseded terms return 409 without creating a hold. A retained matching idempotency receipt replays the original owned reservation even after publication changes; changed input conflicts. Acceptance links immutable document content, customer and server timestamp. Existing reservation/payment policy still applies; publishing terms does not activate deposits. Reserve an agreed vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -4784,6 +4784,57 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/vehicle-transactions/{transactionId}/reservation-terms`
+
+- Operation ID: `getCustomersVehicleTransactionsByTransactionIdReservationTerms`
+- Purpose: Customer-owned purchase only; 404 for missing or foreign purchases. Private, no-store. current is null when no effective approved enabled agreement exists. accepted preserves the exact historical document despite later supersession or withdrawal. legacyAcceptance identifies older metadata without claiming document evidence. Plain text body must be rendered as text, never HTML. Refresh before accepting; the reservation endpoint revalidates the version atomically. Read the applicable reservation agreement and own acceptance evidence. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `transactionId` | path | string (uuid) | Yes | Identifier selecting the transaction resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read the applicable reservation agreement and own acceptance evidence",
+  "data": {
+    "current": {
+      "version": "00000000-0000-4000-8000-000000000001",
+      "revision": 1,
+      "title": "synthetic-title",
+      "body": "synthetic-body",
+      "contentSha256": "synthetic-contentsha256",
+      "effectiveAt": "2030-01-15T10:00:00.000Z"
+    },
+    "accepted": {
+      "document": {
+        "version": "00000000-0000-4000-8000-000000000001",
+        "revision": 1,
+        "title": "synthetic-title",
+        "body": "synthetic-body",
+        "contentSha256": "synthetic-contentsha256",
+        "effectiveAt": "2030-01-15T10:00:00.000Z"
+      },
+      "acceptedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "legacyAcceptance": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/payments`
 
@@ -15050,18 +15101,11 @@ Synthetic request example:
   "effectiveAt": "2030-01-15T10:00:00.000Z",
   "source": "synthetic-source",
   "approvalEvidence": "synthetic-approvalevidence",
-  "kind": "BANK_REFUND_CLOCK",
+  "kind": "VEHICLE_RESERVATION_TERMS",
   "settings": {
-    "startEvent": "REQUESTED",
-    "businessDays": 10,
-    "countingConvention": "EXCLUDE_START_SAME_LOCAL_TIME",
-    "bankingDays": [
-      0
-    ],
-    "holidays": [
-      "synthetic-holidays-item"
-    ],
-    "timezone": "Africa/Lagos"
+    "enabled": true,
+    "title": "synthetic-title",
+    "body": "synthetic-body"
   }
 }
 ```

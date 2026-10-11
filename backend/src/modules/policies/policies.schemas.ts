@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { capacitySettingsSchema } from "../service-operations/booking-capacity.js";
+import { reservationTermsSettingsSchema } from "../vehicle-sales/reservation-terms.js";
 
 export const capabilityListQuerySchema = z
   .object({
@@ -112,6 +113,13 @@ export const publicCapabilitiesSchema = z.object({
   destructiveRetention: z.object({ enabled: z.literal(false) }),
 });
 export const publishPolicyBodySchema = z.discriminatedUnion("kind", [
+  z
+    .object({
+      ...metadata,
+      kind: z.literal("VEHICLE_RESERVATION_TERMS"),
+      settings: reservationTermsSettingsSchema,
+    })
+    .strict(),
   z
     .object({
       ...metadata,

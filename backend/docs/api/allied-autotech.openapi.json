@@ -68811,6 +68811,7 @@
           "Vehicle Sales"
         ],
         "summary": "Reserve an agreed vehicle",
+        "description": "Requires explicit acceptance of the current approved reservation agreement returned by reservation-terms. Missing, withdrawn, future, forged or superseded terms return 409 without creating a hold. A retained matching idempotency receipt replays the original owned reservation even after publication changes; changed input conflicts. Acceptance links immutable document content, customer and server timestamp. Existing reservation/payment policy still applies; publishing terms does not activate deposits. Reserve an agreed vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -69147,13 +69148,398 @@
           }
         },
         "operationId": "postCustomersVehicleTransactionsByTransactionIdReserve",
-        "description": "Reserve an agreed vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
         "x-idempotency-required": true
+      }
+    },
+    "/customers/vehicle-transactions/{transactionId}/reservation-terms": {
+      "get": {
+        "tags": [
+          "Vehicle Sales"
+        ],
+        "summary": "Read the applicable reservation agreement and own acceptance evidence",
+        "description": "Customer-owned purchase only; 404 for missing or foreign purchases. Private, no-store. current is null when no effective approved enabled agreement exists. accepted preserves the exact historical document despite later supersession or withdrawal. legacyAcceptance identifies older metadata without claiming document evidence. Plain text body must be rendered as text, never HTML. Refresh before accepting; the reservation endpoint revalidates the version atomically. Read the applicable reservation agreement and own acceptance evidence. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the transaction resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "transactionId",
+            "in": "path",
+            "description": "Identifier selecting the transaction resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Read the applicable reservation agreement and own acceptance evidence.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "current": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "version": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Immutable approved policy ID; submit as termsVersion."
+                            },
+                            "revision": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Revision validated by this operation's strict request contract."
+                            },
+                            "title": {
+                              "type": "string",
+                              "description": "Title validated by this operation's strict request contract."
+                            },
+                            "body": {
+                              "type": "string",
+                              "description": "Plain text; render as text, never as HTML."
+                            },
+                            "contentSha256": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$",
+                              "description": "SHA-256 of the UTF-8 body."
+                            },
+                            "effectiveAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": [
+                            "version",
+                            "revision",
+                            "title",
+                            "body",
+                            "contentSha256",
+                            "effectiveAt"
+                          ],
+                          "description": "Current validated by this operation's strict request contract."
+                        },
+                        "accepted": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "document": {
+                              "type": "object",
+                              "properties": {
+                                "version": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Immutable approved policy ID; submit as termsVersion."
+                                },
+                                "revision": {
+                                  "type": "integer",
+                                  "exclusiveMinimum": 0,
+                                  "description": "Revision validated by this operation's strict request contract."
+                                },
+                                "title": {
+                                  "type": "string",
+                                  "description": "Title validated by this operation's strict request contract."
+                                },
+                                "body": {
+                                  "type": "string",
+                                  "description": "Plain text; render as text, never as HTML."
+                                },
+                                "contentSha256": {
+                                  "type": "string",
+                                  "pattern": "^[a-f0-9]{64}$",
+                                  "description": "SHA-256 of the UTF-8 body."
+                                },
+                                "effectiveAt": {
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                }
+                              },
+                              "required": [
+                                "version",
+                                "revision",
+                                "title",
+                                "body",
+                                "contentSha256",
+                                "effectiveAt"
+                              ],
+                              "description": "Document validated by this operation's strict request contract."
+                            },
+                            "acceptedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": [
+                            "document",
+                            "acceptedAt"
+                          ],
+                          "description": "Accepted validated by this operation's strict request contract."
+                        },
+                        "legacyAcceptance": {
+                          "type": "boolean",
+                          "description": "Historical acceptance exists without a verified document link; no document is invented."
+                        }
+                      },
+                      "required": [
+                        "current",
+                        "accepted",
+                        "legacyAcceptance"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Read the applicable reservation agreement and own acceptance evidence",
+                  "data": {
+                    "current": {
+                      "version": "00000000-0000-4000-8000-000000000001",
+                      "revision": 1,
+                      "title": "synthetic-title",
+                      "body": "synthetic-body",
+                      "contentSha256": "synthetic-contentsha256",
+                      "effectiveAt": "2030-01-15T10:00:00.000Z"
+                    },
+                    "accepted": {
+                      "document": {
+                        "version": "00000000-0000-4000-8000-000000000001",
+                        "revision": 1,
+                        "title": "synthetic-title",
+                        "body": "synthetic-body",
+                        "contentSha256": "synthetic-contentsha256",
+                        "effectiveAt": "2030-01-15T10:00:00.000Z"
+                      },
+                      "acceptedAt": "2030-01-15T10:00:00.000Z"
+                    },
+                    "legacyAcceptance": true
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource is not available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The requested resource is not available.",
+                  "error": {
+                    "code": "NOT_FOUND"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getCustomersVehicleTransactionsByTransactionIdReservationTerms",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
       }
     },
     "/staff/vehicle-inspections": {
@@ -95969,6 +96355,110 @@
                       "kind": {
                         "type": "string",
                         "enum": [
+                          "VEHICLE_RESERVATION_TERMS"
+                        ],
+                        "description": "Kind validated by this operation's strict request contract."
+                      },
+                      "settings": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean",
+                                "enum": [
+                                  true
+                                ],
+                                "description": "Enabled validated by this operation's strict request contract."
+                              },
+                              "title": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200,
+                                "description": "Title validated by this operation's strict request contract."
+                              },
+                              "body": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 50000,
+                                "description": "Body validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "enabled",
+                              "title",
+                              "body"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Settings validated by this operation's strict request contract."
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "enabled": {
+                                "type": "boolean",
+                                "enum": [
+                                  false
+                                ],
+                                "description": "Enabled validated by this operation's strict request contract."
+                              },
+                              "reason": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 1000,
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              }
+                            },
+                            "required": [
+                              "enabled",
+                              "reason"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Settings validated by this operation's strict request contract."
+                          }
+                        ],
+                        "description": "Settings validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": [
+                      "expectedVersion",
+                      "effectiveAt",
+                      "source",
+                      "approvalEvidence",
+                      "kind",
+                      "settings"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Request Body validated by this operation's strict request contract."
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "expectedVersion": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Last server version observed by the client; stale writes are rejected."
+                      },
+                      "effectiveAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "ISO 8601 timestamp interpreted and validated by the server."
+                      },
+                      "source": {
+                        "type": "string",
+                        "minLength": 10,
+                        "maxLength": 500,
+                        "description": "Source validated by this operation's strict request contract."
+                      },
+                      "approvalEvidence": {
+                        "type": "string",
+                        "minLength": 20,
+                        "maxLength": 1000,
+                        "description": "Approval Evidence validated by this operation's strict request contract."
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
                           "BANK_REFUND_CLOCK"
                         ],
                         "description": "Kind validated by this operation's strict request contract."
@@ -96733,18 +97223,11 @@
                 "effectiveAt": "2030-01-15T10:00:00.000Z",
                 "source": "synthetic-source",
                 "approvalEvidence": "synthetic-approvalevidence",
-                "kind": "BANK_REFUND_CLOCK",
+                "kind": "VEHICLE_RESERVATION_TERMS",
                 "settings": {
-                  "startEvent": "REQUESTED",
-                  "businessDays": 10,
-                  "countingConvention": "EXCLUDE_START_SAME_LOCAL_TIME",
-                  "bankingDays": [
-                    0
-                  ],
-                  "holidays": [
-                    "synthetic-holidays-item"
-                  ],
-                  "timezone": "Africa/Lagos"
+                  "enabled": true,
+                  "title": "synthetic-title",
+                  "body": "synthetic-body"
                 }
               }
             }

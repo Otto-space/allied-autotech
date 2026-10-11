@@ -376,8 +376,7 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
         askingPriceKobo: 20_000_000n,
         agreedPriceKobo: 19_500_000n,
         status: "PAYMENT_PENDING",
-        termsVersion: "v1",
-        termsAcceptedAt: new Date(),
+        ...(await testReservationAcceptance(winnerUser.profile!.id)),
       },
     });
     const vehicleInvoice = await request(app)
@@ -410,3 +409,4 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
     ).toBe(1);
   }, 30_000);
 });
+import { testReservationAcceptance } from "../helpers/reservation-terms.js";

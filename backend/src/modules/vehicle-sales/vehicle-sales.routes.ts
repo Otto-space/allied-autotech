@@ -79,6 +79,11 @@ export function createCustomerVehicleSalesRouter(): Router {
     }),
     controller.reserve,
   );
+  router.get(
+    "/vehicle-transactions/:transactionId/reservation-terms",
+    validate({ params: transactionParamsSchema, query: vehicleSalesEmptySchema }),
+    controller.reservationTerms,
+  );
   return router;
 }
 export function createStaffVehicleSalesRouter(): Router {

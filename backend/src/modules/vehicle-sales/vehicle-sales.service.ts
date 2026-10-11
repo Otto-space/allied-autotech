@@ -13,6 +13,11 @@ import { objectStorage } from "../../providers/storage/s3-object-storage.adapter
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { VehicleSalesRepository } from "./vehicle-sales.repository.js";
 import { withCreationIdempotency } from "./creation-idempotency.js";
+import {
+  currentReservationTerms,
+  reservationTermsDocument,
+  requireReservationTerms,
+} from "./reservation-terms.js";
 import type {
   CustomerInspectionListQuery,
   CustomerTransactionListQuery,
@@ -463,6 +468,23 @@ export class VehicleSalesService {
       return vehicleSaleJson(updated);
     });
   }
+  async reservationTerms(actor: AuthenticatedActor, id: string) {
+    assertVehicleSaleCustomer(actor);
+    const record = await this.database.vehicleTransaction.findFirst({
+      where: { id, customer: { userId: actor.userId } },
+      select: { termsAcceptedAt: true, reservationTermsPolicy: true },
+    });
+    if (!record) throw vehicleSaleNotFound();
+    const document = reservationTermsDocument(record.reservationTermsPolicy);
+    return {
+      current: await currentReservationTerms(this.database),
+      accepted:
+        document && record.termsAcceptedAt
+          ? { document, acceptedAt: record.termsAcceptedAt.toISOString() }
+          : null,
+      legacyAcceptance: !!record.termsAcceptedAt && !record.reservationTermsPolicy,
+    };
+  }
   async reserve(
     actor: AuthenticatedActor,
     id: string,
@@ -471,6 +493,8 @@ export class VehicleSalesService {
     context: RequestSecurityContext,
   ) {
     assertVehicleSaleCustomer(actor);
+    if (input.termsAccepted !== true)
+      throw vehicleSaleConflict("Explicit agreement acceptance is required");
     const scope = `vehicle-reservation:${actor.userId}`;
     const keyHash = hashToken("vehicle-reservation-idempotency", rawKey);
     const requestHash = vehicleSaleFingerprint({ id, ...input });
@@ -490,7 +514,9 @@ export class VehicleSalesService {
           typeof transactionId === "string"
             ? await this.repository.transaction(transactionId, transaction)
             : null;
-        if (replay === null) throw vehicleSaleNotFound();
+        const customer = await this.repository.customer(actor.userId, transaction);
+        if (replay === null || !customer || replay.customerId !== customer.id)
+          throw vehicleSaleNotFound();
         return vehicleSaleJson({ transaction: replay, replayed: true });
       }
       await this.repository.createIdempotency(
@@ -504,6 +530,7 @@ export class VehicleSalesService {
       const initial = await this.repository.transaction(id, transaction);
       if (customer === null || initial === null || initial.customerId !== customer.id)
         throw vehicleSaleNotFound();
+      const terms = await requireReservationTerms(transaction, input.termsVersion);
       const listing = await this.repository.lockListing(
         initial.vehicleListingId,
         transaction,
@@ -532,7 +559,9 @@ export class VehicleSalesService {
           reservationExpiresAt: expiresAt,
           policySnapshot: policySnapshot(await currentPolicy(transaction, "vehicle")),
           termsVersion: input.termsVersion,
-          termsAcceptedAt: new Date(),
+          termsAcceptedAt: terms.acceptedAt,
+          reservationTermsPolicyId: terms.version,
+          reservationTermsAcceptedByUserId: actor.userId,
         },
         transaction,
       );
@@ -552,7 +581,12 @@ export class VehicleSalesService {
         entityType: "VEHICLE_TRANSACTION",
         entityId: id,
         oldValues: { status: sale.status },
-        newValues: { status: "RESERVED", reservationExpiresAt: expiresAt.toISOString() },
+        newValues: {
+          status: "RESERVED",
+          reservationExpiresAt: expiresAt.toISOString(),
+          termsVersion: terms.version,
+          termsContentSha256: terms.contentSha256,
+        },
         context,
       });
       return vehicleSaleJson({ transaction: updated, replayed: false });

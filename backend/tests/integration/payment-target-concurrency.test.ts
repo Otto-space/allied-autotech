@@ -151,8 +151,7 @@ async function fixture(kind: PaymentCreateInput["targetType"] = "ORDER") {
         agreedPriceKobo: 10000n,
         reservationRequiredKobo: 2500n,
         status: "PAYMENT_PENDING",
-        termsVersion: "synthetic-test",
-        termsAcceptedAt: new Date(),
+        ...(await testReservationAcceptance(customerId)),
         reservationExpiresAt: expiresAt,
       },
     });
@@ -474,3 +473,4 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
   },
 );
+import { testReservationAcceptance } from "../helpers/reservation-terms.js";
