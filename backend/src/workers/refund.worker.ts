@@ -1,6 +1,10 @@
 import { prisma } from "../config/database.js";
 import { Prisma, type PrismaClient } from "../generated/prisma/client.js";
 import {
+  recordRefundObservationConflict,
+  refundObservationMatches,
+} from "../modules/payments/refund-observation.js";
+import {
   paymentProviders,
   PaymentProviderRegistry,
   type OnlinePaymentProvider,
@@ -119,11 +123,12 @@ export class RefundWorker {
         await this.database.$transaction(async (tx) => {
           await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${refund.id}::uuid FOR UPDATE`;
           const current = await tx.refund.findUniqueOrThrow({ where: { id: refund.id } });
-          if (current.status === "SUCCEEDED") return;
-          const exact =
-            result.providerRefundId === current.providerRefundId &&
-            result.amountKobo === current.amountKobo &&
-            result.currency === current.currency;
+          const exact = refundObservationMatches(current, result);
+          if (!exact || (current.status === "SUCCEEDED" && result.status === "failed"))
+            await recordRefundObservationConflict(tx, current, result, "RECONCILIATION");
+          // Re-read after the provider call: a callback may have completed the
+          // refund or placed it under review while this poll was in flight.
+          if (current.status !== "PENDING" && current.status !== "PROCESSING") return;
           if (!exact) {
             await tx.refund.update({
               where: { id: refund.id },

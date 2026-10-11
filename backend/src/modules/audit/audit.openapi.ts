@@ -70,7 +70,7 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     tags: ["Audit and operations"],
     summary: "Retry a failed job using optimistic attempt matching",
     description:
-      "Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. RETRY_REQUESTED means queued, not delivered; the worker still checks consent, message eligibility and configured providers.",
+      "Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. A webhook retry queues one further attempt even after its automatic eight-attempt budget is exhausted; failure after that budget returns to DEAD_LETTER, and a further retry requires another audited request. RETRY_REQUESTED means queued, not delivered or settled; workers still enforce consent, message eligibility, provider verification and financial authorization.",
     security: [{ sessionCookie: [] }],
     request: {
       params: operationalJobParamsSchema as never,

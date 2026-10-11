@@ -24,7 +24,10 @@ import { prisma } from "../../config/database.js";
 import { env } from "../../config/env.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type { PaymentMethod } from "../../generated/prisma/enums.js";
-import type { VerifiedPayment } from "../../providers/payments/payment-provider.port.js";
+import type {
+  VerifiedPayment,
+  VerifiedRefund,
+} from "../../providers/payments/payment-provider.port.js";
 import {
   paymentProviders,
   PaymentProviderRegistry,
@@ -61,6 +64,15 @@ import type {
 } from "./payments.schemas.js";
 import { paymentFingerprint, paymentJsonSafe, paymentPage } from "./payments.types.js";
 import { refundQueueSelect } from "./refund-record.js";
+import {
+  recordRefundObservationConflict,
+  refundObservationMatches,
+} from "./refund-observation.js";
+import {
+  LostWebhookClaim,
+  writeWebhookResult,
+  type WebhookClaim,
+} from "./webhook-claim.js";
 import { paymentCreateBodySchema } from "./payments.schemas.js";
 import {
   assertNoCompetingPayment,
@@ -862,62 +874,98 @@ export class PaymentsService {
     event: PaystackWebhookEvent,
     payloadSha256: string,
     context: RequestSecurityContext,
+    retryClaim?: WebhookClaim,
   ) {
     const deduplicationKey = createHash("sha256")
       .update(`${event.eventType}:${event.providerEventId ?? ""}:${payloadSha256}`)
       .digest("hex");
-    let duplicate = false;
-    try {
-      await this.database.paymentWebhookEvent.create({
-        data: {
-          provider: "PAYSTACK",
-          providerEventId: event.providerEventId,
-          deduplicationKey,
-          eventType: event.eventType,
-          payloadSha256,
-          signatureVerifiedAt: new Date(),
-          redactedPayload: {
-            eventType: event.eventType,
+    let claim = retryClaim;
+    if (!claim)
+      try {
+        const created = await this.database.paymentWebhookEvent.create({
+          data: {
+            provider: "PAYSTACK",
             providerEventId: event.providerEventId,
-            resourceId: event.resourceId,
-            reference: event.reference,
-            status: event.status,
-            amountKobo: event.amountKobo?.toString() ?? null,
-            currency: event.currency,
-            gatewayTransactionId: event.gatewayTransactionId,
-            paidAt: event.paidAt?.toISOString() ?? null,
-            providerFeeKobo: event.providerFeeKobo?.toString() ?? null,
-            method: event.method,
-            category: event.category,
-            responseDueAt: event.responseDueAt?.toISOString() ?? null,
+            deduplicationKey,
+            eventType: event.eventType,
+            payloadSha256,
+            signatureVerifiedAt: new Date(),
+            redactedPayload: {
+              eventType: event.eventType,
+              providerEventId: event.providerEventId,
+              resourceId: event.resourceId,
+              reference: event.reference,
+              status: event.status,
+              amountKobo: event.amountKobo?.toString() ?? null,
+              currency: event.currency,
+              gatewayTransactionId: event.gatewayTransactionId,
+              paidAt: event.paidAt?.toISOString() ?? null,
+              providerFeeKobo: event.providerFeeKobo?.toString() ?? null,
+              method: event.method,
+              category: event.category,
+              responseDueAt: event.responseDueAt?.toISOString() ?? null,
+            },
           },
-        },
-      });
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        const existing = await this.database.paymentWebhookEvent.findUnique({
-          where: {
-            provider_deduplicationKey: { provider: "PAYSTACK", deduplicationKey },
-          },
-          select: { status: true },
         });
-        if (!existing) throw error;
-        if (existing.status === "PROCESSED") return { accepted: true, duplicate: true };
-        duplicate = true;
-      } else {
-        throw error;
+        claim = {
+          id: created.id,
+          processingAttempts: created.processingAttempts,
+          status: "RECEIVED",
+        };
+      } catch (error) {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002"
+        ) {
+          const existing = await this.database.paymentWebhookEvent.findFirst({
+            where: {
+              provider: "PAYSTACK",
+              OR: [
+                { deduplicationKey },
+                ...(event.providerEventId
+                  ? [{ providerEventId: event.providerEventId }]
+                  : []),
+              ],
+            },
+            select: { id: true },
+          });
+          if (!existing) throw error;
+          // The durable event already owns retry timing and its budget. Provider
+          // redelivery must not take over an active lease or bypass a dead letter.
+          return { accepted: true, duplicate: true };
+        } else {
+          throw error;
+        }
       }
+    if (!claim) throw new LostWebhookClaim();
+    if (
+      retryClaim &&
+      !(await this.database.paymentWebhookEvent.findFirst({
+        where: { ...claim, provider: "PAYSTACK", deduplicationKey },
+        select: { id: true },
+      }))
+    )
+      return { accepted: true, duplicate: true };
+    try {
+      await this.processPaystackWebhook(event, context, claim);
+    } catch (error) {
+      if (!(error instanceof LostWebhookClaim)) throw error;
     }
+    return { accepted: true, duplicate: retryClaim !== undefined };
+  }
+
+  private async processPaystackWebhook(
+    event: PaystackWebhookEvent,
+    context: RequestSecurityContext,
+    claim: WebhookClaim,
+  ) {
     if (event.eventType.startsWith("refund.")) {
-      await this.applyRefundWebhook(event, deduplicationKey);
-      return { accepted: true, duplicate };
+      await this.applyRefundWebhook(event, claim);
+      return;
     }
     if (event.eventType.startsWith("charge.dispute.")) {
-      await this.applyDisputeWebhook(event, deduplicationKey, context);
-      return { accepted: true, duplicate };
+      await this.applyDisputeWebhook(event, claim, context);
+      return;
     }
     if (
       event.eventType !== "charge.success" ||
@@ -926,31 +974,26 @@ export class PaymentsService {
       !event.currency ||
       !event.gatewayTransactionId
     ) {
-      await this.database.paymentWebhookEvent.update({
-        where: { provider_deduplicationKey: { provider: "PAYSTACK", deduplicationKey } },
-        data: { status: "PROCESSED", processedAt: new Date() },
+      await writeWebhookResult(this.database, claim, {
+        status: "PROCESSED",
+        processedAt: new Date(),
       });
-      return { accepted: true, duplicate };
+      return;
     }
     const attempt = await this.repository.attemptByReference(event.reference);
     if (!attempt || attempt.provider !== "PAYSTACK") {
       await withTransactionRetry(this.database, async (tx) => {
-        await tx.paymentWebhookEvent.update({
-          where: {
-            provider_deduplicationKey: { provider: "PAYSTACK", deduplicationKey },
-          },
-          data: {
-            status: "FAILED",
-            failedAt: new Date(),
-            nextAttemptAt: new Date(Date.now() + 60_000),
-            lockedAt: null,
-            lastErrorCode: "UNKNOWN_PAYMENT_REFERENCE",
-            lastErrorMessage:
-              "Signed event retained for reconciliation; payment reference not found",
-          },
+        await writeWebhookResult(tx, claim, {
+          status: "FAILED",
+          failedAt: new Date(),
+          nextAttemptAt: new Date(Date.now() + 60_000),
+          lockedAt: null,
+          lastErrorCode: "UNKNOWN_PAYMENT_REFERENCE",
+          lastErrorMessage:
+            "Signed event retained for reconciliation; payment reference not found",
         });
       });
-      return { accepted: true, duplicate: false };
+      return;
     }
     await this.applyVerifiedAttempt(
       attempt.id,
@@ -966,9 +1009,8 @@ export class PaymentsService {
       },
       context,
       null,
-      { provider: "PAYSTACK", deduplicationKey },
+      claim,
     );
-    return { accepted: true, duplicate };
   }
 
   async ingestMonnifyWebhook(
@@ -994,8 +1036,6 @@ export class PaymentsService {
       select: { id: true, status: true },
     });
     if (existing) {
-      if (existing.status !== "PROCESSED")
-        await this.retryMonnifyWebhook(existing.id, context);
       return { accepted: true, duplicate: true };
     }
 
@@ -1055,21 +1095,29 @@ export class PaymentsService {
           event.gatewayTransactionId === verified.gatewayTransactionId &&
           event.amountKobo === verified.amountKobo &&
           event.currency === verified.currency);
-      const record = await this.database.paymentWebhookEvent.create({
-        data: {
-          paymentAttemptId: attempt.id,
-          provider: "MONNIFY",
-          providerEventId: event.providerEventId,
-          deduplicationKey,
-          eventType: event.eventType,
-          payloadSha256,
-          ...(signatureVerified ? { signatureVerifiedAt: now } : {}),
-          providerVerifiedAt: now,
-          redactedPayload: payload,
-        },
-      });
+      const webhookData = {
+        paymentAttemptId: attempt.id,
+        provider: "MONNIFY",
+        providerEventId: event.providerEventId,
+        deduplicationKey,
+        eventType: event.eventType,
+        payloadSha256,
+        ...(signatureVerified ? { signatureVerifiedAt: now } : {}),
+        providerVerifiedAt: now,
+        redactedPayload: payload,
+      } satisfies Prisma.PaymentWebhookEventUncheckedCreateInput;
       if (!eventMatchesProvider) {
         await withTransactionRetry(this.database, async (tx) => {
+          // Publish the receipt and its review hold atomically. A retry worker
+          // must never see this mismatched event as eligible for settlement.
+          await tx.paymentWebhookEvent.create({
+            data: {
+              ...webhookData,
+              status: "PROCESSED",
+              processedAt: now,
+              processingAttempts: 1,
+            },
+          });
           await tx.payment.updateMany({
             where: { id: attempt.paymentId, status: { not: "SUCCEEDED" } },
             data: { status: "REQUIRES_REVIEW", cancelledAt: null, expiredAt: null },
@@ -1082,13 +1130,12 @@ export class PaymentsService {
               summary: "Monnify webhook facts differed from provider verification",
             },
           });
-          await tx.paymentWebhookEvent.update({
-            where: { id: record.id },
-            data: { status: "PROCESSED", processedAt: now },
-          });
         });
         return { accepted: true, duplicate: false };
       }
+      const record = await this.database.paymentWebhookEvent.create({
+        data: webhookData,
+      });
       await this.retryMonnifyWebhook(record.id, context);
       return { accepted: true, duplicate: false };
     }
@@ -1148,82 +1195,105 @@ export class PaymentsService {
     return { accepted: true, duplicate: false };
   }
 
-  async retryMonnifyWebhook(id: string, context: RequestSecurityContext): Promise<void> {
+  async retryMonnifyWebhook(
+    id: string,
+    context: RequestSecurityContext,
+    retryClaim?: WebhookClaim,
+  ): Promise<void> {
     const record = await this.database.paymentWebhookEvent.findUnique({
       where: { id },
       select: {
         provider: true,
         status: true,
-        deduplicationKey: true,
+        processingAttempts: true,
         paymentAttemptId: true,
         refundId: true,
         redactedPayload: true,
       },
     });
-    if (!record || record.provider !== "MONNIFY" || record.status === "PROCESSED") return;
-    if (record.paymentAttemptId) {
-      const payload = monnifyTransactionRetrySchema.parse(record.redactedPayload);
-      await this.applyVerifiedAttempt(
-        record.paymentAttemptId,
-        {
-          reference: payload.reference,
-          gatewayTransactionId: payload.gatewayTransactionId,
-          status: payload.status,
-          amountKobo: BigInt(payload.amountKobo),
-          currency: payload.currency,
-          paidAt: payload.paidAt ? new Date(payload.paidAt) : null,
-          providerFeeKobo:
-            payload.providerFeeKobo === null ? null : BigInt(payload.providerFeeKobo),
-          method: payload.method,
-        },
-        context,
-        null,
-        { provider: "MONNIFY", deduplicationKey: record.deduplicationKey },
-      );
+    if (!record || record.provider !== "MONNIFY") return;
+    const claim = retryClaim ?? {
+      id,
+      status: "RECEIVED" as const,
+      processingAttempts: record.processingAttempts,
+    };
+    if (
+      claim.id !== id ||
+      record.status !== claim.status ||
+      record.processingAttempts !== claim.processingAttempts
+    )
       return;
+    try {
+      if (record.paymentAttemptId) {
+        const payload = monnifyTransactionRetrySchema.parse(record.redactedPayload);
+        await this.applyVerifiedAttempt(
+          record.paymentAttemptId,
+          {
+            reference: payload.reference,
+            gatewayTransactionId: payload.gatewayTransactionId,
+            status: payload.status,
+            amountKobo: BigInt(payload.amountKobo),
+            currency: payload.currency,
+            paidAt: payload.paidAt ? new Date(payload.paidAt) : null,
+            providerFeeKobo:
+              payload.providerFeeKobo === null ? null : BigInt(payload.providerFeeKobo),
+            method: payload.method,
+          },
+          context,
+          null,
+          claim,
+        );
+        return;
+      }
+      if (record.refundId) {
+        const payload = monnifyRefundRetrySchema.parse(record.redactedPayload);
+        await this.applyMonnifyRefund(record.refundId, claim, payload);
+        return;
+      }
+      await writeWebhookResult(this.database, claim, {
+        status: "PROCESSED",
+        processedAt: new Date(),
+      });
+    } catch (error) {
+      if (!(error instanceof LostWebhookClaim)) throw error;
     }
-    if (record.refundId) {
-      const payload = monnifyRefundRetrySchema.parse(record.redactedPayload);
-      await this.applyMonnifyRefund(record.refundId, record.deduplicationKey, payload);
-      return;
-    }
-    await this.database.paymentWebhookEvent.update({
-      where: { id },
-      data: { status: "PROCESSED", processedAt: new Date() },
-    });
   }
 
   private async applyMonnifyRefund(
     refundId: string,
-    webhookKey: string,
+    claim: WebhookClaim,
     result: z.infer<typeof monnifyRefundRetrySchema>,
   ): Promise<void> {
     await withTransactionRetry(this.database, async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${refundId}::uuid FOR UPDATE`;
       const refund = await tx.refund.findUniqueOrThrow({ where: { id: refundId } });
       const now = new Date();
-      const exact =
-        result.providerRefundId === refund.providerRefundId &&
-        result.amountKobo !== null &&
-        BigInt(result.amountKobo) === refund.amountKobo &&
-        result.currency === refund.currency;
+      const observation: VerifiedRefund = {
+        ...result,
+        amountKobo: result.amountKobo === null ? null : BigInt(result.amountKobo),
+      };
+      const exact = refundObservationMatches(refund, observation);
+      if (!exact || (refund.status === "SUCCEEDED" && result.status === "failed"))
+        await recordRefundObservationConflict(tx, refund, observation, "MONNIFY_WEBHOOK");
       if (!exact) {
-        await tx.refund.update({
-          where: { id: refundId },
-          data: { status: "NEEDS_ATTENTION", providerStatus: result.status },
-        });
-        await tx.paymentAnomaly.create({
-          data: {
-            refundId,
-            paymentAttemptId: refund.paymentAttemptId,
-            type: "REFUND_MISMATCH",
-            summary: "Monnify refund did not match the approved refund",
-          },
-        });
+        if (refund.status !== "SUCCEEDED")
+          await tx.refund.update({
+            where: { id: refundId },
+            data: {
+              status: "NEEDS_ATTENTION",
+              providerStatus: "REFUND_MISMATCH",
+              nextReconcileAt: null,
+            },
+          });
       } else if (result.status === "succeeded" && refund.status !== "SUCCEEDED") {
         await tx.refund.update({
           where: { id: refundId },
-          data: { status: "SUCCEEDED", processedAt: now, providerStatus: result.status },
+          data: {
+            status: "SUCCEEDED",
+            processedAt: now,
+            providerStatus: result.status,
+            nextReconcileAt: null,
+          },
         });
         await tx.paymentLedgerEntry.upsert({
           where: { sourceKey: `refund:${refundId}` },
@@ -1240,58 +1310,43 @@ export class PaymentsService {
         });
       } else if (result.status === "failed") {
         await tx.refund.updateMany({
-          where: { id: refundId, status: { not: "SUCCEEDED" } },
+          where: { id: refundId, status: { notIn: ["SUCCEEDED", "NEEDS_ATTENTION"] } },
           data: { status: "FAILED", failedAt: now, providerStatus: result.status },
         });
       }
-      await tx.paymentWebhookEvent.update({
-        where: {
-          provider_deduplicationKey: {
-            provider: "MONNIFY",
-            deduplicationKey: webhookKey,
-          },
-        },
-        data: {
-          status: "PROCESSED",
-          processedAt: now,
-          processingAttempts: { increment: 1 },
-        },
+      await writeWebhookResult(tx, claim, {
+        status: "PROCESSED",
+        processedAt: now,
       });
     });
   }
 
-  private async applyRefundWebhook(event: PaystackWebhookEvent, webhookKey: string) {
+  private async applyRefundWebhook(event: PaystackWebhookEvent, claim: WebhookClaim) {
     const candidates = await this.database.refund.findMany({
-      where: event.resourceId
-        ? { providerRefundId: event.resourceId }
-        : event.reference
-          ? {
-              paymentAttempt: {
-                provider: "PAYSTACK",
-                internalReference: event.reference,
-              },
-              amountKobo: event.amountKobo ?? -1n,
-            }
-          : { id: "00000000-0000-0000-0000-000000000000" },
+      where: {
+        paymentAttempt: {
+          provider: "PAYSTACK",
+          ...(event.resourceId || !event.reference
+            ? {}
+            : { internalReference: event.reference }),
+        },
+        ...(event.resourceId
+          ? { providerRefundId: event.resourceId }
+          : event.reference
+            ? { amountKobo: event.amountKobo ?? -1n }
+            : { id: "00000000-0000-0000-0000-000000000000" }),
+      },
       take: 2,
     });
     const candidate = candidates.length === 1 ? candidates[0] : undefined;
     // A refund webhook can precede the POST response. Retain it for bounded retry.
     if (!candidate?.providerRefundId) {
-      await this.database.paymentWebhookEvent.update({
-        where: {
-          provider_deduplicationKey: {
-            provider: "PAYSTACK",
-            deduplicationKey: webhookKey,
-          },
-        },
-        data: {
-          status: "FAILED",
-          nextAttemptAt: new Date(Date.now() + 60_000),
-          lockedAt: null,
-          lastErrorCode: "REFUND_CORRELATION_PENDING",
-          lastErrorMessage: "Awaiting unique provider refund correlation",
-        },
+      await writeWebhookResult(this.database, claim, {
+        status: "FAILED",
+        nextAttemptAt: new Date(Date.now() + 60_000),
+        lockedAt: null,
+        lastErrorCode: "REFUND_CORRELATION_PENDING",
+        lastErrorMessage: "Awaiting unique provider refund correlation",
       });
       return;
     }
@@ -1307,11 +1362,6 @@ export class PaymentsService {
     await this.database.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${candidate.id}::uuid FOR UPDATE`;
       const refund = await tx.refund.findUniqueOrThrow({ where: { id: candidate.id } });
-      const exact = verified
-        ? verified.providerRefundId === refund.providerRefundId &&
-          verified.amountKobo === refund.amountKobo &&
-          verified.currency === refund.currency
-        : event.amountKobo === refund.amountKobo && event.currency === refund.currency;
       const state =
         verified?.status ??
         (event.status === "processed"
@@ -1320,7 +1370,25 @@ export class PaymentsService {
             ? "failed"
             : "pending");
       const now = new Date();
-      if (refund.status !== "SUCCEEDED") {
+      const observation: VerifiedRefund = verified ?? {
+        providerRefundId: event.resourceId!,
+        status: state,
+        amountKobo: event.amountKobo,
+        currency: event.currency,
+      };
+      const exact = refundObservationMatches(refund, observation);
+      if (!exact || (refund.status === "SUCCEEDED" && state === "failed"))
+        await recordRefundObservationConflict(
+          tx,
+          refund,
+          observation,
+          "PAYSTACK_WEBHOOK",
+        );
+      // A later pending/failed event cannot release a review hold or erase its reason.
+      if (
+        refund.status !== "SUCCEEDED" &&
+        !(refund.status === "NEEDS_ATTENTION" && exact && state !== "succeeded")
+      ) {
         await tx.refund.update({
           where: { id: refund.id },
           data: {
@@ -1331,20 +1399,12 @@ export class PaymentsService {
                   ? "SUCCEEDED"
                   : "PENDING",
             providerStatus: exact ? event.status : "REFUND_MISMATCH",
+            ...(!exact || state === "failed" ? { nextReconcileAt: null } : {}),
             ...(exact && state === "succeeded"
               ? { processedAt: now, nextReconcileAt: null }
               : {}),
           },
         });
-        if (!exact)
-          await tx.paymentAnomaly.create({
-            data: {
-              refundId: refund.id,
-              paymentAttemptId: refund.paymentAttemptId,
-              type: "REFUND_MISMATCH",
-              summary: "Provider refund did not match the approved refund",
-            },
-          });
         if (exact && state === "succeeded")
           await tx.paymentLedgerEntry.upsert({
             where: { sourceKey: `refund:${refund.id}` },
@@ -1360,27 +1420,18 @@ export class PaymentsService {
             },
           });
       }
-      await tx.paymentWebhookEvent.update({
-        where: {
-          provider_deduplicationKey: {
-            provider: "PAYSTACK",
-            deduplicationKey: webhookKey,
-          },
-        },
-        data: {
-          refundId: refund.id,
-          status: "PROCESSED",
-          processedAt: now,
-          lockedAt: null,
-          processingAttempts: { increment: 1 },
-        },
+      await writeWebhookResult(tx, claim, {
+        refundId: refund.id,
+        status: "PROCESSED",
+        processedAt: now,
+        lockedAt: null,
       });
     });
   }
 
   private async applyDisputeWebhook(
     event: PaystackWebhookEvent,
-    webhookKey: string,
+    claim: WebhookClaim,
     context: RequestSecurityContext,
   ) {
     await withTransactionRetry(this.database, async (tx) => {
@@ -1398,22 +1449,14 @@ export class PaymentsService {
         event.amountKobo === null ||
         !event.currency
       ) {
-        await tx.paymentWebhookEvent.update({
-          where: {
-            provider_deduplicationKey: {
-              provider: "PAYSTACK",
-              deduplicationKey: webhookKey,
-            },
-          },
-          data: {
-            status: "FAILED",
-            failedAt: now,
-            nextAttemptAt: new Date(Date.now() + 60_000),
-            lockedAt: null,
-            lastErrorCode: "UNMATCHED_DISPUTE",
-            lastErrorMessage:
-              "Signed dispute requires provider reconciliation; reference or required facts missing",
-          },
+        await writeWebhookResult(tx, claim, {
+          status: "FAILED",
+          failedAt: now,
+          nextAttemptAt: new Date(Date.now() + 60_000),
+          lockedAt: null,
+          lastErrorCode: "UNMATCHED_DISPUTE",
+          lastErrorMessage:
+            "Signed dispute requires provider reconciliation; reference or required facts missing",
         });
         return;
       }
@@ -1498,19 +1541,10 @@ export class PaymentsService {
           },
           update: {},
         });
-      await tx.paymentWebhookEvent.update({
-        where: {
-          provider_deduplicationKey: {
-            provider: "PAYSTACK",
-            deduplicationKey: webhookKey,
-          },
-        },
-        data: {
-          disputeId: dispute.id,
-          status: "PROCESSED",
-          processedAt: now,
-          processingAttempts: { increment: 1 },
-        },
+      await writeWebhookResult(tx, claim, {
+        disputeId: dispute.id,
+        status: "PROCESSED",
+        processedAt: now,
       });
       await appendAuditEvent(tx, {
         actorUserId: null,
@@ -1528,7 +1562,7 @@ export class PaymentsService {
     result: VerifiedPayment,
     context: RequestSecurityContext,
     actorUserId: string | null,
-    webhook?: { provider: OnlinePaymentProvider; deduplicationKey: string },
+    webhook?: WebhookClaim,
   ) {
     await withTransactionRetry(this.database, async (tx) => {
       const rows = await tx.$queryRaw<
@@ -1679,19 +1713,10 @@ export class PaymentsService {
         await this.settle(tx, attempt.paymentId, attemptId, result.paidAt ?? now);
       }
       if (webhook)
-        await tx.paymentWebhookEvent.update({
-          where: {
-            provider_deduplicationKey: {
-              provider: webhook.provider,
-              deduplicationKey: webhook.deduplicationKey,
-            },
-          },
-          data: {
-            paymentAttemptId: attemptId,
-            status: "PROCESSED",
-            processedAt: now,
-            processingAttempts: { increment: 1 },
-          },
+        await writeWebhookResult(tx, webhook, {
+          paymentAttemptId: attemptId,
+          status: "PROCESSED",
+          processedAt: now,
         });
       await appendAuditEvent(tx, {
         actorUserId,

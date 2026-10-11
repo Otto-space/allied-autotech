@@ -7,6 +7,7 @@ import { enqueueNotification } from "../modules/notifications/notifications.serv
 
 interface ClaimedReminder {
   id: string;
+  attempts: number;
 }
 
 const reminderLabels = {
@@ -22,6 +23,23 @@ export class BookingReminderWorker {
 
   async runOnce(batchSize = 25): Promise<{ sent: number; cancelled: number }> {
     const limit = Math.max(1, Math.min(batchSize, 100));
+    // A crashed final attempt must not exceed the retry budget or prevent the
+    // rest of the batch from being claimed. Preserve a still-active final lease.
+    await this.database.bookingReminder.updateMany({
+      where: {
+        attempts: { gte: 8 },
+        OR: [
+          { status: { in: ["PENDING", "FAILED"] } },
+          { status: "PROCESSING", lockedAt: { lt: new Date(Date.now() - 600_000) } },
+        ],
+      },
+      data: {
+        status: "DEAD_LETTER",
+        lockedAt: null,
+        nextAttemptAt: null,
+        lastErrorCode: "REMINDER_RETRY_EXHAUSTED",
+      },
+    });
     const claimed = await this.database.$queryRaw<ClaimedReminder[]>(Prisma.sql`
       WITH candidates AS (
         SELECT "id"
@@ -29,7 +47,7 @@ export class BookingReminderWorker {
         WHERE (
           ("status" IN ('PENDING', 'FAILED') AND COALESCE("nextAttemptAt", "scheduledFor") <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))
           OR ("status" = 'PROCESSING' AND "lockedAt" < (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '10 minutes')
-        )
+        ) AND "attempts" < 8
         ORDER BY "scheduledFor" ASC, "id" ASC
         FOR UPDATE SKIP LOCKED
         LIMIT ${limit}
@@ -39,23 +57,26 @@ export class BookingReminderWorker {
           "attempts" = reminder."attempts" + 1, "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
       FROM candidates
       WHERE reminder."id" = candidates."id"
-      RETURNING reminder."id"
+      RETURNING reminder."id", reminder."attempts"
     `);
     let sent = 0;
     let cancelled = 0;
-    for (const { id } of claimed) {
+    for (const claim of claimed) {
       try {
-        const result = await this.deliver(id);
+        const result = await this.deliver(claim);
         if (result === "sent") sent += 1;
-        else cancelled += 1;
+        else if (result === "cancelled") cancelled += 1;
       } catch (error: unknown) {
-        await this.fail(id, error);
+        await this.fail(claim, error);
       }
     }
     return { sent, cancelled };
   }
 
-  private async deliver(id: string): Promise<"sent" | "cancelled"> {
+  private async deliver({
+    id,
+    attempts,
+  }: ClaimedReminder): Promise<"sent" | "cancelled" | "superseded"> {
     return this.database.$transaction(async (transaction) => {
       await transaction.$queryRaw`SELECT "id" FROM "BookingReminder" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const reminder = await transaction.bookingReminder.findUnique({
@@ -64,6 +85,7 @@ export class BookingReminderWorker {
           id: true,
           kind: true,
           status: true,
+          attempts: true,
           scheduleVersion: true,
           booking: {
             select: {
@@ -76,7 +98,14 @@ export class BookingReminderWorker {
           },
         },
       });
-      if (reminder === null || reminder.status !== "PROCESSING") return "cancelled";
+      // The row lock protects enqueue and completion together. A delayed batch
+      // item may proceed only if no newer worker has taken ownership.
+      if (
+        reminder === null ||
+        reminder.status !== "PROCESSING" ||
+        reminder.attempts !== attempts
+      )
+        return "superseded";
       if (
         reminder.booking.status !== "CONFIRMED" ||
         reminder.booking.scheduleVersion !== reminder.scheduleVersion
@@ -133,17 +162,12 @@ export class BookingReminderWorker {
     });
   }
 
-  private async fail(id: string, error: unknown): Promise<void> {
+  private async fail({ id, attempts }: ClaimedReminder, error: unknown): Promise<void> {
     const safe = safeErrorAttributes(error);
-    const reminder = await this.database.bookingReminder.findUnique({
-      where: { id },
-      select: { attempts: true },
-    });
-    if (reminder === null) return;
-    const dead = reminder.attempts >= 8;
-    const delay = Math.min(60_000 * 2 ** Math.max(0, reminder.attempts - 1), 3_600_000);
+    const dead = attempts >= 8;
+    const delay = Math.min(60_000 * 2 ** Math.max(0, attempts - 1), 3_600_000);
     await this.database.bookingReminder.updateMany({
-      where: { id, status: "PROCESSING" },
+      where: { id, status: "PROCESSING", attempts },
       data: {
         status: dead ? "DEAD_LETTER" : "FAILED",
         lockedAt: null,

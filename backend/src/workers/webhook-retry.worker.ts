@@ -7,6 +7,7 @@ import {
   type PaymentsService,
 } from "../modules/payments/payments.service.js";
 import type { PaystackWebhookEvent } from "../providers/payments/paystack-webhook.js";
+import { LostWebhookClaim } from "../modules/payments/webhook-claim.js";
 
 const redactedSchema = z.object({
   eventType: z.string(),
@@ -32,15 +33,22 @@ export class PaymentWebhookRetryWorker {
     const limit = Math.max(1, Math.min(batchSize, 100));
     await this.database.paymentWebhookEvent.updateMany({
       where: {
-        status: { in: ["RECEIVED", "FAILED", "PROCESSING"] },
         processingAttempts: { gte: 8 },
+        OR: [
+          { status: "FAILED" },
+          { status: "PROCESSING", lockedAt: { lt: new Date(Date.now() - 600_000) } },
+        ],
       },
       data: {
         status: "DEAD_LETTER",
+        failedAt: new Date(),
         lockedAt: null,
+        nextAttemptAt: null,
         lastErrorCode: "WEBHOOK_RETRY_EXHAUSTED",
       },
     });
+    // RECEIVED also represents an audited manual retry: permit that one attempt
+    // without resetting its cumulative history. Automatic recovery stays bounded.
     const claimed = await this.database.$transaction(
       async (tx) => tx.$queryRaw<
         Array<{
@@ -51,22 +59,49 @@ export class PaymentWebhookRetryWorker {
           processingAttempts: number;
         }>
       >`
-      UPDATE "PaymentWebhookEvent" SET "status" = 'PROCESSING', "lockedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'), "processingAttempts" = "processingAttempts" + 1
+      UPDATE "PaymentWebhookEvent"
+      SET "status" = 'PROCESSING', "lockedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+          "processingAttempts" = "processingAttempts" + 1, "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
       WHERE "id" IN (
         SELECT "id" FROM "PaymentWebhookEvent"
-        WHERE (("status" IN ('RECEIVED', 'FAILED') AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))) OR ("status" = 'PROCESSING' AND "lockedAt" < (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '10 minutes')) AND "processingAttempts" < 8
+        WHERE (
+          ("status" = 'RECEIVED' OR ("status" = 'FAILED' AND "processingAttempts" < 8))
+          AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))
+        ) OR (
+          "status" = 'PROCESSING' AND "processingAttempts" < 8
+          AND "lockedAt" < (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '10 minutes'
+        )
         ORDER BY "receivedAt" ASC FOR UPDATE SKIP LOCKED LIMIT ${limit}
       )
       RETURNING "id", "provider", "payloadSha256", "redactedPayload", "processingAttempts"`,
     );
     for (const item of claimed) {
       try {
+        // Renew a queued batch item only while its attempt still owns the row.
+        const renewed = await this.database.paymentWebhookEvent.updateMany({
+          where: {
+            id: item.id,
+            status: "PROCESSING",
+            processingAttempts: item.processingAttempts,
+          },
+          data: { lockedAt: new Date() },
+        });
+        if (renewed.count !== 1) continue;
+        const claim = {
+          id: item.id,
+          processingAttempts: item.processingAttempts,
+          status: "PROCESSING" as const,
+        };
         if (item.provider === "MONNIFY") {
-          await this.service.retryMonnifyWebhook(item.id, {
-            requestId: `webhook-retry:${item.id}`,
-            ipAddress: null,
-            userAgent: null,
-          });
+          await this.service.retryMonnifyWebhook(
+            item.id,
+            {
+              requestId: `webhook-retry:${item.id}`,
+              ipAddress: null,
+              userAgent: null,
+            },
+            claim,
+          );
           continue;
         }
         if (item.provider !== "PAYSTACK") throw new Error("Unsupported webhook provider");
@@ -79,12 +114,18 @@ export class PaymentWebhookRetryWorker {
             value.providerFeeKobo === null ? null : BigInt(value.providerFeeKobo),
           responseDueAt: value.responseDueAt ? new Date(value.responseDueAt) : null,
         };
-        await this.service.ingestWebhook(event, item.payloadSha256, {
-          requestId: `webhook-retry:${item.id}`,
-          ipAddress: null,
-          userAgent: null,
-        });
+        await this.service.ingestWebhook(
+          event,
+          item.payloadSha256,
+          {
+            requestId: `webhook-retry:${item.id}`,
+            ipAddress: null,
+            userAgent: null,
+          },
+          claim,
+        );
       } catch (error: unknown) {
+        if (error instanceof LostWebhookClaim) continue;
         const terminal =
           item.processingAttempts >= 8 ||
           error instanceof z.ZodError ||
@@ -94,7 +135,11 @@ export class PaymentWebhookRetryWorker {
           2 ** Math.min(item.processingAttempts, 8) * 15,
         );
         await this.database.paymentWebhookEvent.updateMany({
-          where: { id: item.id, status: "PROCESSING" },
+          where: {
+            id: item.id,
+            status: "PROCESSING",
+            processingAttempts: item.processingAttempts,
+          },
           data: {
             status: terminal ? "DEAD_LETTER" : "FAILED",
             failedAt: new Date(),

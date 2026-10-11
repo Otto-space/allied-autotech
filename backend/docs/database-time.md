@@ -25,7 +25,11 @@ The new tests cover UTC, Africa/Lagos and America/New_York sessions:
 - Alert resolution timestamps represent the actual UTC instant.
 - Refund submission timestamps and ten-minute recovery deadlines match UTC; repeated worker runs do not resubmit; the database guard rejects a reversal before the payment deadline in all three zones.
 
-Twenty-five cases are in `tests/integration/database-time-boundaries.test.ts`, with three additional refund cases in `tests/integration/owner-refund-controls.test.ts`. Baseline artifacts are retained under `%TEMP%/allied-database-time-baseline-valid.json` and `%TEMP%/allied-refund-time-baseline.json`. A fresh isolated `allied_utc_release_20261009_test` database replayed all 51 migrations. Full-suite results are recorded after completion below.
+Twenty-five cases are in `tests/integration/database-time-boundaries.test.ts`, with three additional refund cases in `tests/integration/owner-refund-controls.test.ts`. Baseline artifacts are retained under `%TEMP%/allied-database-time-baseline-valid.json` and `%TEMP%/allied-refund-time-baseline.json`. A fresh isolated `allied_utc_release_20261009_test` database replayed all 51 migrations.
+
+The full backend run recorded **643 passed, 2 failed and 4 skipped** in `%TEMP%/allied-utc-full-results.json`. All 28 new clock cases passed. The four dedicated-database cases passed separately (three owner cases and one workshop case), recorded in `%TEMP%/allied-utc-owner-results.json` and `%TEMP%/allied-utc-workshop-results.json`.
+
+Both discovery files passed on follow-up: **26 tests**, recorded in `%TEMP%/allied-utc-discovery-followup.json`. The product traversal timeout passed unchanged in 933 ms; its timeout was not relaxed. The service volume test now explicitly performs `VACUUM (ANALYZE)` after its bulk load and before its plan assertion, so the assertion checks a maintained GIN index. Its public page/count checks still run before maintenance. PostgreSQL documents that [VACUUM cleans GIN pending entries](https://www.postgresql.org/docs/16/sql-createindex.html). No production index or planner setting was changed. The original full-run failures remain recorded; the follow-up is not a claim of a single clean full run.
 
 ## Rollout and remaining boundaries
 

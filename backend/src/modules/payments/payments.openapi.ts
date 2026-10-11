@@ -202,7 +202,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     path: "/webhooks/paystack",
     tags: ["Payments"],
     summary: "Receive a signature-verified Paystack webhook",
-    description: verificationBehavior,
+    description: `${verificationBehavior} A persisted duplicate is acknowledged without bypassing its retry schedule, active lease or dead-letter decision. Retry completion and related financial writes commit only while the same event attempt owns the record. Refund correlation is limited to Paystack payment attempts. Completed refunds remain immutable; conflicting refund observations are retained as anomalies. Later pending or failed observations cannot clear an existing refund review hold. Acknowledgement means accepted for processing, not necessarily settled.`,
     request: { headers: z.object({ "x-paystack-signature": z.string() }) },
     responses: {
       "200": { description: "Webhook accepted" },
@@ -214,7 +214,7 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
     path: "/webhooks/monnify",
     tags: ["Payments"],
     summary: "Receive a verified Monnify webhook",
-    description: verificationBehavior,
+    description: `${verificationBehavior} A persisted duplicate is acknowledged without bypassing its retry schedule, active lease or dead-letter decision. Retry completion and related financial writes commit only while the same event attempt owns the record. Provider-verification mismatches atomically persist the receipt and review hold. Completed refunds remain immutable; conflicting refund observations are retained as anomalies. Later pending or failed observations cannot clear an existing refund review hold. Acknowledgement means accepted for processing, not necessarily settled.`,
     request: {
       headers: z.object({ "monnify-signature": z.string().optional() }),
     },
