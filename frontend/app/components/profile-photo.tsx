@@ -14,15 +14,23 @@ export function ProfilePhoto({
   version,
   hasPhoto,
   refresh,
+  disabled = false,
+  onReviewChange,
 }: {
   version: number;
   hasPhoto: boolean;
   refresh: () => void;
+  disabled?: boolean;
+  onReviewChange?: (value: boolean) => void;
 }) {
   const [selection, setSelection] = useState<AssetSelection>(null);
   const [revision, setRevision] = useState(0);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState("");
+  function review(value: MutationProposal | null) {
+    setProposal(value);
+    onReviewChange?.(!!value);
+  }
   useEffect(() => {
     const discard = () => {
       setSelection(null);
@@ -43,7 +51,7 @@ export function ProfilePhoto({
         label={hasPhoto ? "Choose a replacement photo" : "Choose a profile photo"}
         hint="JPEG, PNG or WebP, up to 5 MiB. Images must be at least 32 pixels on each side."
         accept="image/jpeg,image/png,image/webp"
-        disabled={!!proposal}
+        disabled={disabled || !!proposal}
         onChange={setSelection}
         validate={validateProfilePhoto}
         prepare={prepareProfilePhoto}
@@ -52,14 +60,14 @@ export function ProfilePhoto({
         <button
           type="button"
           className="button"
-          disabled={!selection?.prepared || !!proposal}
+          disabled={disabled || !selection?.prepared || !!proposal}
           onClick={() => {
-            if (!selection?.prepared) return;
+            if (disabled || !selection?.prepared) return;
             const body: RequestBody<"/customers/profile/photo", "put"> = {
               assetToken: selection.prepared.token,
               expectedVersion: version,
             };
-            setProposal({
+            review({
               title: hasPhoto
                 ? "Replace your profile photo?"
                 : "Save your profile photo?",
@@ -84,12 +92,13 @@ export function ProfilePhoto({
           <button
             type="button"
             className="button secondary"
-            disabled={!!proposal}
+            disabled={disabled || !!proposal}
             onClick={() => {
               const body: RequestBody<"/customers/profile/photo", "delete"> = {
                 expectedVersion: version,
               };
-              setProposal({
+              if (disabled) return;
+              review({
                 title: "Remove your profile photo?",
                 description: "Your initials will appear in place of the photo.",
                 facts: [],
@@ -111,7 +120,7 @@ export function ProfilePhoto({
       {proposal && (
         <MutationReview
           proposal={proposal}
-          onClose={() => setProposal(null)}
+          onClose={() => review(null)}
           onSuccess={() => {
             setSelection(null);
             setRevision((value) => value + 1);
