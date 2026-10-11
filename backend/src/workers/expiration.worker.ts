@@ -134,7 +134,7 @@ export class ExpirationWorker {
         await transaction.$queryRaw`SELECT "id" FROM "ServiceQuote" WHERE "id" = ${candidate.id}::uuid FOR UPDATE`;
         const quote = await transaction.serviceQuote.findUnique({
           where: { id: candidate.id },
-          select: { status: true, expiresAt: true, version: true },
+          select: { status: true, expiresAt: true, version: true, revision: true },
         });
         if (
           quote?.status !== "ISSUED" ||
@@ -143,8 +143,10 @@ export class ExpirationWorker {
         )
           return;
         const result = await transaction.serviceQuote.updateMany({
-          where: { id: candidate.id, status: "ISSUED", version: quote.version },
-          data: { status: "EXPIRED", version: { increment: 1 } },
+          where: { id: candidate.id, status: "ISSUED", revision: quote.revision },
+          // An issued document's version is immutable. Status changes advance
+          // the concurrency revision, matching customer/staff transitions.
+          data: { status: "EXPIRED", revision: { increment: 1 } },
         });
         if (result.count !== 1) return;
         await appendAuditEvent(transaction, {
@@ -152,8 +154,16 @@ export class ExpirationWorker {
           action: "STATUS_CHANGE",
           entityType: "QUOTE",
           entityId: candidate.id,
-          oldValues: { status: "ISSUED", version: quote.version },
-          newValues: { status: "EXPIRED", version: quote.version + 1 },
+          oldValues: {
+            status: "ISSUED",
+            version: quote.version,
+            revision: quote.revision,
+          },
+          newValues: {
+            status: "EXPIRED",
+            version: quote.version,
+            revision: quote.revision + 1,
+          },
           context: {
             requestId: `worker:quote-expiry:${candidate.id}`,
             ipAddress: null,
@@ -248,7 +258,7 @@ export class ExpirationWorker {
       DELETE FROM "IdempotencyRecord"
       WHERE "id" IN (
         SELECT "id" FROM "IdempotencyRecord"
-        WHERE "expiresAt" <= CURRENT_TIMESTAMP
+        WHERE "expiresAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
         ORDER BY "expiresAt" ASC
         LIMIT ${limit}
       )

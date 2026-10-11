@@ -17,6 +17,8 @@ const adapter = new PrismaPg({
   statement_timeout: env.DB_STATEMENT_TIMEOUT_MS,
   idle_in_transaction_session_timeout: env.DB_IDLE_TRANSACTION_TIMEOUT_MS,
   application_name: env.SERVICE_NAME,
+  // Prisma DateTime columns store UTC instants without a timezone suffix.
+  options: "-c timezone=UTC",
 });
 
 const globalForPrisma = globalThis as unknown as {

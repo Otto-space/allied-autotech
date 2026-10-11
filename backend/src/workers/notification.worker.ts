@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { AppError } from "../common/errors/app-error.js";
-import type { PrismaClient } from "../generated/prisma/client.js";
+import type { Prisma, PrismaClient } from "../generated/prisma/client.js";
 import { prisma } from "../config/database.js";
 import {
   decryptNotificationPayload,
@@ -13,6 +13,9 @@ import { notificationEventTypes } from "../modules/notifications/notifications.e
 import type { NotificationDeliveryPayload } from "../modules/notifications/notifications.types.js";
 import type { EmailProvider } from "../providers/messaging/email-provider.port.js";
 import type { SmsProvider } from "../providers/messaging/sms-provider.port.js";
+import { renewMessagingClaim } from "./messaging-claim.js";
+
+class LostNotificationClaim extends Error {}
 
 const envelopeSchema = z.object({
   version: z.literal(1),
@@ -61,8 +64,8 @@ export class NotificationDeliveryWorker {
           FROM "OutboxEvent" event
           JOIN "NotificationDelivery" delivery ON delivery."outboxEventId" = event."id"
           WHERE (
-            (event."status" IN ('PENDING', 'FAILED') AND event."availableAt" <= CURRENT_TIMESTAMP)
-            OR (event."status" = 'PROCESSING' AND event."lockedAt" < CURRENT_TIMESTAMP - INTERVAL '10 minutes')
+            (event."status" IN ('PENDING', 'FAILED') AND event."availableAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))
+            OR (event."status" = 'PROCESSING' AND event."lockedAt" < (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '10 minutes')
           )
           AND event."eventType" = ${notificationEventTypes.deliveryRequested}
           AND delivery."status" IN ('PENDING', 'FAILED', 'PROCESSING')
@@ -72,9 +75,9 @@ export class NotificationDeliveryWorker {
         ), claimed AS (
           UPDATE "OutboxEvent" event
           SET "status" = 'PROCESSING',
-              "lockedAt" = CURRENT_TIMESTAMP,
+              "lockedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
               "attempts" = event."attempts" + 1,
-              "updatedAt" = CURRENT_TIMESTAMP
+              "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
           FROM candidates
           WHERE event."id" = candidates."id"
           RETURNING event."id", event."eventId", event."payload", event."attempts",
@@ -84,7 +87,7 @@ export class NotificationDeliveryWorker {
           SET "status" = 'PROCESSING',
               "attempts" = claimed."attempts",
               "lastErrorCode" = NULL,
-              "updatedAt" = CURRENT_TIMESTAMP
+              "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
           FROM claimed
           WHERE delivery."id" = claimed."deliveryId"
           RETURNING delivery."id" AS "deliveryId", delivery."channel",
@@ -100,6 +103,7 @@ export class NotificationDeliveryWorker {
   }
 
   private async deliver(event: ClaimedDelivery): Promise<void> {
+    if (!(await renewMessagingClaim(this.database, event))) return;
     let code = "NOTIFICATION_DELIVERY_FAILED";
     let terminal = event.attempts >= 8;
     try {
@@ -109,16 +113,22 @@ export class NotificationDeliveryWorker {
       const payload = payloadSchema.parse(
         decryptNotificationPayload<NotificationDeliveryPayload>(encrypted),
       );
-      const delivery = await this.database.notificationDelivery.findUnique({
-        where: { id: event.deliveryId },
+      const delivery = await this.database.notificationDelivery.findFirst({
+        where: {
+          id: event.deliveryId,
+          outboxEventId: event.id,
+          status: "PROCESSING",
+          attempts: event.attempts,
+        },
         include: { notification: true },
       });
-      if (delivery?.notification.category === "MARKETING") {
+      if (!delivery) return;
+      if (delivery.notification.category === "MARKETING") {
         code = "MARKETING_DISABLED";
         terminal = true;
         throw new Error("Marketing execution disabled");
       }
-      if (delivery?.notification.category === "OPERATIONAL") {
+      if (delivery.notification.category === "OPERATIONAL") {
         const preference = await this.database.notificationPreference.findUnique({
           where: {
             userId_category_channel: {
@@ -171,51 +181,42 @@ export class NotificationDeliveryWorker {
         });
       }
       const now = new Date();
-      await this.database.$transaction([
-        this.database.outboxEvent.updateMany({
-          where: { id: event.id, status: "PROCESSING" },
-          data: {
-            status: "PUBLISHED",
-            publishedAt: now,
-            lockedAt: null,
-            lastError: null,
-          },
-        }),
-        this.database.notificationDelivery.updateMany({
-          where: { id: event.deliveryId, status: "PROCESSING" },
-          data: {
-            status: "PUBLISHED",
-            attempts: event.attempts,
-            deliveredAt: now,
-            lastErrorCode: null,
-          },
-        }),
-      ]);
+      await this.finishClaim(
+        event,
+        {
+          status: "PUBLISHED",
+          publishedAt: now,
+          lockedAt: null,
+          lastError: null,
+        },
+        {
+          status: "PUBLISHED",
+          attempts: event.attempts,
+          deliveredAt: now,
+          lastErrorCode: null,
+        },
+      );
     } catch (error: unknown) {
       if (error instanceof AppError && !error.retryable) {
         code = "NOTIFICATION_DELIVERY_REJECTED";
         terminal = true;
       }
       const delaySeconds = Math.min(3_600, 2 ** Math.min(event.attempts, 8) * 15);
-      await this.database.$transaction([
-        this.database.outboxEvent.updateMany({
-          where: { id: event.id, status: "PROCESSING" },
-          data: {
-            status: terminal ? "DEAD_LETTER" : "FAILED",
-            availableAt: new Date(Date.now() + delaySeconds * 1_000),
-            lockedAt: null,
-            lastError: code,
-          },
-        }),
-        this.database.notificationDelivery.updateMany({
-          where: { id: event.deliveryId, status: "PROCESSING" },
-          data: {
-            status: terminal ? "DEAD_LETTER" : "FAILED",
-            attempts: event.attempts,
-            lastErrorCode: code,
-          },
-        }),
-      ]);
+      const recorded = await this.finishClaim(
+        event,
+        {
+          status: terminal ? "DEAD_LETTER" : "FAILED",
+          availableAt: new Date(Date.now() + delaySeconds * 1_000),
+          lockedAt: null,
+          lastError: code,
+        },
+        {
+          status: terminal ? "DEAD_LETTER" : "FAILED",
+          attempts: event.attempts,
+          lastErrorCode: code,
+        },
+      );
+      if (!recorded) return;
       logger.warn(
         {
           eventId: event.eventId,
@@ -225,6 +226,37 @@ export class NotificationDeliveryWorker {
         },
         "Notification delivery failed",
       );
+    }
+  }
+
+  private async finishClaim(
+    event: ClaimedDelivery,
+    outbox: Prisma.OutboxEventUpdateManyMutationInput,
+    delivery: Prisma.NotificationDeliveryUpdateManyMutationInput,
+  ): Promise<boolean> {
+    try {
+      return await this.database.$transaction(async (transaction) => {
+        const owned = await transaction.outboxEvent.updateMany({
+          where: { id: event.id, status: "PROCESSING", attempts: event.attempts },
+          data: outbox,
+        });
+        if (owned.count !== 1) return false;
+        const linked = await transaction.notificationDelivery.updateMany({
+          where: {
+            id: event.deliveryId,
+            outboxEventId: event.id,
+            status: "PROCESSING",
+            attempts: event.attempts,
+          },
+          data: delivery,
+        });
+        // Roll back the outbox transition if its paired delivery no longer belongs to us.
+        if (linked.count !== 1) throw new LostNotificationClaim();
+        return true;
+      });
+    } catch (error: unknown) {
+      if (error instanceof LostNotificationClaim) return false;
+      throw error;
     }
   }
 }

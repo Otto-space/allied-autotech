@@ -17,10 +17,10 @@ export class PostgresRateLimitStore implements Store {
     const key = hashToken("rate-limit", `${this.scope}:${rawKey}`);
     const rows = await this.database.$queryRaw<Array<{ hits: number; resetAt: Date }>>`
       INSERT INTO "RateLimitBucket" ("key", "hits", "resetAt")
-      VALUES (${key}, 1, CURRENT_TIMESTAMP + (${this.windowMs} * INTERVAL '1 millisecond'))
+      VALUES (${key}, 1, (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + (${this.windowMs} * INTERVAL '1 millisecond'))
       ON CONFLICT ("key") DO UPDATE SET
-        "hits" = CASE WHEN "RateLimitBucket"."resetAt" <= CURRENT_TIMESTAMP THEN 1 ELSE "RateLimitBucket"."hits" + 1 END,
-        "resetAt" = CASE WHEN "RateLimitBucket"."resetAt" <= CURRENT_TIMESTAMP THEN EXCLUDED."resetAt" ELSE "RateLimitBucket"."resetAt" END
+        "hits" = CASE WHEN "RateLimitBucket"."resetAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') THEN 1 ELSE "RateLimitBucket"."hits" + 1 END,
+        "resetAt" = CASE WHEN "RateLimitBucket"."resetAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') THEN EXCLUDED."resetAt" ELSE "RateLimitBucket"."resetAt" END
       RETURNING "hits", "resetAt"
     `;
     if (!rows[0]) throw new Error("Shared rate limiter unavailable");

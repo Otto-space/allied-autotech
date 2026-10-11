@@ -7,6 +7,30 @@ import { errorCodes } from "../../src/common/errors/error-codes.js";
 const trustedOrigin = "http://localhost:3000";
 
 describe("identity HTTP trust boundaries", () => {
+  it("rejects invalid recovery email and additional fields before persistence", async () => {
+    const response = await request(createApp({ checkReadiness: async () => undefined }))
+      .post("/api/v1/auth/password/forgot")
+      .set("Origin", trustedOrigin)
+      .send({ email: "invalid", role: "ADMIN" });
+    expect(response.status).toBe(422);
+    expect(response.body.error.code).toBe(errorCodes.validationFailed);
+  });
+  it("rejects cross-origin registration before persistence", async () => {
+    const response = await request(createApp({ checkReadiness: async () => undefined }))
+      .post("/api/v1/auth/register")
+      .set("Origin", "https://untrusted.example")
+      .set("Sec-Fetch-Site", "cross-site")
+      .send({
+        email: "register@example.test",
+        password: "unique registration phrase",
+        firstName: "Test",
+        lastName: "Person",
+        phone: "+2348000000000",
+      });
+    expect(response.status).toBe(403);
+    // CORS rejects the disallowed origin before the identity middleware runs.
+    expect(response.body.error.code).toBe(errorCodes.forbidden);
+  });
   it("requires an exact trusted origin for public identity mutations", async () => {
     const app = createApp({ checkReadiness: async () => undefined });
     const response = await request(app).post("/api/v1/auth/login").send({

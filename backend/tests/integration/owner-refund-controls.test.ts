@@ -5,6 +5,7 @@ import { prisma } from "../../src/config/database.js";
 import type { Prisma } from "../../src/generated/prisma/client.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
 import { RefundWorker } from "../../src/workers/refund.worker.js";
+import { databaseTimezones, timezoneDatabase } from "../helpers/timezone-database.js";
 import { PaymentProviderRegistry } from "../../src/providers/payments/payment-provider.registry.js";
 import type { PaystackWebhookEvent } from "../../src/providers/payments/paystack-webhook.js";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -90,6 +91,70 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Owner financial controls on isolated PostgreSQL",
   () => {
     afterAll(() => prisma.$disconnect());
+    it.each(databaseTimezones)(
+      "records refund submission and reconciliation deadlines in UTC with %s sessions",
+      async (timezone) => {
+        const f = await fixture();
+        await new PaymentsService(prisma).ingestWebhook(
+          f.event,
+          "c".repeat(64),
+          context(),
+        );
+        const record = await prisma.refund.findFirstOrThrow({
+          where: { paymentAttemptId: f.attempt.id },
+        });
+        const database = timezoneDatabase(timezone);
+        const before = Date.now();
+        let claim:
+          { submissionStartedAt: Date | null; nextReconcileAt: Date | null } | undefined;
+        const refund = vi.fn(async () => {
+          claim = await prisma.refund.findUniqueOrThrow({ where: { id: record.id } });
+          return { providerRefundId: randomUUID(), status: "pending" };
+        });
+        try {
+          const worker = new RefundWorker(
+            database,
+            new PaymentProviderRegistry({
+              PAYSTACK: {
+                refund,
+                initialize: vi.fn(),
+                verify: vi.fn(),
+                verifyRefund: vi.fn(),
+              },
+            }),
+          );
+          await worker.runOnce(1, record.id);
+          expect(refund).toHaveBeenCalledTimes(1);
+          expect(claim?.submissionStartedAt?.getTime()).toBeGreaterThanOrEqual(
+            before - 1000,
+          );
+          expect(claim?.submissionStartedAt?.getTime()).toBeLessThanOrEqual(
+            Date.now() + 1000,
+          );
+          expect(
+            claim!.nextReconcileAt!.getTime() - claim!.submissionStartedAt!.getTime(),
+          ).toBe(600_000);
+          await worker.runOnce(1, record.id);
+          expect(refund).toHaveBeenCalledTimes(1);
+          await prisma.order.update({
+            where: { id: f.order.id },
+            data: { paymentDueAt: new Date(Date.now() + 300_000) },
+          });
+          await expect(
+            database.refund.update({
+              where: { id: record.id },
+              data: { failureMessage: "Synthetic attempt before the payment deadline" },
+            }),
+          ).rejects.toThrow("System reversal requires an approved policy");
+        } finally {
+          await prisma.order.update({
+            where: { id: f.order.id },
+            data: { paymentDueAt: f.order.paymentDueAt },
+          });
+          await database.$disconnect();
+        }
+      },
+    );
     it("records duplicate late captures once, queues one system reversal, and never fulfils the order", async () => {
       const f = await fixture();
       const service = new PaymentsService(prisma);

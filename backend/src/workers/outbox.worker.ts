@@ -17,6 +17,7 @@ import type { IdentityEmailPayload } from "../modules/identity/identity.types.js
 import type { EmailProvider } from "../providers/messaging/email-provider.port.js";
 import { ResendEmailProvider } from "../providers/messaging/resend-email.adapter.js";
 import { safeErrorAttributes } from "../common/observability/safe-error.js";
+import { renewMessagingClaim } from "./messaging-claim.js";
 
 interface ClaimedEvent {
   id: string;
@@ -53,8 +54,8 @@ export class IdentityOutboxWorker {
         SELECT "id"
         FROM "OutboxEvent"
         WHERE (
-          ("status" IN ('PENDING', 'FAILED') AND "availableAt" <= CURRENT_TIMESTAMP)
-          OR ("status" = 'PROCESSING' AND "lockedAt" < CURRENT_TIMESTAMP - INTERVAL '10 minutes')
+          ("status" IN ('PENDING', 'FAILED') AND "availableAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))
+          OR ("status" = 'PROCESSING' AND "lockedAt" < (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '10 minutes')
         )
         AND "eventType" IN (
           ${identityEventTypes.verificationEmailRequested},
@@ -67,9 +68,9 @@ export class IdentityOutboxWorker {
       )
       UPDATE "OutboxEvent" AS event
       SET "status" = 'PROCESSING',
-          "lockedAt" = CURRENT_TIMESTAMP,
+          "lockedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
           "attempts" = event."attempts" + 1,
-          "updatedAt" = CURRENT_TIMESTAMP
+          "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
       FROM candidates
       WHERE event."id" = candidates."id"
       RETURNING event."id", event."eventId", event."eventType", event."payload", event."attempts"
@@ -88,7 +89,7 @@ export class IdentityOutboxWorker {
       WHERE "id" IN (
         SELECT "id"
         FROM "AuthenticationThrottle"
-        WHERE "expiresAt" <= CURRENT_TIMESTAMP
+        WHERE "expiresAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
         ORDER BY "expiresAt" ASC
         LIMIT ${boundedBatchSize}
       )
@@ -98,7 +99,7 @@ export class IdentityOutboxWorker {
       WHERE "id" IN (
         SELECT "id"
         FROM "MfaChallenge"
-        WHERE "expiresAt" <= CURRENT_TIMESTAMP
+        WHERE "expiresAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
         ORDER BY "expiresAt" ASC
         LIMIT ${boundedBatchSize}
       )
@@ -108,7 +109,7 @@ export class IdentityOutboxWorker {
       WHERE "id" IN (
         SELECT "id"
         FROM "PrivilegedInvitation"
-        WHERE "expiresAt" <= CURRENT_TIMESTAMP - INTERVAL '30 days'
+        WHERE "expiresAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '30 days'
         ORDER BY "expiresAt" ASC
         LIMIT ${boundedBatchSize}
       )
@@ -117,6 +118,7 @@ export class IdentityOutboxWorker {
   }
 
   private async deliver(event: ClaimedEvent): Promise<void> {
+    if (!(await renewMessagingClaim(this.database, event))) return;
     try {
       const payload = decryptIdentityPayload<IdentityEmailPayload>(
         readEnvelope(event.payload),
@@ -141,7 +143,7 @@ export class IdentityOutboxWorker {
         idempotencyKey: event.eventId,
       });
       await this.database.outboxEvent.updateMany({
-        where: { id: event.id, status: "PROCESSING" },
+        where: { id: event.id, status: "PROCESSING", attempts: event.attempts },
         data: {
           status: "PUBLISHED",
           publishedAt: new Date(),
@@ -153,8 +155,8 @@ export class IdentityOutboxWorker {
       const terminal =
         event.attempts >= 8 || (error instanceof AppError && !error.retryable);
       const delaySeconds = Math.min(3_600, 2 ** Math.min(event.attempts, 10) * 15);
-      await this.database.outboxEvent.updateMany({
-        where: { id: event.id, status: "PROCESSING" },
+      const recorded = await this.database.outboxEvent.updateMany({
+        where: { id: event.id, status: "PROCESSING", attempts: event.attempts },
         data: {
           status: terminal ? "DEAD_LETTER" : "FAILED",
           availableAt: new Date(Date.now() + delaySeconds * 1_000),
@@ -162,6 +164,7 @@ export class IdentityOutboxWorker {
           lastError: "identity_email_delivery_failed",
         },
       });
+      if (recorded.count !== 1) return;
       logger.warn(
         {
           ...safeErrorAttributes(error),

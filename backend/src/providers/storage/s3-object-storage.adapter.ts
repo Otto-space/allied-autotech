@@ -8,6 +8,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { env } from "../../config/env.js";
+import { AppError } from "../../common/errors/app-error.js";
 import { mediaError } from "../../modules/media/media.errors.js";
 import type { MediaStoragePort } from "./media-storage.port.js";
 import type {
@@ -103,10 +104,12 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
   }
 
   async verifyObject(request: UploadRequest): Promise<boolean> {
+    // Missing configuration is an outage, never evidence that bytes exist.
+    const bucket = this.bucket();
     try {
       const metadata = await this.client.send(
         new HeadObjectCommand({
-          Bucket: this.bucket(),
+          Bucket: bucket,
           Key: request.key,
           ChecksumMode: "ENABLED",
         }),
@@ -119,7 +122,7 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
       if (!metadataMatches) return false;
       const object = await this.client.send(
         new GetObjectCommand({
-          Bucket: this.bucket(),
+          Bucket: bucket,
           Key: request.key,
           Range: "bytes=0-15",
         }),
@@ -136,7 +139,12 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
 
   private bucket(): string {
     if (env.OBJECT_STORAGE_BUCKET === undefined)
-      throw new Error("Object storage is not configured");
+      throw new AppError({
+        code: "PROVIDER_UNAVAILABLE",
+        statusCode: 503,
+        message: "File storage is temporarily unavailable",
+        retryable: true,
+      });
     return env.OBJECT_STORAGE_BUCKET;
   }
 
@@ -207,30 +215,6 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
   }
 }
 
-class SyntheticObjectStorageAdapter implements ObjectStoragePort {
-  async createUpload(request: UploadRequest): Promise<SignedUpload> {
-    return {
-      method: "PUT",
-      url: `https://storage.invalid/upload/${encodeURIComponent(request.key)}`,
-      expiresAt: new Date(Date.now() + env.ASSET_UPLOAD_TTL_SECONDS * 1_000),
-      headers: { "content-type": request.mimeType },
-    };
-  }
-  async createDownload(key: string): Promise<string> {
-    return `https://storage.invalid/download/${encodeURIComponent(key)}`;
-  }
-  async createView(key: string): Promise<string> {
-    return `https://storage.invalid/view/${encodeURIComponent(key)}`;
-  }
-  async verifyObject(): Promise<boolean> {
-    return true;
-  }
-}
-
-export const objectStorage: ObjectStoragePort =
-  env.OBJECT_STORAGE_BUCKET === undefined
-    ? new SyntheticObjectStorageAdapter()
-    : new S3ObjectStorageAdapter();
-
-// New managed media never uses the legacy synthetic fallback. Tests inject storage explicitly.
+// Production and local runtime both fail closed. Tests inject storage explicitly.
+export const objectStorage: ObjectStoragePort = new S3ObjectStorageAdapter();
 export const mediaStorage: MediaStoragePort = new S3ObjectStorageAdapter();

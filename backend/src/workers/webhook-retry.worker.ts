@@ -51,10 +51,10 @@ export class PaymentWebhookRetryWorker {
           processingAttempts: number;
         }>
       >`
-      UPDATE "PaymentWebhookEvent" SET "status" = 'PROCESSING', "lockedAt" = CURRENT_TIMESTAMP, "processingAttempts" = "processingAttempts" + 1
+      UPDATE "PaymentWebhookEvent" SET "status" = 'PROCESSING', "lockedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'), "processingAttempts" = "processingAttempts" + 1
       WHERE "id" IN (
         SELECT "id" FROM "PaymentWebhookEvent"
-        WHERE (("status" IN ('RECEIVED', 'FAILED') AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= CURRENT_TIMESTAMP)) OR ("status" = 'PROCESSING' AND "lockedAt" < CURRENT_TIMESTAMP - INTERVAL '10 minutes')) AND "processingAttempts" < 8
+        WHERE (("status" IN ('RECEIVED', 'FAILED') AND ("nextAttemptAt" IS NULL OR "nextAttemptAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))) OR ("status" = 'PROCESSING' AND "lockedAt" < (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '10 minutes')) AND "processingAttempts" < 8
         ORDER BY "receivedAt" ASC FOR UPDATE SKIP LOCKED LIMIT ${limit}
       )
       RETURNING "id", "provider", "payloadSha256", "redactedPayload", "processingAttempts"`,

@@ -37,9 +37,9 @@ export class RefundWorker {
           AND (${refundId ?? null}::uuid IS NULL OR r."id" = ${refundId ?? null}::uuid)
           AND NOT EXISTS (SELECT 1 FROM "PaymentDispute" d WHERE d."paymentAttemptId" = a."id" AND d."status" <> 'WON')
         ORDER BY r."createdAt", r."id" FOR UPDATE OF r SKIP LOCKED LIMIT ${limit}
-      ) UPDATE "Refund" r SET "submissionStartedAt" = CURRENT_TIMESTAMP,
-          "status" = 'PROCESSING', "providerStatus" = 'SUBMISSION_STARTED', "updatedAt" = CURRENT_TIMESTAMP,
-          "nextReconcileAt" = CURRENT_TIMESTAMP + INTERVAL '10 minutes'
+      ) UPDATE "Refund" r SET "submissionStartedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+          "status" = 'PROCESSING', "providerStatus" = 'SUBMISSION_STARTED', "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+          "nextReconcileAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + INTERVAL '10 minutes'
         FROM candidates c WHERE r."id" = c."id" RETURNING r."id"
     `);
     for (const { id } of claimed) {

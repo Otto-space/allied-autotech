@@ -27,16 +27,16 @@ export class BookingReminderWorker {
         SELECT "id"
         FROM "BookingReminder"
         WHERE (
-          ("status" IN ('PENDING', 'FAILED') AND COALESCE("nextAttemptAt", "scheduledFor") <= CURRENT_TIMESTAMP)
-          OR ("status" = 'PROCESSING' AND "lockedAt" < CURRENT_TIMESTAMP - INTERVAL '10 minutes')
+          ("status" IN ('PENDING', 'FAILED') AND COALESCE("nextAttemptAt", "scheduledFor") <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))
+          OR ("status" = 'PROCESSING' AND "lockedAt" < (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') - INTERVAL '10 minutes')
         )
         ORDER BY "scheduledFor" ASC, "id" ASC
         FOR UPDATE SKIP LOCKED
         LIMIT ${limit}
       )
       UPDATE "BookingReminder" reminder
-      SET "status" = 'PROCESSING', "lockedAt" = CURRENT_TIMESTAMP,
-          "attempts" = reminder."attempts" + 1, "updatedAt" = CURRENT_TIMESTAMP
+      SET "status" = 'PROCESSING', "lockedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
+          "attempts" = reminder."attempts" + 1, "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
       FROM candidates
       WHERE reminder."id" = candidates."id"
       RETURNING reminder."id"

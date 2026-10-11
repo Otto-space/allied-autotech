@@ -1,12 +1,59 @@
 # Allied AutoTech — Backend Implementation Gaps
 
-**Implementation update (30 September 2026):** BG-01 through BG-06 are implemented and have local API/database/browser acceptance evidence. See the [final implementation handoff](backend/docs/backend-gaps-handoff.md) for current contracts, regression results and remaining staging storage verification. This update supersedes earlier implementation-status notes below.
+**Implementation update (9 October 2026):** BG-01 through BG-10 are implemented and locally accepted. The [original implementation handoff](backend/docs/backend-gaps-handoff.md) covers BG-01 through BG-06; the payment and financial-document acceptance records below cover BG-07 and BG-08. BG-09 (customer current-care overview) has also passed its separate local backend and frontend gate. BG-10 fixes quotation expiry and has passed its backend regression and static checks. API-01 through API-05 also have recorded local acceptance. Deployment and integration checks remain open.
 
 Prepared: 30 September 2026
 
+Last reviewed: 9 October 2026, following the completed Booking creation, Home, expanded Vehicles, Shop and Services listing milestones, expanded Vehicle, Product and Service detail, expanded Customer Care, public Reviews, About, Help index and Help articles, Quotation authoring/review, Vehicle inspection/enquiry creation, Cart/checkout, Customer order detail/payment-request handoff, dedicated Customer payment detail, Invoice/receipt documents, Saved items/favourites, Product cart confirmation drawer/notifications, Login, Registration, Forgot-password recovery requests, Reset password, Email verification/resend, MFA challenge/enrollment/recovery codes, Customer and Staff/admin account security, Customer dashboard overview, Customer bookings list, Customer booking detail (including BG-10 quotation-expiry repair), Customer orders list, Customer payments list, Customer invoices list, Customer garage/vehicles list, Customer vehicle photo detail, Customer inspection history, Customer vehicle purchases list, and the owner's workshop-landmark confirmation.
+
 Basis: completed frontend milestones, recorded backend acceptance, and read-only review of the current backend routes, schemas and exported OpenAPI contract.
 
-Status: BG-01 through BG-06 have recorded local acceptance evidence. Remaining work consists of deployed integration verification and the optional discovery enhancements below. This documentation review checked current source contracts and existing acceptance records; it did not rerun application tests or verify staging.
+Status: BG-01 through BG-10 have recorded local acceptance evidence, including the [payment report](frontend/docs/page-quality/payment-detail.md) and [invoice/document report](frontend/docs/page-quality/invoice-detail.md). Remaining work includes deployed integration verification and Maps configuration. Verification is limited to the source review and local checks in the linked capability and page reports; staging has not been verified.
+
+**Remaining delivery:** BG-01 through BG-10 and API-01 through API-05 have recorded local acceptance. The service-discovery record below now includes API-03 implementation, frontend integration and real browser/API/database acceptance. REL-01 through REL-03 cover deployment and integration verification; CFG-01 covers Maps configuration when available. Remaining page audits may identify additional implementation gaps. Use the actionable backlog below for ownership and acceptance criteria.
+
+**Security follow-up (9 October):** new proxy-address and Next.js advisories and compatible transitive updates were addressed; backend full-tree and frontend production-dependency npm audits now report zero advisories. Frontend lint tooling retains the unpatched SEC-015 brace-parser advisory. See the [dependency security follow-up](security_best_practices_report.md); its release regression and the broader application/deployment audit are separate from discovery feature acceptance.
+
+**Availability repair (9 October):** SEC-016 maps confirmed Prisma driver connection failures, including the reported `ECONNREFUSED` and raw-query adapter errors, to the existing safe 503 `DATABASE_UNAVAILABLE` response. Unrelated errors keep their existing behavior; mutations are not retried automatically. Forty focused mapping/real refused-connection/HTTP foundation cases passed. OpenAPI now documents dependency-unavailable responses across all 308 operations; exported artifacts and frontend types are regenerated and validated. This handles an outage correctly but does not restore a stopped or unreachable database.
+
+**Review boundary:** this handoff covers the thirty-nine accepted frontend milestones and the current implementation sources. The customer orders, payments and invoices lists have passed their separate local gates. Remaining dashboard routes may reveal further gaps. Existing acceptance counts below are linked historical evidence, not tests rerun for this documentation update. Source code and test files alone do not establish completed acceptance.
+
+## Delivery checklist based on completed work
+
+**Database deadline repair (9 October):** SEC-022 standardizes application connections and runtime SQL on UTC, protecting authentication/MFA cleanup, idempotency retention, shared rate limits, reminders, webhook retries and operational/refund timestamps from PostgreSQL session-zone changes. An additive migration fixes the refund trigger's clock while preserving its authorization checks. See [clock behavior, tests and rollout](backend/docs/database-time.md). Apply the migration and restart API/workers; historical shifted values are not automatically rewritten.
+
+**Messaging concurrency repair (9 October):** SEC-021 prevents stale notification/account-email worker completions and failures from overwriting a newer claim, skips superseded items in an old batch, and makes paired notification transitions atomic. Explicit UTC scheduling/leases pass tests under UTC, Lagos and New York database sessions. See [worker behavior, acceptance and rollout](backend/docs/notification-retries.md#messaging-worker-ownership-repair--9-october-2026). No migration or frontend contract change. Other raw-SQL time handling and historical stranded-job recovery remain open audit items.
+
+**Notification retry repair (9 October):** SEC-020 makes the existing Admin/Super Admin retry action reset notification outbox and delivery records atomically, supports valid zero-attempt dead letters and preserves consent checks, cumulative attempts and provider keys. Inconsistent or completed deliveries fail without a partial change. Ten new database/HTTP cases and 30 existing worker/security/contract tests pass. The dashboard now exposes zero-attempt retries. See [retry behavior, verification and remaining boundaries](backend/docs/notification-retries.md); live delivery and legacy stranded-state recovery are not claimed.
+
+**Private storage integrity repair (9 October):** SEC-019 removes automatic fabricated upload/download URLs and unconditional private-file verification when no bucket is configured. Runtime returns a safe 503; document/payment/handover checks preserve database state, and test fixtures explicitly inject matching bytes. The focused 34-test gate, expanded database check, OpenAPI tests and static/contract checks pass. See [private storage acceptance](backend/docs/private-storage-availability.md). No migration or new frontend workflow is required. Actual Spaces setup remains deferred under REL-01.
+
+**Confirmation lifecycle repair (9 October):** SEC-018 prevents delayed confirmation retries from rewriting already removed images and makes cleanup wait for a verified write/attachment transaction before checking references. Five new concurrency/expiry tests and the existing media/worker checks pass together (65 total). See [confirmation acceptance and rollout](backend/docs/managed-media.md#confirmation-and-cleanup-serialization-9-october-2026). Deploy the API and general worker together after draining older processes. No new migration or frontend contract is required; actual Spaces acceptance remains under REL-01.
+
+**Media cleanup repair (9 October):** SEC-017 fixes stale workers completing or rescheduling a newer cleanup request and claiming jobs from an outdated deadline. Six PostgreSQL concurrency/retry cases and 54 existing media/worker regressions pass together; backend typecheck/build/lint/format/secret checks pass. See [cleanup acceptance](backend/docs/managed-media.md#cleanup-concurrency-regression-9-october-2026). Deploy the updated general worker; no new migration or frontend contract is required. Live storage acceptance remains under REL-01, and the broader backend audit remains open.
+
+**Current booking-detail audit:** BG-10 was found during real database verification: the quotation-expiry worker incremented the immutable document `version`, causing PostgreSQL to reject expiry and interrupt the worker. The implementation now advances `revision` and preserves document version/amounts; the focused repeat-run/audit regression and ten existing booking-policy, deposit and settlement-locking checks pass (11 total). Backend TypeScript, lint and build checks pass. The booking-detail page gate is locally accepted, including real customer API/browser transactions. See [booking-detail acceptance](frontend/docs/page-quality/customer-booking-detail.md). No migration or endpoint change is required; deploy the updated worker with the backend release.
+
+Use the IDs below when creating implementation or release tickets. An unchecked item means its stated acceptance evidence is still outstanding; it does not mean an existing endpoint must be rebuilt.
+
+- [x] **BG-01–BG-06 — implementation and local acceptance:** customer directory and the five managed-media capabilities have recorded completion. Preserve their contracts and regression coverage.
+- [x] **BG-07 — payment checkout availability:** owned detail projection, OpenAPI export, frontend types, provider visibility and local acceptance are complete. Retain regression coverage; deployed provider acceptance remains under REL-03.
+- [x] **BG-08 — invoice and receipt documents:** owner-authorized document projections, private PDFs, verified-settlement receipts and frontend download/share integration passed local acceptance. Deploy the migration, bundled fonts and backend contract, then verify target-environment behavior under REL-03.
+- [x] **BG-09 — customer current-care overview:** owner-scoped current care, contract/types, isolated backend tests, browser/visual checks and real API/proxy acceptance are complete. Deploy backend before frontend; target-environment verification remains under REL-03.
+- [x] **BG-10 - quotation expiry revision:** preserve immutable document version/amounts, advance concurrency revision, and audit expiry once. Eleven actual database regressions and backend type/lint/build pass. Deploy the updated expiration worker; no migration or endpoint change is needed.
+- [ ] **REL-01 — deployed media acceptance:** configure the private storage integration and verify real upload, confirmation, authorized reads, replacement, removal and cleanup for each media resource.
+- [ ] **REL-02 — deployed customer-care acceptance:** verify the active handling branch, persisted support record and actual configured notification delivery. An API receipt alone does not establish delivery.
+- [ ] **REL-03 — deployed account/payment acceptance:** verify role and customer isolation, session/recovery behavior, provider sandbox outcomes and server-confirmed payment state.
+- [ ] **CFG-01 — Maps configuration, when available:** supply the restricted Maps key and verify the workshop location. Retain **beside Kilimanjaro** in the address and directions. A verified Place ID is not currently available; address-based directions remain supported.
+- [x] **API-01 — vehicle discovery locally accepted:** bounded make/model options, exact filtered totals, authenticated pagination, frontend integration and real API/database/browser verification passed. Deployment verification remains open.
+- [x] **API-02 — Shop discovery locally accepted:** catalogue-wide category/brand/compatibility options, exact totals, signed paging and price/availability filters passed local database, frontend and production-browser acceptance. See the [Shop discovery report](frontend/docs/page-quality/shop-expanded.md). Deployment verification remains open.
+- [x] **API-03 — service discovery locally accepted:** server search, reusable administrator-managed categories, bounded options, sorting, signed pagination, exact totals and frontend integration have recorded local acceptance. Deploy the migration and backend before the dependent frontend; verify the target environment. See [service discovery](backend/docs/service-discovery.md).
+- [x] **API-04 — inspection/enquiry retry local acceptance:** backend receipts and frontend recovery passed nine PostgreSQL scenarios, 353 frontend unit tests and 48 browser scenarios. A real browser/API check dropped each committed creation response, reloaded, retried the original key/body and verified one record and one audit per action. See [acceptance evidence](backend/docs/vehicle-creation-retries.md). Deploy backend before frontend and verify the target environment.
+- [x] **API-05 — saved-vehicle pagination locally verified:** bounded customer read and frontend integration preserve the legacy array contract, availability and ownership. Verified customer-bound cursors, deletion between pages, empty/final pages and account changes. Deploy the index migration and backend before the dependent frontend.
+
+**Current audit boundary:** thirty-nine expanded frontend milestones have local acceptance records, including [Cart/checkout](frontend/docs/page-quality/cart-checkout.md), [Order detail](frontend/docs/page-quality/order-detail.md), [Payment detail](frontend/docs/page-quality/payment-detail.md) and [Invoice detail/documents](frontend/docs/page-quality/invoice-detail.md). [Saved items/favourites](frontend/docs/page-quality/saved-items.md) now have local acceptance using the existing APIs. Remaining account/role dashboards still require their own audits. Their presence in the brief does not establish a missing backend contract. Add gaps only after inspecting applicable routes, schemas and authorization.
+
+**Creation retry boundary:** the two creation endpoints accept an optional `Idempotency-Key`; callers without it retain previous behavior without duplicate protection. The frontend saves the reviewed intent and key in tab-scoped session storage and offers verified reload recovery. Backend retention is 24 hours; the client uses 23 hours. Expired, redacted or cross-device intents require history recovery, while inaccessible browser storage requires restoring storage before a new send. A new key is a new intent, not a guarantee against duplicate creation. See API-04 below.
 
 ## Purpose and scope
 
@@ -36,61 +83,321 @@ Suggested ownership: backend owns DTOs, authorization, persistence and media lif
 
 ### Remaining delivery order
 
-1. **Verify deployed media:** configure private object storage, frontend upload-host allowlisting, CORS and the cleanup worker. Apply reviewed migrations through the normal deployment process. Exercise actual upload/read/replace/delete and failure recovery in staging; injected storage tests do not satisfy this gate.
-2. **Complete Contact configuration:** verify the deployed active handling branch and provider delivery. Add the Maps key when available; the address-based fallback already works without a Place ID.
-3. **Retain regression coverage:** preserve all six completed capabilities. Keep backend capability acceptance separate from each frontend page's visual acceptance gate.
-4. **Implement optional discovery extensions only when selected:** finalize their contracts and tests before enabling additional catalogue controls. Existing fallbacks work with the current APIs.
+BG-08 and BG-09 are locally accepted. Deploy the BG-09 current-care projection before its dependent frontend; it requires no migration. For BG-08, deploy its reviewed migration and backend contract before the dependent frontend; package the licensed runtime fonts and verify authenticated JSON/PDF reads and denied access in the target environment. The release tasks below remain open.
+
+1. **Verify deployed overview and payment availability:** deploy BG-09 before the customer overview frontend and verify owner isolation, empty/current/historical states, private caching and representative-volume latency. Deploy the locally accepted BG-07 contract before its dependent frontend and verify the configured provider list in the target environment under REL-03.
+2. **Verify deployed media:** configure private object storage, frontend upload-host allowlisting, CORS and the cleanup worker. Apply reviewed migrations through the normal deployment process. Exercise actual upload/read/replace/delete and failure recovery in staging; injected storage tests do not satisfy this gate.
+3. **Complete Contact configuration:** verify the deployed active handling branch and provider delivery. Add the Maps key when available; the address-based fallback already works without a Place ID.
+4. **Verify deployed account and payment integrations:** exercise the existing role/session, payment-provider sandbox and email/recovery flows under REL-03. Record server-confirmed outcomes and failed or unauthorized paths in the target environment.
+5. **Deploy the quotation-expiry repair and retain regressions:** include BG-10 in the backend worker release. Verify that an issued quotation expires once, advances `revision`, preserves document `version` and amounts, and leaves the worker healthy. Preserve all ten completed capabilities and keep backend acceptance separate from each frontend page's visual acceptance gate.
+6. **Release accepted discovery and API extensions:** preserve API-01 through API-05 local acceptance. Deploy accepted index migrations and backend routes before their dependent frontend, then verify discovery, saved-vehicle traversal and owner isolation in the target environment. Existing compatible routes remain supported.
 
 ### Actionable remaining backlog
 
-Priority P1 means a release verification requirement for the affected integration. P2 means an optional product enhancement; it does not block the current supported browsing experience. These priorities are proposed for planning.
+Priority P1 means required implementation or release verification for the affected integration. P2 means an optional product enhancement; it does not block the current supported browsing experience. These priorities are proposed for planning.
 
 | ID     | Priority / owner                             | Remaining task                                                                                                                                                                | Acceptance evidence                                                                                                                                                                                                           |
 | ------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BG-07  | P1 — backend + frontend + QA                 | Implemented locally; preserve owned payment-detail availability and its regressions. Deployed provider checks remain under REL-03.                                            | Enabled provider names only; private uncached read; ownership enforced; exported contract and frontend types agree; unavailable providers are not offered; initialization rechecks current eligibility.                       |
+| BG-08  | P1 — deployment + QA                         | Local implementation complete: deploy the invoice snapshot migration, bundled PDF fonts and four document routes before the dependent frontend.                               | Target-environment ownership, settlement eligibility, private cache headers and browser downloads pass; see REL-03.                                                                                                           |
+| BG-09  | P1 - deployment + QA                         | Deploy the current-care overview contract before its dependent frontend; no migration required.                                                                               | Owner isolation, private caching, current/empty/historical states and representative-volume latency verified in the target environment.                                                                                       |
+| BG-10  | P1 - deployment + backend + QA               | Deploy the repaired expiration worker; no migration or endpoint change required.                                                                                              | Expiry advances revision once, preserves document version and amounts, produces one audit, and does not interrupt the worker.                                                                                                 |
 | REL-01 | P1 — deployment + backend                    | Configure private object storage, signed-upload host allowlisting, CORS, migrations and the general cleanup worker. Verify all five media resources against deployed storage. | Real browser upload/confirm/read/replace/remove succeeds; invalid replacement preserves existing media; unauthorized personal reads fail; unpublished public media is inaccessible; cleanup retries retain referenced assets. |
 | REL-02 | P1 — backend + operations                    | Verify the deployed active handling branch and existing enquiry/complaint delivery.                                                                                           | A synthetic submission persists against the intended branch and its configured notification delivery is observed. Record API receipt separately from provider delivery.                                                       |
 | REL-03 | P1 — QA + deployment                         | Verify existing role/session, payment-provider sandbox and email/recovery integrations in staging.                                                                            | Record real integration outcomes, unauthorized requests and server-confirmed payment state. This is verification of existing features, not a request for replacement endpoints.                                               |
 | CFG-01 | When available — owner + frontend/deployment | Configure the Google Maps key and verify the workshop location. No key or verified Place ID has been supplied.                                                                | The keyed map matches the approved address; the existing address and external directions remain usable without it. No backend Maps endpoint is required.                                                                      |
-| API-01 | P2 — backend, then frontend                  | Add bounded vehicle make/model options and, if required, filtered total counts.                                                                                               | Options use public inventory visibility, models belong to the selected make, traversal is bounded and stable, and any totals match the filtered dataset.                                                                      |
-| API-02 | P2 — backend, then frontend                  | Add catalogue-wide category search, brand/compatibility options and, if selected, product price/availability filters and totals.                                              | Queries are documented and validated; results follow active catalogue and stock rules; option searches and filters operate across the catalogue, not one fetched page.                                                        |
-| API-03 | P2 — backend, then frontend                  | Add service search, category taxonomy/options, sorting and totals if required.                                                                                                | Active-service visibility, search semantics, category ownership, cursor behavior and query performance are documented and tested before UI integration.                                                                       |
+| API-01 | P2 — deployment + QA                         | Locally accepted discovery/facet contracts, migration and frontend integration; deploy backend before frontend and verify the target environment.                             | Local evidence covers visibility, make/model relationships, bounded traversal, authenticated cursors, exact totals, real API/browser flows and representative query performance.                                              |
+| API-02 | P2 - deployment + QA                         | Locally accepted Shop discovery/options and price/availability filters; deploy backend before frontend.                                                                       | Verify public visibility, exact counts, scoped compatibility, unreserved stock semantics and authenticated traversal in the target environment.                                                                               |
+| API-03 | P2 - deployment + QA                         | Local implementation complete; deploy `20261009140000_service_discovery` and backend before frontend, then verify target-environment discovery and category management.       | Active-service visibility, category permissions/archive semantics, literal search, signed traversal, exact totals and administrator assignment pass in the target environment.                                                |
+| API-04 | P2 - deployment + QA                         | Local backend/frontend acceptance complete; deploy backend before frontend and verify target-environment recovery.                                                            | Real dropped-response/reload retries returned the same persisted record with one audit. Account changes, changed bodies, unavailable storage and expired intents have regression coverage.                                    |
+| API-05 | P2 — deployment + QA                         | Local implementation and acceptance complete; deploy the saved-vehicle index migration and backend before the dependent frontend.                                             | Target-environment owner isolation, bounded traversal, unavailable-listing exclusion, deletion between pages and legacy array compatibility pass.                                                                             |
 
 For REL-01, the existing configuration uses `OBJECT_STORAGE_ENDPOINT`, `OBJECT_STORAGE_REGION`, `OBJECT_STORAGE_BUCKET`, `OBJECT_STORAGE_ACCESS_KEY_ID`, `OBJECT_STORAGE_SECRET_ACCESS_KEY` and frontend `ASSET_STORAGE_HOSTS`. Configure secrets through the deployment secret manager. The detailed staging procedure is in the [implementation handoff](backend/docs/backend-gaps-handoff.md#19-missing-credentialsinfrastructure-and-remaining-verification).
 
-For API-01 through API-03, proposed endpoints and fields below are design proposals, not callable contracts. Delivery must include exported OpenAPI, regenerated frontend types, authorization/visibility and pagination tests, and frontend loading/empty/error integration. Do not derive global facets or totals from a single page.
+API-01 through API-03 have mounted routes, exported OpenAPI and recorded local backend/frontend acceptance. Each extension requires current OpenAPI, regenerated frontend types, authorization/visibility and pagination tests, and frontend loading/empty/error integration. Do not derive global facets or totals from a single page.
+
+API-04 extends existing mutations rather than adding another creation route. Backend, frontend and real browser/API/database recovery have local acceptance. Compatibility, retention and verification are recorded in [the retry contract](backend/docs/vehicle-creation-retries.md).
 
 ### Handoff and closure evidence
 
-Create implementation tickets from API-01 through API-03 only after the corresponding enhancement is selected. Track REL-01 through REL-03 as deployment verification tasks and CFG-01 as a configuration dependency. BG-01 through BG-06 are completed local implementations; reopen one only for a reproduced defect or a newly agreed requirement.
+BG-07 and BG-08 have local acceptance; retain regression coverage and track deployed payment/document checks under REL-03. API-01 through API-05 need deployment verification. REL-01 through REL-03 remain deployment tasks; CFG-01 is a configuration dependency. Reopen a completed BG item only for a reproduced defect or newly agreed requirement.
 
 For each remaining item, record the assigned owner, target environment, deployed revision, prerequisites, actual result and evidence link. Verification records should identify the tested workflow and resulting record or request ID without including credentials or customer data. Close an item only when its acceptance evidence above is recorded; an API receipt alone does not establish email delivery, and a local storage fixture does not establish deployed storage readiness.
 
 **Confirmed workshop configuration:** use **133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria**. Pizza Jungle is inside Kilimanjaro; do not substitute “beside Pizza Jungle” in customer-facing copy. The owner has not supplied a Maps key or verified Place ID. Preserve the address panel and address-based directions until the embedded map can be configured and checked. This does not create a backend endpoint requirement.
 
-Optional discovery enhancements below are separate from these required media gaps. The page-by-page frontend quality work remains tracked in its [milestone register](frontend/docs/page-quality/README.md).
+Optional discovery enhancements below are separate from the remaining deployed-media verification. The page-by-page frontend quality work remains tracked in its [milestone register](frontend/docs/page-quality/README.md).
 
 ### Completed-page coverage
 
-The current page-quality register records seven completed local milestones: Contact, Vehicles listing, Shop listing, Services listing, Vehicle detail, Product detail and [Service detail](frontend/docs/page-quality/service-detail.md). The later transactional, account and dashboard milestones have not yet passed that gate. This document does not certify the entire frontend or deployment as complete.
+The current page-quality reports record eighteen completed local milestones: Contact, Vehicles listing, Shop listing, Services listing, Vehicle detail, Product detail, [Service detail](frontend/docs/page-quality/service-detail.md), [Booking creation](frontend/docs/page-quality/booking-form.md), [Home](frontend/docs/page-quality/home.md), [public Reviews](frontend/docs/page-quality/reviews-expanded.md), [About](frontend/docs/page-quality/about-expanded.md), the [Help index](frontend/docs/page-quality/help-expanded.md), [Help articles](frontend/docs/page-quality/help-article-expanded.md), [Quotation authoring/review](frontend/docs/page-quality/quotation-form.md), [Vehicle inspection/enquiry creation](frontend/docs/page-quality/inspection-enquiry-form.md), [Cart/checkout](frontend/docs/page-quality/cart-checkout.md), [Customer order detail/payment-request handoff](frontend/docs/page-quality/order-detail.md), and [Customer payment detail](frontend/docs/page-quality/payment-detail.md). Booking and Home required no new endpoint. The later transactional, account and dashboard milestones have not yet passed that gate. The expanded 7 October brief also requires reassessment of earlier surfaces; Home, Booking, Vehicles listing, [Shop listing](frontend/docs/page-quality/shop-expanded.md), [Services listing](frontend/docs/page-quality/services-expanded.md), [Vehicle detail](frontend/docs/page-quality/vehicle-detail-expanded.md), [Product detail](frontend/docs/page-quality/product-detail-expanded.md), [Service detail](frontend/docs/page-quality/service-detail-expanded.md), [Customer Care](frontend/docs/page-quality/contact-expanded.md), [public Reviews](frontend/docs/page-quality/reviews-expanded.md), [About](frontend/docs/page-quality/about-expanded.md), the [Help index](frontend/docs/page-quality/help-expanded.md) and [Help articles](frontend/docs/page-quality/help-article-expanded.md) have passed their expanded local gates. See the [expanded coverage register](frontend/docs/page-quality/expanded-brief.md). This document does not certify the entire frontend or deployment as complete.
 
-| Completed surface                   | Backend handoff                                                                                                                                                                                                                                                                                    |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Contact and Customer Care           | Existing enquiry/complaint APIs are integrated. Verify the deployed handling branch and notification delivery under REL-02; retain the address fallback until CFG-01 can be configured.                                                                                                            |
-| Vehicles listing and Vehicle detail | Existing public inventory, detail and media reads are available. API-01 is optional discovery work; deployed stock-media lifecycle verification remains under REL-01.                                                                                                                              |
-| Shop listing and Product detail     | Existing catalogue, detail, cart and saved-item APIs are available. API-02 is optional discovery work; deployed product-media verification remains under REL-01. Checkout and provider verification are separate from product-page acceptance.                                                     |
-| Services listing and Service detail | Existing service reads, pricing filters, availability, booking requests and service enquiries are integrated and locally verified. API-03 remains optional discovery work; deployed service-media verification remains under REL-01. Separate Booking and Quotation page gates remain outstanding. |
+The expanded Vehicle detail audit reused the existing saved-vehicle, enquiry and inspection APIs. A real isolated API/database run verified one persisted save, one `ENQUIRY` and one `REQUESTED` inspection, including the Lagos-time conversion and refresh. Seven account-isolation regressions passed. Hiding customer mutation controls from anonymous and work accounts was a frontend correction, not a missing backend permission or endpoint. Appointment confirmation remains a separate workflow; a request receipt does not establish a confirmed appointment.
 
-**Implementation decision:** no additional mandatory endpoint gap has been established by these completed page audits beyond the six capabilities already implemented. REL-01 through REL-03 require integration verification; CFG-01 requires configuration when available; API-01 through API-03 require new backend implementation only if those optional enhancements are selected. Reassess this inventory as each remaining page passes its audit.
+The expanded Product detail audit reused the existing public catalogue, cart and favourites contracts. Real isolated API/database verification confirmed total-quantity replacement, rejection of an over-stock quantity without changing the cart, a persisted favourite and refresh. Role visibility, complete quantity validation messages and stale account-draft clearing were frontend fixes. Delivery guidance follows the existing checkout/fulfilment contract and does not promise a fixed fee, delivery date or universal coverage. No new mandatory backend endpoint was identified; deployed media and checkout/provider release checks remain separate.
+
+The [expanded Service detail audit](frontend/docs/page-quality/service-detail-expanded.md) reused the existing public service list with `limit=3`, excluded the current service and displayed at most two other records. This is a bounded public read, not a category recommendation contract. Real isolated API/database checks verified one `REQUESTED` booking with an owned vehicle and no deposit, plus one anonymous `SERVICE` enquiry recorded as `OPEN`. Sixty service/booking browser scenarios, seven account regressions and two server-rendering checks passed. The existing published description remains the source for service scope; separate symptoms, inclusions and category relationships are not supplied and are not fabricated. No additional mandatory backend endpoint was identified.
+
+The [expanded Customer Care audit](frontend/docs/page-quality/contact-expanded.md) passed its local gate with 74 Contact/shared-support browser scenarios, seven Maps policy tests, six existing backend safeguard tests, actual enquiry/complaint persistence and negative API checks. Displaying the already-returned UUID and routing account shortcuts by role were frontend changes. A CSP defect that would block configured Google Maps was corrected with a Contact-only, configured-key frame allowance; it was not a missing backend endpoint. The live keyed embed and notification delivery remain unverified under CFG-01 and REL-02. See the [scoped security record](frontend/docs/page-quality/contact-security.md) for precise coverage and limits.
+
+The [expanded public Reviews audit](frontend/docs/page-quality/reviews-expanded.md) reused the existing approved-review list, customer submission and administrator moderation APIs. All 23 new public-page browser scenarios passed; all 19 existing workflow scenarios have passing evidence after correcting one Staff test to permit the shared shell's own-profile read. A real isolated API/database flow verified pending creation, approval/publication, rejection exclusion, private-field exclusion, customer isolation, CSRF, role/MFA denial and stale-version rejection. No new mandatory endpoint was identified. Global rating aggregates are not supplied by the current contract; the page displays actual individual ratings and current-page counts. Dashboard visual acceptance and deployed verification remain separate.
+
+The [expanded About audit](frontend/docs/page-quality/about-expanded.md) passed all 19 browser scenarios, ten responsive widths, six accessibility scans and final build/static checks. It preserves approved company content and equipment assets through server-rendered content and native disclosures. Its unmocked browser visit made only the shared session request; no content API or mutation was needed. The confirmed Kilimanjaro address and address-based directions need no new backend endpoint.
+
+The [expanded Help index audit](frontend/docs/page-quality/help-expanded.md) passed all 24 new browser scenarios and two existing regressions, with ten-width, accessibility, session-transition and no-JavaScript checks. Search operates across the complete local FAQ collection; role-aware actions reuse existing support/security routes. Its unmocked visit made only shared session reads. No new backend endpoint or CMS was needed. The subsequent [Help article gate](frontend/docs/page-quality/help-article-expanded.md) passed for all twelve variants and the unavailable state. A shared frontend action policy now keeps article/index role behavior aligned; real server-rendered breadcrumb/canonical and 404 checks passed. These changes required no backend contract or data-model change.
+
+The Cart/checkout page has passed its expanded local gate, including mobile access, review-before-write, server amounts, same-key recovery, fresh cart checks and session isolation. Real isolated collection and delivery orders, stock reservations, idempotent replay, changed-body rejection, CSRF and cross-customer denial were verified. No new backend endpoint was required. The preflight is not an atomic cart-version guarantee; order creation still uses current server stock/prices and payment follows a separate total review. The dedicated payment page has now passed its separate gate. Invoice detail, private PDF downloads and sharing have now passed their [separate local gate](frontend/docs/page-quality/invoice-detail.md). Saved items/favourites have now passed their separate local gate. The Product cart confirmation drawer and scoped notification refinement have now passed their separate local gate. Remaining authentication and account/role pages still require their own audits. Inspect existing support, review, content, commerce and document contracts before proposing new backend work; this handoff does not claim those future audits are complete. Add any concrete gap or reproduced defect with its contract, owner and acceptance criteria. Do not expose private document URLs merely to implement sharing, or fabricate paid receipts from frontend state.
+
+| Completed surface                          | Backend handoff                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contact and Customer Care                  | Existing enquiry/complaint APIs are integrated. Verify the deployed handling branch and notification delivery under REL-02; retain the address fallback until CFG-01 can be configured.                                                                                                                                                                                 |
+| Vehicles listing and Vehicle detail        | Public inventory, detail and media reads are available. API-01 discovery has local acceptance; deployed discovery and stock-media lifecycle verification remains open.                                                                                                                                                                                                  |
+| Shop listing and Product detail            | Existing catalogue, detail, cart and saved-item APIs are available. API-02 discovery has local acceptance; deployed discovery and product-media verification remains open. Checkout and provider verification are separate from product-page acceptance.                                                                                                                |
+| Services listing and Service detail        | Existing service reads, pricing filters, availability, booking requests and service enquiries are integrated and locally verified. API-03 discovery and category management are locally accepted; deployed service-media verification remains under REL-01. Booking creation passed its local gate; Quotation authoring/review has also passed its separate local gate. |
+| Booking creation and Home                  | Both completed milestones reuse existing contracts. Booking creation persists a request without requiring a deposit. Home displays real public catalogue and review data. No new mandatory endpoint was identified.                                                                                                                                                     |
+| Public Reviews                             | Approved public reads, customer submission and administrator moderation already exist. Publication and permissions have local API/database evidence. Global rating aggregates are not supplied; individual ratings and current-page counts remain supported.                                                                                                            |
+| About                                      | Approved company content, equipment disclosures and contact information are rendered from repository content. No content-management endpoint is required for the completed page.                                                                                                                                                                                        |
+| Help index and all twelve article variants | Local article content, search and topic filtering reuse repository data. Account actions follow the validated session and role. Support submission and private account workflows retain their existing contracts and separate acceptance gates.                                                                                                                         |
+
+The [Quotation authoring/review audit](frontend/docs/page-quality/quotation-form.md) reuses the existing booking-bound create, replace, issue, void and expiry APIs. The server calculates part prices/tax, checks revisions and sets the acceptance deadline. Restricting quotation controls to assigned staff or authorised administrators, and correcting Help copy to describe anonymous enquiries, were frontend fixes. Real isolated API/database checks verified draft creation/replacement, issuance, customer acceptance, voiding, server-time expiry, draft privacy and negative authorization/CSRF/MFA/revision cases. No new mandatory endpoint was identified; full customer/staff booking-page redesigns and deployment verification remain separate.
+
+The [Vehicle inspection/enquiry creation gate](frontend/docs/page-quality/inspection-enquiry-form.md) reuses `POST /customers/vehicle-inspections` and `POST /customers/vehicle-transactions`. Its original review, reference and uncertain-outcome acceptance predates retry support. API-04 now adds optional actor-scoped idempotency and verified frontend reload recovery to those same routes. Real local API/browser/PostgreSQL checks confirm original-ID recovery after committed responses are dropped, with one record and audit per action. Cross-device and global exactly-once creation are not promised. Customer/staff history and transaction dashboard gates remain separate.
+
+The [Customer order detail gate](frontend/docs/page-quality/order-detail.md) reuses existing owned order reads, complete bounded payment-history reads, idempotent payment-intent creation and version-checked cancellation. Real local acceptance verified the server amount, same-key payment replay, reuse after reload, cancellation with reserved-stock release, CSRF and customer isolation. No new endpoint was needed. The payment list has no order filter, so the frontend checks bounded pages and fails closed if history cannot be fully read; target filtering is a possible later optimization. Dedicated provider controls and invoice document downloads/sharing have now passed their separate local gates. Deployed verification remains open under REL-03.
+
+**Implementation decision:** BG-01 through BG-10 and API-01 through API-05 have local acceptance. REL-01 through REL-03 require deployed integration verification; CFG-01 requires configuration when available. Continue auditing the remaining application pages before adding further gaps.
+
+### Login and registration — no new backend gap
+
+The [Login acceptance record](frontend/docs/page-quality/login.md) reuses existing login, CSRF and session contracts. Frontend response validation, password visibility/clearing, safe continuation and account-change cancellation have local acceptance. Real synthetic customer and work-account sessions verified customer continuation, MFA handoff, generic failed-authentication responses and trusted-origin enforcement. Existing backend eligibility, throttles and MFA policies remain authoritative.
+
+The [Registration acceptance record](frontend/docs/page-quality/register.md) reuses existing `POST /auth/register`, strict field validation, trusted-origin enforcement, throttling and generic duplicate-email responses. Local database checks confirmed unverified customer/profile creation, hashed passwords, one verification token and queued notification per new account, with no session. The combined registration/Login/shared-auth run passed 71 browser scenarios; ten backend identity tests passed. The real registration retry reached the existing rate limit, which was preserved. Email delivery was disabled during QA: a queued event does not establish delivery.
+
+**Remaining delivery task (REL-03):** verify actual verification-email delivery and token consumption/expiry in the target environment, alongside deployed cookie/proxy and recovery-provider behavior. Remaining authentication/security pages still require their own frontend gates; they are not automatically missing backend endpoints.
+
+### Forgot-password requests — no new backend gap
+
+The [Forgot-password acceptance record](frontend/docs/page-quality/forgot-password.md) reuses `POST /auth/password/forgot`. Existing generic responses, active/verified eligibility, prior-token revocation, hashed tokens, encrypted notification events, trusted-origin enforcement and throttling remain authoritative. Real isolated API/database checks confirmed eligible and ineligible responses, one current token after two requests, encrypted queued events, no session creation and enforced 429/403 outcomes. Invalid fields are covered by the backend HTTP boundary suite.
+
+Frontend Retry-After handling, response states, field borders, accessibility, account-change cancellation and responsive layout needed no new backend endpoint. All 99 combined auth browser scenarios passed; 28 recovery checks passed again on the final CSS build. Provider email delivery and the complete deployed reset journey remain open under REL-03. The separate reset-password page has now passed its local gate; email verification/resend have also passed their joint local page gate; MFA has also passed its local route gate; Customer account security is next.
+
+### Reset password — no new backend gap
+
+The [Reset-password acceptance record](frontend/docs/page-quality/reset-password.md) reuses existing `POST /auth/password/reset`, strict validation, trusted-origin enforcement, atomic token consumption, Argon2 password updates, session revocation, cookie clearing and audit logging. The final build passed 133 combined auth browser scenarios, 93 frontend unit checks and 11 backend identity checks.
+
+A real isolated Express/browser/database run verified reset success, expired/revoked/replayed-token rejection, common-password rejection, cross-origin denial, two revoked prior sessions, one audit record, cookie clearing and old/new-password login outcomes. Test tokens were seeded with the production HMAC helper; browser reset requests were forwarded to the temporary real server. No provider email was sent and no existing API rate limit was reset. Deployed email-link delivery and the complete target-environment recovery journey remain under REL-03. No new endpoint, schema or migration is required for the completed page.
+
+### Email verification and resend — no new backend gap
+
+The [Email-verification acceptance record](frontend/docs/page-quality/verify-email.md) covers both workflows on `/verify-email`, using existing `POST /auth/email/verify` and `POST /auth/email/resend`. No new endpoint, schema, migration or authentication behavior is required. The final build passed 169 combined auth browser scenarios, 104 frontend unit checks and 11 backend identity checks.
+
+Real isolated browser/API/database acceptance verified an encrypted resend outbox event, old-token revocation, successful new-token consumption, emailVerifiedAt, EMAIL_VERIFIED audit, no automatic session creation, invalid/replayed-token rejection, trusted-origin enforcement, generic resend responses and server rate limiting. Login failed before verification and succeeded afterward. Email delivery remained disabled; deployed registration/verification email delivery and the complete account journey remain under REL-03. Resend is part of this completed page, not an outstanding separate route.
+
+### MFA sign-in, enrollment and recovery codes — no new backend gap
+
+The [MFA acceptance record](frontend/docs/page-quality/mfa-expanded.md) covers `/mfa` and its existing setup state. Existing session/CSRF, challenge, TOTP and WebAuthn endpoints support the redesigned flows; no new backend endpoint, schema or migration is required. The final build passed 228 combined browser scenarios, 54 scoped frontend unit checks and 13 backend identity/WebAuthn checks.
+
+Real isolated browser/API/database acceptance verified TOTP enrollment and a fresh challenge, TOTP/recovery replay rejection, recovery-code use, pending-session enrollment denial, and virtual-security-key enrollment/authentication against the actual backend verifier. It confirmed encrypted TOTP storage, ten hashed recovery codes, replacement of prior codes, and session-token/CSRF renewal on the same session record, with the old cookie rejected. Deployed-origin and physical-device MFA verification remain under REL-03. Customer account security subsequently passed its separate gate below. Staff/admin account security subsequently passed its separate route gate recorded below.
+
+### Customer account security - no new backend endpoint required
+
+The [customer-security acceptance record](frontend/docs/page-quality/customer-security.md) covers `/dashboard/security`: password changes, owned session management, MFA factor removal and recovery-code replacement. All 37 customer/shared-staff browser scenarios passed, alongside 45 frontend unit checks, 11 backend identity checks and the final build/static checks. Actual browser/API/database acceptance verified persisted mutations, password-reset invalidation, token/CSRF renewal, old-cookie/password rejection, CSRF enforcement and account isolation.
+
+A real-data integration defect was fixed in the frontend: newly issued sessions return nullable `lastUsedAt`, as permitted by the database/service. The parser now accepts null and shows **No activity recorded** in lists and reviews. This required no backend endpoint, schema or migration change. Existing restrictions remain: deleting the current session is rejected, other-account session deletion has no effect, privileged accounts must retain an active factor, and recovery codes are returned privately once.
+
+**Remaining delivery work:** REL-03 still requires target-environment cookie/proxy/session and MFA acceptance. Staff/admin account-security presentation subsequently passed its separate gate below; it is not an unimplemented backend capability.
+
+### Staff/admin account security - no new backend gap
+
+The [staff/admin-security report](frontend/docs/page-quality/admin-security.md) records local acceptance for `/admin/security`: 59 combined browser scenarios, 45 frontend unit checks, 11 backend identity checks and production/static checks. Staff, Admin and Super Admin browser scenarios preserve the final-factor restriction, explicit second-factor removal review, private recovery-code downloads and MFA/session redirects. Existing APIs operate only on the signed-in account.
+
+Actual browser/API/database acceptance verified administrator password/session/MFA changes and direct final-factor rejection for ADMIN and STAFF. Super Admin has browser coverage and read-only policy confirmation; its existing single-owner database safeguard was retained, and no real owner mutation journey is claimed. No endpoint, schema or migration was added. REL-03 still covers deployed account/session/MFA acceptance; customer overview and remaining dashboard/role pages retain separate frontend gates.
+
+### Product cart confirmation drawer and notifications — no new backend gap
+
+The [cart drawer acceptance record](frontend/docs/page-quality/cart-drawer.md) reuses the existing customer cart quantity-replacement and favourites routes. The modal displays the validated returned cart and subtotal; it does not reserve inventory or create checkout. Exact amount/identity checks, private-result clearing and keyboard handling are frontend responsibilities. Real isolated API/database/browser evidence verified repeated quantity replacement, customer isolation, CSRF, persisted favourites and no order creation. No new endpoint or migration was required. Shared notification styling is integrated; unrelated notification-producing workflows and deployed session behavior retain their separate verification requirements.
+
+### Customer vehicle purchases list - no new required backend gap
+
+The [vehicle purchases list acceptance record](frontend/docs/page-quality/customer-purchases.md) covers `/dashboard/vehicle-transactions` using existing customer-only `GET /customers/vehicle-transactions`. The contract supplies all 12 statuses, cursor pagination, transaction reference, exact string-kobo asking/agreed prices, listing identity, creation date and vehicle image metadata. The frontend uses safe public image handling, honest missing-image fallback, page-only counts and existing owned progress links.
+
+All 55 browser scenarios passed, with 16 final responsive/accessibility/keyboard repeats, 21 backend tests, 15 frontend tests and final build/static checks. Real isolated API/browser/PostgreSQL acceptance verified owned 10+2 pagination, all statuses, reload, exact large prices, missing-image fallback, correct detail navigation, archived-listing history, foreign-cursor and customer isolation, privileged-role403, anonymous401 and invalid-query422. No UI mutations were made.
+
+Search, arbitrary sort and global totals are absent from this list contract and are not presented as working features. No new endpoint, schema or storage capability is required for the accepted list. Public-image visibility still governs archived/unavailable listing photos. The dedicated purchase detail workflow has its own next page gate; existing local list acceptance does not certify reservation, settlement or handover redesign. Deployed storage and session/payment integrations remain under REL-01/REL-03.
+
+### Customer inspection history - no new required backend gap
+
+The [inspection-history acceptance record](frontend/docs/page-quality/customer-inspections.md) covers `/dashboard/inspections` using the existing customer-only `GET /customers/vehicle-inspections` contract. It supports six status filters, bounded cursor pagination, preferred/scheduled times, notes/cancellation reasons and the projected report summary, inspected date, odometer, condition score and primitive findings. URL history and readable Lagos times require no backend change.
+
+Sixty distinct browser scenarios have passing evidence (59 in the combined final run plus its one successful navigation retry), alongside 21 backend tests, 14 frontend tests and final build/static checks. Real isolated API/browser/PostgreSQL acceptance verified owned 10+2 pagination, reload, all six statuses, archived-listing history, report fields, private storage-key exclusion, foreign-cursor isolation, privileged-role denials, anonymous 401 and invalid-query 422. No UI mutations were made.
+
+The current API provides no global count, listing-image projection, customer status mutation or report-file download for this history. The page uses page-only counts, inline details and existing customer-care navigation. These absent optional capabilities are not newly required implementation gaps. Creation already has its separate accepted workflow. Deployed session/integration acceptance remains under REL-03; vehicle purchase list/detail and remaining dashboard routes retain separate page audits.
+
+### Customer vehicle photo detail - no new required backend gap
+
+The [vehicle photo detail acceptance record](frontend/docs/page-quality/garage-photos.md) reuses the existing BG-03 owner-only gallery, signed upload preparation, exact-token attachment replay, descriptions/order, cover and removal contracts. All 58 browser cases, 15 final responsive/accessibility repeats, 12 backend media/garage tests, nine frontend upload/resource tests and build/static checks passed. Real isolated browser/API/PostgreSQL acceptance transferred actual file bytes through local HTTPS storage and verified persisted edits, private image decoding, independent prepared uploads, lost-response replay without duplicate attachment, deterministic replacement cover, CSRF and owner/version enforcement.
+
+No new endpoint, migration or backend change was required for this page. The frontend blocks writes while data is stale and disables uploads with a clear notice when storage is unconfigured; that fallback was verified after restoring the preview environment. Local HTTPS byte storage is not deployed object-storage acceptance: bucket policy, frontend host allowlisting, CORS and cleanup remain REL-01. Remaining customer pages retain separate audit gates.
+
+### Customer garage/vehicles list - no new required backend gap
+
+The [customer garage list](frontend/docs/page-quality/customer-garage.md) passed its separate local gate on 9 October 2026. Existing customer vehicle collection/detail and create/update/delete routes support the completed interface. Real browser/Express/PostgreSQL checks verified 12 owned records across pages of 10 and 2, persisted normalized creation with one audit, editing, cancellation and confirmed deletion. Foreign cursors, detail reads and mutations returned 404; privileged roles returned 403; anonymous reads returned 401; missing CSRF returned 403 and invalid mileage returned 422. Reads remained private and omitted ownership fields. No new endpoint or migration is required.
+
+The list supplies no global count, search, sorting choices or image projection; the interface uses page counts and existing Manage photos links. An unconfirmed mutation is not automatically resent. BG-03 already provides owned gallery operations, but `/dashboard/vehicles/[vehicleId]` retains a separate frontend page gate. Deployed storage verification remains under REL-01 and session integration under REL-03. Local fixtures do not establish deployed object-storage acceptance.
+
+### Customer invoices list - no new required backend gap
+
+The [customer invoices list](frontend/docs/page-quality/customer-invoices.md) passed its separate local gate on 9 October. The existing owner-scoped API supplies issuance/creation and due dates, source references, exact totals, deposit credits and authoritative status, with filtering and cursor pagination. Real API/browser/PostgreSQL checks verified 12 owned invoices across pages of 10 and 2, draft exclusion, status filtering, detail navigation, private caching and denied scope overrides, foreign details and privileged-role access. The frontend preserves URL state and rejects malformed or draft responses; no endpoint, migration or new permission is required. Download and settlement behavior retains the separate invoice-detail acceptance scope; deployed verification remains open under REL-03.
+
+### Customer payments list - no new required backend gap
+
+The [Customer payments list gate](frontend/docs/page-quality/customer-payments.md) passed locally on 9 October. The existing authenticated customer list already supplies creation dates, purposes, target IDs, exact amounts and authoritative payment status, with status filtering and cursor pagination. The frontend now exposes those fields, preserves filters across reload and handles private-data invalidation without introducing payment mutations. Real API/browser/PostgreSQL checks verified 12 owned records in pages of 10 and 2, status filtering, detail navigation, private caching and denied cross-customer/role access. No endpoint, migration or new permission is required. This does not close deployed provider or session verification under REL-03.
+
+### Customer orders list - no new required backend gap
+
+The [customer orders list](frontend/docs/page-quality/customer-orders.md) passed its separate local gate using the existing customer-only list/detail API. Status, pagination, item snapshots, collection/delivery context and exact totals need no new endpoint. The frontend list parser now accepts the existing nullable historical branch relation. Fifty-eight distinct browser scenarios have passing evidence, alongside fifteen existing backend checks, five resource tests, final build/static checks and real API/database/browser acceptance. The real API denies Staff, Admin and Super Admin, rejects customer-scope overrides, hides foreign details and returns private uncached reads. No backend code or migration was required; deployed integration remains under REL-03.
+
+### Customer bookings list - no new required backend gap
+
+The [customer bookings report](frontend/docs/page-quality/customer-bookings.md) records local acceptance for `/dashboard/bookings`: 51 combined browser scenarios plus one background-refresh case, five frontend resource tests, five backend policy/boundary tests and actual API/database/browser acceptance. The route reuses `GET /customers/bookings` with actor-derived ownership, status filtering and cursor pagination. Status, page size and cursor traversal now survive URL reload and browser navigation; UI-only history is excluded from API queries.
+
+Existing contracts supply vehicle, appointment, branch, deposit, quotation and work-order context. The UI reports current-page counts, distinguishes requested times, hides stale rows after manual failure and labels retained data after a background failure. It does not invent customer search, date sorting or global totals, which the API does not expose. No new backend endpoint or migration was needed. Detail-page transactions remain a separate gate; target-environment verification remains under REL-03.
+
+### Customer current-care overview — implemented locally
+
+**Backlog ID:** BG-09. **Priority:** P1. **Owner:** backend for the projection and ownership rules; frontend and QA for dashboard acceptance; deployment owners for target-environment verification. **Status:** implemented and locally accepted on 8 October 2026. Deployment remains pending. See the [customer overview report](frontend/docs/page-quality/customer-overview.md).
+
+**Original gap:** historical customer aggregates could not independently show current vehicle care. Inferring live state from date-filtered recent records could hide an active booking or payment request.
+
+**Implemented contract:** `GET /customers/overview?from&to` includes an owner-scoped `care` object for customer responses. Staff and organisation responses omit it. Ownership comes from the authenticated actor; undeclared query parameters are rejected. Existing private/no-store caching, repeatable-read consistency and historical aggregate date semantics are retained. No migration or new write endpoint is required.
+
+| Field                      | Selection and meaning                                                                                                                                                               |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `currentBooking`           | Most recently updated owned `IN_PROGRESS` booking, with actual requested/confirmed/started timestamps.                                                                              |
+| `nextBooking`              | Earliest future owned `REQUESTED` or `CONFIRMED` booking; requests are not presented as confirmed.                                                                                  |
+| `vehicle`, `vehicleSource` | Owned vehicle linked to the focused current/upcoming booking, otherwise latest owned garage addition. A malformed cross-customer relation cannot expose another customer's vehicle. |
+| `quote`                    | Latest issued, unexpired quotation for an owned booking. Money remains an exact minor-unit decimal string.                                                                          |
+| `payment`                  | Latest unexpired `REQUIRES_PAYMENT` request, or `PROCESSING`/`REQUIRES_REVIEW` request. Request amount is not an inferred debt balance or settlement.                               |
+| `order`                    | Latest owned order with actual status and collection/delivery method; no invented delivery estimate.                                                                                |
+| `inspection`               | Earliest upcoming confirmed/rescheduled appointment, otherwise earliest future requested inspection. `dateKind` distinguishes scheduled from preferred time.                        |
+| `notification`             | Latest unexpired notification for the authenticated user; minimal title/timestamps, without marking it read.                                                                        |
+
+Absent records are `null`; `vehicleSource` is `NONE` without a vehicle. Nine fixed selection calls return at most one record each, with deterministic timestamp/ID ordering. Minimal projections exclude staff notes, VIN and notification bodies. See the [implementation](backend/src/modules/overview/customer-care.ts), [response schema](backend/src/modules/overview/customer-care.schemas.ts) and [OpenAPI contract](backend/src/modules/overview/overview.openapi.ts). Exported OpenAPI and generated frontend types are updated.
+
+Acceptance and release checklist:
+
+- [x] Eight isolated PostgreSQL overview tests passed, including ownership, empty accounts, expired records, exact money, historical/current separation, query rejection and role separation.
+- [x] OpenAPI export/validation, mounted-route coverage, generated frontend types and backend type/lint/format checks passed.
+- [x] Fifty-eight final browser scenarios passed, including customer overview and shared overview/navigation regression. Ten customer widths, four customer Axe scans, short screens, invalid responses and late-session responses passed.
+- [x] Actual browser/API/database reads verified current care alongside empty historical totals, exact large money and owned quotation navigation. A separate unmocked frontend-proxy login/empty-account check passed.
+- [x] Final frontend build/static checks, six focused unit tests and the page report passed. Concepts, fidelity decisions and index review are recorded there.
+- [ ] Deploy the backend contract before the dependent frontend and verify cookies, caching, customer isolation and realistic-volume latency under REL-03. Existing indexes were reviewed, but small-fixture EXPLAIN timings do not establish production capacity.
+
+### Invoice and receipt documents — implemented locally
+
+**Backlog ID:** BG-08. **Priority:** P1. **Owner:** backend for persistence, authorization and PDF generation; frontend for document presentation/download/sharing; QA and deployment owners for target-environment acceptance. **Status:** implemented and locally accepted on 8 October 2026. Deployment remains pending.
+
+**Original gap:** customer invoice reads had financial summaries and directly attached payments, but lacked a document projection, historical billing/itemization snapshot and PDF routes. The invoice page had no download/share controls. Uploaded payment evidence could not serve as a company receipt.
+
+**Implemented contracts:** paths omit `/api/v1`. See [billing routes](backend/src/modules/billing/billing.routes.ts), [payment routes](backend/src/modules/payments/payments.routes.ts), [document schemas](backend/src/modules/billing/document.schemas.ts) and [OpenAPI definitions](backend/src/modules/billing/documents.openapi.ts).
+
+| Operation        | Mounted route                                          | Behavior                                                                                                                                                         |
+| ---------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Invoice document | `GET /customers/invoices/{invoiceId}/document`         | Owned, non-draft invoice; historical itemization or explicit legacy fallback; persisted totals; direct and source-linked payment requests and eligible receipts. |
+| Invoice PDF      | `GET /customers/invoices/{invoiceId}/download`         | Private PDF attachment generated from the same authorized document model. Void invoices are clearly labeled.                                                     |
+| Receipt document | `GET /customers/payments/{paymentId}/receipt/document` | Owned payment with a selected successful, verified settlement attempt and matching amount/currency.                                                              |
+| Receipt PDF      | `GET /customers/payments/{paymentId}/receipt`          | Private confirmed-payment PDF; completed refunds are separate and do not change the original amount received.                                                    |
+
+**Completed implementation and local acceptance:**
+
+- [x] Integer-kobo totals and line reconciliation come from server records. [Document snapshots](backend/src/modules/billing/document-snapshot.ts) are written inside both invoice-creation paths; a database trigger prevents later mutation. Legacy records are not fabricated or silently backfilled.
+- [x] [Document service](backend/src/modules/billing/documents.service.ts) enforces customer ownership before document generation, excludes drafts, and resolves order/vehicle-source payments without double counting. Pending reports, unverified attempts and duplicate/anomalous captures cannot generate receipts. Partial payments do not imply full invoice settlement.
+- [x] [PDF renderer](backend/src/modules/billing/document-pdf.ts) uses local licensed fonts, bounded content, repeatable page identity and numbered footers. It fetches no remote HTML or assets. PDF responses include sanitized attachment names, private/no-store caching, `nosniff` and document identity headers.
+- [x] [Frontend download handling](frontend/lib/api/document-download.ts) verifies identity, content type, signature and size. [Share controls](frontend/app/components/document-actions.tsx) use native file sharing with explicit user activation and a download/authenticated-link fallback. Session changes clear prepared private files; cancellation does not claim delivery.
+- [x] OpenAPI and generated frontend types agree. Backend lint/types/build, 39 focused backend tests, frontend lint/types/production build, 16 focused frontend unit tests and 41 final invoice browser scenarios passed. Earlier order-detail regression coverage also passed; exact scope is recorded in the page report.
+- [x] Synthetic isolated API/database checks verified ownership/role denial, draft privacy, snapshot immutability, linked settlement, JSON and PDF downloads. A real authenticated browser downloaded both PDFs from the local API with no page errors. One-page invoice/receipt, void and six-page long-description PDFs were inspected, alongside ten responsive browser widths.
+
+**Required deployment work:** apply [migration `20261008140000_invoice_document_snapshot`](backend/prisma/migrations/20261008140000_invoice_document_snapshot/migration.sql) before the dependent backend. It has been applied only to isolated QA. Regenerate Prisma during build and deploy backend before frontend. Package [runtime fonts and license](backend/assets/fonts/README.md); the Dockerfile copies `assets`. Verify customer/role denial, draft privacy, settled and pending receipts, attachment headers, proxy/cookie behavior and browser downloads in the target environment under REL-03. Runtime PDF generation needs neither object storage nor a Maps key.
+
+**Limits:** 200 invoice lines/payment requests, 50 PDF pages and 4 MiB per PDF; exceptional histories fail for account review rather than being silently truncated. Receipt refunds reflect completed refunds at generation time. Native recipient delivery, persistent public links, document email delivery, staff exports and legal/tax certification are outside this implementation. Receipt shortcuts elsewhere in the account remain subject to separate integration review.
+
+**Acceptance record:** [Customer invoice detail and financial documents](frontend/docs/page-quality/invoice-detail.md). Local acceptance is not deployed acceptance.
+
+### Payment checkout availability — implemented locally
+
+**Backlog ID:** BG-07. **Priority:** P1 for dedicated payment-page acceptance. **Owner:** backend and frontend, with QA acceptance. **Status:** contract export, frontend integration and local acceptance passed on 8 October 2026. No deployment or successful provider transaction is claimed.
+
+**Evidence:** the existing [provider registry](backend/src/providers/payments/payment-provider.registry.ts) already determines enabled providers from server configuration and registered adapters. The payment-page audit found that the customer read did not expose that decision, while the prior UI offered both online providers. Existing payment initialization, verification, manual reporting and provider adapters are present; they do not need replacement.
+
+**Implemented contract:** extended `GET /customers/payments/{paymentId}` with `checkoutProviders: Array<"PAYSTACK" | "MONNIFY">`. An empty array means online checkout is unavailable. Return only provider names after the existing customer ownership check, with `Cache-Control: no-store`. Do not return credentials, merchant configuration or checkout URLs through this field. Availability is configuration information, not a guarantee of provider health or permission to pay.
+
+The working tree contains the [service projection](backend/src/modules/payments/payments.service.ts), [controller cache header](backend/src/modules/payments/payments.controller.ts), [OpenAPI registration](backend/src/modules/payments/payments.openapi.ts), frontend parsing and the [availability unit tests](backend/tests/unit/payment-checkout-availability.test.ts). The exported OpenAPI document and regenerated frontend types include `checkoutProviders`. Twenty focused backend tests, 38 frontend unit tests, browser scenarios and a real isolated API/database flow have passing evidence in the [payment-detail report](frontend/docs/page-quality/payment-detail.md). This is local acceptance, not deployment certification.
+
+**Local acceptance criteria — passed:**
+
+- [x] Verify disabled, Paystack-only, Monnify-only and both-enabled configurations, including an enabled mode with an absent adapter. Return only configured, registered providers.
+- [x] Verify another customer's payment remains inaccessible, anonymous requests are rejected, and Staff/Admin/Super Admin cannot use the customer-only read. Confirm the response is uncached and contains no provider secrets.
+- [x] Export and validate OpenAPI, check mounted-route coverage, regenerate frontend types and verify the documented response against the actual API.
+- [x] Complete frontend integration: missing availability fails closed, disabled Monnify is not offered, and provider controls update from fresh server data. Preserve manual reporting where eligible; unavailable online checkout must not imply that a payment was received.
+- [x] Preserve and test server-side checks for current amount, payable target, expiry, ownership, idempotency and competing attempts. A provider enabled during a read may be disabled before initialization; that later request must fail safely.
+- [x] Verify provider-specific trusted checkout destinations, expired or malformed checkout responses, same-key recovery after uncertain initialization, server-authoritative verification, and cancellation of pending work after navigation or session changes.
+- [x] Record passing focused backend and browser tests plus the dedicated payment-page acceptance report. Keep real deployed provider credentials, callbacks/webhooks and reconciliation verification under REL-03.
+
+**Dependencies and rollout:** this extends an existing response and needs no new database table or migration. Deploy the verified backend contract before enabling dependent frontend controls. Older responses without the field must leave online controls unavailable. The change must not enable a provider, introduce booking deposits, change authoritative amounts or relax existing payment permissions.
+
+### Inspection and vehicle-enquiry retries — optional API enhancement
+
+**Backlog ID:** API-04. **Status:** backend/frontend implemented and locally verified on 8 October 2026, including real browser/API/PostgreSQL lost-response recovery; target-environment verification remains open. **Owner:** deployment + QA. **Priority:** P2; history recovery remains supported outside the retry window or on another device.
+
+**Evidence:** the [customer vehicle-sales routes](backend/src/modules/vehicle-sales/vehicle-sales.routes.ts) and [OpenAPI registration](backend/src/modules/vehicle-sales/vehicle-sales.openapi.ts) accept an optional `Idempotency-Key` for both creation routes, preserving existing callers. [The creation helper](backend/src/modules/vehicle-sales/creation-idempotency.ts) serializes matching requests and commits the domain record, audit and receipt together. [Nine PostgreSQL integration scenarios](backend/tests/integration/vehicle-creation-idempotency.test.ts) pass, covering concurrency, ownership/operation isolation, conflict, rollback, cleanup, canonical dates and authenticated HTTP boundaries. OpenAPI and frontend generated types have been regenerated. The [request-creation report](frontend/docs/page-quality/inspection-enquiry-form.md) links the subsequent recovery acceptance; [the retry contract](backend/docs/vehicle-creation-retries.md) records current browser and real API/database evidence.
+
+**Frontend acceptance:** [vehicle actions](frontend/app/components/vehicle-actions.tsx) sends the saved key and restores pending intents after reload. [The recovery helper](frontend/lib/api/vehicle-creation-retry.ts) validates actor, listing, operation and age and protects account changes, corrupt storage and expiry. All 353 frontend unit tests passed, including [focused storage coverage](frontend/tests/unit/vehicle-creation-retry.test.ts). All 48 vehicle-detail browser scenarios were verified across full and focused runs, including desktop/mobile recovery and account isolation. A separate actual API/browser run dropped HTTP 201 responses and verified original-ID recovery plus one PostgreSQL record/audit per action. See the linked retry acceptance for exact environment, commands, artifacts and limitations; this is not deployment certification.
+
+**Customer impact:** after a lost response, retrying the original retained key and body can recover the created record. Submitting with a new key, omitting the key or retrying after receipt cleanup can create another record. Tab-scoped storage does not provide cross-device recovery; customers must use account history when a valid saved intent is unavailable.
+
+**Implementation and remaining integration requirements:**
+
+1. Extend the two existing creation contracts with a documented `Idempotency-Key` header. Specify compatibility for current callers, key validation, retention and behavior after expiry; do not silently require a new header from existing clients.
+2. Scope each key to the authenticated customer and operation. Bind it to a canonical representation of the validated request. Same-key, same-body retries return the original record; changed-body reuse returns a documented conflict.
+3. Persist the domain record and idempotency result atomically. Enforce uniqueness in the database so simultaneous requests and process restarts cannot create duplicate records for the same retained key.
+4. Authenticate and authorize every replay. Recover a completed result without treating later listing unavailability or a now-past requested time as a new creation attempt. Do not reveal another customer's receipt.
+5. Define in-progress and failed-attempt behavior, cleanup, and recovery after a lost response. Reuse existing idempotency infrastructure where suitable. Any associated audit or notification work must avoid duplicate effects on replay.
+6. Export the updated OpenAPI contract, regenerate frontend types and integrate retries using the original key and reviewed body. Define how that key is recovered after a reload; cross-device recovery needs an explicit authenticated recovery design. A new key remains a new attempt, so do not promise global exactly-once creation.
+
+**Acceptance criteria:**
+
+- A request whose response is dropped can be retried with the original key/body and returns the original persisted ID.
+- Concurrent identical attempts produce one domain record and the documented replay response.
+- Reusing a retained key with changed input returns a conflict without another record.
+- Keys cannot be replayed across customers or operations; missing session, invalid CSRF and unauthorized access retain existing denial behavior.
+- Committed replay works after the requested time passes or the listing changes availability; genuinely new requests still apply current domain validation.
+- Tests cover rollback, restart, key expiry, in-progress recovery and any notification/audit deduplication. Existing callers remain compatible according to the published migration plan.
+
+Backend compatibility, retention, cleanup and completed local recovery acceptance are documented in [the retry contract](backend/docs/vehicle-creation-retries.md). Real committed-response loss, reload, identical-key/body replay and one persisted record/audit per action were verified. Changed-body conflicts, account changes, unavailable storage and expiry are covered by focused database/unit/browser tests. Deploy the backend contract before the dependent frontend and verify the expiration worker in the target environment. No new migration is required. This extension does not confirm an appointment, reserve a vehicle or initiate a payment.
+
+### Saved-vehicle pagination — optional scale enhancement
+
+**Backlog ID:** API-05. **Priority:** P2. **Remaining owner:** deployment + QA. **Status:** implementation and local backend/frontend/browser acceptance complete.
+
+**Original limitation:** `GET /customers/saved-vehicles` reads the customer's entire visible shortlist and returns an array. The previous UI paged that array locally. That legacy route remains compatible; the [Saved items UI](frontend/app/components/saved-items.tsx) now uses the new bounded endpoint.
+
+**Implemented contract:** `GET /customers/saved-vehicles/page?limit=12&cursor={opaqueCursor}` returns `{ items, nextCursor? }` in the existing envelope. Default 12, maximum 50; strict scalar query values. The query fetches at most `limit + 1` saved records and returns at most `limit`. Ordering is saved-record UUID ascending, matching the legacy route, supported by the `SavedVehicle(customerId, id)` index in migration `20261008160000_saved_vehicle_pagination`. Every read requires CUSTOMER authorization and filters by the authenticated customer, AVAILABLE listing and active branch. Returned listings retain the existing public projection; no private stock fields or storage credentials are added.
+
+**Cursor and concurrency behavior:** the cursor contains an immutable saved-record boundary authenticated with a purpose-separated HMAC and bound to the customer profile. Malformed, forged or cross-customer cursors return 422 `VALIDATION_FAILED` without reading another customer's shortlist. Deleting or hiding the boundary record does not invalidate it. Reads use `id > boundary`, so unchanged visible records are not duplicated; this is not a snapshot. Inserts or newly visible records before the boundary require returning to page one. Token-hash key rotation also requires returning to page one. No total count or chronological ordering is implied. The UI preserves independent collection positions, keeps Previous available on an empty final page and provides a first-page recovery action on paging errors.
+
+**Acceptance criteria:** bounded database reads and responses; complete traversal without duplicates; empty and final pages; deletion between pages; publication/availability changes; malformed and cross-customer cursors; anonymous/role denial; account switching during paging; compatibility for existing array consumers. Keep counts page-specific unless an authoritative total is explicitly added. This enhancement does not authorize exposing unavailable listings, creating wishlists for other roles, changing reservation rules or adding bulk mutations.
+
+**Current local acceptance:** all 47 migrations replayed against a separate empty test database; four new real database/HTTP scenarios cover traversal, deletion, visibility, all roles, strict queries and cursor isolation. Three focused unit tests check signatures, input limits and bounded query shape. The backend default suite passed 220 tests (289 database-gated tests skipped); the four new database tests ran separately. A subsequent three-test OpenAPI handover run verified the new contract, 304 mounted operations and 256 paths. Frontend type/lint/format checks, 353 unit tests and an isolated production build passed. All 43 saved-items browser scenarios were verified across the main run (42 passed) and the corrected account-verification scenario rerun (one passed). Real browser/API/database verification independently proved 12 + 1 paging, tab preservation, persisted removal, empty-final-page handling and Previous recovery. See [the scoped report](frontend/docs/page-quality/saved-items.md). Existing save/remove APIs need no replacement. Deploy migration `20261008160000_saved_vehicle_pagination` and backend before frontend; deployed acceptance remains under REL-03.
 
 ## BG-01 — Admin customer directory and detail views
 
-**Current status:** implementation and local acceptance recorded. This section preserves the original requirements; the implementation audit below describes the routes and evidence. Unchecked criteria below are the original checklist, not a claim that the implementation is absent.
+**Current status:** implementation and local acceptance recorded. This section preserves the original requirements; the implementation audit below describes the routes and evidence. The criteria below preserve the original acceptance baseline; they do not indicate outstanding implementation.
 
 ### Existing capability
 
 `GET /admin/staff/candidates?email=...` finds eligible staff-promotion candidates by exact email. It is not a general customer search endpoint and must not be repurposed. Existing operational records expose only their authorized customer projections.
 
-### Required implementation
+### Original implementation requirements
 
 - Add an Admin/Super Admin customer listing with server-side search, filters, sorting and deterministic cursor pagination.
 - Define permitted search fields, including name, email and phone. Explicitly document normalization, matching rules, query limits and indexed query strategy.
@@ -100,7 +407,7 @@ The current page-quality register records seven completed local milestones: Cont
 - Define which fields each role may read. Do not expose password hashes, sessions, MFA secrets, recovery codes, reset tokens or unrelated sensitive internal fields.
 - Keep customer impersonation, account suspension and role promotion outside this read-only directory scope unless separately specified. Admin must not gain the ability to assign Super Admin.
 
-### Proposed API additions
+### Original proposed API additions
 
 | Method | Proposed path                                | Purpose                                                                                               |
 | ------ | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -110,13 +417,13 @@ The current page-quality register records seven completed local milestones: Cont
 
 **Authorization:** Admin and Super Admin within existing policy boundaries. Ordinary Staff and Customers must be denied general directory access. Related records must independently enforce their existing access rules.
 
-**Acceptance criteria**
+**Original acceptance criteria**
 
-- [ ] Search runs against real persisted customers and supports empty, no-results and invalid-query responses.
-- [ ] Stable sorting and cursor traversal do not duplicate or omit records in an unchanged dataset; behavior under concurrent changes is documented.
-- [ ] Invalid customer IDs, deleted/unavailable records and unauthorized access use existing response conventions.
-- [ ] Detail collections remain bounded and enforce role/record visibility.
-- [ ] Tests cover all four roles, sensitive-field exclusion and query performance on representative data.
+- Search runs against real persisted customers and supports empty, no-results and invalid-query responses.
+- Stable sorting and cursor traversal do not duplicate or omit records in an unchanged dataset; behavior under concurrent changes is documented.
+- Invalid customer IDs, deleted/unavailable records and unauthorized access use existing response conventions.
+- Detail collections remain bounded and enforce role/record visibility.
+- Tests cover all four roles, sensitive-field exclusion and query performance on representative data.
 
 ## BG-02 — Customer profile photo
 
@@ -126,7 +433,7 @@ The current page-quality register records seven completed local milestones: Cont
 
 At the original audit, `GET/PATCH /customers/profile` supported personal/contact/address metadata and exposed `CustomerProfile.avatarUrl`, but provided no managed media mutations. The lifecycle described below has since been implemented through separate photo routes.
 
-### Required implementation
+### Original implementation requirements
 
 - Add owner-bound image upload preparation and confirmation, using the shared media rules below.
 - Add an optional photo projection to the profile response, including stable image ID and an authorized display URL or access mechanism.
@@ -138,12 +445,12 @@ At the original audit, `GET/PATCH /customers/profile` supported personal/contact
 
 **Authorization:** the authenticated customer owns the profile. The client must not choose another customer's owner ID.
 
-**Acceptance criteria**
+**Original acceptance criteria**
 
-- [ ] Upload, replacement and deletion are reflected after a fresh profile read.
-- [ ] Cross-account access, ticket substitution and expired/replayed tickets are rejected.
-- [ ] Invalid uploads do not replace the current photo; deletion restores the initials fallback.
-- [ ] Personal image URLs follow documented privacy, expiry and cache rules.
+- Upload, replacement and deletion are reflected after a fresh profile read.
+- Cross-account access, ticket substitution and expired/replayed tickets are rejected.
+- Invalid uploads do not replace the current photo; deletion restores the initials fallback.
+- Personal image URLs follow documented privacy, expiry and cache rules.
 
 ## BG-03 — Customer garage images
 
@@ -153,7 +460,7 @@ At the original audit, `GET/PATCH /customers/profile` supported personal/contact
 
 At the original audit, `/customers/vehicles` and `/customers/vehicles/{vehicleId}` supported customer-owned vehicle metadata CRUD only. Owner-scoped media has since been added. Garage records remain distinct from staff stock vehicles.
 
-### Required implementation
+### Original implementation requirements
 
 - Add an owner-scoped image collection to garage vehicle detail responses.
 - Support upload preparation, confirmation, alt text, display order, primary/cover selection and deletion.
@@ -168,12 +475,12 @@ At the original audit, `/customers/vehicles` and `/customers/vehicles/{vehicleId
 - `PATCH /customers/vehicles/{vehicleId}/images/{imageId}`
 - `DELETE /customers/vehicles/{vehicleId}/images/{imageId}`
 
-**Acceptance criteria**
+**Original acceptance criteria**
 
-- [ ] The owner can attach, reorder, select a cover and remove images, with changes surviving refresh.
-- [ ] Another customer's vehicle/image IDs and tickets cannot be read or mutated.
-- [ ] Concurrent edits cannot silently overwrite ordering or create multiple primary images.
-- [ ] Count limits, deletion cleanup and cover fallback have explicit tests.
+- The owner can attach, reorder, select a cover and remove images, with changes surviving refresh.
+- Another customer's vehicle/image IDs and tickets cannot be read or mutated.
+- Concurrent edits cannot silently overwrite ordering or create multiple primary images.
+- Count limits, deletion cleanup and cover fallback have explicit tests.
 
 ## BG-04 — Service image management
 
@@ -183,7 +490,7 @@ At the original audit, `/customers/vehicles` and `/customers/vehicles/{vehicleId
 
 At the original audit, `GET/POST /admin/services` and `PATCH /admin/services/{serviceId}` managed service records without media. The current implementation adds separate media routes and nullable public image projections, as described in the status note above.
 
-### Required implementation
+### Original implementation requirements
 
 - Add an optional service image projection and authorized upload/confirmation, replacement, alt-text editing and removal.
 - Use a single primary image unless a service gallery is explicitly required; avoid introducing an unsupported gallery assumption.
@@ -194,12 +501,12 @@ At the original audit, `GET/POST /admin/services` and `PATCH /admin/services/{se
 
 **Authorization:** Admin/Super Admin with existing service-management access. Do not implicitly grant ordinary Staff or Customers media administration.
 
-**Acceptance criteria**
+**Original acceptance criteria**
 
-- [ ] Authorized users can upload, replace, edit alt text and remove service images.
-- [ ] Public reads expose only media allowed by service visibility policy.
-- [ ] Services without images continue to render through the existing icon fallback.
-- [ ] Failed uploads or replacements preserve the previously valid service record and image.
+- Authorized users can upload, replace, edit alt text and remove service images.
+- Public reads expose only media allowed by service visibility policy.
+- Services without images continue to render through the existing icon fallback.
+- Failed uploads or replacements preserve the previously valid service record and image.
 
 ## BG-05 — Direct product binary uploads
 
@@ -211,7 +518,7 @@ At the original audit, `GET/POST /admin/services` and `PATCH /admin/services/{se
 - `PATCH/DELETE /admin/catalog/products/{productId}/images/{imageId}` already supports metadata updates and removal.
 - The original audit found no direct binary upload preparation/confirmation contract. That gap has since been implemented; retain working hosted-image CRUD alongside the new binary workflow.
 
-### Required implementation
+### Original implementation requirements
 
 - Add product-bound signed upload preparation, or an equivalent backend-mediated binary upload.
 - Add a token-confirmation operation that verifies the uploaded object before attaching it to the product.
@@ -223,12 +530,12 @@ At the original audit, `GET/POST /admin/services` and `PATCH /admin/services/{se
 
 **Authorization:** preserve existing catalogue image administration permissions and any product scope restrictions.
 
-**Acceptance criteria**
+**Original acceptance criteria**
 
-- [ ] A selected local file becomes a persistent product image only after successful confirmation.
-- [ ] Existing hosted-URL image creation, ordering, primary selection and deletion remain compatible.
-- [ ] Invalid, expired or wrong-product tickets cannot create image records.
-- [ ] Removing externally hosted metadata does not attempt to delete an external object.
+- A selected local file becomes a persistent product image only after successful confirmation.
+- Existing hosted-URL image creation, ordering, primary selection and deletion remain compatible.
+- Invalid, expired or wrong-product tickets cannot create image records.
+- Removing externally hosted metadata does not attempt to delete an external object.
 
 ## BG-06 — Editing/removing attached stock vehicle images
 
@@ -241,7 +548,7 @@ At the original audit, `GET/POST /admin/services` and `PATCH /admin/services/{se
 - `GET /public/vehicles/images/{imageId}` serves media through the public proxy subject to existing visibility rules.
 - At the original audit, existing images had no PATCH/DELETE routes. These operations and their frontend integration are now implemented with recorded local acceptance.
 
-### Required implementation
+### Original implementation requirements
 
 - Add `PATCH /staff/vehicles/{vehicleId}/images/{imageId}` for permitted alt-text, order and primary-selection changes.
 - Add `DELETE /staff/vehicles/{vehicleId}/images/{imageId}` for authorized removal.
@@ -251,13 +558,13 @@ At the original audit, `GET/POST /admin/services` and `PATCH /admin/services/{se
 - Support replacement through verified new attachment followed by removal of the old image, or a documented atomic operation. Never delete the old image before a replacement is confirmed.
 - Define public proxy/cache behavior and storage cleanup after removal.
 
-**Acceptance criteria**
+**Original acceptance criteria**
 
-- [ ] Authorized stock users can edit existing image metadata, change the cover, reorder and remove images.
-- [ ] Unauthorized branches/roles and mismatched vehicle/image IDs fail closed.
-- [ ] Stale updates produce an explicit conflict instead of overwriting newer changes.
-- [ ] Failed replacement preserves the previous image; deleted images no longer appear in listing responses.
-- [ ] Publication constraints and public cache invalidation are tested.
+- Authorized stock users can edit existing image metadata, change the cover, reorder and remove images.
+- Unauthorized branches/roles and mismatched vehicle/image IDs fail closed.
+- Stale updates produce an explicit conflict instead of overwriting newer changes.
+- Failed replacement preserves the previous image; deleted images no longer appear in listing responses.
+- Publication constraints and public cache invalidation are tested.
 
 ## Shared media implementation requirements
 
@@ -277,21 +584,21 @@ Extend the existing signed asset infrastructure where appropriate. Do not route 
 
 ## Contract, persistence and delivery checklist
 
-This is the original implementation checklist, retained as a baseline. Its unchecked boxes are not the current backlog. Implementation and local evidence for all six capabilities are recorded in the [handoff](backend/docs/backend-gaps-handoff.md); outstanding work is listed in the actionable backlog above.
+This is the original delivery baseline, not the current backlog. Implementation and local evidence for all six capabilities are recorded in the [handoff](backend/docs/backend-gaps-handoff.md); outstanding work is listed in the actionable backlog above.
 
-- [ ] Inspect current models and infrastructure before selecting new tables or fields; add reviewed, backward-compatible migrations only where required.
-- [ ] Add validated DTOs, policy checks, repository/service/controller logic and routes within the existing module architecture.
-- [ ] Extend module OpenAPI definitions and regenerate `backend/docs/api/allied-autotech.openapi.json`.
-- [ ] Add unit/integration tests for ownership, all relevant roles, concurrency, idempotent retries, validation and storage failures.
-- [ ] Regenerate frontend API types through the existing `api:types` command after the contract is finalized.
-- [ ] Integrate real customer search and supported media actions into the redesigned frontend, retaining loading, empty, error, conflict and permission states.
-- [ ] Run backend contract/tests and frontend lint, type checking, tests and build; verify browser flows against staging rather than fixtures alone.
+- Inspect current models and infrastructure before selecting new tables or fields; add reviewed, backward-compatible migrations only where required.
+- Add validated DTOs, policy checks, repository/service/controller logic and routes within the existing module architecture.
+- Extend module OpenAPI definitions and regenerate `backend/docs/api/allied-autotech.openapi.json`.
+- Add unit/integration tests for ownership, all relevant roles, concurrency, idempotent retries, validation and storage failures.
+- Regenerate frontend API types through the existing `api:types` command after the contract is finalized.
+- Integrate real customer search and supported media actions into the redesigned frontend, retaining loading, empty, error, conflict and permission states.
+- Run backend contract/tests and frontend lint, type checking, tests and build; verify browser flows against staging rather than fixtures alone.
 
-The original six-gap checklists above are acceptance requirements, not a current list of absent endpoints. Follow the remaining delivery order at the top of this document and retain links to each capability's actual verification record.
+The original six-gap criteria above are acceptance requirements, not a current list of absent endpoints. Follow the remaining delivery order at the top of this document and retain links to each capability's actual verification record.
 
 ## Deployment verification — separate from missing features
 
-The redesign's browser tests used isolated fixtures. The following are integration checks, not proof that additional backend features are missing:
+Local verification includes controlled browser fixtures and real API/database checks against isolated local environments, as specified in each linked capability and page report. These checks do not establish deployed provider or storage readiness. The following are staging integration checks, not proof that additional backend features are missing:
 
 - Verify all four roles with suitable staging accounts, including direct unauthorized requests and cross-customer isolation.
 - Exercise signed uploads against real configured storage, including CORS, allowlists, expiry, cleanup and public/private access boundaries.
@@ -304,53 +611,58 @@ Existing booking requests, quotations, checkout/payment authority, MFA, support 
 
 The current Contact page uses existing `POST /public/support/enquiries` and `POST /public/support/complaints` routes. These routes validate real submissions and return an accepted receipt; they are not missing backend features. Attachment upload is not part of the public submission contract and must not be added to the form without a separately specified backend capability.
 
-| Item                   | Remaining action                                                                                                                                                                                                       | Completion evidence                                                                                                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Active handling branch | Confirm the deployed backend contains the correct active branch and that public branch reads expose it. Enquiries/complaints require an active handling branch; vehicle enquiries derive it from the selected listing. | A real submission creates the intended support record against the correct branch. An empty dataset shows a recoverable empty state.                                 |
-| Google Maps embed      | Configure `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` with appropriate API/referrer restrictions, then rebuild and verify the embedded map. The owner has no key or verified Place ID yet.                                       | The map loads at the correct workshop in each configured environment; without a key, the existing address panel and external Maps links remain usable.              |
-| Workshop address       | Retain **133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria**. The owner confirmed that Pizza Jungle is within Kilimanjaro and that the site must say “beside Kilimanjaro.”                    | Visible address, map query and directions agree with the approved address. A Place ID or coordinates are used only after verification.                              |
-| Contact acceptance     | Local page gate passed, including browser, real API/database and shared-component checks. Deployed provider delivery and the keyed map remain separate configuration checks.                                           | See the [Contact milestone report](frontend/docs/page-quality/contact.md) for exact results and limitations; fixture success is not deployed delivery verification. |
+| Item                   | Remaining action                                                                                                                                                                                                       | Completion evidence                                                                                                                                                                  |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Active handling branch | Confirm the deployed backend contains the correct active branch and that public branch reads expose it. Enquiries/complaints require an active handling branch; vehicle enquiries derive it from the selected listing. | A real submission creates the intended support record against the correct branch. An empty dataset shows a recoverable empty state.                                                  |
+| Google Maps embed      | Configure `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` with appropriate API/referrer restrictions, then rebuild and verify the embedded map. The owner has no key or verified Place ID yet.                                       | The map loads at the correct workshop in each configured environment; without a key, the existing address panel and external Maps links remain usable.                               |
+| Workshop address       | Retain **133 Stadium Road, beside Kilimanjaro, Port Harcourt, Rivers State, Nigeria**. The owner confirmed that Pizza Jungle is within Kilimanjaro and that the site must say “beside Kilimanjaro.”                    | Visible address, map query and directions agree with the approved address. A Place ID or coordinates are used only after verification.                                               |
+| Contact acceptance     | Local page gate passed, including browser, real API/database and shared-component checks. Deployed provider delivery and the keyed map remain separate configuration checks.                                           | See the [expanded Customer Care report](frontend/docs/page-quality/contact-expanded.md) for current results and limitations; local acceptance is not deployed delivery verification. |
 
 The Maps item is frontend/deployment configuration, not a requirement for a new backend Maps endpoint. A Place ID is optional while the address query is used. The existing fallback permits the page to work before a key is supplied.
 
 ### Vehicle discovery metadata — optional API enhancement
 
-The page-by-page Vehicles audit confirmed that `GET /public/vehicles` supports exact-name make/model filters and cursor pagination, but returns neither a complete make/model options dataset nor a total match count. The redesigned frontend therefore uses optional exact-name text fields and reports the number of vehicles on the current page. This is a truthful, working fallback, not a missing listing integration.
+**Backlog ID:** API-01. **Status:** implemented and locally accepted on 9 October 2026; deployment verification pending. **Remaining owner:** deployment + QA. **Sources:** [mounted routes](backend/src/modules/vehicles/vehicles.routes.ts), [discovery schemas](backend/src/modules/vehicles/vehicle-discovery.schemas.ts), [repository](backend/src/modules/vehicles/vehicle-discovery.repository.ts), [frontend query integration](frontend/lib/vehicle-discovery.ts), and [exported OpenAPI](backend/docs/api/allied-autotech.openapi.json).
 
-To enable searchable make/model pickers and a global result count later:
+**Original limitation:** the accepted [expanded Vehicles listing audit](frontend/docs/page-quality/vehicles-expanded.md) used `GET /public/vehicles`, exact-name make/model fields and a current-page count. That earlier acceptance does not cover the new discovery extension.
 
-- Define an anonymous, bounded catalogue-options endpoint, for example a proposed `GET /public/vehicles/facets`. Support searching make/model names and selecting models within a make; document pagination and completeness. Do not derive an allegedly exhaustive list from one inventory page.
-- Apply the same AVAILABLE-listing and active-branch visibility rules as public inventory. Return display labels and filter values without private stock, VIN, acquisition or customer information.
-- If adding `totalMatches` to the listing response, count the same filtered public dataset before cursor pagination. Specify whether the count is exact, its consistency during concurrent inventory changes, and its performance/caching policy.
-- Publish the DTOs, validation, query semantics, limits and empty/error responses in OpenAPI before changing the frontend integration. Existing public queries must remain compatible.
+**Present in the working tree:** anonymous `GET /public/vehicles/discovery` and `GET /public/vehicles/facets`, strict schemas, bounded repository queries, authenticated cursors, migration `20261008170000_vehicle_discovery_indexes`, exported OpenAPI and frontend query changes. Discovery returns `items`, optional `nextCursor` and `totalMatches`; facets return bounded make/model options. Both default to 20 and permit at most 50 records. Model options require a make. The legacy public listing route remains mounted.
 
-Acceptance: options exclude unavailable inventory, make/model relationships are correct, empty and paginated option searches work, counts agree with filtered inventory, and performance is verified against representative stock volumes. Neither capability is required to ship the current truthful page-count/exact-name fallback. No implementation of this proposed enhancement is claimed here.
+**Local acceptance:**
+
+- Ten database integration cases and two cursor unit cases passed: AVAILABLE/active-branch visibility, public projections, all four sorts with ties, exact totals, case-folded make/model option traversal, literal wildcard handling, query validation, tampering/filter binding, deleted anchors and legacy UUID compatibility.
+- A controlled concurrent write proved page/count repeatable-read consistency. A 10,000-listing fixture measured 94.6 ms for a filtered inventory page/count and 229.6 ms for the combined option traversal checks on local PostgreSQL. These measurements are local evidence, not a production latency guarantee. Price/year/visibility changes can move records between separate page requests.
+- Twenty-five existing vehicle boundary/security/sales/OpenAPI regressions passed; 48 migrations replayed into a new isolated test database. Backend type/lint/format/secret checks, Prisma validation, OpenAPI validation and 306-operation route coverage passed. Generated frontend types match the exported contract.
+- Frontend unit suite: 354 passing. Production build passed. All 25 Vehicles browser scenarios passed, including options/error recovery, totals, reload/history, filters and 320–1536px responsive/accessibility checks. A real production-preview/API/PostgreSQL flow traversed two distinct 12-item pages among 10,000 matches, restored page two after reload, paged make options and selected make/model filters yielding five matching vehicles without page errors.
+- Evidence and environment limits are recorded in the [expanded Vehicles report](frontend/docs/page-quality/vehicles-expanded.md). Deploy migration `20261008170000_vehicle_discovery_indexes` and the backend before its dependent frontend, then verify the target environment.
+
+Saving and inspection mutations retain their separate permission and transactional boundaries. Local acceptance does not establish deployed storage, provider or production performance acceptance.
 
 ### Shop discovery metadata — optional API enhancement
 
-The [Shop audit](frontend/docs/page-quality/shop.md) confirms that product search, category, exact brand/make/model, year, featured status and sorting already work through `GET /public/catalog/products`. Category reads accept only `cursor` and `limit`; product and category collections return `items` and `nextCursor`, without totals. These are limitations of discovery metadata, not missing product-list endpoints.
+**Backlog ID:** API-02. **Status:** implemented and locally accepted on 9 October 2026; deployment verification pending. **Remaining owner:** deployment + QA. **Sources:** [discovery contract](backend/src/modules/catalog/product-discovery.schemas.ts), [repository](backend/src/modules/catalog/product-discovery.repository.ts), [mounted routes](backend/src/modules/catalog/catalog.routes.ts), and [Shop acceptance](frontend/docs/page-quality/shop-expanded.md).
 
-If broader discovery is required later:
+**Implemented contract:** additive anonymous `GET /public/catalog/products/discovery` and `GET /public/catalog/facets`. Existing product/category/detail routes remain supported. Discovery returns safe public products, exact `totalMatches` and an optional signed cursor, with existing filters plus inclusive `minPriceKobo`, `maxPriceKobo` and `availability=in_stock|out_of_stock`. In-stock means unreserved stock at at least one active branch; out-of-stock includes missing inventory. Quantities and reservation counts remain private. Both products and their categories must be active.
 
-- Add bounded server-side category search or a separately documented options endpoint. Until then, category picker search must clearly say it searches loaded categories and allow loading additional pages.
-- Define searchable brand and compatibility options sourced from publicly visible products. Do not present values from one product page as a complete catalogue.
-- Define a filtered `totalMatches` only if required, with matching visibility/filter semantics, consistency and performance guarantees. The current-page count remains a valid fallback.
-- Specify price-range or availability filters before adding them to the UI. Neither query exists today; filtering a single fetched page cannot implement catalogue-wide filtering. Availability must follow the existing active-branch, unreserved-stock rules without exposing internal quantities.
+Options cover category, brand, compatibility make and make-scoped model names backed by public products, including out-of-stock products. Empty categories and null models are omitted. Search is a literal case-insensitive prefix. Category values are UUIDs; name values are case-folded and deduplicated. Optional category scoping is supported for other option fields. Limits default to 20 and cap at 50. Cursors bind endpoint/filter/sort and survive deleted anchors; legacy UUID product links require a visible matching anchor. Each page/count uses one repeatable-read transaction; edits can move products between separate requests. The original substring product search now escapes literal percent/underscore/backslash consistently with exact-name filters.
 
-Acceptance for any extension: strict validated queries and exported OpenAPI, stable bounded pagination, active product/category visibility, matching option/filter semantics, accurate empty states and representative-volume query checks. These are proposed API enhancements. The current Shop page has passed its separate local acceptance gate using the existing contract; no implementation of these enhancements is claimed here.
+**Local evidence:** 49 migrations replayed in a new isolated database, including `20261009100000_product_discovery_indexes`. Eleven new database cases passed across four sort orders/ties, visibility, literal inputs, bounded options, compatibility relationships, stock/price filters, cursor tampering/deletion, concurrent page/count reads and 10,000 products. Fourteen existing catalogue/security/migration/OpenAPI regressions passed. OpenAPI and mounted-route checks passed for 308 operations/260 paths; frontend types regenerated. Frontend unit suite: 355 passing. Production build/type/lint/format checks and all 28 Shop browser scenarios passed. The real API/browser flow traversed distinct 12-product pages among 10,000 matches, searched categories globally, returned 50 brand/price matches and one available make/model/year match, and preserved filters after reload on mobile. Local 10,000-product timings were 185.1 ms for a 12-item page plus exact filtered count and 69 ms for traversing 100 brand options; these are observations, not production guarantees.
 
-### Service discovery — optional API enhancement
+Deploy migration and backend before the dependent frontend, then verify the target environment. The separate dependency-security follow-up and deployed storage/provider checks are not implied by Shop feature acceptance.
 
-The Services listing audit confirms that `GET /public/services` accepts only `pricingType` (`FIXED` or `QUOTE_REQUIRED`), a UUID `cursor`, and `limit` (1–100, default 25). Public reads include active services only, ordered by ID, and return `items` plus an optional `nextCursor`. The API already supports pricing filters and pagination; it does not expose catalogue search, category filters, configurable sorting or total match counts.
+### Service discovery
 
-If catalogue-wide search or richer discovery is required later:
+**Backlog ID:** API-03. **Status:** implemented and locally accepted on 9 October 2026; deployment verification pending. **Owner:** deployment + QA. **Sources:** [contract and rollout](backend/docs/service-discovery.md), [query schemas](backend/src/modules/service-operations/service-discovery.schemas.ts), [repository](backend/src/modules/service-operations/service-discovery.repository.ts), and [Services assessment](frontend/docs/page-quality/services-expanded.md).
 
-- Specify a bounded search query with normalization, matching fields, minimum/maximum length and indexed query behavior. Do not implement apparent catalogue-wide search by filtering one fetched page.
-- Define category data and its public options endpoint before adding category controls. No service category taxonomy is supplied by the current contract.
-- Allowlist any new sorting and bind pagination semantics to the chosen filters/sort. Define behavior under concurrent service edits.
-- Add a filtered total only if needed, using the same active-service and filter rules before pagination, with documented consistency and query costs.
+Added anonymous `GET /public/services/discovery`, `GET /public/services/categories`, and `GET /public/services/categories/{categoryId}`, plus administrator category list/create/update operations at `/admin/service-categories`. Existing service list/detail/media/booking routes remain supported. Search is a bounded literal case-insensitive substring across name and descriptions; pricing/category filters, three deterministic sort orders, signed filter-bound cursors and exact totals operate over the same active-service dataset. Page and count share a repeatable-read transaction. Unknown duration sorts last. Public category options are bounded and backed by active services.
 
-Acceptance: anonymous queries exclude inactive services; invalid query values fail predictably; search, filters, cursor traversal and totals agree on the same public dataset; OpenAPI and representative-volume tests cover the extension. The current pricing filter and page-count fallback require no new backend capability. Services page visual acceptance remains a separate milestone.
+Categories are reusable admin-managed records with active state, optimistic versions, CSRF/MFA enforcement and audit events. Assignment accepts active categories only; archiving removes public grouping without unpublishing services or changing bookings. Existing services remain uncategorized until assigned. Public service reads suppress archived category metadata. Service edits can preserve an unchanged archived assignment.
+
+The Services frontend consumes discovery for server rendering and client navigation, with search, paged category options, pricing, sorting, exact totals, URL history/reload and cursor recovery. Admin and Super Admin navigation expose category management and service assignment. No service categories are invented or derived from one fetched page.
+
+**Local evidence:** all 50 migrations replayed into a new isolated database, including `20261009140000_service_discovery`; 34 focused discovery/service-flow/media/security/OpenAPI/migration tests passed. Cases cover all four roles, MFA/CSRF, stale edits, category archive semantics, literal inputs, signed/legacy cursors, concurrent page/count consistency and indexed search over 10,000 services. Prisma validation, backend type/lint/format/secret checks, 314-operation OpenAPI/mounted-route coverage and generated frontend types passed. Frontend units: 357 passing; production build and targeted type/lint checks passed. All 23 Services browser scenarios passed against the final production preview, including real API/database flows for Admin and Super Admin category creation/assignment/archive, public search/options pagination/sort/history/reload, and ten-width accessibility/recovery checks. Desktop and mobile screenshots were inspected.
+
+Deploy the migration and backend before the dependent frontend. The application database has not been migrated by this isolated verification. Real storage/provider and deployment acceptance remain separate.
 
 ## Repository evidence and frontend handoff
 
@@ -391,6 +703,6 @@ BG-01 contract: `GET /admin/customers`, `GET /admin/customers/{customerId}`, and
 
 Persistence: `20260930010000_customer_directory_indexes` adds prefix expression indexes, an account registration index, and customer/record composite indexes without adding extensions or changing existing records. Expression and partial indexes are maintained by SQL; representable composite indexes are declared in Prisma.
 
-BG-01 capability verification complete: the full 43-migration history replayed successfully into the new isolated `allied_bg_gaps_20260930_test` database. Initial directory integration tests passed (22), unit tests passed (6), and 5,000-customer PostgreSQL EXPLAIN checks confirmed name/phone/email index use (1). OpenAPI validation and mounted-route coverage passed. Frontend directory/detail integration and generated types are present. Five Playwright scenarios passed against the real isolated API with synthetic accounts; error/empty/loading responses were explicitly controlled for those UI-state checks. The real-data browser flow passed again after compact-spacing changes. Desktop (1440px) and mobile (390px) screenshots were inspected, with no page overflow. Frontend production build/standalone packaging, targeted lint/format checks, and backend/frontend type checks passed. Frontend unit regression: 161/163 passed in parallel, with the two timeout cases passing unchanged in a one-worker rerun. BG-02 through BG-06 remain outstanding.
+BG-01 capability verification complete: the full 43-migration history replayed successfully into the new isolated `allied_bg_gaps_20260930_test` database. Initial directory integration tests passed (22), unit tests passed (6), and 5,000-customer PostgreSQL EXPLAIN checks confirmed name/phone/email index use (1). OpenAPI validation and mounted-route coverage passed. Frontend directory/detail integration and generated types are present. Five Playwright scenarios passed against the real isolated API with synthetic accounts; error/empty/loading responses were explicitly controlled for those UI-state checks. The real-data browser flow passed again after compact-spacing changes. Desktop (1440px) and mobile (390px) screenshots were inspected, with no page overflow. Frontend production build/standalone packaging, targeted lint/format checks, and backend/frontend type checks passed. Frontend unit regression: 161/163 passed in parallel, with the two timeout cases passing unchanged in a one-worker rerun. At this historical checkpoint, BG-02 through BG-06 were still outstanding; all six now have recorded local implementation acceptance as stated above.
 
 Environment: local PostgreSQL is available. Real object storage is not configured (`OBJECT_STORAGE_BUCKET`, `OBJECT_STORAGE_REGION`, `OBJECT_STORAGE_ACCESS_KEY_ID`, `OBJECT_STORAGE_SECRET_ACCESS_KEY` absent; an endpoint is also needed for non-AWS storage). Staging uploads/CORS/cleanup have not been verified. Browser QA uses an isolated local API/test database and a separate frontend copy because another development server is running in the shared workspace. Existing contact/support edits are outside this implementation and are preserved.

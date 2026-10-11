@@ -1,6 +1,6 @@
 # Managed image lifecycle
 
-BG-02 extends the existing S3 adapter, cookie sessions, CSRF middleware, audit events and general worker. The new `mediaStorage` adapter fails closed when storage is unavailable. It does not use the legacy synthetic fallback. Tests explicitly inject a byte-storing adapter; that is not a deployed-storage verification.
+BG-02 extends the existing S3 adapter, cookie sessions, CSRF middleware, audit events and general worker. The `mediaStorage` adapter fails closed when storage is unavailable. The legacy private-file synthetic fallback has also been removed; see [private storage availability](private-storage-availability.md). Tests explicitly inject a byte-storing adapter; that is not a deployed-storage verification.
 
 ## Profile photo contract
 
@@ -9,6 +9,8 @@ Customer owners use `POST /customers/profile/photo/upload`, `PUT /customers/prof
 Preparation accepts JPEG, PNG or WebP MIME type, actual byte count and lowercase SHA-256. Profile limits are 5 MiB, 32–8192 pixels per side, at most 40 million pixels and one non-animated image. Extreme aspect ratios that would shrink below 32 pixels are rejected. The server reads bounded bytes, verifies length/checksum/signature, fully decodes, rotates, resizes within 1024 pixels and re-encodes to WebP without source metadata. SVG, GIF, APNG, animated WebP and remote URLs are not accepted by this flow.
 
 The random opaque token is stored only as a SHA-256 hash, bound to actor, owner, resource, purpose, branch, object, declared content and expiry. Upload keys are server-generated. Preparation returns a short-lived signed PUT credential only in the no-store preparation response. Uploading alone never changes the profile. Confirm uses the profile's `mediaVersion`, locks the ticket and profile, attaches the validated object, increments the media version and queues replaced objects in one transaction. Text-profile edits are independent. A failed transaction leaves the old photo attached and the unattached object eligible for cleanup.
+
+Reading and image decoding happen before the confirmation transaction. The verified storage write happens after locking and rechecking the ticket, within the same transaction as attachment. Concurrent retries therefore replay the receipt without rewriting the key. The ticket expiry is checked again after storage responds; slow storage does not extend the authorization window. Cleanup locks the same ticket before checking references or deleting either of its keys, and rechecks its job claim after waiting. It cannot delete verified bytes in the interval between a successful write and its attachment.
 
 Exact confirmation retries with the original body replay the stored safe result for 24 hours. Changed-body or later replays return `MEDIA_TICKET_CONSUMED`. The client rereads the profile after an uncertain response; it never creates another attachment to guess the outcome. Expired unconfirmed tokens cannot be confirmed. Stale mutations return `STALE_VERSION`. Removal is version-checked; uncertain removal requires rereading before another mutation.
 
@@ -20,7 +22,33 @@ Migration `20260930020000_managed_media_lifecycle` adds upload tickets, verified
 
 The existing general worker runs `media-cleanup` on the expiration cadence, with an operations heartbeat. It claims bounded jobs, checks current managed and legacy image references before deletion, retries failures with backoff and stores only a safe failure code. Pending and unconfirmed verified keys are scheduled at upload expiry plus one hour, after signed PUT credentials expire. Replacement/removal queues the previous verified key immediately. Unreferenced assets left by cascaded resource deletion are discovered after one hour. A failed storage delete does not restore a removed application reference. Storage lifecycle rules must not independently delete referenced verified objects.
 
+Claims compare the selected deadline, lease and attempt count with the current database row. A postponed or already retried job must be selected again before it can be claimed. Completion and failure updates require the exact claimed lease and incremented attempt count. Requeueing clears the lease, and a replacement worker advances the attempt count, so an old storage response cannot complete a newer job or overwrite its retry deadline. Storage deletion remains idempotent; this database ownership check does not cancel an external delete already in progress.
+
+### Cleanup concurrency regression (9 October 2026)
+
+Four deterministic PostgreSQL regressions reproduced stale completion, stale failure, expired-worker interference and deletion before a postponed deadline. The fix also covers a newer retry returning the row to the same deadline/unlocked state, where the attempt counter distinguishes the old selection. Normal outage retry and eventual deletion remain covered.
+
+All 50 existing migrations replayed on the new isolated `allied_media_cleanup_20261009_test` database; no application database was changed and this fix needs no migration. The final run passed **60 tests across eight files**, including six new claim-ownership tests and the existing profile, garage, service, product, stock, validation and worker resilience suites. Backend typecheck, build, lint, affected-file formatting and the 1,601-file secret guard passed. Storage was explicitly injected in tests; live Spaces, browser and deployment checks were not performed for this worker-only change.
+
+From `backend` in PowerShell, reproduce the database regressions against a migrated isolated test database:
+
+```powershell
+$env:RUN_DATABASE_TESTS = 'true'
+$env:TEST_DB_NAME = 'allied_media_cleanup_20261009_test'
+npx vitest run tests/integration/media-cleanup-concurrency.test.ts tests/integration/profile-photo.test.ts tests/integration/garage-media.test.ts tests/integration/service-media.test.ts tests/integration/product-media.test.ts tests/integration/stock-media.test.ts tests/unit/media-validation.test.ts tests/unit/worker-resilience.test.ts --maxWorkers=1
+```
+
 Successful preparation, replacement and removal use existing audit facilities with actor/resource/action/result. Request rejections use existing error logs; sensitive tokens, object keys and signed upload fields are redacted. Source filename and image metadata are never copied into audit values. Existing payment, booking, staff-role and deployment behavior is unchanged.
+
+### Confirmation and cleanup serialization (9 October 2026)
+
+SEC-018 reproduced two failures: concurrent exact retries wrote the same verified key twice, and a retry delayed in reading could recreate an already removed image after its cleanup job completed. The second file had no remaining image reference and was marked deleted in the asset metadata, so ordinary orphan recovery would miss it. Both regressions failed before the repair.
+
+Confirmation and cleanup now share the upload-ticket row lock through storage writes/deletes and the corresponding database outcome. The S3 adapter retains its 20-second write/delete deadlines. Only these media transactions use a 60-second total transaction budget and a transaction-local 30-second idle budget; other transactions retain their existing settings. Holding a connection during storage is an explicit tradeoff to serialize mutation of a shared object key across API and worker processes. Reads/decoding stay outside the lock, transactions remain bounded, and existing rate limits and database pool limits remain in force.
+
+Five new PostgreSQL cases cover concurrent receipt replay without duplicate writes, a delayed retry after removal, expiry after reading and cleanup, expiry during writing with durable orphan cleanup, and cleanup waiting for an actual database lock before checking a new attachment. Together with the existing media validation, ownership, publication, replacement, orphan recovery, worker resilience and SEC-017 tests, the final run passed **65 tests across nine files**. Backend typecheck, build, lint, affected-file formatting and the 1,605-file secret guard passed. The JSON result is `%TEMP%/allied-media-confirmation-results.json`. Add `tests/integration/media-confirmation-concurrency.test.ts` to the command above to repeat this gate.
+
+Deploy the API and general worker together, draining old in-flight processes; older versions do not participate in the shared lock. No schema migration, endpoint or frontend contract change is required. This is local PostgreSQL acceptance with injected storage. It does not prove provider behavior after an uncertain network outcome or a process/connection failure, and does not replace real Spaces cleanup and concurrent-upload acceptance under REL-01. Durable pre-created cleanup jobs and orphan recovery remain enabled.
 
 ## Deployment verification still required
 

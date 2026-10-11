@@ -2,6 +2,7 @@ import { prisma } from "../config/database.js";
 import { mediaStorage } from "../providers/storage/s3-object-storage.adapter.js";
 import type { MediaStoragePort } from "../providers/storage/media-storage.port.js";
 import { enqueueMediaCleanup } from "../modules/media/media.service.js";
+import { mediaTransaction } from "../modules/media/media-transaction.js";
 
 export class MediaCleanupWorker {
   constructor(
@@ -44,14 +45,41 @@ export class MediaCleanupWorker {
     });
     let deleted = 0;
     for (const job of jobs) {
+      const lockedAt = new Date();
       const claim = await this.db.mediaCleanupJob.updateMany({
-        where: { id: job.id, completedAt: null, lockedAt: job.lockedAt },
-        data: { lockedAt: new Date(), attempts: { increment: 1 } },
+        where: {
+          id: job.id,
+          completedAt: null,
+          lockedAt: job.lockedAt,
+          attempts: job.attempts,
+          availableAt: job.availableAt,
+        },
+        data: { lockedAt, attempts: { increment: 1 } },
       });
       if (!claim.count) continue;
+      // Enqueueing clears the lease; a replacement worker increments attempts.
+      // Fence both outcomes so a late storage response cannot erase newer work.
+      const ownedClaim = {
+        id: job.id,
+        completedAt: null,
+        lockedAt,
+        attempts: job.attempts + 1,
+      };
       try {
-        const [asset, product, stock] = await Promise.all([
-          this.db.storedMedia.findFirst({
+        const removed = await mediaTransaction(this.db, async (tx) => {
+          // A confirmation may be between its verified write and attachment.
+          // Check references only after it releases the same ticket lock.
+          await tx.$queryRaw`SELECT "id" FROM "MediaUpload"
+            WHERE "objectKey" = ${job.objectKey} OR "verifiedObjectKey" = ${job.objectKey}
+            ORDER BY "id" FOR UPDATE`;
+          if (
+            !(await tx.mediaCleanupJob.findFirst({
+              where: ownedClaim,
+              select: { id: true },
+            }))
+          )
+            return false;
+          const asset = await tx.storedMedia.findFirst({
             where: {
               objectKey: job.objectKey,
               OR: [
@@ -61,31 +89,32 @@ export class MediaCleanupWorker {
               ],
             },
             select: { id: true },
-          }),
-          this.db.productImage.findFirst({
-            where: { publicId: job.objectKey },
-            select: { id: true },
-          }),
-          this.db.vehicleImage.findFirst({
-            where: { publicId: job.objectKey },
-            select: { id: true },
-          }),
-        ]);
-        if (!asset && !product && !stock) {
-          await this.storage.delete(job.objectKey);
-          await this.db.storedMedia.updateMany({
-            where: { objectKey: job.objectKey },
-            data: { deletedAt: new Date() },
           });
-          deleted++;
-        }
-        await this.db.mediaCleanupJob.update({
-          where: { id: job.id },
-          data: { completedAt: new Date(), lockedAt: null, lastErrorCode: null },
+          const product = await tx.productImage.findFirst({
+            where: { publicId: job.objectKey },
+            select: { id: true },
+          });
+          const stock = await tx.vehicleImage.findFirst({
+            where: { publicId: job.objectKey },
+            select: { id: true },
+          });
+          if (!asset && !product && !stock) {
+            await this.storage.delete(job.objectKey);
+            await tx.storedMedia.updateMany({
+              where: { objectKey: job.objectKey },
+              data: { deletedAt: new Date() },
+            });
+          }
+          await tx.mediaCleanupJob.updateMany({
+            where: ownedClaim,
+            data: { completedAt: new Date(), lockedAt: null, lastErrorCode: null },
+          });
+          return !asset && !product && !stock;
         });
+        if (removed) deleted++;
       } catch {
-        await this.db.mediaCleanupJob.update({
-          where: { id: job.id },
+        await this.db.mediaCleanupJob.updateMany({
+          where: ownedClaim,
           data: {
             lockedAt: null,
             availableAt: new Date(

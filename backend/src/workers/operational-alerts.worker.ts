@@ -238,7 +238,7 @@ export class OperationalAlertsWorker {
       });
     // Close derived alerts only when their underlying recorded condition is resolved.
     await this.database.$executeRaw`
-      UPDATE "OperationalAlert" a SET "resolvedAt" = CURRENT_TIMESTAMP
+      UPDATE "OperationalAlert" a SET "resolvedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
       WHERE a."resolvedAt" IS NULL AND (
         (a."category" = 'URGENT_COMPLAINT_OVERDUE' AND EXISTS (SELECT 1 FROM "Complaint" c WHERE c."id" = a."resourceId" AND c."acknowledgedAt" IS NOT NULL))
         OR (a."category" = 'REFUND_RECONCILIATION' AND EXISTS (SELECT 1 FROM "Refund" r WHERE r."id" = a."resourceId" AND r."status" IN ('SUCCEEDED','CANCELLED')))
