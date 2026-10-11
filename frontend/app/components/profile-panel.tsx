@@ -199,7 +199,7 @@ function ProfileForm({
           disabled={disabled || reloading}
           onClick={() => void reloadSaved()}
         >
-          {reloading ? "Reloading saved details?" : "Reload saved details"}
+          {reloading ? "Reloading saved details…" : "Reload saved details"}
         </button>
       )}
       <form
@@ -277,7 +277,7 @@ function ProfileForm({
           </p>
           <div className="actions">
             <button className="button" disabled={locked || !form.formState.isDirty}>
-              {form.formState.isSubmitting ? "Saving profile?" : "Save profile"}
+              {form.formState.isSubmitting ? "Saving profile…" : "Save profile"}
             </button>
             <button
               className="button secondary"
@@ -401,7 +401,7 @@ export function ProfilePanel() {
       )}
       {(profile.loading || profile.refreshing) && (
         <p className="cp-loading" role="status">
-          {profile.data ? "Checking your latest profile?" : "Loading your profile?"}
+          {profile.data ? "Checking your latest profile…" : "Loading your profile…"}
         </p>
       )}
       {!profile.data && profile.loading && (
