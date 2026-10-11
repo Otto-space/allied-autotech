@@ -1,7 +1,7 @@
 import { backendOrigin } from "./backend-origin";
 import { siteOrigin } from "./seo";
 
-/** Reject incomplete production configuration before Vercel builds the routes. */
+/** Validate configured origins; an omitted API enables a frontend-only deployment. */
 export function validateDeploymentConfig() {
   backendOrigin();
   if (process.env.VERCEL !== "1" || process.env.VERCEL_ENV !== "production") return;

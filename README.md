@@ -13,13 +13,14 @@ Enter these variables in Vercel's **Production** environment before deploying:
 
 | Variable         | Value                                                         |
 | ---------------- | ------------------------------------------------------------- |
-| `BACKEND_ORIGIN` | Your hosted HTTPS API origin, without `/api/v1`               |
+| `BACKEND_ORIGIN` | Leave unset until your API is hosted; then its HTTPS origin   |
 | `SITE_ORIGIN`    | Your production HTTPS frontend origin                         |
 | `SITE_INDEXING`  | `disabled` until public launch, then `enabled` if appropriate |
 
-The API and frontend origins must be different. Production builds reject missing
-or invalid origins. A Preview deployment can render without an API by leaving
-`BACKEND_ORIGIN` unset; previews always disable search indexing.
+Set `SITE_ORIGIN=https://alliedautotech.com`. Production requires a valid frontend
+origin. Both Preview and Production can render without an API by leaving
+`BACKEND_ORIGIN` unset; API-dependent features stay unavailable. If connected, the
+API must have a distinct HTTPS origin. Previews always disable search indexing.
 
 Configure the backend's allowed frontend origins, passkey hostname, email links,
 storage and payment callbacks for the same production domain. Database/provider

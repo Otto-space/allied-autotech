@@ -1,4 +1,4 @@
-// Missing-backend previews render the real frontend without pretending a save succeeded.
+// Frontend-only deployments render without pretending a backend save succeeded.
 function unavailable() {
   return Response.json(
     {

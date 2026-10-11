@@ -8,10 +8,12 @@ temporary development tunnel is not a production backend.
 
 1. Import this repository with **Root Directory `frontend`**, **Next.js** and
    **Node.js 24.x**. Keep `npm ci`, `npm run build` and the default output directory.
-2. In Vercel's **Production** environment, enter `BACKEND_ORIGIN` as the hosted
-   HTTPS API origin and `SITE_ORIGIN` as the approved HTTPS frontend origin.
-   Neither accepts a path, credentials, query or fragment. These must be distinct
-   origins so API rewrites cannot loop back into the frontend.
+2. In Vercel's **Production** environment, set
+   `SITE_ORIGIN=https://alliedautotech.com`. Leave `BACKEND_ORIGIN` unset until
+   your API is hosted. This permits a frontend-only production deployment;
+   login, live data, bookings, payments and saves remain unavailable. Once hosted,
+   set `BACKEND_ORIGIN` to the API's distinct HTTPS origin without `/api/v1`.
+   Neither origin accepts credentials, query strings or fragments.
 3. Set `SITE_INDEXING=disabled` while verifying the release. Change it to `enabled`
    and redeploy when the approved public domain is ready. Preview deployments
    disable indexing even if production values are accidentally copied.
@@ -28,7 +30,8 @@ temporary development tunnel is not a production backend.
    post-deployment checks against the matching hosted backend. Use isolated test
    accounts and provider test mode before enabling live payment processing.
 
-Production builds stop early if API/frontend origins are missing or invalid.
+Production builds stop early if the frontend origin is missing or invalid, or a
+supplied backend origin is invalid. An omitted backend enables frontend-only mode.
 Configuration checks do not establish that the remote API is online. GitHub
 Actions runs the frontend release checks on Linux with example origins; it does
 not publish a deployment or validate the database, workers or payment providers.
@@ -62,8 +65,9 @@ Normal local builds still prepare the standalone server used by `npm start`.
 4. Leave `BACKEND_ORIGIN` unset (remove it if you already added a localhost or
    tunnel URL). Set `SITE_INDEXING=disabled` and leave `SITE_ORIGIN` unset.
 5. Use a **Preview** deployment (a branch outside Vercel's configured production
-   branch, or `vercel deploy` from `frontend`). Production requires the origins
-   described above. Redeploy after changing environment variables.
+   branch, or `vercel deploy` from `frontend`). Frontend-only Production is also
+   supported with `SITE_ORIGIN=https://alliedautotech.com` and no backend origin.
+   Redeploy after changing environment variables.
 
 No database, API host or tunnel is needed. The landing page, public layouts,
 navigation and forms can render. Live lists show unavailable states; login,
@@ -163,20 +167,21 @@ the standalone server used by `npm start`. Vercel does not run `npm start`.
 
 ## Frontend environment variables
 
-These settings are optional for a frontend-only preview. For the local-backend workflow,
+The backend and storage settings are optional for a frontend-only deployment.
+Production requires `SITE_ORIGIN`. For the local-backend workflow,
 use the tunnel URL and keep indexing disabled. A separately hosted backend can
 also be used later.
 
-| Variable                  | Value                                                                                                                                                                                 |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BACKEND_ORIGIN`          | Leave unset for frontend-only previews. To connect an API later, use its reachable HTTPS origin, for example `https://api.example.com`. No `/api/v1`, credentials, query or fragment. |
-| `SITE_INDEXING`           | `disabled` for previews/staging. Enable only for the intended public production site.                                                                                                 |
-| `SITE_ORIGIN`             | Approved production HTTPS frontend origin for canonical URLs. Leave empty on previews.                                                                                                |
-| `NEXT_PUBLIC_MEDIA_HOSTS` | Optional comma-separated image-storage hostnames; no scheme or path. Needed for externally hosted product/vehicle images.                                                             |
-| `ASSET_STORAGE_HOSTS`     | Optional comma-separated private-upload/download storage hostnames. Must match backend storage and its browser CORS configuration.                                                    |
+| Variable                  | Value                                                                                                                                                                                              |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BACKEND_ORIGIN`          | Leave unset for frontend-only Preview or Production. To connect an API later, use its reachable HTTPS origin, for example `https://api.example.com`. No `/api/v1`, credentials, query or fragment. |
+| `SITE_INDEXING`           | `disabled` for previews/staging. Enable only for the intended public production site.                                                                                                              |
+| `SITE_ORIGIN`             | Approved production HTTPS frontend origin for canonical URLs. Leave empty on previews.                                                                                                             |
+| `NEXT_PUBLIC_MEDIA_HOSTS` | Optional comma-separated image-storage hostnames; no scheme or path. Needed for externally hosted product/vehicle images.                                                                          |
+| `ASSET_STORAGE_HOSTS`     | Optional comma-separated private-upload/download storage hostnames. Must match backend storage and its browser CORS configuration.                                                                 |
 
-An omitted backend origin enables a frontend-only Preview deployment. Production
-requires both `BACKEND_ORIGIN` and `SITE_ORIGIN`. If supplied, the
+An omitted backend origin enables a frontend-only Preview or Production deployment.
+Production requires `SITE_ORIGIN`. If supplied, the
 origin must be a reachable HTTPS URL; local or non-HTTPS origins are rejected. A build
 does not prove that the remote API is online or correctly configured. Redeploy
 after environment changes: API rewrites and public media settings are compiled

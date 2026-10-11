@@ -23,18 +23,23 @@ describe("backend deployment configuration", () => {
     expect(backendOrigin()).toBe("https://api.example.test");
   });
 
-  it("allows a frontend-only Vercel preview", () => {
-    vi.stubEnv("VERCEL", "1");
-    vi.stubEnv("VERCEL_ENV", "preview");
-    expect(backendOrigin()).toBeUndefined();
-    vi.stubEnv("BACKEND_ORIGIN", "https://api.example.test");
-    expect(backendOrigin()).toBe("https://api.example.test");
-  });
+  it.each(["preview", "production"])(
+    "allows a frontend-only Vercel %s",
+    (environment) => {
+      vi.stubEnv("VERCEL", "1");
+      vi.stubEnv("VERCEL_ENV", environment);
+      expect(backendOrigin()).toBeUndefined();
+      vi.stubEnv("BACKEND_ORIGIN", "https://api.example.test");
+      expect(backendOrigin()).toBe("https://api.example.test");
+    },
+  );
 
-  it("rejects a production deployment without an API", () => {
+  it("allows production without an API when the frontend origin is configured", () => {
     vi.stubEnv("VERCEL", "1");
     vi.stubEnv("VERCEL_ENV", "production");
-    expect(() => backendOrigin()).toThrow(/BACKEND_ORIGIN is required for production/);
+    vi.stubEnv("SITE_ORIGIN", "https://alliedautotech.com");
+    expect(backendOrigin()).toBeUndefined();
+    expect(() => validateDeploymentConfig()).not.toThrow();
   });
 
   it("requires a distinct approved frontend origin in production", () => {
@@ -128,25 +133,30 @@ it("validates production before generating Vercel routes", async () => {
   vi.stubEnv("VERCEL", "1");
   vi.stubEnv("VERCEL_ENV", "production");
   vi.resetModules();
-  await expect(import("../../next.config")).rejects.toThrow(/BACKEND_ORIGIN is required/);
+  await expect(import("../../next.config")).rejects.toThrow(/SITE_ORIGIN is required/);
 });
 
-it("routes disconnected previews to an unavailable response without contacting localhost", async () => {
-  vi.stubEnv("VERCEL", "1");
-  vi.stubEnv("VERCEL_ENV", "preview");
-  vi.resetModules();
-  const { default: config } = await import("../../next.config");
-  expect(await config.rewrites?.()).toEqual([
-    { source: "/api/v1/:path*", destination: "/api/backend-unavailable" },
-  ]);
-  const route = await import("../../app/api/backend-unavailable/route");
-  for (const handler of [route.GET, route.POST, route.PUT, route.PATCH, route.DELETE]) {
-    const response = handler();
-    expect(response.status).toBe(503);
-    expect(response.headers.get("Cache-Control")).toBe("no-store");
-    expect(await response.json()).toMatchObject({
-      success: false,
-      error: { code: "BACKEND_NOT_CONFIGURED" },
-    });
-  }
-});
+it.each(["preview", "production"])(
+  "routes disconnected %s to an unavailable response without contacting localhost",
+  async (environment) => {
+    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("VERCEL_ENV", environment);
+    vi.stubEnv("SITE_ORIGIN", "https://alliedautotech.com");
+    vi.resetModules();
+    const { default: config } = await import("../../next.config");
+    expect(config.output).toBeUndefined();
+    expect(await config.rewrites?.()).toEqual([
+      { source: "/api/v1/:path*", destination: "/api/backend-unavailable" },
+    ]);
+    const route = await import("../../app/api/backend-unavailable/route");
+    for (const handler of [route.GET, route.POST, route.PUT, route.PATCH, route.DELETE]) {
+      const response = handler();
+      expect(response.status).toBe(503);
+      expect(response.headers.get("Cache-Control")).toBe("no-store");
+      expect(await response.json()).toMatchObject({
+        success: false,
+        error: { code: "BACKEND_NOT_CONFIGURED" },
+      });
+    }
+  },
+);
