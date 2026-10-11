@@ -1,3 +1,4 @@
+import "./purchase-detail.css";
 import type { Metadata } from "next";
 import { VehicleTransactionDetail } from "../../../components/vehicle-transaction-detail";
 export const metadata: Metadata = { title: "Vehicle purchase progress" };

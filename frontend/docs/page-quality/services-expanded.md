@@ -72,7 +72,6 @@ The isolated dataset has no attached service photography; its fallback is intent
 
 No blocker remains for this listing's local gate. Vehicle detail `/vehicles/[listingId]` is the next expanded route; its prior report does not certify expanded acceptance automatically.
 
-
 ## Service discovery extension - 9 October 2026
 
 This section supersedes the earlier pricing-only API description for the current implementation. API-03 is implemented and locally accepted. The legacy service list remains supported; the page now uses `/public/services/discovery` with bounded search, category/pricing filters, deterministic sorting, exact totals and signed cursors. Categories come from real administrator-managed records and bounded server options. The backend remains authoritative for active-service visibility. Category archival removes grouping without unpublishing services.

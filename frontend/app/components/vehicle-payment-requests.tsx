@@ -54,26 +54,29 @@ export function VehiclePaymentRequests({
   const [now, setNow] = useState(() => Date.now());
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
+  const ownedId = record?.id;
   useEffect(() => {
     const controller = new AbortController();
-    void readVehiclePayments(transactionId, controller.signal)
-      .then((items) => {
-        if (!controller.signal.aborted) setHistory({ revision, items });
-      })
-      .catch(() => {
-        if (!controller.signal.aborted)
-          setHistory({
-            revision,
-            error:
-              "We could not check the complete payment history. Refresh before starting another request.",
-          });
-      });
+    if (ownedId)
+      void readVehiclePayments(transactionId, controller.signal)
+        .then((items) => {
+          if (!controller.signal.aborted) setHistory({ revision, items });
+        })
+        .catch(() => {
+          if (!controller.signal.aborted)
+            setHistory({
+              revision,
+              error:
+                "We could not check the complete payment history. Refresh before starting another request.",
+            });
+        });
     const discard = () => {
       controller.abort();
       pending.current?.abort();
       setHistory(undefined);
       setProposal(null);
       setAttempt(undefined);
+      setUncertain(false);
       setPayment(undefined);
     };
     const visible = () => {
@@ -88,7 +91,7 @@ export function VehiclePaymentRequests({
       window.removeEventListener("online", refresh);
       document.removeEventListener("visibilitychange", visible);
     };
-  }, [transactionId, revision, refresh]);
+  }, [transactionId, ownedId, revision, refresh]);
   const deadline = record?.reservationExpiresAt;
   useEffect(() => {
     if (!deadline || !Number.isFinite(Date.parse(deadline))) return;
@@ -318,7 +321,7 @@ export function VehiclePaymentRequests({
                     setPurpose(event.target.value as VehiclePaymentPurpose | "")
                   }
                 >
-                  <option value="">Choose a payment purpose</option>
+                  <option value="">Choose a purpose</option>
                   {Object.entries(vehiclePaymentPurposes).map(([value, label]) => (
                     <option
                       value={value}
@@ -342,7 +345,12 @@ export function VehiclePaymentRequests({
                 requests use the server-calculated remainder. Full payment is unavailable
                 after a confirmed partial payment.
               </p>
-              <button className="button">Review payment request</button>
+              <button
+                className="button"
+                disabled={disabled || !!unavailable || !items || !!unresolved.length}
+              >
+                Review payment request
+              </button>
             </fieldset>
           </form>
         </>

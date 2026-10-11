@@ -390,6 +390,7 @@ export function DashboardShell({
             pathname !== "/dashboard/vehicles" &&
             pathname !== "/dashboard/inspections" &&
             pathname !== "/dashboard/vehicle-transactions" &&
+            !/^\/dashboard\/vehicle-transactions\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/vehicles\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/bookings\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/invoices\/[^/]+$/.test(pathname) &&
