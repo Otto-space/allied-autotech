@@ -25,6 +25,10 @@ Keep `SITE_INDEXING=disabled` and `SITE_ORIGIN` empty until the actual productio
 Import the repository with **Root Directory `frontend`** and the **Next.js** preset.
 The checked-in Vercel configuration uses `npm ci`, `npm run build`, and Node.js 24.
 To see the frontend without a backend, leave `BACKEND_ORIGIN` unset in Vercel.
+Use a **Preview** deployment for that mode. **Production** builds require
+`BACKEND_ORIGIN` and `SITE_ORIGIN` with your actual HTTPS API and frontend origins.
+Enter them in Vercel's Production environment using
+[`.env.production.example`](.env.production.example) as the inventory, then redeploy.
 No API, database or tunnel is required. Keep `SITE_INDEXING=disabled`.
 The public frontend renders; data-dependent sections show unavailable states, and
 login, protected dashboards and saves require connecting a backend later.
@@ -32,6 +36,14 @@ login, protected dashboards and saves require connecting a backend later.
 See [Vercel deployment](docs/vercel-deployment.md) for environment variables,
 backend authentication settings and verification. Vercel uses native Next.js
 output; local and other Node-hosted builds keep the existing standalone server.
+
+From the repository root, `npm run check:production` runs lint, types, unit tests,
+the native Vercel production build and formatting checks. Supply your production
+variables in the terminal or an ignored frontend env file. The GitHub Actions
+release workflow runs the same checks with example origins; it does not deploy or
+verify a live backend. Root `dev`, `build`, `start`, `lint`, `typecheck`, `test` and
+`check` scripts forward to the frontend package; dependencies still need `npm ci`
+inside `frontend`.
 
 ## Application flows
 

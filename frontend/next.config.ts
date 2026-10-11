@@ -3,6 +3,9 @@ import { fileURLToPath } from "node:url";
 
 import type { NextConfig } from "next";
 import { backendOrigin } from "./lib/backend-origin";
+import { validateDeploymentConfig } from "./lib/deployment-config";
+
+validateDeploymentConfig();
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 

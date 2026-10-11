@@ -9,6 +9,19 @@ import {
 } from "@/lib/seo";
 afterEach(() => vi.unstubAllEnvs());
 describe("configured public identity", () => {
+  it("keeps Vercel previews out of indexing even with copied production settings", () => {
+    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("VERCEL_ENV", "preview");
+    vi.stubEnv("SITE_ORIGIN", "https://allied.example");
+    vi.stubEnv("SITE_INDEXING", "enabled");
+    expect(indexingEnabled()).toBe(false);
+    expect(publicMetadata("Parts", "Published parts", "/parts").robots).toEqual({
+      index: false,
+      follow: false,
+    });
+    vi.stubEnv("VERCEL_ENV", "production");
+    expect(indexingEnabled()).toBe(true);
+  });
   it.each([
     "",
     "http://allied.example",

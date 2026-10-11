@@ -48,6 +48,12 @@ export function siteOrigin(): string | undefined {
   }
 }
 export function indexingEnabled() {
+  if (
+    process.env.VERCEL === "1" &&
+    process.env.VERCEL_ENV !== "production" &&
+    process.env.VERCEL_ENV !== "development"
+  )
+    return false;
   return process.env.SITE_INDEXING === "enabled" && !!siteOrigin();
 }
 export function privatePage(path: string) {

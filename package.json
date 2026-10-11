@@ -1,7 +1,18 @@
 {
   "name": "allied-autotech",
   "private": true,
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "lint": "npm --prefix frontend run lint",
+    "typecheck": "npm --prefix frontend run typecheck",
+    "test": "npm --prefix frontend test",
+    "check": "npm --prefix frontend run check",
+    "check:production": "npm --prefix frontend run check:production",
     "bootstrap:super-admin": "npm --prefix backend run bootstrap:super-admin --"
   }
 }

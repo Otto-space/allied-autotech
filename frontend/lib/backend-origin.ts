@@ -3,7 +3,12 @@ export function backendOrigin(): string | undefined {
   const hostedOnVercel =
     process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "development";
   const configured = process.env.BACKEND_ORIGIN?.trim();
-  // A Vercel deployment can preview the frontend before an API is connected.
+  if (hostedOnVercel && process.env.VERCEL_ENV === "production" && !configured) {
+    throw new Error(
+      "BACKEND_ORIGIN is required for production. Set the hosted HTTPS API origin in Vercel, or use a Preview deployment for the frontend without an API.",
+    );
+  }
+  // A Preview deployment can render the frontend before an API is connected.
   if (hostedOnVercel && !configured) return undefined;
 
   let parsed: URL;

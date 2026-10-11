@@ -2,9 +2,18 @@
 .env*
 !.env.example
 .next/
+.next-*/
 node_modules/
 coverage/
 playwright-report/
 test-results/
 *.tsbuildinfo
 public/allied-workshop-hero.png
+
+# Development evidence and fixtures are not deployment assets.
+docs/
+tests/
+e2e/
+AGENTS.md
+CLAUDE.md
+*.log

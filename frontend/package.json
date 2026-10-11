@@ -13,10 +13,11 @@
     "lint": "eslint --max-warnings=0 .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build && npm run format:check",
+    "check:production": "node scripts/check-production.mjs",
     "api:types": "openapi-typescript ../backend/docs/api/allied-autotech.openapi.json -o lib/api/generated.d.ts",
     "api:inventory": "node scripts/api-inventory.mjs"
   },

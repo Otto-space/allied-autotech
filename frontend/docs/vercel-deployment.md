@@ -1,5 +1,58 @@
 # Deploy the frontend to Vercel
 
+## Production deployment
+
+Vercel hosts the Next.js frontend. The Express API, PostgreSQL database, identity
+outbox worker and general worker need their own durable hosting. A local PC or
+temporary development tunnel is not a production backend.
+
+1. Import this repository with **Root Directory `frontend`**, **Next.js** and
+   **Node.js 24.x**. Keep `npm ci`, `npm run build` and the default output directory.
+2. In Vercel's **Production** environment, enter `BACKEND_ORIGIN` as the hosted
+   HTTPS API origin and `SITE_ORIGIN` as the approved HTTPS frontend origin.
+   Neither accepts a path, credentials, query or fragment. These must be distinct
+   origins so API rewrites cannot loop back into the frontend.
+3. Set `SITE_INDEXING=disabled` while verifying the release. Change it to `enabled`
+   and redeploy when the approved public domain is ready. Preview deployments
+   disable indexing even if production values are accidentally copied.
+4. If needed, configure `NEXT_PUBLIC_MEDIA_HOSTS`, `ASSET_STORAGE_HOSTS` and the
+   restricted `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` using
+   [`.env.production.example`](../.env.production.example). Allowlists contain
+   bare hostnames; backend storage CORS must allow the actual frontend origin.
+5. Prepare the backend using its [runtime/deployment runbook](../../backend/docs/owner-staging-runbook.md):
+   production runtime settings, TLS database access, durable object storage,
+   process-specific secrets, controlled migrations, API health checks and both
+   background workers. Set its authentication/email/payment frontend origins as
+   described below. Confirm allowed ingress/proxy settings on the selected host.
+6. Run the local release checks below, deploy from Vercel, and complete the
+   post-deployment checks against the matching hosted backend. Use isolated test
+   accounts and provider test mode before enabling live payment processing.
+
+Production builds stop early if API/frontend origins are missing or invalid.
+Configuration checks do not establish that the remote API is online. GitHub
+Actions runs the frontend release checks on Linux with example origins; it does
+not publish a deployment or validate the database, workers or payment providers.
+For a public launch, also review the remaining integration work in the
+[completion audit](completion-audit.md); a passing frontend build is not full
+platform sign-off.
+
+Local production verification from the repository root:
+
+```powershell
+npm --prefix frontend ci
+$env:BACKEND_ORIGIN = "https://your-api-host.example"
+$env:SITE_ORIGIN = "https://your-frontend-host.example"
+$env:SITE_INDEXING = "disabled"
+npm run check:production
+```
+
+Replace both origins with your actual hosted addresses. `check:production` runs
+lint, type checking, unit tests, a native Vercel production build and formatting
+checks. It sets `VERCEL`/`VERCEL_ENV` only in the child process and does not deploy.
+Type checking generates Next.js route/layout types first, so a clean checkout
+does not depend on files left by a previous development server or build.
+Normal local builds still prepare the standalone server used by `npm start`.
+
 ## Preview just the frontend — no backend required
 
 1. Push the frontend changes to your Git repository and import it into Vercel.
@@ -8,7 +61,9 @@
    and **Output Directory** at the framework default.
 4. Leave `BACKEND_ORIGIN` unset (remove it if you already added a localhost or
    tunnel URL). Set `SITE_INDEXING=disabled` and leave `SITE_ORIGIN` unset.
-5. Click **Deploy**, or **Redeploy** if the project already exists.
+5. Use a **Preview** deployment (a branch outside Vercel's configured production
+   branch, or `vercel deploy` from `frontend`). Production requires the origins
+   described above. Redeploy after changing environment variables.
 
 No database, API host or tunnel is needed. The landing page, public layouts,
 navigation and forms can render. Live lists show unavailable states; login,
@@ -57,9 +112,9 @@ Vercel points at a Vercel machine, not your PC.
 3. Import the frontend using the settings below. In Vercel, set `BACKEND_ORIGIN`
    to the actual tunnel address, with no `/api/v1` suffix. Set
    `SITE_INDEXING=disabled` and leave `SITE_ORIGIN` empty. Apply the variables to
-   the Vercel environment used by this deployment, then deploy/redeploy. Vercel's
-   “Preview”/“Production” labels are hosting labels; they do not change your local
-   backend's `NODE_ENV` or `DEPLOYMENT_ENV`.
+   the Vercel Preview environment used by this deployment, then deploy/redeploy.
+   A Preview deployment does not change your local backend's `NODE_ENV` or
+   `DEPLOYMENT_ENV`.
 4. Add your actual Vercel frontend origin to the local backend's existing
    `FRONTEND_URL` list. Preserve any origins already needed locally. For example:
 
@@ -120,7 +175,8 @@ also be used later.
 | `NEXT_PUBLIC_MEDIA_HOSTS` | Optional comma-separated image-storage hostnames; no scheme or path. Needed for externally hosted product/vehicle images.                                                             |
 | `ASSET_STORAGE_HOSTS`     | Optional comma-separated private-upload/download storage hostnames. Must match backend storage and its browser CORS configuration.                                                    |
 
-An omitted backend origin enables a frontend-only preview. If supplied, the
+An omitted backend origin enables a frontend-only Preview deployment. Production
+requires both `BACKEND_ORIGIN` and `SITE_ORIGIN`. If supplied, the
 origin must be a reachable HTTPS URL; local or non-HTTPS origins are rejected. A build
 does not prove that the remote API is online or correctly configured. Redeploy
 after environment changes: API rewrites and public media settings are compiled
@@ -156,6 +212,15 @@ the selected backend (including your local backend). A changing preview URL does
 not automatically become trusted.
 
 ## Verification after deployment
+
+Dependency checks on 11 October 2026: `npm audit --omit=dev` reported zero frontend
+runtime vulnerabilities. The full audit reported five high-severity entries in
+the ESLint dependency chain, all stemming from
+[the unpatched braces advisory](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
+The affected tool processes repository glob patterns during development/linting.
+No framework downgrade, forced audit fix or advisory suppression was applied.
+Track an upstream fix and rerun the full audit when updating the tooling. CI gates
+high/critical runtime advisories with `npm audit --omit=dev --audit-level=high`.
 
 1. Open public services/products and verify data loads through the deployed API.
 2. Log in with a test account, refresh the dashboard, and verify the session remains.
