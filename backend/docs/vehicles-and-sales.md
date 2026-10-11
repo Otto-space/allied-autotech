@@ -35,6 +35,10 @@ the same transaction. Buyer and monetary snapshots cannot change after a payment
 Payment-pending status is reachable only after the customer reservation workflow has recorded terms
 acceptance; staff cannot bypass customer acceptance through a generic status mutation.
 
+New reservations additionally require the applicable approved agreement, linked to immutable
+customer acceptance evidence. See [agreement publication, contract and rollout](vehicle-reservation-terms.md).
+Historical records remain readable without fabricating their missing agreement documents.
+
 Only a paid transaction can create a handover. Handover completion atomically marks the transaction
 complete and the listing sold. Signed handover evidence becomes immutable once stored.
 

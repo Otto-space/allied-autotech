@@ -120,6 +120,14 @@ The four specially isolated cases also passed separately: three owner-provisioni
 - Resolution: constrain Paystack correlation to Paystack attempts, record conflicting observations without rewriting completed refunds, preserve review holds on non-success callbacks, and re-read refund status after provider polling before changing it. Existing approval, ledger uniqueness and database immutability controls remain in place.
 - Verification: 14 initial failures plus three additional hold-case failures reproduced; all 21 focused refund cases pass after repair. Broader results and rollout boundaries are recorded in [refund observation acceptance](backend/docs/refund-observation-integrity.md). No new migration, provider activation, money movement or deployment.
 
+### SEC-026 — Vehicle reservations trusted customer-supplied agreement versions (backend repair implemented)
+
+- Severity: Medium (acceptance evidence and reservation-workflow integrity).
+- Evidence: [agreement validation](backend/src/modules/vehicle-sales/reservation-terms.ts), [reservation transaction](backend/src/modules/vehicle-sales/vehicle-sales.service.ts:488), [database safeguards](backend/prisma/migrations/20261011180000_vehicle_reservation_terms/migration.sql), and [HTTP/database cases](backend/tests/integration/reservation-terms.test.ts).
+- Original behavior: a customer could supply any non-empty version string to reserve an agreed vehicle. No published document established what the customer accepted, and the acceptance metadata was not frozen independently of payment activity.
+- Resolution: reuse Super Admin policy publication with immutable approved content, expose an owner-scoped agreement read, validate the current document under a publication lock, link the accepting customer and document, and protect that evidence in PostgreSQL. Retained original-key retries survive later withdrawal while changed requests conflict. Existing historical metadata is preserved without fabricated agreement text.
+- Verification and remaining boundaries: 52-migration replay and an additive upgrade preserving four historical synthetic records passed. Focused agreement/contract/owner-policy checks passed; see [acceptance and rollout](backend/docs/vehicle-reservation-terms.md). Approved business wording, frontend acceptance, browser verification and deployment remain open. No production terms, provider activation or live reservation was created.
+
 ## Historical application review — 10 September 2026
 
 ## Executive summary
