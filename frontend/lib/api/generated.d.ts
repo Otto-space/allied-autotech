@@ -1328,6 +1328,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/public/catalog/products/discovery": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search public products with exact totals and stable paging
+     * @description Anonymous. Active products in active categories only. Existing product filters retain literal case-insensitive exact brand/make/model matching, inclusive compatibility year bounds on the same compatibility row, and literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicCatalogProductsDiscovery"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/public/catalog/facets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search catalogue category, brand and compatibility options
+     * @description Anonymous. Bounded options backed by active products in active categories, including out-of-stock products. field=category returns category UUID values and stored names; empty categories are omitted. Other fields collapse case variants into lowercase values with deterministic stored labels. Models require an exact case-insensitive make; make is forbidden for other fields. Optional categoryId scopes non-category options. search is a literal case-insensitive prefix (1-120 characters; percent/underscore escaped). Null models for make-wide compatibility do not become named model options; existing product compatibility filtering semantics are preserved. Options sort by lowercase label then value under C collation. Maximum 50/default 20. Authenticated cursors bind field/categoryId/make/search, survive deleted anchors, and reject tampering/filter changes with 422 VALIDATION_FAILED. No nextCursor means the current option search is complete. No global total or cross-request snapshot/cache is promised. Search catalogue category, brand and compatibility options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicCatalogFacets"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/public/catalog/categories": {
     parameters: {
       query?: never;
@@ -2396,6 +2436,110 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/public/services/discovery": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search active services with exact totals
+     * @description Anonymous. Literal case-insensitive substring search (2–100 characters) over name, short description and description. Optional active category and pricing filters. Sort: name ascending (default), newest first, or duration ascending with unknown durations last; IDs break ties. Limit 1–50, default 20. Signed cursors bind filters/sort and survive deleted anchors. Legacy UUID anchors must still match. Page and count share a repeatable-read snapshot; concurrent edits may move records between requests. Inactive categories are omitted from metadata but do not unpublish services. Search active services with exact totals. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicServicesDiscovery"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/public/services/categories": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List active service category options
+     * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicServicesCategories"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/service-categories": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List service categories for administration
+     * @description Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getAdminServiceCategories"];
+    put?: never;
+    /**
+     * Create a service category
+     * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Create a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    post: operations["postAdminServiceCategories"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/public/services/categories/{categoryId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get an active category backed by an active service
+     * @description Get an active category backed by an active service. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicServicesCategoriesByCategoryId"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/admin/service-categories/{categoryId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update or archive a service category
+     * @description ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Update or archive a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     */
+    patch: operations["patchAdminServiceCategoriesByCategoryId"];
+    trace?: never;
+  };
   "/customers/orders/checkout": {
     parameters: {
       query?: never;
@@ -2624,6 +2768,86 @@ export interface paths {
     patch: operations["patchAdminPromotionsByPromotionId"];
     trace?: never;
   };
+  "/customers/invoices/{invoiceId}/document": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read an owned invoice document
+     * @description CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Read an owned invoice document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getCustomersInvoicesByInvoiceIdDocument"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/customers/invoices/{invoiceId}/download": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Download an owned invoice document
+     * @description CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Download an owned invoice document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getCustomersInvoicesByInvoiceIdDownload"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/customers/payments/{paymentId}/receipt/document": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Read an owned confirmed payment receipt document
+     * @description CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Read an owned confirmed payment receipt document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getCustomersPaymentsByPaymentIdReceiptDocument"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/customers/payments/{paymentId}/receipt": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Download an owned confirmed payment receipt document
+     * @description CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Download an owned confirmed payment receipt document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getCustomersPaymentsByPaymentIdReceipt"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/customers/invoices": {
     parameters: {
       query?: never;
@@ -2748,6 +2972,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/public/vehicles/discovery": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search public vehicles with exact totals and stable paging
+     * @description Anonymous. Same public filters and AVAILABLE/active-branch visibility as /public/vehicles. Maximum 50, default 20. totalMatches is the exact filtered count before pagination, read in the same repeatable-read transaction as the page; no cross-request snapshot or cache is promised. nextCursor is authenticated and bound to the filters and sort (page size may change). Deleted or unpublished anchors remain usable. Invalid, tampered or mismatched cursors return 422 VALIDATION_FAILED; restart at the first page. Mutable price/year/visibility changes can move records between pages; refresh to see current inventory. UUID cursors from old links are accepted only while their anchor is currently public and matches the query. Existing /public/vehicles behavior and UUID cursor responses remain supported. No private stock, VIN, acquisition or customer fields are exposed. Search public vehicles with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicVehiclesDiscovery"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/public/vehicles/facets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Search published vehicle make or model options
+     * @description Anonymous, maximum 50 options per page, default 20. field=make omits make; field=model requires an exact case-insensitive make. Optional search is a literal case-insensitive prefix, with percent and underscore treated literally. Values are lowercase database names, labels are deterministic stored display names; casing duplicates collapse. Sort is value ascending under C collation. Only names backed by an AVAILABLE listing at an active branch are returned. An absent nextCursor means this filtered option search is complete at that read; do not treat one page as exhaustive. Cursors are authenticated, bound to field/make/search and remain valid if the prior option disappears. Changed filters, tampering or signing-key rotation require restarting (422 VALIDATION_FAILED). No exact total or persistent cache is implied; inventory can change between reads. Search published vehicle make or model options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getPublicVehiclesFacets"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/public/vehicles": {
     parameters: {
       query?: never;
@@ -2820,6 +3084,26 @@ export interface paths {
      * @description List saved vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getCustomersSavedVehicles"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/customers/saved-vehicles/page": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Page the customer's available saved vehicles
+     * @description CUSTOMER only. Returns at most limit items (default 12, maximum 50), ordered by saved-record UUID ascending, with an opaque nextCursor only when more records exist. Cursors are authenticated and bound to the customer; malformed, tampered or cross-customer cursors return 422 VALIDATION_FAILED. A removed or unavailable anchor remains a valid boundary. Each request applies current AVAILABLE listing and active-branch visibility. Concurrent inserts or newly visible records before the boundary require a refresh from page one; this is not a snapshot. Token-hash key rotation invalidates cursors. No total count is implied. The original /customers/saved-vehicles array endpoint remains unchanged. Page the customer's available saved vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     */
+    get: operations["getCustomersSavedVehiclesPage"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3159,7 +3443,7 @@ export interface paths {
     put?: never;
     /**
      * Request a vehicle inspection
-     * @description Request a vehicle inspection. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Request a vehicle inspection. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
      */
     post: operations["postCustomersVehicleInspections"];
     delete?: never;
@@ -3183,7 +3467,7 @@ export interface paths {
     put?: never;
     /**
      * Open a vehicle transaction
-     * @description Open a vehicle transaction. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Open a vehicle transaction. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
      */
     post: operations["postCustomersVehicleTransactions"];
     delete?: never;
@@ -3465,7 +3749,7 @@ export interface paths {
     };
     /**
      * Get an owned payment
-     * @description Requires the customer account that owns the payment; server verification remains authoritative. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Requires the customer account that owns the payment; server verification remains authoritative. The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getCustomersPaymentsByPaymentId"];
     put?: never;
@@ -4503,7 +4787,7 @@ export interface paths {
     put?: never;
     /**
      * Retry a failed job using optimistic attempt matching
-     * @description Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. RETRY_REQUESTED means queued, not delivered; the worker still checks consent, message eligibility and configured providers. Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
      */
     post: operations["postAdminOperationsJobsBySourceByJobIdRetry"];
     delete?: never;
@@ -4541,7 +4825,7 @@ export interface paths {
     };
     /**
      * Read own date-filtered dashboard aggregates
-     * @description Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. Read own date-filtered dashboard aggregates. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. CUSTOMER alone receives care: bounded own-account current previews independent of the historical range. Current booking selects latest updated IN_PROGRESS; next booking selects earliest future REQUESTED/CONFIRMED. Vehicle is the owned vehicle linked to that booking, otherwise the latest garage addition. Quote is the latest unexpired ISSUED quote. Payment is the latest unexpired REQUIRES_PAYMENT or unresolved PROCESSING/REQUIRES_REVIEW request, not a debt balance. Order is the latest created order with actual fulfillment method/status. Inspection prioritizes earliest future confirmed/rescheduled appointment, otherwise nearest future requested date. Notification is the latest unexpired own notification. Preview ties use IDs; absence is null and never an aggregate zero. Staff responses omit care. Read own date-filtered dashboard aggregates. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getCustomersOverview"];
     put?: never;
@@ -4561,7 +4845,7 @@ export interface paths {
     };
     /**
      * Read role-scoped dashboard aggregates; financial totals are administrator-only
-     * @description Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. Read role-scoped dashboard aggregates; financial totals are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. CUSTOMER alone receives care: bounded own-account current previews independent of the historical range. Current booking selects latest updated IN_PROGRESS; next booking selects earliest future REQUESTED/CONFIRMED. Vehicle is the owned vehicle linked to that booking, otherwise the latest garage addition. Quote is the latest unexpired ISSUED quote. Payment is the latest unexpired REQUIRES_PAYMENT or unresolved PROCESSING/REQUIRES_REVIEW request, not a debt balance. Order is the latest created order with actual fulfillment method/status. Inspection prioritizes earliest future confirmed/rescheduled appointment, otherwise nearest future requested date. Notification is the latest unexpired own notification. Preview ties use IDs; absence is null and never an aggregate zero. Staff responses omit care. Read role-scoped dashboard aggregates; financial totals are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getStaffOverview"];
     put?: never;
@@ -5544,6 +5828,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthEmailVerify: {
@@ -5737,6 +6042,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthEmailResend: {
@@ -5919,6 +6245,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthLogin: {
@@ -6088,6 +6435,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -6282,6 +6650,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -6491,6 +6880,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthPasswordForgot: {
@@ -6687,6 +7097,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthPasswordReset: {
@@ -6874,6 +7305,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -7127,6 +7579,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthMfaTotpSetup: {
@@ -7302,6 +7775,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -7513,6 +8007,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthMfaWebauthnOptions: {
@@ -7700,6 +8215,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -7938,6 +8474,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthMfaChallengeOptions: {
@@ -8152,6 +8709,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -8435,6 +9013,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthMfaRecoveryCodesRegenerate: {
@@ -8643,6 +9242,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAuthSession: {
@@ -8815,6 +9435,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -9018,6 +9659,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   deleteAuthSessions: {
@@ -9203,6 +9865,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -9433,6 +10116,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAuthMfaFactors: {
@@ -9618,6 +10322,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -9851,6 +10576,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -10115,6 +10861,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -10448,6 +11215,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersVehicles: {
@@ -10644,6 +11432,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -10882,6 +11691,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -11161,6 +11991,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   deleteCustomersVehiclesByVehicleId: {
@@ -11373,6 +12224,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -11647,6 +12519,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminCustomers: {
@@ -11898,6 +12791,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -12160,6 +13074,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminCustomersByCustomerIdVehicles: {
@@ -12401,6 +13336,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -12660,6 +13616,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminCustomersByCustomerIdQuotations: {
@@ -12910,6 +13887,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminCustomersByCustomerIdOrders: {
@@ -13151,6 +14149,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -13681,6 +14700,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminCustomersByCustomerIdComplaints: {
@@ -13922,6 +14962,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -18561,6 +19622,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicBranchesByBranchId: {
@@ -18758,6 +19840,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -19045,6 +20148,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminBranches: {
@@ -19246,6 +20370,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -19510,6 +20655,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminBranchesByBranchId: {
@@ -19709,6 +20875,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -19985,6 +21172,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminStaff: {
@@ -20205,6 +21413,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminStaffByStaffUserId: {
@@ -20404,6 +21633,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -20614,6 +21864,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -20855,6 +22126,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAuthStaffInvitationsAccept: {
@@ -21069,6 +22361,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -21328,6 +22641,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   patchAdminStaffByStaffUserIdBranch: {
@@ -21569,6 +22903,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -21834,6 +23189,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminStaffCandidates: {
@@ -22025,6 +23401,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -22257,6 +23654,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -22499,6 +23917,641 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicCatalogProductsDiscovery: {
+    parameters: {
+      query?: {
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+        /**
+         * @description Category Id used to constrain this request.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        categoryId?: string;
+        /**
+         * @description Brand used to constrain this request.
+         * @example synthetic-brand
+         */
+        brand?: string;
+        /**
+         * @description Search used to constrain this request.
+         * @example synthetic-search
+         */
+        search?: string;
+        /**
+         * @description Make used to constrain this request.
+         * @example synthetic-make
+         */
+        make?: string;
+        /**
+         * @description Model used to constrain this request.
+         * @example synthetic-model
+         */
+        model?: string;
+        /**
+         * @description Year used to constrain this request.
+         * @example synthetic-year
+         */
+        year?: string;
+        /**
+         * @description Featured used to constrain this request.
+         * @example true
+         */
+        featured?: "true" | "false";
+        /**
+         * @description Sort used to constrain this request.
+         * @example newest
+         */
+        sort?: "newest" | "name" | "price_asc" | "price_desc";
+        /**
+         * @description Min Price Kobo used to constrain this request.
+         * @example 300000
+         */
+        minPriceKobo?: string;
+        /**
+         * @description Max Price Kobo used to constrain this request.
+         * @example 300000
+         */
+        maxPriceKobo?: string;
+        /**
+         * @description Availability used to constrain this request.
+         * @example in_stock
+         */
+        availability?: "in_stock" | "out_of_stock";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Search public products with exact totals and stable paging. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Search public products with exact totals and stable paging",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "name": "synthetic-name",
+           *             "slug": "synthetic-slug",
+           *             "sku": "synthetic-sku",
+           *             "brand": "synthetic-brand",
+           *             "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+           *             "description": "synthetic-description",
+           *             "priceKobo": "300000",
+           *             "compareAtPriceKobo": "300000",
+           *             "currency": "NGN",
+           *             "isActive": true,
+           *             "featured": true,
+           *             "mediaVersion": 0,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z",
+           *             "category": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "name": "synthetic-name",
+           *               "slug": "synthetic-slug",
+           *               "description": "synthetic-description",
+           *               "isActive": true,
+           *               "createdAt": "2030-01-15T10:00:00.000Z",
+           *               "updatedAt": "2030-01-15T10:00:00.000Z"
+           *             },
+           *             "images": [
+           *               {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "url": "https://example.test/continue",
+           *                 "altText": "synthetic-alttext",
+           *                 "sortOrder": 1,
+           *                 "isPrimary": true,
+           *                 "createdAt": "2030-01-15T10:00:00.000Z",
+           *                 "source": "UPLOADED",
+           *                 "width": "synthetic-width",
+           *                 "height": "synthetic-height"
+           *               }
+           *             ],
+           *             "compatibilities": [
+           *               {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "make": "synthetic-make",
+           *                 "model": "synthetic-model",
+           *                 "yearFrom": "synthetic-yearfrom",
+           *                 "yearTo": "synthetic-yearto",
+           *                 "notes": "synthetic-notes"
+           *               }
+           *             ],
+           *             "availability": [
+           *               {
+           *                 "branch": {
+           *                   "id": "00000000-0000-4000-8000-000000000001",
+           *                   "code": "synthetic-code",
+           *                   "name": "synthetic-name"
+           *                 },
+           *                 "inStock": true
+           *               }
+           *             ]
+           *           }
+           *         ],
+           *         "nextCursor": "synthetic-nextcursor",
+           *         "totalMatches": 0
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Sku validated by this operation's strict request contract. */
+                sku: string;
+                /** @description Brand validated by this operation's strict request contract. */
+                brand: string | null;
+                /** @description Manufacturer Part Number validated by this operation's strict request contract. */
+                manufacturerPartNumber: string | null;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                priceKobo: string;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                compareAtPriceKobo: string | null;
+                /**
+                 * @description Currency validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                currency: "NGN";
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /** @description Featured validated by this operation's strict request contract. */
+                featured: boolean;
+                /** @description Media Version validated by this operation's strict request contract. */
+                mediaVersion: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+                /** @description Category validated by this operation's strict request contract. */
+                category: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                  /** @description Slug validated by this operation's strict request contract. */
+                  slug: string;
+                  /** @description Description validated by this operation's strict request contract. */
+                  description: string | null;
+                  /** @description Boolean control for is active; authorization is still enforced server-side. */
+                  isActive: boolean;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  updatedAt: string;
+                };
+                /** @description Images validated by this operation's strict request contract. */
+                images: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description HTTPS location validated against the operation's server-side allowlist. */
+                  url: string;
+                  /** @description Alt Text validated by this operation's strict request contract. */
+                  altText: string | null;
+                  /** @description Sort Order validated by this operation's strict request contract. */
+                  sortOrder: number;
+                  /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                  isPrimary: boolean;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * @description Source validated by this operation's strict request contract.
+                   * @enum {string}
+                   */
+                  source: "UPLOADED" | "EXTERNAL";
+                  /** @description Width validated by this operation's strict request contract. */
+                  width: number | null;
+                  /** @description Height validated by this operation's strict request contract. */
+                  height: number | null;
+                }[];
+                /** @description Compatibilities validated by this operation's strict request contract. */
+                compatibilities: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Make validated by this operation's strict request contract. */
+                  make: string;
+                  /** @description Model validated by this operation's strict request contract. */
+                  model: string | null;
+                  /** @description Year From validated by this operation's strict request contract. */
+                  yearFrom: number | null;
+                  /** @description Year To validated by this operation's strict request contract. */
+                  yearTo: number | null;
+                  /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                  notes: string | null;
+                }[];
+                /** @description Availability validated by this operation's strict request contract. */
+                availability: {
+                  /** @description Branch validated by this operation's strict request contract. */
+                  branch: {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    code: string;
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                  };
+                  /** @description In Stock validated by this operation's strict request contract. */
+                  inStock: boolean;
+                }[];
+              }[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+              /** @description Total Matches validated by this operation's strict request contract. */
+              totalMatches: number;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicCatalogFacets: {
+    parameters: {
+      query: {
+        /**
+         * @description Field used to constrain this request.
+         * @example category
+         */
+        field: "category" | "brand" | "make" | "model";
+        /**
+         * @description Category Id used to constrain this request.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        categoryId?: string;
+        /**
+         * @description Make used to constrain this request.
+         * @example synthetic-make
+         */
+        make?: string;
+        /**
+         * @description Search used to constrain this request.
+         * @example synthetic-search
+         */
+        search?: string;
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Search catalogue category, brand and compatibility options. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Search catalogue category, brand and compatibility options",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "value": "synthetic-value",
+           *             "label": "synthetic-label"
+           *           }
+           *         ],
+           *         "nextCursor": "synthetic-nextcursor"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /** @description Value validated by this operation's strict request contract. */
+                value: string;
+                /** @description Label validated by this operation's strict request contract. */
+                label: string;
+              }[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicCatalogCategories: {
@@ -22653,6 +24706,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -22819,6 +24893,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -23210,6 +25305,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicCatalogProductsByProductId: {
@@ -23555,6 +25671,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersFavourites: {
@@ -23751,6 +25888,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -23995,6 +26153,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   deleteCustomersFavouritesByProductId: {
@@ -24216,6 +26395,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersCart: {
@@ -24388,6 +26588,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -24582,6 +26803,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -24838,6 +27080,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   deleteCustomersCartItemsByProductId: {
@@ -25059,6 +27322,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminCatalogCategories: {
@@ -25260,6 +27544,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -25492,6 +27797,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -25748,6 +28074,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -26186,6 +28533,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminCatalogProducts: {
@@ -26615,6 +28983,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -27074,6 +29463,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminCatalogProductsByProductIdCompatibilities: {
@@ -27333,6 +29743,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   deleteAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId: {
@@ -27550,6 +29981,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -27814,6 +30266,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -28116,6 +30589,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   deleteAdminCatalogProductsByProductIdImagesByImageId: {
@@ -28345,6 +30839,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -28646,6 +31161,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffInventory: {
@@ -28866,6 +31402,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffInventoryByInventoryId: {
@@ -29065,6 +31622,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -29315,6 +31893,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -29636,6 +32235,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffInventoryByInventoryIdHistory: {
@@ -29881,6 +32501,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffInventoryByInventoryIdReservations: {
@@ -30109,6 +32750,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -30391,6 +33053,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffInventoryByInventoryIdReservationsByReservationIdRelease: {
@@ -30648,6 +33331,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminInventory: {
@@ -30883,6 +33587,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicServices: {
@@ -30923,6 +33648,12 @@ export interface operations {
            *       "data": {
            *         "items": [
            *           {
+           *             "categoryId": "00000000-0000-4000-8000-000000000001",
+           *             "category": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "name": "synthetic-name",
+           *               "slug": "synthetic-slug"
+           *             },
            *             "image": {
            *               "id": "00000000-0000-4000-8000-000000000001",
            *               "url": "https://example.test/continue",
@@ -30963,6 +33694,23 @@ export interface operations {
             data: {
               /** @description Items validated by this operation's strict request contract. */
               items: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the category resource; ownership is resolved server-side.
+                 */
+                categoryId: string | null;
+                /** @description Category validated by this operation's strict request contract. */
+                category: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                  /** @description Slug validated by this operation's strict request contract. */
+                  slug: string;
+                } | null;
                 /** @description Image validated by this operation's strict request contract. */
                 image: {
                   /**
@@ -31123,6 +33871,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicServicesByServiceId: {
@@ -31151,6 +33920,12 @@ export interface operations {
            *       "success": true,
            *       "message": "Get an active service",
            *       "data": {
+           *         "categoryId": "00000000-0000-4000-8000-000000000001",
+           *         "category": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "name": "synthetic-name",
+           *           "slug": "synthetic-slug"
+           *         },
            *         "image": {
            *           "id": "00000000-0000-4000-8000-000000000001",
            *           "url": "https://example.test/continue",
@@ -31186,6 +33961,23 @@ export interface operations {
             message: string;
             /** @description Data validated by this operation's strict request contract. */
             data: {
+              /**
+               * Format: uuid
+               * @description Identifier of the category resource; ownership is resolved server-side.
+               */
+              categoryId: string | null;
+              /** @description Category validated by this operation's strict request contract. */
+              category: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+              } | null;
               /** @description Image validated by this operation's strict request contract. */
               image: {
                 /**
@@ -31361,6 +34153,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicBookingPolicy: {
@@ -31491,6 +34304,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -31696,6 +34530,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -31920,6 +34775,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminServices: {
@@ -31952,6 +34828,11 @@ export interface operations {
          *     }
          */
         "application/json": {
+          /**
+           * Format: uuid
+           * @description Identifier of the category resource; ownership is resolved server-side.
+           */
+          categoryId?: string | null;
           /** @description Name validated by this operation's strict request contract. */
           name: string;
           /** @description Slug validated by this operation's strict request contract. */
@@ -32175,6 +35056,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   patchAdminServicesByServiceId: {
@@ -32208,6 +35110,11 @@ export interface operations {
           expectedVersion: number;
           /** @description Name validated by this operation's strict request contract. */
           name?: string;
+          /**
+           * Format: uuid
+           * @description Identifier of the category resource; ownership is resolved server-side.
+           */
+          categoryId?: string | null;
           /** @description Slug validated by this operation's strict request contract. */
           slug?: string;
           /** @description Description validated by this operation's strict request contract. */
@@ -32437,6 +35344,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -32720,6 +35648,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersBookings: {
@@ -32929,6 +35878,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -33181,6 +36151,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersBookingsByBookingId: {
@@ -33380,6 +36371,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -33647,6 +36659,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postCustomersBookingsByBookingIdCancel: {
@@ -33888,6 +36921,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -34149,6 +37203,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postCustomersBookingsByBookingIdQuotesByQuoteIdReject: {
@@ -34401,6 +37476,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffBookings: {
@@ -34630,6 +37726,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -34874,6 +37991,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffBookingSlots: {
@@ -35106,6 +38244,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -35368,6 +38527,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffBookingsByBookingId: {
@@ -35567,6 +38747,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -35829,6 +39030,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffBookingsByBookingIdDisruption: {
@@ -36070,6 +39292,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -36332,6 +39575,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -36631,6 +39895,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -36947,6 +40232,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffBookingsByBookingIdQuotesByQuoteIdIssue: {
@@ -37190,6 +40496,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -37451,6 +40778,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffBookingsByBookingIdQuotesByQuoteIdExpire: {
@@ -37694,6 +41042,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -37990,6 +41359,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -38297,6 +41687,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffBookingsByBookingIdWorkOrdersByWorkOrderIdStatus: {
@@ -38552,6 +41963,1495 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicServicesDiscovery: {
+    parameters: {
+      query?: {
+        /**
+         * @description Search used to constrain this request.
+         * @example synthetic-search
+         */
+        search?: string;
+        /**
+         * @description Category Id used to constrain this request.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        categoryId?: string;
+        /**
+         * @description Pricing Type used to constrain this request.
+         * @example FIXED
+         */
+        pricingType?: "FIXED" | "QUOTE_REQUIRED";
+        /**
+         * @description Sort used to constrain this request.
+         * @example name
+         */
+        sort?: "name" | "newest" | "duration_asc";
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Search active services with exact totals. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Search active services with exact totals",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "categoryId": "00000000-0000-4000-8000-000000000001",
+           *             "category": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "name": "synthetic-name",
+           *               "slug": "synthetic-slug"
+           *             },
+           *             "image": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "url": "https://example.test/continue",
+           *               "altText": "synthetic-alttext",
+           *               "sortOrder": 1,
+           *               "isPrimary": true,
+           *               "width": 1,
+           *               "height": 1
+           *             },
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "name": "synthetic-name",
+           *             "slug": "synthetic-slug",
+           *             "description": "synthetic-description",
+           *             "shortDescription": "synthetic-shortdescription",
+           *             "pricingType": "FIXED",
+           *             "priceKobo": "300000",
+           *             "currency": "NGN",
+           *             "durationMinutes": "synthetic-durationminutes",
+           *             "isActive": true,
+           *             "version": 1,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z"
+           *           }
+           *         ],
+           *         "totalMatches": 0,
+           *         "nextCursor": "synthetic-nextcursor"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the category resource; ownership is resolved server-side.
+                 */
+                categoryId: string | null;
+                /** @description Category validated by this operation's strict request contract. */
+                category: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                  /** @description Slug validated by this operation's strict request contract. */
+                  slug: string;
+                } | null;
+                /** @description Image validated by this operation's strict request contract. */
+                image: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description HTTPS location validated against the operation's server-side allowlist. */
+                  url: string;
+                  /** @description Alt Text validated by this operation's strict request contract. */
+                  altText: string | null;
+                  /** @description Sort Order validated by this operation's strict request contract. */
+                  sortOrder: number;
+                  /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                  isPrimary: boolean;
+                  /** @description Width validated by this operation's strict request contract. */
+                  width: number;
+                  /** @description Height validated by this operation's strict request contract. */
+                  height: number;
+                } | null;
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Short Description validated by this operation's strict request contract. */
+                shortDescription: string | null;
+                /**
+                 * @description Pricing Type validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                pricingType: "FIXED" | "QUOTE_REQUIRED";
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                priceKobo: string | null;
+                /**
+                 * @description Currency validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                currency: "NGN";
+                /** @description Duration Minutes validated by this operation's strict request contract. */
+                durationMinutes: number | null;
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /** @description Version validated by this operation's strict request contract. */
+                version: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              }[];
+              /** @description Total Matches validated by this operation's strict request contract. */
+              totalMatches: number;
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicServicesCategories: {
+    parameters: {
+      query?: {
+        /**
+         * @description Search used to constrain this request.
+         * @example synthetic-search
+         */
+        search?: string;
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: List active service category options. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "List active service category options",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "name": "synthetic-name",
+           *             "slug": "synthetic-slug"
+           *           }
+           *         ],
+           *         "nextCursor": "synthetic-nextcursor"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+              }[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getAdminServiceCategories: {
+    parameters: {
+      query?: {
+        /**
+         * @description Search used to constrain this request.
+         * @example synthetic-search
+         */
+        search?: string;
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+        /**
+         * @description Is Active used to constrain this request.
+         * @example true
+         */
+        isActive?: "true" | "false";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: List service categories for administration. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "List service categories for administration",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "name": "synthetic-name",
+           *             "slug": "synthetic-slug",
+           *             "description": "synthetic-description",
+           *             "isActive": true,
+           *             "version": 0,
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z"
+           *           }
+           *         ],
+           *         "nextCursor": "synthetic-nextcursor"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                isActive: boolean;
+                /** @description Version validated by this operation's strict request contract. */
+                version: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              }[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  postAdminServiceCategories: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "name": "synthetic-name",
+         *       "slug": "synthetic-slug",
+         *       "description": "synthetic-description",
+         *       "isActive": true
+         *     }
+         */
+        "application/json": {
+          /** @description Name validated by this operation's strict request contract. */
+          name: string;
+          /** @description Slug validated by this operation's strict request contract. */
+          slug: string;
+          /** @description Description validated by this operation's strict request contract. */
+          description?: string | null;
+          /**
+           * @description Boolean control for is active; authorization is still enforced server-side.
+           * @default true
+           */
+          isActive?: boolean;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Create a service category. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Create a service category",
+           *       "data": {
+           *         "id": "00000000-0000-4000-8000-000000000001",
+           *         "name": "synthetic-name",
+           *         "slug": "synthetic-slug",
+           *         "description": "synthetic-description",
+           *         "isActive": true,
+           *         "version": 0,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /**
+               * Format: uuid
+               * @description Identifier of the id resource; ownership is resolved server-side.
+               */
+              id: string;
+              /** @description Name validated by this operation's strict request contract. */
+              name: string;
+              /** @description Slug validated by this operation's strict request contract. */
+              slug: string;
+              /** @description Description validated by this operation's strict request contract. */
+              description: string | null;
+              /** @description Boolean control for is active; authorization is still enforced server-side. */
+              isActive: boolean;
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Duplicate slug or stale version */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicServicesCategoriesByCategoryId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the category resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        categoryId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Get an active category backed by an active service. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Get an active category backed by an active service",
+           *       "data": {
+           *         "id": "00000000-0000-4000-8000-000000000001",
+           *         "name": "synthetic-name",
+           *         "slug": "synthetic-slug"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /**
+               * Format: uuid
+               * @description Identifier of the id resource; ownership is resolved server-side.
+               */
+              id: string;
+              /** @description Name validated by this operation's strict request contract. */
+              name: string;
+              /** @description Slug validated by this operation's strict request contract. */
+              slug: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Inactive, empty or unknown category */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  patchAdminServiceCategoriesByCategoryId: {
+    parameters: {
+      query?: never;
+      header: {
+        /**
+         * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+         * @example synthetic-token-value-not-a-real-secret
+         */
+        "x-csrf-token": string;
+      };
+      path: {
+        /**
+         * @description Identifier selecting the category resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        categoryId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        /**
+         * @example {
+         *       "name": "synthetic-name",
+         *       "slug": "synthetic-slug",
+         *       "description": "synthetic-description",
+         *       "isActive": true,
+         *       "expectedVersion": 0
+         *     }
+         */
+        "application/json": {
+          /** @description Name validated by this operation's strict request contract. */
+          name?: string;
+          /** @description Slug validated by this operation's strict request contract. */
+          slug?: string;
+          /** @description Description validated by this operation's strict request contract. */
+          description?: string | null;
+          /** @description Boolean control for is active; authorization is still enforced server-side. */
+          isActive?: boolean;
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
+        };
+      };
+    };
+    responses: {
+      /** @description Success: Update or archive a service category. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Update or archive a service category",
+           *       "data": {
+           *         "id": "00000000-0000-4000-8000-000000000001",
+           *         "name": "synthetic-name",
+           *         "slug": "synthetic-slug",
+           *         "description": "synthetic-description",
+           *         "isActive": true,
+           *         "version": 0,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /**
+               * Format: uuid
+               * @description Identifier of the id resource; ownership is resolved server-side.
+               */
+              id: string;
+              /** @description Name validated by this operation's strict request contract. */
+              name: string;
+              /** @description Slug validated by this operation's strict request contract. */
+              slug: string;
+              /** @description Description validated by this operation's strict request contract. */
+              description: string | null;
+              /** @description Boolean control for is active; authorization is still enforced server-side. */
+              isActive: boolean;
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Unknown category */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Duplicate slug or stale version */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -38829,6 +43729,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersOrders: {
@@ -39040,6 +43961,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersOrdersByOrderId: {
@@ -39239,6 +44181,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -39498,6 +44461,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffOrders: {
@@ -39719,6 +44703,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffOrdersByOrderId: {
@@ -39918,6 +44923,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -40183,6 +45209,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminOrdersExpire: {
@@ -40397,6 +45444,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -40629,6 +45697,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminPromotions: {
@@ -40830,6 +45919,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -41098,6 +46208,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminPromotionsByPromotionId: {
@@ -41297,6 +46428,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -41588,6 +46740,982 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getCustomersInvoicesByInvoiceIdDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the invoice resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        invoiceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Read an owned invoice document. */
+      200: {
+        headers: {
+          "Cache-Control"?: "private, no-store";
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Read an owned invoice document",
+           *       "data": {
+           *         "schemaVersion": 1,
+           *         "issuer": {
+           *           "name": "synthetic-name",
+           *           "address": "synthetic-address",
+           *           "paymentTerms": "synthetic-paymentterms"
+           *         },
+           *         "billTo": {
+           *           "name": "synthetic-name",
+           *           "address": "synthetic-address",
+           *           "reference": "00000000-0000-4000-8000-000000000001"
+           *         },
+           *         "source": {
+           *           "type": "ORDER",
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "reference": "synthetic-reference",
+           *           "description": "synthetic-description"
+           *         },
+           *         "lines": [
+           *           {
+           *             "description": "synthetic-description",
+           *             "quantity": 1,
+           *             "unitPriceKobo": "300000",
+           *             "subtotalKobo": "300000"
+           *           }
+           *         ],
+           *         "discountKobo": "300000",
+           *         "deliveryKobo": "300000",
+           *         "detailBasis": "SNAPSHOT",
+           *         "id": "00000000-0000-4000-8000-000000000001",
+           *         "invoiceNumber": "synthetic-invoicenumber",
+           *         "currency": "NGN",
+           *         "status": "ISSUED",
+           *         "version": 0,
+           *         "issuedAt": "2030-01-15T10:00:00.000Z",
+           *         "dueAt": "2030-01-15T10:00:00.000Z",
+           *         "paidAt": "2030-01-15T10:00:00.000Z",
+           *         "subtotalKobo": "300000",
+           *         "taxKobo": "300000",
+           *         "depositCreditKobo": "300000",
+           *         "totalKobo": "300000",
+           *         "receipts": [
+           *           {
+           *             "paymentId": "00000000-0000-4000-8000-000000000001",
+           *             "paymentNumber": "synthetic-paymentnumber",
+           *             "amountKobo": "300000",
+           *             "confirmedAt": "2030-01-15T10:00:00.000Z",
+           *             "refundedKobo": "300000"
+           *           }
+           *         ],
+           *         "paymentRequests": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "paymentNumber": "synthetic-paymentnumber",
+           *             "amountKobo": "300000",
+           *             "status": "REQUIRES_PAYMENT",
+           *             "succeededAt": "2030-01-15T10:00:00.000Z"
+           *           }
+           *         ]
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /**
+               * @description Schema Version validated by this operation's strict request contract.
+               * @enum {number}
+               */
+              schemaVersion: 1;
+              /** @description Boolean control for issuer; authorization is still enforced server-side. */
+              issuer: {
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Address validated by this operation's strict request contract. */
+                address: string;
+                /** @description Payment Terms validated by this operation's strict request contract. */
+                paymentTerms: string;
+              };
+              /** @description Bill To validated by this operation's strict request contract. */
+              billTo: {
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Address validated by this operation's strict request contract. */
+                address: string | null;
+                /**
+                 * Format: uuid
+                 * @description Reference validated by this operation's strict request contract.
+                 */
+                reference: string;
+              };
+              /** @description Source validated by this operation's strict request contract. */
+              source: {
+                /**
+                 * @description Type validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION";
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Reference validated by this operation's strict request contract. */
+                reference: string;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string;
+              };
+              /** @description Lines validated by this operation's strict request contract. */
+              lines: {
+                /** @description Description validated by this operation's strict request contract. */
+                description: string;
+                /** @description Quantity validated by this operation's strict request contract. */
+                quantity: number;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                unitPriceKobo: string;
+                /** @description Subtotal Kobo validated by this operation's strict request contract. */
+                subtotalKobo: string;
+              }[];
+              /** @description Discount Kobo validated by this operation's strict request contract. */
+              discountKobo: string;
+              /** @description Delivery Kobo validated by this operation's strict request contract. */
+              deliveryKobo: string;
+              /**
+               * @description Detail Basis validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              detailBasis: "SNAPSHOT" | "SOURCE_RECORDS" | "LEGACY_SUMMARY";
+              /**
+               * Format: uuid
+               * @description Identifier of the id resource; ownership is resolved server-side.
+               */
+              id: string;
+              /** @description Invoice Number validated by this operation's strict request contract. */
+              invoiceNumber: string;
+              /**
+               * @description Currency validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              currency: "NGN";
+              /**
+               * @description Requested or filtered lifecycle state from the documented enum.
+               * @enum {string}
+               */
+              status: "ISSUED" | "PAID" | "VOID";
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              issuedAt: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              dueAt: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              paidAt: string | null;
+              /** @description Subtotal Kobo validated by this operation's strict request contract. */
+              subtotalKobo: string;
+              /** @description Tax Kobo validated by this operation's strict request contract. */
+              taxKobo: string;
+              /** @description Deposit Credit Kobo validated by this operation's strict request contract. */
+              depositCreditKobo: string;
+              /** @description Total Kobo validated by this operation's strict request contract. */
+              totalKobo: string;
+              /** @description Receipts validated by this operation's strict request contract. */
+              receipts: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the payment resource; ownership is resolved server-side.
+                 */
+                paymentId: string;
+                /** @description Payment Number validated by this operation's strict request contract. */
+                paymentNumber: string;
+                /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
+                amountKobo: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                confirmedAt: string;
+                /** @description Refunded Kobo validated by this operation's strict request contract. */
+                refundedKobo: string;
+              }[];
+              /** @description Payment Requests validated by this operation's strict request contract. */
+              paymentRequests: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Payment Number validated by this operation's strict request contract. */
+                paymentNumber: string;
+                /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
+                amountKobo: string;
+                /**
+                 * @description Requested or filtered lifecycle state from the documented enum.
+                 * @enum {string}
+                 */
+                status:
+                  | "REQUIRES_PAYMENT"
+                  | "REQUIRES_REVIEW"
+                  | "PROCESSING"
+                  | "SUCCEEDED"
+                  | "CANCELLED"
+                  | "EXPIRED";
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                succeededAt: string | null;
+              }[];
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Customer role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Record unavailable or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No eligible settlement or inconsistent document data */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getCustomersInvoicesByInvoiceIdDownload: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the invoice resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        invoiceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Download an owned invoice document. */
+      200: {
+        headers: {
+          "Cache-Control"?: "private, no-store";
+          "Content-Disposition"?: string;
+          "X-Document-Id"?: string;
+          "X-Document-Type"?: "invoice";
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Customer role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Record unavailable or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No eligible settlement or inconsistent document data */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Download rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getCustomersPaymentsByPaymentIdReceiptDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the payment resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        paymentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Read an owned confirmed payment receipt document. */
+      200: {
+        headers: {
+          "Cache-Control"?: "private, no-store";
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Read an owned confirmed payment receipt document",
+           *       "data": {
+           *         "paymentId": "00000000-0000-4000-8000-000000000001",
+           *         "paymentNumber": "synthetic-paymentnumber",
+           *         "currency": "NGN",
+           *         "issuer": {
+           *           "name": "synthetic-name",
+           *           "address": "synthetic-address",
+           *           "paymentTerms": "synthetic-paymentterms"
+           *         },
+           *         "customerReference": "00000000-0000-4000-8000-000000000001",
+           *         "amountKobo": "300000",
+           *         "confirmedAt": "2030-01-15T10:00:00.000Z",
+           *         "method": "synthetic-method",
+           *         "refundedKobo": "300000",
+           *         "source": {
+           *           "type": "ORDER",
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "reference": "synthetic-reference",
+           *           "description": "synthetic-description"
+           *         }
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /**
+             * @description Success validated by this operation's strict request contract.
+             * @enum {boolean}
+             */
+            success: true;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /**
+               * Format: uuid
+               * @description Identifier of the payment resource; ownership is resolved server-side.
+               */
+              paymentId: string;
+              /** @description Payment Number validated by this operation's strict request contract. */
+              paymentNumber: string;
+              /**
+               * @description Currency validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              currency: "NGN";
+              /** @description Boolean control for issuer; authorization is still enforced server-side. */
+              issuer: {
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+                /** @description Address validated by this operation's strict request contract. */
+                address: string;
+                /** @description Payment Terms validated by this operation's strict request contract. */
+                paymentTerms: string;
+              };
+              /**
+               * Format: uuid
+               * @description Customer Reference validated by this operation's strict request contract.
+               */
+              customerReference: string;
+              /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
+              amountKobo: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              confirmedAt: string;
+              /** @description Method validated by this operation's strict request contract. */
+              method: string;
+              /** @description Refunded Kobo validated by this operation's strict request contract. */
+              refundedKobo: string;
+              /** @description Source validated by this operation's strict request contract. */
+              source: {
+                /**
+                 * @description Type validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                type: "ORDER" | "BOOKING" | "VEHICLE_TRANSACTION" | "INVOICE";
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Reference validated by this operation's strict request contract. */
+                reference: string;
+                /** @description Description validated by this operation's strict request contract. */
+                description: string;
+              };
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Customer role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Record unavailable or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No eligible settlement or inconsistent document data */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required provider or database is temporarily unavailable. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required provider or database is temporarily unavailable.",
+           *       "error": {
+           *         "code": "PROVIDER_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getCustomersPaymentsByPaymentIdReceipt: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /**
+         * @description Identifier selecting the payment resource.
+         * @example 00000000-0000-4000-8000-000000000001
+         */
+        paymentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Download an owned confirmed payment receipt document. */
+      200: {
+        headers: {
+          "Cache-Control"?: "private, no-store";
+          "Content-Disposition"?: string;
+          "X-Document-Id"?: string;
+          "X-Document-Type"?: "receipt";
+          [name: string]: unknown;
+        };
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Authentication required */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Customer role required */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Record unavailable or not owned */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No eligible settlement or inconsistent document data */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description One or more request fields are invalid. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "One or more request fields are invalid.",
+           *       "error": {
+           *         "code": "VALIDATION_FAILED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description Download rate limit exceeded */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required provider or database is temporarily unavailable. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required provider or database is temporarily unavailable.",
+           *       "error": {
+           *         "code": "PROVIDER_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersInvoices: {
@@ -41789,6 +47917,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -42009,6 +48158,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -42253,6 +48423,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersInvoicesByInvoiceId: {
@@ -42461,6 +48652,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffInvoicesByInvoiceId: {
@@ -42660,6 +48872,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -42916,6 +49149,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffInvoicesByInvoiceIdVoid: {
@@ -43163,6 +49417,632 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicVehiclesDiscovery: {
+    parameters: {
+      query?: {
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+        /**
+         * @description Search used to constrain this request.
+         * @example synthetic-search
+         */
+        search?: string;
+        /**
+         * @description Make used to constrain this request.
+         * @example synthetic-make
+         */
+        make?: string;
+        /**
+         * @description Model used to constrain this request.
+         * @example synthetic-model
+         */
+        model?: string;
+        /**
+         * @description Year used to constrain this request.
+         * @example synthetic-year
+         */
+        year?: string;
+        /**
+         * @description Body Type used to constrain this request.
+         * @example SEDAN
+         */
+        bodyType?:
+          | "SEDAN"
+          | "SUV"
+          | "COUPE"
+          | "HATCHBACK"
+          | "WAGON"
+          | "PICKUP"
+          | "VAN"
+          | "TRUCK"
+          | "BUS"
+          | "OTHER";
+        /**
+         * @description Transmission used to constrain this request.
+         * @example AUTOMATIC
+         */
+        transmission?: "AUTOMATIC" | "MANUAL" | "CVT" | "OTHER";
+        /**
+         * @description Fuel Type used to constrain this request.
+         * @example PETROL
+         */
+        fuelType?: "PETROL" | "DIESEL" | "HYBRID" | "ELECTRIC" | "OTHER";
+        /**
+         * @description Featured used to constrain this request.
+         * @example true
+         */
+        featured?: "true" | "false";
+        /**
+         * @description Min Price Kobo used to constrain this request.
+         * @example 300000
+         */
+        minPriceKobo?: string;
+        /**
+         * @description Max Price Kobo used to constrain this request.
+         * @example 300000
+         */
+        maxPriceKobo?: string;
+        /**
+         * @description Sort used to constrain this request.
+         * @example newest
+         */
+        sort?: "newest" | "price_asc" | "price_desc" | "year_desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Search public vehicles with exact totals and stable paging. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Search public vehicles with exact totals and stable paging",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "title": "synthetic-title",
+           *             "slug": "synthetic-slug",
+           *             "priceKobo": "300000",
+           *             "currency": "NGN",
+           *             "description": "synthetic-description",
+           *             "featured": true,
+           *             "publishedAt": "2030-01-15T10:00:00.000Z",
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "branch": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "code": "synthetic-code",
+           *               "name": "synthetic-name",
+           *               "city": "synthetic-city",
+           *               "state": "synthetic-state"
+           *             },
+           *             "vehicle": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "stockNumber": "synthetic-stocknumber",
+           *               "make": "synthetic-make",
+           *               "model": "synthetic-model",
+           *               "trim": "synthetic-trim",
+           *               "year": 1,
+           *               "mileageKm": "synthetic-mileagekm",
+           *               "transmission": "synthetic-transmission",
+           *               "fuelType": "synthetic-fueltype",
+           *               "condition": "synthetic-condition",
+           *               "bodyType": "synthetic-bodytype",
+           *               "engineSize": "synthetic-enginesize",
+           *               "driveType": "synthetic-drivetype",
+           *               "color": "synthetic-color",
+           *               "doors": "synthetic-doors",
+           *               "seats": "synthetic-seats",
+           *               "images": [
+           *                 {
+           *                   "id": "00000000-0000-4000-8000-000000000001",
+           *                   "url": "https://example.test/continue",
+           *                   "altText": "synthetic-alttext",
+           *                   "sortOrder": 1,
+           *                   "isPrimary": true,
+           *                   "width": "synthetic-width",
+           *                   "height": "synthetic-height",
+           *                   "source": "UPLOADED"
+           *                 }
+           *               ],
+           *               "conditionReports": [
+           *                 {
+           *                   "id": "00000000-0000-4000-8000-000000000001",
+           *                   "odometerKm": "synthetic-odometerkm",
+           *                   "conditionScore": "synthetic-conditionscore",
+           *                   "summary": "synthetic-summary",
+           *                   "findings": "synthetic-findings",
+           *                   "inspectedAt": "2030-01-15T10:00:00.000Z"
+           *                 }
+           *               ]
+           *             }
+           *           }
+           *         ],
+           *         "nextCursor": "synthetic-nextcursor",
+           *         "totalMatches": 0
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Title validated by this operation's strict request contract. */
+                title: string;
+                /** @description Slug validated by this operation's strict request contract. */
+                slug: string;
+                /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                priceKobo: string;
+                /**
+                 * @description Currency validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                currency: "NGN";
+                /** @description Description validated by this operation's strict request contract. */
+                description: string | null;
+                /** @description Featured validated by this operation's strict request contract. */
+                featured: boolean;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                publishedAt: string | null;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /** @description Branch validated by this operation's strict request contract. */
+                branch: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                  code: string;
+                  /** @description Name validated by this operation's strict request contract. */
+                  name: string;
+                  /** @description City validated by this operation's strict request contract. */
+                  city: string;
+                  /** @description State validated by this operation's strict request contract. */
+                  state: string;
+                };
+                /** @description Vehicle validated by this operation's strict request contract. */
+                vehicle: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Stock Number validated by this operation's strict request contract. */
+                  stockNumber: string;
+                  /** @description Make validated by this operation's strict request contract. */
+                  make: string;
+                  /** @description Model validated by this operation's strict request contract. */
+                  model: string;
+                  /** @description Trim validated by this operation's strict request contract. */
+                  trim: string | null;
+                  /** @description Year validated by this operation's strict request contract. */
+                  year: number;
+                  /** @description Mileage Km validated by this operation's strict request contract. */
+                  mileageKm: number | null;
+                  /** @description Transmission validated by this operation's strict request contract. */
+                  transmission: string | null;
+                  /** @description Fuel Type validated by this operation's strict request contract. */
+                  fuelType: string | null;
+                  /** @description Condition validated by this operation's strict request contract. */
+                  condition: string;
+                  /** @description Body Type validated by this operation's strict request contract. */
+                  bodyType: string | null;
+                  /** @description Engine Size validated by this operation's strict request contract. */
+                  engineSize: string | null;
+                  /** @description Drive Type validated by this operation's strict request contract. */
+                  driveType: string | null;
+                  /** @description Color validated by this operation's strict request contract. */
+                  color: string | null;
+                  /** @description Doors validated by this operation's strict request contract. */
+                  doors: number | null;
+                  /** @description Seats validated by this operation's strict request contract. */
+                  seats: number | null;
+                  /** @description Images validated by this operation's strict request contract. */
+                  images: {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description HTTPS location validated against the operation's server-side allowlist. */
+                    url: string;
+                    /** @description Alt Text validated by this operation's strict request contract. */
+                    altText: string | null;
+                    /** @description Sort Order validated by this operation's strict request contract. */
+                    sortOrder: number;
+                    /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                    isPrimary: boolean;
+                    /** @description Width validated by this operation's strict request contract. */
+                    width: number | null;
+                    /** @description Height validated by this operation's strict request contract. */
+                    height: number | null;
+                    /**
+                     * @description Source validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    source: "UPLOADED" | "LEGACY" | "EXTERNAL";
+                  }[];
+                  /** @description Condition Reports validated by this operation's strict request contract. */
+                  conditionReports: {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Odometer Km validated by this operation's strict request contract. */
+                    odometerKm: number | null;
+                    /** @description Condition Score validated by this operation's strict request contract. */
+                    conditionScore: number | null;
+                    /** @description Summary validated by this operation's strict request contract. */
+                    summary: string;
+                    /** @description Findings validated by this operation's strict request contract. */
+                    findings: {
+                      [key: string]: string | number | boolean | null;
+                    } | null;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    inspectedAt: string;
+                  }[];
+                };
+              }[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+              /** @description Total Matches validated by this operation's strict request contract. */
+              totalMatches: number;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getPublicVehiclesFacets: {
+    parameters: {
+      query: {
+        /**
+         * @description Field used to constrain this request.
+         * @example make
+         */
+        field: "make" | "model";
+        /**
+         * @description Make used to constrain this request.
+         * @example synthetic-make
+         */
+        make?: string;
+        /**
+         * @description Search used to constrain this request.
+         * @example synthetic-search
+         */
+        search?: string;
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Search published vehicle make or model options. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Search published vehicle make or model options",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "value": "synthetic-value",
+           *             "label": "synthetic-label"
+           *           }
+           *         ],
+           *         "nextCursor": "synthetic-nextcursor"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /** @description Value validated by this operation's strict request contract. */
+                value: string;
+                /** @description Label validated by this operation's strict request contract. */
+                label: string;
+              }[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicVehicles: {
@@ -43391,6 +50271,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicVehiclesByListingId: {
@@ -43561,6 +50462,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -43889,6 +50811,438 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+    };
+  };
+  getCustomersSavedVehiclesPage: {
+    parameters: {
+      query?: {
+        /**
+         * @description Opaque cursor returned by the preceding page.
+         * @example synthetic-cursor
+         */
+        cursor?: string;
+        /**
+         * @description Maximum number of records to return, bounded by the API.
+         * @example synthetic-limit
+         */
+        limit?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Success: Page the customer's available saved vehicles. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": true,
+           *       "message": "Page the customer's available saved vehicles",
+           *       "data": {
+           *         "items": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "vehicleListing": {
+           *               "id": "00000000-0000-4000-8000-000000000001",
+           *               "title": "synthetic-title",
+           *               "slug": "synthetic-slug",
+           *               "priceKobo": "300000",
+           *               "currency": "NGN",
+           *               "description": "synthetic-description",
+           *               "featured": true,
+           *               "publishedAt": "2030-01-15T10:00:00.000Z",
+           *               "createdAt": "2030-01-15T10:00:00.000Z",
+           *               "branch": {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "code": "synthetic-code",
+           *                 "name": "synthetic-name",
+           *                 "city": "synthetic-city",
+           *                 "state": "synthetic-state"
+           *               },
+           *               "vehicle": {
+           *                 "id": "00000000-0000-4000-8000-000000000001",
+           *                 "stockNumber": "synthetic-stocknumber",
+           *                 "make": "synthetic-make",
+           *                 "model": "synthetic-model",
+           *                 "trim": "synthetic-trim",
+           *                 "year": 1,
+           *                 "mileageKm": "synthetic-mileagekm",
+           *                 "transmission": "synthetic-transmission",
+           *                 "fuelType": "synthetic-fueltype",
+           *                 "condition": "synthetic-condition",
+           *                 "bodyType": "synthetic-bodytype",
+           *                 "engineSize": "synthetic-enginesize",
+           *                 "driveType": "synthetic-drivetype",
+           *                 "color": "synthetic-color",
+           *                 "doors": "synthetic-doors",
+           *                 "seats": "synthetic-seats",
+           *                 "images": [
+           *                   {
+           *                     "id": "00000000-0000-4000-8000-000000000001",
+           *                     "url": "https://example.test/continue",
+           *                     "altText": "synthetic-alttext",
+           *                     "sortOrder": 1,
+           *                     "isPrimary": true,
+           *                     "width": "synthetic-width",
+           *                     "height": "synthetic-height",
+           *                     "source": "UPLOADED"
+           *                   }
+           *                 ],
+           *                 "conditionReports": [
+           *                   {
+           *                     "id": "00000000-0000-4000-8000-000000000001",
+           *                     "odometerKm": "synthetic-odometerkm",
+           *                     "conditionScore": "synthetic-conditionscore",
+           *                     "summary": "synthetic-summary",
+           *                     "findings": "synthetic-findings",
+           *                     "inspectedAt": "2030-01-15T10:00:00.000Z"
+           *                   }
+           *                 ]
+           *               }
+           *             }
+           *           }
+           *         ],
+           *         "nextCursor": "synthetic-nextcursor"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": {
+            /** @description Success validated by this operation's strict request contract. */
+            success: boolean;
+            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+            message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /** @description Vehicle Listing validated by this operation's strict request contract. */
+                vehicleListing: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Title validated by this operation's strict request contract. */
+                  title: string;
+                  /** @description Slug validated by this operation's strict request contract. */
+                  slug: string;
+                  /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                  priceKobo: string;
+                  /**
+                   * @description Currency validated by this operation's strict request contract.
+                   * @enum {string}
+                   */
+                  currency: "NGN";
+                  /** @description Description validated by this operation's strict request contract. */
+                  description: string | null;
+                  /** @description Featured validated by this operation's strict request contract. */
+                  featured: boolean;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  publishedAt: string | null;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /** @description Branch validated by this operation's strict request contract. */
+                  branch: {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    code: string;
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                    /** @description City validated by this operation's strict request contract. */
+                    city: string;
+                    /** @description State validated by this operation's strict request contract. */
+                    state: string;
+                  };
+                  /** @description Vehicle validated by this operation's strict request contract. */
+                  vehicle: {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Stock Number validated by this operation's strict request contract. */
+                    stockNumber: string;
+                    /** @description Make validated by this operation's strict request contract. */
+                    make: string;
+                    /** @description Model validated by this operation's strict request contract. */
+                    model: string;
+                    /** @description Trim validated by this operation's strict request contract. */
+                    trim: string | null;
+                    /** @description Year validated by this operation's strict request contract. */
+                    year: number;
+                    /** @description Mileage Km validated by this operation's strict request contract. */
+                    mileageKm: number | null;
+                    /** @description Transmission validated by this operation's strict request contract. */
+                    transmission: string | null;
+                    /** @description Fuel Type validated by this operation's strict request contract. */
+                    fuelType: string | null;
+                    /** @description Condition validated by this operation's strict request contract. */
+                    condition: string;
+                    /** @description Body Type validated by this operation's strict request contract. */
+                    bodyType: string | null;
+                    /** @description Engine Size validated by this operation's strict request contract. */
+                    engineSize: string | null;
+                    /** @description Drive Type validated by this operation's strict request contract. */
+                    driveType: string | null;
+                    /** @description Color validated by this operation's strict request contract. */
+                    color: string | null;
+                    /** @description Doors validated by this operation's strict request contract. */
+                    doors: number | null;
+                    /** @description Seats validated by this operation's strict request contract. */
+                    seats: number | null;
+                    /** @description Images validated by this operation's strict request contract. */
+                    images: {
+                      /**
+                       * Format: uuid
+                       * @description Identifier of the id resource; ownership is resolved server-side.
+                       */
+                      id: string;
+                      /** @description HTTPS location validated against the operation's server-side allowlist. */
+                      url: string;
+                      /** @description Alt Text validated by this operation's strict request contract. */
+                      altText: string | null;
+                      /** @description Sort Order validated by this operation's strict request contract. */
+                      sortOrder: number;
+                      /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                      isPrimary: boolean;
+                      /** @description Width validated by this operation's strict request contract. */
+                      width: number | null;
+                      /** @description Height validated by this operation's strict request contract. */
+                      height: number | null;
+                      /**
+                       * @description Source validated by this operation's strict request contract.
+                       * @enum {string}
+                       */
+                      source: "UPLOADED" | "LEGACY" | "EXTERNAL";
+                    }[];
+                    /** @description Condition Reports validated by this operation's strict request contract. */
+                    conditionReports: {
+                      /**
+                       * Format: uuid
+                       * @description Identifier of the id resource; ownership is resolved server-side.
+                       */
+                      id: string;
+                      /** @description Odometer Km validated by this operation's strict request contract. */
+                      odometerKm: number | null;
+                      /** @description Condition Score validated by this operation's strict request contract. */
+                      conditionScore: number | null;
+                      /** @description Summary validated by this operation's strict request contract. */
+                      summary: string;
+                      /** @description Findings validated by this operation's strict request contract. */
+                      findings: {
+                        [key: string]: string | number | boolean | null;
+                      } | null;
+                      /**
+                       * Format: date-time
+                       * @description ISO 8601 timestamp interpreted and validated by the server.
+                       */
+                      inspectedAt: string;
+                    }[];
+                  };
+                };
+              }[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
+            };
+            /** @description Meta validated by this operation's strict request contract. */
+            meta: {
+              /** @description Identifier of the request resource; ownership is resolved server-side. */
+              requestId: string;
+            };
+          };
+        };
+      };
+      /** @description The request is malformed. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The request is malformed.",
+           *       "error": {
+           *         "code": "BAD_REQUEST"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A valid session and required assurance are missing. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A valid session and required assurance are missing.",
+           *       "error": {
+           *         "code": "UNAUTHORIZED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The actor is not authorized for this resource or action. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The actor is not authorized for this resource or action.",
+           *       "error": {
+           *         "code": "FORBIDDEN"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body. */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved. */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description The route-specific request limit was exceeded. */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "The route-specific request limit was exceeded.",
+           *       "error": {
+           *         "code": "RATE_LIMITED"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+           *       "error": {
+           *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   putCustomersSavedVehiclesByListingId: {
@@ -44124,6 +51478,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   deleteCustomersSavedVehiclesByListingId: {
@@ -44336,6 +51711,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -44616,6 +52012,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -44922,6 +52339,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffVehiclesByVehicleId: {
@@ -45121,6 +52559,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -45445,6 +52904,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehiclesListings: {
@@ -45690,6 +53170,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -45971,6 +53472,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehiclesListingsByListingIdStatus: {
@@ -46228,6 +53750,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -46503,6 +54046,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehiclesByVehicleIdAssetsUpload: {
@@ -46769,7 +54333,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. */
+      /** @description MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
       503: {
         headers: {
           [name: string]: unknown;
@@ -48011,6 +55575,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehiclesByVehicleIdConditionReports: {
@@ -48284,6 +55869,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehiclesByVehicleIdDocumentsByDocumentIdReview: {
@@ -48545,6 +56151,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehiclesByVehicleIdDocumentsByDocumentIdAccess: {
@@ -48785,6 +56412,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersVehicleInspections: {
@@ -49001,6 +56649,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postCustomersVehicleInspections: {
@@ -49012,6 +56681,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key"?: string;
       };
       path?: never;
       cookie?: never;
@@ -49155,24 +56829,21 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description The request conflicts with current state or idempotency. */
+      /** @description The listing, customer profile or owned retry result was not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description IDEMPOTENCY_CONFLICT for changed input or an incomplete retained receipt; CONFLICT for an invalid new request. No new record is created. */
       409: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "The request conflicts with current state or idempotency.",
-           *       "error": {
-           *         "code": "CONFLICT"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
@@ -49230,6 +56901,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -49461,6 +57153,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postCustomersVehicleTransactions: {
@@ -49472,6 +57185,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key"?: string;
       };
       path?: never;
       cookie?: never;
@@ -49606,24 +57324,21 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description The request conflicts with current state or idempotency. */
+      /** @description The listing, customer profile or owned retry result was not found. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description IDEMPOTENCY_CONFLICT for changed input or an incomplete retained receipt; CONFLICT for an invalid new request. No new record is created. */
       409: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          /**
-           * @example {
-           *       "success": false,
-           *       "message": "The request conflicts with current state or idempotency.",
-           *       "error": {
-           *         "code": "CONFLICT"
-           *       },
-           *       "meta": {
-           *         "requestId": "req_0000000000000001"
-           *       }
-           *     }
-           */
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
@@ -49681,6 +57396,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -49889,6 +57625,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -50159,6 +57916,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffVehicleInspections: {
@@ -50371,6 +58149,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -50654,6 +58453,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffVehicleTransactions: {
@@ -50881,6 +58701,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffVehicleTransactionsByTransactionId: {
@@ -51080,6 +58921,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -51336,6 +59198,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -51606,6 +59489,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehicleTransactionsByTransactionIdHandovers: {
@@ -51856,6 +59760,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -52123,6 +60048,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffVehicleTransactionsByTransactionIdHandoversByHandoverIdAccess: {
@@ -52363,6 +60309,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminVehicleTransactionsExpire: {
@@ -52577,6 +60544,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -53152,7 +61140,10 @@ export interface operations {
            *       "message": "Get an owned payment",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "status": "synthetic-status",
+           *         "checkoutProviders": [
+           *           "PAYSTACK"
+           *         ]
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -53164,15 +61155,17 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Get an owned payment. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
+              id: string;
+              /** @description Requested or filtered lifecycle state from the documented enum. */
+              status: string;
+              /** @description Checkout Providers validated by this operation's strict request contract. */
+              checkoutProviders: ("PAYSTACK" | "MONNIFY")[];
             } & {
               [key: string]: unknown;
             };
@@ -54425,7 +62418,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description A required provider or database is temporarily unavailable. */
+      /** @description A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
       503: {
         headers: {
           [name: string]: unknown;
@@ -54702,7 +62695,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description A required provider or database is temporarily unavailable. */
+      /** @description A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
       503: {
         headers: {
           [name: string]: unknown;
@@ -55479,7 +63472,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description A required provider or database is temporarily unavailable. */
+      /** @description A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
       503: {
         headers: {
           [name: string]: unknown;
@@ -56615,6 +64608,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersSupportEnquiriesBySupportIdMessages: {
@@ -56825,6 +64839,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -57072,6 +65107,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -57371,6 +65427,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersSupportComplaintsBySupportIdMessages: {
@@ -57581,6 +65658,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -57837,6 +65935,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postPublicSupportComplaints: {
@@ -58021,6 +66140,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -58231,6 +66371,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -58581,6 +66742,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffSupportEnquiriesBySupportIdMessages: {
@@ -58791,6 +66973,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -59054,6 +67257,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersSupportEnquiriesBySupportId: {
@@ -59275,6 +67499,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffSupportComplaintsBySupportIdMessages: {
@@ -59485,6 +67730,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -59748,6 +68014,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersSupportComplaints: {
@@ -59949,6 +68236,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -60205,6 +68513,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersSupportComplaintsBySupportId: {
@@ -60426,6 +68755,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersSupportReviews: {
@@ -60627,6 +68977,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -60951,6 +69322,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffSupportEnquiries: {
@@ -61176,6 +69568,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffSupportEnquiriesBySupportId: {
@@ -61375,6 +69788,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -61628,6 +70062,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -61893,6 +70348,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffSupportComplaints: {
@@ -62118,6 +70594,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffSupportComplaintsBySupportId: {
@@ -62317,6 +70814,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -62570,6 +71088,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -62835,6 +71374,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffSupportComplaintsBySupportIdPriority: {
@@ -63088,6 +71648,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffSupportReviews: {
@@ -63294,6 +71875,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -63559,6 +72161,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersNotifications: {
@@ -63793,6 +72416,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postCustomersNotificationsReadAll: {
@@ -63992,6 +72636,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -64236,6 +72901,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersNotificationsPreferencesCurrent: {
@@ -64408,6 +73094,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -64640,6 +73347,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -64883,6 +73611,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffNotificationsReadAll: {
@@ -65082,6 +73831,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -65326,6 +74096,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffNotificationsPreferencesCurrent: {
@@ -65498,6 +74289,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -65739,6 +74551,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminAudit: {
@@ -65806,6 +74639,7 @@ export interface operations {
           | "STAFF_PROFILE"
           | "CUSTOMER_VEHICLE"
           | "SERVICE"
+          | "SERVICE_CATEGORY"
           | "BOOKING"
           | "QUOTE"
           | "WORK_ORDER"
@@ -66035,6 +74869,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminOperationsStatus: {
@@ -66207,6 +75062,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -66422,6 +75298,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -66654,6 +75551,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminOperationsPaymentDisputes: {
@@ -66868,6 +75786,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -67095,6 +76034,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminOperationsJobsBySourceByJobIdRetry: {
@@ -67125,7 +76085,7 @@ export interface operations {
       content: {
         /**
          * @example {
-         *       "expectedAttempts": 1,
+         *       "expectedAttempts": 0,
          *       "reason": "synthetic-reason"
          *     }
          */
@@ -67266,7 +76226,7 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
-      /** @description Job state changed */
+      /** @description Job or linked notification delivery state changed */
       409: {
         headers: {
           [name: string]: unknown;
@@ -67327,6 +76287,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -67581,6 +76562,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getCustomersOverview: {
@@ -67814,6 +76816,229 @@ export interface operations {
                   count: number;
                 }[];
               };
+              /** @description Care validated by this operation's strict request contract. */
+              care?: {
+                /** @description Vehicle validated by this operation's strict request contract. */
+                vehicle: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Make validated by this operation's strict request contract. */
+                  make: string;
+                  /** @description Model validated by this operation's strict request contract. */
+                  model: string;
+                  /** @description Year validated by this operation's strict request contract. */
+                  year: number;
+                  /** @description Registration Number validated by this operation's strict request contract. */
+                  registrationNumber: string | null;
+                } | null;
+                /**
+                 * @description Vehicle Source validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                vehicleSource: "BOOKING" | "RECENT" | "NONE";
+                /** @description Current Booking validated by this operation's strict request contract. */
+                currentBooking: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Service Name validated by this operation's strict request contract. */
+                  serviceName: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUESTED" | "CONFIRMED" | "IN_PROGRESS";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  scheduledAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  requestedAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  confirmedAt: string | null;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  startedAt: string | null;
+                } | null;
+                /** @description Next Booking validated by this operation's strict request contract. */
+                nextBooking: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Service Name validated by this operation's strict request contract. */
+                  serviceName: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUESTED" | "CONFIRMED" | "IN_PROGRESS";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  scheduledAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  requestedAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  confirmedAt: string | null;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  startedAt: string | null;
+                } | null;
+                /** @description Quote validated by this operation's strict request contract. */
+                quote: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the booking resource; ownership is resolved server-side.
+                   */
+                  bookingId: string;
+                  /** @description Quote Number validated by this operation's strict request contract. */
+                  quoteNumber: string;
+                  /** @description Currency validated by this operation's strict request contract. */
+                  currency: string;
+                  /** @description Total Kobo validated by this operation's strict request contract. */
+                  totalKobo: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  issuedAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  expiresAt: string | null;
+                } | null;
+                /** @description Payment validated by this operation's strict request contract. */
+                payment: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Payment Number validated by this operation's strict request contract. */
+                  paymentNumber: string;
+                  /** @description Currency validated by this operation's strict request contract. */
+                  currency: string;
+                  /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
+                  amountKobo: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUIRES_PAYMENT" | "PROCESSING" | "REQUIRES_REVIEW";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  expiresAt: string | null;
+                } | null;
+                /** @description Order validated by this operation's strict request contract. */
+                order: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Order Number validated by this operation's strict request contract. */
+                  orderNumber: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status:
+                    | "PENDING"
+                    | "CONFIRMED"
+                    | "PROCESSING"
+                    | "READY"
+                    | "COMPLETED"
+                    | "CANCELLED";
+                  /**
+                   * @description Fulfillment Method validated by this operation's strict request contract.
+                   * @enum {string}
+                   */
+                  fulfillmentMethod: "COLLECTION" | "DELIVERY";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                } | null;
+                /** @description Inspection validated by this operation's strict request contract. */
+                inspection: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Title validated by this operation's strict request contract. */
+                  title: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUESTED" | "CONFIRMED" | "RESCHEDULED";
+                  /**
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   * @enum {string}
+                   */
+                  dateKind: "SCHEDULED" | "PREFERRED";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  startsAt: string;
+                } | null;
+                /** @description Notification validated by this operation's strict request contract. */
+                notification: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Title validated by this operation's strict request contract. */
+                  title: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  readAt: string | null;
+                } | null;
+              };
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -67940,6 +77165,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -68182,6 +77428,229 @@ export interface operations {
                   count: number;
                 }[];
               };
+              /** @description Care validated by this operation's strict request contract. */
+              care?: {
+                /** @description Vehicle validated by this operation's strict request contract. */
+                vehicle: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Make validated by this operation's strict request contract. */
+                  make: string;
+                  /** @description Model validated by this operation's strict request contract. */
+                  model: string;
+                  /** @description Year validated by this operation's strict request contract. */
+                  year: number;
+                  /** @description Registration Number validated by this operation's strict request contract. */
+                  registrationNumber: string | null;
+                } | null;
+                /**
+                 * @description Vehicle Source validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                vehicleSource: "BOOKING" | "RECENT" | "NONE";
+                /** @description Current Booking validated by this operation's strict request contract. */
+                currentBooking: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Service Name validated by this operation's strict request contract. */
+                  serviceName: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUESTED" | "CONFIRMED" | "IN_PROGRESS";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  scheduledAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  requestedAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  confirmedAt: string | null;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  startedAt: string | null;
+                } | null;
+                /** @description Next Booking validated by this operation's strict request contract. */
+                nextBooking: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Service Name validated by this operation's strict request contract. */
+                  serviceName: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUESTED" | "CONFIRMED" | "IN_PROGRESS";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  scheduledAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  requestedAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  confirmedAt: string | null;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  startedAt: string | null;
+                } | null;
+                /** @description Quote validated by this operation's strict request contract. */
+                quote: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the booking resource; ownership is resolved server-side.
+                   */
+                  bookingId: string;
+                  /** @description Quote Number validated by this operation's strict request contract. */
+                  quoteNumber: string;
+                  /** @description Currency validated by this operation's strict request contract. */
+                  currency: string;
+                  /** @description Total Kobo validated by this operation's strict request contract. */
+                  totalKobo: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  issuedAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  expiresAt: string | null;
+                } | null;
+                /** @description Payment validated by this operation's strict request contract. */
+                payment: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Payment Number validated by this operation's strict request contract. */
+                  paymentNumber: string;
+                  /** @description Currency validated by this operation's strict request contract. */
+                  currency: string;
+                  /** @description Integer amount in Nigerian kobo; the server remains authoritative. */
+                  amountKobo: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUIRES_PAYMENT" | "PROCESSING" | "REQUIRES_REVIEW";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  expiresAt: string | null;
+                } | null;
+                /** @description Order validated by this operation's strict request contract. */
+                order: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Order Number validated by this operation's strict request contract. */
+                  orderNumber: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status:
+                    | "PENDING"
+                    | "CONFIRMED"
+                    | "PROCESSING"
+                    | "READY"
+                    | "COMPLETED"
+                    | "CANCELLED";
+                  /**
+                   * @description Fulfillment Method validated by this operation's strict request contract.
+                   * @enum {string}
+                   */
+                  fulfillmentMethod: "COLLECTION" | "DELIVERY";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                } | null;
+                /** @description Inspection validated by this operation's strict request contract. */
+                inspection: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Title validated by this operation's strict request contract. */
+                  title: string;
+                  /**
+                   * @description Requested or filtered lifecycle state from the documented enum.
+                   * @enum {string}
+                   */
+                  status: "REQUESTED" | "CONFIRMED" | "RESCHEDULED";
+                  /**
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   * @enum {string}
+                   */
+                  dateKind: "SCHEDULED" | "PREFERRED";
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  startsAt: string;
+                } | null;
+                /** @description Notification validated by this operation's strict request contract. */
+                notification: {
+                  /**
+                   * Format: uuid
+                   * @description Identifier of the id resource; ownership is resolved server-side.
+                   */
+                  id: string;
+                  /** @description Title validated by this operation's strict request contract. */
+                  title: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  createdAt: string;
+                  /**
+                   * Format: date-time
+                   * @description ISO 8601 timestamp interpreted and validated by the server.
+                   */
+                  readAt: string | null;
+                } | null;
+              };
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -68308,6 +77777,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -68532,6 +78022,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -68787,6 +78298,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffFinancePolicy: {
@@ -68964,6 +78496,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -69174,6 +78727,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -69735,6 +79309,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getAdminCapabilities: {
@@ -69923,6 +79518,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -70173,6 +79789,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postAdminCapabilitiesByIdRevoke: {
@@ -70402,6 +80039,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -70648,6 +80306,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -70924,6 +80603,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffPrivacyRequests: {
@@ -71167,6 +80867,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -71482,6 +81203,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffRetentionHolds: {
@@ -71707,6 +81449,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -71999,6 +81762,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffRetentionHoldsByIdRelease: {
@@ -72237,6 +82021,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -72526,6 +82331,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -72883,6 +82709,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffOrdersByIdAftercare: {
@@ -73189,6 +83036,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -73524,6 +83392,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffOrdersByIdFulfillmentEvidence: {
@@ -73777,6 +83666,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -74157,6 +84067,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffSupportComplaintsBySupportIdAcknowledge: {
@@ -74400,6 +84331,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -74807,6 +84759,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getStaffRefunds: {
@@ -75170,6 +85143,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffRefundsByRefundIdEvidenceUpload: {
@@ -75442,6 +85436,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -75754,6 +85769,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffRefundsByRefundIdEvidenceAccess: {
@@ -76014,6 +86050,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -76303,6 +86360,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -76658,6 +86736,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -77074,6 +87173,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffDisputesByIdAcknowledge: {
@@ -77472,6 +87592,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffDisputesByIdEvidenceUpload: {
@@ -77744,6 +87885,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -78172,6 +88334,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   postStaffDisputesByIdEvidenceAccess: {
@@ -78409,6 +88592,27 @@ export interface operations {
            *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
            *       "error": {
            *         "code": "INTERNAL_ERROR"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -78825,6 +89029,27 @@ export interface operations {
           "application/json": components["schemas"]["ErrorResponse"];
         };
       };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
+      };
     };
   };
   getPublicBookingResponse: {
@@ -78928,6 +89153,27 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
       };
     };
   };
@@ -79044,6 +89290,27 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+      /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "success": false,
+           *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+           *       "error": {
+           *         "code": "DATABASE_UNAVAILABLE"
+           *       },
+           *       "meta": {
+           *         "requestId": "req_0000000000000001"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["ErrorResponse"];
+        };
       };
     };
   };

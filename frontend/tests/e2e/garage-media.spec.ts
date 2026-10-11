@@ -97,7 +97,7 @@ test("garage photos persist, reorder, change cover and revoke access on vehicle 
   await page.locator(`a[href="/dashboard/vehicles/${id}"]`).click();
   await expect(page).toHaveTitle(/Vehicle photos/, { timeout: 45000 });
   await expect(
-    page.getByText("No photos yet. Add your first vehicle photo below."),
+    page.getByRole("heading", { name: "No photos yet", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Prepare another photo" }).click();
   const frontUpload = await prepare(page, "front.png", 1);

@@ -116,23 +116,33 @@ test.beforeEach(() => {
 });
 async function setup(page: Page, role = "CUSTOMER", photos = true) {
   const writes: { path: string; body: unknown; csrf?: string }[] = [];
-  const state = { status: 200, slow: 0, offline: false, wrong: false };
-  await page.route("**/api/v1/auth/session", (r) =>
-    r.fulfill({
-      status: role === "ANONYMOUS" ? 401 : 200,
+  const state = {
+    status: 200,
+    slow: 0,
+    offline: false,
+    wrong: false,
+    role,
+    sessionStatus: role === "ANONYMOUS" ? 401 : 200,
+    sessionDelay: 0,
+  };
+  await page.route("**/api/v1/auth/session", async (r) => {
+    if (state.sessionDelay)
+      await new Promise((resolve) => setTimeout(resolve, state.sessionDelay));
+    return r.fulfill({
+      status: state.sessionStatus,
       json:
-        role === "ANONYMOUS"
+        state.sessionStatus !== 200
           ? { success: false, error: { code: "UNAUTHORIZED" }, meta: { requestId: "qa" } }
           : success({
               id: id(60),
-              user: { id: id(61), email: "product-qa@example.test", role },
+              user: { id: id(61), email: "product-qa@example.test", role: state.role },
               mfaRequired: false,
               mfaVerifiedAt: null,
               expiresAt: "2099-01-01T00:00:00Z",
               idleExpiresAt: "2099-01-01T00:00:00Z",
             }),
-    }),
-  );
+    });
+  });
   await page.route("**/api/v1/auth/csrf", (r) =>
     r.fulfill({ json: success({ csrfToken: "s".repeat(64) }) }),
   );
@@ -198,7 +208,7 @@ async function axe(page: Page) {
     .analyze();
   expect(result.violations).toEqual([]);
 }
-for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536])
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
   test(`responsive ${width}`, async ({ page }) => {
     await setup(page);
     const errors: string[] = [];
@@ -237,6 +247,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536])
       for (const [name, selector] of [
         ["purchase", ".pd-purchase"],
         ["details", ".pd-details-grid"],
+        ["ordering", ".pd-ordering"],
         ["related", ".pd-related"],
       ]) {
         const section = page.locator(selector);
@@ -310,10 +321,12 @@ test("quantity validation, confirmed receipts, duplicate guard and favourites", 
   await quantity.fill("3");
   state.slow = 500;
   await submit.dblclick();
-  await expect(page.getByRole("heading", { name: "Cart updated" })).toBeFocused();
+  await expect(page.getByRole("dialog", { name: "Cart updated" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Close cart summary" })).toBeFocused();
   expect(writes).toHaveLength(1);
   expect(writes[0].body).toEqual({ quantity: 3 });
   expect(writes[0].csrf).toBeTruthy();
+  await page.getByRole("button", { name: "Continue shopping" }).click();
   await page.getByRole("button", { name: "Save to favourites", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Product saved", exact: true }),
@@ -329,20 +342,115 @@ test("quantity validation, confirmed receipts, duplicate guard and favourites", 
   await axe(page);
   await page.screenshot({ path: path.join(os.tmpdir(), "product-detail-success.png") });
 });
-test("anonymous and operator guidance sends no mutation", async ({ page }) => {
-  for (const role of ["ANONYMOUS", "STAFF"]) {
-    await setup(page, role);
+for (const role of ["ANONYMOUS", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
+  test(`${role} receives account guidance without shopping controls`, async ({
+    page,
+  }) => {
+    const { writes } = await setup(page, role);
     await page.goto(routePath);
-    await page.getByRole("button", { name: "Save quantity to cart" }).click();
-    await expect(page.locator(".pd-feedback")).toContainText(
-      role === "ANONYMOUS" ? "Sign in to continue" : "Customer account required",
+    await expect(page.locator(".pd-access")).toContainText(
+      role === "ANONYMOUS"
+        ? "A customer account is required"
+        : "Shopping actions are available to customer accounts",
     );
+    await expect(page.getByRole("button", { name: "Save quantity to cart" })).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByRole("button", { name: "Save to favourites", exact: true }),
+    ).toHaveCount(0);
+    await expect(page.getByLabel("Quantity", { exact: true })).toHaveCount(0);
+    await expect(
+      page.locator(".pd-actions").getByRole("link", { name: "View cart", exact: true }),
+    ).toHaveCount(0);
     if (role === "ANONYMOUS")
-      await expect(page.locator(".pd-feedback a")).toHaveAttribute(
-        "href",
-        `/login?next=${encodeURIComponent(routePath)}`,
-      );
-  }
+      await expect(
+        page.locator(".pd-access").getByRole("link", { name: "Sign in to continue" }),
+      ).toHaveAttribute("href", `/login?next=${encodeURIComponent(routePath)}`);
+    else
+      await expect(
+        page.locator(".pd-access").getByRole("link", { name: "Go to dashboard" }),
+      ).toHaveAttribute("href", "/dashboard");
+    await expect(
+      page.locator(".pd-access").getByRole("link", { name: "Ask our team" }),
+    ).toHaveAttribute("href", "/contact#enquiry");
+    expect(writes).toEqual([]);
+    await axe(page);
+    await page
+      .locator(".pd-purchase")
+      .screenshot({ path: path.join(os.tmpdir(), `product-detail-access-${role}.png`) });
+  });
+}
+test("checking and failed account reads hide mutations until retry succeeds", async ({
+  page,
+}) => {
+  const { state, writes } = await setup(page);
+  state.sessionDelay = 900;
+  state.sessionStatus = 503;
+  await page.goto(routePath);
+  await expect(page.locator(".pd-access")).toContainText("Checking your account");
+  await expect(page.getByRole("button", { name: "Save quantity to cart" })).toHaveCount(
+    0,
+  );
+  const retry = page.getByRole("button", { name: "Retry account check" });
+  await expect(retry).toBeVisible();
+  await axe(page);
+  state.sessionStatus = 200;
+  state.sessionDelay = 0;
+  await retry.click();
+  await expect(page.getByRole("button", { name: "Save quantity to cart" })).toBeEnabled();
+  expect(writes).toEqual([]);
+});
+test("fresh mutation preflight refuses a changed role and session events refresh access", async ({
+  page,
+}) => {
+  const { state, writes } = await setup(page);
+  await page.goto(routePath);
+  await expect(page.getByLabel("Quantity", { exact: true })).toBeVisible();
+  state.role = "ADMIN";
+  await page.getByRole("button", { name: "Save quantity to cart" }).click();
+  await expect(page.locator(".pd-access")).toContainText(
+    "Shopping actions are available to customer accounts",
+  );
+  expect(writes).toEqual([]);
+  state.role = "CUSTOMER";
+  await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
+  await expect(page.getByLabel("Quantity", { exact: true })).toHaveValue("1");
+});
+test("product navigation, part identifiers, single mobile price and delivery guidance", async ({
+  page,
+}) => {
+  await setup(page);
+  await page.goto(routePath);
+  await expect(page.locator(".pd-identifiers")).toContainText("15601-37010");
+  const nav = page.getByRole("navigation", { name: "Product sections" });
+  await nav.getByRole("link", { name: "Compatibility", exact: true }).click();
+  await expect(page).toHaveURL(/#product-compatibility$/);
+  await expect(
+    page.getByRole("heading", { name: "Vehicle compatibility" }),
+  ).toBeInViewport();
+  await nav.getByRole("link", { name: "Delivery", exact: true }).click();
+  await expect(page).toHaveURL(/#product-delivery$/);
+  const collection = page.locator(".pd-ordering-faq summary").first();
+  await collection.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".pd-ordering-faq details").first()).toHaveAttribute(
+    "open",
+    "",
+  );
+  await expect(page.locator(".pd-ordering-faq")).toContainText("beside Kilimanjaro");
+  await page.locator(".pd-ordering-faq summary").nth(1).click();
+  await expect(
+    page.getByText(/Checkout shows the currently available delivery areas/),
+  ).toBeVisible();
+  await axe(page);
+  await page.setViewportSize({ width: 320, height: 800 });
+  await expect(page.locator(".pd-mobile-price")).toBeVisible();
+  await expect(page.locator(".pd-mobile-price del")).toContainText("28,000");
+  await expect(page.locator(".pd-purchase > .pd-price-row")).toBeHidden();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+  ).toBe(false);
 });
 test("failure states retain quantity and never claim success", async ({ page }) => {
   const { state } = await setup(page);
@@ -353,6 +461,10 @@ test("failure states retain quantity and never claim success", async ({ page }) 
     await page.getByRole("button", { name: "Save quantity to cart" }).click();
     await expect(page.locator(".pd-feedback[role=alert]")).toBeVisible();
     await expect(page.getByLabel("Quantity", { exact: true })).toHaveValue("4");
+    await expect(page.locator("#quantity-error")).toHaveText(
+      "Check this field and enter a valid value.",
+    );
+    await expect(page.getByLabel("Quantity", { exact: true })).toBeFocused();
     await expect(page.getByRole("heading", { name: "Cart updated" })).toHaveCount(0);
   }
   state.status = 200;
@@ -516,7 +628,7 @@ test("mobile touch gallery, short viewport and quantity keyboard", async ({
     await page.getByLabel("Quantity", { exact: true }).fill("2");
     await page.keyboard.press("Enter");
     await expect(
-      page.getByRole("heading", { name: "Cart updated", exact: true }),
+      page.getByRole("button", { name: "Close cart summary", exact: true }),
     ).toBeFocused();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),

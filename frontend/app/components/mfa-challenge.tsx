@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Smartphone, KeyRound, FileKey, ChevronRight } from "lucide-react";
 import { startAuthentication } from "@simplewebauthn/browser";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import {
@@ -27,7 +28,12 @@ export function MfaChallenge({
   onCheck: () => void;
 }) {
   const operation = useMfaOperation();
+  const firstMethod = useRef<HTMLButtonElement>(null);
   const [options, setOptions] = useState<Options>();
+  const keyAction = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (options?.method === "webauthn") keyAction.current?.focus();
+  }, [options]);
   const [unavailable, setUnavailable] = useState<string>();
   const [canSetup, setCanSetup] = useState(false);
   async function prepare(method: Method) {
@@ -53,7 +59,11 @@ export function MfaChallenge({
           setOptions({ method });
         }
       } catch (error) {
-        if (error instanceof ApiError && error.code === "TOKEN_INVALID")
+        if (
+          error instanceof ApiError &&
+          error.status === 400 &&
+          error.code === "TOKEN_INVALID"
+        )
           setUnavailable(
             "This method is not available for this account. Choose another method.",
           );
@@ -83,7 +93,12 @@ export function MfaChallenge({
             else recoveryOptionsSchema.parse(value);
             return true;
           } catch (error) {
-            if (error instanceof ApiError && error.code === "TOKEN_INVALID") return false;
+            if (
+              error instanceof ApiError &&
+              error.status === 400 &&
+              error.code === "TOKEN_INVALID"
+            )
+              return false;
             throw error;
           }
         }),
@@ -97,33 +112,65 @@ export function MfaChallenge({
       );
     });
   }
-  const disabled = operation.busy || operation.uncertain || operation.requiresMfa;
+  const disabled =
+    operation.busy || operation.uncertain || operation.requiresMfa || operation.waiting;
   return (
     <>
-      <p>
-        Use a factor already registered to this account. Recovery codes can each be used
-        once.
+      <p className="login-intro">
+        {options?.method === "totp"
+          ? "Enter the current code from your authenticator app."
+          : options?.method === "recovery-code"
+            ? "Enter one of your saved recovery codes."
+            : options?.method === "webauthn"
+              ? "Your security key is ready. Continue to your browser?s prompt to verify."
+              : "Choose a method already linked to your account."}
       </p>
-      <div className="actions" role="group" aria-label="MFA method">
-        {(
-          [
-            ["totp", "Authenticator"],
-            ["webauthn", "Prepare security key"],
-            ["recovery-code", "Recovery code"],
-          ] as const
-        ).map(([method, label]) => (
-          <button
-            key={method}
-            className="button secondary"
-            disabled={disabled}
-            onClick={() => void prepare(method)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {!options && (
+        <div className="mfa-methods" role="group" aria-label="MFA method">
+          {(
+            [
+              ["totp", "Authenticator", "Use a six-digit code from your app", Smartphone],
+              [
+                "webauthn",
+                "Prepare security key",
+                "Use your device or a physical key",
+                KeyRound,
+              ],
+              [
+                "recovery-code",
+                "Recovery code",
+                "Use one of your saved codes once",
+                FileKey,
+              ],
+            ] as const
+          ).map(([method, label, hint, Icon]) => (
+            <button
+              key={method}
+              ref={method === "totp" ? firstMethod : undefined}
+              type="button"
+              className="mfa-method"
+              aria-label={label}
+              disabled={disabled}
+              onClick={() => void prepare(method)}
+            >
+              <Icon size={20} aria-hidden="true" />
+              <span>
+                <strong>{label}</strong>
+                <small>{hint}</small>
+              </span>
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+      )}
       <Feedback message={operation.error} />
-      <p role="status">
+      {operation.waiting && (
+        <p className="mfa-hint">
+          Try again in about {Math.ceil(operation.waitSeconds / 60)}{" "}
+          {operation.waitSeconds > 60 ? "minutes" : "minute"}.
+        </p>
+      )}
+      <p className="mfa-operation-status" role="status">
         {unavailable}
         {operation.busy ? " Preparing or verifying your security step..." : ""}
       </p>
@@ -156,7 +203,8 @@ export function MfaChallenge({
       )}
       {options?.method === "webauthn" && (
         <button
-          className="button"
+          ref={keyAction}
+          className="button login-submit"
           disabled={disabled}
           onClick={() =>
             void operation.run(async (signal, submitted) => {
@@ -182,14 +230,29 @@ export function MfaChallenge({
           Use security key
         </button>
       )}
+      {options && !operation.uncertain && !operation.requiresMfa && (
+        <button
+          type="button"
+          className="mfa-text-button"
+          disabled={disabled}
+          onClick={() => {
+            setOptions(undefined);
+            setUnavailable(undefined);
+            operation.clearError();
+            requestAnimationFrame(() => firstMethod.current?.focus());
+          }}
+        >
+          Choose another method
+        </button>
+      )}
       {operation.uncertain || operation.requiresMfa ? (
         <button className="button secondary" onClick={onCheck}>
           Check session status
         </button>
-      ) : (
-        <div className="detail-section">
+      ) : !options ? (
+        <div className="mfa-first-factor">
           <button
-            className="button secondary"
+            className="mfa-text-button"
             disabled={disabled}
             onClick={() => void checkSetup()}
           >
@@ -201,7 +264,7 @@ export function MfaChallenge({
             </button>
           )}
         </div>
-      )}
+      ) : null}
     </>
   );
 }

@@ -288,9 +288,9 @@ test("Help categories open real articles and related guidance", async ({ page })
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "How do I protect my account with MFA?",
   );
-  await expect(page.getByRole("link", { name: "Open account security" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Sign in to continue" })).toHaveAttribute(
     "href",
-    "/dashboard/security",
+    "/login?next=%2Fdashboard%2Fsecurity",
   );
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });

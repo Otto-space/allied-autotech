@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { AuthShell } from "../components/auth-shell";
+import { AccessShell } from "../components/access-shell";
+import "./register.css";
 import { RegisterForm } from "../components/register-form";
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -7,8 +8,8 @@ export const metadata: Metadata = {
 };
 export default function Page() {
   return (
-    <AuthShell>
+    <AccessShell mode="register">
       <RegisterForm />
-    </AuthShell>
+    </AccessShell>
   );
 }

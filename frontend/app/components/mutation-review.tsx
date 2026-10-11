@@ -4,6 +4,7 @@ import { ApiError } from "@/lib/api/client";
 import { Feedback } from "./feedback";
 
 export type MutationProposal = {
+  presentation?: "quotation";
   title: string;
   description: string;
   facts: { label: string; value: string }[];
@@ -29,17 +30,20 @@ export function MutationReview({
   const cancel = useRef<HTMLButtonElement>(null);
   const previousFocus = useRef<Element | null>(null);
   const submitting = useRef(false);
+  const active = useRef(true);
   const [busy, setBusy] = useState(false);
   const [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string>();
   const [attempted, setAttempted] = useState(false);
   useEffect(() => {
+    active.current = true;
     // Keep the original opener across development Strict Mode's effect replay.
     previousFocus.current ??= document.activeElement;
     const modal = dialog.current;
     modal?.showModal();
     cancel.current?.focus();
     return () => {
+      active.current = false;
       const opener = previousFocus.current;
       queueMicrotask(() => {
         if (!modal?.isConnected && opener instanceof HTMLElement && opener.isConnected)
@@ -60,9 +64,11 @@ export function MutationReview({
     setError(undefined);
     try {
       await proposal.submit();
+      if (!active.current) return;
       onSuccess();
       onClose();
     } catch (error_) {
+      if (!active.current) return;
       const rejected =
         error_ instanceof ApiError && error_.status >= 400 && error_.status < 500;
       setUncertain(!rejected);
@@ -76,13 +82,13 @@ export function MutationReview({
       );
     } finally {
       submitting.current = false;
-      setBusy(false);
+      if (active.current) setBusy(false);
     }
   }
   return (
     <dialog
       ref={dialog}
-      className="support-dialog mutation-review"
+      className={`support-dialog mutation-review${proposal.presentation === "quotation" ? " quotation-review" : ""}`}
       aria-labelledby="mutation-title"
       onCancel={(event) => {
         if (busy) event.preventDefault();

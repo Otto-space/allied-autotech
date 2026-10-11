@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import Link from "next/link";
-import { ContactInvitation } from "../components/brand-editorial";
+import { ChevronRight } from "lucide-react";
 import { HelpCentre } from "../components/help-centre";
+import "./help.css";
 export async function generateMetadata({
   searchParams,
 }: {
@@ -17,32 +18,38 @@ export async function generateMetadata({
     searchParams,
   );
 }
-export default function HelpPage() {
+export default async function HelpPage({
+  searchParams,
+}: {
+  searchParams: SearchParameters;
+}) {
+  const params = await searchParams;
+  const query = typeof params.q === "string" ? params.q.slice(0, 200) : "";
+  const topic = typeof params.topic === "string" ? params.topic : "All topics";
   return (
     <>
       <SiteHeader />
-      <main id="main" className="public-site help-page">
-        <div className="public-wrap help-content">
-          <p className="eyebrow">Customer care</p>
-          <h1>Help, when you need it.</h1>
-          <p className="lead">
-            Find your next step, from booking a visit to checking a payment.
-          </p>
-          <HelpCentre />
-          <div className="help-next">
-            <h2>Keep the conversation going.</h2>
-            <p>Send an enquiry or complaint, or follow a request in your account.</p>
-            <div className="actions">
-              <Link className="button" href="/contact#enquiry">
-                Contact customer care
-              </Link>
-              <Link className="button secondary" href="/dashboard/support">
-                My support requests
-              </Link>
-            </div>
+      <main id="main" className="public-site help-index">
+        <header className="help-intro">
+          <div className="help-wrap">
+            <nav className="help-breadcrumb" aria-label="Breadcrumb">
+              <ol>
+                <li>
+                  <Link href="/">Home</Link>
+                  <ChevronRight size={14} aria-hidden="true" />
+                </li>
+                <li aria-current="page">Help centre</li>
+              </ol>
+            </nav>
+            <h1>Help, when you need it.</h1>
+            <p>Find your next step, from booking a visit to checking a payment.</p>
           </div>
-        </div>
-        <ContactInvitation />
+        </header>
+        <HelpCentre
+          key={`${query}\u0000${topic}`}
+          initialQuery={query}
+          initialTopic={topic}
+        />
       </main>
       <SiteFooter />
     </>

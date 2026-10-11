@@ -6,7 +6,7 @@ export const securitySessionSchema = z.object({
   client: z.string(),
   network: z.string(),
   createdAt: timestamp,
-  lastUsedAt: timestamp,
+  lastUsedAt: timestamp.nullable(),
   expiresAt: timestamp,
   mfaVerified: z.boolean(),
 });

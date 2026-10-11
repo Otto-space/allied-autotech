@@ -81,7 +81,7 @@ export function OperationalJobs() {
                 Processing is already in progress. Refresh to check its outcome; a manual
                 retry is unavailable.
               </p>
-            ) : attempts < 1 || attempts > 1000 ? (
+            ) : attempts < 0 || attempts > 1000 ? (
               <p className="notice">
                 This attempt count is outside the supported manual retry range.
                 Operational investigation is required.

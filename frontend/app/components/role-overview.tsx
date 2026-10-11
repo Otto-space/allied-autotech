@@ -22,6 +22,7 @@ import { useOverview } from "@/lib/api/use-overview";
 import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountSession } from "./dashboard-shell";
 import { OverviewActivity } from "./overview-activity";
+import { CustomerCareSummary } from "./customer-care-summary";
 
 const statusLabel = (value: string) => value.toLowerCase().replaceAll("_", " ");
 function Status({ value }: { readonly value: string }) {
@@ -137,7 +138,7 @@ function SummaryCards({
   );
 }
 
-export function RoleOverview() {
+export function RoleOverview({ customerDesign = false }: { customerDesign?: boolean }) {
   const session = useAccountSession();
   const customer = session?.user.role === "CUSTOMER";
   const administrator =
@@ -155,7 +156,7 @@ export function RoleOverview() {
   const scopeMatches =
     data &&
     (customer
-      ? data.scope === "CUSTOMER" && !data.finance
+      ? data.scope === "CUSTOMER" && !data.finance && (!customerDesign || !!data.care)
       : administrator
         ? data.scope === "ORGANISATION" && !!data.finance
         : data.scope === "BRANCH" && !data.finance);
@@ -165,8 +166,56 @@ export function RoleOverview() {
       ? "The overview could not be verified for your account. Please retry."
       : null);
   const visible = !error && scopeMatches ? data : undefined;
+  const overviewFeedback = (
+    <>
+      <div className="overview-update" role="status">
+        {resource.loading
+          ? visible
+            ? "Refreshing your overview…"
+            : "Loading your overview…"
+          : error
+            ? "Overview unavailable"
+            : visible
+              ? `Updated ${formatBusinessDate(visible.generatedAt)} · Refreshes every minute while visible`
+              : ""}
+      </div>
+      {error && (
+        <div className="overview-error" role="alert">
+          <h2>We couldn’t load your overview</h2>
+          <p>{error}</p>
+          <button className="button secondary" onClick={resource.refresh}>
+            Retry overview
+          </button>
+        </div>
+      )}
+    </>
+  );
+  const datePreset = (
+    <>
+      <label className="sr-only" htmlFor="overview-preset">
+        Overview date preset
+      </label>
+      <select
+        id="overview-preset"
+        value=""
+        onChange={(event) => {
+          const next = overviewDates(Number(event.target.value));
+          setRange(next);
+          setDraft(next);
+          setDateError(null);
+        }}
+      >
+        <option value="" disabled>
+          Select period
+        </option>
+        <option value="7">Last 7 days</option>
+        <option value="30">Last 30 days</option>
+        <option value="90">Last 90 days</option>
+      </select>
+    </>
+  );
   return (
-    <div className="overview">
+    <div className={`overview${customerDesign ? " customer-overview" : ""}`}>
       <div className="overview-welcome">
         <div>
           <h1>{customer ? "Your vehicle care, connected." : "Welcome back."}</h1>
@@ -179,26 +228,12 @@ export function RoleOverview() {
           </p>
         </div>
         <div className="overview-top-actions">
-          <label className="sr-only" htmlFor="overview-preset">
-            Overview date preset
-          </label>
-          <select
-            id="overview-preset"
-            value=""
-            onChange={(event) => {
-              const next = overviewDates(Number(event.target.value));
-              setRange(next);
-              setDraft(next);
-              setDateError(null);
-            }}
-          >
-            <option value="" disabled>
-              Select period
-            </option>
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-          </select>
+          {customerDesign && (
+            <Link className="button" href="/services">
+              Book a service
+            </Link>
+          )}
+          {!customerDesign && datePreset}
           <button
             className="button overview-refresh"
             type="button"
@@ -210,6 +245,21 @@ export function RoleOverview() {
           </button>
         </div>
       </div>
+      {customerDesign && (
+        <>
+          {overviewFeedback}
+          {visible?.care && <CustomerCareSummary care={visible.care} />}
+          {!visible && !error && (
+            <div className="care-loading" role="status">
+              Loading your current vehicle care…
+            </div>
+          )}
+          <div className="customer-activity-heading">
+            <h2>Activity in a period</h2>
+            <p>Date filters apply to this activity summary only.</p>
+          </div>
+        </>
+      )}
       <form
         data-draft-key="role-overview:1"
         className="overview-range"
@@ -224,6 +274,7 @@ export function RoleOverview() {
           setRange(draft);
         }}
       >
+        {customerDesign && <div className="customer-period-preset">{datePreset}</div>}
         <label>
           From
           <input
@@ -259,26 +310,7 @@ export function RoleOverview() {
           {dateError}
         </p>
       )}
-      <div className="overview-update" role="status">
-        {resource.loading
-          ? visible
-            ? "Refreshing your overview…"
-            : "Loading your overview…"
-          : error
-            ? "Overview unavailable"
-            : visible
-              ? `Updated ${formatBusinessDate(visible.generatedAt)} · Refreshes every minute while visible`
-              : ""}
-      </div>
-      {error && (
-        <div className="overview-error" role="alert">
-          <h2>We couldn’t load your overview</h2>
-          <p>{error}</p>
-          <button className="button secondary" onClick={resource.refresh}>
-            Retry overview
-          </button>
-        </div>
-      )}
+      {!customerDesign && overviewFeedback}
       {!visible && !error && (
         <div className="overview-skeleton" aria-hidden="true">
           <div className="overview-metrics">

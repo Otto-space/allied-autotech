@@ -7,6 +7,8 @@ const branchId = "f6000000-0000-4000-8000-000000000001";
 const sourceId = "f6000000-0000-4000-8000-000000000002";
 async function fixture(page: Page) {
   const state = {
+    role: "anonymous" as
+      "anonymous" | "CUSTOMER" | "STAFF" | "ADMIN" | "SUPER_ADMIN" | "error",
     status: 202,
     code: "",
     fields: undefined as Record<string, string[]> | undefined,
@@ -31,11 +33,20 @@ async function fixture(page: Page) {
           meta: { requestId: "contact-test" },
         },
       });
-    if (endpoint.endsWith("/auth/session"))
+    if (endpoint.endsWith("/auth/session")) {
+      if (state.role !== "anonymous" && state.role !== "error")
+        return ok({
+          user: { id: branchId, role: state.role },
+          mfaRequired: false,
+          mfaVerifiedAt: null,
+          expiresAt: "2099-01-01T00:00:00Z",
+          idleExpiresAt: "2099-01-01T00:00:00Z",
+        });
       return route.fulfill({
-        status: 401,
+        status: state.role === "error" ? 503 : 401,
         json: { success: false, error: { code: "UNAUTHORIZED" } },
       });
+    }
     if (endpoint.endsWith("/public/branches")) {
       if (state.delay) await new Promise((resolve) => setTimeout(resolve, state.delay));
       if (state.branchError)
@@ -97,7 +108,7 @@ async function draft(page: Page, kind = "enquiry") {
   await page.getByRole("option", { name: "Port Harcourt test branch" }).click();
 }
 
-for (const width of [360, 390, 430, 768, 1024, 1280, 1440]) {
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
   test(`Contact quality and anchor navigation at ${width}px`, async ({ page }) => {
     await fixture(page);
     await page.setViewportSize({ width, height: 900 });
@@ -148,7 +159,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440]) {
       path: path.join(os.tmpdir(), `contact-quality-${width}-full.png`),
       fullPage: true,
     });
-    if (width === 390 || width === 1440)
+    if ([320, 375, 390, 768, 1440, 1536].includes(width))
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await expect(page.locator(".contact-map iframe")).toHaveCount(0);
     await expect(page.locator(".contact-map-fallback")).toContainText("133 Stadium Road");
@@ -214,6 +225,13 @@ for (const kind of ["enquiry", "complaint"] as const) {
       },
     ]);
     await expect(page.getByRole("link", { name: "Continue on WhatsApp" })).toBeVisible();
+    await expect(page.getByLabel("Your reference", { exact: true })).toHaveValue(
+      sourceId,
+    );
+    await expect(page.getByLabel("Your reference", { exact: true })).toHaveAttribute(
+      "readonly",
+      "",
+    );
     await expect(page.locator(".contact-success")).toHaveCSS("padding-left", "24px");
     await expect(
       page.getByText("Please review the message on this page.", { exact: true }),
@@ -526,6 +544,117 @@ test("Contact reduced-motion anchor and direct channels use verified destination
   await expect(question.locator("..")).toHaveAttribute("open", "");
   await page.keyboard.press("Enter");
   await expect(question.locator("..")).not.toHaveAttribute("open", "");
-  await expect(page.locator(".contact-faq a[href='/help']")).toHaveCount(1);
+  await expect(page.locator(".contact-faq a[href='/help']")).toHaveCount(2);
   await expect(page.locator(".contact-faq a[href='/services']")).toHaveCount(1);
+});
+
+test("Contact account shortcut follows roles and recovers without blocking the public form", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/contact");
+  await expect(
+    page.getByRole("link", { name: "Sign in to customer care", exact: true }),
+  ).toHaveAttribute("href", "/login?next=%2Fdashboard%2Fsupport");
+  for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const) {
+    state.role = role;
+    await page.evaluate(() =>
+      window.dispatchEvent(new CustomEvent("aat:session-changed")),
+    );
+    const customer = role === "CUSTOMER";
+    await expect(page.locator(".contact-account-link a")).toHaveAttribute(
+      "href",
+      customer ? "/dashboard/support" : "/admin/support",
+    );
+    await expect(page.locator(".contact-account-link")).toContainText(
+      customer ? "View customer care" : "Open support workspace",
+    );
+    await expect(
+      page.getByRole("button", { name: "Review enquiry", exact: true }),
+    ).toBeEnabled();
+  }
+  state.role = "error";
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
+  await expect(page.getByRole("button", { name: "Retry account check" })).toBeVisible();
+  await expect(page.locator(".contact-account-link a")).toHaveCount(0);
+  state.role = "anonymous";
+  await page.getByRole("button", { name: "Retry account check" }).click();
+  await expect(
+    page.getByRole("link", { name: "Sign in to customer care", exact: true }),
+  ).toBeVisible();
+  expect(state.writes).toEqual([]);
+});
+
+test("Contact receipt supports copy fallback, safe text review and clearing on account change", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async () => {
+          throw new Error("Unavailable");
+        },
+      },
+    }),
+  );
+  await page.goto("/contact");
+  await draft(page);
+  const message = '<img src=x onerror="alert(1)"> Please review this as ordinary text.';
+  await page.getByLabel("Your message", { exact: true }).fill(message);
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText(message);
+  await expect(page.getByRole("dialog").locator("img")).toHaveCount(0);
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Send enquiry", exact: true })
+    .click();
+  const reference = page.getByLabel("Your reference", { exact: true });
+  await expect(reference).toHaveValue(sourceId);
+  await page.getByRole("button", { name: "Copy reference", exact: true }).click();
+  await expect(reference).toBeFocused();
+  expect(
+    await reference.evaluate(
+      (element: HTMLInputElement) => element.selectionEnd! - element.selectionStart!,
+    ),
+  ).toBe(sourceId.length);
+  await expect(
+    page.getByText("Select and copy the value above using your device’s copy command."),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "contact-oct-320-copy-fallback.png"),
+  });
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
+  await expect(reference).toHaveCount(0);
+  await expect(page.getByLabel("Your name", { exact: true })).toHaveValue("");
+  expect(state.writes).toHaveLength(1);
+});
+
+test("Contact receipt copies only its returned reference", async ({ page }) => {
+  await fixture(page);
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: {
+        writeText: async (value: string) => {
+          document.documentElement.dataset.copiedReference = value;
+        },
+      },
+    }),
+  );
+  await page.goto("/contact");
+  await draft(page);
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Send enquiry", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Copy reference", exact: true }).click();
+  await expect(page.getByText("Copied to clipboard.", { exact: true })).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("data-copied-reference", sourceId);
 });

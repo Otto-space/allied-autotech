@@ -8,6 +8,17 @@ export function useMfaOperation() {
   const [error, setError] = useState<string>();
   const [uncertain, setUncertain] = useState(false);
   const [requiresMfa, setRequiresMfa] = useState(false);
+  const retryAt = useRef(0);
+  const [waitSeconds, setWaitSeconds] = useState(0);
+  const waiting = waitSeconds > 0;
+  useEffect(() => {
+    if (!waiting) return;
+    const timer = window.setInterval(
+      () => setWaitSeconds(Math.max(0, Math.ceil((retryAt.current - Date.now()) / 1000))),
+      1000,
+    );
+    return () => window.clearInterval(timer);
+  }, [waiting]);
   useEffect(
     () => () => {
       pending.current?.abort();
@@ -18,7 +29,8 @@ export function useMfaOperation() {
   async function run(
     task: (signal: AbortSignal, submitted: () => void) => Promise<void>,
   ) {
-    if (pending.current || uncertain || requiresMfa) return false;
+    if (pending.current || uncertain || requiresMfa || Date.now() < retryAt.current)
+      return false;
     const controller = new AbortController();
     pending.current = controller;
     let submitted = false;
@@ -31,7 +43,16 @@ export function useMfaOperation() {
       return !controller.signal.aborted;
     } catch (value) {
       if (controller.signal.aborted) return false;
-      setRequiresMfa(value instanceof ApiError && value.code === "MFA_REQUIRED");
+      setRequiresMfa(
+        value instanceof ApiError &&
+          value.status === 403 &&
+          value.code === "MFA_REQUIRED",
+      );
+      if (value instanceof ApiError && value.status === 429) {
+        const seconds = value.retryAfterSeconds ?? 0;
+        retryAt.current = Date.now() + seconds * 1000;
+        setWaitSeconds(seconds);
+      }
       const unknown =
         submitted &&
         !(value instanceof ApiError && value.status >= 400 && value.status < 500);
@@ -40,7 +61,7 @@ export function useMfaOperation() {
         unknown
           ? "The result could not be confirmed. Do not resend this verification. Check your session before continuing; a code may already have been used or a factor activated."
           : value instanceof ApiError
-            ? value.code === "TOKEN_INVALID"
+            ? value.status === 400 && value.code === "TOKEN_INVALID"
               ? "This code or challenge is invalid, expired or already used. Enter a fresh code or prepare a new security-key challenge."
               : value.message
             : value instanceof Error &&
@@ -54,5 +75,14 @@ export function useMfaOperation() {
       if (pending.current === controller) pending.current = null;
     }
   }
-  return { busy, error, uncertain, requiresMfa, run };
+  return {
+    busy,
+    error,
+    uncertain,
+    requiresMfa,
+    waiting,
+    waitSeconds,
+    run,
+    clearError: () => setError(undefined),
+  };
 }

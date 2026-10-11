@@ -10,7 +10,7 @@ import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { FactorRemovalForm } from "./factor-removal-form";
 import { RecoveryCodes } from "./recovery-codes";
-export function SecurityFactors() {
+export function SecurityFactors({ compact = false }: { compact?: boolean }) {
   const session = useAccountSession();
   const records = useResource("/auth/mfa/factors", parseFactors);
   const [selected, setSelected] = useState<string>();
@@ -71,7 +71,11 @@ export function SecurityFactors() {
     });
   }
   return (
-    <section className="detail-section">
+    <section
+      className="detail-section security-factors"
+      id={compact ? "security-factors" : undefined}
+      tabIndex={compact ? -1 : undefined}
+    >
       <h2>Multi-factor authentication</h2>
       <Link className="button secondary" href="/mfa?setup=1">
         Add MFA factor
@@ -94,27 +98,71 @@ export function SecurityFactors() {
         <p>No MFA factors are registered.</p>
       )}
       {records.data?.factors.map((factor) => (
-        <article className="detail-section" key={factor.id}>
+        <article className="detail-section security-record" key={factor.id}>
           <h3>
             {factor.name ??
               (factor.type === "TOTP" ? "Authenticator app" : "Security key")}
           </h3>
-          <dl className="totals">
-            <dt>Type</dt>
-            <dd>{factor.type === "TOTP" ? "Authenticator app" : "Security key"}</dd>
-            <dt>Status</dt>
-            <dd>{factor.status}</dd>
-            <dt>Added</dt>
-            <dd>{formatBusinessDate(factor.createdAt)}</dd>
-            <dt>Verified</dt>
-            <dd>
-              {factor.verifiedAt ? formatBusinessDate(factor.verifiedAt) : "Not verified"}
-            </dd>
-            <dt>Last used</dt>
-            <dd>
-              {factor.lastUsedAt ? formatBusinessDate(factor.lastUsedAt) : "Not recorded"}
-            </dd>
-          </dl>
+          {compact ? (
+            <>
+              <p className="security-factor-kind">
+                {factor.type === "TOTP" ? "Authenticator app" : "Security key"}
+                <span className="security-badge">
+                  {factor.status === "ACTIVE"
+                    ? "Active"
+                    : factor.status === "PENDING"
+                      ? "Setup pending"
+                      : "Revoked"}
+                </span>
+              </p>
+              <details className="security-details">
+                <summary>Factor details</summary>
+                <dl className="security-record-summary">
+                  <div>
+                    <dt>Added</dt>
+                    <dd>{formatBusinessDate(factor.createdAt)}</dd>
+                  </div>
+                  <div>
+                    <dt>Verified</dt>
+                    <dd>
+                      {factor.verifiedAt
+                        ? formatBusinessDate(factor.verifiedAt)
+                        : "Not verified"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Last used</dt>
+                    <dd>
+                      {factor.lastUsedAt
+                        ? formatBusinessDate(factor.lastUsedAt)
+                        : "Not recorded"}
+                    </dd>
+                  </div>
+                </dl>
+              </details>
+            </>
+          ) : (
+            <dl className="totals">
+              <dt>Type</dt>
+              <dd>{factor.type === "TOTP" ? "Authenticator app" : "Security key"}</dd>
+              <dt>Status</dt>
+              <dd>{factor.status}</dd>
+              <dt>Added</dt>
+              <dd>{formatBusinessDate(factor.createdAt)}</dd>
+              <dt>Verified</dt>
+              <dd>
+                {factor.verifiedAt
+                  ? formatBusinessDate(factor.verifiedAt)
+                  : "Not verified"}
+              </dd>
+              <dt>Last used</dt>
+              <dd>
+                {factor.lastUsedAt
+                  ? formatBusinessDate(factor.lastUsedAt)
+                  : "Not recorded"}
+              </dd>
+            </dl>
+          )}
           {factor.status === "PENDING" && (
             <p>Setup has not been completed. Pending factors cannot be removed here.</p>
           )}
@@ -134,6 +182,7 @@ export function SecurityFactors() {
               )}
               {selected === factor.id ? (
                 <FactorRemovalForm
+                  compact={compact}
                   disabled={disabled || !mayRemove || !!uncertain[factor.id]}
                   onCancel={() => setSelected(undefined)}
                   onReview={(password, clear) => {
@@ -186,7 +235,7 @@ export function SecurityFactors() {
                     });
                   }}
                 />
-              ) : (
+              ) : mayRemove ? (
                 <button
                   className="button secondary"
                   disabled={
@@ -196,7 +245,7 @@ export function SecurityFactors() {
                 >
                   Remove {factor.name ?? factor.type}
                 </button>
-              )}
+              ) : null}
             </>
           )}
         </article>

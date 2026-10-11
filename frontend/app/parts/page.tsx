@@ -1,10 +1,10 @@
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
-import { parseProducts } from "@/lib/api/commerce-schemas";
+import { parseProductDiscovery } from "@/lib/api/commerce-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, ArrowUpRight } from "lucide-react";
+import { ChevronRight, ArrowUpRight, CarFront, FileSearch, MapPin } from "lucide-react";
 import { business } from "@/lib/business";
 import { productApiPath } from "@/lib/product-discovery";
 import { SiteHeader } from "../components/site-header";
@@ -31,7 +31,10 @@ export async function generateMetadata({
     "/parts",
     searchParams,
   );
-  const seed = await loadPublicSeed(await listingPath(searchParams), parseProducts);
+  const seed = await loadPublicSeed(
+    await listingPath(searchParams),
+    parseProductDiscovery,
+  );
   return seed.error ? { ...metadata, robots: { index: false, follow: false } } : metadata;
 }
 export default async function PartsPage({
@@ -39,7 +42,10 @@ export default async function PartsPage({
 }: {
   searchParams: SearchParameters;
 }) {
-  const initial = await loadPublicSeed(await listingPath(searchParams), parseProducts);
+  const initial = await loadPublicSeed(
+    await listingPath(searchParams),
+    parseProductDiscovery,
+  );
   return (
     <>
       <SiteHeader />
@@ -88,11 +94,50 @@ export default async function PartsPage({
         </section>
         <section className="product-guidance">
           <div className="public-wrap">
-            <h2>Find the right fit.</h2>
-            <p>
-              Check the product specifications and listed vehicle compatibility before
-              purchase.
-            </p>
+            <div className="product-guidance-media">
+              <Image
+                src="/images/allied-autotech/workshop-editorial.webp"
+                alt="Editorial automotive workshop scene"
+                fill
+                sizes="(max-width: 767px) 100vw, 40vw"
+              />
+            </div>
+            <div className="product-guidance-copy">
+              <h2>Find the right fit.</h2>
+              <p>
+                Check the product specifications and listed vehicle compatibility before
+                purchase.
+              </p>
+              <ul>
+                {(
+                  [
+                    [
+                      FileSearch,
+                      "Match the part number",
+                      "Compare the manufacturer part number with the part you need. Use the SKU when speaking with our team.",
+                    ],
+                    [
+                      CarFront,
+                      "Review vehicle compatibility",
+                      "Check the listed make, model, year range and notes on the product page. Ask our team if you are unsure.",
+                    ],
+                    [
+                      MapPin,
+                      "Check branch availability",
+                      "Review the listed branch availability before choosing a quantity. Your cart does not reserve stock.",
+                    ],
+                  ] as const
+                ).map(([Icon, title, copy]) => (
+                  <li key={title}>
+                    <Icon size={20} aria-hidden="true" />
+                    <div>
+                      <h3>{title}</h3>
+                      <p>{copy}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </section>
         <section className="product-contact">

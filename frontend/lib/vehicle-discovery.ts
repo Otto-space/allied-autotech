@@ -30,6 +30,8 @@ export const advancedVehicleKeys = [
 ] as const;
 export const vehicleFilterKeys = ["search", ...advancedVehicleKeys] as const;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const validCursor = (value: string) =>
+  uuid.test(value) || /^[A-Za-z0-9_-]{80,1024}$/.test(value);
 
 export function normalizeVehicleQuery(input: URLSearchParams) {
   const params = new URLSearchParams();
@@ -46,7 +48,7 @@ export function normalizeVehicleQuery(input: URLSearchParams) {
       valid = /^\d{4}$/.test(value) && +value >= 1886 && +value <= 2200;
     else if (key === "minPriceKobo" || key === "maxPriceKobo")
       valid = /^[1-9]\d{0,15}$/.test(value);
-    else if (key === "cursor") valid = uuid.test(value);
+    else if (key === "cursor") valid = validCursor(value);
     else valid = (vehicleChoices[key] as readonly string[]).includes(value);
     if (valid) {
       if (key !== "sort" || value !== "newest") params.set(key, value);
@@ -65,8 +67,9 @@ export function normalizeVehicleQuery(input: URLSearchParams) {
   if (
     params.has("cursor") &&
     trail.length <= 50 &&
+    trail.join(",").length <= 3500 &&
     trail[0] === "start" &&
-    trail.slice(1).every((value) => uuid.test(value))
+    trail.slice(1).every(validCursor)
   )
     params.set("_trail", trail.join(","));
   return { params, invalid };
@@ -76,7 +79,7 @@ export function vehicleApiPath(params: URLSearchParams) {
   const query = normalizeVehicleQuery(params).params;
   query.delete("_trail");
   query.set("limit", "12");
-  return `/public/vehicles?${query}`;
+  return `/public/vehicles/discovery?${query}`;
 }
 
 export function nairaToKobo(value: string): string | undefined {

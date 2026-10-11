@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import { VehicleNameField } from "./vehicle-name-field";
 import {
   advancedVehicleKeys,
   koboToInput,
@@ -266,7 +267,21 @@ export function VehicleFilters({
             {advancedVehicleKeys.map((key) => (
               <div className="vehicle-field" key={key}>
                 <label htmlFor={`filter-${key}`}>{labels[key]}</label>
-                {key in vehicleChoices ? (
+                {key === "make" || key === "model" ? (
+                  <VehicleNameField
+                    kind={key}
+                    value={values[key]}
+                    make={values.make}
+                    open={open}
+                    onChange={(value) =>
+                      setValues((previous) => ({
+                        ...previous,
+                        [key]: value,
+                        ...(key === "make" ? { model: "" } : {}),
+                      }))
+                    }
+                  />
+                ) : key in vehicleChoices ? (
                   <div className="vehicle-select">
                     <select
                       id={`filter-${key}`}

@@ -196,13 +196,14 @@ test("customer vehicles retry recovers to the API empty list", async ({ page }) 
     return true;
   });
   await page.goto("/dashboard/vehicles");
-  const empty = page.getByText("No vehicles on this page. Add your vehicle below.");
+  const empty = page.getByRole("heading", { name: "Your garage is empty" });
   await expect(page.getByRole("button", { name: "Retry vehicles" })).toBeVisible();
   await expect(empty).toHaveCount(0);
   recover = true;
   await page.getByRole("button", { name: "Retry vehicles" }).click();
   await expect(empty).toBeVisible();
   await expect(page.getByRole("button", { name: "Retry vehicles" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Add your first vehicle" }).click();
   await expect(page.getByRole("button", { name: "Save vehicle" })).toBeVisible();
 });
 
@@ -252,13 +253,17 @@ test("uncertain checkout reuses its key and payload without initiating payment",
   await expect(page.getByText(product.name)).toBeVisible();
   await page.getByLabel("Collection branch").selectOption(branch.id);
   await page.getByLabel("Promotion code (optional)").fill("TEST-CODE");
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  expect(checkouts).toHaveLength(0);
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
     page.getByRole("heading", { name: "Checkout confirmation is pending" }),
   ).toBeVisible();
   await expect(page.getByLabel("Collection branch")).toBeDisabled();
   await page.getByRole("button", { name: "Check this checkout again" }).click();
-  await expect(page.getByRole("heading", { name: "Order created" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Order found", exact: true }),
+  ).toBeVisible();
   expect(checkouts).toHaveLength(2);
   expect(checkouts[1]).toEqual(checkouts[0]);
   expect(checkouts[0].key).toMatch(/^[0-9a-f-]{36}$/);
@@ -285,6 +290,7 @@ test("pending provider verification blocks another payment and shows the server 
   const payment = () => ({
     id: id(9),
     paymentNumber: "ISOLATED-PAYMENT",
+    checkoutProviders: ["PAYSTACK"],
     amountKobo: "24690",
     currency: "NGN",
     status: verified ? "SUCCEEDED" : "PROCESSING",
@@ -329,7 +335,7 @@ test("pending provider verification blocks another payment and shows the server 
     0,
   );
   await page.getByRole("button", { name: "Check with provider" }).click();
-  await expect(page.getByText("SUCCEEDED", { exact: true })).toBeVisible();
+  await expect(page.locator(".payment-state .status")).toHaveText("Confirmed");
   expect(initiationCalls).toBe(0);
 });
 

@@ -90,11 +90,15 @@ test("customer inspection history displays a report with an unrecorded odometer"
     "CUSTOMER",
   );
   await page.goto("/dashboard/inspections");
-  await page.getByText("Inspection report", { exact: true }).click();
+  await page.getByRole("button", { name: /View details for/ }).click();
   await expect(
     page.getByText("Isolated report without a reading", { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText("Odometer not recorded", { exact: false })).toBeVisible();
+  await expect(
+    page
+      .locator(".inspection-report-facts > div")
+      .filter({ has: page.getByText("Odometer", { exact: true }) }),
+  ).toContainText("Not recorded");
 });
 async function fixture(
   page: Page,

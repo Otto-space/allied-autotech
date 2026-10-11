@@ -181,7 +181,7 @@ const actions = [
     name: "vehicle enquiry",
     url: `/vehicles/${listing.id}`,
     title: listing.title,
-    button: "Enquire about this vehicle",
+    button: "Send vehicle enquiry",
     result: "Your vehicle enquiry has been received.",
     path: "/customers/vehicle-transactions",
   },
@@ -197,7 +197,7 @@ const actions = [
     name: "inspection",
     url: `/vehicles/${listing.id}`,
     title: listing.title,
-    button: "Request inspection",
+    button: "Send inspection request",
     result: "Inspection requested",
     path: "/customers/vehicle-inspections",
   },
@@ -220,6 +220,12 @@ async function prepare(page: Page, action: Action) {
     await page
       .getByLabel("Notes (optional)")
       .fill("Private inspection note from previous account");
+    if (action.name === "inspection")
+      await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+    if (action.name === "vehicle enquiry")
+      await page
+        .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+        .click();
   }
 }
 async function assertReset(page: Page, action: Action) {
@@ -411,7 +417,7 @@ for (const [width, height] of [
             : [
                 page.getByLabel("Preferred date and time (Lagos time)"),
                 page.getByLabel("Notes (optional)"),
-                page.getByRole("button", { name: "Request inspection", exact: true }),
+                page.getByRole("button", { name: "Review inspection", exact: true }),
               ];
       for (const control of controls) {
         await control.evaluate((element) =>

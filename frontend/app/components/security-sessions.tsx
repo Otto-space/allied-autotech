@@ -1,12 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiRequest } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
 import { parseSecuritySessions, type SecuritySession } from "@/lib/api/security-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
-export function SecuritySessions() {
+const lastUsed = (value: string | null) =>
+  value ? formatBusinessDate(value) : "No activity recorded";
+export function SecuritySessions({ compact = false }: { compact?: boolean }) {
+  const pending = useRef<AbortController | null>(null);
+  useEffect(() => () => pending.current?.abort(), []);
   const records = useResource("/auth/sessions", parseSecuritySessions);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [uncertain, setUncertain] = useState<Record<string, boolean>>({});
@@ -29,31 +33,39 @@ export function SecuritySessions() {
         },
         ...(session
           ? [
-              { label: "Last used", value: formatBusinessDate(session.lastUsedAt) },
+              { label: "Last used", value: lastUsed(session.lastUsedAt) },
               { label: "Session reference", value: session.id },
             ]
           : []),
       ],
       onUncertain: () => setUncertain((value) => ({ ...value, [key]: true })),
       submit: async () => {
+        const controller = new AbortController();
+        pending.current = controller;
         try {
           await apiRequest(session ? `/auth/sessions/${session.id}` : "/auth/sessions", {
             method: "DELETE",
             csrf: true,
+            signal: controller.signal,
             body: {},
           });
         } finally {
-          records.refresh();
+          if (!controller.signal.aborted) records.refresh();
+          if (pending.current === controller) pending.current = null;
         }
       },
     });
   }
   return (
-    <section className="detail-section">
+    <section
+      className="detail-section security-sessions"
+      id={compact ? "security-sessions" : undefined}
+      tabIndex={compact ? -1 : undefined}
+    >
       <h2>Active sessions</h2>
       <p>
-        Device labels and masked network addresses come from the server. Use Sign out in
-        the page header to end this browser’s session.
+        Review your signed-in browsers. Network addresses are masked. Use the dashboard’s
+        Sign out action to end this browser’s session.
       </p>
       <Feedback message={records.error} />
       <Feedback message={message} tone="success" toast="Session change recorded." />
@@ -87,23 +99,55 @@ export function SecuritySessions() {
         </p>
       )}
       {records.data?.sessions.map((session) => (
-        <article className="detail-section" key={session.id}>
+        <article className="detail-section security-record" key={session.id}>
           <h3>
             {session.client}
             {session.current ? " · This browser" : ""}
           </h3>
-          <dl className="totals">
-            <dt>Network</dt>
-            <dd>{session.network}</dd>
-            <dt>Last used</dt>
-            <dd>{formatBusinessDate(session.lastUsedAt)}</dd>
-            <dt>Created</dt>
-            <dd>{formatBusinessDate(session.createdAt)}</dd>
-            <dt>Expires</dt>
-            <dd>{formatBusinessDate(session.expiresAt)}</dd>
-            <dt>MFA verification</dt>
-            <dd>{session.mfaVerified ? "Verified" : "Not verified"}</dd>
-          </dl>
+          {compact ? (
+            <>
+              <dl className="security-record-summary">
+                <div>
+                  <dt>Network</dt>
+                  <dd>{session.network}</dd>
+                </div>
+                <div>
+                  <dt>Last used</dt>
+                  <dd>{lastUsed(session.lastUsedAt)}</dd>
+                </div>
+              </dl>
+              <details className="security-details">
+                <summary>Session details</summary>
+                <dl className="security-record-summary">
+                  <div>
+                    <dt>Created</dt>
+                    <dd>{formatBusinessDate(session.createdAt)}</dd>
+                  </div>
+                  <div>
+                    <dt>Expires</dt>
+                    <dd>{formatBusinessDate(session.expiresAt)}</dd>
+                  </div>
+                  <div>
+                    <dt>MFA verification</dt>
+                    <dd>{session.mfaVerified ? "Verified" : "Not verified"}</dd>
+                  </div>
+                </dl>
+              </details>
+            </>
+          ) : (
+            <dl className="totals">
+              <dt>Network</dt>
+              <dd>{session.network}</dd>
+              <dt>Last used</dt>
+              <dd>{lastUsed(session.lastUsedAt)}</dd>
+              <dt>Created</dt>
+              <dd>{formatBusinessDate(session.createdAt)}</dd>
+              <dt>Expires</dt>
+              <dd>{formatBusinessDate(session.expiresAt)}</dd>
+              <dt>MFA verification</dt>
+              <dd>{session.mfaVerified ? "Verified" : "Not verified"}</dd>
+            </dl>
+          )}
           {!session.current && (
             <button
               className="button secondary"

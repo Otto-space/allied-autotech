@@ -1,0 +1,7 @@
+# Registration concepts
+
+Created after four baseline captures and Login acceptance on 8 October 2026, before registration implementation: desktop, mobile, validation/accepted states. The owner's latest addition explicitly requires matching the login improvements and no horizontal scrolling across authentication pages.
+
+Retain the accepted login split layout, real logo, Nippo/Quicksand, existing workshop image, visible input borders and red focus. Registration uses a compact 440px form: names side by side, then phone/email/password, password hint, Create account, existing-sign-in link and Help. Below 900px omit the decorative image. Use 20px mobile side padding, 48px inputs, 44px links/reveal controls, compact spacing and wrapping headings. Target the complete default form at 390×844 and desktop 1280×900; permit vertical scroll for short screens, keyboard, enlarged text and errors. Never hide overflowing content to disguise a failed layout.
+
+Use exact primary concept copy. Generated sample names and US phone placeholders are omitted. The state board's substituted logo/tagline are not used. Accepted registration means a generic request receipt, not a guaranteed new account or delivered email. Keep the form reset/hidden, a Check your email panel, Sign in and Use another email actions. Validation messages stay associated with their inputs. Backend eligibility, common-password checks, duplicate-email privacy and verification delivery remain authoritative.

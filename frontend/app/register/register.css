@@ -1,0 +1,116 @@
+.register-page .login-form-area {
+  padding-block: 20px;
+}
+.register-form h1 {
+  font-size: 30px;
+}
+.register-form .login-intro {
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+.register-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0 14px;
+}
+.register-fields .login-field {
+  min-width: 0;
+}
+.register-phone,
+.register-email {
+  grid-column: 1/-1;
+}
+.register-form .login-field {
+  margin-bottom: 13px;
+}
+.register-form .login-field label {
+  margin-bottom: 7px;
+  font-size: 13px;
+}
+.register-form .login-submit {
+  margin-top: 18px;
+}
+.register-hint {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #435563;
+  margin: 8px 0 0;
+}
+.register-form .register-error {
+  color: #b40000;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.register-form input[aria-invalid="true"] {
+  border-color: #b40000;
+}
+.register-form .login-register {
+  margin: 8px 0;
+}
+.register-form .login-help {
+  padding-top: 8px;
+}
+.register-accepted {
+  text-align: center;
+  padding-block: 12px 26px;
+}
+.register-accepted > svg {
+  margin: 8px auto 18px;
+}
+.register-accepted h2 {
+  font:
+    700 24px/1.3 var(--font-quicksand),
+    sans-serif;
+  margin: 0 0 14px;
+}
+.register-accepted p {
+  color: #435563;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.register-form .register-accepted .login-submit {
+  color: #fff;
+  text-decoration: none;
+}
+.register-again {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  width: 100%;
+  margin-top: 10px;
+  border: 1px solid #82939f;
+  color: #01121a;
+  background: white;
+  text-transform: none;
+  box-shadow: none;
+}
+@media (max-width: 899px) {
+  .register-page .login-content {
+    padding: 20px 20px 24px;
+  }
+  .register-page .login-mobile-brand {
+    margin-bottom: 10px;
+  }
+  .register-page .login-form-area {
+    padding-top: 14px;
+    padding-bottom: 0;
+  }
+  .register-form h1 {
+    font-size: 27px;
+  }
+  .register-form .login-intro {
+    margin-bottom: 18px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 360px) {
+  .register-form h1 {
+    font-size: 25px;
+  }
+  .register-fields {
+    gap: 0 10px;
+  }
+}

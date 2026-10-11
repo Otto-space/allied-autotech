@@ -6,6 +6,8 @@ Brief: September 30 page-by-page override and breadcrumb/password addendum.
 
 ## Audit and design
 
+The [7 October expanded assessment](contact-expanded.md) records the latest local Contact gate, including improved composition, actual copyable references, role-aware support navigation and corrected Maps frame policy. See also its [scoped security evidence](contact-security.md). The September results below remain historical evidence.
+
 Before: a large image banner had no enquiry action; contact/location content delayed discovery of the form; text inputs lacked visible borders; branch/source dropdowns were basic; there was no breadcrumb, embedded-map configuration or focused success heading.
 
 Baseline screenshots at 390, 768, 1280 and 1440 pixels were inspected before implementation. Browser plugin not available; the existing Playwright/Microsoft Edge setup is used. Baselines are outside the repository at `C:/Users/PC/.codex/contact-before-*.png`.

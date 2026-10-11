@@ -354,7 +354,9 @@ test("staff cannot read or moderate the administrator review queue", async ({ pa
   await expect(
     page.getByText("Administrator access is required to moderate reviews."),
   ).toBeVisible();
-  expect(state.reads).toEqual([]);
+  // The shared shell reads the staff member's own navigation permissions.
+  // No review queue or other privileged collection may be requested.
+  expect(state.reads.filter((request) => request !== "/staff/profile")).toEqual([]);
   expect(state.writes).toEqual([]);
 });
 test("public reviews expose only public fields and fail honestly", async ({ page }) => {
@@ -362,6 +364,8 @@ test("public reviews expose only public fields and fail honestly", async ({ page
   state.rows[0].status = "APPROVED";
   await page.goto("/reviews");
   await expect(page).toHaveTitle(/Customer reviews/);
+  // The initial list is server-rendered. Refresh exercises the browser fixture.
+  await page.getByRole("button", { name: "Refresh reviews", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Isolated review" })).toBeVisible();
   await expect(page.getByText("Private moderation detail", { exact: false })).toHaveCount(
     0,
@@ -371,7 +375,7 @@ test("public reviews expose only public fields and fail honestly", async ({ page
   await page.getByRole("button", { name: "Refresh reviews", exact: true }).click();
   await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
   await expect(
-    page.getByText("No published reviews match this page and filters."),
+    page.getByRole("heading", { name: "No published feedback yet", exact: true }),
   ).toHaveCount(0);
 });
 test("account change discards review draft and pending response", async ({ page }) => {
@@ -456,8 +460,9 @@ test("approval publishes feedback and keeps private moderation details off the p
 }) => {
   const state = await fixture(page, "ADMIN");
   await page.goto("/reviews");
+  await page.getByRole("button", { name: "Refresh reviews", exact: true }).click();
   await expect(
-    page.getByText("No published reviews match this page and filters."),
+    page.getByRole("heading", { name: "No published feedback yet", exact: true }),
   ).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/admin/reviews");
@@ -488,6 +493,7 @@ test("approval publishes feedback and keeps private moderation details off the p
   ).toBeVisible();
   expect(state.writes[0].body).toEqual({ expectedVersion: 0, decision: "APPROVED" });
   await page.goto("/reviews");
+  await page.getByRole("button", { name: "Refresh reviews", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Isolated review" })).toBeVisible();
   await expect(page.getByText("Private moderation detail", { exact: false })).toHaveCount(
     0,

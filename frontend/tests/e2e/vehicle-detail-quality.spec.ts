@@ -1,4 +1,4 @@
-﻿import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page, type Locator } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
@@ -143,8 +143,13 @@ test.beforeEach(() => {
   calls = [];
 });
 async function browserSetup(page: Page, role = "CUSTOMER", photoStatus = 200) {
-  const writes: { path: string; body: unknown; csrf: string | undefined }[] = [];
-  const state = { status: 200, slow: 0, offline: false };
+  const writes: {
+    path: string;
+    body: unknown;
+    csrf: string | undefined;
+    key: string | undefined;
+  }[] = [];
+  const state = { status: 200, slow: 0, offline: false, userId: id(50) };
   await page.route("**/api/v1/auth/session", (r) =>
     r.fulfill({
       status: role === "ANONYMOUS" ? 401 : 200,
@@ -152,7 +157,7 @@ async function browserSetup(page: Page, role = "CUSTOMER", photoStatus = 200) {
         role === "ANONYMOUS"
           ? { success: false, error: { code: "UNAUTHORIZED" }, meta: { requestId: "qa" } }
           : success({
-              user: { id: id(50), email: "vehicle-qa@example.test", role },
+              user: { id: state.userId, email: "vehicle-qa@example.test", role },
               id: id(51),
               mfaRequired: false,
               mfaVerifiedAt: null,
@@ -176,6 +181,7 @@ async function browserSetup(page: Page, role = "CUSTOMER", photoStatus = 200) {
       path: new URL(r.request().url()).pathname,
       body: r.request().postDataJSON(),
       csrf: r.request().headers()["x-csrf-token"],
+      key: r.request().headers()["idempotency-key"],
     });
     if (state.slow) await new Promise((resolve) => setTimeout(resolve, state.slow));
     if (state.offline) return r.abort("internetdisconnected");
@@ -210,7 +216,165 @@ async function open(page: Page) {
   ).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
 }
-for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536]) {
+
+for (const width of [390, 1440]) {
+  test(`recovers original inspection and enquiry after response loss and reload at ${width}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 960 });
+    await page.clock.setFixedTime(new Date("2027-10-01T09:00:00Z"));
+    const { state, writes } = await browserSetup(page);
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await open(page);
+    state.offline = true;
+    await page
+      .getByLabel("Preferred date and time", { exact: false })
+      .fill("2027-10-01T10:30");
+    await page.getByLabel("Notes (optional)").fill("Original reviewed notes");
+    await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Send inspection request", exact: true })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "Retry original inspection request" }),
+    ).toBeVisible();
+    const original = writes[0];
+    expect(original.key).toMatch(/^[0-9a-f-]{36}$/);
+    state.offline = false;
+    await page.clock.setFixedTime(new Date("2027-10-01T10:00:00Z"));
+    await page.reload();
+    await expect(
+      page.getByRole("region", { name: "Recover inspection request" }),
+    ).toContainText("Original reviewed notes");
+    await page.getByRole("region", { name: "Recover inspection request" }).screenshot({
+      path: path.join(os.tmpdir(), `allied-vehicle-recovery-${width}.png`),
+    });
+    await page.getByRole("button", { name: "Retry original inspection request" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Inspection requested", exact: true }),
+    ).toBeVisible();
+    expect(writes[1].key).toBe(original.key);
+    expect(writes[1].body).toEqual(original.body);
+    await expect(
+      page.getByRole("region", { name: "Recover inspection request" }),
+    ).toHaveCount(0);
+
+    state.offline = true;
+    await page
+      .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+      .click();
+    await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Retry original vehicle enquiry" }),
+    ).toBeVisible();
+    const enquiry = writes[2];
+    expect(enquiry.key).not.toBe(original.key);
+    state.offline = false;
+    await page.reload();
+    await page.getByRole("button", { name: "Retry original vehicle enquiry" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Enquiry received", exact: true }),
+    ).toBeVisible();
+    expect(writes[3].key).toBe(enquiry.key);
+    expect(writes[3].body).toEqual(enquiry.body);
+    expect(
+      await page.evaluate(() =>
+        Object.keys(sessionStorage).filter((key) =>
+          key.startsWith("aat:vehicle-request:"),
+        ),
+      ),
+    ).toEqual([]);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(errors).toEqual([]);
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `allied-vehicle-retry-${width}.png`),
+      fullPage: true,
+    });
+  });
+}
+
+test("expired vehicle retries require history review before an explicit new intent", async ({
+  page,
+}) => {
+  const { state, writes } = await browserSetup(page);
+  await open(page);
+  state.offline = true;
+  await page
+    .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Retry original vehicle enquiry" }),
+  ).toBeVisible();
+  await page.evaluate(() => {
+    const key = Object.keys(sessionStorage).find((key) =>
+      key.startsWith("aat:vehicle-request:"),
+    )!;
+    const value = JSON.parse(sessionStorage.getItem(key)!);
+    value.startedAt -= 24 * 3600000;
+    sessionStorage.setItem(key, JSON.stringify(value));
+  });
+  state.offline = false;
+  await page.reload();
+  await expect(
+    page.getByRole("region", { name: "Recover vehicle enquiry" }),
+  ).toContainText("cannot be safely retried");
+  await expect(
+    page.getByRole("button", { name: "Retry original vehicle enquiry" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeDisabled();
+  expect(writes).toHaveLength(1);
+  await page
+    .getByRole("button", { name: "I’ve checked my history. Start a new request" })
+    .click();
+  await page
+    .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Enquiry received", exact: true }),
+  ).toBeVisible();
+  expect(writes[1].key).not.toBe(writes[0].key);
+});
+
+test("blocked browser storage explains recovery and prevents an unrecorded mutation", async ({
+  page,
+}) => {
+  const { writes } = await browserSetup(page);
+  await page.addInitScript(() => {
+    const original = Storage.prototype.getItem;
+    Storage.prototype.getItem = () => {
+      throw new Error("Storage blocked for test");
+    };
+    window.addEventListener(
+      "restore-test-storage",
+      () => {
+        Storage.prototype.getItem = original;
+      },
+      { once: true },
+    );
+  });
+  await open(page);
+  const recovery = page.getByRole("region", { name: "Recover vehicle enquiry" });
+  await expect(recovery).toContainText("Allow site storage");
+  await expect(
+    page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeDisabled();
+  expect(writes).toHaveLength(0);
+  await page.evaluate(() => window.dispatchEvent(new Event("restore-test-storage")));
+  await recovery.getByRole("button", { name: "Retry recovery check" }).click();
+  await expect(recovery).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeEnabled();
+  expect(writes).toHaveLength(0);
+});
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
   test(`vehicle detail responsive and accessible at ${width}`, async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -262,12 +426,11 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536]) {
               requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
             ),
         );
-        await section.screenshot({
-          path: path.join(
-            os.tmpdir(),
-            "vehicle-detail-quality-" + width + "-" + part + ".png",
-          ),
-        });
+        await captureRequest(
+          page,
+          section,
+          path.join(os.tmpdir(), "vehicle-detail-quality-" + width + "-" + part + ".png"),
+        );
       }
     }
     expect(errors).toEqual([]);
@@ -299,6 +462,46 @@ test("gallery supports arrows, selection, modal Escape and focus restoration", a
   ).toBeFocused();
   expect(await page.evaluate(() => document.body.style.overflow)).not.toBe("hidden");
 });
+
+test("section navigation, factual highlights and bounded desktop summary stay usable", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1536, height: 1024 });
+  await browserSetup(page);
+  await open(page);
+  await expect(page.locator(".vd-highlights")).toContainText("Sedan");
+  await expect(page.locator(".vd-highlights")).toContainText("LE");
+  await expect(page.locator(".vd-highlights")).toContainText("Published");
+  await page
+    .getByRole("navigation", { name: "Vehicle sections" })
+    .getByRole("link", { name: "Specifications" })
+    .click();
+  await expect(page).toHaveURL(/#vehicle-specifications$/);
+  const summary = page.locator(".vd-summary");
+  expect(await summary.evaluate((node) => getComputedStyle(node).position)).toBe(
+    "sticky",
+  );
+  const bounds = (await summary.boundingBox())!;
+  expect(bounds.y).toBeGreaterThanOrEqual(90);
+  expect(bounds.y + bounds.height).toBeLessThanOrEqual(1024);
+  await expect(
+    summary.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeInViewport();
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "vehicle-detail-oct-sticky.png"),
+  });
+  await page.setViewportSize({ width: 1024, height: 560 });
+  expect(await summary.evaluate((node) => getComputedStyle(node).position)).toBe(
+    "static",
+  );
+  await page.setViewportSize({ width: 320, height: 700 });
+  await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+  await expect(page.locator(".vd-mobile-price")).toBeVisible();
+  await expect(summary.locator(".vd-price")).toBeHidden();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+});
 test("requests send real contracts, prevent duplicates and focus confirmations", async ({
   page,
 }) => {
@@ -312,13 +515,16 @@ test("requests send real contracts, prevent duplicates and focus confirmations",
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page
     .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Send vehicle enquiry", exact: true })
     .dblclick();
   await expect(
     page.getByRole("heading", { name: "Enquiry received", exact: true }),
   ).toBeFocused();
   await page.locator(".vd-inspection-link").click();
   await expect(page.locator("#vd-inspection-title")).toBeFocused();
-  await page.getByRole("button", { name: "Request inspection", exact: true }).click();
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
   await expect(
     page.getByLabel("Preferred date and time", { exact: false }),
   ).toBeFocused();
@@ -328,7 +534,10 @@ test("requests send real contracts, prevent duplicates and focus confirmations",
     .getByLabel("Preferred date and time", { exact: false })
     .fill("2099-10-01T10:30");
   await page.getByLabel("Notes (optional)").fill(" Please check the interior. ");
-  await page.getByRole("button", { name: "Request inspection", exact: true }).dblclick();
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Send inspection request", exact: true })
+    .dblclick();
   await expect(
     page.getByRole("heading", { name: "Inspection requested", exact: true }),
   ).toBeFocused();
@@ -346,22 +555,125 @@ test("requests send real contracts, prevent duplicates and focus confirmations",
     path: path.join(os.tmpdir(), "vehicle-detail-inspection-success.png"),
   });
 });
-test("anonymous and operator requests fail before mutation", async ({ page }) => {
-  let f = await browserSetup(page, "ANONYMOUS");
+for (const role of ["ANONYMOUS", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
+  test(`customer mutations are hidden for ${role}`, async ({ page }) => {
+    const { writes } = await browserSetup(page, role);
+    await open(page);
+    const summary = page.locator(".vd-summary");
+    await expect(
+      summary.getByText(
+        role === "ANONYMOUS"
+          ? /A customer account is required/
+          : /Customer requests are unavailable on work accounts/,
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Save vehicle", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Review inspection", exact: true }),
+    ).toHaveCount(0);
+    await expect(page.getByLabel("Notes (optional)")).toHaveCount(0);
+    if (role === "ANONYMOUS")
+      await expect(
+        summary.getByRole("link", { name: "Sign in to continue" }),
+      ).toHaveAttribute("href", `/login?next=${encodeURIComponent(routePath)}`);
+    else
+      await expect(
+        summary.getByRole("link", { name: "Go to dashboard" }),
+      ).toHaveAttribute("href", "/admin");
+    await expect(summary.getByRole("link", { name: "Call our team" })).toHaveAttribute(
+      "href",
+      "tel:+2348136075567",
+    );
+    expect(writes).toHaveLength(0);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  });
+}
+
+test("session checking and failure hide customer actions until a successful retry", async ({
+  page,
+}) => {
+  const { writes } = await browserSetup(page);
+  let sessionStatus = 503;
+  await page.route("**/api/v1/auth/session", async (route) => {
+    if (sessionStatus === 503) {
+      await new Promise((resolve) => setTimeout(resolve, 900));
+      return route.fulfill({
+        status: 503,
+        json: {
+          success: false,
+          error: { code: "SERVICE_UNAVAILABLE" },
+          meta: { requestId: "qa" },
+        },
+      });
+    }
+    await route.fallback();
+  });
   await open(page);
-  await page.getByRole("button", { name: "Save vehicle", exact: true }).click();
-  await expect(page.getByRole("link", { name: "Sign in to continue" })).toHaveAttribute(
-    "href",
-    `/login?next=${encodeURIComponent(routePath)}`,
-  );
-  expect(f.writes).toHaveLength(0);
-  await page.unrouteAll();
-  f = await browserSetup(page, "STAFF");
-  await page.reload();
-  await page.getByRole("button", { name: "Save vehicle", exact: true }).click();
-  await expect(page.getByText(/available to customer accounts/)).toBeVisible();
-  expect(f.writes).toHaveLength(0);
+  await expect(
+    page.locator(".vd-summary").getByText("Checking your account…"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Save vehicle", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".vd-summary").getByRole("button", { name: "Retry account check" }),
+  ).toBeVisible();
+  sessionStatus = 200;
+  await page
+    .locator(".vd-summary")
+    .getByRole("button", { name: "Retry account check" })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Save vehicle", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Notes (optional)")).toBeVisible();
+  expect(writes).toHaveLength(0);
 });
+
+test("fresh preflight and session changes remove customer controls without sending a mutation", async ({
+  page,
+}) => {
+  const { writes } = await browserSetup(page);
+  await open(page);
+  await expect(
+    page.getByRole("button", { name: "Save vehicle", exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Notes (optional)").fill("Customer-only draft");
+  await page.route("**/api/v1/auth/session", (route) =>
+    route.fulfill({
+      json: success({
+        user: { id: id(50), role: "ADMIN", email: "vehicle-qa@example.test" },
+        id: id(51),
+        mfaRequired: false,
+        mfaVerifiedAt: null,
+        expiresAt: "2099-01-01T00:00:00Z",
+        idleExpiresAt: "2099-01-01T00:00:00Z",
+      }),
+    }),
+  );
+  await page.getByRole("button", { name: "Save vehicle", exact: true }).click();
+  await expect(
+    page
+      .locator(".vd-summary")
+      .getByText(/Customer requests are unavailable on work accounts/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Save vehicle", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Notes (optional)")).toHaveCount(0);
+  expect(writes).toHaveLength(0);
+  await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
+  await expect(
+    page.locator(".vd-summary").getByRole("link", { name: "Go to dashboard" }),
+  ).toBeVisible();
+  expect(writes).toHaveLength(0);
+});
+
 test("failed inspection keeps values, relates field errors and handles uncertain responses", async ({
   page,
 }) => {
@@ -372,19 +684,28 @@ test("failed inspection keeps values, relates field errors and handles uncertain
     .fill("2099-10-01T10:30");
   await page.getByLabel("Notes (optional)").fill("Keep these notes");
   state.status = 422;
-  await page.getByRole("button", { name: "Request inspection", exact: true }).click();
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Send inspection request", exact: true })
+    .click();
   await expect(page.locator("#inspection-time-error")).toBeVisible();
   await expect(page.getByLabel("Notes (optional)")).toHaveValue("Keep these notes");
   await expect(
     page.getByLabel("Preferred date and time", { exact: false }),
   ).toHaveAttribute("aria-invalid", "true");
   state.status = 429;
-  await page.getByRole("button", { name: "Request inspection", exact: true }).click();
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Send inspection request", exact: true })
+    .click();
   await expect(page.locator(".vd-feedback[role=alert]")).toContainText(
     /wait|many|later/i,
   );
   state.offline = true;
-  await page.getByRole("button", { name: "Request inspection", exact: true }).click();
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Send inspection request", exact: true })
+    .click();
   await expect(page.locator(".vd-feedback[role=alert]")).toContainText(
     "Check your account before submitting again",
   );
@@ -398,6 +719,8 @@ test("account change discards private draft and stale success", async ({ page })
   await page
     .getByRole("button", { name: "Enquire about this vehicle", exact: true })
     .click();
+  await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+  state.userId = id(52);
   await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
   await expect(page.getByLabel("Notes (optional)")).toHaveValue("");
   await expect(page.getByText(/Your session changed/)).toBeVisible();
@@ -560,3 +883,350 @@ test("touch swipe and modal focus trap work on a short mobile screen", async ({
     await context.close();
   }
 });
+
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
+  test(`inspection and enquiry review and receipts at ${width}`, async ({
+    page,
+    context,
+  }) => {
+    await page.setViewportSize({ width, height: 960 });
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    const { writes } = await browserSetup(page);
+    await open(page);
+    const section = page.locator("#inspection");
+    await page
+      .getByLabel("Preferred date and time", { exact: false })
+      .fill("2099-10-01T10:30");
+    await page.getByLabel("Notes (optional)").fill(" Please check the suspension. ");
+    await captureRequest(
+      page,
+      section,
+      path.join(os.homedir(), ".codex", `inspection-oct-after-${width}-form.png`),
+    );
+    await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Review your inspection", exact: true }),
+    ).toBeFocused();
+    await expect(
+      page.getByRole("region", { name: "Inspection request review" }),
+    ).toContainText("10:30");
+    expect(writes).toHaveLength(0);
+    if ([320, 390, 768, 1024, 1440, 1536].includes(width)) {
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    }
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await captureRequest(
+      page,
+      section,
+      path.join(os.homedir(), ".codex", `inspection-oct-after-${width}-review.png`),
+    );
+    await page
+      .getByRole("button", { name: "Send inspection request", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Inspection requested", exact: true }),
+    ).toBeFocused();
+    await expect(page.getByLabel("Request reference", { exact: true })).toHaveValue(
+      id(60),
+    );
+    await page.getByRole("button", { name: "Copy reference", exact: true }).click();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(id(60));
+    await expect(section.getByRole("link", { name: "View inspections" })).toHaveAttribute(
+      "href",
+      "/dashboard/inspections",
+    );
+    await captureRequest(
+      page,
+      section,
+      path.join(os.homedir(), ".codex", `inspection-oct-after-${width}-receipt.png`),
+    );
+    if ([320, 390, 768, 1024, 1440, 1536].includes(width))
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect(writes[0].body).toEqual({
+      vehicleListingId: id(1),
+      preferredStartAt: "2099-10-01T09:30:00.000Z",
+      notes: "Please check the suspension.",
+    });
+    await page
+      .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Review your enquiry", exact: true }),
+    ).toBeFocused();
+    await expect(
+      page.getByText("Sending an enquiry does not reserve this vehicle."),
+    ).toBeVisible();
+    expect(writes).toHaveLength(1);
+    const summary = page.locator(".vd-summary");
+    await captureRequest(
+      page,
+      summary,
+      path.join(os.homedir(), ".codex", `enquiry-oct-after-${width}-review.png`),
+    );
+    if ([320, 390, 768, 1024, 1440, 1536].includes(width))
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+    await expect(
+      page.getByRole("heading", { name: "Enquiry received", exact: true }),
+    ).toBeFocused();
+    await expect(
+      summary.getByRole("link", { name: "View vehicle enquiry", exact: true }),
+    ).toHaveAttribute("href", `/dashboard/vehicle-transactions/${id(60)}`);
+    await captureRequest(
+      page,
+      summary,
+      path.join(os.homedir(), ".codex", `enquiry-oct-after-${width}-receipt.png`),
+    );
+    if ([320, 390, 768, 1024, 1440, 1536].includes(width))
+      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await expect(section.getByLabel("Request reference", { exact: true })).toHaveValue(
+      id(60),
+    );
+    expect(writes).toHaveLength(2);
+    expect(writes[1].body).toEqual({ vehicleListingId: id(1) });
+    expect(writes.every((write) => write.csrf === "x".repeat(48))).toBe(true);
+    await section
+      .getByRole("button", { name: "Request another inspection", exact: true })
+      .click();
+    await expect(
+      page.getByLabel("Preferred date and time", { exact: false }),
+    ).toHaveValue("");
+    await expect(page.getByLabel("Notes (optional)")).toHaveValue("");
+    await expect(section.getByLabel("Request reference", { exact: true })).toHaveCount(0);
+    await expect(summary.getByLabel("Request reference", { exact: true })).toHaveValue(
+      id(60),
+    );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+  });
+}
+
+test("review cancellation preserves inspection fields and sends no request", async ({
+  page,
+}) => {
+  const { writes } = await browserSetup(page);
+  await open(page);
+  await page
+    .getByLabel("Preferred date and time", { exact: false })
+    .fill("2099-10-01T10:30");
+  await page.getByLabel("Notes (optional)").fill("Keep my private notes");
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  await page.getByRole("button", { name: "Edit details", exact: true }).click();
+  await expect(
+    page.getByLabel("Preferred date and time", { exact: false }),
+  ).toBeFocused();
+  await expect(page.getByLabel("Notes (optional)")).toHaveValue("Keep my private notes");
+  await page
+    .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Go back", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeFocused();
+  expect(writes).toHaveLength(0);
+});
+
+test("uncertain enquiry stays locked while another action succeeds", async ({ page }) => {
+  const { writes, state } = await browserSetup(page);
+  await open(page);
+  await page
+    .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+    .click();
+  state.offline = true;
+  await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeDisabled();
+  state.offline = false;
+  await page.getByRole("button", { name: "Save vehicle", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Vehicle saved", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator(".vd-summary").getByText(/previous request may have been received/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeDisabled();
+  expect(writes).toHaveLength(2);
+});
+
+test("unknown inspection locks form; account changes clear review, notes and references", async ({
+  page,
+}) => {
+  const { state, writes } = await browserSetup(page);
+  await open(page);
+  await page
+    .getByLabel("Preferred date and time", { exact: false })
+    .fill("2099-10-01T10:30");
+  await page.getByLabel("Notes (optional)").fill("Private request");
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  state.status = 503;
+  await page
+    .getByRole("button", { name: "Send inspection request", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Review inspection", exact: true }),
+  ).toBeDisabled();
+  await expect(page.getByLabel("Notes (optional)")).toBeDisabled();
+  await expect(page.getByLabel("Request reference", { exact: true })).toHaveCount(0);
+  expect(writes).toHaveLength(1);
+  state.userId = id(52);
+  await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
+  await expect(page.getByLabel("Notes (optional)")).toHaveValue("");
+  expect(
+    await page.evaluate(() =>
+      Object.keys(sessionStorage)
+        .filter((key) => key.startsWith("aat:vehicle-request:"))
+        .map((key) => sessionStorage.getItem(key))
+        .join(""),
+    ),
+  ).not.toContain("Private request");
+  await expect(
+    page.getByRole("region", { name: "Recover inspection request" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Review inspection", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByLabel("Preferred date and time", { exact: false })
+    .fill("2099-10-01T10:30");
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
+  await expect(
+    page.getByRole("region", { name: "Inspection request review" }),
+  ).toHaveCount(0);
+  expect(writes).toHaveLength(1);
+  state.userId = id(50);
+  await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
+  await expect(
+    page.getByRole("region", { name: "Recover inspection request" }),
+  ).toContainText("cannot be safely retried");
+  await expect(
+    page.getByRole("button", { name: "Retry original inspection request" }),
+  ).toHaveCount(0);
+});
+
+test("copy denial selects the real reference for manual copying", async ({ page }) => {
+  await browserSetup(page);
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, "clipboard", { value: undefined }),
+  );
+  await open(page);
+  await page
+    .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+  await page.getByRole("button", { name: "Copy reference", exact: true }).click();
+  const reference = page.getByLabel("Request reference", { exact: true });
+  await expect(reference).toBeFocused();
+  expect(
+    await reference.evaluate((el: HTMLTextAreaElement) =>
+      el.value.slice(el.selectionStart, el.selectionEnd),
+    ),
+  ).toBe(id(60));
+  await expect(page.getByText(/Select and copy the value above/)).toBeVisible();
+});
+
+for (const viewport of [
+  { width: 390, height: 568 },
+  { width: 844, height: 390 },
+]) {
+  test(`long review remains reachable at ${viewport.width}x${viewport.height}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    const { writes } = await browserSetup(page);
+    await open(page);
+    await page
+      .getByLabel("Preferred date and time", { exact: false })
+      .fill("2099-10-01T10:30");
+    await page.getByLabel("Notes (optional)").fill("InspectionNotes".repeat(130));
+    await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+    const send = page.getByRole("button", {
+      name: "Send inspection request",
+      exact: true,
+    });
+    await send.scrollIntoViewIfNeeded();
+    await send.focus();
+    await expect(send).toBeFocused();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await page.getByRole("button", { name: "Edit details", exact: true }).click();
+    await expect(page.getByLabel("Notes (optional)")).toHaveValue(
+      "InspectionNotes".repeat(130),
+    );
+    expect(writes).toHaveLength(0);
+  });
+}
+
+test("a preferred time that passes during review is revalidated before submission", async ({
+  page,
+}) => {
+  await page.clock.install({ time: new Date("2099-10-01T09:29:30Z") });
+  const { writes } = await browserSetup(page);
+  await open(page);
+  await page
+    .getByLabel("Preferred date and time", { exact: false })
+    .fill("2099-10-01T10:30");
+  await page.getByRole("button", { name: "Review inspection", exact: true }).click();
+  await page.clock.fastForward(60000);
+  await page
+    .getByRole("button", { name: "Send inspection request", exact: true })
+    .click();
+  await expect(page.locator("#inspection-time-error")).toHaveText(
+    "Choose a future date and time in Lagos time.",
+  );
+  await expect(
+    page.getByLabel("Preferred date and time", { exact: false }),
+  ).toBeFocused();
+  expect(writes).toHaveLength(0);
+});
+
+test("an invalid success receipt cannot show success or permit immediate resubmission", async ({
+  page,
+}) => {
+  await browserSetup(page);
+  await page.route("**/api/v1/customers/vehicle-transactions", (route) =>
+    route.fulfill({ json: success({ id: "invalid-reference" }) }),
+  );
+  await open(page);
+  await page
+    .getByRole("button", { name: "Enquire about this vehicle", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Send vehicle enquiry", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Enquiry received", exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByLabel("Request reference", { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Enquire about this vehicle", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.locator(".vd-summary").getByText(/previous request may have been received/),
+  ).toBeVisible();
+});
+
+async function captureRequest(page: Page, section: Locator, file: string) {
+  const viewport = page.viewportSize()!;
+  const height = await section.evaluate((el) => el.scrollHeight);
+  await page.setViewportSize({
+    width: viewport.width,
+    height: Math.max(960, height + 260),
+  });
+  await section.evaluate((el) =>
+    el.scrollIntoView({ block: "center", behavior: "instant" }),
+  );
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await section.screenshot({ path: file });
+  await page.setViewportSize(viewport);
+}

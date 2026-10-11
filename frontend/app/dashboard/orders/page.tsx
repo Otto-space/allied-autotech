@@ -1,3 +1,4 @@
+import "./orders.css";
 import type { Metadata } from "next";
 import { OrdersPanel } from "../../components/orders-panel";
 export const metadata: Metadata = {

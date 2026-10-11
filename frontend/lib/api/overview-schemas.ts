@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { customerCareSchema } from "./customer-care-schemas";
 
 const count = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const date = z.iso.datetime({ offset: true });
@@ -52,6 +53,7 @@ const schema = z.object({
     )
     .max(4),
   finance: z.object({ payments: z.array(money), refunds: z.array(money) }).optional(),
+  care: customerCareSchema.optional(),
 });
 export const parseOverview = (value: unknown) => schema.parse(value);
 export type Overview = z.infer<typeof schema>;

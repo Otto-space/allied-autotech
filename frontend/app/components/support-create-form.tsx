@@ -19,6 +19,7 @@ import { SupportSourcePicker } from "./support-source-picker";
 import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
+import { CopyControl } from "./copy-control";
 function SelectFrame({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return enabled ? (
     <div className="contact-select">
@@ -66,6 +67,7 @@ export function SupportCreateForm({
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [error, setError] = useState<string>();
   const [complete, setComplete] = useState(false);
+  const [receiptId, setReceiptId] = useState<string>();
   const [sessionChanged, setSessionChanged] = useState(false);
   const [selectionError, setSelectionError] = useState<"branch" | "source">();
   const successHeading = useRef<HTMLHeadingElement>(null);
@@ -114,6 +116,7 @@ export function SupportCreateForm({
       }
       setProposal(null);
       setComplete(false);
+      setReceiptId(undefined);
       setError(undefined);
       setSessionChanged(true);
       setType(serviceId ? "SERVICE" : kind === "enquiries" ? "GENERAL" : "NONE");
@@ -165,6 +168,20 @@ export function SupportCreateForm({
             : "Your record is available in customer care."}{" "}
           No appointment, price or resolution has been confirmed by this submission.
         </p>
+        {isContact && (
+          <div className="contact-receipt-reference" data-no-draft>
+            <label htmlFor="contact-receipt-reference">Your reference</label>
+            <input id="contact-receipt-reference" readOnly value={receiptId ?? ""} />
+            {receiptId && (
+              <CopyControl
+                value={receiptId}
+                label="Copy reference"
+                fieldId="contact-receipt-reference"
+              />
+            )}
+            <p>Keep this reference when contacting our team.</p>
+          </div>
+        )}
         {isContact && (
           <a
             className="button secondary"
@@ -308,6 +325,7 @@ export function SupportCreateForm({
                       )
                     )
                       throw new Error("Unconfirmed related record");
+                    setReceiptId(saved.id);
                     setComplete(true);
                     onSaved(saved.id);
                   } catch (failure) {

@@ -1,12 +1,12 @@
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
-import { parseServices } from "@/lib/api/public-schemas";
+import { parseServiceDiscovery } from "@/lib/api/public-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import { business } from "@/lib/business";
-import { serviceJourney } from "@/lib/brand-content";
+import { operatingPrinciples, serviceJourney } from "@/lib/brand-content";
 import { serviceApiPath } from "@/lib/service-discovery";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
@@ -32,7 +32,10 @@ export async function generateMetadata({
     "/services",
     searchParams,
   );
-  const seed = await loadPublicSeed(await listingPath(searchParams), parseServices);
+  const seed = await loadPublicSeed(
+    await listingPath(searchParams),
+    parseServiceDiscovery,
+  );
   return seed.error ? { ...metadata, robots: { index: false, follow: false } } : metadata;
 }
 export default async function ServicesPage({
@@ -40,7 +43,10 @@ export default async function ServicesPage({
 }: {
   searchParams: SearchParameters;
 }) {
-  const initial = await loadPublicSeed(await listingPath(searchParams), parseServices);
+  const initial = await loadPublicSeed(
+    await listingPath(searchParams),
+    parseServiceDiscovery,
+  );
   return (
     <>
       <SiteHeader />
@@ -87,6 +93,39 @@ export default async function ServicesPage({
         >
           <ServicesCatalogue initial={initial} />
         </section>
+        <section
+          className="services-principles"
+          aria-labelledby="services-principles-title"
+        >
+          <div className="public-wrap services-principles-inner">
+            <div className="services-principles-media">
+              <Image
+                src="/images/allied-autotech/parts-editorial.webp"
+                alt="Editorial arrangement of automotive parts and servicing supplies"
+                fill
+                sizes="(max-width: 767px) 100vw, 40vw"
+              />
+            </div>
+            <div>
+              <h2 id="services-principles-title">Care built on clear decisions.</h2>
+              <ul>
+                {[
+                  operatingPrinciples[0],
+                  operatingPrinciples[2],
+                  operatingPrinciples[5],
+                ].map(([title, copy]) => (
+                  <li key={title}>
+                    <h3>{title}</h3>
+                    <p>{copy}</p>
+                  </li>
+                ))}
+              </ul>
+              <Link className="text-link" href="/about">
+                Our approach to vehicle care <ArrowUpRight size={16} aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </section>
         <section className="services-journey" aria-labelledby="services-journey-title">
           <div className="public-wrap">
             <div className="services-journey-heading">
@@ -102,6 +141,38 @@ export default async function ServicesPage({
                 </li>
               ))}
             </ol>
+          </div>
+        </section>
+        <section className="services-faq" aria-labelledby="services-faq-title">
+          <div className="public-wrap services-faq-inner">
+            <div>
+              <h2 id="services-faq-title">Before you book.</h2>
+              <p>A few useful details before your next step.</p>
+            </div>
+            <div className="services-faq-list">
+              {[
+                [
+                  "What is the difference between fixed price and quotation required?",
+                  "A fixed-price service has a listed price. For a service marked quotation required, share your vehicle details and the work you need so the team can review the scope. Open the service page to see the available next steps.",
+                ],
+                [
+                  "Is a booking request a confirmed appointment?",
+                  "A booking request is sent for workshop review. Check your account for the confirmed appointment and updates. The duration shown in the catalogue is the listed service duration, not a guaranteed collection time.",
+                ],
+                [
+                  "What should I include when asking about a service?",
+                  "Tell us the vehicle make, model and year, the issue you have noticed, when it happens and any recent work. You can describe a warning light, unusual noise or a change in how the vehicle drives without trying to diagnose it yourself.",
+                ],
+              ].map(([question, answer]) => (
+                <details key={question}>
+                  <summary>
+                    {question}
+                    <ChevronDown size={17} aria-hidden="true" />
+                  </summary>
+                  <p>{answer}</p>
+                </details>
+              ))}
+            </div>
           </div>
         </section>
         <section className="services-contact" aria-labelledby="services-contact-title">

@@ -1,0 +1,9 @@
+# Cart drawer and notification concepts
+
+Generated on 8 October 2026 after four product/cart-update baseline captures and before production implementation: [desktop drawer](01-desktop.webp), [mobile drawer](02-mobile.webp), [toast component states](03-toasts.webp).
+
+The drawer is a read-only confirmation of the validated quantity-replacement response. It shows the updated item, all returned lines and server subtotal, followed by Review cart and Continue shopping. Review cart navigates to the existing account cart, which loads current server state; the drawer neither reserves stock nor creates checkout. Do not copy the generated background's invented rating, guarantees, changed navigation or product claims. Preserve the existing product page, logo and Nippo/Quicksand. Remove generated mobile OS chrome and invented branding/slogan. Use real server-linked images or the existing unavailable-image fallback, and existing NGN formatting.
+
+Desktop uses a white right drawer, up to 460px, over an ink backdrop. Mobile uses the full viewport width. Header and footer frame a scrollable body on ordinary heights; below 600px the entire drawer scrolls with a sticky close header so content and actions remain reachable. This is an intentional short-screen adaptation. All actions are at least 44px. Reduced motion disables slide-in animation. Use brand-red focus instead of the generated blue focus.
+
+Toasts retain the existing top-right position, timing, deduplication, maximum three notices and session clearing. The state board shows four tone examples, not four simultaneous notices. Use ink/grey for informational, warning and success accents, red for errors, white surfaces, 12px corners and a 44px dismissal button. Favourite saves may trigger one short toast after validation; cart confirmation uses the drawer and does not also trigger a duplicate toast. Other messages retain their existing truthful workflow-specific text.

@@ -6,6 +6,8 @@ Scope: Product detail only. Service detail has not started.
 
 ## Audit and design
 
+The [7 October expanded reassessment](product-detail-expanded.md) records current presentation, role-aware purchase access, quantity/draft corrections and ten-width verification. The September evidence below retains its original scope.
+
 Baseline browser captures at 390, 768, 1280 and 1440px showed a nearly invisible quantity input, excessive gallery space before the mobile identity, incomplete breadcrumbs, weak purchase hierarchy and omitted brand/part-number fields. Existing server validation, metadata, real cart/favourite actions and session-change protection were retained.
 
 The [three coordinated concepts](product-detail-concepts/README.md) were generated, saved and inspected before code. The page now has semantic Home → Shop → product breadcrumbs; an early mobile name/price; a contained gallery with expanded viewing; a compact white purchase panel; a navy assistance band; open information/compatibility columns; and bounded related-product reads. Forms use Quicksand, strong borders, 44–46px controls and visible focus states. No password input is present.

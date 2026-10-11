@@ -9,6 +9,7 @@ import { Feedback } from "./feedback";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { InvoiceCreateForm } from "./invoice-create-form";
 import { InvoiceFilters, type InvoiceFiltersValue } from "./invoice-filters";
+import { DRAFT_SAVED, draftIdentity, draftKey, forgetDraft } from "@/lib/forms/drafts";
 export function StaffInvoices() {
   const [status, setStatus] = useState("");
   const [creating, setCreating] = useState(false);
@@ -28,6 +29,12 @@ export function StaffInvoices() {
   const invoices = useResource(`/staff/invoices?${params}`, parseInvoices);
   const filtered = !!status || !!filters.branchId || !!filters.customerId;
   function clearFilters() {
+    const owner = draftIdentity();
+    if (owner) {
+      const key = draftKey(owner, window.location.pathname, "invoice-filters:1");
+      forgetDraft(key);
+      window.dispatchEvent(new CustomEvent(DRAFT_SAVED, { detail: key }));
+    }
     setStatus("");
     setFilters({ branchId: "", customerId: "" });
     setFilterRevision((value) => value + 1);

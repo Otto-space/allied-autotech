@@ -39,7 +39,7 @@ function LookupField({
 }: Readonly<{ field: AdminField; initial: string }>) {
   const pagination = useCursorPage();
   const [selected, setSelected] = useState({ id: initial, label: "Current selection" });
-  const params = new URLSearchParams({ limit: "100" });
+  const params = new URLSearchParams({ ...field.sourceQuery, limit: "100" });
   if (pagination.cursor) params.set("cursor", pagination.cursor);
 
   const choicesUrl = field.source ? `${field.source}?${params.toString()}` : null;
@@ -218,7 +218,15 @@ function buildProposal(
   form: FormData,
 ) {
   const body: Record<string, unknown> = {};
-  for (const field of config.fields) setFieldValue(body, field, form);
+  for (const field of config.fields) {
+    if (
+      editing &&
+      field.omitUnchanged &&
+      String(form.get(field.name) ?? "") === initialValue(editing, field)
+    )
+      continue;
+    setFieldValue(body, field, form);
+  }
   if (config.versioned && editing) {
     if (typeof editing.version !== "number")
       throw new Error("Refresh this record before editing it.");

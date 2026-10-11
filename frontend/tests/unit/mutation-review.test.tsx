@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { afterAll, afterEach, beforeAll, expect, it, vi } from "vitest";
 import { MutationReview, type MutationProposal } from "@/app/components/mutation-review";
@@ -31,7 +31,7 @@ function review(submit: MutationProposal["submit"], retrySafely = true) {
   const onSuccess = vi.fn(),
     onClose = vi.fn(),
     onUncertain = vi.fn();
-  render(
+  const view = render(
     <MutationReview
       proposal={{
         title: "Review payment",
@@ -46,8 +46,30 @@ function review(submit: MutationProposal["submit"], retrySafely = true) {
       onClose={onClose}
     />,
   );
-  return { onSuccess, onClose, onUncertain };
+  return { onSuccess, onClose, onUncertain, unmount: view.unmount };
 }
+it.each(["resolved", "rejected"])(
+  "ignores a %s mutation after review unmount",
+  async (outcome) => {
+    let resolve!: () => void;
+    let reject!: (error: Error) => void;
+    const pending = new Promise<void>((accept, fail) => {
+      resolve = accept;
+      reject = fail;
+    });
+    const callbacks = review(() => pending);
+    fireEvent.click(screen.getByRole("button", { name: "Confirm change" }));
+    callbacks.unmount();
+    await act(async () => {
+      if (outcome === "resolved") resolve();
+      else reject(new Error("Synthetic late failure"));
+      await pending.catch(() => {});
+    });
+    expect(callbacks.onSuccess).not.toHaveBeenCalled();
+    expect(callbacks.onClose).not.toHaveBeenCalled();
+    expect(callbacks.onUncertain).not.toHaveBeenCalled();
+  },
+);
 it("locks a definite rejection until the review is closed even when unknown outcomes support replay", async () => {
   const submit = vi
     .fn()

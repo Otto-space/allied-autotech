@@ -1,5 +1,7 @@
 # Vehicles listing milestone
 
+The [expanded 7 October reassessment](vehicles-expanded.md) records the later marketplace refinement and its own verification status. This September report remains the historical baseline.
+
 Route: `/vehicles`  
 Status: complete; local route acceptance passed on 30 September 2026. Contact passed its gate before this milestone began. Vehicle detail is a later, separate milestone. This does not establish completion of the other routes in the page-by-page brief.
 

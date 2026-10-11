@@ -4,11 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Check, Heart, ShoppingBag } from "lucide-react";
 import { z } from "zod";
-import { apiRequest, ApiError } from "@/lib/api/client";
-import { parseCart, productSchema } from "@/lib/api/commerce-schemas";
+import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
+import { productSchema } from "@/lib/api/commerce-schemas";
+import { parseCartUpdate, type CartUpdate } from "@/lib/api/cart-update";
+import { notify } from "@/lib/notifications";
 import type { RequestBody } from "@/lib/api/contracts";
 import { useAccountMutation } from "@/lib/api/use-account-mutation";
 import { AccountChangeNotice } from "./account-change-notice";
+import { CartUpdateDrawer } from "./cart-update-drawer";
 
 const identity = z.object({
   user: z.object({ role: z.enum(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) }),
@@ -21,6 +24,7 @@ type Result = {
   success?: boolean;
   login?: boolean;
   action: Action;
+  cart?: CartUpdate;
 };
 
 export function ProductActions({
@@ -35,21 +39,63 @@ export function ProductActions({
     mode: "onSubmit",
   });
   const [result, setResult] = useState<Result>();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const cartButton = useRef<HTMLButtonElement>(null);
   const [active, setActive] = useState<Action>();
   const [saved, setSaved] = useState(false);
+  const [access, setAccess] = useState<
+    "checking" | "customer" | "anonymous" | "restricted" | "error"
+  >("checking");
+  const [accessRetry, setAccessRetry] = useState(0);
+  useEffect(() => {
+    let pending: AbortController | undefined;
+    async function check() {
+      pending?.abort();
+      const controller = new AbortController();
+      pending = controller;
+      try {
+        const response = await apiRequest("/auth/session", {
+          optionalSession: true,
+          signal: controller.signal,
+        });
+        const session = identity.parse(response.data);
+        if (!controller.signal.aborted)
+          setAccess(session.user.role === "CUSTOMER" ? "customer" : "restricted");
+      } catch (error) {
+        if (!controller.signal.aborted)
+          setAccess(
+            error instanceof ApiError && error.status === 401 ? "anonymous" : "error",
+          );
+      }
+    }
+    function changed() {
+      setAccess("checking");
+      void check();
+    }
+    void check();
+    window.addEventListener(SESSION_CHANGED, changed);
+    return () => {
+      pending?.abort();
+      window.removeEventListener(SESSION_CHANGED, changed);
+    };
+  }, [accessRetry]);
   const heading = useRef<HTMLHeadingElement>(null);
   const notice = useRef<HTMLDivElement>(null);
+  const purchaseForm = useRef<HTMLFormElement>(null);
   const { reset, getFieldState, setFocus } = form;
   const discard = useCallback(() => {
+    setDrawerOpen(false);
     setResult(undefined);
     setActive(undefined);
     setSaved(false);
+    purchaseForm.current?.reset();
     reset({ quantity: 1 });
   }, [reset]);
   const operation = useAccountMutation(discard);
   const { busy } = operation;
   const loginHref = `/login?next=${encodeURIComponent(`/parts/${productId}`)}`;
   useEffect(() => {
+    if (result?.cart) return;
     if (result && getFieldState("quantity").error) {
       setFocus("quantity");
       return;
@@ -68,6 +114,7 @@ export function ProductActions({
     });
   }, [result, operation.sessionChanged, getFieldState, setFocus]);
   async function mutate(action: Action, quantity = 1) {
+    if (access !== "customer") return;
     if (action === "cart" && !available) return;
     const controller = operation.begin();
     if (!controller) return;
@@ -75,6 +122,7 @@ export function ProductActions({
     setActive(action);
     form.clearErrors();
     let mutationStarted = false;
+    let updatedCart: CartUpdate | undefined;
     try {
       const session = identity.parse(
         (
@@ -85,12 +133,8 @@ export function ProductActions({
         ).data,
       );
       if (session.user.role !== "CUSTOMER") {
-        setResult({
-          action,
-          title: "Customer account required",
-          message:
-            "Cart and favourites are available to customer accounts. Contact our team for help.",
-        });
+        setAccess("restricted");
+        discard();
         return;
       }
       mutationStarted = true;
@@ -98,7 +142,7 @@ export function ProductActions({
         const body: RequestBody<"/customers/cart/items/{productId}", "put"> = {
           quantity,
         };
-        const cart = parseCart(
+        updatedCart = parseCartUpdate(
           (
             await apiRequest(`/customers/cart/items/${productId}`, {
               method: "PUT",
@@ -107,13 +151,9 @@ export function ProductActions({
               body,
             })
           ).data,
+          productId,
+          quantity,
         );
-        if (
-          !cart.items.some(
-            (item) => item.product.id === productId && item.quantity === quantity,
-          )
-        )
-          throw new Error("Unconfirmed cart item");
       } else {
         const receipt = favouriteReceipt.parse(
           (
@@ -128,9 +168,18 @@ export function ProductActions({
         if (receipt.product.id !== productId) throw new Error("Unconfirmed favourite");
       }
       if (controller.signal.aborted) return;
-      if (action === "favourite") setSaved(true);
+      if (action === "favourite") {
+        setSaved(true);
+        notify("Product saved to your favourites.", {
+          tone: "success",
+          inlineAnnounced: true,
+          action: { label: "View favourites", href: "/dashboard/saved" },
+        });
+      }
+      if (updatedCart) setDrawerOpen(true);
       setResult({
         action,
+        cart: updatedCart,
         success: true,
         title: action === "cart" ? "Cart updated" : "Product saved",
         message:
@@ -142,11 +191,12 @@ export function ProductActions({
       if (controller.signal.aborted) return;
       const api = value instanceof ApiError ? value : undefined;
       const login = api?.status === 401;
+      if (login) setAccess("anonymous");
       const uncertain =
         mutationStarted && (!api || api.status === 0 || api.status >= 500);
       const quantityError = api?.fields?.["body.quantity"]?.[0];
-      if (quantityError?.[0])
-        form.setError("quantity", { message: quantityError[0] }, { shouldFocus: true });
+      if (quantityError)
+        form.setError("quantity", { message: quantityError }, { shouldFocus: true });
       setResult({
         action,
         login,
@@ -175,7 +225,7 @@ export function ProductActions({
           <AccountChangeNotice visible />
         </div>
       )}
-      {result && (
+      {result && !drawerOpen && (
         <div
           className={`pd-feedback${result.success ? " pd-success" : ""}`}
           role={result.success ? "status" : "alert"}
@@ -198,70 +248,127 @@ export function ProductActions({
           )}
         </div>
       )}
-      <form
-        noValidate
-        data-draft-key={JSON.stringify(["product-actions:1", productId])}
-        onSubmit={form.handleSubmit((values) => mutate("cart", values.quantity))}
-        aria-busy={busy}
-      >
-        <label htmlFor="product-quantity">Quantity</label>
-        <div className="pd-cart-row">
-          <input
-            id="product-quantity"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={1000}
-            step={1}
-            disabled={busy || !available}
-            aria-invalid={!!form.formState.errors.quantity}
-            aria-describedby={`quantity-hint${form.formState.errors.quantity ? " quantity-error" : ""}`}
-            {...form.register("quantity", {
-              valueAsNumber: true,
-              required: "Enter a quantity.",
-              min: { value: 1, message: "Choose at least one." },
-              max: { value: 1000, message: "Choose up to 1,000." },
-              validate: (value) => Number.isInteger(value) || "Enter a whole number.",
-            })}
-          />
-          <button className="button" disabled={busy || !available}>
-            <ShoppingBag size={17} aria-hidden="true" />
-            {active === "cart" ? "Saving…" : "Save quantity to cart"}
-          </button>
-        </div>
-        {form.formState.errors.quantity && (
-          <p id="quantity-error" className="pd-field-error" role="alert">
-            {form.formState.errors.quantity.message}
+      {access !== "customer" && (
+        <div className="pd-access">
+          <p role="status">
+            {access === "checking"
+              ? "Checking your account…"
+              : access === "anonymous"
+                ? "A customer account is required to use the cart and favourites."
+                : access === "restricted"
+                  ? "Shopping actions are available to customer accounts. Contact our team for help."
+                  : "We could not check your account. Please try again."}
           </p>
-        )}
-        <p id="quantity-hint" className="pd-hint">
-          This saves the total quantity of this product in your cart.
-        </p>
-        <button
-          type="button"
-          className="button secondary pd-favourite"
-          disabled={busy || saved}
-          onClick={() => void mutate("favourite")}
-        >
-          {saved ? (
-            <Check size={18} aria-hidden="true" />
-          ) : (
-            <Heart size={18} aria-hidden="true" />
+          {access === "anonymous" && (
+            <Link className="button" href={loginHref}>
+              Sign in to continue <ArrowRight size={17} aria-hidden="true" />
+            </Link>
           )}
-          {active === "favourite"
-            ? "Saving…"
-            : saved
-              ? "Saved to favourites"
-              : "Save to favourites"}
-        </button>
-      </form>
-      <Link className="pd-link" href="/dashboard/cart">
-        View cart <ArrowRight size={17} aria-hidden="true" />
-      </Link>
+          {access === "restricted" && (
+            <Link className="button secondary" href="/dashboard">
+              Go to dashboard <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          )}
+          {access === "error" && (
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => {
+                setAccess("checking");
+                setAccessRetry((value) => value + 1);
+              }}
+            >
+              Retry account check
+            </button>
+          )}
+          <Link className="pd-link" href="/contact#enquiry">
+            Ask our team <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+        </div>
+      )}
+      {access === "customer" && (
+        <>
+          <form
+            ref={purchaseForm}
+            noValidate
+            data-draft-key={JSON.stringify(["product-actions:1", productId])}
+            onSubmit={(event) => {
+              void form.handleSubmit((values) => mutate("cart", values.quantity))(event);
+            }}
+            aria-busy={busy}
+          >
+            <label htmlFor="product-quantity">Quantity</label>
+            <div className="pd-cart-row">
+              <input
+                id="product-quantity"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={1000}
+                step={1}
+                disabled={busy || !available}
+                aria-invalid={!!form.formState.errors.quantity}
+                aria-describedby={`quantity-hint${form.formState.errors.quantity ? " quantity-error" : ""}`}
+                {...form.register("quantity", {
+                  valueAsNumber: true,
+                  required: "Enter a quantity.",
+                  min: { value: 1, message: "Choose at least one." },
+                  max: { value: 1000, message: "Choose up to 1,000." },
+                  validate: (value) => Number.isInteger(value) || "Enter a whole number.",
+                })}
+              />
+              <button ref={cartButton} className="button" disabled={busy || !available}>
+                <ShoppingBag size={17} aria-hidden="true" />
+                {active === "cart" ? "Saving…" : "Save quantity to cart"}
+              </button>
+            </div>
+            {form.formState.errors.quantity && (
+              <p id="quantity-error" className="pd-field-error" role="alert">
+                {form.formState.errors.quantity.message}
+              </p>
+            )}
+            <p id="quantity-hint" className="pd-hint">
+              This saves the total quantity of this product in your cart.
+            </p>
+            <button
+              type="button"
+              className="button secondary pd-favourite"
+              disabled={busy || saved}
+              onClick={() => void mutate("favourite")}
+            >
+              {saved ? (
+                <Check size={18} aria-hidden="true" />
+              ) : (
+                <Heart size={18} aria-hidden="true" />
+              )}
+              {active === "favourite"
+                ? "Saving…"
+                : saved
+                  ? "Saved to favourites"
+                  : "Save to favourites"}
+            </button>
+          </form>
+          <Link className="pd-link" href="/dashboard/cart">
+            View cart <ArrowRight size={17} aria-hidden="true" />
+          </Link>
+        </>
+      )}
       <p className="pd-account-note">
-        Customer account required. Availability is checked again at checkout. Adding a
-        product to your cart does not reserve it.
+        Availability is checked again at checkout. Adding a product to your cart does not
+        reserve it.
       </p>
+      {drawerOpen && result?.cart && (
+        <CartUpdateDrawer
+          cart={result.cart}
+          productId={productId}
+          onClose={() => {
+            setDrawerOpen(false);
+            requestAnimationFrame(() =>
+              cartButton.current?.focus({ preventScroll: true }),
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

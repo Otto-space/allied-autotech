@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -12,7 +13,17 @@ import { csrfResultSchema } from "@/lib/api/security-schemas";
 import { passwordChangeSchema, type PasswordChangeValues } from "@/lib/forms/security";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 const defaults = { currentPassword: "", newPassword: "", confirmation: "" };
-export function PasswordChangeForm() {
+export function PasswordChangeForm({ compact = false }: { compact?: boolean }) {
+  const [shown, setShown] = useState<
+    Partial<Record<keyof PasswordChangeValues, boolean>>
+  >({});
+  useEffect(() => {
+    const hide = () => {
+      if (document.hidden) setShown({});
+    };
+    document.addEventListener("visibilitychange", hide);
+    return () => document.removeEventListener("visibilitychange", hide);
+  }, []);
   const form = useForm<PasswordChangeValues>({
     resolver: zodResolver(passwordChangeSchema),
     defaultValues: defaults,
@@ -23,6 +34,7 @@ export function PasswordChangeForm() {
   const serverFocus = useRef<keyof PasswordChangeValues | null>(null);
   const { setFocus, setValue } = form;
   const clearPasswords = () => {
+    setShown({});
     setValue("currentPassword", "");
     setValue("newPassword", "");
     setValue("confirmation", "");
@@ -38,7 +50,11 @@ export function PasswordChangeForm() {
   }, [proposal, setFocus]);
   useEffect(() => () => pending.current?.abort(), []);
   return (
-    <section className="detail-section">
+    <section
+      className="detail-section security-password"
+      id={compact ? "security-password" : undefined}
+      tabIndex={compact ? -1 : undefined}
+    >
       <h2>Change password</h2>
       <p>
         Use 12 to 128 characters. Changing your password signs out your other sessions and
@@ -51,11 +67,12 @@ export function PasswordChangeForm() {
         </p>
       )}
       <form
-        data-draft-key="password-change-form:1"
+        method="post"
         noValidate
         onSubmit={(event) =>
           void form.handleSubmit((values) => {
             if (proposal || uncertain) return;
+            setShown({});
             setProposal({
               title: "Change your password?",
               description:
@@ -142,19 +159,36 @@ export function PasswordChangeForm() {
           ).map((field) => (
             <div className="field" key={field.name}>
               <label htmlFor={`security-${field.name}`}>{field.label}</label>
-              <input
-                id={`security-${field.name}`}
-                type="password"
-                autoComplete={field.autocomplete}
-                maxLength={128}
-                {...form.register(field.name)}
-                aria-invalid={!!form.formState.errors[field.name]}
-                aria-describedby={
-                  form.formState.errors[field.name]
-                    ? `security-${field.name}-error`
-                    : undefined
-                }
-              />
+              <div className="security-password-input">
+                <input
+                  id={`security-${field.name}`}
+                  type={shown[field.name] ? "text" : "password"}
+                  autoComplete={field.autocomplete}
+                  maxLength={128}
+                  {...form.register(field.name)}
+                  aria-invalid={!!form.formState.errors[field.name]}
+                  aria-describedby={
+                    form.formState.errors[field.name]
+                      ? `security-${field.name}-error`
+                      : undefined
+                  }
+                />
+                {compact && (
+                  <button
+                    type="button"
+                    className="security-reveal"
+                    aria-label={`${shown[field.name] ? "Hide" : "Show"} ${field.label.toLowerCase()}`}
+                    title={`${shown[field.name] ? "Hide" : "Show"} ${field.label.toLowerCase()}`}
+                    aria-pressed={!!shown[field.name]}
+                    aria-controls={`security-${field.name}`}
+                    onClick={() =>
+                      setShown((v) => ({ ...v, [field.name]: !v[field.name] }))
+                    }
+                  >
+                    {shown[field.name] ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                )}
+              </div>
               {form.formState.errors[field.name] && (
                 <p
                   className="field-error"

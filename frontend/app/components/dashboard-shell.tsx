@@ -383,6 +383,16 @@ export function DashboardShell({
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
           {currentDestination &&
+            pathname !== "/dashboard/bookings" &&
+            pathname !== "/dashboard/orders" &&
+            pathname !== "/dashboard/payments" &&
+            pathname !== "/dashboard/invoices" &&
+            pathname !== "/dashboard/vehicles" &&
+            pathname !== "/dashboard/inspections" &&
+            pathname !== "/dashboard/vehicle-transactions" &&
+            !/^\/dashboard\/vehicles\/[^/]+$/.test(pathname) &&
+            !/^\/dashboard\/bookings\/[^/]+$/.test(pathname) &&
+            !/^\/dashboard\/invoices\/[^/]+$/.test(pathname) &&
             pathname !== (audience === "staff" ? "/admin" : "/dashboard") && (
               <nav className="breadcrumbs dashboard-breadcrumbs" aria-label="Breadcrumb">
                 <Link href={audience === "staff" ? "/admin" : "/dashboard"}>

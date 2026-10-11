@@ -17,6 +17,7 @@ describe("public product discovery contract boundary", () => {
       model: "Camry",
       year: "2023",
       featured: "false",
+      minPriceKobo: "1",
       sort: "price_asc",
       cursor: id,
       limit: "12",
@@ -67,5 +68,25 @@ describe("public product discovery contract boundary", () => {
     expect(
       normalizeProductQuery(new URLSearchParams("_trail=start")).params.has("_trail"),
     ).toBe(false);
+  });
+  it("bounds signed cursor histories and validates price/availability filters", () => {
+    const cursor = "a".repeat(220);
+    const query = new URLSearchParams({
+      cursor,
+      _trail: `start,${cursor}`,
+      minPriceKobo: "0",
+      maxPriceKobo: "100",
+      availability: "in_stock",
+    });
+    expect(normalizeProductQuery(query).params.get("_trail")).toBe(`start,${cursor}`);
+    expect(productApiPath(query)).toContain("/products/discovery?");
+    expect(productApiPath(query)).not.toContain("_trail");
+    query.set("_trail", `start,${Array(20).fill(cursor).join(",")}`);
+    expect(normalizeProductQuery(query).params.has("_trail")).toBe(false);
+    query.set("minPriceKobo", "101");
+    const invalid = normalizeProductQuery(query);
+    expect(invalid.invalid).toBe(true);
+    expect(invalid.params.has("cursor")).toBe(false);
+    expect(invalid.params.has("minPriceKobo")).toBe(false);
   });
 });

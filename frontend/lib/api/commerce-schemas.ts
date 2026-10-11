@@ -49,6 +49,33 @@ export const productPageSchema = z.object({
   nextCursor: z.string().optional(),
 });
 export const parseProducts = (value: unknown) => productPageSchema.parse(value);
+const discoveryCursor = z
+  .string()
+  .min(80)
+  .max(1024)
+  .regex(/^[A-Za-z0-9_-]+$/);
+export const parseProductDiscovery = (value: unknown) =>
+  productPageSchema
+    .extend({
+      items: z.array(productSchema).max(50),
+      nextCursor: discoveryCursor.optional(),
+      totalMatches: z.number().int().nonnegative(),
+    })
+    .parse(value);
+export const parseProductFacets = (value: unknown) =>
+  z
+    .object({
+      items: z
+        .array(
+          z.object({
+            value: z.string().min(1).max(120),
+            label: z.string().min(1).max(120),
+          }),
+        )
+        .max(50),
+      nextCursor: discoveryCursor.optional(),
+    })
+    .parse(value);
 export const parseCategories = (value: unknown) =>
   z
     .object({ items: z.array(categorySchema), nextCursor: z.string().optional() })

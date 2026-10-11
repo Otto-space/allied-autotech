@@ -113,6 +113,7 @@ const operationalGroups: DashboardGroup[] = [
         roles: ["SUPER_ADMIN"],
       },
       adminOnly("/admin/services", "Services"),
+      adminOnly("/admin/service-categories", "Service categories"),
     ],
   },
   {

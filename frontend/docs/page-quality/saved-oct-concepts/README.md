@@ -1,0 +1,9 @@
+# Saved items concepts
+
+Three fresh ImageGen concepts were generated on 8 October 2026 after baseline captures and before production changes: [desktop parts](01-desktop.webp), [mobile vehicles](02-mobile.webp) and [empty/error/removal states](03-states.webp).
+
+Use the existing dashboard shell and approved Allied identity, Nippo display and Quicksand interface typography. Generated logos, extra slogans, renamed global search and sample photographs are not production assets. Cards display server records and approved media only; unavailable media uses the existing honest fallback. Preserve the desktop concept's ink reservation note across widths rather than the mobile image's inconsistent pale note. Use existing NGN formatting and actual metadata. Keep the established Help/WhatsApp controls.
+
+Design system: cool-grey canvas, white 12px cards, ink text, red selected-tab underline and primary actions, fine grey borders, 44px controls, 16px grid gaps. Three parts columns on wide desktops, two on tablets and smaller desktops, one on narrow mobile. Vehicle cards use two columns when space permits. Limit media height; show price, availability and identity, then detail navigation and removal. The shared review dialog supplies focus and uncertain-result behavior; its Go back button provides dismissal instead of the generated close icon. Vehicle specifications use compact text without redundant icons.
+
+Parts use server cursor pagination. Saved vehicles returns all currently available saved listings; client display pages do not imply server pagination or include unavailable listings. Counts explicitly describe the current page. Pagination appears when useful, not as two permanently disabled buttons. No unsupported search, comparison or bulk mutations are introduced. Above-fold copy preserves the concept except “Active catalogue items” accurately distinguishes catalogue publication from stock availability.

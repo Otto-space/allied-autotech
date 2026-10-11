@@ -106,6 +106,11 @@ export const quoteService = {
   durationMinutes: null,
 };
 export function publicRecord(path: string): unknown {
+  if (path === "/public/catalog/products/discovery")
+    return { items: [product], totalMatches: 1 };
+  if (path === "/public/catalog/facets") return { items: [] };
+  if (path === "/public/vehicles/discovery") return { items: [listing], totalMatches: 1 };
+  if (path === "/public/vehicles/facets") return { items: [] };
   if (path === `/public/services/${quoteService.id}`) return quoteService;
   if (path === `/public/catalog/products/${product.id}`) return product;
   if (path === `/public/services/${service.id}`) return service;

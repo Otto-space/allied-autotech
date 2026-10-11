@@ -7,6 +7,15 @@ import {
 } from "@/lib/vehicle-discovery";
 
 describe("vehicle discovery contract", () => {
+  it("uses the counted discovery API and preserves bounded opaque cursor history", () => {
+    const cursor = `${"A".repeat(120)}_${"a".repeat(64)}`;
+    const query = new URLSearchParams({ cursor, _trail: `start,${cursor}` });
+    expect(normalizeVehicleQuery(query).params.get("_trail")).toBe(`start,${cursor}`);
+    expect(vehicleApiPath(query)).toMatch(/^\/public\/vehicles\/discovery\?/);
+    query.set("_trail", ["start", ...Array(25).fill(cursor)].join(","));
+    expect(normalizeVehicleQuery(query).params.has("_trail")).toBe(false);
+    expect(normalizeVehicleQuery(query).params.get("cursor")).toBe(cursor);
+  });
   it.each([
     ["0.01", "1"],
     ["4500000.50", "450000050"],

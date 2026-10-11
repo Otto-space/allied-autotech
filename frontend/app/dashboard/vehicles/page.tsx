@@ -1,3 +1,4 @@
+import "./garage.css";
 import type { Metadata } from "next";
 import { CustomerVehicles } from "../../components/customer-vehicles";
 export const metadata: Metadata = {

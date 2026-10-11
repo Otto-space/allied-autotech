@@ -79,6 +79,12 @@ async function fixture(page: Page) {
     available: true,
     checkoutEnabled: true,
     created: false,
+    paid: false,
+    cancelled: false,
+    feeKobo: zone.feeKobo,
+    checkoutDelay: 0,
+    quantity: 2,
+    cartWrites: [] as unknown[],
     paymentCalls: 0,
     role: "CUSTOMER",
     writes: [] as { key?: string; body: unknown }[],
@@ -105,25 +111,34 @@ async function fixture(page: Page) {
         ...collectionOnlyOptions,
         checkoutEnabled: state.checkoutEnabled,
         delivery: state.available
-          ? { enabled: true, policyVersion: 4, zones: [zone] }
+          ? {
+              enabled: true,
+              policyVersion: 4,
+              zones: [{ ...zone, feeKobo: state.feeKobo }],
+            }
           : collectionOnlyOptions.delivery,
       });
     }
     if (endpoint === "/customers/cart")
       return reply(route, {
-        subtotalKobo: state.created ? "0" : "20000",
+        subtotalKobo: state.created ? "0" : String(state.quantity * 10000),
         items: state.created
           ? []
           : [
               {
                 id: id(8),
-                quantity: 2,
+                quantity: state.quantity,
                 unitPriceKobo: "10000",
-                lineSubtotalKobo: "20000",
+                lineSubtotalKobo: String(state.quantity * 10000),
                 product,
               },
             ],
       });
+    if (endpoint === `/customers/cart/items/${product.id}`) {
+      state.cartWrites.push(route.request().postDataJSON());
+      state.quantity = route.request().postDataJSON().quantity;
+      return reply(route, {});
+    }
     if (endpoint === "/customers/orders/checkout") {
       state.writes.push({
         body: route.request().postDataJSON(),
@@ -139,6 +154,10 @@ async function fixture(page: Page) {
           status: 409,
           json: { success: false, error: { code: "CONFLICT" } },
         });
+      if (state.mode === "malformed")
+        return reply(route, { order: { id: order.id }, replayed: false });
+      if (state.checkoutDelay)
+        await new Promise((resolve) => setTimeout(resolve, state.checkoutDelay));
       state.created = true;
       const saved =
         route.request().postDataJSON().fulfillmentMethod === "COLLECTION"
@@ -156,7 +175,16 @@ async function fixture(page: Page) {
               deliveryCountry: null,
             }
           : order;
-      return reply(route, { order: saved, replayed: state.writes.length > 1 });
+      return reply(route, {
+        order: {
+          ...saved,
+          ...(state.paid ? { paidAt: "2026-10-08T09:00:00Z", status: "CONFIRMED" } : {}),
+          ...(state.cancelled ? { status: "CANCELLED" } : {}),
+        },
+        replayed: state.writes
+          .slice(0, -1)
+          .some((write) => write.key === route.request().headers()["idempotency-key"]),
+      });
     }
     if (
       endpoint === `/customers/orders/${order.id}` ||
@@ -217,6 +245,7 @@ test("delivery checkout sends the selected area and reviews server totals before
   await page.screenshot({
     path: path.join(os.tmpdir(), "allied-delivery-checkout-390.png"),
   });
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
     page.getByRole("heading", { name: "Order created", exact: true }),
@@ -258,17 +287,18 @@ test("uncertain delivery checkout locks fields and repeats only its original bod
   state.mode = "uncertain";
   await page.goto("/dashboard/cart");
   await enterDelivery(page);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
     page.getByRole("heading", { name: "Checkout confirmation is pending" }),
   ).toBeVisible();
   await expect(page.getByLabel("Recipient name")).toBeDisabled();
   await expect(
-    page.getByRole("radio", { name: "Collection", exact: true }),
+    page.getByRole("radio", { name: "Collection", exact: true, includeHidden: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Check this checkout again" }).click();
   await expect(
-    page.getByRole("heading", { name: "Order created", exact: true }),
+    page.getByRole("heading", { name: "Order found", exact: true }),
   ).toBeVisible();
   expect(state.writes).toHaveLength(2);
   expect(state.writes[1]).toEqual(state.writes[0]);
@@ -284,9 +314,10 @@ test("a withdrawn area blocks delivery and lets the customer explicitly switch t
   await page.getByRole("button", { name: "Refresh delivery options" }).click();
   await expect(page.getByText(/The selected delivery area is unavailable/)).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Create order & review total" }),
+    page.getByRole("button", { name: "Review checkout", exact: true }),
   ).toBeDisabled();
   await page.getByRole("radio", { name: "Collection", exact: true }).check();
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
   await page.getByRole("button", { name: "Create order & review total" }).click();
   await expect(
     page.getByRole("heading", { name: "Order created", exact: true }),
@@ -304,7 +335,7 @@ test("delivery read failures preserve collection and support retry", async ({ pa
   await expect(page.getByRole("radio", { name: "Delivery", exact: true })).toBeDisabled();
   await page.getByLabel("Collection branch").selectOption(branch.id);
   await expect(
-    page.getByRole("button", { name: "Create order & review total" }),
+    page.getByRole("button", { name: "Review checkout", exact: true }),
   ).toBeEnabled();
   state.optionsFail = false;
   await page.getByRole("button", { name: "Refresh delivery options" }).click();
@@ -321,7 +352,7 @@ test("known unavailable ordering blocks checkout without discarding the cart", a
   await expect(page.getByText(/Ordering is temporarily unavailable/)).toBeVisible();
   await expect(page.getByText(product.name, { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Create order & review total" }),
+    page.getByRole("button", { name: "Review checkout", exact: true }),
   ).toBeDisabled();
   expect(state.writes).toEqual([]);
 });
@@ -347,4 +378,528 @@ test("staff fulfilment reads the saved delivery address", async ({ page }) => {
     page.getByText(`Recipient: ${order.deliveryName}`, { exact: true }),
   ).toBeVisible();
   expect(state.writes).toEqual([]);
+});
+
+test("review is read-only, can be edited, and successful checkout clears the delivery draft", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/dashboard/cart");
+  await enterDelivery(page);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Review your checkout" })).toBeFocused();
+  expect(state.writes).toHaveLength(0);
+  await expect(page.getByLabel("Quantity", { exact: true })).toBeDisabled();
+  await expect(page.locator(".cart-review-facts")).toContainText(order.deliveryAddress);
+  await page.getByRole("button", { name: "Edit details", exact: true }).click();
+  await expect(page.getByLabel("Stock branch")).toBeFocused();
+  await expect(page.getByLabel("Recipient name")).toHaveValue(order.deliveryName);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Order created", exact: true }),
+  ).toBeFocused();
+  await expect(page.locator(".cart-confirmation .cart-amounts dd")).toContainText([
+    "200.00",
+    "0.00",
+    "101.01",
+    "22.58",
+    "323.59",
+  ]);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          Object.entries(sessionStorage).filter(
+            ([key]) => key.startsWith("aat:form-draft:") && key.includes("cart-checkout"),
+          ).length,
+      ),
+    )
+    .toBe(0);
+  expect(state.writes).toHaveLength(1);
+  expect(state.paymentCalls).toBe(0);
+});
+
+test("invalid recipient details stay in the editor with a focused error and no order write", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/dashboard/cart");
+  await enterDelivery(page);
+  await page.getByLabel("Recipient name").fill("   ");
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.getByLabel("Recipient name")).toBeFocused();
+  await expect(page.getByLabel("Recipient name")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByRole("heading", { name: "Review your checkout" })).toHaveCount(
+    0,
+  );
+  expect(state.writes).toHaveLength(0);
+});
+
+test("edited quantities cannot silently reach checkout and use the authoritative updated subtotal", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/dashboard/cart");
+  await page.getByLabel("Collection branch").selectOption(branch.id);
+  await page.getByLabel("Quantity", { exact: true }).fill("3");
+  await expect(
+    page.getByRole("button", { name: "Review checkout", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Update", exact: true }).click();
+  await expect(page.getByLabel("Quantity", { exact: true })).toHaveValue("3");
+  await expect(page.locator(".cart-subtotal")).toContainText("300.00");
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.locator(".cart-checkout-review .cart-amounts")).toContainText(
+    "300.00",
+  );
+  expect(state.cartWrites).toEqual([{ quantity: 3 }]);
+  expect(state.writes).toHaveLength(0);
+});
+
+test("delivery price changes invalidate a review until the customer reviews the new options", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/dashboard/cart");
+  await enterDelivery(page);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  state.feeKobo = "15000";
+  await page.getByRole("button", { name: "Refresh delivery options" }).click();
+  await expect(page.getByText(/Your cart or delivery options changed/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Create order & review total" }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Edit details", exact: true }).click();
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.locator(".cart-checkout-review .cart-amounts")).toContainText(
+    "150.00",
+  );
+  await expect(
+    page.getByRole("button", { name: "Create order & review total" }),
+  ).toBeEnabled();
+  expect(state.writes).toHaveLength(0);
+});
+
+for (const kind of ["paid", "cancelled"] as const) {
+  test(`an uncertain checkout replay shows the actual ${kind} order state`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    state.mode = "uncertain";
+    state[kind] = true;
+    await page.goto("/dashboard/cart");
+    await enterDelivery(page);
+    await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+    await page.getByRole("button", { name: "Create order & review total" }).click();
+    await page.getByRole("button", { name: "Check this checkout again" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Order found", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(kind === "paid" ? "Payment recorded" : "Order cancelled", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.getByText("Awaiting payment", { exact: true })).toHaveCount(0);
+    await expect(page.getByText(/Payment deadline:/)).toHaveCount(0);
+    expect(state.writes[1]).toEqual(state.writes[0]);
+  });
+}
+
+test("malformed success cannot manufacture an order receipt", async ({ page }) => {
+  const state = await fixture(page);
+  state.mode = "malformed";
+  await page.goto("/dashboard/cart");
+  await enterDelivery(page);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Checkout confirmation is pending" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Order created", exact: true }),
+  ).toHaveCount(0);
+  expect(state.writes).toHaveLength(1);
+});
+
+test("session invalidation during checkout removes private review and suppresses a late success", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.checkoutDelay = 1400;
+  await page.goto("/dashboard/cart");
+  await enterDelivery(page);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect.poll(() => state.writes.length).toBe(1);
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
+  await expect(page.getByRole("button", { name: "Verify session again" })).toBeVisible();
+  await expect(page.locator(".cart-checkout-review")).toHaveCount(0);
+  await expect.poll(() => state.created).toBe(true);
+  await expect(
+    page.getByText("Order created. Review the total and payment deadline.", {
+      exact: true,
+    }),
+  ).toHaveCount(0);
+  await expect(page.locator(".cart-confirmation")).toHaveCount(0);
+});
+
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
+  test(`checkout editor, review and server confirmation fit ${width}px`, async ({
+    page,
+  }) => {
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await fixture(page);
+    await page.setViewportSize({ width, height: 960 });
+    await page.goto("/dashboard/cart");
+    await enterDelivery(page);
+    await page.evaluate(() => document.fonts.ready);
+    for (const stage of ["editor", "review", "receipt"]) {
+      if (stage === "review")
+        await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+      if (stage === "receipt")
+        await page.getByRole("button", { name: "Create order & review total" }).click();
+      if (stage === "receipt")
+        await expect(
+          page.getByRole("heading", { name: "Order created", exact: true }),
+        ).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      expect(
+        (
+          await new AxeBuilder({ page })
+            .include(".cart-page")
+            .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+            .analyze()
+        ).violations,
+      ).toEqual([]);
+      await page.screenshot({
+        path: path.join(os.homedir(), ".codex", `cart-oct-after-${width}-${stage}.png`),
+        fullPage: true,
+      });
+    }
+    expect(errors).toEqual([]);
+  });
+}
+
+test("a rejected checkout remains editable and a new review gets a new idempotency key", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.mode = "rejected";
+  await page.goto("/dashboard/cart");
+  await enterDelivery(page);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect(
+    page.locator(".cart-page > .feedback[role='alert'], .cart-page > [role='alert']"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Edit details", exact: true }),
+  ).toBeEnabled();
+  expect(state.writes).toHaveLength(1);
+  await page.getByRole("button", { name: "Edit details", exact: true }).click();
+  await page.getByLabel("Recipient name").fill("Revised recipient");
+  state.mode = "success";
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Order created", exact: true }),
+  ).toBeVisible();
+  expect(state.writes).toHaveLength(2);
+  expect(state.writes[1].key).not.toBe(state.writes[0].key);
+  expect(state.writes[1].body).toMatchObject({ delivery: { name: "Revised recipient" } });
+});
+
+test("branch pagination retains an explicitly selected branch from another page", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  const next = { ...branch, id: id(40), name: "Second page branch" };
+  const reads: string[] = [];
+  await page.route("**/public/branches?**", (route) => {
+    const cursor = new URL(route.request().url()).searchParams.get("cursor");
+    reads.push(cursor ?? "first");
+    return reply(
+      route,
+      cursor ? { items: [next] } : { items: [branch], nextCursor: id(41) },
+    );
+  });
+  await page.goto("/dashboard/cart");
+  await page.getByLabel("Collection branch").selectOption(branch.id);
+  await page
+    .getByRole("navigation", { name: "Branch choices pages" })
+    .getByRole("button", { name: "Next", exact: true })
+    .click();
+  await expect(page.getByRole("option", { name: "Second page branch" })).toHaveCount(1);
+  await expect(page.getByLabel("Collection branch")).toHaveValue(branch.id);
+  await page.getByLabel("Collection branch").selectOption(next.id);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.locator(".cart-review-facts")).toContainText(next.name);
+  expect(reads).toEqual(["first", id(41)]);
+  expect(state.writes).toHaveLength(0);
+});
+
+test("promotion preview is an estimate and only the server receipt supplies the payable total", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.route("**/customers/promotions/preview", (route) => {
+    expect(route.request().postDataJSON()).toEqual({
+      code: "QA10",
+      subtotalKobo: "20000",
+    });
+    return reply(route, { code: "QA10", discountAmountKobo: "1000" });
+  });
+  await page.goto("/dashboard/cart");
+  await page.getByLabel("Collection branch").selectOption(branch.id);
+  await page.getByLabel("Promotion code (optional)").fill("qa10");
+  await page.getByRole("button", { name: "Check promotion code", exact: true }).click();
+  await expect(page.getByText(/Estimated discount/)).toBeVisible();
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.locator(".cart-review-facts")).toContainText("qa10");
+  await expect(page.locator(".cart-checkout-review .cart-amounts dd")).toHaveCount(1);
+  expect(state.writes).toHaveLength(0);
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect(page.locator(".cart-confirmation .cart-final-total")).toContainText(
+    "215.00",
+  );
+});
+
+for (const width of [390, 1440]) {
+  test(`multiple products keep independent quantities and render real media responses at ${width}px`, async ({
+    page,
+  }) => {
+    await fixture(page);
+    const quantities = [2, 7];
+    const products = [
+      {
+        ...product,
+        name: "QA oil filter",
+        images: [
+          {
+            id: id(60),
+            url: `/api/v1/public/catalog/products/images/${id(60)}`,
+            altText: null,
+            isPrimary: true,
+          },
+        ],
+      },
+      {
+        ...product,
+        id: id(61),
+        name: "QA replacement brake pads with a longer product description",
+        sku: "QA-PART-".repeat(9),
+      },
+    ];
+    await page.route(`**/public/catalog/products/images/${id(60)}`, (route) =>
+      route.fulfill({
+        path: path.resolve("public/images/allied-autotech/parts-editorial.webp"),
+        contentType: "image/webp",
+      }),
+    );
+    await page.route("**/customers/cart", (route) =>
+      reply(route, {
+        subtotalKobo: String(quantities.reduce((a, b) => a + b, 0) * 10000),
+        items: products.map((item, index) => ({
+          id: id(70 + index),
+          product: item,
+          quantity: quantities[index],
+          unitPriceKobo: "10000",
+          lineSubtotalKobo: String(quantities[index] * 10000),
+        })),
+      }),
+    );
+    const writes: unknown[] = [];
+    await page.route("**/customers/cart/items/**", (route) => {
+      const index = route.request().url().endsWith(products[0].id) ? 0 : 1;
+      expect(route.request().headers()["x-csrf-token"]).toBeTruthy();
+      quantities[index] = route.request().postDataJSON().quantity;
+      writes.push({ index, quantity: quantities[index] });
+      return reply(route, {});
+    });
+    await page.setViewportSize({ width, height: 960 });
+    await page.goto("/dashboard/cart");
+    const first = page.getByRole("article", { name: products[0].name, exact: true });
+    const second = page.getByRole("article", { name: products[1].name, exact: true });
+    await expect
+      .poll(() =>
+        first
+          .locator("img")
+          .evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0),
+      )
+      .toBe(true);
+    await first.getByLabel("Quantity", { exact: true }).fill("3");
+    await expect(second.getByLabel("Quantity", { exact: true })).toHaveValue("7");
+    await first.getByRole("button", { name: "Update", exact: true }).click();
+    await expect(first.getByLabel("Quantity", { exact: true })).toHaveValue("3");
+    await expect(second.getByLabel("Quantity", { exact: true })).toHaveValue("7");
+    expect(writes).toEqual([{ index: 0, quantity: 3 }]);
+    await page.reload();
+    await expect(first.getByLabel("Quantity", { exact: true })).toHaveValue("3");
+    await expect(second.getByLabel("Quantity", { exact: true })).toHaveValue("7");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (await new AxeBuilder({ page }).include(".cart-page").analyze()).violations,
+    ).toEqual([]);
+    await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await page.screenshot({
+      path: path.join(os.homedir(), ".codex", `cart-oct-multiple-${width}.png`),
+      fullPage: true,
+    });
+  });
+}
+
+test("a cart changed elsewhere must be reviewed again before any order write", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/dashboard/cart");
+  await page.getByLabel("Collection branch").selectOption(branch.id);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  state.quantity = 4;
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect(
+    page.getByText(
+      "Your cart changed. Edit details and review the updated items before creating your order.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  await expect(page.getByLabel("Quantity", { exact: true })).toHaveValue("4");
+  await expect(
+    page.getByRole("button", { name: "Create order & review total" }),
+  ).toBeDisabled();
+  expect(state.writes).toHaveLength(0);
+  await page.getByRole("button", { name: "Edit details", exact: true }).click();
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.locator(".cart-checkout-review .cart-amounts")).toContainText(
+    "400.00",
+  );
+});
+
+test("failed checkout preflight sends no order and does not claim an uncertain write", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.goto("/dashboard/cart");
+  await page.getByLabel("Collection branch").selectOption(branch.id);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await page.route("**/customers/cart", (route) => route.abort("failed"));
+  await page.getByRole("button", { name: "Create order & review total" }).click();
+  await expect(page.getByText(/No checkout was sent/)).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Checkout confirmation is pending" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Edit details", exact: true }),
+  ).toBeEnabled();
+  expect(state.writes).toHaveLength(0);
+});
+
+test("empty branch choices explain the dependency and can recover without losing the cart", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  let empty = true;
+  await page.route("**/public/branches?**", (route) =>
+    reply(route, { items: empty ? [] : [branch] }),
+  );
+  await page.goto("/dashboard/cart");
+  await expect(page.getByText(/No branch is available for checkout/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Review checkout", exact: true }),
+  ).toBeDisabled();
+  empty = false;
+  await page.getByRole("button", { name: "Refresh branch choices", exact: true }).click();
+  await page.getByLabel("Collection branch").selectOption(branch.id);
+  await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Review your checkout" })).toBeVisible();
+  expect(state.writes).toHaveLength(0);
+});
+
+for (const viewport of [
+  { width: 390, height: 568 },
+  { width: 844, height: 390 },
+]) {
+  test(`long delivery review and manual copy remain usable at ${viewport.width}x${viewport.height}`, async ({
+    page,
+  }) => {
+    await fixture(page);
+    await page.addInitScript(() =>
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: () => Promise.reject(new Error("Test clipboard denied")) },
+      }),
+    );
+    await page.setViewportSize(viewport);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/dashboard/cart");
+    await enterDelivery(page);
+    const address = "QA street direction ".repeat(23).trim();
+    await page.getByLabel("Street address and directions").fill(address);
+    await page.getByRole("button", { name: "Review checkout", exact: true }).click();
+    await expect(page.locator(".cart-review-facts")).toContainText(address);
+    const create = page.getByRole("button", { name: "Create order & review total" });
+    await create.scrollIntoViewIfNeeded();
+    await expect(create).toBeInViewport();
+    await create.click();
+    await expect(
+      page.getByRole("heading", { name: "Order created", exact: true }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Copy order reference", exact: true }).click();
+    await expect(page.getByLabel("Order reference", { exact: true })).toBeFocused();
+    await expect(page.getByText(/Select and copy the value above/)).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    expect(
+      (await new AxeBuilder({ page }).include(".cart-page").analyze()).violations,
+    ).toEqual([]);
+  });
+}
+
+for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"]) {
+  test(`${role} is redirected away from customer checkout before cart reads or writes`, async ({
+    page,
+  }) => {
+    const state = await fixture(page);
+    state.role = role;
+    const customerRequests: string[] = [];
+    page.on("request", (request) => {
+      if (/\/api\/v1\/customers\/(cart|orders\/checkout)/.test(request.url()))
+        customerRequests.push(request.url());
+    });
+    await page.goto("/dashboard/cart");
+    await expect(page).toHaveURL(/\/admin$/);
+    await expect(page.locator(".cart-page")).toHaveCount(0);
+    expect(customerRequests).toEqual([]);
+    expect(state.writes).toHaveLength(0);
+  });
+}
+
+test("anonymous checkout redirects to sign in without fetching a customer's cart", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.route("**/auth/session", (route) =>
+    route.fulfill({
+      status: 401,
+      json: { success: false, error: { code: "UNAUTHENTICATED" } },
+    }),
+  );
+  const customerRequests: string[] = [];
+  page.on("request", (request) => {
+    if (/\/api\/v1\/customers\/(cart|orders\/checkout)/.test(request.url()))
+      customerRequests.push(request.url());
+  });
+  await page.goto("/dashboard/cart");
+  await expect(page).toHaveURL(/\/login\?next=/);
+  await expect(page.locator(".cart-page")).toHaveCount(0);
+  expect(customerRequests).toEqual([]);
+  expect(state.writes).toHaveLength(0);
 });

@@ -478,7 +478,9 @@ test("quotation issue and work-order milestones use revisions and refresh the pa
     page.getByRole("dialog").getByText(/seven days from issuance/),
   ).toBeVisible();
   await page.getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.getByText("ISSUED · Version 2 · Revision 3")).toBeVisible();
+  const issuedQuote = page.getByRole("article", { name: "TEST-QUOTE" });
+  await expect(issuedQuote.getByText("Issued", { exact: true })).toBeVisible();
+  await expect(issuedQuote.getByText("Version 2 · Revision 3")).toBeVisible();
   await page.getByLabel("Diagnosis (customer-visible)").fill("Test diagnosis");
   await page.getByLabel("Internal work-order notes").fill("Test internal note");
   await page.getByRole("button", { name: "Review draft work order" }).click();
@@ -717,6 +719,8 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
         await expect(
           page.getByRole("button", { name: "Review quotation draft" }),
         ).toBeDisabled();
+        await expect(page.getByLabel("Draft expiry (Lagos time)")).toBeDisabled();
+        await expect(page.getByLabel("Quotation notes (optional)")).toBeDisabled();
         expect(creates).toBe(1);
         expect(replacements).toBe(0);
         return;
@@ -763,7 +767,9 @@ for (const lostOperation of ["none", "create", "replace"] as const) {
       await expect(
         page.getByRole("heading", { name: "TEST-REPLACEMENT", exact: true }),
       ).toBeVisible();
-      await expect(page.getByText("VOID · Version 1 · Revision 1")).toBeVisible();
+      const previousDraft = page.getByRole("article", { name: "TEST-DRAFT" });
+      await expect(previousDraft.getByText("Void", { exact: true })).toBeVisible();
+      await expect(previousDraft.getByText("Version 1 · Revision 1")).toBeVisible();
       expect(replacements).toBe(1);
     },
   );

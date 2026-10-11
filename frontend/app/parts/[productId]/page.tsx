@@ -5,9 +5,11 @@ import { headers } from "next/headers";
 import {
   ArrowRight,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   MapPin,
   MessageCircle,
+  Package,
 } from "lucide-react";
 import { notFound, unstable_rethrow } from "next/navigation";
 import { z } from "zod";
@@ -21,6 +23,7 @@ import {
 import { publicData, PublicApiError } from "@/lib/api/public-server";
 import { productSchema, parseProducts, type Product } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
+import { business } from "@/lib/business";
 import { SiteHeader } from "../../components/site-header";
 import { SiteFooter } from "../../components/site-footer";
 import { ProductGallery } from "./product-gallery";
@@ -98,6 +101,8 @@ async function RelatedProducts({ product }: { product: Product }) {
                   (item.images.find((photo) => photo.isPrimary) ?? item.images[0])?.url
                 }
                 alt={item.name}
+                sizes="130px"
+                fallbackIcon={<Package size={24} strokeWidth={1.3} />}
               />
               <div>
                 <h3>{item.name}</h3>
@@ -225,14 +230,43 @@ export default async function ProductPage({
               {product.brand && <>{product.brand} &middot; </>}
               {product.category.name}
             </p>
-            <p className="pd-mobile-price">{formatKobo(product.priceKobo)}</p>
+            <div className="pd-mobile-price">
+              <strong>{formatKobo(product.priceKobo)}</strong>
+              {compare && (
+                <span>
+                  <span className="sr-only">Comparison price </span>
+                  <del>{formatKobo(compare)}</del>
+                </span>
+              )}
+              <span className="pd-unit">Price per item</span>
+            </div>
           </header>
+          <nav className="pd-section-nav" aria-label="Product sections">
+            <a href="#product-overview">Overview</a>
+            <a href="#product-information">Product information</a>
+            <a href="#product-compatibility">Compatibility</a>
+            <a href="#product-delivery">Delivery</a>
+          </nav>
           <div className="pd-top-grid">
-            <ProductGallery
-              key={product.id}
-              images={product.images}
-              title={product.name}
-            />
+            <div className="pd-gallery-frame" id="product-overview">
+              <ProductGallery
+                key={product.id}
+                images={product.images}
+                title={product.name}
+              />
+              <dl className="pd-identifiers">
+                {Object.entries({
+                  Brand: product.brand || "Not listed",
+                  "Part number": product.manufacturerPartNumber || "Not listed",
+                  SKU: product.sku,
+                }).map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
             <section className="pd-purchase" aria-label="Price and ordering">
               <div className="pd-price-row">
                 <strong>{formatKobo(product.priceKobo)}</strong>
@@ -286,7 +320,7 @@ export default async function ProductPage({
             </Link>
           </aside>
           <div className="pd-details-grid">
-            <section aria-labelledby="pd-info-title">
+            <section id="product-information" aria-labelledby="pd-info-title">
               <h2 id="pd-info-title">Product information</h2>
               <p className="pd-description">
                 {product.description ||
@@ -303,6 +337,7 @@ export default async function ProductPage({
             </section>
             <section
               className="pd-compatibility"
+              id="product-compatibility"
               aria-labelledby="pd-compatibility-title"
             >
               <h2 id="pd-compatibility-title">Vehicle compatibility</h2>
@@ -344,6 +379,66 @@ export default async function ProductPage({
               </Link>
             </section>
           </div>
+          <section
+            className="pd-ordering"
+            id="product-delivery"
+            aria-labelledby="pd-ordering-title"
+          >
+            <div>
+              <h2 id="pd-ordering-title">Delivery and ordering</h2>
+              <ol className="pd-ordering-steps">
+                <li>
+                  <span aria-hidden="true">01</span>
+                  <div>
+                    <h3>Check the fit</h3>
+                    <p>Match the part number and your vehicle before ordering.</p>
+                  </div>
+                </li>
+                <li>
+                  <span aria-hidden="true">02</span>
+                  <div>
+                    <h3>Review your cart</h3>
+                    <p>
+                      Save the total quantity you need. Cart items do not reserve stock.
+                    </p>
+                  </div>
+                </li>
+                <li>
+                  <span aria-hidden="true">03</span>
+                  <div>
+                    <h3>Choose fulfilment</h3>
+                    <p>Review collection or available delivery options at checkout.</p>
+                  </div>
+                </li>
+              </ol>
+            </div>
+            <div className="pd-ordering-faq">
+              <h3>Before you order</h3>
+              <details>
+                <summary>
+                  Where can I collect my order?
+                  <ChevronDown size={18} aria-hidden="true" />
+                </summary>
+                <p>
+                  {business.address}. Follow the collection instructions in your order
+                  before visiting.
+                </p>
+              </details>
+              <details>
+                <summary>
+                  Can this product be delivered?
+                  <ChevronDown size={18} aria-hidden="true" />
+                </summary>
+                <p>
+                  Checkout shows the currently available delivery areas and charges. If
+                  your area is not listed, contact our team for help.
+                </p>
+                <Link className="pd-link" href="/contact#enquiry">
+                  Ask about delivery <ArrowRight size={17} aria-hidden="true" />
+                </Link>
+              </details>
+            </div>
+          </section>
           <Suspense
             fallback={
               <section className="pd-related" role="status">

@@ -16,6 +16,7 @@ import { business } from "@/lib/business";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PublicEnquiryForm } from "../components/public-enquiry-form";
+import { ContactAccountLink } from "./contact-account-link";
 import { ContactAnchor } from "./contact-anchor";
 import "./contact.css";
 
@@ -57,7 +58,7 @@ export default function ContactPage() {
             </ol>
           </nav>
           <section className="contact-hero" aria-labelledby="contact-title">
-            <div>
+            <div className="contact-hero-copy">
               <h1 id="contact-title">Let’s talk about your vehicle.</h1>
               <p>
                 Questions about a service, a vehicle or an order? Our team can help you
@@ -119,56 +120,69 @@ export default function ContactPage() {
               </span>
             </ContactAnchor>
           </section>
-          <section className="contact-care" aria-labelledby="enquiry">
-            <div className="contact-care-context">
-              <h2 id="enquiry" tabIndex={-1}>
-                Tell us how we can help.
-              </h2>
-              <p>
-                Ask about services, bookings, quotations, orders, payments or vehicles.
-              </p>
-              <p className="contact-account-link">
-                Already have an account?{" "}
-                <Link href="/dashboard/support">
-                  View customer care <ChevronRight size={14} aria-hidden="true" />
-                </Link>
-              </p>
-              <ol className="contact-next">
-                <li>
-                  <span>1</span>
-                  <div>
-                    <h3>Share the details</h3>
-                    <p>
-                      Tell us what you need help with. Include useful references in your
-                      message.
-                    </p>
-                  </div>
-                </li>
-                <li>
-                  <span>2</span>
-                  <div>
-                    <h3>Review before sending</h3>
-                    <p>
-                      Check your contact details and message before creating your request.
-                    </p>
-                  </div>
-                </li>
-                <li>
-                  <span>3</span>
-                  <div>
-                    <h3>Keep your contact details handy</h3>
-                    <p>
-                      The team can use the details you provide to follow up or ask for
-                      more information.
-                    </p>
-                  </div>
-                </li>
-              </ol>
-            </div>
-            <div className="contact-form-panel">
-              <PublicEnquiryForm presentation="contact" />
-            </div>
-          </section>
+        </div>
+        <div className="contact-care-band">
+          <div className="contact-wrap">
+            <section className="contact-care" aria-labelledby="enquiry">
+              <div className="contact-care-context">
+                <h2 id="enquiry" tabIndex={-1}>
+                  Tell us how we can help.
+                </h2>
+                <p>
+                  Ask about services, bookings, quotations, orders, payments or vehicles.
+                </p>
+                <ContactAccountLink />
+                <ol className="contact-next">
+                  <li>
+                    <span>1</span>
+                    <div>
+                      <h3>Share the details</h3>
+                      <p>
+                        Tell us what you need help with. Include useful references in your
+                        message.
+                      </p>
+                    </div>
+                  </li>
+                  <li>
+                    <span>2</span>
+                    <div>
+                      <h3>Review before sending</h3>
+                      <p>
+                        Check your contact details and message before creating your
+                        request.
+                      </p>
+                    </div>
+                  </li>
+                  <li>
+                    <span>3</span>
+                    <div>
+                      <h3>Keep your reference</h3>
+                      <p>
+                        After your request is received, save the reference for
+                        conversations with our team.
+                      </p>
+                    </div>
+                  </li>
+                </ol>
+                <aside
+                  className="contact-preparation"
+                  aria-labelledby="contact-preparation-title"
+                >
+                  <h3 id="contact-preparation-title">Helpful details</h3>
+                  <ul>
+                    <li>Your vehicle and the issue</li>
+                    <li>A booking or order reference, if relevant</li>
+                    <li>What you would like us to help with</li>
+                  </ul>
+                </aside>
+              </div>
+              <div className="contact-form-panel">
+                <PublicEnquiryForm presentation="contact" />
+              </div>
+            </section>
+          </div>
+        </div>
+        <div className="contact-wrap">
           <section className="contact-location" aria-labelledby="workshop">
             <h2 id="workshop" tabIndex={-1}>
               Visit our <span>Port Harcourt workshop.</span>
@@ -177,6 +191,7 @@ export default function ContactPage() {
               <div>
                 <h3>Allied AutoTech</h3>
                 <address>{business.address}</address>
+                <p>Call before travelling to discuss your visit.</p>
                 <div className="contact-actions">
                   <a
                     className="button secondary"
@@ -230,42 +245,64 @@ export default function ContactPage() {
               </div>
             </div>
           </section>
-          <section className="contact-faq" aria-labelledby="contact-help">
-            <h2 id="contact-help">A little guidance before you get in touch.</h2>
-            <details>
-              <summary>
-                Can I ask about an existing booking or order?
-                <ChevronDown size={18} aria-hidden="true" />
-              </summary>
-              <p>
-                Yes. Include the reference in your message, or{" "}
-                <Link href="/dashboard/support">sign in to customer care</Link> to access
-                your support records. Keep payment card details and passwords out of your
-                message.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Does an enquiry confirm an appointment?
-                <ChevronDown size={18} aria-hidden="true" />
-              </summary>
-              <p>
-                An enquiry starts a conversation. It does not confirm an appointment,
-                price or resolution. To request a service visit, use{" "}
-                <Link href="/services">Book a Service</Link>.
-              </p>
-            </details>
-            <details>
-              <summary>
-                Where can I find more help?
-                <ChevronDown size={18} aria-hidden="true" />
-              </summary>
-              <p>
-                Visit the <Link href="/help">Help Centre</Link> for guidance about
-                bookings, shopping, vehicle enquiries and your account.
-              </p>
-            </details>
-          </section>
+        </div>
+        <div className="contact-faq-band">
+          <div className="contact-wrap">
+            <section className="contact-faq" aria-labelledby="contact-help">
+              <div>
+                <h2 id="contact-help">Before you get in touch.</h2>
+                <p>Find the right next step for your question.</p>
+                <Link className="text-link" href="/help">
+                  Visit the Help Centre <ArrowUpRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
+              <div className="contact-faq-items">
+                <details>
+                  <summary>
+                    Can I ask about an existing booking or order?
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </summary>
+                  <p>
+                    Yes. Include the reference in your message. Customer accounts can use
+                    the account link above to access their support records. Keep payment
+                    card details and passwords out of your message.
+                  </p>
+                </details>
+                <details>
+                  <summary>
+                    Does an enquiry confirm an appointment?
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </summary>
+                  <p>
+                    An enquiry starts a conversation. It does not confirm an appointment,
+                    price or resolution. To request a service visit, use{" "}
+                    <Link href="/services">Book a Service</Link>.
+                  </p>
+                </details>
+                <details>
+                  <summary>
+                    How do I raise a complaint?
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </summary>
+                  <p>
+                    Choose Complaint in the form above. Describe what happened and what
+                    you would like us to help with, then review your details before
+                    sending. Keep the reference shown after your complaint is received.
+                  </p>
+                </details>
+                <details>
+                  <summary>
+                    Where can I find more help?
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </summary>
+                  <p>
+                    Visit the <Link href="/help">Help Centre</Link> for guidance about
+                    bookings, shopping, vehicle enquiries and your account.
+                  </p>
+                </details>
+              </div>
+            </section>
+          </div>
         </div>
       </main>
       <SiteFooter />

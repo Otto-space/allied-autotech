@@ -1,5 +1,11 @@
 import { z } from "zod";
+export const publicServiceCategorySchema = z.object({
+  id: z.uuid(),
+  name: z.string().max(120),
+  slug: z.string().max(120),
+});
 export const serviceSchema = z.object({
+  category: publicServiceCategorySchema.nullable().default(null),
   image: z
     .object({
       id: z.uuid(),
@@ -26,3 +32,25 @@ export const servicePageSchema = z.object({
   nextCursor: z.string().optional(),
 });
 export const parseServices = (value: unknown) => servicePageSchema.parse(value);
+const catalogueCursor = z
+  .string()
+  .min(80)
+  .max(1024)
+  .regex(/^[A-Za-z0-9_-]+$/);
+export const parseServiceDiscovery = (value: unknown) =>
+  servicePageSchema
+    .extend({
+      items: z.array(serviceSchema).max(50),
+      totalMatches: z.number().int().nonnegative(),
+      nextCursor: catalogueCursor.optional(),
+    })
+    .parse(value);
+export const parseServiceCategories = (value: unknown) =>
+  z
+    .object({
+      items: z.array(publicServiceCategorySchema).max(50),
+      nextCursor: catalogueCursor.optional(),
+    })
+    .parse(value);
+export const parseServiceCategory = (value: unknown) =>
+  publicServiceCategorySchema.parse(value);

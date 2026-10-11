@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { ServicePhoto } from "./service-photo";
 import {
   ArrowDown,
   ArrowRight,
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock3,
   MessageCircle,
@@ -17,9 +19,14 @@ import { ServiceChoice } from "../services/[serviceId]/service-choice";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import "../contact/contact.css";
 import "../services/[serviceId]/service-detail.css";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { z } from "zod";
-import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
+import {
+  apiRequest,
+  ApiError,
+  newIdempotencyKey,
+  SESSION_CHANGED,
+} from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
 import { parseBookingPolicy, parseSlots, bookingSchema } from "@/lib/api/booking-schemas";
 import { serviceSchema } from "@/lib/api/public-schemas";
@@ -51,9 +58,11 @@ const parseBranches = (value: unknown) =>
 export function ServiceDetail({
   serviceId,
   initialService,
+  relatedServices,
 }: {
   serviceId: string;
   initialService: z.infer<typeof serviceSchema>;
+  relatedServices?: ReactNode;
 }) {
   const parseService = useCallback(
     (value: unknown) => {
@@ -73,6 +82,50 @@ export function ServiceDetail({
   const fixed = current?.pricingType === "FIXED";
   const bookable =
     fixed && current.priceKobo !== null && current.durationMinutes !== null;
+  const [access, setAccess] = useState<
+    "checking" | "customer" | "anonymous" | "restricted" | "error"
+  >("checking");
+  const [accessRetry, setAccessRetry] = useState(0);
+  useEffect(() => {
+    if (!bookable) return;
+    let pending: AbortController | undefined;
+    async function check() {
+      pending?.abort();
+      const controller = new AbortController();
+      pending = controller;
+      try {
+        const response = await apiRequest("/auth/session", {
+          optionalSession: true,
+          signal: controller.signal,
+        });
+        const identity = z
+          .object({
+            user: z.object({
+              id: z.uuid(),
+              role: z.enum(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]),
+            }),
+          })
+          .parse(response.data);
+        if (!controller.signal.aborted)
+          setAccess(identity.user.role === "CUSTOMER" ? "customer" : "restricted");
+      } catch (failure) {
+        if (!controller.signal.aborted)
+          setAccess(
+            failure instanceof ApiError && failure.status === 401 ? "anonymous" : "error",
+          );
+      }
+    }
+    function changed() {
+      setAccess("checking");
+      void check();
+    }
+    void check();
+    window.addEventListener(SESSION_CHANGED, changed);
+    return () => {
+      pending?.abort();
+      window.removeEventListener(SESSION_CHANGED, changed);
+    };
+  }, [bookable, accessRetry]);
   const policy = useResource(
     bookable ? "/public/booking-policy" : null,
     parseBookingPolicy,
@@ -248,6 +301,7 @@ export function ServiceDetail({
       booking ||
       !current ||
       !review ||
+      access !== "customer" ||
       service.error ||
       (!uncertain &&
         (reviewChanged ||
@@ -285,6 +339,7 @@ export function ServiceDetail({
         );
       if (controller.signal.aborted) return;
       if (session.user.role !== "CUSTOMER") {
+        setAccess("restricted");
         setError(
           "Booking requests are available to customer accounts. Contact our team for help.",
         );
@@ -375,40 +430,58 @@ export function ServiceDetail({
               Loading service details…
             </p>
           )}
-          {current && (
-            <>
-              <section className="sd-hero" aria-labelledby="sd-title">
+        </div>
+        {current && (
+          <>
+            <section
+              className="sd-overview"
+              id="service-overview"
+              aria-labelledby="sd-title"
+            >
+              <div className="sd-container sd-hero">
                 <div className="sd-identity">
-                  <p className="sd-eyebrow">Workshop services</p>
                   <h1 id="sd-title">{current.name}</h1>
                   {current.shortDescription && (
                     <p className="sd-intro">{current.shortDescription}</p>
                   )}
-                  <p className="sd-price">
-                    {fixed && current.priceKobo !== null
-                      ? formatKobo(current.priceKobo)
-                      : fixed
-                        ? "Contact us for pricing"
-                        : "Quotation required"}
-                  </p>
-                  {current.durationMinutes !== null && (
+                  <div className="sd-facts">
+                    <div>
+                      <p className="sd-price">
+                        {fixed && current.priceKobo !== null
+                          ? formatKobo(current.priceKobo)
+                          : fixed
+                            ? "Contact us for pricing"
+                            : "Quotation required"}
+                      </p>
+                      {fixed && current.priceKobo !== null && (
+                        <p className="sd-price-label">Fixed price</p>
+                      )}
+                    </div>
                     <p className="sd-duration">
                       <Clock3 size={20} aria-hidden="true" />
-                      Listed duration: {current.durationMinutes} minutes
+                      {current.durationMinutes !== null && current.durationMinutes > 0
+                        ? `Listed duration: ${current.durationMinutes} ${current.durationMinutes === 1 ? "minute" : "minutes"}`
+                        : "Duration not listed"}
                     </p>
-                  )}
+                  </div>
                   <div className="sd-actions">
-                    <a
-                      className="button"
-                      href="#service-request"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        focus(booking ? confirmation.current : formHeading.current);
-                      }}
-                    >
-                      {fixed ? "Choose an appointment" : "Send an enquiry"}
-                      <ArrowDown size={17} aria-hidden="true" />
-                    </a>
+                    {fixed && access === "restricted" ? (
+                      <Link className="button" href="/admin">
+                        Go to your dashboard <ArrowRight size={17} aria-hidden="true" />
+                      </Link>
+                    ) : (
+                      <a
+                        className="button"
+                        href="#service-request"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          focus(booking ? confirmation.current : formHeading.current);
+                        }}
+                      >
+                        {fixed ? "Choose an appointment" : "Send an enquiry"}
+                        <ArrowDown size={17} aria-hidden="true" />
+                      </a>
+                    )}
                     <Link className="button secondary" href="/contact">
                       Talk to our team
                     </Link>
@@ -430,15 +503,22 @@ export function ServiceDetail({
                     </>
                   )}
                 </div>
-              </section>
-            </>
-          )}
-        </div>
+              </div>
+            </section>
+            <nav className="sd-container sd-section-nav" aria-label="Service sections">
+              <a href="#service-overview">Overview</a>
+              <a href="#service-about">About this service</a>
+              <a href="#service-request">Request</a>
+              <a href="#service-questions">FAQ</a>
+              {relatedServices && <a href="#service-more">Other services</a>}
+            </nav>
+          </>
+        )}
         {current && (
           <section className="sd-workspace">
             <div className="sd-container sd-layout">
               <aside className="sd-context" aria-label="About this service">
-                <div>
+                <div id="service-about">
                   <h2>About this service</h2>
                   <p className="sd-description">
                     {current.description ??
@@ -463,6 +543,14 @@ export function ServiceDetail({
                       : "Discuss the next steps with our team"}
                   </li>
                 </ol>
+                <div className="sd-preparation">
+                  <h3>What to tell us</h3>
+                  <ul>
+                    <li>When the concern occurs.</li>
+                    <li>Warning lights or changes you have noticed.</li>
+                    <li>Relevant service history.</li>
+                  </ul>
+                </div>
                 <div className="sd-help">
                   <h2>Need a hand?</h2>
                   <p>Speak with our team about your vehicle before you send a request.</p>
@@ -478,7 +566,7 @@ export function ServiceDetail({
                 </div>
               </aside>
               <div className="sd-panel" id="service-request">
-                {bookable && (
+                {bookable && (access === "customer" || access === "anonymous") && (
                   <ol className="sd-booking-progress" aria-label="Booking progress">
                     {["Details", "Review", "Received"].map((label, index) => {
                       const step = booking ? 2 : review ? 1 : 0;
@@ -497,7 +585,11 @@ export function ServiceDetail({
                     })}
                   </ol>
                 )}
-                <h2 ref={formHeading} tabIndex={-1} className={booking ? "sr-only" : "sd-form-title"}>
+                <h2
+                  ref={formHeading}
+                  tabIndex={-1}
+                  className={booking ? "sr-only" : "sd-form-title"}
+                >
                   {fixed
                     ? booking
                       ? "Your booking request"
@@ -529,6 +621,37 @@ export function ServiceDetail({
                       or duration is being updated.
                     </p>
                     <Link className="button secondary" href="/contact">
+                      Contact our team
+                    </Link>
+                  </div>
+                ) : access === "checking" ? (
+                  <p role="status" className="sd-muted">
+                    Checking booking access…
+                  </p>
+                ) : access === "error" ? (
+                  <div className="sd-recovery">
+                    <p>We couldn’t check your account. Try again to continue booking.</p>
+                    <button
+                      type="button"
+                      className="button secondary"
+                      onClick={() => {
+                        setAccess("checking");
+                        setAccessRetry((value) => value + 1);
+                      }}
+                    >
+                      Retry account check
+                    </button>
+                  </div>
+                ) : access === "restricted" ? (
+                  <div className="sd-recovery">
+                    <p>
+                      Booking requests are available to customer accounts. Your work
+                      account can use its dashboard for assigned operations.
+                    </p>
+                    <Link href="/admin" className="button secondary">
+                      Open your dashboard
+                    </Link>
+                    <Link href="/contact" className="text-link">
                       Contact our team
                     </Link>
                   </div>
@@ -944,31 +1067,41 @@ export function ServiceDetail({
                           Edit details
                         </button>
                       )}
-                      <button
-                        type="submit"
-                        className="button"
-                        disabled={
-                          busy ||
-                          !!service.error ||
-                          (!uncertain &&
-                            (reviewChanged ||
-                              !selectedSlot ||
-                              !policy.data ||
-                              !!policy.error ||
-                              slots.loading ||
-                              !!slots.error ||
-                              (requiresDeposit && !accepted)))
-                        }
-                      >
-                        {busy
-                          ? "Sending request…"
-                          : uncertain
-                            ? "Check the same booking request"
-                            : review
-                              ? "Request booking"
-                              : "Review booking request"}
-                        <ArrowRight size={17} aria-hidden="true" />
-                      </button>
+                      {review && access === "anonymous" ? (
+                        <Link
+                          className="button"
+                          href={`/login?next=${encodeURIComponent(`/services/${serviceId}`)}`}
+                        >
+                          Sign in to request booking
+                          <ArrowRight size={17} aria-hidden="true" />
+                        </Link>
+                      ) : (
+                        <button
+                          type="submit"
+                          className="button"
+                          disabled={
+                            busy ||
+                            !!service.error ||
+                            (!uncertain &&
+                              (reviewChanged ||
+                                !selectedSlot ||
+                                !policy.data ||
+                                !!policy.error ||
+                                slots.loading ||
+                                !!slots.error ||
+                                (requiresDeposit && !accepted)))
+                          }
+                        >
+                          {busy
+                            ? "Sending request…"
+                            : uncertain
+                              ? "Check the same booking request"
+                              : review
+                                ? "Request booking"
+                                : "Review booking request"}
+                          <ArrowRight size={17} aria-hidden="true" />
+                        </button>
+                      )}
                       <Link className="text-link" href="/dashboard/bookings">
                         View my bookings
                       </Link>
@@ -981,6 +1114,100 @@ export function ServiceDetail({
               </div>
             </div>
           </section>
+        )}
+        {current && (
+          <>
+            <section className="sd-care" aria-labelledby="sd-care-title">
+              <div className="sd-container sd-care-layout">
+                <figure>
+                  <div className="sd-care-image">
+                    <Image
+                      src="/images/allied-autotech/technician-original.webp"
+                      alt="Allied AutoTech technician in the original Precision Autocare You Can Trust campaign"
+                      fill
+                      sizes="(max-width: 700px) 90vw, 36vw"
+                    />
+                  </div>
+                  <figcaption>From our original workshop campaign.</figcaption>
+                </figure>
+                <div>
+                  <h2 id="sd-care-title">Clear advice. Careful workmanship.</h2>
+                  <p>
+                    We explain the issue, discuss the next steps and prioritise quality
+                    workmanship.
+                  </p>
+                  <dl className="sd-care-principles">
+                    <div>
+                      <dt>Understand the concern</dt>
+                      <dd>We listen and clarify the issue with you.</dd>
+                    </div>
+                    <div>
+                      <dt>Discuss the work</dt>
+                      <dd>
+                        We explain the findings and talk through recommended next steps.
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Keep you informed</dt>
+                      <dd>Clear communication before and after the work.</dd>
+                    </div>
+                  </dl>
+                  <Link className="sd-editorial-link" href="/about">
+                    Our workshop principles <ArrowRight size={17} aria-hidden="true" />
+                  </Link>
+                </div>
+              </div>
+            </section>
+            <section
+              className="sd-questions"
+              id="service-questions"
+              aria-labelledby="sd-questions-title"
+            >
+              <div className="sd-container sd-questions-layout">
+                <div>
+                  <h2 id="sd-questions-title">Before your visit</h2>
+                  <p>Details to help you plan the next step.</p>
+                </div>
+                <div>
+                  <details>
+                    <summary>
+                      What does this service include?
+                      <ChevronDown size={18} aria-hidden="true" />
+                    </summary>
+                    <p>
+                      Check the published description and ask our team to confirm the work
+                      your vehicle needs.
+                    </p>
+                    <Link className="sd-editorial-link" href="/contact">
+                      Discuss this service <ArrowRight size={17} aria-hidden="true" />
+                    </Link>
+                  </details>
+                  <details>
+                    <summary>
+                      What happens after I send a request?
+                      <ChevronDown size={18} aria-hidden="true" />
+                    </summary>
+                    <p>
+                      {fixed
+                        ? "A booking request is waiting for workshop review. Check your account for the confirmed appointment and updates."
+                        : "Our team reviews your service enquiry and discusses the next steps with you. Sending an enquiry does not confirm a quotation or appointment."}
+                    </p>
+                  </details>
+                  <details>
+                    <summary>
+                      Does the listed duration confirm my collection time?
+                      <ChevronDown size={18} aria-hidden="true" />
+                    </summary>
+                    <p>
+                      The listed duration describes the service. Confirm collection
+                      arrangements with the workshop.
+                    </p>
+                  </details>
+                </div>
+              </div>
+            </section>
+            {relatedServices}
+          </>
         )}
       </main>
       <SiteFooter />

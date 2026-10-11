@@ -3,9 +3,19 @@ import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, ChevronDown, PackageSearch, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CarFront,
+  ChevronDown,
+  CircleCheck,
+  CircleMinus,
+  Package,
+  PackageSearch,
+  X,
+} from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
-import { parseProducts } from "@/lib/api/commerce-schemas";
+import { parseProductDiscovery } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
 import {
   advancedProductKeys,
@@ -25,18 +35,29 @@ import { PublicMedia } from "./public-media";
 export function PartsCatalogue({
   initial,
 }: {
-  initial?: PublicSeed<ReturnType<typeof parseProducts>>;
+  initial?: PublicSeed<ReturnType<typeof parseProductDiscovery>>;
 }) {
   const searchParams = useSearchParams();
   const [searchReset, setSearchReset] = useState(0);
   const { params, invalid } = normalizeProductQuery(
     new URLSearchParams(searchParams.toString()),
   );
-  const products = useResource(productApiPath(params), parseProducts, initial?.data, {
-    initialError: initial?.error,
-    revalidateOnMount: false,
-  });
+  const products = useResource(
+    productApiPath(params),
+    parseProductDiscovery,
+    initial?.data,
+    {
+      initialError: initial?.error,
+      revalidateOnMount: false,
+    },
+  );
   const categories = useProductCategories(params.get("categoryId") ?? "");
+  const categoryShortcuts = categories.items.slice(0, 3);
+  if (
+    categories.selected &&
+    !categoryShortcuts.some((item) => item.id === categories.selected?.id)
+  )
+    categoryShortcuts.push(categories.selected);
   const selected = productFilterKeys.filter((key) => params.has(key));
   const advanced = new URLSearchParams(
     [...params].filter(([key]) =>
@@ -82,62 +103,98 @@ export function PartsCatalogue({
           still follow links on this page.
         </p>
       </noscript>
-      <div className="product-inventory-heading">
-        <h2 id="product-results-heading" tabIndex={-1}>
-          Explore automotive products
-        </h2>
-        <p role="status" aria-live="polite">
-          {products.loading
-            ? "Loading products…"
-            : products.error
-              ? "Products unavailable"
-              : `${products.data?.items.length ?? 0} product${products.data?.items.length === 1 ? "" : "s"} on this page`}
-        </p>
-      </div>
-      {invalid && (
-        <p className="notice">
-          Some filters in this link were invalid and have been ignored. Review the filters
-          below.
-        </p>
-      )}
-      <div className="product-toolbar">
-        <ProductSearch
-          key={searchReset}
-          value={params.get("search") ?? ""}
-          update={update}
-        />
-        <ProductCategory
-          value={params.get("categoryId") ?? ""}
-          categories={categories}
-          onChange={(id) =>
-            update((next) => {
-              next.delete("categoryId");
-              if (id) next.set("categoryId", id);
-            })
-          }
-        />
-        <ProductFilters
-          query={advanced}
-          count={selected.length}
-          update={update}
-          clear={clear}
-        />
-        <div className="product-sort">
-          <label htmlFor="product-sort">Sort by</label>
-          <div className="product-select">
-            <select
-              id="product-sort"
-              value={params.get("sort") ?? "newest"}
-              onChange={(event) => update((next) => next.set("sort", event.target.value))}
-            >
-              <option value="newest">Newest products</option>
-              <option value="name">Name</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-            </select>
-            <ChevronDown size={16} aria-hidden="true" />
+      <div className="product-search-panel">
+        <div className="product-inventory-heading">
+          <h2 id="product-results-heading" tabIndex={-1}>
+            Explore automotive products
+          </h2>
+          <p role="status" aria-live="polite">
+            {products.loading
+              ? "Loading products…"
+              : products.error
+                ? "Products unavailable"
+                : `${(products.data?.totalMatches ?? 0).toLocaleString("en-NG")} matching product${products.data?.totalMatches === 1 ? "" : "s"} · ${products.data?.items.length ?? 0} product${products.data?.items.length === 1 ? "" : "s"} on this page`}
+          </p>
+        </div>
+        {invalid && (
+          <p className="notice">
+            Some filters in this link were invalid and have been ignored. Review the
+            filters below.
+          </p>
+        )}
+        <div className="product-toolbar">
+          <ProductSearch
+            key={searchReset}
+            value={params.get("search") ?? ""}
+            update={update}
+          />
+          <ProductCategory
+            value={params.get("categoryId") ?? ""}
+            categories={categories}
+            onChange={(id) =>
+              update((next) => {
+                next.delete("categoryId");
+                if (id) next.set("categoryId", id);
+              })
+            }
+          />
+          <ProductFilters
+            query={advanced}
+            count={selected.length}
+            update={update}
+            clear={clear}
+          />
+          <div className="product-sort">
+            <label htmlFor="product-sort">Sort by</label>
+            <div className="product-select">
+              <select
+                id="product-sort"
+                value={params.get("sort") ?? "newest"}
+                onChange={(event) =>
+                  update((next) => next.set("sort", event.target.value))
+                }
+              >
+                <option value="newest">Newest products</option>
+                <option value="name">Name</option>
+                <option value="price_asc">Price: low to high</option>
+                <option value="price_desc">Price: high to low</option>
+              </select>
+              <ChevronDown size={16} aria-hidden="true" />
+            </div>
           </div>
         </div>
+        {(categoryShortcuts.length > 0 || categories.loading) && (
+          <fieldset className="product-category-shortcuts">
+            <legend>Category shortcuts</legend>
+            <div>
+              <button
+                type="button"
+                aria-label="All product categories"
+                aria-pressed={!params.has("categoryId")}
+                onClick={() => update((next) => next.delete("categoryId"))}
+              >
+                All products
+              </button>
+              {categoryShortcuts.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  title={item.name}
+                  aria-label={`Category: ${item.name}`}
+                  aria-pressed={params.get("categoryId") === item.id}
+                  onClick={() => update((next) => next.set("categoryId", item.id))}
+                >
+                  <span>{item.name}</span>
+                </button>
+              ))}
+            </div>
+            <p>
+              {categories.loading && !categoryShortcuts.length
+                ? "Loading category shortcuts…"
+                : "Use Category for more options."}
+            </p>
+          </fieldset>
+        )}
       </div>
       <div className="product-active-filters" aria-label="Active product filters">
         {selected.length ? (
@@ -151,7 +208,15 @@ export function PartsCatalogue({
                     ? value === "true"
                       ? "Featured only"
                       : "Non-featured only"
-                    : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
+                    : key === "minPriceKobo"
+                      ? `Minimum price: ${formatKobo(value)}`
+                      : key === "maxPriceKobo"
+                        ? `Maximum price: ${formatKobo(value)}`
+                        : key === "availability"
+                          ? value === "in_stock"
+                            ? "In stock"
+                            : "Out of stock"
+                          : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
               return (
                 <button
                   type="button"
@@ -179,15 +244,25 @@ export function PartsCatalogue({
           <div className="product-empty">
             <h3>Products could not be loaded.</h3>
             <Feedback message={products.error} />
-            <button className="button secondary" onClick={products.refresh}>
+            <button
+              className="button secondary"
+              onClick={products.refresh}
+              disabled={products.loading}
+            >
               Retry products
             </button>
+            {params.has("cursor") && (
+              <button className="button secondary" onClick={() => update(() => {})}>
+                Start from first page
+              </button>
+            )}
           </div>
         ) : products.loading ? (
           <div className="product-results-grid" aria-hidden="true">
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2, 3].map((i) => (
               <div className="product-skeleton" key={i}>
                 <div />
+                <span />
                 <span />
                 <span />
                 <span />
@@ -199,22 +274,94 @@ export function PartsCatalogue({
             {products.data.items.map((product) => {
               const photo =
                 product.images.find((image) => image.isPrimary) ?? product.images[0];
+              const available = product.availability.some((item) => item.inStock);
+              const comparison =
+                product.compareAtPriceKobo &&
+                BigInt(product.compareAtPriceKobo) > BigInt(product.priceKobo)
+                  ? product.compareAtPriceKobo
+                  : null;
+              const fitment = product.compatibilities[0];
               return (
                 <article className="product-card shop-product-card" key={product.id}>
                   <Link href={`/parts/${product.id}`}>
-                    <PublicMedia src={photo?.url} alt={photo?.altText ?? product.name} />
+                    <div className="shop-product-top">
+                      <PublicMedia
+                        key={photo?.url ?? "missing"}
+                        src={photo?.url}
+                        alt={photo?.altText ?? product.name}
+                        fallbackIcon={<Package size={28} strokeWidth={1.4} />}
+                        sizes="(max-width: 767px) 35vw, 150px"
+                      />
+                      <div className="shop-product-identity">
+                        <span className="product-card-meta">{product.category.name}</span>
+                        <h3>{product.name}</h3>
+                        {product.brand && (
+                          <p className="shop-product-brand">{product.brand}</p>
+                        )}
+                        <p className="shop-product-number">
+                          {product.manufacturerPartNumber
+                            ? `Part no. ${product.manufacturerPartNumber}`
+                            : `SKU ${product.sku}`}
+                        </p>
+                      </div>
+                    </div>
                     <div className="product-copy">
-                      <span className="product-card-meta">{product.category.name}</span>
-                      <h3>{product.name}</h3>
-                      <p>
-                        {product.brand ? `${product.brand} · ` : ""}SKU {product.sku}
-                      </p>
                       <strong>{formatKobo(product.priceKobo)}</strong>
-                      <p className="shop-stock-label">
-                        {product.availability.some((item) => item.inStock)
-                          ? "Available at a listed branch"
-                          : "Currently unavailable"}
+                      {comparison && (
+                        <p className="shop-comparison-price">
+                          Compare at <s>{formatKobo(comparison)}</s>
+                        </p>
+                      )}
+                      <p
+                        className={`shop-stock-label${available ? " is-available" : ""}`}
+                      >
+                        {available ? (
+                          <CircleCheck size={14} aria-hidden="true" />
+                        ) : (
+                          <CircleMinus size={14} aria-hidden="true" />
+                        )}
+                        <span>
+                          {available
+                            ? "Available at a listed branch"
+                            : "Currently unavailable"}
+                        </span>
                       </p>
+                      <div className="shop-card-fitment">
+                        <CarFront size={16} aria-hidden="true" />
+                        <div>
+                          {fitment ? (
+                            <>
+                              <span className="shop-fitment-label">
+                                Listed compatibility
+                              </span>
+                              <p>
+                                {fitment.make}
+                                {fitment.model
+                                  ? ` ${fitment.model}`
+                                  : " · Model not listed"}
+                              </p>
+                              <p>
+                                {fitment.yearFrom !== null && fitment.yearTo !== null
+                                  ? `${fitment.yearFrom}–${fitment.yearTo}`
+                                  : fitment.yearFrom !== null
+                                    ? `From ${fitment.yearFrom}`
+                                    : fitment.yearTo !== null
+                                      ? `Up to ${fitment.yearTo}`
+                                      : "Years not listed"}
+                                {product.compatibilities.length > 1
+                                  ? ` · +${product.compatibilities.length - 1} more`
+                                  : ""}
+                              </p>
+                              <span>Check full fitment details</span>
+                            </>
+                          ) : (
+                            <>
+                              <p>Compatibility not listed</p>
+                              <span>Ask our team about suitability</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                       <span className="product-detail-link">
                         View product <ArrowRight size={17} aria-hidden="true" />
                       </span>
@@ -228,7 +375,11 @@ export function PartsCatalogue({
           <div className="product-empty">
             <PackageSearch size={30} strokeWidth={1.4} aria-hidden="true" />
             <h3>
-              {selected.length ? "No matching products" : "No products are listed yet"}
+              {params.has("cursor")
+                ? "No products on this page"
+                : selected.length
+                  ? "No matching products"
+                  : "No products are listed yet"}
             </h3>
             <p>
               {selected.length
@@ -236,6 +387,11 @@ export function PartsCatalogue({
                 : "Contact our team to ask about the product you need."}
             </p>
             <div className="actions">
+              {params.has("cursor") && (
+                <button className="button secondary" onClick={() => update(() => {})}>
+                  Return to first page
+                </button>
+              )}
               {selected.length > 0 && (
                 <button className="button secondary" onClick={clear}>
                   Clear filters

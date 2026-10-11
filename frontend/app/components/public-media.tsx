@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { Package } from "lucide-react";
 import {
   publicMediaHosts,
@@ -15,12 +16,16 @@ export function PublicMedia({
   priority = false,
   adminPreview = false,
   stockPreview = false,
+  fallbackIcon,
+  sizes = "(max-width: 700px) 100vw, 40vw",
 }: {
   src?: string;
   alt: string;
   priority?: boolean;
   adminPreview?: boolean;
   stockPreview?: boolean;
+  fallbackIcon?: ReactNode;
+  sizes?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const safe =
@@ -37,12 +42,14 @@ export function PublicMedia({
           fill
           unoptimized
           priority={priority}
-          sizes="(max-width: 700px) 100vw, 40vw"
+          sizes={sizes}
           onError={() => setFailed(true)}
         />
       ) : (
         <div className="media-placeholder">
-          <Package size={42} strokeWidth={1.3} />
+          <span aria-hidden="true">
+            {fallbackIcon ?? <Package size={42} strokeWidth={1.3} />}
+          </span>
           <span>Image unavailable</span>
         </div>
       )}

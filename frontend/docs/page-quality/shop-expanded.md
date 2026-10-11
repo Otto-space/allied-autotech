@@ -1,0 +1,82 @@
+# Shop listing — expanded brief
+
+Route: `/parts`. Date: 7 October 2026. Status: complete; expanded local acceptance gate passed. This extends the [September listing report](shop.md), whose public query and category contracts remain authoritative. Product detail, cart, checkout and deployment have separate gates.
+
+## Audit and implementation
+
+Vehicles listing passed its expanded gate before work started. Fresh baseline captures at 390, 768, 1280 and 1440px used the production preview and isolated real API. Search/category/filter behavior was working, but the three large cards resembled vehicle listings, part numbers and compatibility were omitted, the surface lacked contrast, and the fitment guidance was only one sentence.
+
+Source review covered the page's cached server seed, catalogue, category hook/picker, filters/query normalizer, product DTO, backend catalogue queries and cart repository. The anonymous APIs remain `GET /public/catalog/products`, `GET /public/catalog/categories`, category detail and approved product media URLs. No new API, schema, mutation or dependency was required.
+
+Three [ImageGen concepts](shop-oct-concepts/README.md) preceded implementation. The final design keeps real Nippo/Quicksand, the existing public shell, approved parts/workshop images, verified contact details and the authoritative catalogue fields.
+
+- Compact ink hero, cool-grey inventory canvas and a raised discovery panel with Login-derived border/focus treatment.
+- First three loaded category records become shortcuts, with a known selected category retained when outside that set. They preserve search/sort, reset pagination and use the existing category ID query. All products clears only the category. The picker still searches loaded categories and supports load more, selected-category resolution and recovery. No complete taxonomy or popularity claim is implied.
+- Four desktop, two tablet and one mobile product columns. Thumbnail/identity rows differentiate parts from vehicle cards; a stable header region aligns normal-length prices. Long names and identifiers wrap safely.
+- Real manufacturer part number, falling back to SKU; optional brand; exact NGN price; comparison price only when strictly greater than current price; existing active-branch availability wording and a non-colour-only icon.
+- A compact first compatibility row shows make/model/year information and an additional-row count when applicable. Missing model/years/compatibility are stated explicitly; full fitment remains on detail. These are listed relationships, not a guarantee of suitability for the visitor's vehicle.
+- Safe media retains primary-image selection and actual product images, with a small package fallback. A changed source remounts media so recovery is possible after an earlier failed URL.
+- Image-supported selection guidance covers part numbers, vehicle compatibility, branch availability and the existing rule that adding to cart does not reserve stock. Quantity, cart and favourites stay in their customer-account detail workflow.
+- Loading/empty/error controls, focus rings, mobile drawer and category picker remain usable. Pointer hover elevation/arrow movement respects reduced motion.
+
+Production files: [page.tsx](../../app/parts/page.tsx), [parts-catalogue.tsx](../../app/components/parts-catalogue.tsx), [parts.css](../../app/parts/parts.css), and [product-filters.tsx](../../app/parts/product-filters.tsx). Shared components and backend code are unchanged by this milestone.
+
+## Filter restoration defect
+
+Browser regression testing reproduced a real interaction between pending search, Clear all and the general form-draft observer. Clear all remounted the search to cancel its debounce, but the observer restored the saved text into the new input and dispatched another input event. The trace showed the cleared API request followed approximately 400ms later by the restored search request.
+
+Shop search and advanced filters now opt out of general draft storage using its existing `data-no-draft` mechanism. Applied filters already persist in the URL; unsubmitted advanced edits remain in the component while the drawer opens and closes. Search debounce, browser history and existing clear/reset logic are retained. A regression scenario seeds stale stored search/brand/year drafts and verifies that a shared URL remains authoritative, including clear and reload.
+
+## Fidelity corrections
+
+| Finding                                                           | Correction / deliberate boundary                                                                                                                         |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Baseline heading and hero compete with catalogue discovery        | Maximum title reduced to 40px, desktop hero 250px; mobile copy leads a 128px image.                                                                      |
+| Large full-width product media resembles Vehicles                 | Compact thumbnail beside identity; four desktop columns and product-specific price/stock/fitment hierarchy.                                              |
+| Baseline white canvas and flat filter toolbar lack depth          | Cool-grey canvas with white panel, readable borders and restrained shadow.                                                                               |
+| First implementation placed search outside the raised panel       | Corrected DOM grouping: heading, search/category/filter/sort and shortcuts share the panel.                                                              |
+| Global fallback minimum height clips text inside small thumbnails | Scoped minimum height removed; package icon and unavailable label fit the thumbnail.                                                                     |
+| Differently wrapped names stagger price positions                 | 164px minimum identity region aligns typical card prices while allowing long text to grow.                                                               |
+| Existing card focus outline could be clipped                      | Outline inset inside the linked card's rounded edge.                                                                                                     |
+| Fitment guidance is too thin for a parts shop                     | Real workshop editorial imagery and three clear selection checks.                                                                                        |
+| Concepts invent logos, inventory, branches and control types      | Keep actual assets/API data, exact-name text inputs, numeric year, current footer and verified business copy. Full boundaries are in the concept README. |
+
+## Verification
+
+Browser plugin not available; installed Playwright/MS Edge uses `http://localhost:3001`. The real backend is the isolated API on port 5012 and its synthetic PostgreSQL dataset. The flow under test is Shop → category/search/sort/filter → matching results → correct product detail. No production writes or external messages are involved.
+
+Final build and full frontend lint have passed. Seven product-query unit tests passed. The real API harness matched the first 12 product IDs and every visible stock label, loaded two real category records, selected a category with seven matching products, verified integer-price ordering, searched a genuine SKU, retained query state after reload and navigated to the correct product title. Its recorded requests returned 200 with no page errors, broken rendered images or overflow.
+
+| Check                        | Result and scope                                                                                                                                                                                   |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser regression           | 25 distinct scenarios passed: 24 in the final full run, then the remaining scenario passed after scoping an ambiguous test locator to the filter dialog. No production change followed that build. |
+| Responsive and accessibility | 320, 360, 375, 390, 430, 768, 1024, 1280, 1440 and 1536px: no page overflow or page errors; whole-page Axe checks passed with filters closed, advanced filters open and category picker open.      |
+| Interaction                  | Keyboard, touch, short viewport, drawer focus/Escape, debounce, URL history/reload, clear/reset, category pagination/recovery, invalid queries and empty/error/offline/retry states passed.        |
+| Product edge cases           | Zero price; absent/equal/lower comparison price; missing brand/model/year/compatibility; extra fitment rows; stock states; missing/broken approved images; long names and identifiers passed.      |
+| Real API                     | Product identity, stock labels, category/search/sort results, reload persistence and correct detail navigation passed against the isolated API.                                                    |
+| Code quality                 | Full frontend lint, release build/type checking and standalone packaging passed; seven product-discovery unit tests passed.                                                                        |
+| Visual review                | Native final desktop, tablet, mobile card and category screenshots inspected against the three concepts; corrections and deliberate departures are recorded above.                                 |
+
+Local evidence is outside the repository under `C:/Users/PC/.codex/`: `shop-oct-browser-final.log`, `shop-oct-browser-regression.log`, `shop-oct-build-final.log`, `shop-oct-lint-final.log` and `shop-oct-real.json`. Final captures include `parts-oct-after-{390,768,1280,1440}-{viewport,full,filters}.png`, `shop-oct-final-1536-viewport.png`, `shop-oct-final-390-card.png` and the real guidance/contact screenshots. Fixture state captures use `shop-quality-*` under the operating-system temporary directory. These local artifacts are not portable repository attachments; committed concepts and this report preserve the review record.
+
+The real QA products have no attached photography, so their fallback is intentional. Controlled browser fixtures cover actual image rendering and broken-image recovery. Deployed storage, provider delivery, production catalogue content, manual screen-reader use, other browser engines and field performance remain unverified. Automated accessibility checks do not establish complete accessibility conformance. This listing contains no password input or customer mutation. No video or 3D dependency is needed for product discovery. Services listing is the next expanded route; this gate does not certify the remaining application.
+
+## API-02 discovery extension — 9 October 2026
+
+The Shop now reads `/public/catalog/products/discovery`, with exact filtered totals, signed pagination and inclusive price/availability filters. Category search uses `/public/catalog/facets` across public inventory; it no longer filters only loaded categories. Category options accumulate through bounded server pages and preserve keyboard selection, retry and selected-category recovery. Brand/make/model fields have searchable, paged suggestions with manual entry on failure. Changing make clears model. Price fields accept NGN, convert exactly to integer kobo (including zero), and reject reversed ranges. Counts distinguish all matches from the current page. Filters and cursor history survive URL reload; empty/invalid later pages can restart without clearing filters.
+
+The backend requires active products and active categories. Options include out-of-stock products, omit empty categories/null model values, and collapse case variants of names. A selected compatibility make/model/year must match the same compatibility record. `in_stock` means positive unreserved quantity at an active branch; `out_of_stock` is its complement, including missing inventory. No quantity/reservation fields are exposed. Page/count use one repeatable-read snapshot; separate page requests may reflect changed prices, names, visibility or stock. Limits default to 20/cap at 50; the frontend uses 12 products and 20 options. Existing public routes remain compatible.
+
+Local verification: production preview `http://localhost:3024`, API `http://127.0.0.1:5024`, fresh PostgreSQL `allied_api02_20261009_test`. Browser plugin not available; installed Playwright/MS Edge used. All 49 migrations replayed, including the additive category/brand/compatibility/available-stock indexes. Eleven new real database tests and 14 existing catalogue/security/migration/OpenAPI regressions passed; OpenAPI validation and route coverage agree on 308 operations/260 paths. Backend and frontend type/format/lint checks, generated types, all 355 frontend unit tests and production build passed.
+
+All 28 Shop browser scenarios passed on the final feature build (Next.js 16.3.3), including totals/ranges/availability, global category search, option paging and retry, make/model reset, empty-tail recovery, history/reload, keyboard categories over five 20-item pages, and responsive/Axe gates at 320–1536px. The initial new range test mixed a real server reload seed with browser-only fixtures; it now initiates a client sort/read after checking restored controls. Production behavior was not changed to accommodate the fixture.
+
+The real API/browser flow passed on the production build: 10,000 matches; two distinct 12-item pages with reload/Previous; global category search; 50 exact brand/price matches; one in-stock make/model/year result; mobile reload restored all filters. Screenshots were inspected at 1440px and 390px; no page errors or horizontal overflow occurred. The synthetic catalogue has no uploaded images, so its existing unavailable-image fallback is expected. A separate local repository measurement observed 185.1 ms for a filtered page/count over 10,000 products and 69 ms for complete traversal of 100 brand options. These are local measurements, not a latency guarantee.
+
+Evidence remains outside the repository in the OS temporary directory: `allied-api02-live-results.json`, `allied-api02-performance.json`, `allied-api02-shop-1440.png`, `allied-api02-shop-390.png`, and `allied-api02-final-playwright/`. Deploy the migration and backend before the frontend. Deployed storage, provider delivery, other browser engines and physical-device assistive technology remain unverified. Dependency-security updates after this feature gate require their own regression record.
+
+## Dependency patch regression — 9 October 2026
+
+Next.js and its ESLint configuration are now 16.3.8. Full frontend lint, typecheck and all 355 unit tests passed after the dependency changes. A fresh temporary checkout with `npm ci --ignore-scripts` and physical dependencies passed the production build and postbuild preparation. Its standalone tree has 2,606 files, no external links/junctions and no `braces` package. The development-only unpatched lint dependency is tracked as SEC-015 in the security report; a production npm audit has zero advisories.
+
+Against this clean standalone server on localhost:3024, all 51 selected login/Shop/Vehicles security and discovery scenarios passed in Playwright/MS Edge. This includes Shop totals, range/stock filters, reload, global categories, make/model suggestions, failure recovery and the 390px accessibility/touch drawer checks. The real API flow passed again: 10,000 matches, distinct pages and reload/Previous, globally searched categories, 50 exact brand/price matches, one available make/model/year match, and mobile reload persistence. No page errors or horizontal overflow were observed; the updated 390px screenshot was inspected. The broad 28-case Shop feature gate above remains the full responsive evidence; this follow-up is a selected security/dependency regression. Evidence: OS temporary directories `allied-security-release-20261009`, `allied-clean-release-playwright`, and the updated `allied-api02-live-results.json`/Shop screenshots. Deployment and real storage checks remain open.

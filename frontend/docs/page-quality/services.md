@@ -5,6 +5,8 @@ Status: complete; local acceptance gate passed. Contact, Vehicles and Shop passe
 
 ## Baseline
 
+The [7 October expanded assessment](services-expanded.md) records the latest listing implementation and local acceptance. This September report retains its original verification scope.
+
 Captured the production page at 390, 768, 1280 and 1440px against the isolated real API before implementation. Screenshots: `C:/Users/PC/.codex/services-before-{width}-{viewport|full}.png`. Inspected all four viewport screenshots. There was no page overflow. The dataset was empty. The service-type selection was component state only: selecting FIXED kept the URL at `/services`, and reload reset the filter. Evidence: `C:/Users/PC/.codex/services-baseline.log`.
 
 The page lacked a breadcrumb, URL state, active-filter summary and result count. Its introductory banner was large; empty pagination remained visible; the lower journey/contact sections linked back to the same page. Shared `ServiceList` also serves homepage previews, so the route-specific catalogue is implemented separately.

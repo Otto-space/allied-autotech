@@ -1,0 +1,7 @@
+# Login concepts
+
+Generated on 8 October 2026, after baseline captures at 390/768/1280/1440px and before production implementation: [desktop split page](01-desktop.webp), [mobile form](02-mobile.webp) and [error/pending states](03-states.webp). Scope is `/login`; other authentication routes retain their independent gates.
+
+Use the existing workshop editorial asset and approved Brand component. Desktop is approximately 46% ink/image and 54% white form area. Cap the form at 440px to meet the owner's compact-desktop requirement; scale generated oversized text to practical 14–16px UI, a 34px heading and 48px inputs. Keep Nippo/Quicksand. Add no color overlay to the photo. Below 900px omit decorative imagery/story; retain the home-linked logo, semantic Home / Sign in breadcrumb, form and help links.
+
+Use the desktop/mobile copy, including the approved tagline. Keep visible cool-grey borders, red focus, white surfaces, 6px control corners, minimum 44px actions and eye/eye-off controls. The state board's blue links, changed logo and changed registration copy are generation deviations; use brand red, the real logo and primary concept copy. Keep recovery links available during requests. Clear passwords after submission, including failures; the error panel does not retain the concept's illustrative dots. Concept credentials are examples only. No social providers, remember-me option or unverified security promises are added.

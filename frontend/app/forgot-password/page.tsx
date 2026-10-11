@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { AuthShell } from "../components/auth-shell";
-import { EmailActionForm } from "../components/email-action-form";
+import { AccessShell } from "../components/access-shell";
+import { ForgotPasswordForm } from "../components/forgot-password-form";
+import "./forgot-password.css";
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
   title: "Forgot password",
 };
 export default function Page() {
   return (
-    <AuthShell>
-      <EmailActionForm mode="forgot" />
-    </AuthShell>
+    <AccessShell mode="forgot">
+      <ForgotPasswordForm />
+    </AccessShell>
   );
 }

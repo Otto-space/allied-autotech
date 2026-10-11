@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -41,6 +41,10 @@ export function ServiceLineEntry({
   onCancel: () => void;
 }) {
   const [uncertain, setUncertain] = useState(false);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (mode === "quote") heading.current?.focus();
+  }, [mode]);
   const form = useForm<ServiceLinesForm>({
     resolver: zodResolver(serviceLinesFormSchema),
     defaultValues: {
@@ -108,6 +112,7 @@ export function ServiceLineEntry({
       method = "PUT";
     }
     onReview({
+      ...(mode === "quote" ? { presentation: "quotation" as const } : {}),
       title:
         mode === "work-items"
           ? "Add these work-order items?"
@@ -131,83 +136,107 @@ export function ServiceLineEntry({
   return (
     <form
       data-draft-key={JSON.stringify(["service-line-entry:1", booking?.id, mode])}
-      className="line-entry-form"
+      className={`line-entry-form${mode === "quote" ? " quotation-editor" : ""}`}
       onSubmit={(event) => {
         const submittedAt = Date.now();
         void form.handleSubmit((values) => review(values, submittedAt))(event);
       }}
       noValidate
     >
-      <h3>
-        {mode === "work-items"
-          ? "Add parts, labour or fees"
-          : quote
-            ? `Edit draft ${quote.quoteNumber}`
-            : "New quotation"}
-      </h3>
+      <header className={mode === "quote" ? "quotation-editor-heading" : undefined}>
+        <h3 ref={heading} tabIndex={-1}>
+          {mode === "work-items"
+            ? "Add parts, labour or fees"
+            : quote
+              ? `Edit draft ${quote.quoteNumber}`
+              : "New quotation"}
+        </h3>
+        {mode === "quote" && (
+          <p>
+            {quote
+              ? "Saving replaces this draft with a new version."
+              : "Build the quotation with parts, labour and fees."}
+          </p>
+        )}
+      </header>
       {uncertain && (
         <Feedback message="The save outcome is uncertain. Review the refreshed booking before starting another draft or adding items. This form cannot be submitted again." />
       )}
-      <ServiceLineFields form={form} prefix={prefix} disabled={disabled || uncertain} />
-      {mode === "quote" && (
-        <>
-          <p className="field-hint">
-            Tax is calculated by Allied AutoTech when the draft is saved. Review the saved
-            subtotal, tax and total before issuing the quotation.
-          </p>
-          <div className="field">
-            <label htmlFor="quote-expiry">Draft expiry (Lagos time)</label>
-            <input
-              id="quote-expiry"
-              type="datetime-local"
-              {...form.register("expiresAt")}
-              aria-invalid={!!form.formState.errors.expiresAt}
-              aria-describedby="quote-expiry-hint"
-            />
-            <p
-              id="quote-expiry-hint"
-              className={form.formState.errors.expiresAt ? "field-error" : "field-hint"}
-              role={form.formState.errors.expiresAt ? "alert" : undefined}
-            >
-              {form.formState.errors.expiresAt?.message ??
-                "Choose the draft review deadline in Lagos time, UTC+01:00. Issuing the quotation starts a separate seven-day acceptance period."}
+      <div className={mode === "quote" ? "quotation-editor-grid" : undefined}>
+        <div className="quotation-lines">
+          {mode === "quote" && <h4>Line items</h4>}
+          <ServiceLineFields
+            form={form}
+            prefix={prefix}
+            disabled={disabled || uncertain}
+          />
+        </div>
+        {mode === "quote" && (
+          <div className="quotation-terms">
+            <h4>Review &amp; timing</h4>
+            <p className="field-hint">
+              Tax is calculated by Allied AutoTech when the draft is saved. Review the
+              saved subtotal, tax and total before issuing the quotation.
             </p>
-          </div>
-          <div className="field">
-            <label htmlFor="quote-notes">Quotation notes (optional)</label>
-            <textarea
-              id="quote-notes"
-              rows={4}
-              {...form.register("notes")}
-              maxLength={4000}
-              aria-invalid={!!form.formState.errors.notes}
-              aria-describedby={
-                form.formState.errors.notes ? "quote-notes-error" : undefined
-              }
-            />
-            {form.formState.errors.notes && (
-              <p id="quote-notes-error" className="field-error" role="alert">
-                {form.formState.errors.notes.message}
+            <div className="field">
+              <label htmlFor="quote-expiry">Draft expiry (Lagos time)</label>
+              <input
+                id="quote-expiry"
+                type="datetime-local"
+                disabled={disabled || uncertain}
+                {...form.register("expiresAt")}
+                aria-invalid={!!form.formState.errors.expiresAt}
+                aria-describedby="quote-expiry-hint"
+              />
+              <p
+                id="quote-expiry-hint"
+                className={form.formState.errors.expiresAt ? "field-error" : "field-hint"}
+                role={form.formState.errors.expiresAt ? "alert" : undefined}
+              >
+                {form.formState.errors.expiresAt?.message ??
+                  "Choose the draft review deadline in Lagos time, UTC+01:00. Issuing the quotation starts a separate seven-day acceptance period."}
               </p>
-            )}
+            </div>
+            <div className="field">
+              <label htmlFor="quote-notes">Quotation notes (optional)</label>
+              <textarea
+                id="quote-notes"
+                rows={4}
+                disabled={disabled || uncertain}
+                {...form.register("notes")}
+                maxLength={4000}
+                aria-invalid={!!form.formState.errors.notes}
+                aria-describedby={
+                  form.formState.errors.notes ? "quote-notes-error" : undefined
+                }
+              />
+              {form.formState.errors.notes && (
+                <p id="quote-notes-error" className="field-error" role="alert">
+                  {form.formState.errors.notes.message}
+                </p>
+              )}
+            </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
       {form.formState.errors.items?.message && (
         <Feedback message={form.formState.errors.items.message} />
       )}
-      <div className="actions">
-        <button className="button" disabled={disabled || uncertain}>
-          Review {mode === "work-items" ? "additional items" : "quotation draft"}
-        </button>
-        <button
-          type="button"
-          className="button secondary"
-          disabled={disabled}
-          onClick={onCancel}
-        >
-          Close editor
-        </button>
+      <div className={mode === "quote" ? "quotation-editor-footer" : undefined}>
+        {mode === "quote" && <p>A draft is not sent to the customer.</p>}
+        <div className="actions">
+          <button className="button" disabled={disabled || uncertain}>
+            Review {mode === "work-items" ? "additional items" : "quotation draft"}
+          </button>
+          <button
+            type="button"
+            className="button secondary"
+            disabled={disabled}
+            onClick={onCancel}
+          >
+            Close editor
+          </button>
+        </div>
       </div>
     </form>
   );

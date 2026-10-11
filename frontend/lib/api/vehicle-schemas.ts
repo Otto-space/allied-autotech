@@ -42,6 +42,19 @@ export const parseListings = (value: unknown) =>
   z
     .object({ items: z.array(listingSchema), nextCursor: z.string().optional() })
     .parse(value);
+export const parseVehicleDiscovery = (value: unknown) =>
+  z
+    .object({
+      items: z.array(listingSchema).max(50),
+      totalMatches: z.number().int().nonnegative(),
+      nextCursor: z
+        .string()
+        .min(80)
+        .max(1024)
+        .regex(/^[A-Za-z0-9_-]+$/)
+        .optional(),
+    })
+    .parse(value);
 export const customerVehicleSchema = z.object({
   id: z.string().uuid(),
   make: z.string(),

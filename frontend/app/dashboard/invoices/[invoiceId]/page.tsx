@@ -6,5 +6,6 @@ export default async function Page({
 }: {
   params: Promise<{ invoiceId: string }>;
 }) {
-  return <InvoiceDetail invoiceId={(await params).invoiceId} />;
+  const { invoiceId } = await params;
+  return <InvoiceDetail key={invoiceId} invoiceId={invoiceId} />;
 }

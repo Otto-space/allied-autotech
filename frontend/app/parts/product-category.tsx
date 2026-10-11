@@ -5,34 +5,49 @@ import { createPortal } from "react-dom";
 import { Check, ChevronDown, X } from "lucide-react";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
-import { categorySchema, parseCategories } from "@/lib/api/commerce-schemas";
+import { categorySchema, parseProductFacets } from "@/lib/api/commerce-schemas";
 
-type Category = ReturnType<typeof parseCategories>["items"][number];
+type Category = { id: string; name: string };
 const parseCategory = (value: unknown) => categorySchema.parse(value);
 
-/** Accumulated category pages, separate from the product result pagination. */
-export function useProductCategories(selectedId: string) {
-  const [cursor, setCursor] = useState("");
+/** Search and accumulated option pages are separate from product result pagination. */
+export function useProductCategories(selectedId: string, search = "", enabled = true) {
+  const [debounced, setDebounced] = useState(search.trim());
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(search.trim()), 250);
+    return () => clearTimeout(timer);
+  }, [search]);
+  const [position, setPosition] = useState({ search: debounced, cursor: "" });
+  if (position.search !== debounced) setPosition({ search: debounced, cursor: "" });
+  const cursor = position.search === debounced ? position.cursor : "";
   const [revision, setRevision] = useState(0);
   const [state, setState] = useState<{
+    search: string;
     items: Category[];
     nextCursor?: string;
     loading: boolean;
     error?: string;
-  }>({ items: [], loading: true });
+  }>({ search: debounced, items: [], loading: true });
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
-    void apiRequest<unknown>(
-      `/public/catalog/categories?limit=100${cursor ? `&cursor=${cursor}` : ""}`,
-      { signal: controller.signal },
-    )
+    const params = new URLSearchParams({ field: "category", limit: "20" });
+    if (debounced) params.set("search", debounced);
+    if (cursor) params.set("cursor", cursor);
+    void apiRequest<unknown>(`/public/catalog/facets?${params}`, {
+      signal: controller.signal,
+    })
       .then((response) => {
-        const page = parseCategories(response.data);
+        const page = parseProductFacets(response.data);
         if (controller.signal.aborted) return;
         setState((previous) => ({
+          search: debounced,
           items: [
             ...new Map(
-              [...previous.items, ...page.items].map((item) => [item.id, item]),
+              [
+                ...(cursor && previous.search === debounced ? previous.items : []),
+                ...page.items.map((row) => ({ id: row.value, name: row.label })),
+              ].map((item) => [item.id, item]),
             ).values(),
           ],
           nextCursor: page.nextCursor !== cursor ? page.nextCursor : undefined,
@@ -43,6 +58,8 @@ export function useProductCategories(selectedId: string) {
         if (!controller.signal.aborted)
           setState((previous) => ({
             ...previous,
+            search: debounced,
+            items: previous.search === debounced ? previous.items : [],
             loading: false,
             error:
               error instanceof ApiError
@@ -51,14 +68,19 @@ export function useProductCategories(selectedId: string) {
           }));
       });
     return () => controller.abort();
-  }, [cursor, revision]);
-  const selected = state.items.find((item) => item.id === selectedId);
+  }, [cursor, debounced, revision, enabled]);
+  const pending = debounced !== search.trim() || state.search !== debounced;
+  const items = pending ? [] : state.items;
+  const selected = items.find((item) => item.id === selectedId);
   const detail = useResource(
     selectedId && !selected ? `/public/catalog/categories/${selectedId}` : null,
     parseCategory,
   );
   return {
-    ...state,
+    items,
+    loading: pending || state.loading,
+    error: pending ? undefined : state.error,
+    nextCursor: pending ? undefined : state.nextCursor,
     selected: selected ?? detail.data,
     selectedError: detail.error,
     retrySelected: detail.refresh,
@@ -66,10 +88,15 @@ export function useProductCategories(selectedId: string) {
       setState((v) => ({ ...v, loading: true, error: undefined }));
       setRevision((v) => v + 1);
     },
-    loadMore: () => {
-      if (!state.nextCursor || state.loading) return;
+    restart: () => {
       setState((v) => ({ ...v, loading: true, error: undefined }));
-      setCursor(state.nextCursor);
+      setPosition({ search: debounced, cursor: "" });
+      setRevision((v) => v + 1);
+    },
+    loadMore: () => {
+      if (!state.nextCursor || state.loading || pending) return;
+      setState((v) => ({ ...v, loading: true, error: undefined }));
+      setPosition({ search: debounced, cursor: state.nextCursor });
     },
   };
 }
@@ -85,6 +112,7 @@ export function ProductCategory({
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const suggestions = useProductCategories(value, query, open);
   const [active, setActive] = useState(0);
   const trigger = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLInputElement>(null);
@@ -97,13 +125,15 @@ export function ProductCategory({
     maxHeight: 360,
     transform: "none",
   });
-  const items =
-    categories.selected && !categories.items.some((row) => row.id === value)
-      ? [categories.selected, ...categories.items]
-      : categories.items;
-  const options = [{ id: "", name: "All categories" }, ...items].filter((row) =>
-    row.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
-  );
+  const options = [
+    ...(!query.trim() ? [{ id: "", name: "All categories" }] : []),
+    ...(!query.trim() &&
+    categories.selected &&
+    !suggestions.items.some((row) => row.id === value)
+      ? [categories.selected]
+      : []),
+    ...suggestions.items,
+  ];
   const highlighted = options[Math.min(active, options.length - 1)];
   const label = !value
     ? "All categories"
@@ -166,9 +196,9 @@ export function ProductCategory({
   useEffect(() => {
     // A disabled/replaced Load more button can hand focus back to the document.
     // Keep keyboard navigation in the open picker when the request settles.
-    if (open && !categories.loading && document.activeElement === document.body)
+    if (open && !suggestions.loading && document.activeElement === document.body)
       input.current?.focus({ preventScroll: true });
-  }, [open, categories.loading]);
+  }, [open, suggestions.loading]);
   useEffect(() => {
     if (open && highlightedId !== undefined)
       document
@@ -240,7 +270,7 @@ export function ProductCategory({
             }}
           >
             <div className="product-category-search">
-              <label htmlFor={`${listId}-search`}>Search loaded categories</label>
+              <label htmlFor={`${listId}-search`}>Search categories</label>
               <button
                 className="product-icon-button"
                 type="button"
@@ -292,7 +322,9 @@ export function ProductCategory({
                 }
               }}
             />
-            <p id={`${listId}-hint`}>Search the categories loaded so far.</p>
+            <p id={`${listId}-hint`}>
+              Search all published product categories by the start of their name.
+            </p>
             <ul id={listId} role="listbox" aria-label="Categories">
               {options.map((row) => (
                 <li
@@ -309,14 +341,12 @@ export function ProductCategory({
                 </li>
               ))}
             </ul>
-            {categories.loading && <p role="status">Loading categories…</p>}
-            {!categories.loading &&
-              !categories.error &&
-              (options.length === 0 || (categories.items.length === 0 && !query)) && (
+            {suggestions.loading && <p role="status">Loading categories…</p>}
+            {!suggestions.loading &&
+              !suggestions.error &&
+              (options.length === 0 || (suggestions.items.length === 0 && !query)) && (
                 <p role="status">
-                  {query
-                    ? "No matching categories in the loaded list."
-                    : "No categories are listed yet."}
+                  {query ? "No matching categories." : "No categories are listed yet."}
                 </p>
               )}
             {categories.selectedError && (
@@ -330,23 +360,26 @@ export function ProductCategory({
                 </button>
               </div>
             )}
-            {categories.error ? (
+            {suggestions.error ? (
               <div>
-                <p role="status">{categories.error}</p>
+                <p role="status">{suggestions.error}</p>
                 <button
                   type="button"
-                  disabled={categories.loading}
-                  onClick={categories.retry}
+                  disabled={suggestions.loading}
+                  onClick={suggestions.retry}
                 >
                   Retry categories
                 </button>
+                <button type="button" onClick={suggestions.restart}>
+                  Start categories over
+                </button>
               </div>
             ) : (
-              categories.nextCursor && (
+              suggestions.nextCursor && (
                 <button
                   type="button"
-                  disabled={categories.loading}
-                  onClick={categories.loadMore}
+                  disabled={suggestions.loading}
+                  onClick={suggestions.loadMore}
                 >
                   Load more categories
                 </button>

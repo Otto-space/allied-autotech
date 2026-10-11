@@ -1,5 +1,5 @@
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
-import { parseListings } from "@/lib/api/vehicle-schemas";
+import { parseVehicleDiscovery } from "@/lib/api/vehicle-schemas";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -32,7 +32,10 @@ export async function generateMetadata({
     "/vehicles",
     searchParams,
   );
-  const seed = await loadPublicSeed(await listingPath(searchParams), parseListings);
+  const seed = await loadPublicSeed(
+    await listingPath(searchParams),
+    parseVehicleDiscovery,
+  );
   return seed.error ? { ...metadata, robots: { index: false, follow: false } } : metadata;
 }
 export default async function VehiclesPage({
@@ -40,7 +43,10 @@ export default async function VehiclesPage({
 }: {
   searchParams: SearchParameters;
 }) {
-  const initial = await loadPublicSeed(await listingPath(searchParams), parseListings);
+  const initial = await loadPublicSeed(
+    await listingPath(searchParams),
+    parseVehicleDiscovery,
+  );
   return (
     <>
       <SiteHeader />
@@ -83,6 +89,44 @@ export default async function VehiclesPage({
           aria-label="Current vehicle listings"
         >
           <VehicleCatalogue initial={initial} />
+        </section>
+        <section className="vehicle-buying-guide" aria-labelledby="vehicle-guide-title">
+          <div className="public-wrap">
+            <div>
+              <h2 id="vehicle-guide-title">A closer look before your next move.</h2>
+              <p>
+                Use the listing to compare the details, then speak with our team about the
+                vehicle you have in mind.
+              </p>
+              <Link href="/contact" className="text-link">
+                Ask our team <ArrowUpRight size={16} aria-hidden="true" />
+              </Link>
+            </div>
+            <ol>
+              {[
+                [
+                  "Compare the details",
+                  "Review the price, specifications and any published condition report.",
+                ],
+                [
+                  "Request a closer look",
+                  "Open a vehicle to send an enquiry or choose a preferred inspection time with your customer account.",
+                ],
+                [
+                  "Confirm with our team",
+                  "An inspection request is not a confirmed appointment. Check your account for the agreed time.",
+                ],
+              ].map(([title, copy], index) => (
+                <li key={title}>
+                  <span aria-hidden="true">0{index + 1}</span>
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{copy}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
         <LifestyleDiscovery />
         <section className="vehicle-contact">

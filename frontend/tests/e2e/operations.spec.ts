@@ -217,6 +217,73 @@ test("job retry validates its reason, guards changed attempts and does not offer
   expect(queries.every((query) => !query.includes("cursor="))).toBe(true);
 });
 
+for (const role of ["ADMIN", "SUPER_ADMIN"]) {
+  test(`${role} can review and retry a dead-letter notification with zero attempts`, async ({
+    page,
+  }) => {
+    const job = { ...jobFixture(), status: "DEAD_LETTER", attempts: 0 };
+    await page.setViewportSize(
+      role === "SUPER_ADMIN" ? { width: 390, height: 844 } : { width: 1280, height: 720 },
+    );
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+    });
+    let retried = false;
+    const writes: unknown[] = [];
+    await fixture(
+      page,
+      async (route, endpoint) => {
+        if (endpoint === "/admin/operations/jobs") {
+          await reply(route, { items: retried ? [] : [job] });
+          return true;
+        }
+        if (endpoint.endsWith("/retry")) {
+          expect(endpoint).toBe(`/admin/operations/jobs/outbox/${job.id}/retry`);
+          expect(route.request().headers()["x-csrf-token"]).toBeTruthy();
+          writes.push(route.request().postDataJSON());
+          retried = true;
+          await reply(route, {
+            id: job.id,
+            source: "outbox",
+            status: "RETRY_REQUESTED",
+            attempts: 0,
+          });
+          return true;
+        }
+      },
+      role,
+    );
+    await page.goto("/admin/processing-jobs");
+    await expect(page).toHaveURL(/\/admin\/processing-jobs$/);
+    await expect(page).toHaveTitle(/Processing jobs/);
+    await expect(page.getByRole("heading", { name: job.eventType })).toBeVisible();
+    await expect(
+      page.getByText("outside the supported manual retry range", { exact: false }),
+    ).toHaveCount(0);
+    await page
+      .getByLabel("Job retry reason")
+      .fill("Disabled delivery configuration repaired");
+    await page.getByRole("button", { name: "Review job retry" }).click();
+    await expect(page.getByRole("dialog")).toContainText(
+      "Queue another processing attempt?",
+    );
+    expect(writes).toHaveLength(0);
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `allied-notification-retry-${role.toLowerCase()}.png`),
+    });
+    await confirm(page).click();
+    await expect(
+      page.getByRole("heading", { name: "No matching records" }),
+    ).toBeVisible();
+    expect(writes).toEqual([
+      { expectedAttempts: 0, reason: "Disabled delivery configuration repaired" },
+    ]);
+    expect(errors).toEqual([]);
+  });
+}
+
 test("unknown webhook retry is locked across filters and processing jobs never offer retries", async ({
   page,
 }) => {

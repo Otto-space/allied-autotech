@@ -2,6 +2,8 @@
 
 import type { ApiErrorBody, ApiSuccess } from "./types";
 import { errorMessage, fieldErrors, isRecord } from "./errors";
+import { retryAfterSeconds } from "./retry-after";
+import { redactVehicleRetries } from "./vehicle-creation-retry";
 import {
   captureDraftSubmission,
   clearAccountDrafts,
@@ -28,8 +30,9 @@ export class ApiError extends Error {
   readonly status: number;
   readonly requestId?: string;
   readonly fields?: ApiErrorBody["error"]["fields"];
+  readonly retryAfterSeconds?: number;
 
-  constructor(status: number, body: unknown) {
+  constructor(status: number, body: unknown, retryAfter?: string | null) {
     const record = isRecord(body) ? body : {};
     const error = isRecord(record.error) ? record.error : {};
     const code =
@@ -39,6 +42,7 @@ export class ApiError extends Error {
     super(errorMessage(code, status));
     this.name = "ApiError";
     this.status = status;
+    this.retryAfterSeconds = retryAfterSeconds(retryAfter ?? null);
     this.code = code;
     this.fields = fieldErrors(error.fields);
     const meta = isRecord(record.meta) ? record.meta : undefined;
@@ -123,7 +127,11 @@ export async function apiRequest<T>(
   if (generation !== sessionGeneration)
     throw new DOMException("Session changed", "AbortError");
   if (!response.ok) {
-    const error = new ApiError(response.status, body);
+    const error = new ApiError(
+      response.status,
+      body,
+      response.headers.get("Retry-After"),
+    );
     if (error.code === "CSRF_INVALID") clearCsrfToken();
     if (
       response.status === 401 &&
@@ -195,6 +203,7 @@ export function refreshCsrf(): Promise<string> {
 
 export function invalidateSession(reason?: "password-changed"): void {
   clearAccountDrafts();
+  redactVehicleRetries();
   sessionGeneration += 1;
   csrfToken = null;
   csrfRequest = null;

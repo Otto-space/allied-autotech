@@ -28,6 +28,7 @@ const saleFixture = (): CustomerVehicleSale => ({
 const paymentFixture = (n = 20): PaymentRecord => ({
   id: id(n),
   paymentNumber: `TEST-PAYMENT-${n}`,
+  checkoutProviders: ["PAYSTACK"],
   amountKobo: "10001",
   currency: "NGN",
   status: "REQUIRES_PAYMENT",

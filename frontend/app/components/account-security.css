@@ -1,0 +1,342 @@
+.dashboard .dashboard-content .account-security {
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+  max-width: 1240px;
+}
+.security-heading h1 {
+  font-size: 30px;
+  line-height: 1.2;
+  margin: 8px 0 12px;
+}
+.security-heading p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #435563;
+  margin: 0;
+}
+.security-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin: 16px 0 20px;
+}
+.security-sections a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #01121a;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+.security-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
+  gap: 20px;
+  align-items: start;
+}
+.dashboard .dashboard-content .account-security .security-grid > .detail-section {
+  margin: 0;
+  padding: 24px;
+  min-width: 0;
+  border: 1px solid #cbd5df;
+  border-radius: 8px;
+  background: white;
+  scroll-margin-top: 100px;
+}
+.security-sessions {
+  grid-column: 1/-1;
+}
+.dashboard .dashboard-content .account-security h2 {
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 0 0 12px;
+}
+.dashboard .dashboard-content .account-security h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  margin: 0 0 8px;
+}
+.dashboard .dashboard-content .account-security p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #435563;
+}
+.dashboard .dashboard-content .account-security .field {
+  margin-bottom: 16px;
+}
+.dashboard .dashboard-content .account-security .field label {
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+.dashboard .dashboard-content .account-security .field input,
+.dashboard .dashboard-content .account-security .field textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #82939f;
+  border-radius: 6px;
+  color: #01121a;
+  background: white;
+  font:
+    400 16px/1.5 var(--font-quicksand),
+    sans-serif;
+  padding: 10px 12px;
+}
+.dashboard .dashboard-content .account-security .field input {
+  height: 48px;
+}
+.dashboard .dashboard-content .account-security .field input[aria-invalid="true"] {
+  border-color: #b40000;
+}
+.dashboard .dashboard-content .account-security .field-error {
+  color: #b40000;
+  font-size: 12px;
+}
+.dashboard .dashboard-content .account-security .security-password-input {
+  position: relative;
+}
+.dashboard .dashboard-content .account-security .security-password-input input {
+  padding-right: 58px;
+}
+.dashboard .dashboard-content .account-security .security-reveal {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid #cbd5df;
+  border-radius: 0 4px 4px 0;
+  color: #435563;
+  background: white;
+}
+.dashboard
+  .dashboard-content
+  .account-security
+  :is(input, button, a, summary, textarea):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.dashboard .dashboard-content .account-security .button {
+  text-transform: none;
+  letter-spacing: normal;
+  box-shadow: none;
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 10px 14px;
+  font:
+    700 13px/1.5 var(--font-quicksand),
+    sans-serif;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .account-security .button.secondary {
+  border: 1px solid #82939f;
+  background: white;
+  color: #01121a;
+}
+.dashboard .dashboard-content .account-security .button:disabled {
+  opacity: 0.6;
+}
+.dashboard .dashboard-content .account-security .security-password .button {
+  min-height: 48px;
+  width: 100%;
+}
+.dashboard .dashboard-content .account-security .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+.dashboard .dashboard-content .account-security .security-record {
+  border: 0;
+  border-top: 1px solid #dce3e9;
+  background: transparent;
+  margin: 18px 0 0;
+  padding: 16px 0 0;
+  border-radius: 0;
+}
+.security-record-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+  font-size: 12px;
+  margin: 10px 0;
+}
+.security-record-summary > div {
+  min-width: 0;
+}
+.security-record-summary dt {
+  color: #435563;
+  margin: 0 0 3px;
+}
+.security-record-summary dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.security-details summary {
+  min-height: 44px;
+  display: list-item;
+  align-content: center;
+  cursor: pointer;
+  color: #435563;
+  font-size: 12px;
+  font-weight: 600;
+  list-style-position: inside;
+}
+.security-factor-kind {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.security-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border: 1px solid #aab8c2;
+  border-radius: 4px;
+  background: #f1f4f6;
+  color: #01121a;
+}
+.dashboard .dashboard-content .account-security .security-factors > section {
+  border-top: 1px solid #cbd5df;
+  margin-top: 24px;
+  padding-top: 20px;
+  background: transparent;
+}
+.dashboard .dashboard-content .account-security .security-factors > section > section {
+  margin-top: 24px;
+  padding-top: 20px;
+}
+.dashboard
+  .dashboard-content
+  .account-security
+  .security-factors
+  > section
+  > section
+  > .button {
+  margin: 8px 8px 0 0;
+}
+.dashboard .dashboard-content .account-security .text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.dashboard .dashboard-content .account-security #new-recovery-codes {
+  font:
+    12px/1.5 ui-monospace,
+    monospace;
+}
+.dashboard .dashboard-content .account-security .copy-control .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.dashboard .dashboard-content .account-security .mutation-review {
+  padding: 24px;
+  max-width: 540px;
+  width: calc(100vw - 32px);
+  border: 1px solid #cbd5df;
+  border-radius: 8px;
+}
+.dashboard .dashboard-content .account-security .mutation-review h2 {
+  font-size: 22px;
+}
+.dashboard .dashboard-content .account-security .mutation-review .totals {
+  font-size: 13px;
+}
+.dashboard .dashboard-content .account-security .mutation-review .actions {
+  margin-bottom: 0;
+}
+@media (min-width: 1100px) {
+  .dashboard .dashboard-content .account-security .security-sessions > .security-record {
+    display: grid;
+    grid-template-columns: minmax(140px, 1fr) minmax(260px, 2fr) minmax(150px, 1fr);
+    gap: 4px 20px;
+    align-items: center;
+  }
+  .security-sessions .security-record > h3 {
+    grid-column: 1;
+  }
+  .security-sessions .security-record > dl {
+    grid-column: 2;
+    grid-row: 1/3;
+  }
+  .security-sessions .security-record > details {
+    grid-column: 1/3;
+  }
+  .security-sessions .security-record > button {
+    grid-column: 3;
+    grid-row: 1/3;
+  }
+  .security-sessions .security-record > details[open] {
+    grid-column: 1/-1;
+    grid-row: 3;
+  }
+}
+@media (max-width: 1099px) {
+  .security-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard .dashboard-content .account-security .security-grid > .detail-section {
+    padding: 20px;
+  }
+}
+@media (max-width: 600px) {
+  .security-heading h1 {
+    font-size: 27px;
+  }
+  .dashboard .dashboard-content .account-security .security-grid > .detail-section {
+    padding: 18px;
+  }
+  .security-record-summary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .security-record-summary > div {
+    display: grid;
+    grid-template-columns: 85px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .security-sections {
+    gap: 0 18px;
+    margin-bottom: 12px;
+  }
+  .dashboard .dashboard-content .account-security .mutation-review {
+    padding: 18px;
+  }
+  .dashboard .dashboard-content .account-security .mutation-review .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard .dashboard-content .account-security .security-role-note {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #e9eef2;
+  border-left: 3px solid #82939f;
+  border-radius: 0 4px 4px 0;
+}
+.dashboard .dashboard-content .account-security .security-record .notice {
+  font-size: 13px;
+  line-height: 1.7;
+  background: #f1f4f6;
+  border-left: 3px solid #82939f;
+  color: #435563;
+  padding: 12px;
+}

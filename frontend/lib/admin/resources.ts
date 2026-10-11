@@ -9,6 +9,8 @@ export type AdminField = {
   min?: number;
   options?: string[];
   source?: string;
+  sourceQuery?: Record<string, string>;
+  omitUnchanged?: boolean;
   readPath?: string;
   default?: string;
 };
@@ -84,6 +86,26 @@ export const adminResources: Record<string, AdminResource> = {
       active,
     ],
   },
+  "service-categories": {
+    title: "Service categories",
+    singular: "service category",
+    path: "/admin/service-categories",
+    versioned: true,
+    description:
+      "Group services for customers to browse. Deactivating a category removes the grouping while its active services remain available.",
+    fields: [
+      name,
+      slug,
+      {
+        name: "description",
+        label: "Description",
+        type: "textarea",
+        nullable: true,
+        max: 2000,
+      },
+      active,
+    ],
+  },
   services: {
     title: "Services",
     singular: "service",
@@ -93,6 +115,15 @@ export const adminResources: Record<string, AdminResource> = {
     fields: [
       { ...name, max: 160 },
       slug,
+      {
+        name: "categoryId",
+        label: "Service category (optional)",
+        type: "select",
+        nullable: true,
+        source: "/admin/service-categories",
+        sourceQuery: { isActive: "true" },
+        omitUnchanged: true,
+      },
       { name: "shortDescription", label: "Short description", nullable: true, max: 500 },
       {
         name: "description",

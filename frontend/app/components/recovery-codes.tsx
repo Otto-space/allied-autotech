@@ -4,19 +4,22 @@ import { CopyControl } from "./copy-control";
 export function RecoveryCodes({
   codes,
   onDismiss,
+  headingLevel = "h2",
 }: {
   codes: string[];
+  headingLevel?: "h1" | "h2";
   onDismiss: () => void;
 }) {
+  const Heading = headingLevel;
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     heading.current?.focus();
   }, []);
   return (
     <section className="detail-section">
-      <h2 ref={heading} tabIndex={-1}>
+      <Heading ref={heading} tabIndex={-1}>
         Save your new recovery codes
-      </h2>
+      </Heading>
       <p>
         Previous recovery codes no longer work. Each new code can be used once. Store them
         privately; these codes are only available in this view and disappear when you

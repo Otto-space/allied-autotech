@@ -28,39 +28,47 @@ export function MfaEnrollment({
   const [key, setKey] = useState<z.infer<typeof registrationOptionsSchema>>();
   const [name, setName] = useState("");
   const [accepted, setAccepted] = useState(false);
-  const disabled = operation.busy || operation.uncertain || operation.requiresMfa;
+  const disabled =
+    operation.busy || operation.uncertain || operation.requiresMfa || operation.waiting;
   return (
     <>
-      <h2>Add an MFA factor</h2>
-      <p>
-        Use an authenticator app or a security key supported by your browser. Completing
-        setup replaces every previous recovery code and renews this session. Save the new
-        codes before leaving.
-      </p>
-      <label className="check-field">
-        <input
-          type="checkbox"
-          checked={accepted}
-          disabled={disabled || !!totp || !!key}
-          onChange={(event) => setAccepted(event.target.checked)}
-        />{" "}
-        I understand that completing setup replaces my recovery codes.
-      </label>
+      {!totp && !key && (
+        <p className="login-intro">
+          Add an authenticator app or a security key. Completing setup replaces your
+          recovery codes and renews this session. Save the new codes before leaving.
+        </p>
+      )}
+      {!totp && !key && (
+        <label className="check-field">
+          <input
+            type="checkbox"
+            checked={accepted}
+            disabled={disabled || !!totp || !!key}
+            onChange={(event) => setAccepted(event.target.checked)}
+          />{" "}
+          I understand that completing setup replaces my recovery codes.
+        </label>
+      )}
       <Feedback message={operation.error} />
       {operation.requiresMfa && (
-        <button className="button" onClick={onReverify}>
+        <button className="button login-submit" onClick={onReverify}>
           Verify existing MFA
         </button>
+      )}
+      {operation.waiting && (
+        <p className="mfa-hint">
+          Try again in about {Math.ceil(operation.waitSeconds / 60)}{" "}
+          {operation.waitSeconds > 60 ? "minutes" : "minute"}.
+        </p>
       )}
       {operation.busy && <p role="status">Preparing or verifying your MFA factor...</p>}
       {!totp && !key && (
         <>
-          <p>
-            Starting authenticator setup replaces any unfinished authenticator-app setup
-            for this account.
+          <p className="mfa-hint">
+            Starting authenticator setup replaces any unfinished app setup.
           </p>
           <button
-            className="button"
+            className="button login-submit"
             disabled={disabled || !accepted}
             onClick={() =>
               void operation.run(async (signal, submitted) => {
@@ -118,20 +126,19 @@ export function MfaEnrollment({
         </>
       )}
       {totp && !operation.uncertain && !operation.requiresMfa && (
-        <section className="detail-section">
-          <h3>Connect your authenticator app</h3>
+        <section className="mfa-connect">
+          <h2>Connect your authenticator app</h2>
           <p>Scan this QR code, or enter the setup key below.</p>
           <AuthenticatorQr key={totp.factorId} uri={totp.uri} />
-          <p>
-            Choose a time-based code for Allied AutoTech. Keep the setup key private. It
-            is shown only during this setup.
+          <p className="mfa-hint">
+            Choose a time-based code. Keep the setup key private.
           </p>
           <div className="field">
             <label htmlFor="totp-secret">Authenticator setup key</label>
             <textarea
               id="totp-secret"
               readOnly
-              rows={2}
+              rows={1}
               value={totp.secret}
               autoComplete="off"
               spellCheck={false}
@@ -171,7 +178,7 @@ export function MfaEnrollment({
             must confirm it before setup is complete.
           </p>
           <button
-            className="button"
+            className="button login-submit"
             disabled={disabled}
             onClick={() =>
               void operation.run(async (signal, submitted) => {
@@ -206,7 +213,7 @@ export function MfaEnrollment({
       )}
       {(totp || key) && !operation.uncertain && (
         <button
-          className="button secondary"
+          className="mfa-text-button"
           disabled={disabled}
           onClick={() => {
             setTotp(undefined);
@@ -217,10 +224,12 @@ export function MfaEnrollment({
           Discard setup shown here
         </button>
       )}
-      <p className="muted">
-        Discarding this view hides the setup details. It does not remove a pending factor
-        or a credential already created on your device.
-      </p>
+      {(totp || key) && (
+        <p className="mfa-hint">
+          Discarding hides these details; it does not remove a pending factor or a key
+          created on your device.
+        </p>
+      )}
     </>
   );
 }

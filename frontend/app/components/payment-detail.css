@@ -1,0 +1,647 @@
+/* Scoped to customer payment detail; shared operational forms retain their layout. */
+.dashboard-content:has(> .customer-payment) > .dashboard-breadcrumbs {
+  display: none;
+}
+.dashboard .dashboard-content .customer-payment {
+  min-width: 0;
+  color: #01121a;
+  --payment-muted: #52616c;
+}
+.dashboard .dashboard-content .customer-payment :where(h1, h2, h3, p, dl, dd) {
+  margin: 0;
+}
+.dashboard
+  .dashboard-content
+  .customer-payment
+  :where(a, button, input, select):focus-visible {
+  outline: 3px solid #e60301;
+  outline-offset: 3px;
+}
+.dashboard .dashboard-content .customer-payment svg {
+  flex-shrink: 0;
+}
+.dashboard .dashboard-content .customer-payment .button {
+  min-height: 44px;
+  padding: 11px 15px;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: normal;
+  text-align: center;
+  touch-action: manipulation;
+}
+.dashboard .dashboard-content .customer-payment .button:not(.secondary) {
+  background: #d00301;
+  border-color: #d00301;
+  color: white;
+}
+.dashboard .dashboard-content .customer-payment .button:not(.secondary):hover {
+  background: #b50201;
+}
+.dashboard .dashboard-content .customer-payment .button.secondary {
+  background: white;
+  border: 1px solid #82939f;
+  color: #233642;
+}
+.dashboard .dashboard-content .customer-payment .button:disabled {
+  cursor: not-allowed;
+}
+.dashboard .dashboard-content .customer-payment .payment-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--payment-muted);
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .customer-payment .payment-breadcrumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #344d61;
+  text-underline-offset: 4px;
+}
+.dashboard .dashboard-content .customer-payment .payment-breadcrumbs [aria-current] {
+  font-weight: 700;
+  color: #01121a;
+}
+.dashboard .dashboard-content .customer-payment .payment-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.dashboard .dashboard-content .customer-payment .payment-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--payment-muted);
+  margin-bottom: 7px;
+}
+.dashboard .dashboard-content .customer-payment h1 {
+  font-size: clamp(25px, 2.4vw, 32px);
+  line-height: 1.2;
+}
+.dashboard .dashboard-content .customer-payment h2 {
+  font-size: 18px;
+  line-height: 1.35;
+}
+.dashboard .dashboard-content .customer-payment h3 {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.dashboard .dashboard-content .customer-payment .payment-heading p:last-child {
+  margin-top: 8px;
+  color: var(--payment-muted);
+  font-size: 13px;
+}
+.dashboard .dashboard-content .customer-payment .payment-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
+  gap: 20px;
+  align-items: start;
+}
+.dashboard
+  .dashboard-content
+  .customer-payment
+  :where(.payment-overview, .payment-workspace) {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.dashboard
+  .dashboard-content
+  .customer-payment
+  :where(
+    .payment-summary,
+    .payment-related,
+    .payment-checkout,
+    .payment-outcome,
+    .manual-payment-section,
+    .payment-attempts
+  ) {
+  border-radius: 10px;
+  padding: 22px;
+  min-width: 0;
+}
+.dashboard
+  .dashboard-content
+  .customer-payment
+  :where(
+    .payment-related,
+    .payment-checkout,
+    .payment-outcome,
+    .manual-payment-section,
+    .payment-attempts
+  ) {
+  border: 1px solid #d3dde3;
+  background: white;
+}
+.dashboard .dashboard-content .customer-payment .payment-summary {
+  background: #091b38;
+  color: white;
+  border: 1px solid #091b38;
+  position: relative;
+  overflow: hidden;
+}
+.dashboard .dashboard-content .customer-payment .payment-summary::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 4px;
+  width: 64px;
+  background: #e60301;
+}
+.dashboard .dashboard-content .customer-payment .payment-summary .payment-eyebrow {
+  color: #c4d2e2;
+}
+.dashboard .dashboard-content .customer-payment .payment-summary h2 {
+  font-size: clamp(20px, 2vw, 26px);
+  color: white;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .customer-payment .payment-copy {
+  margin-top: 8px;
+}
+.dashboard .dashboard-content .customer-payment .payment-copy > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+  padding: 0;
+}
+.dashboard .dashboard-content .customer-payment .payment-copy > input:focus {
+  position: static;
+  width: 100%;
+  height: 44px;
+  clip-path: none;
+  background: #132b46;
+  color: white;
+  border: 1px solid #82939f;
+  padding: 8px;
+}
+.dashboard .dashboard-content .customer-payment .copy-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dashboard .dashboard-content .customer-payment .copy-control .button.secondary {
+  min-height: 44px;
+  min-width: 44px;
+  border: 1px solid #82939f;
+  background: #132b46;
+  color: white;
+  border-radius: 6px;
+}
+.dashboard .dashboard-content .customer-payment .copy-control :where(span, p) {
+  color: #d9e5ef;
+  font-size: 12px;
+}
+.dashboard .dashboard-content .customer-payment .payment-amount {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 20px;
+  border-top: 1px solid #496079;
+}
+.dashboard .dashboard-content .customer-payment .payment-amount span {
+  font-size: 12px;
+  color: #d1dce8;
+}
+.dashboard .dashboard-content .customer-payment .payment-amount strong {
+  font-size: clamp(24px, 2.5vw, 34px);
+  line-height: 1.3;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard .dashboard-content .customer-payment .payment-state {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 24px;
+}
+.dashboard .dashboard-content .customer-payment .payment-state .status {
+  color: white;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 15px;
+  text-transform: none;
+}
+.dashboard .dashboard-content .customer-payment .payment-status-message {
+  color: #d1dce8;
+  font-size: 13px;
+  line-height: 1.65;
+  margin-top: 10px;
+}
+.dashboard .dashboard-content .customer-payment .payment-deadline {
+  display: grid;
+  gap: 7px;
+  padding: 15px;
+  margin-top: 20px;
+  border: 1px solid #496079;
+  border-radius: 6px;
+  background: #132b46;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .customer-payment .payment-deadline span {
+  font-size: 12px;
+  color: #d1dce8;
+}
+.dashboard .dashboard-content .customer-payment .payment-related h2 {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+.dashboard .dashboard-content .customer-payment .payment-related a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 9px 0;
+  color: #233d53;
+  font-size: 13px;
+  text-decoration: none;
+}
+.dashboard .dashboard-content .customer-payment .payment-related a + a {
+  border-top: 1px solid #e0e6eb;
+}
+.dashboard .dashboard-content .customer-payment .payment-related a span {
+  flex: 1;
+}
+.dashboard .dashboard-content .customer-payment .payment-related a:hover span {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.dashboard .dashboard-content .customer-payment .payment-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dashboard
+  .dashboard-content
+  .customer-payment
+  :where(.payment-checkout, .payment-outcome, .manual-payment-section)
+  > p {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--payment-muted);
+}
+.dashboard .dashboard-content .customer-payment .payment-provider-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+.dashboard .dashboard-content .customer-payment .payment-provider-actions .button {
+  justify-content: space-between;
+}
+.dashboard .dashboard-content .customer-payment .payment-provider-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px;
+  background: #f0f5f8;
+  border-radius: 6px;
+  margin-top: 14px;
+  font-size: 12px;
+}
+.dashboard .dashboard-content .customer-payment .payment-provider-note svg {
+  margin-top: 2px;
+}
+.dashboard .dashboard-content .customer-payment .payment-recovery {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.dashboard .dashboard-content .customer-payment .manual-payment-section {
+  margin: 0;
+}
+.dashboard .dashboard-content .customer-payment .manual-payment-section[hidden] {
+  display: none;
+}
+.dashboard .dashboard-content .customer-payment .manual-payment-section form {
+  margin-top: 18px;
+}
+.dashboard .dashboard-content .customer-payment .handover-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.dashboard .dashboard-content .customer-payment .field {
+  min-width: 0;
+  margin: 0;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+.dashboard .dashboard-content .customer-payment .field label {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .customer-payment .field :where(input, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #82939f;
+  border-radius: 6px;
+  background: white;
+  color: #01121a;
+  font-size: 13px;
+  padding: 9px 10px;
+}
+.dashboard .dashboard-content .customer-payment .field input[aria-invalid="true"] {
+  border-color: #bf0808;
+}
+.dashboard .dashboard-content .customer-payment .field-error {
+  font-size: 12px;
+  color: #b50201;
+}
+.dashboard .dashboard-content .customer-payment .asset-upload {
+  grid-column: 1/-1;
+  border: 0;
+  border-top: 1px solid #d3dde3;
+  border-radius: 0;
+  padding: 16px 0 0;
+  background: transparent;
+}
+.dashboard .dashboard-content .customer-payment .asset-upload .field-hint {
+  font-size: 12px;
+  color: var(--payment-muted);
+  line-height: 1.6;
+}
+.dashboard .dashboard-content .customer-payment .asset-dropzone {
+  padding: 12px;
+  border-radius: 6px;
+  border-color: #82939f;
+  min-height: 0;
+}
+.dashboard .dashboard-content .customer-payment .asset-dropzone input {
+  padding: 4px;
+  min-height: 44px;
+  border: 0;
+}
+.dashboard .dashboard-content .customer-payment .asset-dropzone > svg {
+  display: none;
+}
+.dashboard .dashboard-content .customer-payment .asset-dropzone > p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .customer-payment .asset-upload .actions:empty {
+  display: none;
+}
+.dashboard .dashboard-content .customer-payment .handover-fields > .button {
+  justify-self: start;
+  grid-column: 1/-1;
+}
+.dashboard .dashboard-content .customer-payment .notice {
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempts {
+  grid-column: 1/-1;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempts h2 span {
+  font-size: 14px;
+  color: var(--payment-muted);
+}
+.dashboard .dashboard-content .customer-payment .payment-attempts-caption {
+  margin-top: 7px;
+  font-size: 12px;
+  color: var(--payment-muted);
+}
+.dashboard .dashboard-content .customer-payment .payment-empty {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px dashed #82939f;
+  border-radius: 7px;
+}
+.dashboard .dashboard-content .customer-payment .payment-empty p {
+  color: var(--payment-muted);
+  font-size: 12px;
+  margin-top: 5px;
+  line-height: 1.6;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempt {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #d3dde3;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempt-number {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: #edf2f6;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempt-info {
+  flex: 1;
+  min-width: 0;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempt-info p {
+  font-size: 12px;
+  color: var(--payment-muted);
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempt-action {
+  max-width: 240px;
+}
+.dashboard .dashboard-content .customer-payment .payment-attempt-action p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 7px;
+  color: var(--payment-muted);
+}
+.dashboard .dashboard-content .customer-payment .payment-attempts-note {
+  margin-top: 16px;
+  color: var(--payment-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.dashboard .dashboard-content .customer-payment .mutation-review {
+  width: min(620px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 22px;
+  border-radius: 10px;
+}
+.dashboard .dashboard-content .customer-payment .mutation-review-content {
+  margin: 12px 0;
+  min-height: 0;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.dashboard .dashboard-content .customer-payment .mutation-review .spec-row {
+  gap: 12px;
+  padding: 10px 0;
+}
+.dashboard .dashboard-content .customer-payment .mutation-review .spec-row dd {
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.dashboard .dashboard-content .customer-payment .mutation-review .actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  flex: 0 0 auto;
+}
+.dashboard .dashboard-content .customer-payment .mutation-review .actions > .button {
+  min-height: 44px;
+  flex: none;
+  margin: 0;
+}
+@media (max-width: 1100px) {
+  .dashboard .dashboard-content .customer-payment .payment-layout {
+    grid-template-columns: minmax(240px, 0.85fr) minmax(0, 1.15fr);
+    gap: 14px;
+  }
+  .dashboard .dashboard-content .customer-payment .handover-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Recorded states use the space previously occupied by checkout and the form. */
+@media (min-width: 801px) {
+  .dashboard .dashboard-content .customer-payment .payment-layout[data-compact="true"] {
+    grid-template-areas: "summary workspace" "summary related" "summary attempts";
+    grid-template-rows: auto auto 1fr;
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    .payment-layout[data-compact="true"]
+    .payment-overview {
+    display: contents;
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    .payment-layout[data-compact="true"]
+    .payment-summary {
+    grid-area: summary;
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    .payment-layout[data-compact="true"]
+    .payment-workspace {
+    grid-area: workspace;
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    .payment-layout[data-compact="true"]
+    .payment-related {
+    grid-area: related;
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    .payment-layout[data-compact="true"]
+    .payment-attempts {
+    grid-area: attempts;
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    .payment-layout[data-compact="true"]
+    .payment-attempt {
+    flex-wrap: wrap;
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    .payment-layout[data-compact="true"]
+    .payment-attempt-action {
+    margin-left: 50px;
+  }
+}
+@media (max-width: 800px) {
+  .dashboard .dashboard-content .customer-payment .field :where(input, select) {
+    font-size: 16px;
+  }
+  .dashboard .dashboard-content .customer-payment .payment-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard .dashboard-content .customer-payment .payment-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .dashboard .dashboard-content .customer-payment .payment-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard
+    .dashboard-content
+    .customer-payment
+    :where(
+      .payment-summary,
+      .payment-related,
+      .payment-checkout,
+      .payment-outcome,
+      .manual-payment-section,
+      .payment-attempts
+    ) {
+    padding: 18px;
+  }
+}
+@media (max-width: 480px) {
+  .dashboard .dashboard-content .customer-payment .payment-attempt {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .dashboard .dashboard-content .customer-payment .payment-attempt-action {
+    width: 100%;
+    max-width: none;
+  }
+  .dashboard .dashboard-content .customer-payment .payment-attempt-action .button {
+    width: 100%;
+  }
+  .dashboard .dashboard-content .customer-payment .payment-empty {
+    padding: 14px;
+    align-items: flex-start;
+  }
+  .dashboard .dashboard-content .customer-payment .mutation-review {
+    padding: 16px;
+  }
+  .dashboard .dashboard-content .customer-payment .mutation-review .actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard .dashboard-content .customer-payment .mutation-review .spec-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
+  .dashboard .dashboard-content .customer-payment .mutation-review .spec-row dd {
+    text-align: left;
+  }
+}
+@media (min-width: 600px) and (max-width: 800px) {
+  .dashboard .dashboard-content .customer-payment .handover-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

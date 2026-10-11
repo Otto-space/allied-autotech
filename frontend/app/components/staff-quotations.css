@@ -1,0 +1,536 @@
+﻿/* Quotation workflow: scoped to the existing workshop booking detail. */
+.dashboard .dashboard-content .staff-quotations {
+  --quote-border: #82939f;
+  --quote-muted: #4c5c69;
+  scroll-margin-top: 96px;
+  min-width: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-section-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.dashboard .dashboard-content .staff-quotations h2 {
+  margin: 0 0 8px;
+  font-size: 26px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-section-heading p {
+  margin: 0;
+  max-width: 65ch;
+  color: var(--quote-muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.dashboard .dashboard-content .staff-quotations .button,
+.dashboard .dashboard-content .quotation-review .button {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  border-radius: 5px;
+}
+.dashboard .dashboard-content .staff-quotations .button.secondary,
+.dashboard .dashboard-content .quotation-review .button.secondary {
+  border-color: var(--quote-border, #82939f);
+}
+.dashboard .dashboard-content .staff-quotations .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.dashboard .dashboard-content .staff-quotations > .quotation-editor {
+  max-width: none;
+  width: 100%;
+  margin: 0 0 28px;
+  padding: 0;
+  overflow: clip;
+  border: 1px solid #c7d1d9;
+  border-radius: 8px;
+  box-shadow: 0 4px 18px #01121a06;
+  background: #fff;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-heading {
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid #d8dfe5;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-heading h3 {
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-heading p {
+  color: var(--quote-muted);
+  font-size: 14px;
+  margin: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(270px, 1fr);
+  gap: 24px;
+  padding: 24px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-grid > * {
+  min-width: 0;
+}
+.dashboard .dashboard-content .staff-quotations h4 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .field-hint {
+  color: var(--quote-muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .quotation-terms {
+  padding: 18px;
+  border-radius: 6px;
+  background: #f3f5f7;
+  border: 1px solid #e0e5ea;
+  align-self: start;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .service-line-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  margin: 22px 0 16px;
+  padding: 16px;
+  border: 1px solid #c7d1d9;
+  background: #f8fafb;
+  border-radius: 5px;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  .service-line-editor
+  legend {
+  padding-inline: 6px;
+  font-size: 14px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .field {
+  gap: 0;
+  margin: 0;
+  min-width: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .field > button {
+  margin-top: 8px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .field label {
+  display: block;
+  color: #253744;
+  margin: 0 0 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--quote-border);
+  background-color: #fff;
+  border-radius: 5px;
+  color: #01121a;
+  min-height: 44px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  box-shadow: none;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  :is(input, select, textarea):hover:not(:disabled) {
+  border-color: #405868;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  :is(input, select, textarea):focus-visible {
+  border-color: #e60301;
+  outline: 2px solid #e60301;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px #e6030114;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  :is(input, select, textarea)[aria-invalid="true"] {
+  border-color: #b00000;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  :is(input, select, textarea):disabled {
+  color: #54616b;
+  background-color: #e9eef1;
+  cursor: not-allowed;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor input:-webkit-autofill {
+  -webkit-text-fill-color: #01121a;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .form-row {
+  display: grid;
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  .service-line-editor
+  > .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  justify-self: end;
+  min-height: 44px;
+  font-size: 14px;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  .quotation-terms
+  > .field {
+  margin-top: 20px;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  .quotation-terms
+  textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-editor
+  .quotation-terms
+  .field-hint {
+  margin: 8px 0 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor .field-error {
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 6px;
+  color: #a40000;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid #d8dfe5;
+  padding: 18px 24px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-footer p {
+  color: var(--quote-muted);
+  font-size: 13px;
+  margin: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-editor-footer .actions {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-records {
+  min-width: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-records > h3 {
+  font-size: 20px;
+  margin: 0 0 16px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record {
+  min-width: 0;
+  margin-bottom: 20px;
+  border: 1px solid #c7d1d9;
+  background: #fff;
+  border-radius: 8px;
+  padding: 22px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record-heading > * {
+  min-width: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-version {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--quote-muted);
+  font-size: 13px;
+  margin: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-status {
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: #e6ebef;
+  color: #263d4b;
+  font-size: 13px;
+  font-weight: 650;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-status[data-status="ISSUED"],
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-status[data-status="ACCEPTED"] {
+  background: #091b38;
+  color: white;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-deadline {
+  color: var(--quote-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 30ch;
+  margin: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-notes {
+  background: #f3f5f7;
+  margin: 18px 0;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record .table-region {
+  margin-top: 20px;
+  margin-bottom: 0;
+  border: 1px solid #d8dfe5;
+  border-radius: 5px 5px 0 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record table {
+  min-width: 610px;
+  font-size: 14px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record :is(th, td) {
+  padding: 12px 14px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record th {
+  background: #f3f5f7;
+  color: #405463;
+  font-size: 13px;
+  font-weight: 650;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record td:first-child {
+  min-width: 200px;
+  max-width: 380px;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.dashboard
+  .dashboard-content
+  .staff-quotations
+  .quotation-record
+  :is(th, td):nth-child(n + 3) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-totals {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 20px 40px;
+  background: #01121a;
+  color: white;
+  margin: 0;
+  padding: 18px 22px;
+  border-radius: 0 0 5px 5px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-totals > div {
+  min-width: 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-totals dt {
+  color: #c6d1d8;
+  font-size: 13px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-totals dd {
+  margin: 5px 0 0;
+  font-size: 16px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-totals > div:last-child dd {
+  font-size: 18px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record > .actions {
+  justify-content: flex-end;
+  margin: 18px 0 0;
+  border: 0;
+  padding: 0;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-record > .field-hint {
+  color: var(--quote-muted);
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-empty,
+.dashboard .dashboard-content .staff-quotations .quotation-access-note {
+  border-left: 3px solid #82939f;
+  background: #eaf0f3;
+  padding: 18px 20px;
+  margin: 16px 0;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-empty h3 {
+  margin: 0 0 7px;
+  font-size: 18px;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-empty p,
+.dashboard .dashboard-content .staff-quotations .quotation-access-note {
+  color: #405463;
+  font-size: 14px;
+  line-height: 1.65;
+}
+.dashboard .dashboard-content .staff-quotations .quotation-empty p {
+  margin: 0;
+  max-width: 66ch;
+}
+.dashboard .dashboard-content .quotation-review {
+  --quote-border: #82939f;
+  width: min(560px, calc(100vw - 32px));
+  border-radius: 8px;
+}
+.dashboard .dashboard-content .quotation-review > h2 {
+  font-size: 22px;
+  line-height: 1.35;
+}
+.dashboard .dashboard-content .quotation-review .mutation-review-content {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.dashboard .dashboard-content .quotation-review .mutation-review-content .totals {
+  display: block;
+}
+.dashboard .dashboard-content .quotation-review .spec-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1fr);
+  gap: 16px;
+  border-top: 1px solid #d8dfe5;
+  padding: 14px 0;
+}
+.dashboard .dashboard-content .quotation-review .spec-row dd {
+  font-weight: 650;
+  text-align: left;
+}
+@media (min-width: 1280px) {
+  .dashboard .dashboard-content .staff-quotations .quotation-editor .service-line-editor {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  }
+  .dashboard
+    .dashboard-content
+    .staff-quotations
+    .quotation-editor
+    .service-line-editor
+    > :is(.form-row, .text-link, .pagination, .notice, [role="status"]) {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 1100px) {
+  .dashboard .dashboard-content .staff-quotations .quotation-editor-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .dashboard .dashboard-content .staff-quotations .quotation-section-heading {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .dashboard .dashboard-content .staff-quotations h2 {
+    font-size: 24px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-editor-heading {
+    padding: 18px 16px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-editor-grid {
+    padding: 18px 16px;
+    gap: 22px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-editor .service-line-editor {
+    padding: 14px 12px 6px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-editor .quotation-terms {
+    padding: 14px 12px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-editor-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    gap: 12px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-editor-footer .actions {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-editor-footer .button {
+    width: 100%;
+  }
+  .dashboard
+    .dashboard-content
+    .staff-quotations
+    .quotation-editor
+    .service-line-editor
+    > .text-link {
+    justify-self: start;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-record {
+    padding: 16px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-record-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-totals {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-totals > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+    gap: 12px;
+    align-items: baseline;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-totals dd {
+    text-align: right;
+    margin: 0;
+    font-size: 15px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-totals > div:last-child {
+    padding-top: 10px;
+    border-top: 1px solid #475963;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-totals > div:last-child dd {
+    font-size: 17px;
+  }
+  .dashboard .dashboard-content .staff-quotations .quotation-record > .actions {
+    justify-content: flex-start;
+  }
+  .dashboard .dashboard-content .quotation-review .spec-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+}

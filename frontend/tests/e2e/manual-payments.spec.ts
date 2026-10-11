@@ -11,6 +11,7 @@ const paymentFixture = (): PaymentRecord => ({
   paymentNumber: "ISOLATED-MANUAL-001",
   amountKobo: "1234567890123456",
   currency: "NGN",
+  checkoutProviders: ["PAYSTACK"],
   status: "REQUIRES_PAYMENT",
   purpose: "ORDER_PAYMENT",
   expiresAt: "2027-01-01T00:00:00Z",
@@ -128,7 +129,7 @@ test("a competing payment attempt explains the conflict and requires status revi
   await expect(confirm(page)).toBeDisabled();
   await dialog.getByRole("button", { name: "Go back", exact: true }).click();
   await page.getByRole("button", { name: "Refresh payment status" }).click();
-  await expect(page.locator(".status")).toHaveText("REQUIRES REVIEW");
+  await expect(page.locator(".status")).toHaveText("Needs review");
   await expect(page.getByRole("button", { name: "Continue with Paystack" })).toHaveCount(
     0,
   );
@@ -177,7 +178,7 @@ test("manual payment review validates fields, preserves cancelled input and reco
   );
   await reviewButton(page).click();
   await confirm(page).click();
-  await expect(page.locator(".status")).toHaveText("REQUIRES REVIEW");
+  await expect(page.locator(".status")).toHaveText("Needs review");
   expect(writes).toEqual([
     {
       method: "CASH",
@@ -237,7 +238,7 @@ test("an uncertain submission without evidence reuses the same body and key and 
   await expect(page.getByLabel("Payer name", { exact: true })).toBeDisabled();
   await page.getByRole("button", { name: "Review the same payment submission" }).click();
   await confirm(page).click();
-  await expect(page.locator(".status")).toHaveText("REQUIRES REVIEW");
+  await expect(page.locator(".status")).toHaveText("Needs review");
   expect(writes).toHaveLength(2);
   expect(writes[0]).toEqual(writes[1]);
   expect(writes[0].key).toBeTruthy();
@@ -257,7 +258,17 @@ for (const status of [
     payment.status = status;
     await fixture(page, payment);
     await page.goto(`/dashboard/payments/${payment.id}`);
-    await expect(page.locator(".status")).toHaveText(status.replaceAll("_", " "));
+    await expect(page.locator(".status")).toHaveText(
+      (
+        {
+          PROCESSING: "Processing",
+          REQUIRES_REVIEW: "Needs review",
+          SUCCEEDED: "Confirmed",
+          CANCELLED: "Cancelled",
+          EXPIRED: "Expired",
+        } as Record<string, string>
+      )[status],
+    );
     await expect(reviewButton(page)).toHaveCount(0);
   });
 
@@ -417,7 +428,7 @@ test.describe("configured manual evidence", () => {
       path: path.join(os.tmpdir(), "allied-manual-payment-mobile.png"),
     });
     await confirm(page).click();
-    await expect(page.locator(".status")).toHaveText("REQUIRES REVIEW");
+    await expect(page.locator(".status")).toHaveText("Needs review");
     expect(uploads).toHaveLength(1);
     expect(writes).toEqual([
       {
@@ -570,7 +581,7 @@ test.describe("configured manual evidence", () => {
       .getByRole("button", { name: "Review the same payment submission" })
       .click();
     await confirm(page).click();
-    await expect(page.locator(".status")).toHaveText("REQUIRES REVIEW");
+    await expect(page.locator(".status")).toHaveText("Needs review");
     expect(writes).toHaveLength(2);
     expect(writes[0]).toEqual(writes[1]);
     expect(writes[0].key).toBeTruthy();

@@ -4,7 +4,7 @@ import { publicMediaHosts } from "./lib/media";
 import { assetStorageHosts } from "./lib/assets";
 import { indexingEnabled, privatePage } from "./lib/seo";
 
-function contentSecurityPolicy(nonce: string): string {
+function contentSecurityPolicy(nonce: string, allowWorkshopMap: boolean): string {
   const development = process.env.NODE_ENV !== "production";
   return [
     "default-src 'self'",
@@ -23,13 +23,19 @@ function contentSecurityPolicy(nonce: string): string {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
+    // Only the configured Contact embed needs an external frame destination.
+    `frame-src 'self'${allowWorkshopMap ? " https://www.google.com/maps/embed/" : ""}`,
     ...(development ? [] : ["upgrade-insecure-requests"]),
   ].join("; ");
 }
 
 export function proxy(request: NextRequest) {
   const nonce = crypto.randomUUID().replaceAll("-", "");
-  const csp = contentSecurityPolicy(nonce);
+  const csp = contentSecurityPolicy(
+    nonce,
+    request.nextUrl.pathname === "/contact" &&
+      Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim()),
+  );
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("content-security-policy", csp);

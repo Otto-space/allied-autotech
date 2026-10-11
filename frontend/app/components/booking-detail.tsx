@@ -1,77 +1,82 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronRight, RefreshCw } from "lucide-react";
 import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
-import { parseBooking, parseBookingPolicy, parseSlots } from "@/lib/api/booking-schemas";
+import { useAccountMutation } from "@/lib/api/use-account-mutation";
+import { parseBookingPolicy, parseSlots } from "@/lib/api/booking-schemas";
+import {
+  parseCustomerBookingDetail,
+  type CustomerBookingDetail,
+} from "@/lib/api/customer-booking-detail-schema";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
+import { MutationReview, type MutationProposal } from "./mutation-review";
+import {
+  BookingAppointment,
+  BookingDeposit,
+  BookingProgress,
+  BookingQuotations,
+  quoteOpen,
+  vehicleName,
+  type BookingQuote,
+} from "./booking-detail-sections";
+
 type Decision = {
   title: string;
+  description: string;
   path: string;
-  method: string;
+  method: "POST" | "PATCH";
   body: unknown;
+  facts: MutationProposal["facts"];
   idempotent?: boolean;
+  quote?: BookingQuote;
 };
 export function BookingDetail({ bookingId }: { bookingId: string }) {
-  const booking = useResource(
-    `/customers/bookings/${encodeURIComponent(bookingId)}`,
-    parseBooking,
+  const path = `/customers/bookings/${encodeURIComponent(bookingId)}`;
+  const parse = useCallback(
+    (value: unknown) => parseCustomerBookingDetail(value, bookingId),
+    [bookingId],
   );
+  const booking = useResource(path, parse);
   const policy = useResource("/public/booking-policy", parseBookingPolicy);
   const [showSlots, setShowSlots] = useState(false);
   const [slot, setSlot] = useState("");
-  const [slotCursor, setSlotCursor] = useState<string>();
-  const slots = useResource(
-    showSlots && booking.data?.branch
-      ? `/public/services/${booking.data.service.id}/slots?branchId=${booking.data.branch.id}&limit=50${slotCursor ? `&cursor=${slotCursor}` : ""}`
-      : null,
-    parseSlots,
-  );
-  const [decision, setDecision] = useState<Decision | null>(null);
-  const dialog = useRef<HTMLDialogElement>(null);
-  const requestKey = useRef<string | undefined>(undefined);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string>();
+  const [slotTrail, setSlotTrail] = useState<string[]>([]);
+  const [reason, setReason] = useState("");
+  const [reasonError, setReasonError] = useState<string>();
+  const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
+  const [requiredRevision, setRequiredRevision] = useState<number | null>(null);
+  const attempted = useRef(false);
+  const reset = useCallback(() => {
+    setProposal(null);
+    setShowSlots(false);
+    setSlot("");
+    setSlotTrail([]);
+    setReason("");
+    setReasonError(undefined);
+    setMessage(undefined);
+  }, []);
+  const mutation = useAccountMutation(reset);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, []);
-  function ask(value: Decision) {
-    setError(undefined);
-    setDecision(value);
-    requestKey.current = value.idempotent ? newIdempotencyKey() : undefined;
-    dialog.current?.showModal();
-  }
-  async function confirm() {
-    if (busy || !decision) return;
-    setBusy(true);
-    setError(undefined);
-    try {
-      await apiRequest(decision.path, {
-        method: decision.method,
-        body: decision.body,
-        csrf: true,
-        idempotencyKey: requestKey.current,
-      });
-      dialog.current?.close();
-      setMessage("Your request was recorded. Review the updated booking status below.");
-      booking.refresh();
-      setShowSlots(false);
-    } catch (value) {
-      setError(
-        value instanceof ApiError
-          ? value.message
-          : "We could not confirm this action. Refresh the booking before making another change.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-  const current = booking.data;
+  const current = !booking.loading && !booking.error ? booking.data : undefined;
+  const fresh =
+    !!current &&
+    !booking.refreshing &&
+    !booking.refreshError &&
+    (requiredRevision === null ||
+      (booking.settledRevision !== null && booking.settledRevision > requiredRevision));
+  const verifiedPolicy =
+    !policy.loading && !policy.error && !policy.refreshing && !policy.refreshError
+      ? policy.data
+      : undefined;
   const disruption =
     current?.status === "CONFIRMED" &&
     !!current.disruptionRequestedAt &&
@@ -79,67 +84,211 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
   const hasDeposit = !!current?.depositPayment && !!current.depositPaidAt;
   const canReschedule =
     current?.status === "CONFIRMED" &&
+    !!current.bookingSlotId &&
     !!current.branch &&
-    !!policy.data &&
-    current.customerRescheduleCount < policy.data.customerRescheduleLimit &&
+    !!verifiedPolicy &&
+    current.customerRescheduleCount < verifiedPolicy.customerRescheduleLimit &&
     !!current.scheduledAt &&
     Date.parse(current.scheduledAt) - now >
-      policy.data.customerRescheduleCutoffHours * 3600000;
+      verifiedPolicy.customerRescheduleCutoffHours * 3600000;
+  const canChooseSlot =
+    !!current?.branch && !!current.bookingSlotId && (disruption || canReschedule);
+  const slotCursor = slotTrail.at(-1);
+  const slots = useResource(
+    showSlots && canChooseSlot && current
+      ? `/public/services/${current.service.id}/slots?branchId=${current.branch!.id}&limit=50${slotCursor ? `&cursor=${encodeURIComponent(slotCursor)}` : ""}`
+      : null,
+    parseSlots,
+  );
+  const alternatives =
+    !slots.loading && !slots.error && !slots.refreshing && !slots.refreshError
+      ? (slots.data?.items.filter(
+          (item) =>
+            item.id !== current?.bookingSlotId &&
+            item.serviceId === current?.service.id &&
+            item.branchId === current?.branch?.id &&
+            Date.parse(item.startsAt) > now,
+        ) ?? [])
+      : [];
+  const selectedSlot = alternatives.find((item) => item.id === slot);
+  const disabled = !fresh || mutation.busy || !!proposal;
+  function refresh() {
+    setProposal(null);
+    setSlot("");
+    setRequiredRevision(booking.settledRevision ?? 0);
+    booking.refresh();
+  }
+  function toggleSlots() {
+    setShowSlots((value) => !value);
+    setSlot("");
+    setSlotTrail([]);
+  }
+  function ask(value: Decision) {
+    if (!current || disabled) return;
+    const reviewed: CustomerBookingDetail = current;
+    const key = value.idempotent ? newIdempotencyKey() : undefined;
+    let sent = false;
+    attempted.current = false;
+    setMessage(undefined);
+    setProposal({
+      title: value.title,
+      description: value.description,
+      facts: [
+        { label: "Service", value: current.service.name },
+        { label: "Vehicle", value: vehicleName(current) },
+        ...value.facts,
+      ],
+      retrySafely: !!value.idempotent,
+      retryAfterRejection: false,
+      submit: async () => {
+        const controller = mutation.begin();
+        if (!controller) throw new Error("A booking change is already pending.");
+        attempted.current = true;
+        try {
+          // Recheck the reviewed record before the first write. An uncertain keyed
+          // retry must reach the server's replay lookup with the original payload.
+          if (!sent) {
+            const response = await apiRequest<unknown>(path, {
+              signal: controller.signal,
+            });
+            const latest = parse(response.data);
+            if (latest.version !== reviewed.version || latest.status !== reviewed.status)
+              throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+            if (value.quote) {
+              const quote = latest.quotes.find((item) => item.id === value.quote!.id);
+              if (
+                !quote ||
+                quote.revision !== value.quote.revision ||
+                !quoteOpen(quote, Date.now())
+              )
+                throw new ApiError(409, { error: { code: "STALE_VERSION" } });
+            }
+          }
+          sent = true;
+          await apiRequest(value.path, {
+            method: value.method,
+            body: value.body,
+            csrf: true,
+            idempotencyKey: key,
+            signal: controller.signal,
+          });
+        } finally {
+          mutation.finish(controller);
+        }
+      },
+    });
+  }
+  function closeReview() {
+    setProposal(null);
+    if (attempted.current) {
+      setRequiredRevision(booking.settledRevision ?? 0);
+      booking.refresh();
+    }
+  }
+  function reviewQuote(quote: BookingQuote, action: "accept" | "reject") {
+    if (!quoteOpen(quote, Date.now())) return;
+    ask({
+      title: `${action === "accept" ? "Accept" : "Reject"} this quotation?`,
+      description: "Review the quotation total before confirming.",
+      path: `${path}/quotes/${quote.id}/${action}`,
+      method: "POST",
+      body: { expectedRevision: quote.revision },
+      quote,
+      facts: [
+        { label: "Quotation", value: quote.quoteNumber },
+        { label: "Revision", value: String(quote.revision) },
+        { label: "Total", value: formatKobo(quote.totalKobo) },
+        { label: "Expires", value: formatBusinessDate(quote.expiresAt) },
+      ],
+    });
+  }
   return (
-    <>
-      <Link className="text-link" href="/dashboard/bookings">
-        ← Your bookings
-      </Link>
-      <h1>Booking details</h1>
-      <Feedback message={error ?? booking.error} />
+    <div className="customer-booking-detail">
+      <nav className="booking-detail-breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li>
+            <Link href="/dashboard">Overview</Link>
+          </li>
+          <li>
+            <ChevronRight size={14} aria-hidden="true" />
+            <Link href="/dashboard/bookings">Bookings</Link>
+          </li>
+          <li>
+            <ChevronRight size={14} aria-hidden="true" />
+            <span aria-current="page">{current?.service.name ?? "Booking details"}</span>
+          </li>
+        </ol>
+      </nav>
+      <header className="booking-detail-heading">
+        <h1>Booking details</h1>
+        <button
+          className="button secondary"
+          disabled={booking.loading || booking.refreshing || mutation.busy || !!proposal}
+          onClick={refresh}
+        >
+          <RefreshCw size={16} aria-hidden="true" />
+          Refresh booking
+        </button>
+      </header>
+      <Feedback message={booking.error} />
       <Feedback message={message} tone="info" toast="Booking update recorded." />
-      {booking.loading && <p role="status">Checking your booking…</p>}
-      <button
-        className="button secondary"
-        disabled={booking.loading}
-        onClick={booking.refresh}
-      >
-        Refresh booking
-      </button>
+      {booking.loading && (
+        <div className="booking-detail-loading" role="status">
+          <p>Checking your booking...</p>
+          <span />
+          <span />
+          <span />
+        </div>
+      )}
+      {booking.refreshing && <p role="status">Checking for booking updates...</p>}
+      {booking.refreshError && (
+        <div className="booking-detail-warning" role="status">
+          <p>
+            We could not refresh this booking. The details below may be out of date.
+            Refresh before making a change.
+          </p>
+        </div>
+      )}
+      {!booking.loading && !current && (
+        <div className="booking-detail-surface">
+          <h2>Booking unavailable</h2>
+          <p>We could not load this booking. Try again using Refresh booking.</p>
+          <Link className="button secondary" href="/dashboard/bookings">
+            Your bookings
+          </Link>
+        </div>
+      )}
       {current && (
         <>
-          <section className="detail-section">
-            <h2>{current.service.name}</h2>
-            <span className="status">{current.status.replaceAll("_", " ")}</span>
-            <p>
-              {formatBusinessDate(current.scheduledAt)} ·{" "}
-              {current.branch?.name ?? "Branch not assigned"}
-            </p>
-            {current.depositAmountKobo !== null && (
-              <p>Deposit: {formatKobo(current.depositAmountKobo)}</p>
-            )}
-            {current.vehicle && (
-              <p>
-                Vehicle: {current.vehicle.year} {current.vehicle.make}{" "}
-                {current.vehicle.model}
-                {current.vehicle.registrationNumber
-                  ? ` · ${current.vehicle.registrationNumber}`
-                  : ""}
-              </p>
-            )}
-            {current.customerNotes && <p>Your notes: {current.customerNotes}</p>}
-            {current.paymentHoldExpiresAt && current.status === "AWAITING_DEPOSIT" && (
-              <p>
-                Payment hold expires {formatBusinessDate(current.paymentHoldExpiresAt)}
-              </p>
-            )}
-            {current.depositPayment && (
-              <Link
-                className="button"
-                href={`/dashboard/payments/${current.depositPayment.id}`}
-              >
-                Check deposit & payment options
-              </Link>
+          <div className="booking-detail-grid">
+            <div className="booking-detail-primary">
+              <BookingAppointment booking={current} />
+              <BookingDeposit booking={current} />
+            </div>
+            <BookingProgress booking={current} />
+          </div>
+          <section className="booking-changes" aria-labelledby="booking-changes-title">
+            <h2 id="booking-changes-title">Appointment changes</h2>
+            {policy.loading && <p role="status">Checking booking terms...</p>}
+            {(policy.error || policy.refreshError) && (
+              <div className="booking-detail-warning">
+                <p>
+                  Booking terms are unavailable. Refresh the policy before changing your
+                  appointment.
+                </p>
+                <button
+                  className="button secondary"
+                  disabled={policy.loading || policy.refreshing}
+                  onClick={policy.refresh}
+                >
+                  Retry booking policy
+                </button>
+              </div>
             )}
             {disruption && (
-              <div className="notice">
+              <div className="booking-disruption">
                 <h3>Your appointment was disrupted</h3>
-                <p>{current.disruptionReason}</p>
+                {current.disruptionReason && <p>{current.disruptionReason}</p>}
                 <p>
                   Request another available slot without using your customer reschedule,
                   or cancel free. A replacement slot still needs workshop confirmation.
@@ -147,22 +296,47 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                     " You can request review of your historical deposit; a refund request does not mean a refund has been completed."}
                 </p>
                 <div className="actions">
-                  <button className="button secondary" onClick={() => setShowSlots(true)}>
-                    Choose another slot
-                  </button>
+                  {canChooseSlot && (
+                    <button
+                      className="button secondary"
+                      disabled={disabled}
+                      aria-expanded={showSlots}
+                      aria-controls="booking-slot-choices"
+                      onClick={toggleSlots}
+                    >
+                      Choose another slot
+                    </button>
+                  )}
                   {hasDeposit && (
                     <button
                       className="button secondary"
+                      disabled={disabled}
                       onClick={() =>
                         ask({
                           title: "Request a disruption refund?",
-                          path: `/customers/bookings/${bookingId}/disruption-resolution`,
+                          description:
+                            "This cancels the disrupted booking and requests a refund review. It does not confirm that a refund has been completed.",
+                          path: `${path}/disruption-resolution`,
                           method: "POST",
                           body: {
                             resolution: "REFUND",
                             expectedVersion: current.version,
                           },
                           idempotent: true,
+                          facts: [
+                            {
+                              label: "Appointment",
+                              value: formatBusinessDate(current.scheduledAt),
+                            },
+                            {
+                              label: "Recorded deposit",
+                              value: formatKobo(current.depositPayment!.amountKobo),
+                            },
+                            {
+                              label: "Requested outcome",
+                              value: "Cancel booking and request refund review",
+                            },
+                          ],
                         })
                       }
                     >
@@ -173,29 +347,53 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
               </div>
             )}
             {canReschedule && !disruption && (
-              <div className="actions">
-                <button
-                  className="button secondary"
-                  onClick={() => setShowSlots((value) => !value)}
-                >
-                  Reschedule appointment
-                </button>
-              </div>
+              <button
+                className="button secondary"
+                disabled={disabled}
+                aria-expanded={showSlots}
+                aria-controls="booking-slot-choices"
+                onClick={toggleSlots}
+              >
+                Reschedule appointment
+              </button>
             )}
-            {showSlots && (
-              <section className="detail-section">
-                <h3>Choose a new slot</h3>
-                <Feedback message={slots.error} />
-                {slots.error && (
-                  <button className="button secondary" onClick={slots.refresh}>
+            {!disruption &&
+              current.status === "CONFIRMED" &&
+              verifiedPolicy &&
+              !canReschedule && (
+                <p>
+                  Online rescheduling is unavailable for this booking. Contact customer
+                  care if you need help with the appointment.
+                </p>
+              )}
+            {showSlots && canChooseSlot && (
+              <section
+                className="booking-slot-choices booking-detail-surface"
+                id="booking-slot-choices"
+                aria-labelledby="slot-title"
+              >
+                <h3 id="slot-title">Choose a new slot</h3>
+                <p>A replacement slot needs workshop confirmation.</p>
+                <Feedback message={slots.error ?? slots.refreshError} />
+                {(slots.error || slots.refreshError) && (
+                  <button
+                    className="button secondary"
+                    onClick={() => {
+                      setSlot("");
+                      slots.refresh();
+                    }}
+                  >
                     Retry slots
                   </button>
                 )}
-                {slots.loading && <p role="status">Loading slots…</p>}
-                <div className="slot-grid">
-                  {slots.data?.items.map((item) => (
+                {(slots.loading || slots.refreshing) && (
+                  <p role="status">Loading slots...</p>
+                )}
+                <div className="booking-slot-grid">
+                  {alternatives.map((item) => (
                     <button
-                      className="slot"
+                      className="booking-slot"
+                      disabled={disabled}
                       aria-pressed={slot === item.id}
                       onClick={() => setSlot(item.id)}
                       key={item.id}
@@ -204,39 +402,68 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                     </button>
                   ))}
                 </div>
-                {!slots.loading && !slots.error && slots.data?.items.length === 0 && (
-                  <p>
-                    No alternative slots on this page. Contact customer care for help.
-                  </p>
-                )}
-                {slots.data?.nextCursor && (
-                  <button
-                    className="button secondary"
-                    onClick={() => {
-                      setSlotCursor(slots.data?.nextCursor);
-                      setSlot("");
-                    }}
-                  >
-                    More slots
-                  </button>
-                )}
+                {!slots.loading &&
+                  !slots.error &&
+                  !slots.refreshError &&
+                  !alternatives.length && (
+                    <p>
+                      No alternative slots on this page. Contact customer care for help.
+                    </p>
+                  )}
                 <div className="actions">
+                  {!!slotTrail.length && (
+                    <button
+                      className="button secondary"
+                      disabled={slots.loading || disabled}
+                      onClick={() => {
+                        setSlotTrail((value) => value.slice(0, -1));
+                        setSlot("");
+                      }}
+                    >
+                      Previous slots
+                    </button>
+                  )}
+                  {slots.data?.nextCursor && (
+                    <button
+                      className="button secondary"
+                      disabled={slots.loading || !!slots.error || disabled}
+                      onClick={() => {
+                        setSlotTrail((value) => [...value, slots.data!.nextCursor!]);
+                        setSlot("");
+                      }}
+                    >
+                      More slots
+                    </button>
+                  )}
                   <button
                     className="button"
-                    disabled={!slot || slots.loading || !!slots.error}
-                    onClick={() =>
+                    disabled={disabled || !selectedSlot}
+                    onClick={() => {
+                      if (!selectedSlot) return;
                       ask({
                         title: "Request the new appointment time?",
-                        path: `/customers/bookings/${bookingId}/${disruption ? "disruption-resolution" : "schedule"}`,
+                        description: "A replacement slot needs workshop confirmation.",
+                        path: `${path}/${disruption ? "disruption-resolution" : "schedule"}`,
                         method: disruption ? "POST" : "PATCH",
                         body: {
-                          slotId: slot,
+                          slotId: selectedSlot.id,
                           expectedVersion: current.version,
                           ...(disruption ? { resolution: "TRANSFER" } : {}),
                         },
                         idempotent: true,
-                      })
-                    }
+                        facts: [
+                          {
+                            label: "Current appointment",
+                            value: formatBusinessDate(current.scheduledAt),
+                          },
+                          {
+                            label: "New appointment",
+                            value: formatBusinessDate(selectedSlot.startsAt),
+                          },
+                          { label: "Workshop", value: current.branch!.name },
+                        ],
+                      });
+                    }}
                   >
                     Review reschedule
                   </button>
@@ -245,27 +472,43 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
             )}
             {["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED"].includes(current.status) &&
               (!disruption || !hasDeposit) && (
-                <details className="detail-section">
+                <details className="booking-cancellation">
                   <summary>Cancel this booking</summary>
                   <p>
-                    {policy.data?.depositBasisPoints === 0
+                    {verifiedPolicy?.depositBasisPoints === 0
                       ? "You can cancel this booking free of charge."
-                      : policy.data?.depositRefundableForCustomerCancellation === false
-                        ? "Your deposit is non-refundable if you cancel."
-                        : "Review the published cancellation policy or contact customer care before cancelling."}
+                      : "Review the published cancellation policy or contact customer care before cancelling."}
+                    {hasDeposit &&
+                      " Any historical deposit requires a separate refund review; cancelling does not complete a refund."}
                   </p>
                   <form
                     data-draft-key={JSON.stringify(["booking-detail:1", bookingId])}
                     onSubmit={(event) => {
                       event.preventDefault();
+                      const clean = reason.trim();
+                      if (!clean || /[\u0000-\u001f\u007f]/.test(clean)) {
+                        setReasonError(
+                          "Enter a reason without line breaks or control characters.",
+                        );
+                        document.getElementById("booking-cancel-reason")?.focus();
+                        return;
+                      }
+                      setReasonError(undefined);
                       ask({
                         title: "Cancel this booking?",
-                        path: `/customers/bookings/${bookingId}/cancel`,
+                        description: hasDeposit
+                          ? "Cancelling releases the appointment. Any historical deposit requires a separate refund review."
+                          : "Cancelling releases the appointment.",
+                        path: `${path}/cancel`,
                         method: "POST",
-                        body: {
-                          reason: String(new FormData(event.currentTarget).get("reason")),
-                          expectedVersion: current.version,
-                        },
+                        body: { reason: clean, expectedVersion: current.version },
+                        facts: [
+                          {
+                            label: "Appointment",
+                            value: formatBusinessDate(current.scheduledAt),
+                          },
+                          { label: "Reason", value: clean },
+                        ],
                       });
                     }}
                   >
@@ -276,95 +519,51 @@ export function BookingDetail({ bookingId }: { bookingId: string }) {
                         name="reason"
                         required
                         maxLength={500}
+                        value={reason}
+                        onChange={(event) => {
+                          setReason(event.target.value);
+                          setReasonError(undefined);
+                        }}
+                        aria-invalid={!!reasonError}
+                        aria-describedby="booking-cancel-help"
                       />
+                      <p id="booking-cancel-help">
+                        {reasonError ?? "500 characters maximum."}
+                      </p>
                     </div>
-                    <button className="button secondary">Review cancellation</button>
+                    <button
+                      className="button secondary"
+                      disabled={disabled || !verifiedPolicy}
+                    >
+                      Review cancellation
+                    </button>
                   </form>
                 </details>
               )}
           </section>
-          <section className="detail-section">
-            <h2>Quotations</h2>
-            {current.quotes
-              .filter((quote) => quote.status !== "DRAFT")
-              .map((quote) => (
-                <article className="card" key={quote.id}>
-                  <h3>{quote.quoteNumber}</h3>
-                  <span className="status">{quote.status}</span>
-                  <dl className="totals">
-                    {quote.items.map((item) => (
-                      <div className="spec-row" key={item.id}>
-                        <dt>
-                          {item.description} · {item.quantity} ×{" "}
-                          {formatKobo(item.unitPriceKobo)}
-                        </dt>
-                        <dd>{formatKobo(item.subtotalKobo)}</dd>
-                      </div>
-                    ))}
-                    <dt>Tax</dt>
-                    <dd>{formatKobo(quote.taxKobo)}</dd>
-                    <dt>Total</dt>
-                    <dd>{formatKobo(quote.totalKobo)}</dd>
-                  </dl>
-                  {quote.notes && <p>{quote.notes}</p>}
-                  {quote.expiresAt && (
-                    <p>Expires {formatBusinessDate(quote.expiresAt)}</p>
-                  )}
-                  {quote.status === "ISSUED" && (
-                    <div className="actions">
-                      {(["accept", "reject"] as const).map((action) => (
-                        <button
-                          className={`button ${action === "reject" ? "secondary" : ""}`}
-                          key={action}
-                          onClick={() =>
-                            ask({
-                              title: `${action === "accept" ? "Accept" : "Reject"} this quotation?`,
-                              path: `/customers/bookings/${bookingId}/quotes/${quote.id}/${action}`,
-                              method: "POST",
-                              body: { expectedRevision: quote.revision },
-                            })
-                          }
-                        >
-                          {action === "accept" ? "Accept quotation" : "Reject quotation"}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </article>
-              ))}
-            {!current.quotes.some((quote) => quote.status !== "DRAFT") && (
-              <p className="muted">No issued quotations are available.</p>
-            )}
-          </section>
-          {current.workOrder && (
-            <section className="detail-section">
-              <h2>Service progress</h2>
-              <p>{current.workOrder.workOrderNumber}</p>
-              <span className="status">
-                {current.workOrder.status.replaceAll("_", " ")}
-              </span>
-              {current.workOrder.diagnosis && <p>{current.workOrder.diagnosis}</p>}
-            </section>
-          )}
+          <BookingQuotations
+            quotes={current.quotes}
+            now={now}
+            disabled={disabled}
+            onReview={reviewQuote}
+          />
         </>
       )}
-      <dialog
-        ref={dialog}
-        className="support-dialog"
-        aria-labelledby="booking-decision-title"
-      >
-        <h2 id="booking-decision-title">{decision?.title}</h2>
-        <p>Review the booking and any applicable terms before confirming.</p>
-        <Feedback message={error} />
-        <div className="actions">
-          <button className="button" disabled={busy} onClick={() => void confirm()}>
-            {busy ? "Submitting…" : "Confirm"}
-          </button>
-          <button className="button secondary" onClick={() => dialog.current?.close()}>
-            Go back
-          </button>
-        </div>
-      </dialog>
-    </>
+      {proposal && current && (
+        <MutationReview
+          proposal={proposal}
+          onClose={closeReview}
+          exposeBusyState
+          onSuccess={() => {
+            setMessage(
+              "Your request was recorded. Review the updated booking status below.",
+            );
+            setShowSlots(false);
+            setSlot("");
+            setReason("");
+          }}
+        />
+      )}
+    </div>
   );
 }

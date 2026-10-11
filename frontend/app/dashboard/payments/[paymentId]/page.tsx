@@ -9,10 +9,6 @@ export default async function PaymentPage({
 }: {
   params: Promise<{ paymentId: string }>;
 }) {
-  return (
-    <>
-      <h1>Payment status</h1>
-      <PaymentDetail paymentId={(await params).paymentId} />
-    </>
-  );
+  const { paymentId } = await params;
+  return <PaymentDetail key={paymentId} paymentId={paymentId} />;
 }

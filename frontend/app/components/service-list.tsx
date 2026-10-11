@@ -68,6 +68,13 @@ export function ServiceList({
           {resource.data ? "Updating services…" : "Loading services…"}
         </p>
       )}
+      {preview && resource.loading && !resource.data && (
+        <div className="home-service-loading" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+      )}
       <div
         className={`service-discovery${preview ? " service-discovery--preview" : ""}`}
         aria-busy={resource.loading}

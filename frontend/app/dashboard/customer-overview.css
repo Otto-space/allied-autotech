@@ -1,0 +1,408 @@
+.dashboard .dashboard-content .customer-overview {
+  max-width: 1440px;
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+}
+.customer-overview .overview-welcome {
+  align-items: start;
+  gap: 20px;
+}
+.customer-overview .overview-welcome h1 {
+  font-size: 30px;
+  line-height: 1.25;
+}
+.dashboard .dashboard-content .customer-overview h2 {
+  font-size: 20px;
+  line-height: 1.35;
+  margin: 0 0 10px;
+}
+.dashboard .dashboard-content .customer-overview h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .customer-overview p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 6px 0 12px;
+  color: #435563;
+}
+.customer-overview .button,
+.customer-overview select,
+.customer-overview .overview-legend button {
+  min-height: 44px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.customer-period-preset select {
+  width: 100%;
+}
+.customer-overview :is(a, button, input, select, summary):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.customer-care {
+  margin: 24px 0 36px;
+}
+.care-primary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 20px;
+}
+.care-service-column {
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.care-service,
+.care-review,
+.care-next,
+.care-secondary {
+  border: 1px solid #cbd5df;
+  border-radius: 8px;
+  background: white;
+  padding: 24px;
+  min-width: 0;
+}
+.care-service {
+  background: #01121a;
+  color: white;
+  border-color: #01121a;
+}
+.dashboard .dashboard-content .customer-overview .care-service :is(p, time) {
+  color: #d1dbe2;
+}
+.care-heading {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: start;
+  flex-wrap: wrap;
+}
+.care-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  border-radius: 4px;
+  background: #edf1f5;
+  color: #203540;
+  text-transform: capitalize;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.care-vehicle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
+  padding: 18px 0;
+  border-block: 1px solid #45535d;
+  flex-wrap: wrap;
+}
+.care-vehicle > div {
+  flex: 1;
+  min-width: 140px;
+}
+.care-vehicle strong,
+.care-vehicle span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.care-vehicle strong {
+  font-size: 18px;
+  margin: 4px 0;
+}
+.care-vehicle span {
+  font-size: 12px;
+  color: #d1dbe2;
+}
+.care-link {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 0;
+  color: #01121a;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  overflow-wrap: anywhere;
+}
+.care-link svg {
+  flex-shrink: 0;
+}
+.care-status + .care-link {
+  margin-left: 8px;
+}
+.care-service .care-link {
+  color: white;
+}
+.care-timeline {
+  list-style: none;
+  margin: 20px 0 12px;
+  padding: 0;
+}
+.care-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 12px;
+  padding: 0 0 16px 20px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.care-timeline li::before {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  left: 0;
+  top: 5px;
+  background: white;
+}
+.care-timeline li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: -5px;
+  left: 3px;
+  width: 1px;
+  background: #82939f;
+}
+.care-next,
+.care-review-row {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+}
+.care-next > svg,
+.care-review-row > svg,
+.care-secondary section > svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.care-next > div,
+.care-review-row > div,
+.care-secondary section > div {
+  min-width: 0;
+}
+.care-review-row {
+  border-top: 1px solid #dce3e9;
+  margin-top: 20px;
+  padding-top: 20px;
+}
+.care-amount {
+  display: block;
+  font-size: 22px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+.care-review-row p {
+  overflow-wrap: anywhere;
+}
+.care-secondary {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.care-secondary section {
+  display: flex;
+  gap: 12px;
+}
+.care-secondary section:not(:first-child) {
+  border-left: 1px solid #dce3e9;
+  padding-left: 24px;
+}
+.care-shortcuts {
+  grid-column: 1/-1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  border-top: 1px solid #dce3e9;
+  padding-top: 12px;
+}
+.customer-activity-heading {
+  border-top: 1px solid #cbd5df;
+  padding-top: 28px;
+  margin-bottom: 16px;
+}
+.care-loading {
+  padding: 36px 24px;
+  margin: 24px 0;
+  border: 1px solid #cbd5df;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #edf1f5, white, #edf1f5);
+  color: #435563;
+  font-size: 14px;
+}
+.customer-overview .overview-metrics {
+  margin-bottom: 20px;
+}
+.customer-overview .overview-metric {
+  min-height: 110px;
+  padding: 16px;
+}
+.customer-overview .overview-metric strong {
+  font-size: 26px;
+}
+.customer-overview .overview-metric-label {
+  font-size: 12px;
+}
+.customer-overview .overview-panel {
+  padding: 20px;
+  border-color: #cbd5df;
+  border-radius: 8px;
+}
+.customer-overview .overview-record-link,
+.customer-overview .text-link,
+.customer-overview summary {
+  min-height: 44px;
+}
+.customer-overview .overview-orders li a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+.customer-overview .overview-definitions summary {
+  align-content: center;
+}
+.customer-overview .overview-status {
+  background: #edf1f5;
+  color: #203540;
+}
+.customer-overview .overview-status-list meter::-webkit-meter-optimum-value {
+  background: #435563;
+}
+@media (min-width: 1100px) {
+  .care-next > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 16px;
+    flex: 1;
+  }
+  .care-next h2 {
+    grid-column: 1/-1;
+  }
+  .care-next :is(h3, p) {
+    grid-column: 1;
+    margin: 0;
+  }
+  .care-next .care-status {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    align-self: start;
+  }
+  .care-next .care-link {
+    grid-column: 2;
+    grid-row: 3/5;
+    align-self: center;
+  }
+}
+@media (max-width: 1099px) {
+  .care-primary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .care-secondary {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .care-secondary section:not(:first-child) {
+    border-left: 0;
+    border-top: 1px solid #dce3e9;
+    padding: 18px 0 0;
+  }
+  .customer-overview .overview-top-actions {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 600px) {
+  .customer-overview .overview-welcome h1 {
+    font-size: 27px;
+  }
+  .care-service,
+  .care-review,
+  .care-next,
+  .care-secondary {
+    padding: 18px;
+  }
+  .care-vehicle {
+    gap: 12px;
+  }
+  .care-timeline li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  .customer-overview .overview-range {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .customer-overview .overview-range label:not(.sr-only),
+  .customer-overview .overview-range input {
+    width: 100%;
+    min-width: 0;
+  }
+  .customer-overview .overview-metrics {
+    gap: 0;
+    border: 1px solid #cbd5df;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .customer-overview .overview-metric {
+    min-height: 96px;
+    border-radius: 0;
+  }
+  .customer-overview .overview-metric:last-child {
+    grid-column: 1/-1;
+  }
+  .customer-overview .overview-records .table-region {
+    overflow: visible;
+  }
+  .customer-overview .overview-records table {
+    width: 100%;
+    min-width: 0;
+  }
+  .customer-overview .overview-records thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .customer-overview .overview-records :is(tbody, tr, td) {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .customer-overview .overview-records tr {
+    padding: 12px 0;
+    border-top: 1px solid #dce3e9;
+  }
+  .customer-overview .overview-records td {
+    padding: 4px 0;
+    border: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .customer-overview .overview-record-link {
+    justify-content: start;
+  }
+  .customer-overview .overview-record-link::before {
+    content: "View booking";
+    font-size: 13px;
+    margin-right: 8px;
+  }
+}

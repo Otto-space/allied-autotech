@@ -82,7 +82,7 @@ export const faqs = [
     category: "Quotations",
     question: "How do I request a quotation?",
     answer:
-      "Choose a service and review its pricing information. For work that requires a quotation, sign in and send the vehicle details and a description of the issue. Follow the request in your account and review any quotation before accepting it.",
+      "Choose a service and review its pricing information. For work that requires a quotation, send an enquiry from the service page with your vehicle details and a description of the issue. You do not need to sign in to send this enquiry. The workshop can discuss your requirements before preparing a quotation. If a quotation is issued for a booking in your account, review it there before accepting or rejecting it.",
     keywords: "quote quotation estimate price cost repair",
     href: "/services",
     action: "Find a service",

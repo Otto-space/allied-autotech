@@ -1,7 +1,8 @@
 ﻿"use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { ShieldCheck, LoaderCircle, ArrowRight } from "lucide-react";
 import {
   apiRequest,
   ApiError,
@@ -16,7 +17,11 @@ import { Feedback } from "./feedback";
 import { MfaChallenge } from "./mfa-challenge";
 import { MfaEnrollment } from "./mfa-enrollment";
 import { RecoveryCodes } from "./recovery-codes";
+const subscribe = () => () => {};
+const clientReady = () => true;
+const serverReady = () => false;
 export function MfaForm({ enroll = false }: { enroll?: boolean }) {
+  const ready = useSyncExternalStore(subscribe, clientReady, serverReady);
   const router = useRouter();
   const [session, setSession] = useState<MfaSession>();
   const [error, setError] = useState<string>();
@@ -26,6 +31,10 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
   const [complete, setComplete] = useState(false);
   const [codes, setCodes] = useState<string[]>();
   const [checking, setChecking] = useState(false);
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (complete && !codes) heading.current?.focus();
+  }, [complete, codes]);
   const ownRotation = useRef(false);
   const pending = useRef<AbortController | null>(null);
   const checkBusy = useRef(false);
@@ -58,6 +67,7 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
       setSetup(false);
       setChallengeRequired(false);
       setChecking(false);
+      checkBusy.current = false;
       setError("Your session changed. Sign in or check your session again.");
     }
     const channel =
@@ -68,11 +78,16 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
       channel.onmessage = (event) => {
         if (isExternalSessionChange(event.data)) invalidateSession();
       };
+    function restored(e: PageTransitionEvent) {
+      if (e.persisted) discard();
+    }
+    window.addEventListener("pageshow", restored);
     window.addEventListener(SESSION_CHANGED, discard);
     return () => {
       controller.abort();
       pending.current?.abort();
       channel?.close();
+      window.removeEventListener("pageshow", restored);
       window.removeEventListener(SESSION_CHANGED, discard);
     };
   }, [revision]);
@@ -119,20 +134,41 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
             : "Session status could not be confirmed. Check again when connected.",
         );
     } finally {
-      checkBusy.current = false;
-      if (!controller.signal.aborted) setChecking(false);
+      if (pending.current === controller) {
+        checkBusy.current = false;
+        if (!controller.signal.aborted) setChecking(false);
+      }
     }
   }
   const verified =
     session && !challengeRequired && (!session.mfaRequired || !!session.mfaVerifiedAt);
   return (
-    <>
-      <span className="eyebrow">Account protection</span>
-      <h1>{enroll ? "Set up MFA." : "Verify it's you."}</h1>
+    <div className="login-form mfa-form">
+      {complete && !codes && (
+        <ShieldCheck className="mfa-complete-icon" size={36} aria-hidden="true" />
+      )}
+      {!codes && (
+        <h1 ref={heading} tabIndex={-1}>
+          {complete
+            ? "Verification complete"
+            : session && ((verified && enroll) || setup)
+              ? "Set up MFA"
+              : "Verify it's you"}
+          <span>.</span>
+        </h1>
+      )}
+      {!ready && (
+        <p>
+          Enable JavaScript to verify your sign-in. You can still open our Help Centre.
+        </p>
+      )}
       <Feedback message={error} />
-      {!session ? (
+      {!ready ? null : !session ? (
         <>
-          <p role="status">
+          <p className="mfa-loading" role="status">
+            {!error && (
+              <LoaderCircle className="login-spinner" size={18} aria-hidden="true" />
+            )}
             {error
               ? "Your account has not been verified in this view."
               : "Checking your session..."}
@@ -151,16 +187,21 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
         </>
       ) : complete ? (
         <>
-          <Feedback tone="success" message="MFA verification confirmed." />
+          {!codes && <Feedback tone="success" message="MFA verification confirmed." />}
           {codes ? (
-            <RecoveryCodes codes={codes} onDismiss={() => setCodes(undefined)} />
+            <RecoveryCodes
+              headingLevel="h1"
+              codes={codes}
+              onDismiss={() => setCodes(undefined)}
+            />
           ) : (
             <button
-              className="button"
+              className="button login-submit"
               disabled={checking}
               onClick={() => void checkAndContinue()}
             >
               {checking ? "Checking session..." : "Continue to account security"}
+              <ArrowRight size={18} aria-hidden="true" />
             </button>
           )}
         </>
@@ -177,7 +218,7 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
         <>
           <p>Your current session has already passed its required security checks.</p>
           <button
-            className="button"
+            className="button login-submit"
             disabled={checking}
             onClick={() => void checkAndContinue()}
           >
@@ -191,11 +232,14 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
           onCheck={() => void checkAndContinue()}
         />
       )}
-      <p className="auth-note">
+      <p className="mfa-sign-in">
         <Link href="/login" className="text-link">
           Sign in with another session
         </Link>
       </p>
-    </>
+      <div className="login-help">
+        <Link href="/help/account-security">Need help with your account?</Link>
+      </div>
+    </div>
   );
 }

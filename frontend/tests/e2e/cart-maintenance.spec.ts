@@ -218,7 +218,7 @@ for (const mode of ["unknown", "malformed"]) {
       "Clear cart",
       "Update",
       "Remove Test cart part",
-      "Create order & review total",
+      "Review checkout",
     ])
       await expect(page.getByRole("button", { name, exact: true })).toBeDisabled();
     expect(state.writes).toHaveLength(1);
@@ -236,7 +236,7 @@ test("unknown item removal also prevents clearing or checking out a stale cart",
     page.getByRole("button", { name: "Clear cart", exact: true }),
   ).toBeDisabled();
   await expect(
-    page.getByRole("button", { name: "Create order & review total", exact: true }),
+    page.getByRole("button", { name: "Review checkout", exact: true }),
   ).toBeDisabled();
   expect(state.writes).toHaveLength(1);
 });

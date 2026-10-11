@@ -1,3 +1,4 @@
+import "./payments.css";
 import type { Metadata } from "next";
 import { PaymentsPanel } from "../../components/payments-panel";
 export const metadata: Metadata = {

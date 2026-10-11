@@ -2,9 +2,20 @@
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, CarFront, ChevronDown, MapPin, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CarFront,
+  ChevronDown,
+  ClipboardList,
+  Fuel,
+  Gauge,
+  MapPin,
+  Settings2,
+  X,
+} from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
-import { parseListings } from "@/lib/api/vehicle-schemas";
+import { parseVehicleDiscovery } from "@/lib/api/vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
 import {
   normalizeVehicleQuery,
@@ -24,16 +35,21 @@ import { PublicMedia } from "./public-media";
 export function VehicleCatalogue({
   initial,
 }: {
-  initial?: PublicSeed<ReturnType<typeof parseListings>>;
+  initial?: PublicSeed<ReturnType<typeof parseVehicleDiscovery>>;
 }) {
   const searchParams = useSearchParams();
   const { params, invalid } = normalizeVehicleQuery(
     new URLSearchParams(searchParams.toString()),
   );
-  const listings = useResource(vehicleApiPath(params), parseListings, initial?.data, {
-    initialError: initial?.error,
-    revalidateOnMount: false,
-  });
+  const listings = useResource(
+    vehicleApiPath(params),
+    parseVehicleDiscovery,
+    initial?.data,
+    {
+      initialError: initial?.error,
+      revalidateOnMount: false,
+    },
+  );
   const selected = vehicleFilterKeys.filter((key) => params.has(key));
   const advanced = new URLSearchParams(
     [...params].filter(([key]) =>
@@ -41,6 +57,9 @@ export function VehicleCatalogue({
     ),
   ).toString();
   const trail = params.get("_trail")?.split(",") ?? [];
+  const bodyTypes = ["SUV", "SEDAN", "HATCHBACK", "PICKUP"];
+  const selectedBody = params.get("bodyType");
+  if (selectedBody && !bodyTypes.includes(selectedBody)) bodyTypes.push(selectedBody);
   function navigate(next: URLSearchParams) {
     const normalized = normalizeVehicleQuery(next).params.toString();
     const url = `/vehicles${normalized ? `?${normalized}` : ""}${window.location.hash}`;
@@ -78,43 +97,68 @@ export function VehicleCatalogue({
           still follow links on this page.
         </p>
       </noscript>
-      <div className="vehicle-inventory-heading">
-        <h2 id="vehicle-results-heading" tabIndex={-1}>
-          Explore current listings
-        </h2>
-        <p role="status" aria-live="polite">
-          {listings.loading
-            ? "Loading vehicles…"
-            : listings.error
-              ? "Listings unavailable"
-              : `${listings.data?.items.length ?? 0} vehicle${listings.data?.items.length === 1 ? "" : "s"} on this page`}
-        </p>
-      </div>
-      {invalid && (
-        <p className="notice">
-          Some filters in this link were invalid and have been ignored. Review the filters
-          below.
-        </p>
-      )}
-      <div className="vehicle-toolbar">
-        <VehicleSearch value={params.get("search") ?? ""} update={update} />
-        <VehicleFilters query={advanced} count={selected.length} update={update} />
-        <div className="vehicle-sort">
-          <label htmlFor="vehicle-sort">Sort by</label>
-          <div className="vehicle-select">
-            <select
-              id="vehicle-sort"
-              value={params.get("sort") ?? "newest"}
-              onChange={(e) => update((next) => next.set("sort", e.target.value))}
-            >
-              <option value="newest">Newest listings</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-              <option value="year_desc">Newest model year</option>
-            </select>
-            <ChevronDown size={16} aria-hidden="true" />
+      <div className="vehicle-search-panel">
+        <div className="vehicle-inventory-heading">
+          <h2 id="vehicle-results-heading" tabIndex={-1}>
+            Explore current listings
+          </h2>
+          <p role="status" aria-live="polite">
+            {listings.loading
+              ? "Loading vehicles…"
+              : listings.error
+                ? "Listings unavailable"
+                : `${listings.data?.totalMatches.toLocaleString("en-NG") ?? 0} matching vehicle${listings.data?.totalMatches === 1 ? "" : "s"} · ${listings.data?.items.length ?? 0} vehicle${listings.data?.items.length === 1 ? "" : "s"} on this page`}
+          </p>
+        </div>
+        {invalid && (
+          <p className="notice">
+            Some filters in this link were invalid and have been ignored. Review the
+            filters below.
+          </p>
+        )}
+        <div className="vehicle-toolbar">
+          <VehicleSearch value={params.get("search") ?? ""} update={update} />
+          <VehicleFilters query={advanced} count={selected.length} update={update} />
+          <div className="vehicle-sort">
+            <label htmlFor="vehicle-sort">Sort by</label>
+            <div className="vehicle-select">
+              <select
+                id="vehicle-sort"
+                value={params.get("sort") ?? "newest"}
+                onChange={(e) => update((next) => next.set("sort", e.target.value))}
+              >
+                <option value="newest">Newest listings</option>
+                <option value="price_asc">Price: low to high</option>
+                <option value="price_desc">Price: high to low</option>
+                <option value="year_desc">Newest model year</option>
+              </select>
+              <ChevronDown size={16} aria-hidden="true" />
+            </div>
           </div>
         </div>
+        <fieldset className="vehicle-body-shortcuts">
+          <legend>Body type</legend>
+          <div>
+            <button
+              type="button"
+              aria-pressed={!selectedBody}
+              onClick={() => update((next) => next.delete("bodyType"))}
+            >
+              All types
+            </button>
+            {bodyTypes.map((body) => (
+              <button
+                type="button"
+                key={body}
+                aria-pressed={selectedBody === body}
+                onClick={() => update((next) => next.set("bodyType", body))}
+              >
+                {vehicleLabel(body)}
+              </button>
+            ))}
+            <span>More types in Filters.</span>
+          </div>
+        </fieldset>
       </div>
       <div className="vehicle-active-filters" aria-label="Active vehicle filters">
         {selected.length ? (
@@ -157,15 +201,26 @@ export function VehicleCatalogue({
         {listings.error ? (
           <div className="vehicle-empty">
             <Feedback message={listings.error} />
-            <button className="button secondary" onClick={listings.refresh}>
+            <button
+              className="button secondary"
+              onClick={listings.refresh}
+              disabled={listings.loading}
+            >
               Retry vehicles
             </button>
+            {params.has("cursor") && (
+              <button className="button secondary" onClick={() => update(() => {})}>
+                Start from first page
+              </button>
+            )}
           </div>
         ) : listings.loading ? (
           <div className="vehicle-results-grid" aria-hidden="true">
             {[0, 1, 2].map((i) => (
               <div className="vehicle-skeleton" key={i}>
                 <div />
+                <span />
+                <span />
                 <span />
                 <span />
                 <span />
@@ -178,6 +233,12 @@ export function VehicleCatalogue({
               <article className="product-card vehicle-card" key={listing.id}>
                 <Link href={`/vehicles/${listing.id}`}>
                   <PublicMedia
+                    key={
+                      (
+                        listing.vehicle.images.find((image) => image.isPrimary) ??
+                        listing.vehicle.images[0]
+                      )?.url ?? "missing"
+                    }
                     src={
                       (
                         listing.vehicle.images.find((image) => image.isPrimary) ??
@@ -185,27 +246,72 @@ export function VehicleCatalogue({
                       )?.url
                     }
                     alt={listing.title}
+                    fallbackIcon={<CarFront size={34} strokeWidth={1.4} />}
+                    sizes="(max-width: 767px) 100vw, (max-width: 1050px) 50vw, 33vw"
                   />
                   <div className="product-copy">
                     <span className="vehicle-card-meta">
                       {listing.vehicle.year} · {vehicleLabel(listing.vehicle.condition)}
                     </span>
                     <h3>{listing.title}</h3>
-                    <p>
-                      {listing.vehicle.mileageKm === null
-                        ? "Mileage not listed"
-                        : `${listing.vehicle.mileageKm.toLocaleString("en-NG")} km`}{" "}
-                      ·{" "}
-                      {listing.vehicle.transmission
-                        ? vehicleLabel(listing.vehicle.transmission)
-                        : "Transmission not listed"}
+                    <p className="vehicle-card-variant">
+                      {[listing.vehicle.make, listing.vehicle.model, listing.vehicle.trim]
+                        .filter(Boolean)
+                        .join(" ")}
                     </p>
                     <strong>{formatKobo(listing.priceKobo)}</strong>
+                    <dl className="vehicle-card-specs">
+                      <div>
+                        <dt>
+                          <Gauge size={15} aria-hidden="true" />
+                          Mileage
+                        </dt>
+                        <dd>
+                          {listing.vehicle.mileageKm === null
+                            ? "Not listed"
+                            : `${listing.vehicle.mileageKm.toLocaleString("en-NG")} km`}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>
+                          <Settings2 size={15} aria-hidden="true" />
+                          Transmission
+                        </dt>
+                        <dd>
+                          {listing.vehicle.transmission
+                            ? vehicleLabel(listing.vehicle.transmission)
+                            : "Not listed"}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>
+                          <Fuel size={15} aria-hidden="true" />
+                          Fuel
+                        </dt>
+                        <dd>
+                          {listing.vehicle.fuelType
+                            ? vehicleLabel(listing.vehicle.fuelType)
+                            : "Not listed"}
+                        </dd>
+                      </div>
+                    </dl>
                     <div className="vehicle-card-location">
                       <MapPin size={15} aria-hidden="true" />
-                      <span>{listing.branch.name}</span>
-                      <ArrowRight size={17} aria-hidden="true" />
+                      <span>
+                        {[listing.branch.city, listing.branch.state]
+                          .filter(Boolean)
+                          .join(", ") || listing.branch.name}
+                      </span>
                     </div>
+                    {listing.vehicle.conditionReports.length > 0 && (
+                      <p className="vehicle-card-report">
+                        <ClipboardList size={15} aria-hidden="true" />
+                        Condition report available
+                      </p>
+                    )}
+                    <span className="vehicle-card-view">
+                      View vehicle <ArrowRight size={17} aria-hidden="true" />
+                    </span>
                   </div>
                 </Link>
               </article>
@@ -215,14 +321,25 @@ export function VehicleCatalogue({
           <div className="vehicle-empty">
             <CarFront size={30} strokeWidth={1.4} aria-hidden="true" />
             <h3>
-              {selected.length ? "No matching vehicles" : "No vehicles are listed yet"}
+              {params.has("cursor")
+                ? "No vehicles on this page"
+                : selected.length
+                  ? "No matching vehicles"
+                  : "No vehicles are listed yet"}
             </h3>
             <p>
-              {selected.length
-                ? "Try a broader search or contact our team about the vehicle you have in mind."
-                : "Speak with our team about what you are looking for, or check back for current listings."}
+              {params.has("cursor")
+                ? "Listings may have changed. Return to the first page to check current results."
+                : selected.length
+                  ? "Try a broader search or contact our team about the vehicle you have in mind."
+                  : "Speak with our team about what you are looking for, or check back for current listings."}
             </p>
             <div className="actions">
+              {params.has("cursor") && (
+                <button className="button secondary" onClick={() => update(() => {})}>
+                  Start from first page
+                </button>
+              )}
               {selected.length > 0 && (
                 <button className="button secondary" onClick={clear}>
                   Clear filters

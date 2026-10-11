@@ -116,6 +116,11 @@ for (const width of [390, 1440])
     await expect(page.getByRole("heading", { name: "Invoice details" })).toBeVisible();
     await expect(page).toHaveTitle(/Allied AutoTech/);
     await page.getByRole("button", { name: "Prepare invoice payment" }).click();
+    expect(writes).toBe(0);
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Create payment request" })
+      .click();
     await expect(
       page.getByText(
         "A payment already exists for this purchase or invoice. Open Payments and check the existing request before paying again.",
@@ -123,6 +128,7 @@ for (const width of [390, 1440])
       ),
     ).toBeVisible();
     await expect(page.getByText("private diagnostic must not render")).toHaveCount(0);
+    await page.getByRole("dialog").getByRole("button", { name: "Go back" }).click();
     const recovery = page.getByRole("link", {
       name: "View existing payments",
       exact: true,

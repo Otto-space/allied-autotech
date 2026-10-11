@@ -1,0 +1,274 @@
+.mfa-form h1 {
+  font-size: 30px;
+  overflow-wrap: anywhere;
+}
+.mfa-form h2 {
+  font:
+    700 19px/1.35 var(--font-quicksand),
+    sans-serif;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+.mfa-form p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #435563;
+  margin: 10px 0 16px;
+}
+.mfa-form .login-intro {
+  margin: 0 0 20px;
+}
+.mfa-form .mfa-hint {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 8px 0 12px;
+}
+.mfa-methods {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.mfa-method {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 14px;
+  border: 1px solid #82939f;
+  border-radius: 6px;
+  background: white;
+  text-align: left;
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+}
+.mfa-method > svg {
+  flex: none;
+}
+.mfa-method > span {
+  flex: 1;
+  min-width: 0;
+}
+.mfa-method strong {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.mfa-method small {
+  display: block;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #435563;
+}
+.mfa-method:hover:not(:disabled) {
+  border-color: #e60301;
+  background: #fafbfc;
+}
+.mfa-form button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+.mfa-form .mfa-text-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: #c40000;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font:
+    600 13px/1.6 var(--font-quicksand),
+    sans-serif;
+  text-align: left;
+}
+.mfa-operation-status:empty {
+  display: none;
+}
+.mfa-form .field {
+  margin: 0 0 14px;
+}
+.mfa-form .field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+.mfa-form .field :is(input, select, textarea) {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid #82939f;
+  border-radius: 6px;
+  background: white;
+  color: #01121a;
+  padding: 10px 13px;
+  font:
+    400 16px/1.5 var(--font-quicksand),
+    sans-serif;
+}
+.mfa-form .field textarea {
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+.mfa-form .field input {
+  height: 48px;
+}
+.mfa-form .login-password input {
+  padding-right: 58px;
+}
+.mfa-form .field :is(input, select, textarea):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.mfa-form .field :is(input, select):disabled {
+  background: #f1f4f6;
+  color: #435563;
+}
+.mfa-form .field input[aria-invalid="true"] {
+  border-color: #b40000;
+}
+.mfa-form .field-error {
+  font-size: 13px;
+  color: #b40000;
+}
+.mfa-select {
+  position: relative;
+}
+.mfa-select select {
+  appearance: none;
+  padding-right: 44px !important;
+}
+.mfa-select > svg {
+  position: absolute;
+  right: 14px;
+  top: 16px;
+  pointer-events: none;
+}
+.mfa-form .button {
+  text-transform: none;
+  letter-spacing: normal;
+  min-height: 48px;
+  box-shadow: none;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font:
+    700 14px/1.5 var(--font-quicksand),
+    sans-serif;
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+}
+.mfa-form .button.secondary {
+  border: 1px solid #82939f;
+  background: white;
+  color: #01121a;
+}
+.mfa-form .login-submit {
+  margin: 16px 0 6px;
+}
+.mfa-form .detail-section {
+  border-top: 1px solid #cbd5df;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+.mfa-form .detail-section:first-child {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.mfa-form .check-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  font-size: 13px;
+  line-height: 1.65;
+  margin-bottom: 12px;
+}
+.mfa-form .check-field input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: #e60301;
+}
+.mfa-form .copy-control {
+  margin: 8px 0;
+}
+.mfa-form .copy-control button {
+  width: auto;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.mfa-form .copy-control > span {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.mfa-form #new-recovery-codes {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.mfa-form .detail-section:has(#new-recovery-codes) {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.mfa-form .detail-section > .button + .button {
+  margin-top: 10px;
+}
+.mfa-form .authenticator-qr {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+}
+.mfa-form .authenticator-qr canvas {
+  width: 144px !important;
+  height: 144px !important;
+  max-width: 100%;
+}
+.mfa-connect {
+  margin-top: 12px;
+}
+.mfa-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+}
+.mfa-complete-icon {
+  display: block;
+  margin: 0 0 20px;
+}
+.mfa-form .mfa-sign-in {
+  margin: 8px 0 16px;
+}
+.mfa-form .notice {
+  margin: 12px 0 18px;
+}
+@media (max-width: 899px) {
+  .mfa-form h1 {
+    font-size: 27px;
+  }
+  .login-form-area:has(.mfa-form) {
+    padding-top: 16px;
+  }
+  .mfa-form .login-help {
+    padding-top: 6px;
+  }
+}
+@media (max-width: 360px) {
+  .mfa-form h1 {
+    font-size: 25px;
+  }
+  .mfa-method {
+    gap: 10px;
+    padding: 10px;
+  }
+  .mfa-form .button {
+    font-size: 13px;
+  }
+}

@@ -40,6 +40,16 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
   const [message, setMessage] = useState<string>();
   const current = booking.data;
   const disabled = booking.loading || !!booking.error || !!proposal;
+  const quoteOperator = access.data && !access.error && access.data.status === "ACTIVE";
+  const canChangeQuotes =
+    !!quoteOperator &&
+    !!current &&
+    (access.data?.role === "ADMIN" ||
+      access.data?.role === "SUPER_ADMIN" ||
+      (access.data?.role === "STAFF" &&
+        !!access.data.staffProfile &&
+        access.data.staffProfile.branchId === current.branch?.id &&
+        access.data.staffProfile.id === current.assignedStaff?.id));
   const choices = current
     ? (transitions[current.status] ?? []).filter(
         (status) =>
@@ -359,7 +369,10 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
             )}
           <StaffQuoteRecords
             booking={current}
-            disabled={disabled}
+            disabled={disabled || access.loading}
+            canChange={canChangeQuotes}
+            canAuthor={canChangeQuotes && !!access.data?.staffProfile}
+            checkingAccess={access.loading}
             onReview={setProposal}
           />
           <StaffWorkOrder booking={current} disabled={disabled} onReview={setProposal} />

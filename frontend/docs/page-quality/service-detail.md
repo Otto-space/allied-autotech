@@ -8,6 +8,8 @@ Scope: fixed-price and quotation-required service detail, including the forms em
 
 ## Audit and design
 
+The [7 October expanded assessment](service-detail-expanded.md) records the latest Service detail gate, including the completed Booking creation workflow, richer service context, FAQ and bounded other-service reads. The September scope and results below remain historical evidence.
+
 Baseline captures at 390, 768, 1280 and 1440px showed a long undifferentiated page, native branch and vehicle selectors, weak form boundaries and generic breadcrumbs. The existing API integration, customer identity checks and uncertain-submission protections were retained.
 
 The [three concepts](service-detail-concepts/README.md) were generated and inspected before implementation. The result uses a compact split overview with Nippo heading, exact API price and duration, an explicit media fallback, readable service breadcrumbs, open service context and a bordered request panel. Quicksand, visible control borders, compact icons, 44px controls and restrained ink/red/navy styling follow the accepted direction. On mobile the form precedes supporting context. There are no password inputs on this route.

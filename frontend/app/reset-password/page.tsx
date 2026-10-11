@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { AuthShell } from "../components/auth-shell";
-import { EmailActionForm } from "../components/email-action-form";
+import { AccessShell } from "../components/access-shell";
+import { ResetPasswordForm } from "../components/reset-password-form";
+import "./reset-password.css";
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
   title: "Reset password",
 };
 export default function Page() {
   return (
-    <AuthShell>
-      <EmailActionForm mode="reset" />
-    </AuthShell>
+    <AccessShell mode="reset">
+      <ResetPasswordForm />
+    </AccessShell>
   );
 }

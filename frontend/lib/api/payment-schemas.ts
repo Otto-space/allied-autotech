@@ -5,6 +5,8 @@ export const paymentSchema = z.object({
   paymentNumber: z.string(),
   amountKobo: money,
   currency: z.literal("NGN"),
+  // Detail reads supply availability. Older/list projections must fail closed.
+  checkoutProviders: z.array(z.enum(["PAYSTACK", "MONNIFY"])).optional(),
   status: z.enum([
     "REQUIRES_PAYMENT",
     "PROCESSING",

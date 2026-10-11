@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { advancedProductKeys, validProductText } from "@/lib/product-discovery";
+import { ProductNameField } from "./product-name-field";
+import { koboToInput, nairaToKobo } from "@/lib/format/currency-input";
 
 export type UpdateProductQuery = (change: (params: URLSearchParams) => void) => void;
 
@@ -46,7 +48,7 @@ export function ProductSearch({
   }
   return (
     <form
-      data-draft-key="product-filters:1"
+      data-no-draft
       className="product-search"
       role="search"
       onSubmit={(event) => {
@@ -91,6 +93,9 @@ const labels = {
   model: "Vehicle model (exact name)",
   year: "Year",
   featured: "Featured products",
+  minPriceKobo: "Minimum price (NGN)",
+  maxPriceKobo: "Maximum price (NGN)",
+  availability: "Availability",
 };
 
 export function ProductFilters({
@@ -110,7 +115,12 @@ export function ProductFilters({
   function readValues() {
     const params = new URLSearchParams(query);
     return Object.fromEntries(
-      advancedProductKeys.map((key) => [key, params.get(key) ?? ""]),
+      advancedProductKeys.map((key) => [
+        key,
+        key === "minPriceKobo" || key === "maxPriceKobo"
+          ? koboToInput(params.get(key) ?? "")
+          : (params.get(key) ?? ""),
+      ]),
     );
   }
   const [values, setValues] = useState<Record<string, string>>(readValues);
@@ -197,7 +207,7 @@ export function ProductFilters({
         }}
       >
         <form
-          data-draft-key="product-filters:2"
+          data-no-draft
           noValidate
           onSubmit={(event) => {
             event.preventDefault();
@@ -212,6 +222,24 @@ export function ProductFilters({
                 +values.year > 2100)
             )
               nextErrors.year = "Enter a year between 1886 and 2100.";
+            const amounts: Record<string, string> = {};
+            for (const key of ["minPriceKobo", "maxPriceKobo"]) {
+              if (!values[key].trim()) continue;
+              try {
+                const amount = nairaToKobo(values[key]);
+                if (BigInt(amount) > BigInt("9999999999999999"))
+                  throw new Error("Amount too large");
+                amounts[key] = amount;
+              } catch {
+                nextErrors[key] = "Enter a valid amount with up to two decimal places.";
+              }
+            }
+            if (
+              amounts.minPriceKobo &&
+              amounts.maxPriceKobo &&
+              BigInt(amounts.minPriceKobo) > BigInt(amounts.maxPriceKobo)
+            )
+              nextErrors.maxPriceKobo = "Must not be below the minimum price.";
             setErrors(nextErrors);
             if (Object.keys(nextErrors).length) {
               document
@@ -222,7 +250,8 @@ export function ProductFilters({
             update((params) => {
               for (const key of advancedProductKeys) {
                 params.delete(key);
-                if (values[key].trim()) params.set(key, values[key].trim());
+                if (values[key].trim())
+                  params.set(key, amounts[key] ?? values[key].trim());
               }
             });
             close();
@@ -246,7 +275,7 @@ export function ProductFilters({
             {advancedProductKeys.map((key) => (
               <div className="product-field" key={key}>
                 <label htmlFor={`product-filter-${key}`}>{labels[key]}</label>
-                {key === "featured" ? (
+                {key === "featured" || key === "availability" ? (
                   <div className="product-select">
                     <select
                       id={`product-filter-${key}`}
@@ -256,17 +285,42 @@ export function ProductFilters({
                       }
                     >
                       <option value="">Any</option>
-                      <option value="true">Featured only</option>
-                      <option value="false">Non-featured only</option>
+                      {key === "featured" ? (
+                        <>
+                          <option value="true">Featured only</option>
+                          <option value="false">Non-featured only</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="in_stock">In stock</option>
+                          <option value="out_of_stock">Out of stock</option>
+                        </>
+                      )}
                     </select>
                     <ChevronDown size={16} aria-hidden="true" />
                   </div>
+                ) : key === "brand" || key === "make" || key === "model" ? (
+                  <ProductNameField
+                    kind={key}
+                    error={errors[key]}
+                    value={values[key]}
+                    make={values.make}
+                    open={open}
+                    onChange={(value) => {
+                      setValues((v) => ({
+                        ...v,
+                        [key]: value,
+                        ...(key === "make" ? { model: "" } : {}),
+                      }));
+                      setErrors((v) => ({ ...v, [key]: "" }));
+                    }}
+                  />
                 ) : (
                   <input
                     id={`product-filter-${key}`}
                     value={values[key]}
-                    maxLength={key === "year" ? 4 : 100}
-                    inputMode={key === "year" ? "numeric" : undefined}
+                    maxLength={key === "year" ? 4 : 20}
+                    inputMode={key === "year" ? "numeric" : "decimal"}
                     aria-invalid={!!errors[key]}
                     aria-describedby={
                       errors[key]

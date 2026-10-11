@@ -73,6 +73,87 @@ export function overviewFixture(
           totalKobo: String(index * 2450000),
           currency: "NGN",
         })),
+    ...(role === "CUSTOMER"
+      ? {
+          care: empty
+            ? {
+                vehicle: null,
+                vehicleSource: "NONE" as const,
+                currentBooking: null,
+                nextBooking: null,
+                quote: null,
+                payment: null,
+                order: null,
+                inspection: null,
+                notification: null,
+              }
+            : {
+                vehicle: {
+                  id: id(60),
+                  make: "Toyota",
+                  model: "Corolla",
+                  year: 2020,
+                  registrationNumber: "QA-123-AA",
+                },
+                vehicleSource: "BOOKING" as const,
+                currentBooking: {
+                  id: id(61),
+                  serviceName: "Vehicle diagnostics",
+                  status: "IN_PROGRESS" as const,
+                  scheduledAt: `${dates.to}T08:00:00Z`,
+                  requestedAt: `${dates.to}T07:00:00Z`,
+                  confirmedAt: `${dates.to}T07:30:00Z`,
+                  startedAt: `${dates.to}T08:00:00Z`,
+                },
+                nextBooking: {
+                  id: id(62),
+                  serviceName: "Routine service",
+                  status: "REQUESTED" as const,
+                  scheduledAt: `${dates.to}T14:00:00Z`,
+                  requestedAt: `${dates.to}T07:00:00Z`,
+                  confirmedAt: null,
+                  startedAt: null,
+                },
+                quote: {
+                  id: id(63),
+                  bookingId: id(61),
+                  quoteNumber: "QUO-QA-101",
+                  totalKobo: "8500000",
+                  currency: "NGN",
+                  issuedAt: `${dates.to}T07:00:00Z`,
+                  expiresAt: null,
+                },
+                payment: {
+                  id: id(64),
+                  paymentNumber: "PAY-QA-101",
+                  amountKobo: "3200000",
+                  currency: "NGN",
+                  status: "REQUIRES_PAYMENT" as const,
+                  expiresAt: null,
+                },
+                order: {
+                  id: id(65),
+                  orderNumber: "ORD-QA-101",
+                  status: "PROCESSING" as const,
+                  fulfillmentMethod: "DELIVERY" as const,
+                  createdAt: `${dates.to}T07:00:00Z`,
+                },
+                inspection: {
+                  id: id(66),
+                  title: "Toyota Highlander inspection",
+                  status: "REQUESTED" as const,
+                  dateKind: "PREFERRED" as const,
+                  startsAt: `${dates.to}T13:00:00Z`,
+                },
+                notification: {
+                  id: id(67),
+                  title: "Your service has started",
+                  createdAt: `${dates.to}T08:00:00Z`,
+                  readAt: null,
+                },
+              },
+        }
+      : {}),
     ...(administrator
       ? {
           finance: {

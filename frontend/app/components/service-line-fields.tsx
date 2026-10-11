@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
 import {
   useController,
   useFieldArray,
@@ -53,6 +54,7 @@ export function ServiceLineFields({
               );
             }}
           >
+            <Trash2 size={16} aria-hidden="true" />
             Remove line {index + 1}
           </button>
         </fieldset>
@@ -68,6 +70,7 @@ export function ServiceLineFields({
         disabled={disabled || fields.length >= 100}
         onClick={() => append(emptyServiceLine())}
       >
+        <Plus size={16} aria-hidden="true" />
         Add line item
       </button>
     </>
@@ -184,6 +187,13 @@ function PartPicker({
           type="search"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              setQuery(search.trim());
+              pagination.reset();
+            }
+          }}
           maxLength={100}
         />
         <button

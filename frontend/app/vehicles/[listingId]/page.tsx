@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { Suspense } from "react";
-import { ArrowRight, ChevronRight, MapPin } from "lucide-react";
+import { ArrowRight, CarFront, ChevronRight, MapPin } from "lucide-react";
 import { cache } from "react";
 import { notFound, unstable_rethrow } from "next/navigation";
 import { z } from "zod";
@@ -105,6 +105,8 @@ async function RelatedVehicles({ make, listingId }: { make: string; listingId: s
                   )?.url
                 }
                 alt={item.title}
+                fallbackIcon={<CarFront size={24} strokeWidth={1.3} />}
+                sizes="120px"
               />
               <div>
                 <h3>{item.title}</h3>
@@ -234,10 +236,38 @@ export default async function ListingPage({
             <h1>{listing.title}</h1>
             <p className="vd-mobile-price">{formatKobo(listing.priceKobo)}</p>
           </header>
+          <nav className="vd-section-nav" aria-label="Vehicle sections">
+            <a href="#vehicle-overview">Overview</a>
+            <a href="#vehicle-specifications">Specifications</a>
+            <a href="#vehicle-condition">Condition</a>
+            <a href="#inspection">Inspection</a>
+          </nav>
           <VehicleActions
             key={listing.id}
             listingId={listing.id}
-            gallery={<VehicleGallery images={vehicle.images} title={listing.title} />}
+            listingTitle={listing.title}
+            branchName={listing.branch.name}
+            gallery={
+              <div className="vd-gallery-column" id="vehicle-overview">
+                <VehicleGallery images={vehicle.images} title={listing.title} />
+                <dl className="vd-highlights">
+                  <div>
+                    <dt>Body type</dt>
+                    <dd>{label(vehicle.bodyType)}</dd>
+                  </div>
+                  <div>
+                    <dt>Trim</dt>
+                    <dd>{vehicle.trim || "Not listed"}</dd>
+                  </div>
+                  <div>
+                    <dt>Condition report</dt>
+                    <dd>
+                      {vehicle.conditionReports.length ? "Published" : "Not published"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            }
             summary={
               <>
                 <p className="vd-price-label">Listed price</p>
@@ -266,7 +296,11 @@ export default async function ListingPage({
               </>
             }
           >
-            <section className="vd-details" aria-labelledby="vd-details-title">
+            <section
+              className="vd-details"
+              id="vehicle-specifications"
+              aria-labelledby="vd-details-title"
+            >
               <h2 id="vd-details-title">The details that matter.</h2>
               <div className="vd-details-grid">
                 <div>
@@ -286,7 +320,11 @@ export default async function ListingPage({
                     </p>
                   </div>
                 </div>
-                <section className="vd-condition" aria-labelledby="vd-condition-title">
+                <section
+                  className="vd-condition"
+                  id="vehicle-condition"
+                  aria-labelledby="vd-condition-title"
+                >
                   <h3 id="vd-condition-title">Listed condition report</h3>
                   {vehicle.conditionReports.length ? (
                     vehicle.conditionReports.map((report) => (
@@ -325,7 +363,7 @@ export default async function ListingPage({
             fallback={
               <section className="vd-related" aria-busy="true">
                 <h2>More vehicles</h2>
-                <p role="status">Loading related listings?</p>
+                <p role="status">Loading related listings…</p>
               </section>
             }
           >

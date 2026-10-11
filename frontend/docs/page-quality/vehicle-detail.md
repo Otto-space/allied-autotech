@@ -6,6 +6,8 @@ Status: complete; local acceptance passed. Product detail is the next route.
 
 ## Audit and design
 
+The [7 October expanded reassessment](vehicle-detail-expanded.md) adds the current visual, role-visibility and ten-width acceptance evidence. The September findings below retain their original scope.
+
 The baseline was inspected at 390, 768, 1280 and 1440px. On mobile, the original page placed the title, price and request actions after the gallery and the complete specification list. The date input had no visible boundary. Breadcrumbs lacked an ordered list, Home and `aria-current`. Enum values were displayed as raw uppercase strings; available trim/body and additional specifications were omitted. The gallery had no expanded view. Route-specific recovery, related listings and detail structured data were absent.
 
 Three coordinated [ImageGen concepts](vehicle-detail-concepts/README.md) were generated and inspected before implementation: desktop upper page, desktop lower page, mobile and state board. The implementation uses local Nippo display and Quicksand UI fonts, the existing public shell, a navy price/request panel, paired specifications and a compact inspection form. Generated example inventory and altered brand details are not used as production content.

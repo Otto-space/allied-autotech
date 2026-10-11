@@ -5,6 +5,7 @@ import path from "node:path";
 import type { parseListings } from "@/lib/api/vehicle-schemas";
 
 const id = (n: number) => `f6000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+const cursor = `${"A".repeat(120)}_${"a".repeat(64)}`;
 const listing = (n: number): ReturnType<typeof parseListings>["items"][number] => ({
   id: id(n),
   title:
@@ -49,9 +50,13 @@ async function fixture(page: Page) {
   const state = {
     status: 200,
     empty: false,
+    emptyTail: false,
     delay: 0,
     offline: false,
     requests: [] as URL[],
+    facetRequests: [] as URL[],
+    facetError: false,
+    items: [listing(1), listing(2), listing(3)],
   };
   await page.route("**/api/v1/public/vehicles/images/*", (route) =>
     route.fulfill({
@@ -59,7 +64,50 @@ async function fixture(page: Page) {
       contentType: "image/webp",
     }),
   );
-  await page.route("**/api/v1/public/vehicles?*", async (route) => {
+  await page.route("**/api/v1/public/vehicles/facets?*", async (route) => {
+    const url = new URL(route.request().url());
+    state.facetRequests.push(url);
+    if (state.facetError)
+      return route.fulfill({
+        status: 503,
+        json: { success: false, error: { code: "SERVICE_UNAVAILABLE" } },
+      });
+    const field = url.searchParams.get("field"),
+      make = url.searchParams.get("make");
+    const names =
+      field === "make"
+        ? url.searchParams.has("search")
+          ? ["Honda", "Toyota"]
+          : url.searchParams.has("cursor")
+            ? ["Toyota"]
+            : ["Honda"]
+        : make?.toLowerCase() === "toyota"
+          ? ["Camry", "Corolla"]
+          : ["Accord"];
+    const items = names
+      .filter((name) =>
+        name
+          .toLowerCase()
+          .startsWith(url.searchParams.get("search")?.toLowerCase() ?? ""),
+      )
+      .map((label) => ({ label, value: label.toLowerCase() }));
+    return route.fulfill({
+      json: {
+        success: true,
+        message: "Isolated vehicle options",
+        meta: { requestId: "vehicle-options-qa" },
+        data: {
+          items,
+          ...(field === "make" &&
+          !url.searchParams.has("cursor") &&
+          !url.searchParams.has("search")
+            ? { nextCursor: cursor }
+            : {}),
+        },
+      },
+    });
+  });
+  await page.route("**/api/v1/public/vehicles/discovery?*", async (route) => {
     state.requests.push(new URL(route.request().url()));
     if (state.delay) await new Promise((resolve) => setTimeout(resolve, state.delay));
     if (state.offline) return route.abort("internetdisconnected");
@@ -82,12 +130,14 @@ async function fixture(page: Page) {
         success: true,
         message: "Isolated vehicle QA response",
         data: {
-          items: state.empty
-            ? []
-            : more
-              ? [listing(4)]
-              : [listing(1), listing(2), listing(3)],
-          ...(!more && !state.empty ? { nextCursor: id(3) } : {}),
+          items:
+            state.empty || (more && state.emptyTail)
+              ? []
+              : more
+                ? [listing(4)]
+                : state.items,
+          totalMatches: state.empty ? 0 : 4,
+          ...(!more && !state.empty ? { nextCursor: cursor } : {}),
         },
         meta: { requestId: "vehicle-qa" },
       },
@@ -100,6 +150,92 @@ async function fixture(page: Page) {
   ).toBeVisible();
   return state;
 }
+
+test("totals describe all matches while the current page count changes", async ({
+  page,
+}) => {
+  await fixture(page);
+  await expect(
+    page.getByRole("status").filter({ hasText: "4 matching vehicles" }),
+  ).toContainText("3 vehicles on this page");
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "4 matching vehicles" }),
+  ).toContainText("1 vehicle on this page");
+});
+
+test("make suggestions page and search globally; model suggestions follow the selected make", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.getByRole("button", { name: /^Filters/ }).click();
+  await expect(page.locator('#filter-make-options option[value="Honda"]')).toHaveCount(1);
+  await page.getByRole("button", { name: "More make options" }).click();
+  await expect(page.locator('#filter-make-options option[value="Toyota"]')).toHaveCount(
+    1,
+  );
+  await expect
+    .poll(() => state.facetRequests.some((url) => url.searchParams.has("cursor")))
+    .toBe(true);
+  await page.getByLabel("Make (exact name)").fill("Toy");
+  await expect(page.locator('#filter-make-options option[value="Toyota"]')).toHaveCount(
+    1,
+  );
+  await expect
+    .poll(() =>
+      state.facetRequests
+        .filter((url) => url.searchParams.get("field") === "make")
+        .at(-1)
+        ?.searchParams.get("search"),
+    )
+    .toBe("Toy");
+  await page.getByLabel("Make (exact name)").fill("Toyota");
+  await expect(page.locator('#filter-model-options option[value="Camry"]')).toHaveCount(
+    1,
+  );
+  await page.getByLabel("Model (exact name)").fill("Cam");
+  await expect(page.locator("#filter-model-options option")).toHaveCount(1);
+  await page.getByLabel("Make (exact name)").fill("Honda");
+  await expect(page.getByLabel("Model (exact name)")).toHaveValue("");
+  await expect(page.locator('#filter-model-options option[value="Accord"]')).toHaveCount(
+    1,
+  );
+});
+
+test("failed option reads retain typed values and support retry", async ({ page }) => {
+  const state = await fixture(page);
+  state.facetError = true;
+  await page.getByRole("button", { name: /^Filters/ }).click();
+  await page.getByLabel("Make (exact name)").fill("Toyota");
+  await expect(
+    page.getByRole("button", { name: "Retry make suggestions" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Make (exact name)")).toHaveValue("Toyota");
+  state.facetError = false;
+  await page.getByRole("button", { name: "Retry make suggestions" }).click();
+  await expect(page.locator('#filter-make-options option[value="Toyota"]')).toHaveCount(
+    1,
+  );
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect.poll(() => state.requests.at(-1)?.searchParams.get("make")).toBe("Toyota");
+});
+test("an emptied later page keeps its total and returns to the first page without clearing filters", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.emptyTail = true;
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "No vehicles on this page" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("status").filter({ hasText: "4 matching vehicles" }),
+  ).toContainText("0 vehicles on this page");
+  await page.getByRole("button", { name: "Start from first page" }).click();
+  await expect(page.locator(".vehicle-card")).toHaveCount(3);
+  await expect(page).toHaveURL(/search=QA/);
+  await expect(page).not.toHaveURL(/cursor=/);
+});
 
 test("debounced search keeps focus, URL, chips and browser history", async ({ page }) => {
   const state = await fixture(page);
@@ -244,7 +380,7 @@ test("loading, no matches, error, rate limit and network recovery remain usable"
   state.status = 429;
   const limited = page.waitForResponse(
     (response) =>
-      response.url().includes("/public/vehicles?") && response.status() === 429,
+      response.url().includes("/public/vehicles/discovery?") && response.status() === 429,
   );
   await page.getByRole("button", { name: "Retry vehicles" }).click();
   await limited;
@@ -253,7 +389,7 @@ test("loading, no matches, error, rate limit and network recovery remain usable"
   state.empty = false;
   state.offline = true;
   const disconnected = page.waitForEvent("requestfailed", (request) =>
-    request.url().includes("/public/vehicles?"),
+    request.url().includes("/public/vehicles/discovery?"),
   );
   await page.getByRole("button", { name: "Retry vehicles" }).click();
   await disconnected;
@@ -263,7 +399,7 @@ test("loading, no matches, error, rate limit and network recovery remain usable"
   await expect(page.locator(".vehicle-card")).toHaveCount(3);
 });
 
-for (const width of [360, 390, 430, 768, 1024, 1280, 1440]) {
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
   test(`Vehicles layout, controls and accessibility at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -385,7 +521,107 @@ test("native concept dimensions and complete section captures", async ({ page })
   await page.locator(".lifestyle-section").screenshot({
     path: path.join(os.tmpdir(), "vehicles-quality-native-lifestyle.png"),
   });
+  await page.locator(".vehicle-buying-guide").screenshot({
+    path: path.join(os.tmpdir(), "vehicles-oct-native-guide.png"),
+  });
   await page
     .locator(".vehicle-contact")
     .screenshot({ path: path.join(os.tmpdir(), "vehicles-quality-native-contact.png") });
+});
+
+test("body shortcuts preserve search and sort, reset cursors and follow history", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  await page.getByLabel("Sort by").selectOption("price_asc");
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page).toHaveURL(/cursor=/);
+  const shortcuts = page.getByRole("group", { name: "Body type", exact: true });
+  await shortcuts.getByRole("button", { name: "SUV", exact: true }).click();
+  await expect(page).toHaveURL(/bodyType=SUV/);
+  await expect(page).not.toHaveURL(/cursor=|_trail=/);
+  await expect
+    .poll(() => state.requests.at(-1)?.searchParams.get("bodyType"))
+    .toBe("SUV");
+  expect(state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
+  expect(state.requests.at(-1)?.searchParams.get("sort")).toBe("price_asc");
+  await expect(
+    shortcuts.getByRole("button", { name: "SUV", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await shortcuts.getByRole("button", { name: "Sedan", exact: true }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/bodyType=SEDAN/);
+  await page.goBack();
+  await expect(
+    shortcuts.getByRole("button", { name: "SUV", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: /^Filters/ }).click();
+  await page.getByLabel("Body type", { exact: true }).selectOption("COUPE");
+  await page.getByRole("button", { name: "Apply filters" }).click();
+  await expect(
+    shortcuts.getByRole("button", { name: "Coupe", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await shortcuts.getByRole("button", { name: "All types", exact: true }).click();
+  await expect(page).not.toHaveURL(/bodyType=/);
+  await expect(page).toHaveURL(/search=QA/);
+  await expect(page).toHaveURL(/sort=price_asc/);
+});
+
+test("cards preserve zero values, missing specifications, report truth and long text at 320px", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  const state = await fixture(page);
+  const first = listing(1);
+  first.title = "VeryLongVehicleName".repeat(12);
+  first.vehicle.trim = "ExtendedTrim".repeat(12);
+  first.vehicle.mileageKm = 0;
+  first.priceKobo = "0";
+  first.vehicle.images = [];
+  first.vehicle.conditionReports = [
+    {
+      id: id(50),
+      summary: "Published test report",
+      inspectedAt: "2026-09-01T10:00:00Z",
+      odometerKm: 0,
+      conditionScore: 80,
+    },
+  ];
+  const second = listing(2);
+  second.vehicle.mileageKm = null;
+  second.vehicle.transmission = null;
+  second.vehicle.fuelType = null;
+  second.vehicle.images[0].url = `/api/v1/public/vehicles/images/${id(99)}`;
+  second.branch.city = "LongCity".repeat(20);
+  state.items = [first, second];
+  await page.route(`**/api/v1/public/vehicles/images/${id(99)}`, (route) =>
+    route.fulfill({ status: 404, body: "Not found" }),
+  );
+  await page.getByLabel("Sort by").selectOption("year_desc");
+  const cards = page.locator(".vehicle-card");
+  await expect(cards).toHaveCount(2);
+  await expect(cards.nth(0)).toContainText("0 km");
+  await expect(cards.nth(0).locator("strong")).toHaveText("₦0.00");
+  await expect(cards.nth(0)).toContainText("Condition report available");
+  await expect(cards.nth(1)).not.toContainText("Condition report available");
+  await expect(cards.nth(1).getByText("Not listed", { exact: true })).toHaveCount(3);
+  await cards.nth(1).scrollIntoViewIfNeeded();
+  await expect(cards.nth(1).getByText("Image unavailable")).toBeVisible();
+  await expect(cards.nth(0).getByText("Image unavailable")).toBeAttached();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "vehicles-oct-edge-cards.png"),
+    fullPage: true,
+  });
+  await expect(
+    page.getByRole("heading", { name: "A closer look before your next move." }),
+  ).toBeVisible();
+  await expect(page.locator(".vehicle-buying-guide")).toContainText(
+    "not a confirmed appointment",
+  );
+  await expect(
+    page.locator(".vehicle-buying-guide").getByRole("link", { name: "Ask our team" }),
+  ).toHaveAttribute("href", "/contact");
 });

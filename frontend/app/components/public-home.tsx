@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, CarFront, Package, Wrench } from "lucide-react";
+import { ArrowUpRight, CarFront, ChevronDown, Package, Wrench } from "lucide-react";
 import { faqs } from "@/lib/business";
 import { loadPublicSeed } from "@/lib/api/public-seed-server";
 import { parseProducts } from "@/lib/api/commerce-schemas";
@@ -20,6 +20,7 @@ import {
   ServiceJourney,
   TrustPrinciples,
 } from "./brand-editorial";
+import "../home.css";
 
 export async function PublicHome() {
   const [products, vehicles, reviews, services] = await Promise.all([
@@ -31,7 +32,7 @@ export async function PublicHome() {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="public-site">
+      <main id="main" className="public-site home-page">
         <HomeHero />
         <ServiceMarquee />
         <section className="public-section">
@@ -80,9 +81,17 @@ export async function PublicHome() {
             </div>
           </div>
         </section>
-        <section className="public-section public-surface">
-          <div className="public-wrap">
-            <div className="section-heading-row">
+        <section className="public-section public-surface home-services">
+          <div className="public-wrap home-services__layout">
+            <div className="home-services__image">
+              <Image
+                src="/images/allied-autotech/workshop-editorial.webp"
+                alt="Editorial workshop scene showing a technician inspecting an SUV"
+                fill
+                sizes="(max-width: 700px) 90vw, 35vw"
+              />
+            </div>
+            <div>
               <div className="section-heading">
                 <h2>Care for every next kilometre.</h2>
                 <p>
@@ -90,11 +99,11 @@ export async function PublicHome() {
                   step.
                 </p>
               </div>
-              <Link className="text-link" href="/services">
+              <ServiceList preview initial={services} />
+              <Link className="text-link home-services__all" href="/services">
                 All services <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
             </div>
-            <ServiceList preview initial={services} />
           </div>
         </section>
         <ServiceJourney />
@@ -146,7 +155,7 @@ export async function PublicHome() {
           </div>
         </section>
         <LifestyleDiscovery />
-        <section className="public-section public-surface">
+        <section className="public-section public-surface home-shop">
           <div className="public-wrap">
             <div className="shop-editorial">
               <div>
@@ -215,7 +224,10 @@ export async function PublicHome() {
             <div className="faq-list">
               {faqs.slice(0, 4).map((faq) => (
                 <details key={faq.question}>
-                  <summary>{faq.question}</summary>
+                  <summary>
+                    {faq.question}
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </summary>
                   <p>{faq.answer}</p>
                   <Link href={faq.href} className="text-link">
                     {faq.action} <ArrowUpRight size={16} aria-hidden="true" />

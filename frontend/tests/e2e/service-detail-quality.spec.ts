@@ -74,7 +74,39 @@ function currentRecord() {
 test.beforeAll(async () => {
   server = createServer((req, res) => {
     const url = new URL(req.url ?? "/", `http://127.0.0.1:${port}`);
-    calls.push(url.pathname);
+    calls.push(url.pathname + url.search);
+    if (url.pathname === "/api/v1/public/services") {
+      res.writeHead(mode === "otherDown" ? 503 : 200, {
+        "Content-Type": "application/json",
+      });
+      res.end(
+        JSON.stringify(
+          mode === "otherDown"
+            ? {
+                success: false,
+                error: { code: "DATABASE_UNAVAILABLE" },
+                meta: { requestId: "qa" },
+              }
+            : success({
+                items:
+                  mode === "otherEmpty"
+                    ? []
+                    : [
+                        record,
+                        {
+                          ...record,
+                          id: id(91),
+                          name: "Brake assessment",
+                          priceKobo: "1800000",
+                          durationMinutes: 45,
+                        },
+                        { ...quoteService, name: "Engine assessment", image: null },
+                      ],
+              }),
+        ),
+      );
+      return;
+    }
     const status = mode === "missing" ? 404 : mode === "down" ? 503 : 200;
     const data = url.pathname.endsWith(quoteService.id)
       ? {
@@ -123,11 +155,14 @@ async function fixture(page: Page) {
     failImage: false,
     writes: [] as { body: Record<string, unknown>; key?: string; csrf?: string }[],
     browserServiceReads: 0,
+    customerReads: [] as string[],
   };
   await page.route("**/api/v1/**", async (route) => {
     const req = route.request();
     const url = new URL(req.url());
     const endpoint = url.pathname.replace(/^\/api\/v1/, "");
+    if (req.method() === "GET" && endpoint.startsWith("/customers/"))
+      state.customerReads.push(endpoint);
     const ok = (data: unknown, status = 200) =>
       route.fulfill({ status, json: success(data) });
     const fail = (status = 503, code = "DATABASE_UNAVAILABLE") =>
@@ -229,7 +264,22 @@ async function reviewRequest(page: Page) {
   ).toBeFocused();
 }
 
-for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536]) {
+async function accessiblePage(page: Page) {
+  // Scan the complete document from a stable position. The sticky header can
+  // partially cover off-target section links at an arbitrary mid-page scroll.
+  // Interaction checks separately verify focus, viewport and pointer access.
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  return new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+    .analyze();
+}
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
   test(`booking review, edit and reference receipt at ${width}px`, async ({
     page,
     context,
@@ -268,13 +318,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536]) {
       path: path.join(os.tmpdir(), `booking-form-${width}-review-full.png`),
       fullPage: true,
     });
-    expect(
-      (
-        await new AxeBuilder({ page })
-          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-          .analyze()
-      ).violations,
-    ).toEqual([]);
+    expect((await accessiblePage(page)).violations).toEqual([]);
     await page.getByRole("button", { name: "Request booking", exact: true }).click();
     await expect(
       page.getByRole("heading", { name: "Booking request received", exact: true }),
@@ -301,13 +345,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
-    expect(
-      (
-        await new AxeBuilder({ page })
-          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-          .analyze()
-      ).violations,
-    ).toEqual([]);
+    expect((await accessiblePage(page)).violations).toEqual([]);
     expect(errors).toEqual([]);
   });
 }
@@ -404,9 +442,23 @@ async function quoteDraft(page: Page) {
   await page.getByRole("option", { name: "Port Harcourt", exact: true }).click();
 }
 
-test("booking server validation returns to preserved notes with an inline error", async ({ page }) => {
+test("booking server validation returns to preserved notes with an inline error", async ({
+  page,
+}) => {
   await fixture(page);
-  await page.route("**/api/v1/customers/bookings", route => route.fulfill({ status: 422, json: { success: false, error: { code: "VALIDATION_ERROR", fields: { "body.customerNotes": ["Invalid notes"] } }, meta: { requestId: "booking-validation" } } }));
+  await page.route("**/api/v1/customers/bookings", (route) =>
+    route.fulfill({
+      status: 422,
+      json: {
+        success: false,
+        error: {
+          code: "VALIDATION_ERROR",
+          fields: { "body.customerNotes": ["Invalid notes"] },
+        },
+        meta: { requestId: "booking-validation" },
+      },
+    }),
+  );
   await page.goto(routePath);
   await prepare(page);
   const notes = page.getByLabel("What should we know about your vehicle? (optional)");
@@ -416,25 +468,46 @@ test("booking server validation returns to preserved notes with an inline error"
   await expect(notes).toBeFocused();
   await expect(notes).toHaveValue("Preserve these notes.");
   await expect(notes).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByRole("region", { name: "Booking request review" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Booking request review" })).toHaveCount(
+    0,
+  );
 });
 
-test("booking rate limit preserves the reviewed request and permits editing", async ({ page }) => {
+test("booking rate limit preserves the reviewed request and permits editing", async ({
+  page,
+}) => {
   const state = await fixture(page);
-  await page.route("**/api/v1/customers/bookings", route => route.fulfill({ status: 429, json: { success: false, error: { code: "RATE_LIMITED" }, meta: { requestId: "booking-rate-limit" } } }));
+  await page.route("**/api/v1/customers/bookings", (route) =>
+    route.fulfill({
+      status: 429,
+      json: {
+        success: false,
+        error: { code: "RATE_LIMITED" },
+        meta: { requestId: "booking-rate-limit" },
+      },
+    }),
+  );
   await page.goto(routePath);
   await prepare(page);
-  await page.getByLabel("What should we know about your vehicle? (optional)").fill("Keep after rate limit.");
+  await page
+    .getByLabel("What should we know about your vehicle? (optional)")
+    .fill("Keep after rate limit.");
   await reviewRequest(page);
   await page.getByRole("button", { name: "Request booking", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "We couldn’t send your request" })).toBeFocused();
-  await expect(page.getByRole("region", { name: "Booking request review" })).toContainText("Keep after rate limit.");
+  await expect(
+    page.getByRole("heading", { name: "We couldn’t send your request" }),
+  ).toBeFocused();
+  await expect(
+    page.getByRole("region", { name: "Booking request review" }),
+  ).toContainText("Keep after rate limit.");
   await page.getByRole("button", { name: "Edit details" }).click();
-  await expect(page.getByLabel("What should we know about your vehicle? (optional)")).toHaveValue("Keep after rate limit.");
+  await expect(
+    page.getByLabel("What should we know about your vehicle? (optional)"),
+  ).toHaveValue("Keep after rate limit.");
   expect(state.writes).toHaveLength(0);
 });
 
-for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536]) {
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
   test(`fixed service layout, keyboard and accessibility at ${width}px`, async ({
     page,
   }) => {
@@ -481,13 +554,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
-    expect(
-      (
-        await new AxeBuilder({ page })
-          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-          .analyze()
-      ).violations,
-    ).toEqual([]);
+    expect((await accessiblePage(page)).violations).toEqual([]);
     await page.evaluate(() => {
       (document.activeElement as HTMLElement)?.blur();
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -573,40 +640,68 @@ test("unknown booking outcome locks inputs and retries the exact original reques
   expect(state.writes).toHaveLength(2);
   expect(state.writes[0]).toEqual(state.writes[1]);
 });
-test("anonymous and staff accounts cannot submit customer booking mutations", async ({
+test("anonymous booking review links to sign-in and privileged roles see no customer controls", async ({
   page,
 }) => {
   const state = await fixture(page);
   state.role = "anonymous";
   await page.goto(routePath);
   await prepare(page);
-  if (
-    await page
-      .getByRole("button", { name: "Review booking request", exact: true })
-      .isVisible()
-  )
-    await page
-      .getByRole("button", { name: "Review booking request", exact: true })
-      .click();
-  await page.getByRole("button", { name: "Request booking", exact: true }).click();
+  await reviewRequest(page);
   await expect(
-    page.getByRole("link", { name: "Sign in to your account", exact: true }),
+    page.getByRole("link", { name: "Sign in to request booking", exact: true }),
   ).toHaveAttribute("href", `/login?next=${encodeURIComponent(routePath)}`);
-  state.role = "STAFF";
-  if (
-    await page
-      .getByRole("button", { name: "Review booking request", exact: true })
-      .isVisible()
-  )
-    await page
-      .getByRole("button", { name: "Review booking request", exact: true })
-      .click();
-  await page.getByRole("button", { name: "Request booking", exact: true }).click();
   await expect(
-    page.getByText(/Booking requests are available to customer accounts/),
-  ).toBeVisible();
+    page.getByRole("button", { name: "Request booking", exact: true }),
+  ).toHaveCount(0);
+  for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"]) {
+    state.role = role;
+    await page.reload();
+    await expect(page.getByRole("link", { name: "Open your dashboard" })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Go to your dashboard" }),
+    ).toHaveAttribute("href", "/admin");
+    await expect(page.getByRole("link", { name: "Choose an appointment" })).toHaveCount(
+      0,
+    );
+    await expect(
+      page.getByRole("button", { name: "Review booking request" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Load saved vehicles & contact details" }),
+    ).toHaveCount(0);
+    await expect(page.getByRole("combobox", { name: "Workshop branch" })).toHaveCount(0);
+  }
+  expect(state.writes).toHaveLength(0);
+  expect(state.customerReads).toEqual([]);
+});
+
+test("failed booking access check offers retry without exposing customer actions", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  let unavailable = true;
+  await page.route("**/api/v1/auth/session", (route) =>
+    unavailable
+      ? route.fulfill({
+          status: 503,
+          json: { success: false, error: { code: "SERVICE_UNAVAILABLE" } },
+        })
+      : route.fallback(),
+  );
+  await page.goto(routePath);
+  await expect(page.getByRole("button", { name: "Retry account check" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Review booking request" })).toHaveCount(
+    0,
+  );
+  expect(state.customerReads).toEqual([]);
+  unavailable = false;
+  await page.getByRole("button", { name: "Retry account check" }).click();
+  await prepare(page);
+  await reviewRequest(page);
   expect(state.writes).toHaveLength(0);
 });
+
 test("empty, failed and mismatched appointment reads fail closed with retry", async ({
   page,
 }) => {
@@ -668,7 +763,7 @@ test("slow branch and appointment reads show loading and cannot submit early", a
   });
   try {
     await page.goto(routePath);
-    await expect(page.getByRole("button", { name: "Edit details" })).toBeDisabled();
+    await expect(page.getByRole("combobox", { name: "Workshop branch" })).toBeDisabled();
     await expect(page.getByText("Loading choices…", { exact: true })).toBeVisible();
     releaseBranch?.();
     await selectBranch(page);
@@ -692,7 +787,7 @@ test("branch error and empty data remain recoverable", async ({ page }) => {
   const state = await fixture(page);
   state.branchError = true;
   await page.goto(routePath);
-  await expect(page.getByRole("button", { name: "Edit details" })).toBeDisabled();
+  await expect(page.getByRole("combobox", { name: "Workshop branch" })).toBeDisabled();
   state.branchError = false;
   state.branchEmpty = true;
   await page.getByRole("button", { name: "Retry branches" }).click();
@@ -870,7 +965,7 @@ test("account change clears selected time, notes and receipt without replay", as
   ).toHaveValue("");
   expect(state.writes).toHaveLength(1);
 });
-for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536])
+for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
   test(`quotation enquiry layout and real-shaped receipt at ${width}px`, async ({
     page,
   }) => {
@@ -885,13 +980,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1536])
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
-    expect(
-      (
-        await new AxeBuilder({ page })
-          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-          .analyze()
-      ).violations,
-    ).toEqual([]);
+    expect((await accessiblePage(page)).violations).toEqual([]);
     await page.evaluate(() => {
       (document.activeElement as HTMLElement)?.blur();
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -975,6 +1064,107 @@ test("missing image, zero price, unbookable and long content stay truthful and c
     fullPage: true,
   });
 });
+test("service section links, FAQ keyboard states and bounded other services", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto(routePath);
+  const nav = page.getByRole("navigation", { name: "Service sections" });
+  await page.locator(".sd-panel").scrollIntoViewIfNeeded();
+  const overview = nav.getByRole("link", { name: "Overview", exact: true });
+  await overview.focus();
+  await expect(overview).toBeFocused();
+  expect(
+    await overview.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return element.contains(
+        document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2),
+      );
+    }),
+  ).toBe(true);
+  await nav.getByRole("link", { name: "FAQ", exact: true }).click();
+  await expect(page).toHaveURL(/#service-questions$/);
+  await expect(page.getByRole("heading", { name: "Before your visit" })).toBeInViewport();
+  const question = page.locator(".sd-questions summary").nth(1);
+  await question.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".sd-questions details").nth(1)).toHaveAttribute("open", "");
+  await expect(
+    page.locator(".sd-questions").getByText(/A booking request is waiting/),
+  ).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(page.locator(".sd-questions details").nth(1)).not.toHaveAttribute(
+    "open",
+    "",
+  );
+  await expect(page.locator(".sd-more-item")).toHaveCount(2);
+  expect(calls.filter((p) => p === "/api/v1/public/services?limit=3")).toHaveLength(1);
+  await expect(page.locator(`.sd-more-item[href="${routePath}"]`)).toHaveCount(0);
+  await expect(page.locator(".sd-more-item").first()).toContainText("Brake assessment");
+  await expect(page.locator(".sd-more-item").first()).toContainText("45 minutes");
+  await expect(page.locator(".sd-more-item").nth(1)).toContainText("Quotation required");
+  await expect(page.locator(".sd-care-image img")).toHaveAttribute(
+    "alt",
+    /original Precision Autocare/,
+  );
+  await page.locator(".sd-more-item").nth(1).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Engine assessment");
+  await page.locator(".sd-questions summary").nth(1).click();
+  await expect(
+    page.locator(".sd-questions").getByText(/Sending an enquiry does not confirm/),
+  ).toBeVisible();
+  expect((await accessiblePage(page)).violations).toEqual([]);
+});
+test("other service failure and empty states preserve primary detail and request access", async ({
+  page,
+}) => {
+  await fixture(page);
+  for (const next of ["otherDown", "otherEmpty"]) {
+    mode = next;
+    await page.goto(routePath);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(record.name);
+    await expect(page.getByRole("combobox", { name: "Workshop branch" })).toBeVisible();
+    await expect(page.locator(".sd-more-empty")).toContainText(
+      next === "otherDown" ? "temporarily unavailable" : "No other services",
+    );
+    await expect(page.locator(".sd-more-item")).toHaveCount(0);
+  }
+});
+test("service context and supporting sections fit narrow and wide layouts", async ({
+  page,
+}) => {
+  await fixture(page);
+  await page.goto(routePath);
+  for (const width of [320, 390, 768, 1536]) {
+    await page.setViewportSize({ width, height: 1024 });
+    await page.locator(".sd-questions summary").first().click();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth > innerWidth),
+    ).toBe(false);
+    expect((await accessiblePage(page)).violations).toEqual([]);
+    for (const [name, selector] of [
+      ["care", ".sd-care"],
+      ["questions", ".sd-questions"],
+      ["more", ".sd-more"],
+    ]) {
+      const section = page.locator(selector);
+      await page.setViewportSize({
+        width,
+        height: Math.max(1024, Math.ceil((await section.boundingBox())!.height) + 220),
+      });
+      await section.evaluate((element) =>
+        window.scrollTo({
+          top: element.getBoundingClientRect().top + window.scrollY - 100,
+          behavior: "instant",
+        }),
+      );
+      await section.screenshot({
+        path: path.join(os.tmpdir(), `service-detail-oct-${width}-${name}.png`),
+      });
+    }
+  }
+});
+
 test("server metadata and structured breadcrumbs use the real identity with no duplicate read", async ({
   page,
 }) => {
@@ -1135,13 +1325,7 @@ for (const failure of ["missing", "down", "wrong"])
     await expect(
       page.getByRole("main").getByRole("link", { name: "Browse services" }),
     ).toBeVisible();
-    expect(
-      (
-        await new AxeBuilder({ page })
-          .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-          .analyze()
-      ).violations,
-    ).toEqual([]);
+    expect((await accessiblePage(page)).violations).toEqual([]);
     if (failure === "down") {
       mode = "normal";
       await page.getByRole("button", { name: "Try again" }).click();

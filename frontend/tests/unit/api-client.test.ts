@@ -22,6 +22,34 @@ const envelope = (data: unknown) =>
 beforeEach(() => invalidateSession());
 afterEach(() => vi.unstubAllGlobals());
 describe("API security and recovery", () => {
+  it("preserves Retry-After on a rate-limited response without leaking server copy", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(
+            JSON.stringify({
+              success: false,
+              error: { code: "RATE_LIMITED", message: "private server details" },
+            }),
+            {
+              status: 429,
+              headers: { "content-type": "application/json", "Retry-After": "120" },
+            },
+          ),
+      ),
+    );
+    await expect(
+      apiRequest("/auth/password/forgot", {
+        method: "POST",
+        body: { email: "qa@example.test" },
+      }),
+    ).rejects.toMatchObject({
+      status: 429,
+      retryAfterSeconds: 120,
+      message: "Too many requests. Please wait a little before trying again.",
+    });
+  });
   it.each([
     ["/auth/session", "GET", false],
     ["/auth/session", "POST", true],

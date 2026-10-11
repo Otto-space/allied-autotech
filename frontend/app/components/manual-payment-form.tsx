@@ -3,7 +3,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { apiRequest, ApiError, newIdempotencyKey } from "@/lib/api/client";
+import {
+  apiRequest,
+  ApiError,
+  newIdempotencyKey,
+  SESSION_CHANGED,
+} from "@/lib/api/client";
+import {
+  newPaymentAttemptUnavailable,
+  paymentIdentity,
+} from "@/lib/api/payment-checkout";
 import type { RequestBody } from "@/lib/api/contracts";
 import { parsePayment, type PaymentRecord } from "@/lib/api/payment-schemas";
 import {
@@ -22,7 +31,11 @@ const text = z
   .min(1, "Enter the payer's name.")
   .max(160)
   .refine(
-    (value) => [...value].every((character) => (character.codePointAt(0) ?? 0) > 31),
+    (value) =>
+      [...value].every(
+        (character) =>
+          (character.codePointAt(0) ?? 0) > 31 && character.codePointAt(0) !== 127,
+      ),
     "Use a single line without control characters.",
   );
 const schema = z.object({
@@ -53,6 +66,11 @@ export function ManualPaymentForm({
   const [locked, setLocked] = useState(false);
   const [receipt, setReceipt] = useState(false);
   const [error, setError] = useState<string>();
+  const active = useRef(true);
+  const pending = useRef<AbortController | null>(null);
+  const formElement = useRef<HTMLFormElement>(null);
+  const reviewButton = useRef<HTMLButtonElement>(null);
+  const restoreReviewFocus = useRef(false);
   const current = useRef({ eligible, disabled });
   useEffect(() => {
     current.current = { eligible, disabled };
@@ -70,9 +88,42 @@ export function ManualPaymentForm({
       transferredAt: "",
     },
   });
+  const resetForm = form.reset;
+  useEffect(() => {
+    active.current = true;
+    const discard = () => {
+      active.current = false;
+      pending.current?.abort();
+      formElement.current?.reset();
+      resetForm();
+      setSelection(null);
+      setProposal(null);
+      setRecovery(null);
+      setError(undefined);
+    };
+    window.addEventListener(SESSION_CHANGED, discard);
+    return () => {
+      active.current = false;
+      pending.current?.abort();
+      window.removeEventListener(SESSION_CHANGED, discard);
+    };
+  }, [resetForm]);
   const blocked = disabled || !eligible || locked || receipt || !!proposal;
+  useEffect(() => {
+    if (!restoreReviewFocus.current || disabled || proposal) return;
+    const frame = requestAnimationFrame(() => {
+      if (!active.current) return;
+      restoreReviewFocus.current = false;
+      const target =
+        eligible && !locked && !receipt
+          ? reviewButton.current
+          : formElement.current?.closest(".customer-payment")?.querySelector("h1");
+      if (target instanceof HTMLElement) target.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [disabled, eligible, locked, proposal, receipt]);
   function review(values: z.infer<typeof schema>, now: number) {
-    if (blocked) return;
+    if (blocked || !active.current || newPaymentAttemptUnavailable(payment, now)) return;
     const prepared = selection?.prepared;
     if (selection && (!prepared || prepared.expiresAt <= now)) {
       setError(
@@ -109,16 +160,18 @@ export function ManualPaymentForm({
       retrySafely: true,
       retryAfterRejection: false,
       onUncertain: () => {
+        if (!active.current) return;
         setLocked(true);
         onActivity(true);
         setRecovery(next);
       },
       submit: async () => {
+        if (!active.current || pending.current) throw new Error("Submission interrupted");
         if (
           !attempted &&
           (!current.current.eligible ||
             current.current.disabled ||
-            (payment.expiresAt && Date.parse(payment.expiresAt) <= Date.now()) ||
+            newPaymentAttemptUnavailable(payment) ||
             (prepared && prepared.expiresAt <= Date.now()))
         ) {
           setError(
@@ -129,15 +182,32 @@ export function ManualPaymentForm({
           throw new ApiError(409, { error: { code: "CONFLICT" } });
         }
         attempted = true;
-        const result = await apiRequest(`/customers/payments/${payment.id}/manual`, {
-          method: "POST",
-          csrf: true,
-          body,
-          idempotencyKey: key,
-        });
-        parsePayment(result.data);
-        setReceipt(true);
-        setRecovery(null);
+        const controller = new AbortController();
+        pending.current = controller;
+        try {
+          const result = await apiRequest(`/customers/payments/${payment.id}/manual`, {
+            method: "POST",
+            csrf: true,
+            body,
+            idempotencyKey: key,
+            signal: controller.signal,
+          });
+          if (!active.current || controller.signal.aborted)
+            throw new Error("Submission interrupted");
+          const saved = parsePayment(result.data);
+          if (
+            paymentIdentity(saved) !== paymentIdentity(payment) ||
+            !saved.attempts.some((attempt) => attempt.provider === "MANUAL")
+          )
+            throw new Error("Unexpected manual payment receipt");
+          formElement.current?.reset();
+          form.reset();
+          setSelection(null);
+          setReceipt(true);
+          setRecovery(null);
+        } finally {
+          if (pending.current === controller) pending.current = null;
+        }
       },
     };
     onActivity(true);
@@ -145,15 +215,14 @@ export function ManualPaymentForm({
   }
   return (
     <section
-      className="detail-section"
+      className="detail-section manual-payment-section"
       aria-labelledby="manual-payment-heading"
       hidden={!eligible && !locked && !receipt && !proposal}
     >
-      <h3 id="manual-payment-heading">Already paid directly?</h3>
+      <h2 id="manual-payment-heading">Already paid directly?</h2>
       <p>
         Report a bank transfer, POS or cash payment already made to Allied AutoTech.
-        Contact customer care to confirm payment instructions; no bank account details are
-        supplied here.
+        Contact customer care for payment instructions.
       </p>
       <p>
         This payment request is for {formatKobo(payment.amountKobo)}. If you paid a
@@ -211,6 +280,7 @@ export function ManualPaymentForm({
       )}
       {!receipt && (
         <form
+          ref={formElement}
           data-draft-key={JSON.stringify(["manual-payment-form:1", payment?.id])}
           noValidate
           onSubmit={(event) =>
@@ -267,7 +337,9 @@ export function ManualPaymentForm({
                 preparePaymentEvidence({ ...options, paymentId: payment.id })
               }
             />
-            <button className="button secondary">Review payment details</button>
+            <button ref={reviewButton} className="button secondary">
+              Review payment details
+            </button>
           </fieldset>
         </form>
       )}
@@ -275,6 +347,7 @@ export function ManualPaymentForm({
         <MutationReview
           proposal={proposal}
           onClose={() => {
+            restoreReviewFocus.current = true;
             setProposal(null);
             if (!locked) onActivity(false);
             onRefresh();

@@ -1,0 +1,29 @@
+# Customer invoices list concepts
+
+Prepared 9 October 2026 before production edits to `/dashboard/invoices`, following API/ownership/document audit and baseline inspection at 390, 768, 1280 and 1440px. Built-in ImageGen created the [desktop](desktop.webp), [corrected mobile](mobile.webp) and [result-state](states.webp) concepts. Original PNGs remain in Codex storage; these WebP files change encoding only. The first mobile candidate was corrected before implementation because its pale guidance panel and invented invoice search conflicted with the brief.
+
+## Written design specification
+
+- Preserve the existing customer shell, official logo and navigation permissions. Use a semantic Overview / Invoices breadcrumb and Quicksand for the operational UI.
+- Palette: ink `#01121A`, red `#E60301`, white, canvas `#f4f6f8`, muted `#435563`, borders `#cbd5df`, select border `#82939f`. Neutral status badges; red for Refresh, active navigation and focus. Radius 6px controls / 8px panels.
+- Typography: 30px desktop / 27px mobile heading, 18px guidance/state heading, 15px bold invoice reference, 13px body/labels, 11–12px metadata. Selects 14px desktop / 16px mobile, 48px tall; visible actions at least 44px. Clear focus and hover treatments, reduced-motion support through existing primitives.
+- Heading **Your invoices**; unchanged subtitle **Review issued invoices, deposit credits and payment records.** Red **Refresh** with RefreshCw icon, outlined **View payments**.
+- Ink banner with white FileText icon and **Invoices and documents**. Body: **Open an invoice to review charges, deposit credits and available download or share options.** Existing detail/document workflow remains the destination for downloads and sharing.
+- Compact white filter band: **Invoice status**, **All statuses**, Issued/Paid/Void; **Rows per page** 10/20/50, default 20; **Reset filters**. Validated URL persistence for status, limit and cursor, with bounded UI-only previous-page history. No draft, search, overdue or provider filter.
+- One five-column desktop table: **Invoice**, **For**, **Status**, **Total**, accessible action heading. Invoice reference plus issued date and due date. If issuance is absent use the real creation date labeled Created; absent due date says No due date. Do not fabricate issuance or overdue status.
+- Related source uses real Order number or Vehicle transaction number where provided, or Service booking when only its ID exists. An understated link opens the appropriate existing detail route. No extra related-record reads are needed. Missing source says See invoice details.
+- Status is server-owned: Issued / Check payment details; Paid / Payment recorded; Void / Not payable. Do not derive Paid from a date or payment attempt, or offer payment on a void record.
+- Total is the exact server `totalKobo`. If credit is positive, add **After {formatted credit} credit**; otherwise **Invoice total**. Never deduct credit again, derive an outstanding balance, or sum a global total from one page.
+- Below 1100px use continuous labeled records: reference/dates first; purpose and its link beside one another; status/total side by side; one full-width **View invoice** action below. Preserve wrapping for long references and narrow 320px layouts.
+- Counts say **on this page**. Previous / Page N / Next for known traversal; Later page / First page for direct cursor links. Footer: **Dates shown in Lagos time.** and **Need help with an invoice? Contact support**.
+- Loading uses row-shaped skeletons. Manual failures hide previous data and offer Retry invoices. Background failures explicitly label retained data as potentially stale. Initial empty: **No invoices have been issued**, **Your issued invoices will appear here.**, Back to overview. Filtered and later-page emptiness use distinct explanations and reset/first-page actions. Account changes discard private data and late responses.
+
+## Artwork corrections and boundaries
+
+Keep the actual shell/logo and navigation search; no generated slogan, invented user identity, board legends or numbered-state labels enter the UI. Use the corrected mobile ink banner and neutral badges across all widths, replacing the desktop artwork's green/red status tints. The states artwork's amber alert is outside the approved palette; use the existing neutral bordered stale notice. Keep filters above results consistently. Default page size is 20; Page 1 of 1 is unsupported and becomes Page 1. Use the exact API dates/amounts and source references. Payment and download/share controls remain in the existing detail workflow, not the list. No generated image becomes application UI.
+
+## Prompt record
+
+Database source-snapshot review subsequently confirmed that positive deposit credits apply to service-booking invoices, while order invoices carry zero deposit credit. The browser fixture therefore uses Service booking for the first credited record and Order AA-ORD-1063 for the second record. These are dynamic example values; the rendering follows the actual source relation and server credit rather than copying the artwork's incompatible sample pairing.
+
+The desktop prompt requested the entire 1505×1045 customer screen, current sidebar, exact content above, four compact invoice rows, filters, pagination and support footer. The mobile prompt requested two readable 390px panels showing the upper page and record continuation, a continuous table, neutral statuses, accessible controls and understated related links. A targeted edit corrected the pale banner, invented search, red secondary controls and missing due-date fallback. The state prompt covered loading, initial/filtered emptiness, failed manual read and retained stale data with the same table anatomy. All prompts excluded balances, checkout, draft/overdue filters, direct document actions and invented financial claims.

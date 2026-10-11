@@ -5,6 +5,8 @@ Status: complete; local acceptance gate passed. Contact and Vehicles have passed
 
 ## Baseline and current behavior
 
+The [7 October expanded assessment](shop-expanded.md) supersedes this report's visual implementation and records the latest local verification. This September record retains its original scope.
+
 The server page loads `/public/catalog/products?limit=12` through the cached public seed loader. `PartsCatalogue` reads products and active categories, submits uncontrolled form values, keeps cursor history in component state and renders real images, prices and branch availability. It has a generic large filter panel, a native category select and a compatibility disclosure.
 
 Before screenshots were captured at 390, 768, 1280 and 1440px from the current production frontend and isolated real API, with an empty product/category dataset. Files are `C:/Users/PC/.codex/shop-before-{width}-{viewport|filters|full}.png`; no page overflow was observed. The filters at all four widths and mobile/desktop introductory views were inspected with `view_image`.
