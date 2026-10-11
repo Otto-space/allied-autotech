@@ -8,6 +8,7 @@ import { requireCsrf } from "../../common/middleware/csrf.js";
 import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import { validate } from "../../common/middleware/validate.js";
 import { PaymentsController } from "./payments.controller.js";
+import { receiptDocument, receiptDownload } from "../billing/documents.controller.js";
 import {
   attemptParamsSchema,
   manualPaymentBodySchema,
@@ -30,6 +31,17 @@ export function createCustomerPaymentsRouter(): Router {
   const router = Router();
   const controller = new PaymentsController();
   router.use(authenticate(), requireCustomer);
+  router.get(
+    "/:paymentId/receipt/document",
+    validate({ params: paymentParamsSchema, query: paymentsEmptySchema }),
+    receiptDocument,
+  );
+  router.get(
+    "/:paymentId/receipt",
+    createSensitiveRateLimit(20),
+    validate({ params: paymentParamsSchema, query: paymentsEmptySchema }),
+    receiptDownload,
+  );
   router.get("/", validate({ query: paymentListQuerySchema }), controller.customerList);
   router.post(
     "/",

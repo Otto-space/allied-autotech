@@ -27,6 +27,11 @@ import type {
   ProductUpdateInput,
 } from "./catalog.schemas.js";
 import { page } from "./catalog.types.js";
+import { ProductDiscoveryRepository } from "./product-discovery.repository.js";
+import type {
+  ProductDiscoveryQuery,
+  ProductFacetQuery,
+} from "./product-discovery.schemas.js";
 
 interface InventoryAvailability {
   quantity: number;
@@ -85,6 +90,13 @@ export class CatalogService {
   }
   async publicProducts(query: ProductListQuery) {
     return productPage(await this.repository.listProducts(query, true), query.limit);
+  }
+  async publicDiscovery(query: ProductDiscoveryQuery) {
+    const result = await new ProductDiscoveryRepository(this.database).products(query);
+    return { ...result, items: result.items.map((product) => productView(product)) };
+  }
+  publicFacets(query: ProductFacetQuery) {
+    return new ProductDiscoveryRepository(this.database).facets(query);
   }
   async publicProduct(id: string) {
     const product = await this.repository.product(id, true);

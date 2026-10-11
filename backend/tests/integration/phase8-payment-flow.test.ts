@@ -364,8 +364,28 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
     expect(JSON.stringify(securedRefund.beneficiaryEncrypted)).not.toContain(
       "0000000000",
     );
-    expect(securedRefund.dueAt).toBeNull();
-    expect(securedRefund.clockStatus).toBe("ANCHOR_AND_BANK_CALENDAR_PENDING");
+    // The general payment flow must also work after the calendar suite has
+    // published an approved policy. Do not delete policy history to reset tests.
+    const refundCalendar = await prisma.businessPolicyVersion.findFirst({
+      where: {
+        key: "bank_refund_clock",
+        approvalStatus: "APPROVED",
+        effectiveAt: { lte: securedRefund.requestedAt },
+      },
+      orderBy: { version: "desc" },
+    });
+    if (refundCalendar) {
+      expect(securedRefund.clockPolicySnapshot).toMatchObject({ id: refundCalendar.id });
+      expect(securedRefund.dueAt).toBeInstanceOf(Date);
+      expect(securedRefund.dueAt!.getTime()).toBeGreaterThan(
+        securedRefund.requestedAt.getTime(),
+      );
+      expect(securedRefund.clockStatus).toBe("APPROVED_CLOCK_SNAPSHOTTED");
+    } else {
+      expect(securedRefund.clockPolicySnapshot).toBeNull();
+      expect(securedRefund.dueAt).toBeNull();
+      expect(securedRefund.clockStatus).toBe("ANCHOR_AND_BANK_CALENDAR_PENDING");
+    }
 
     let activeReference = "";
     const providerRefundId = `provider-refund-${randomUUID()}`;

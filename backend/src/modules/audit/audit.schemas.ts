@@ -53,6 +53,7 @@ export const auditListQuerySchema = z
         "STAFF_PROFILE",
         "CUSTOMER_VEHICLE",
         "SERVICE",
+        "SERVICE_CATEGORY",
         "BOOKING",
         "QUOTE",
         "WORK_ORDER",
@@ -93,7 +94,7 @@ export const operationalJobParamsSchema = z
   .strict();
 export const operationalRetryBodySchema = z
   .object({
-    expectedAttempts: z.number().int().min(1).max(1_000),
+    expectedAttempts: z.number().int().min(0).max(1_000),
     reason: z.string().trim().min(3).max(500),
   })
   .strict();

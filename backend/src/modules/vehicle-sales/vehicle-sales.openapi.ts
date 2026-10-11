@@ -26,6 +26,17 @@ const responseSchema = z.object({
 });
 const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 const idempotency = csrf.extend({ "idempotency-key": z.string().min(16).max(200) });
+const creationIdempotency = csrf.extend({
+  "idempotency-key": z
+    .string()
+    .trim()
+    .min(16)
+    .max(200)
+    .optional()
+    .describe(
+      "Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry.",
+    ),
+});
 type Path = {
   method: "get" | "post";
   path: string;
@@ -35,6 +46,7 @@ type Path = {
   query?: ZodType;
   mutation?: boolean;
   idempotent?: boolean;
+  creationRetry?: boolean;
   created?: boolean;
 };
 export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
@@ -50,6 +62,7 @@ export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
       path: "/customers/vehicle-inspections",
       summary: "Request a vehicle inspection",
       body: inspectionCreateBodySchema,
+      creationRetry: true,
       mutation: true,
       created: true,
     },
@@ -64,6 +77,7 @@ export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
       path: "/customers/vehicle-transactions",
       summary: "Open a vehicle transaction",
       body: transactionCreateBodySchema,
+      creationRetry: true,
       mutation: true,
       created: true,
     },
@@ -166,7 +180,15 @@ export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
       request: {
         ...(route.params ? { params: route.params as never } : {}),
         ...(route.query ? { query: route.query as never } : {}),
-        ...(route.mutation ? { headers: route.idempotent ? idempotency : csrf } : {}),
+        ...(route.mutation
+          ? {
+              headers: route.creationRetry
+                ? creationIdempotency
+                : route.idempotent
+                  ? idempotency
+                  : csrf,
+            }
+          : {}),
         ...(route.body
           ? {
               body: {
@@ -177,6 +199,28 @@ export function registerVehicleSalesOpenApi(registry: OpenAPIRegistry): void {
           : {}),
       },
       responses: {
+        ...(route.creationRetry
+          ? {
+              "409": {
+                description:
+                  "IDEMPOTENCY_CONFLICT for changed input or an incomplete retained receipt; CONFLICT for an invalid new request. No new record is created.",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/ErrorResponse" },
+                  },
+                },
+              },
+              "404": {
+                description:
+                  "The listing, customer profile or owned retry result was not found.",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/ErrorResponse" },
+                  },
+                },
+              },
+            }
+          : {}),
         [route.created ? "201" : "200"]: {
           description: "Request completed",
           content: { "application/json": { schema: responseSchema } },

@@ -35,6 +35,7 @@ export const handoverParamsSchema = z
 export const idempotencyHeadersSchema = z
   .object({ "idempotency-key": z.string().trim().min(16).max(200) })
   .passthrough();
+export const creationIdempotencyHeadersSchema = idempotencyHeadersSchema.partial();
 export const customerInspectionListQuerySchema = z
   .object({
     cursor: uuid.optional(),

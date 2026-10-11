@@ -1,4 +1,11 @@
 import { mediaErrorResponses } from "../media/media.openapi.js";
+import { savedVehiclePageSchema } from "./saved-vehicle.schemas.js";
+import {
+  vehicleDiscoveryQuerySchema,
+  vehicleDiscoveryPageSchema,
+  vehicleFacetQuerySchema,
+  vehicleFacetPageSchema,
+} from "./vehicle-discovery.schemas.js";
 import { mediaVersionSchema, mediaPreparationSchema } from "../media/media.schemas.js";
 import {
   stockImageParams,
@@ -22,6 +29,7 @@ import {
   listingStatusBodySchema,
   listingUpdateBodySchema,
   publicVehicleListQuerySchema,
+  savedVehiclePageQuerySchema,
   staffVehicleListQuerySchema,
   vehicleCreateBodySchema,
   vehicleParamsSchema,
@@ -54,6 +62,24 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
   const paths: Path[] = [
     {
       method: "get",
+      path: "/public/vehicles/discovery",
+      summary: "Search public vehicles with exact totals and stable paging",
+      query: vehicleDiscoveryQuerySchema,
+      output: vehicleDiscoveryPageSchema,
+      description:
+        "Anonymous. Same public filters and AVAILABLE/active-branch visibility as /public/vehicles. Maximum 50, default 20. totalMatches is the exact filtered count before pagination, read in the same repeatable-read transaction as the page; no cross-request snapshot or cache is promised. nextCursor is authenticated and bound to the filters and sort (page size may change). Deleted or unpublished anchors remain usable. Invalid, tampered or mismatched cursors return 422 VALIDATION_FAILED; restart at the first page. Mutable price/year/visibility changes can move records between pages; refresh to see current inventory. UUID cursors from old links are accepted only while their anchor is currently public and matches the query. Existing /public/vehicles behavior and UUID cursor responses remain supported. No private stock, VIN, acquisition or customer fields are exposed.",
+    },
+    {
+      method: "get",
+      path: "/public/vehicles/facets",
+      summary: "Search published vehicle make or model options",
+      query: vehicleFacetQuerySchema,
+      output: vehicleFacetPageSchema,
+      description:
+        "Anonymous, maximum 50 options per page, default 20. field=make omits make; field=model requires an exact case-insensitive make. Optional search is a literal case-insensitive prefix, with percent and underscore treated literally. Values are lowercase database names, labels are deterministic stored display names; casing duplicates collapse. Sort is value ascending under C collation. Only names backed by an AVAILABLE listing at an active branch are returned. An absent nextCursor means this filtered option search is complete at that read; do not treat one page as exhaustive. Cursors are authenticated, bound to field/make/search and remain valid if the prior option disappears. Changed filters, tampering or signing-key rotation require restarting (422 VALIDATION_FAILED). No exact total or persistent cache is implied; inventory can change between reads.",
+    },
+    {
+      method: "get",
       path: "/public/vehicles",
       summary: "Search published vehicle listings",
       query: publicVehicleListQuerySchema,
@@ -77,6 +103,16 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
       method: "get",
       path: "/customers/saved-vehicles",
       summary: "List saved vehicles",
+      secured: true,
+    },
+    {
+      method: "get",
+      path: "/customers/saved-vehicles/page",
+      summary: "Page the customer's available saved vehicles",
+      description:
+        "CUSTOMER only. Returns at most limit items (default 12, maximum 50), ordered by saved-record UUID ascending, with an opaque nextCursor only when more records exist. Cursors are authenticated and bound to the customer; malformed, tampered or cross-customer cursors return 422 VALIDATION_FAILED. A removed or unavailable anchor remains a valid boundary. Each request applies current AVAILABLE listing and active-branch visibility. Concurrent inserts or newly visible records before the boundary require a refresh from page one; this is not a snapshot. Token-hash key rotation invalidates cursors. No total count is implied. The original /customers/saved-vehicles array endpoint remains unchanged.",
+      query: savedVehiclePageQuerySchema,
+      output: savedVehiclePageSchema,
       secured: true,
     },
     {

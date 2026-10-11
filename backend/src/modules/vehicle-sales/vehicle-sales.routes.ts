@@ -9,6 +9,7 @@ import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { VehicleSalesController } from "./vehicle-sales.controller.js";
 import {
+  creationIdempotencyHeadersSchema,
   customerInspectionListQuerySchema,
   customerTransactionListQuerySchema,
   expireReservationsBodySchema,
@@ -40,7 +41,11 @@ export function createCustomerVehicleSalesRouter(): Router {
   router.post(
     "/vehicle-inspections",
     requireCsrf,
-    validate({ query: vehicleSalesEmptySchema, body: inspectionCreateBodySchema }),
+    validate({
+      query: vehicleSalesEmptySchema,
+      body: inspectionCreateBodySchema,
+      headers: creationIdempotencyHeadersSchema,
+    }),
     controller.requestInspection,
   );
   router.get(
@@ -51,7 +56,11 @@ export function createCustomerVehicleSalesRouter(): Router {
   router.post(
     "/vehicle-transactions",
     requireCsrf,
-    validate({ query: vehicleSalesEmptySchema, body: transactionCreateBodySchema }),
+    validate({
+      query: vehicleSalesEmptySchema,
+      body: transactionCreateBodySchema,
+      headers: creationIdempotencyHeadersSchema,
+    }),
     controller.createTransaction,
   );
   router.get(

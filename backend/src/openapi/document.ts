@@ -11,6 +11,7 @@ import { registerOrganizationOpenApi } from "../modules/organization/organizatio
 import { registerCatalogOpenApi } from "../modules/catalog/catalog.openapi.js";
 import { registerInventoryOpenApi } from "../modules/inventory/inventory.openapi.js";
 import { registerServiceOperationsOpenApi } from "../modules/service-operations/service-operations.openapi.js";
+import { registerServiceDiscoveryOpenApi } from "../modules/service-operations/service-discovery.openapi.js";
 import { registerOrdersOpenApi } from "../modules/orders/orders.openapi.js";
 import { registerPromotionsOpenApi } from "../modules/promotions/promotions.openapi.js";
 import { registerBillingOpenApi } from "../modules/billing/billing.openapi.js";
@@ -41,6 +42,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerCatalogOpenApi(registry);
   registerInventoryOpenApi(registry);
   registerServiceOperationsOpenApi(registry);
+  registerServiceDiscoveryOpenApi(registry);
   registerOrdersOpenApi(registry);
   registerPromotionsOpenApi(registry);
   registerBillingOpenApi(registry);

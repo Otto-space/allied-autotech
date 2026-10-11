@@ -139,7 +139,11 @@ export class PaymentsService {
     if (!profile) throw paymentNotFound();
     const payment = await this.repository.owned(id, profile.id);
     if (!payment) throw paymentNotFound();
-    return paymentJsonSafe(payment);
+    return paymentJsonSafe({
+      ...payment,
+      // Availability is informational; initialization still enforces payable rules.
+      checkoutProviders: this.providers.enabledProviders(),
+    });
   }
   async staffList(actor: AuthenticatedActor, query: StaffPaymentListQuery) {
     assertPaymentOperator(actor);

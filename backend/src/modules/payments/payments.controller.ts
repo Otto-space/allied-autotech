@@ -70,6 +70,7 @@ export class PaymentsController {
   customerGet = async (req: Request, res: Response) =>
     res
       .status(200)
+      .set("Cache-Control", "no-store")
       .json(
         successResponse(
           "Payment retrieved",

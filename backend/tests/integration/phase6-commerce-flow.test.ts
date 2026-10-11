@@ -310,25 +310,42 @@ describe.skipIf(!runDatabaseTests)("Phase 6 orders, promotions, and billing", ()
         confirmedAt: new Date(),
       },
     });
-    await prisma.serviceQuote.create({
+    const billingQuote = await prisma.serviceQuote.create({
       data: {
         bookingId: booking.id,
         createdByStaffId: staff.staffProfile!.id,
         quoteNumber: `P6Q-${randomUUID().slice(0, 12)}`,
-        status: "ACCEPTED",
+        status: "DRAFT",
         subtotalKobo: 50_000n,
         taxKobo: 3_750n,
         totalKobo: 53_750n,
-        issuedAt: new Date(),
-        acceptedAt: new Date(),
         expiresAt: new Date(Date.now() + 86_400_000),
+        // Invoice documents require actual quoted lines matching the stored totals.
+        // Create them while draft; issued quote lines are immutable in PostgreSQL.
+        items: {
+          create: {
+            type: "LABOUR",
+            description: "Phase 6 billed service",
+            quantity: 1,
+            unitPriceKobo: 50_000n,
+            subtotalKobo: 50_000n,
+          },
+        },
       },
+    });
+    await prisma.serviceQuote.update({
+      where: { id: billingQuote.id },
+      data: { status: "ISSUED", issuedAt: new Date() },
+    });
+    await prisma.serviceQuote.update({
+      where: { id: billingQuote.id },
+      data: { status: "ACCEPTED", acceptedAt: new Date() },
     });
     const bookingInvoice = await request(app)
       .post("/api/v1/staff/invoices")
       .set(mutation(adminSession))
       .send({ sourceType: "BOOKING", sourceId: booking.id });
-    expect(bookingInvoice.status).toBe(201);
+    expect(bookingInvoice.status, JSON.stringify(bookingInvoice.body)).toBe(201);
     expect(bookingInvoice.body.data.totalKobo).toBe("53750");
 
     const vehicle = await prisma.vehicle.create({

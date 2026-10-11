@@ -3,6 +3,7 @@ import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
+import { notificationEventTypes } from "../notifications/notifications.events.js";
 import { auditBadRequest, auditConflict, auditNotFound } from "./audit.errors.js";
 import { assertAuditAdministrator } from "./audit.policy.js";
 import { AuditRepository } from "./audit.repository.js";
@@ -205,6 +206,28 @@ export class AuditOperationsService {
               },
             });
       if (changed.count !== 1) throw auditConflict();
+      if (source === "outbox") {
+        const event = await transaction.outboxEvent.findUniqueOrThrow({
+          where: { id },
+          select: { eventType: true },
+        });
+        if (event.eventType === notificationEventTypes.deliveryRequested) {
+          // Commit both queue states together; a lone pending event cannot be claimed.
+          const delivery = await transaction.notificationDelivery.updateMany({
+            where: {
+              outboxEventId: id,
+              attempts: input.expectedAttempts,
+              status: { in: ["FAILED", "DEAD_LETTER"] },
+              deliveredAt: null,
+            },
+            data: { status: "PENDING", lastErrorCode: null },
+          });
+          if (delivery.count !== 1)
+            throw auditConflict(
+              "The notification delivery state changed; refresh the job",
+            );
+        }
+      }
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "STATUS_CHANGE",

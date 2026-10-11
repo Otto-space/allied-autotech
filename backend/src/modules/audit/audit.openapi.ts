@@ -69,6 +69,8 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     path: "/admin/operations/jobs/{source}/{jobId}/retry",
     tags: ["Audit and operations"],
     summary: "Retry a failed job using optimistic attempt matching",
+    description:
+      "Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. RETRY_REQUESTED means queued, not delivered; the worker still checks consent, message eligibility and configured providers.",
     security: [{ sessionCookie: [] }],
     request: {
       params: operationalJobParamsSchema as never,
@@ -80,7 +82,7 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     },
     responses: {
       "200": { description: "Retry requested" },
-      "409": { description: "Job state changed" },
+      "409": { description: "Job or linked notification delivery state changed" },
     },
   });
   registry.registerPath({

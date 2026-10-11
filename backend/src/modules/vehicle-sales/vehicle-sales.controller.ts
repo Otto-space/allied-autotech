@@ -60,6 +60,7 @@ export class VehicleSalesController {
             actor(req),
             validated<InspectionCreateInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key"?: string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );
@@ -125,6 +126,7 @@ export class VehicleSalesController {
             actor(req),
             validated<TransactionCreateInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key"?: string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );

@@ -19,6 +19,7 @@ import {
   type MediaUploadInput,
 } from "./media.schemas.js";
 import { validateAndTransformImage } from "./media-validation.js";
+import { mediaTransaction } from "./media-transaction.js";
 
 export interface MediaBinding {
   actorUserId: string;
@@ -145,8 +146,7 @@ export class MediaService {
       });
       throw error;
     }
-    await this.storage.write(ticket.verifiedObjectKey, verified.bytes, verified.mimeType);
-    return this.db.$transaction(async (tx) => {
+    return mediaTransaction(this.db, async (tx) => {
       await tx.$queryRaw`SELECT "id" FROM "MediaUpload" WHERE "id" = ${ticket.id}::uuid FOR UPDATE`;
       const current = this.check(
         await tx.mediaUpload.findUnique({ where: { id: ticket.id } }),
@@ -154,6 +154,15 @@ export class MediaService {
       );
       const replay = this.replay(current, requestHash);
       if (replay) return replay;
+      // Only the unconsumed ticket holder may write this key. A delayed retry
+      // must not recreate bytes after the confirmed image has been removed.
+      await this.storage.write(
+        current.verifiedObjectKey,
+        verified.bytes,
+        verified.mimeType,
+      );
+      // Storage latency does not extend the ticket's authorization window.
+      this.replay(current, requestHash);
       const asset = await tx.storedMedia.create({
         data: {
           id: ticket.id,

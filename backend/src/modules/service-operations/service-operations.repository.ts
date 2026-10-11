@@ -31,6 +31,32 @@ export const serviceSelect = {
   updatedAt: true,
 } satisfies Prisma.ServiceSelect;
 
+export const serviceCatalogueSelect = {
+  ...serviceSelect,
+  categoryId: true,
+  category: { select: { id: true, name: true, slug: true, isActive: true } },
+  mediaImages: { select: resourceImageSelect, take: 1 },
+} satisfies Prisma.ServiceSelect;
+
+export function projectCatalogueService(
+  row: Prisma.ServiceGetPayload<{ select: typeof serviceCatalogueSelect }>,
+  publicRead: boolean,
+) {
+  const { mediaImages, category, ...service } = row;
+  const visibleCategory =
+    category && (!publicRead || category.isActive)
+      ? { id: category.id, name: category.name, slug: category.slug }
+      : null;
+  return {
+    ...service,
+    categoryId: publicRead ? (visibleCategory?.id ?? null) : service.categoryId,
+    category: visibleCategory,
+    image: mediaImages[0]
+      ? projectServiceImage(mediaImages[0], service.id, publicRead)
+      : null,
+  };
+}
+
 const lineSelect = {
   id: true,
   productId: true,
@@ -213,38 +239,28 @@ export class ServiceOperationsRepository {
             : { isActive: query.isActive }),
         ...(query.pricingType === undefined ? {} : { pricingType: query.pricingType }),
       },
-      select: { ...serviceSelect, mediaImages: { select: resourceImageSelect, take: 1 } },
+      select: serviceCatalogueSelect,
       orderBy: { id: "asc" },
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });
-    return rows.map(({ mediaImages, ...service }) => ({
-      ...service,
-      image: mediaImages[0]
-        ? projectServiceImage(mediaImages[0], service.id, activeOnly)
-        : null,
-    }));
+    return rows.map((row) => projectCatalogueService(row, activeOnly));
   }
 
   async service(id: string, activeOnly: boolean, client: DatabaseClient = this.database) {
     const row = await client.service.findFirst({
       where: { id, ...(activeOnly ? { isActive: true } : {}) },
-      select: { ...serviceSelect, mediaImages: { select: resourceImageSelect, take: 1 } },
+      select: serviceCatalogueSelect,
     });
     if (!row) return null;
-    const { mediaImages, ...service } = row;
-    return {
-      ...service,
-      image: mediaImages[0]
-        ? projectServiceImage(mediaImages[0], service.id, activeOnly)
-        : null,
-    };
+    return projectCatalogueService(row, activeOnly);
   }
 
   createService(input: ServiceCreateInput, client: DatabaseClient) {
     return client.service.create({
       data: {
         name: input.name,
+        categoryId: input.categoryId ?? null,
         slug: input.slug,
         pricingType: input.pricingType,
         priceKobo: input.priceKobo === null ? null : BigInt(input.priceKobo),
@@ -265,6 +281,7 @@ export class ServiceOperationsRepository {
       where: { id, version: input.expectedVersion },
       data: {
         ...(input.name === undefined ? {} : { name: input.name }),
+        ...(input.categoryId === undefined ? {} : { categoryId: input.categoryId }),
         ...(input.slug === undefined ? {} : { slug: input.slug }),
         ...(input.description === undefined ? {} : { description: input.description }),
         ...(input.shortDescription === undefined

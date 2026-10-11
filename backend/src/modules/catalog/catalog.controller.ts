@@ -6,6 +6,10 @@ import { errorCodes } from "../../common/errors/error-codes.js";
 import { successResponse } from "../../common/http/api-response.js";
 import { catalogService, type CatalogService } from "./catalog.service.js";
 import type {
+  ProductDiscoveryQuery,
+  ProductFacetQuery,
+} from "./product-discovery.schemas.js";
+import type {
   AdminCategoryListQuery,
   AdminProductListQuery,
   CategoryCreateInput,
@@ -51,6 +55,31 @@ function params(response: Response): {
 
 export class CatalogController {
   constructor(private readonly service: CatalogService = catalogService) {}
+
+  publicDiscovery = async (req: Request, res: Response) => {
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Products retrieved",
+          req.id,
+          await this.service.publicDiscovery(
+            validated<ProductDiscoveryQuery>(res, "query"),
+          ),
+        ),
+      );
+  };
+  publicFacets = async (req: Request, res: Response) => {
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Product options retrieved",
+          req.id,
+          await this.service.publicFacets(validated<ProductFacetQuery>(res, "query")),
+        ),
+      );
+  };
 
   publicCategories = async (req: Request, res: Response) => {
     res

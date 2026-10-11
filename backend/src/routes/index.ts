@@ -1,3 +1,4 @@
+import { createServiceDiscoveryRouter } from "../modules/service-operations/service-discovery.routes.js";
 import { createOrderAftercareRouter } from "../modules/orders/order-aftercare.routes.js";
 import { createPrivacyRouter } from "../modules/policies/privacy.routes.js";
 import { createBookingActionsRouter } from "../modules/service-operations/booking-actions.routes.js";
@@ -117,6 +118,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/public", createPublicServiceMediaRouter());
   apiRouter.use("/public/catalog", createPublicCatalogRouter());
   apiRouter.use("/public/catalog", createPublicProductMediaRouter());
+  apiRouter.use(createServiceDiscoveryRouter());
   apiRouter.use(publicApiPaths.services, createPublicServicesRouter());
   apiRouter.use("/public/vehicles", createPublicVehiclesRouter());
   apiRouter.use("/public/support", createPublicSupportRouter());

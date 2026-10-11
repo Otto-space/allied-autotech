@@ -3,6 +3,7 @@ import { AppError } from "../../common/errors/app-error.js";
 import { errorCodes } from "../../common/errors/error-codes.js";
 import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
+import { customerCare } from "./customer-care.js";
 import {
   overviewQuerySchema,
   overviewRange,
@@ -197,15 +198,20 @@ export class OverviewService {
             createdAt: true,
           },
         });
-        // This branch is the only place overview queries payment/refund tables.
+        // Organisation-only financial aggregates; customer care reads only owned requests.
         const finance =
           scope.kind === "ORGANISATION" ? await financialTotals(tx, query) : undefined;
+        const now = new Date();
+        const care =
+          scope.kind === "CUSTOMER"
+            ? await customerCare(tx, scope.customerId, actor.userId, now)
+            : undefined;
         return {
           scope: scope.kind,
           branch:
             scope.kind === "BRANCH" ? { id: scope.branchId, name: scope.name } : null,
           range: { ...query, timeZone: "Africa/Lagos" as const },
-          generatedAt: new Date().toISOString(),
+          generatedAt: now.toISOString(),
           counts: {
             bookings: statuses.reduce((sum, row) => sum + row._count._all, 0),
             orders,
@@ -232,6 +238,7 @@ export class OverviewService {
             createdAt: createdAt.toISOString(),
           })),
           ...(finance ? { finance } : {}),
+          ...(care ? { care } : {}),
         };
       },
       {

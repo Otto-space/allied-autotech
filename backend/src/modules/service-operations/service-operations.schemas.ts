@@ -49,6 +49,7 @@ export const adminServiceListQuerySchema = publicServiceListQuerySchema.extend({
 });
 
 const serviceFields = {
+  categoryId: uuid.nullable().optional(),
   name: cleanText(160),
   slug: z
     .string()
@@ -84,6 +85,7 @@ export const serviceUpdateBodySchema = z
   .object({
     expectedVersion: version,
     name: serviceFields.name.optional(),
+    categoryId: serviceFields.categoryId,
     slug: serviceFields.slug.optional(),
     description: serviceFields.description,
     shortDescription: serviceFields.shortDescription,

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { customerCareSchema } from "./customer-care.schemas.js";
 
 export const overviewQuerySchema = z
   .strictObject({
@@ -72,4 +73,5 @@ export const overviewResponseSchema = z.object({
     )
     .max(4),
   finance: z.object({ payments: z.array(money), refunds: z.array(money) }).optional(),
+  care: customerCareSchema.optional(),
 });

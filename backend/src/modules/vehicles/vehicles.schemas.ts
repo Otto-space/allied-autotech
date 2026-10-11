@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { savedVehicleCursorSchema } from "./saved-vehicle-cursor.js";
 
 const uuid = z.uuid();
 const clean = (max: number) => z.string().trim().min(1).max(max);
@@ -17,6 +18,17 @@ const optionalBoolean = z
   .optional();
 
 export const vehicleEmptySchema = z.object({}).strict();
+export const savedVehiclePageQuerySchema = z
+  .object({
+    cursor: savedVehicleCursorSchema.optional(),
+    limit: z
+      .string()
+      .regex(/^(?:[1-9]|[1-4][0-9]|50)$/)
+      .default("12")
+      .transform(Number),
+  })
+  .strict();
+export type SavedVehiclePageQuery = z.infer<typeof savedVehiclePageQuerySchema>;
 export const vehicleParamsSchema = z.object({ vehicleId: uuid }).strict();
 export const listingParamsSchema = z.object({ listingId: uuid }).strict();
 export const imageParamsSchema = z.object({ imageId: uuid }).strict();

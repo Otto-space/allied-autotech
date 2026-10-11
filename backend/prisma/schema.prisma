@@ -503,6 +503,7 @@ enum AuditEntityType {
   STAFF_PROFILE
   CUSTOMER_VEHICLE
   SERVICE
+  SERVICE_CATEGORY
   BOOKING_SLOT
   BOOKING
   QUOTE
@@ -924,7 +925,23 @@ model CustomerVehicle {
   @@index([customerId, id], map: "CustomerVehicle_directory_idx")
 }
 
+model ServiceCategory {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  version     Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  services    Service[]
+
+  @@index([isActive, name, id])
+}
+
 model Service {
+  categoryId       String?            @db.Uuid
+  category         ServiceCategory?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   mediaImages      ResourceImage[]
   id               String             @id @default(uuid()) @db.Uuid
   name             String
@@ -947,6 +964,10 @@ model Service {
 
   @@index([isActive])
   @@index([pricingType, isActive])
+  @@index([isActive, name, id])
+  @@index([isActive, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([isActive, durationMinutes, id])
+  @@index([categoryId, isActive, id])
 }
 
 model BookingSlot {
@@ -1856,6 +1877,8 @@ model VehicleListing {
   @@index([branchId, status])
   @@index([vehicleId])
   @@index([status, priceKobo])
+  @@index([status, priceKobo, id], map: "VehicleListing_discovery_price_asc_idx")
+  @@index([status, createdAt(sort: Desc), id(sort: Desc)], map: "VehicleListing_discovery_newest_idx")
   @@index([featured, status])
   @@index([createdAt])
 }
@@ -2073,6 +2096,7 @@ model SavedVehicle {
   vehicleListing VehicleListing  @relation(fields: [vehicleListingId], references: [id], onDelete: Cascade)
 
   @@unique([customerId, vehicleListingId])
+  @@index([customerId, id])
   @@index([vehicleListingId])
 }
 
@@ -2268,6 +2292,7 @@ model PromotionUsage {
 
 model Invoice {
   policySnapshot       Json?
+  documentSnapshot     Json?
   id                   String        @id @default(uuid()) @db.Uuid
   invoiceNumber        String        @unique @db.VarChar(50)
   customerId           String        @db.Uuid

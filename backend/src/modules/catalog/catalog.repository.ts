@@ -74,7 +74,8 @@ export const productSelect = {
   },
 } satisfies Prisma.ProductSelect;
 
-function productWhere(
+const literalPattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
+export function productWhere(
   query: ProductListQuery | AdminProductListQuery,
   activeOnly: boolean,
 ): Prisma.ProductWhereInput {
@@ -87,16 +88,21 @@ function productWhere(
     ...(query.categoryId === undefined ? {} : { categoryId: query.categoryId }),
     ...(query.brand === undefined
       ? {}
-      : { brand: { equals: query.brand, mode: "insensitive" } }),
+      : { brand: { equals: literalPattern(query.brand), mode: "insensitive" } }),
     ...(query.featured === undefined ? {} : { featured: query.featured }),
     ...(query.search === undefined
       ? {}
       : {
           OR: [
-            { name: { contains: query.search, mode: "insensitive" } },
-            { sku: { contains: query.search, mode: "insensitive" } },
-            { brand: { contains: query.search, mode: "insensitive" } },
-            { manufacturerPartNumber: { contains: query.search, mode: "insensitive" } },
+            { name: { contains: literalPattern(query.search), mode: "insensitive" } },
+            { sku: { contains: literalPattern(query.search), mode: "insensitive" } },
+            { brand: { contains: literalPattern(query.search), mode: "insensitive" } },
+            {
+              manufacturerPartNumber: {
+                contains: literalPattern(query.search),
+                mode: "insensitive",
+              },
+            },
           ],
         }),
     ...(query.make === undefined && query.model === undefined && query.year === undefined
@@ -106,10 +112,12 @@ function productWhere(
             some: {
               ...(query.make === undefined
                 ? {}
-                : { make: { equals: query.make, mode: "insensitive" } }),
+                : { make: { equals: literalPattern(query.make), mode: "insensitive" } }),
               ...(query.model === undefined
                 ? {}
-                : { model: { equals: query.model, mode: "insensitive" } }),
+                : {
+                    model: { equals: literalPattern(query.model), mode: "insensitive" },
+                  }),
               ...(query.year === undefined
                 ? {}
                 : {
@@ -124,7 +132,7 @@ function productWhere(
   };
 }
 
-function productOrder(
+export function productOrder(
   sort: ProductListQuery["sort"],
 ): Prisma.ProductOrderByWithRelationInput[] {
   switch (sort) {

@@ -14,11 +14,16 @@ import type {
   ListingStatusInput,
   ListingUpdateInput,
   PublicVehicleListQuery,
+  SavedVehiclePageQuery,
   StaffVehicleListQuery,
   VehicleCreateInput,
   VehicleUpdateInput,
 } from "./vehicles.schemas.js";
 import { vehiclesService, type VehiclesService } from "./vehicles.service.js";
+import type {
+  VehicleDiscoveryQuery,
+  VehicleFacetQuery,
+} from "./vehicle-discovery.schemas.js";
 
 const validated = <T>(res: Response, location: "body" | "params" | "query") =>
   res.locals.validated?.[location] as T;
@@ -38,6 +43,28 @@ const ids = (res: Response) =>
 
 export class VehiclesController {
   constructor(private readonly service: VehiclesService = vehiclesService) {}
+  publicDiscovery = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Vehicle listings retrieved",
+          req.id,
+          await this.service.publicDiscovery(
+            validated<VehicleDiscoveryQuery>(res, "query"),
+          ),
+        ),
+      );
+  publicFacets = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Vehicle filter options retrieved",
+          req.id,
+          await this.service.publicFacets(validated<VehicleFacetQuery>(res, "query")),
+        ),
+      );
   publicList = async (req: Request, res: Response) =>
     res
       .status(200)
@@ -314,6 +341,19 @@ export class VehiclesController {
           "Saved vehicles retrieved",
           req.id,
           await this.service.saved(actor(req)),
+        ),
+      );
+  savedPage = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Saved vehicles retrieved",
+          req.id,
+          await this.service.savedPage(
+            actor(req),
+            validated<SavedVehiclePageQuery>(res, "query"),
+          ),
         ),
       );
   save = async (req: Request, res: Response) =>

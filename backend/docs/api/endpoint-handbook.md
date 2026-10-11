@@ -154,7 +154,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/branches/{branchId}`
 
@@ -198,7 +198,156 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/catalog/products/discovery`
+
+- Operation ID: `getPublicCatalogProductsDiscovery`
+- Purpose: Anonymous. Active products in active categories only. Existing product filters retain literal case-insensitive exact brand/make/model matching, inclusive compatibility year bounds on the same compatibility row, and literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `brand` | query | string | No | Brand used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `make` | query | string | No | Make used to constrain this request. |
+| `model` | query | string | No | Model used to constrain this request. |
+| `year` | query | string | No | Year used to constrain this request. |
+| `featured` | query | true / false | No | Featured used to constrain this request. |
+| `sort` | query | newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
+| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
+| `availability` | query | in_stock / out_of_stock | No | Availability used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Search public products with exact totals and stable paging",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "slug": "synthetic-slug",
+        "sku": "synthetic-sku",
+        "brand": "synthetic-brand",
+        "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+        "description": "synthetic-description",
+        "priceKobo": "300000",
+        "compareAtPriceKobo": "300000",
+        "currency": "NGN",
+        "isActive": true,
+        "featured": true,
+        "mediaVersion": 0,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "category": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug",
+          "description": "synthetic-description",
+          "isActive": true,
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "updatedAt": "2030-01-15T10:00:00.000Z"
+        },
+        "images": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "createdAt": "2030-01-15T10:00:00.000Z",
+            "source": "UPLOADED",
+            "width": "synthetic-width",
+            "height": "synthetic-height"
+          }
+        ],
+        "compatibilities": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "make": "synthetic-make",
+            "model": "synthetic-model",
+            "yearFrom": "synthetic-yearfrom",
+            "yearTo": "synthetic-yearto",
+            "notes": "synthetic-notes"
+          }
+        ],
+        "availability": [
+          {
+            "branch": {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "code": "synthetic-code",
+              "name": "synthetic-name"
+            },
+            "inStock": true
+          }
+        ]
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor",
+    "totalMatches": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/catalog/facets`
+
+- Operation ID: `getPublicCatalogFacets`
+- Purpose: Anonymous. Bounded options backed by active products in active categories, including out-of-stock products. field=category returns category UUID values and stored names; empty categories are omitted. Other fields collapse case variants into lowercase values with deterministic stored labels. Models require an exact case-insensitive make; make is forbidden for other fields. Optional categoryId scopes non-category options. search is a literal case-insensitive prefix (1-120 characters; percent/underscore escaped). Null models for make-wide compatibility do not become named model options; existing product compatibility filtering semantics are preserved. Options sort by lowercase label then value under C collation. Maximum 50/default 20. Authenticated cursors bind field/categoryId/make/search, survive deleted anchors, and reject tampering/filter changes with 422 VALIDATION_FAILED. No nextCursor means the current option search is complete. No global total or cross-request snapshot/cache is promised. Search catalogue category, brand and compatibility options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `field` | query | category / brand / make / model | Yes | Field used to constrain this request. |
+| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `make` | query | string | No | Make used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Search catalogue category, brand and compatibility options",
+  "data": {
+    "items": [
+      {
+        "value": "synthetic-value",
+        "label": "synthetic-label"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/catalog/categories`
 
@@ -237,7 +386,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/catalog/categories/{categoryId}`
 
@@ -270,7 +419,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/catalog/products`
 
@@ -372,7 +521,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/catalog/products/{productId}`
 
@@ -460,7 +609,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/services`
 
@@ -488,6 +637,12 @@ Success: HTTP 200.
   "data": {
     "items": [
       {
+        "categoryId": "00000000-0000-4000-8000-000000000001",
+        "category": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug"
+        },
         "image": {
           "id": "00000000-0000-4000-8000-000000000001",
           "url": "https://example.test/continue",
@@ -520,7 +675,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/services/{serviceId}`
 
@@ -544,6 +699,12 @@ Success: HTTP 200.
   "success": true,
   "message": "Get an active service",
   "data": {
+    "categoryId": "00000000-0000-4000-8000-000000000001",
+    "category": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug"
+    },
     "image": {
       "id": "00000000-0000-4000-8000-000000000001",
       "url": "https://example.test/continue",
@@ -573,7 +734,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/booking-policy`
 
@@ -600,7 +761,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/services/{serviceId}/slots`
 
@@ -643,7 +804,299 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/services/discovery`
+
+- Operation ID: `getPublicServicesDiscovery`
+- Purpose: Anonymous. Literal case-insensitive substring search (2–100 characters) over name, short description and description. Optional active category and pricing filters. Sort: name ascending (default), newest first, or duration ascending with unknown durations last; IDs break ties. Limit 1–50, default 20. Signed cursors bind filters/sort and survive deleted anchors. Legacy UUID anchors must still match. Page and count share a repeatable-read snapshot; concurrent edits may move records between requests. Inactive categories are omitted from metadata but do not unpublish services. Search active services with exact totals. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `search` | query | string | No | Search used to constrain this request. |
+| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `pricingType` | query | FIXED / QUOTE_REQUIRED | No | Pricing Type used to constrain this request. |
+| `sort` | query | name / newest / duration_asc | No | Sort used to constrain this request. |
+| `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Search active services with exact totals",
+  "data": {
+    "items": [
+      {
+        "categoryId": "00000000-0000-4000-8000-000000000001",
+        "category": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug"
+        },
+        "image": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "url": "https://example.test/continue",
+          "altText": "synthetic-alttext",
+          "sortOrder": 1,
+          "isPrimary": true,
+          "width": 1,
+          "height": 1
+        },
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "slug": "synthetic-slug",
+        "description": "synthetic-description",
+        "shortDescription": "synthetic-shortdescription",
+        "pricingType": "FIXED",
+        "priceKobo": "300000",
+        "currency": "NGN",
+        "durationMinutes": "synthetic-durationminutes",
+        "isActive": true,
+        "version": 1,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "totalMatches": 0,
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/services/categories`
+
+- Operation ID: `getPublicServicesCategories`
+- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List active service category options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List active service category options",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "slug": "synthetic-slug"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/services/categories/{categoryId}`
+
+- Operation ID: `getPublicServicesCategoriesByCategoryId`
+- Purpose: Get an active category backed by an active service. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Get an active category backed by an active service",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "slug": "synthetic-slug"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 404 Inactive, empty or unknown category; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/vehicles/discovery`
+
+- Operation ID: `getPublicVehiclesDiscovery`
+- Purpose: Anonymous. Same public filters and AVAILABLE/active-branch visibility as /public/vehicles. Maximum 50, default 20. totalMatches is the exact filtered count before pagination, read in the same repeatable-read transaction as the page; no cross-request snapshot or cache is promised. nextCursor is authenticated and bound to the filters and sort (page size may change). Deleted or unpublished anchors remain usable. Invalid, tampered or mismatched cursors return 422 VALIDATION_FAILED; restart at the first page. Mutable price/year/visibility changes can move records between pages; refresh to see current inventory. UUID cursors from old links are accepted only while their anchor is currently public and matches the query. Existing /public/vehicles behavior and UUID cursor responses remain supported. No private stock, VIN, acquisition or customer fields are exposed. Search public vehicles with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `make` | query | string | No | Make used to constrain this request. |
+| `model` | query | string | No | Model used to constrain this request. |
+| `year` | query | string | No | Year used to constrain this request. |
+| `bodyType` | query | SEDAN / SUV / COUPE / HATCHBACK / WAGON / PICKUP / VAN / TRUCK / BUS / OTHER | No | Body Type used to constrain this request. |
+| `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
+| `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
+| `featured` | query | true / false | No | Featured used to constrain this request. |
+| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
+| `sort` | query | newest / price_asc / price_desc / year_desc | No | Sort used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Search public vehicles with exact totals and stable paging",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "title": "synthetic-title",
+        "slug": "synthetic-slug",
+        "priceKobo": "300000",
+        "currency": "NGN",
+        "description": "synthetic-description",
+        "featured": true,
+        "publishedAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "code": "synthetic-code",
+          "name": "synthetic-name",
+          "city": "synthetic-city",
+          "state": "synthetic-state"
+        },
+        "vehicle": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "stockNumber": "synthetic-stocknumber",
+          "make": "synthetic-make",
+          "model": "synthetic-model",
+          "trim": "synthetic-trim",
+          "year": 1,
+          "mileageKm": "synthetic-mileagekm",
+          "transmission": "synthetic-transmission",
+          "fuelType": "synthetic-fueltype",
+          "condition": "synthetic-condition",
+          "bodyType": "synthetic-bodytype",
+          "engineSize": "synthetic-enginesize",
+          "driveType": "synthetic-drivetype",
+          "color": "synthetic-color",
+          "doors": "synthetic-doors",
+          "seats": "synthetic-seats",
+          "images": [
+            {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "url": "https://example.test/continue",
+              "altText": "synthetic-alttext",
+              "sortOrder": 1,
+              "isPrimary": true,
+              "width": "synthetic-width",
+              "height": "synthetic-height",
+              "source": "UPLOADED"
+            }
+          ],
+          "conditionReports": [
+            {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "odometerKm": "synthetic-odometerkm",
+              "conditionScore": "synthetic-conditionscore",
+              "summary": "synthetic-summary",
+              "findings": "synthetic-findings",
+              "inspectedAt": "2030-01-15T10:00:00.000Z"
+            }
+          ]
+        }
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor",
+    "totalMatches": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+
+### GET `/public/vehicles/facets`
+
+- Operation ID: `getPublicVehiclesFacets`
+- Purpose: Anonymous, maximum 50 options per page, default 20. field=make omits make; field=model requires an exact case-insensitive make. Optional search is a literal case-insensitive prefix, with percent and underscore treated literally. Values are lowercase database names, labels are deterministic stored display names; casing duplicates collapse. Sort is value ascending under C collation. Only names backed by an AVAILABLE listing at an active branch are returned. An absent nextCursor means this filtered option search is complete at that read; do not treat one page as exhaustive. Cursors are authenticated, bound to field/make/search and remain valid if the prior option disappears. Changed filters, tampering or signing-key rotation require restarting (422 VALIDATION_FAILED). No exact total or persistent cache is implied; inventory can change between reads. Search published vehicle make or model options. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `field` | query | make / model | Yes | Field used to constrain this request. |
+| `make` | query | string | No | Make used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Search published vehicle make or model options",
+  "data": {
+    "items": [
+      {
+        "value": "synthetic-value",
+        "label": "synthetic-label"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### GET `/public/vehicles`
 
@@ -693,7 +1146,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/vehicles/{listingId}`
 
@@ -731,7 +1184,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/vehicles/images/{imageId}`
 
@@ -793,7 +1246,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/public/support/enquiries`
 
@@ -834,7 +1287,7 @@ Success: HTTP 202.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/public/support/complaints`
 
@@ -885,7 +1338,7 @@ Success: HTTP 202.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/fulfillment-options`
 
@@ -930,7 +1383,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/capabilities`
 
@@ -984,7 +1437,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/booking-response`
 
@@ -1007,7 +1460,7 @@ Success: HTTP 200.
 {}
 ```
 
-Relevant errors: 400 The request is malformed.; 403 Untrusted origin; recovery HTML (global CORS denial may use JSON); 409 Invalid, expired, changed or unavailable appointment link; recovery HTML; 413 Form exceeds 4 KiB; recovery HTML; 422 Invalid query or form; recovery HTML; 429 The route-specific request limit was exceeded.; 500 Result unavailable; recovery HTML without exception details
+Relevant errors: 400 The request is malformed.; 403 Untrusted origin; recovery HTML (global CORS denial may use JSON); 409 Invalid, expired, changed or unavailable appointment link; recovery HTML; 413 Form exceeds 4 KiB; recovery HTML; 422 Invalid query or form; recovery HTML; 429 The route-specific request limit was exceeded.; 500 Result unavailable; recovery HTML without exception details; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/public/booking-response`
 
@@ -1024,7 +1477,7 @@ Success: HTTP 200.
 {}
 ```
 
-Relevant errors: 400 The request is malformed.; 403 Untrusted origin; recovery HTML (global CORS denial may use JSON); 409 Invalid, expired, changed or unavailable appointment link; recovery HTML; 413 Form exceeds 4 KiB; recovery HTML; 422 Invalid query or form; recovery HTML; 429 The route-specific request limit was exceeded.; 500 Result unavailable; recovery HTML without exception details
+Relevant errors: 400 The request is malformed.; 403 Untrusted origin; recovery HTML (global CORS denial may use JSON); 409 Invalid, expired, changed or unavailable appointment link; recovery HTML; 413 Form exceeds 4 KiB; recovery HTML; 422 Invalid query or form; recovery HTML; 429 The route-specific request limit was exceeded.; 500 Result unavailable; recovery HTML without exception details; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 
 ## Authentication
@@ -1076,7 +1529,7 @@ Success: HTTP 202.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/email/verify`
 
@@ -1117,7 +1570,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/email/resend`
 
@@ -1154,7 +1607,7 @@ Success: HTTP 202.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/login`
 
@@ -1197,7 +1650,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/logout`
 
@@ -1226,7 +1679,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/csrf`
 
@@ -1258,7 +1711,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/password/forgot`
 
@@ -1299,7 +1752,7 @@ Success: HTTP 202.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/password/reset`
 
@@ -1342,7 +1795,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/password/change`
 
@@ -1391,7 +1844,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/mfa/totp/setup`
 
@@ -1424,7 +1877,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/mfa/totp/verify`
 
@@ -1473,7 +1926,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/mfa/webauthn/options`
 
@@ -1520,7 +1973,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/mfa/webauthn/verify`
 
@@ -1576,7 +2029,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired, revoked or changed during enrollment; 403 Existing MFA verification required, or CSRF validation failed; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/mfa/challenge/options`
 
@@ -1623,7 +2076,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/mfa/challenge/verify`
 
@@ -1666,7 +2119,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/mfa/recovery-codes/regenerate`
 
@@ -1699,7 +2152,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/auth/session`
 
@@ -1726,7 +2179,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/auth/sessions`
 
@@ -1758,7 +2211,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/auth/sessions`
 
@@ -1787,7 +2240,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/auth/sessions/{sessionId}`
 
@@ -1817,7 +2270,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/auth/mfa/factors`
 
@@ -1849,7 +2302,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/auth/mfa/factors/{factorId}`
 
@@ -1893,7 +2346,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/auth/staff/invitations/accept`
 
@@ -1942,7 +2395,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 
 ## Customer API
@@ -1996,7 +2449,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/customers/profile`
 
@@ -2079,7 +2532,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/vehicles`
 
@@ -2118,7 +2571,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/vehicles`
 
@@ -2177,7 +2630,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/vehicles/{vehicleId}`
 
@@ -2230,7 +2683,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/customers/vehicles/{vehicleId}`
 
@@ -2290,7 +2743,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/customers/vehicles/{vehicleId}`
 
@@ -2320,7 +2773,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/profile/photo/upload`
 
@@ -2810,7 +3263,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PUT `/customers/favourites/{productId}`
 
@@ -2844,7 +3297,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/customers/favourites/{productId}`
 
@@ -2874,7 +3327,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/cart`
 
@@ -2901,7 +3354,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/customers/cart`
 
@@ -2930,7 +3383,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PUT `/customers/cart/items/{productId}`
 
@@ -2978,7 +3431,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/customers/cart/items/{productId}`
 
@@ -3008,7 +3461,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/bookings/{bookingId}/disruption-resolution`
 
@@ -3053,7 +3506,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/bookings`
 
@@ -3093,7 +3546,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/bookings`
 
@@ -3149,7 +3602,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/bookings/{bookingId}`
 
@@ -3182,7 +3635,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/customers/bookings/{bookingId}/schedule`
 
@@ -3233,7 +3686,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/bookings/{bookingId}/cancel`
 
@@ -3283,7 +3736,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/bookings/{bookingId}/quotes/{quoteId}/accept`
 
@@ -3332,7 +3785,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/bookings/{bookingId}/quotes/{quoteId}/reject`
 
@@ -3381,7 +3834,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/orders/checkout`
 
@@ -3443,7 +3896,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/orders`
 
@@ -3483,7 +3936,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/orders/{orderId}`
 
@@ -3516,7 +3969,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/orders/{orderId}/cancel`
 
@@ -3566,7 +4019,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/promotions/preview`
 
@@ -3615,7 +4068,186 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/invoices/{invoiceId}/document`
+
+- Operation ID: `getCustomersInvoicesByInvoiceIdDocument`
+- Purpose: CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Read an owned invoice document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read an owned invoice document",
+  "data": {
+    "schemaVersion": 1,
+    "issuer": {
+      "name": "synthetic-name",
+      "address": "synthetic-address",
+      "paymentTerms": "synthetic-paymentterms"
+    },
+    "billTo": {
+      "name": "synthetic-name",
+      "address": "synthetic-address",
+      "reference": "00000000-0000-4000-8000-000000000001"
+    },
+    "source": {
+      "type": "ORDER",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "reference": "synthetic-reference",
+      "description": "synthetic-description"
+    },
+    "lines": [
+      {
+        "description": "synthetic-description",
+        "quantity": 1,
+        "unitPriceKobo": "300000",
+        "subtotalKobo": "300000"
+      }
+    ],
+    "discountKobo": "300000",
+    "deliveryKobo": "300000",
+    "detailBasis": "SNAPSHOT",
+    "id": "00000000-0000-4000-8000-000000000001",
+    "invoiceNumber": "synthetic-invoicenumber",
+    "currency": "NGN",
+    "status": "ISSUED",
+    "version": 0,
+    "issuedAt": "2030-01-15T10:00:00.000Z",
+    "dueAt": "2030-01-15T10:00:00.000Z",
+    "paidAt": "2030-01-15T10:00:00.000Z",
+    "subtotalKobo": "300000",
+    "taxKobo": "300000",
+    "depositCreditKobo": "300000",
+    "totalKobo": "300000",
+    "receipts": [
+      {
+        "paymentId": "00000000-0000-4000-8000-000000000001",
+        "paymentNumber": "synthetic-paymentnumber",
+        "amountKobo": "300000",
+        "confirmedAt": "2030-01-15T10:00:00.000Z",
+        "refundedKobo": "300000"
+      }
+    ],
+    "paymentRequests": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "paymentNumber": "synthetic-paymentnumber",
+        "amountKobo": "300000",
+        "status": "REQUIRES_PAYMENT",
+        "succeededAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required; 403 Customer role required; 404 Record unavailable or not owned; 409 No eligible settlement or inconsistent document data; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/invoices/{invoiceId}/download`
+
+- Operation ID: `getCustomersInvoicesByInvoiceIdDownload`
+- Purpose: CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Download an owned invoice document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `invoiceId` | path | string (uuid) | Yes | Identifier selecting the invoice resource. |
+
+Success: HTTP 200.
+Binary application/pdf bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required; 403 Customer role required; 404 Record unavailable or not owned; 409 No eligible settlement or inconsistent document data; 422 One or more request fields are invalid.; 429 Download rate limit exceeded; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/payments/{paymentId}/receipt/document`
+
+- Operation ID: `getCustomersPaymentsByPaymentIdReceiptDocument`
+- Purpose: CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Read an owned confirmed payment receipt document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read an owned confirmed payment receipt document",
+  "data": {
+    "paymentId": "00000000-0000-4000-8000-000000000001",
+    "paymentNumber": "synthetic-paymentnumber",
+    "currency": "NGN",
+    "issuer": {
+      "name": "synthetic-name",
+      "address": "synthetic-address",
+      "paymentTerms": "synthetic-paymentterms"
+    },
+    "customerReference": "00000000-0000-4000-8000-000000000001",
+    "amountKobo": "300000",
+    "confirmedAt": "2030-01-15T10:00:00.000Z",
+    "method": "synthetic-method",
+    "refundedKobo": "300000",
+    "source": {
+      "type": "ORDER",
+      "id": "00000000-0000-4000-8000-000000000001",
+      "reference": "synthetic-reference",
+      "description": "synthetic-description"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required; 403 Customer role required; 404 Record unavailable or not owned; 409 No eligible settlement or inconsistent document data; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+
+### GET `/customers/payments/{paymentId}/receipt`
+
+- Operation ID: `getCustomersPaymentsByPaymentIdReceipt`
+- Purpose: CUSTOMER only. Ownership is checked on every request. Draft invoices are unavailable. Receipts require the selected successful, verified settlement, with matching NGN amount; a submitted manual report is insufficient. Completed refunds are stated separately. Documents do not confirm fulfilment or full invoice settlement. Private, uncached response; no public share URL. Downloads are rate limited. Download an owned confirmed payment receipt document. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `paymentId` | path | string (uuid) | Yes | Identifier selecting the payment resource. |
+
+Success: HTTP 200.
+Binary application/pdf bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required; 403 Customer role required; 404 Record unavailable or not owned; 409 No eligible settlement or inconsistent document data; 422 One or more request fields are invalid.; 429 Download rate limit exceeded; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
 
 ### GET `/customers/invoices`
 
@@ -3655,7 +4287,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/invoices/{invoiceId}`
 
@@ -3688,7 +4320,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/saved-vehicles`
 
@@ -3720,7 +4352,104 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/saved-vehicles/page`
+
+- Operation ID: `getCustomersSavedVehiclesPage`
+- Purpose: CUSTOMER only. Returns at most limit items (default 12, maximum 50), ordered by saved-record UUID ascending, with an opaque nextCursor only when more records exist. Cursors are authenticated and bound to the customer; malformed, tampered or cross-customer cursors return 422 VALIDATION_FAILED. A removed or unavailable anchor remains a valid boundary. Each request applies current AVAILABLE listing and active-branch visibility. Concurrent inserts or newly visible records before the boundary require a refresh from page one; this is not a snapshot. Token-hash key rotation invalidates cursors. No total count is implied. The original /customers/saved-vehicles array endpoint remains unchanged. Page the customer's available saved vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Page the customer's available saved vehicles",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "vehicleListing": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "title": "synthetic-title",
+          "slug": "synthetic-slug",
+          "priceKobo": "300000",
+          "currency": "NGN",
+          "description": "synthetic-description",
+          "featured": true,
+          "publishedAt": "2030-01-15T10:00:00.000Z",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "branch": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "code": "synthetic-code",
+            "name": "synthetic-name",
+            "city": "synthetic-city",
+            "state": "synthetic-state"
+          },
+          "vehicle": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "stockNumber": "synthetic-stocknumber",
+            "make": "synthetic-make",
+            "model": "synthetic-model",
+            "trim": "synthetic-trim",
+            "year": 1,
+            "mileageKm": "synthetic-mileagekm",
+            "transmission": "synthetic-transmission",
+            "fuelType": "synthetic-fueltype",
+            "condition": "synthetic-condition",
+            "bodyType": "synthetic-bodytype",
+            "engineSize": "synthetic-enginesize",
+            "driveType": "synthetic-drivetype",
+            "color": "synthetic-color",
+            "doors": "synthetic-doors",
+            "seats": "synthetic-seats",
+            "images": [
+              {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "url": "https://example.test/continue",
+                "altText": "synthetic-alttext",
+                "sortOrder": 1,
+                "isPrimary": true,
+                "width": "synthetic-width",
+                "height": "synthetic-height",
+                "source": "UPLOADED"
+              }
+            ],
+            "conditionReports": [
+              {
+                "id": "00000000-0000-4000-8000-000000000001",
+                "odometerKm": "synthetic-odometerkm",
+                "conditionScore": "synthetic-conditionscore",
+                "summary": "synthetic-summary",
+                "findings": "synthetic-findings",
+                "inspectedAt": "2030-01-15T10:00:00.000Z"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
 ### PUT `/customers/saved-vehicles/{listingId}`
 
@@ -3754,7 +4483,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/customers/saved-vehicles/{listingId}`
 
@@ -3784,7 +4513,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/vehicle-inspections`
 
@@ -3824,12 +4553,12 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/vehicle-inspections`
 
 - Operation ID: `postCustomersVehicleInspections`
-- Purpose: Request a vehicle inspection. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Request a vehicle inspection. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3840,6 +4569,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | No | Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry. |
 
 JSON request fields:
 
@@ -3877,7 +4607,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The listing, customer profile or owned retry result was not found.; 409 IDEMPOTENCY_CONFLICT for changed input or an incomplete retained receipt; CONFLICT for an invalid new request. No new record is created.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/vehicle-transactions`
 
@@ -3917,12 +4647,12 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/vehicle-transactions`
 
 - Operation ID: `postCustomersVehicleTransactions`
-- Purpose: Open a vehicle transaction. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Open a vehicle transaction. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3933,6 +4663,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | No | Optional for compatibility. Use a random key for each new intent and reuse it with the same validated body for retries. Keys are scoped to the authenticated customer and operation and retained for at least 24 hours. A retained matching key returns the original record with its current authorized state (201); changed input returns 409 IDEMPOTENCY_CONFLICT. No retry guarantee after retention or without a key. Check account history before submitting again after expiry. |
 
 JSON request fields:
 
@@ -3966,7 +4697,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The listing, customer profile or owned retry result was not found.; 409 IDEMPOTENCY_CONFLICT for changed input or an incomplete retained receipt; CONFLICT for an invalid new request. No new record is created.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/vehicle-transactions/{transactionId}`
 
@@ -3999,7 +4730,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/vehicle-transactions/{transactionId}/reserve`
 
@@ -4052,7 +4783,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/payments`
 
@@ -4141,7 +4872,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/payments/{paymentId}`
 
 - Operation ID: `getCustomersPaymentsByPaymentId`
-- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Requires the customer account that owns the payment; server verification remains authoritative. The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed. Get an owned payment. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -4161,7 +4892,10 @@ Success: HTTP 200.
   "message": "Get an owned payment",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "status": "synthetic-status",
+    "checkoutProviders": [
+      "PAYSTACK"
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -4335,7 +5069,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/customers/payments/{paymentId}/manual-evidence/upload`
 
@@ -4387,7 +5121,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### GET `/customers/support/enquiries/{supportId}/messages`
 
@@ -4422,7 +5156,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/support/enquiries/{supportId}/messages`
 
@@ -4470,7 +5204,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/support/complaints/{supportId}/messages`
 
@@ -4505,7 +5239,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/support/complaints/{supportId}/messages`
 
@@ -4553,7 +5287,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/support/enquiries`
 
@@ -4593,7 +5327,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/support/enquiries`
 
@@ -4637,7 +5371,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/support/enquiries/{supportId}`
 
@@ -4675,7 +5409,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/support/complaints`
 
@@ -4715,7 +5449,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/support/complaints`
 
@@ -4772,7 +5506,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/support/complaints/{supportId}`
 
@@ -4810,7 +5544,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/support/reviews`
 
@@ -4850,7 +5584,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/support/reviews`
 
@@ -4894,7 +5628,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/notifications`
 
@@ -4936,7 +5670,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/notifications/read-all`
 
@@ -4969,7 +5703,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/notifications/{notificationId}/read`
 
@@ -5003,7 +5737,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/notifications/preferences/current`
 
@@ -5030,7 +5764,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PUT `/customers/notifications/preferences/current`
 
@@ -5081,12 +5815,12 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/overview`
 
 - Operation ID: `getCustomersOverview`
-- Purpose: Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. Read own date-filtered dashboard aggregates. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. CUSTOMER alone receives care: bounded own-account current previews independent of the historical range. Current booking selects latest updated IN_PROGRESS; next booking selects earliest future REQUESTED/CONFIRMED. Vehicle is the owned vehicle linked to that booking, otherwise the latest garage addition. Quote is the latest unexpired ISSUED quote. Payment is the latest unexpired REQUIRES_PAYMENT or unresolved PROCESSING/REQUIRES_REVIEW request, not a debt balance. Order is the latest created order with actual fulfillment method/status. Inspection prioritizes earliest future confirmed/rescheduled appointment, otherwise nearest future requested date. Notification is the latest unexpired own notification. Preview ties use IDs; absence is null and never an aggregate zero. Staff responses omit care. Read own date-filtered dashboard aggregates. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5163,7 +5897,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/privacy-requests`
 
@@ -5208,7 +5942,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/privacy-requests`
 
@@ -5263,7 +5997,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/orders/{id}/aftercare`
 
@@ -5316,7 +6050,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/orders/{id}/aftercare`
 
@@ -5391,7 +6125,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/customers/orders/{id}/returns`
 
@@ -5457,7 +6191,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 
 ## Staff API
@@ -5511,7 +6245,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/inventory`
 
@@ -5553,7 +6287,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/inventory/{inventoryId}`
 
@@ -5586,7 +6320,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/staff/inventory/{inventoryId}`
 
@@ -5636,7 +6370,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/inventory/{inventoryId}/movements`
 
@@ -5683,7 +6417,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/inventory/{inventoryId}/history`
 
@@ -5724,7 +6458,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/inventory/{inventoryId}/reservations`
 
@@ -5765,7 +6499,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/inventory/{inventoryId}/reservations`
 
@@ -5822,7 +6556,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/inventory/{inventoryId}/reservations/{reservationId}/release`
 
@@ -5872,7 +6606,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/bookings`
 
@@ -5916,7 +6650,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/booking-slots`
 
@@ -5961,7 +6695,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/booking-slots`
 
@@ -6014,7 +6748,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/staff/booking-slots/{slotId}`
 
@@ -6064,7 +6798,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/bookings/{bookingId}`
 
@@ -6097,7 +6831,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/staff/bookings/{bookingId}/assignment`
 
@@ -6147,7 +6881,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/disruption`
 
@@ -6197,7 +6931,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/status`
 
@@ -6253,7 +6987,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/quotes`
 
@@ -6314,7 +7048,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PUT `/staff/bookings/{bookingId}/quotes/{quoteId}`
 
@@ -6378,7 +7112,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/quotes/{quoteId}/issue`
 
@@ -6427,7 +7161,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/quotes/{quoteId}/void`
 
@@ -6476,7 +7210,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/quotes/{quoteId}/expire`
 
@@ -6525,7 +7259,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/work-orders`
 
@@ -6586,7 +7320,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PUT `/staff/bookings/{bookingId}/work-orders/{workOrderId}`
 
@@ -6648,7 +7382,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/bookings/{bookingId}/work-orders/{workOrderId}/status`
 
@@ -6699,7 +7433,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/orders`
 
@@ -6741,7 +7475,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/orders/{orderId}`
 
@@ -6774,7 +7508,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/orders/{orderId}/status`
 
@@ -6826,7 +7560,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/invoices`
 
@@ -6868,7 +7602,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/invoices`
 
@@ -6919,7 +7653,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/invoices/{invoiceId}`
 
@@ -6952,7 +7686,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/invoices/{invoiceId}/issue`
 
@@ -7000,7 +7734,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/invoices/{invoiceId}/void`
 
@@ -7048,7 +7782,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/vehicles`
 
@@ -7100,7 +7834,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicles`
 
@@ -7171,7 +7905,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/vehicles/{vehicleId}`
 
@@ -7204,7 +7938,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/staff/vehicles/{vehicleId}`
 
@@ -7271,7 +8005,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicles/listings`
 
@@ -7333,7 +8067,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/staff/vehicles/listings/{listingId}`
 
@@ -7394,7 +8128,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicles/listings/{listingId}/status`
 
@@ -7449,7 +8183,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicles/listings/{listingId}/price`
 
@@ -7506,7 +8240,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicles/{vehicleId}/assets/upload`
 
@@ -7572,7 +8306,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/vehicles/{vehicleId}/images`
 
@@ -7839,7 +8573,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/vehicles/{vehicleId}/condition-reports`
 
@@ -7899,7 +8633,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/vehicles/{vehicleId}/documents/{documentId}/review`
 
@@ -7952,7 +8686,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicles/{vehicleId}/documents/{documentId}/access`
 
@@ -7987,7 +8721,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### GET `/staff/vehicle-inspections`
 
@@ -8028,7 +8762,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicle-inspections/{inspectionId}/status`
 
@@ -8086,7 +8820,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/vehicle-transactions`
 
@@ -8127,7 +8861,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/vehicle-transactions/{transactionId}`
 
@@ -8160,7 +8894,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicle-transactions/{transactionId}/negotiate`
 
@@ -8214,7 +8948,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicle-transactions/{transactionId}/status`
 
@@ -8266,7 +9000,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicle-transactions/{transactionId}/handovers`
 
@@ -8322,7 +9056,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/vehicle-transactions/{transactionId}/handovers/{handoverId}/status`
 
@@ -8373,7 +9107,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/vehicle-transactions/{transactionId}/handovers/{handoverId}/access`
 
@@ -8408,7 +9142,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### GET `/staff/payments`
 
@@ -8534,7 +9268,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/payments/refunds`
 
@@ -8671,7 +9405,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/enquiries/{supportId}/messages`
 
@@ -8721,7 +9455,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/support/complaints/{supportId}/messages`
 
@@ -8756,7 +9490,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/complaints/{supportId}/messages`
 
@@ -8806,7 +9540,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/support/enquiries`
 
@@ -8849,7 +9583,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/support/enquiries/{supportId}`
 
@@ -8882,7 +9616,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/enquiries/{supportId}/assignment`
 
@@ -8932,7 +9666,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/enquiries/{supportId}/status`
 
@@ -8984,7 +9718,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/support/complaints`
 
@@ -9027,7 +9761,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/support/complaints/{supportId}`
 
@@ -9060,7 +9794,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/complaints/{supportId}/assignment`
 
@@ -9110,7 +9844,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/complaints/{supportId}/status`
 
@@ -9162,7 +9896,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/complaints/{supportId}/priority`
 
@@ -9212,7 +9946,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/support/reviews`
 
@@ -9253,7 +9987,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/reviews/{reviewId}/moderation`
 
@@ -9305,7 +10039,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/notifications`
 
@@ -9347,7 +10081,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/notifications/read-all`
 
@@ -9380,7 +10114,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/notifications/{notificationId}/read`
 
@@ -9414,7 +10148,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/notifications/preferences/current`
 
@@ -9441,7 +10175,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PUT `/staff/notifications/preferences/current`
 
@@ -9492,12 +10226,12 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/overview`
 
 - Operation ID: `getStaffOverview`
-- Purpose: Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. Read role-scoped dashboard aggregates; financial totals are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Inclusive Africa/Lagos calendar range, maximum 90 days. Scope derives from the authenticated actor, with active-branch enforcement for STAFF. Booking/order/inspection/vehicle counts use creation dates; quotations use issue dates. Status breakdowns reflect current status. Administrator payment sums use succeededAt and verified settled attempts; refunds use processedAt. Currencies remain separate. Recent records are bounded previews, never the source of aggregate counts. CUSTOMER alone receives care: bounded own-account current previews independent of the historical range. Current booking selects latest updated IN_PROGRESS; next booking selects earliest future REQUESTED/CONFIRMED. Vehicle is the owned vehicle linked to that booking, otherwise the latest garage addition. Quote is the latest unexpired ISSUED quote. Payment is the latest unexpired REQUIRES_PAYMENT or unresolved PROCESSING/REQUIRES_REVIEW request, not a debt balance. Order is the latest created order with actual fulfillment method/status. Inspection prioritizes earliest future confirmed/rescheduled appointment, otherwise nearest future requested date. Notification is the latest unexpired own notification. Preview ties use IDs; absence is null and never an aggregate zero. Staff responses omit care. Read role-scoped dashboard aggregates; financial totals are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9574,7 +10308,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/finance-policy`
 
@@ -9601,7 +10335,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/privacy-requests`
 
@@ -9647,7 +10381,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/privacy-requests/{id}/review`
 
@@ -9706,7 +10440,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/retention-holds`
 
@@ -9748,7 +10482,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/retention-holds`
 
@@ -9808,7 +10542,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/retention-holds/{id}/release`
 
@@ -9855,7 +10589,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/orders/{id}/aftercare`
 
@@ -9913,7 +10647,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/orders/{id}/fulfillment-evidence`
 
@@ -9964,7 +10698,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/order-requests/{id}/review`
 
@@ -10043,7 +10777,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/support/complaints/{supportId}/acknowledge`
 
@@ -10091,7 +10825,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/refunds/{refundId}/decision`
 
@@ -10168,7 +10902,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/refunds`
 
@@ -10235,7 +10969,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/refunds/{refundId}/evidence-upload`
 
@@ -10292,7 +11026,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/refunds/{refundId}/transfer`
 
@@ -10356,7 +11090,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/refunds/{refundId}/evidence-access`
 
@@ -10409,7 +11143,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/refunds/{refundId}/check`
 
@@ -10467,7 +11201,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/disputes`
 
@@ -10533,7 +11267,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/disputes/{id}/assign`
 
@@ -10611,7 +11345,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/disputes/{id}/acknowledge`
 
@@ -10687,7 +11421,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/staff/disputes/{id}/evidence-upload`
 
@@ -10744,7 +11478,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/disputes/{id}/evidence`
 
@@ -10828,7 +11562,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/disputes/{id}/evidence-access`
 
@@ -10873,7 +11607,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
 
 ### POST `/staff/disputes/{id}/submission`
 
@@ -10953,7 +11687,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 
 ## Administration
@@ -11007,7 +11741,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers/{customerId}`
 
@@ -11051,7 +11785,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers/{customerId}/vehicles`
 
@@ -11095,7 +11829,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers/{customerId}/bookings`
 
@@ -11139,7 +11873,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers/{customerId}/quotations`
 
@@ -11183,7 +11917,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers/{customerId}/orders`
 
@@ -11227,7 +11961,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers/{customerId}/payments`
 
@@ -11315,7 +12049,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/customers/{customerId}/complaints`
 
@@ -11359,7 +12093,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/services/{serviceId}/images`
 
@@ -11856,7 +12590,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/branches`
 
@@ -11916,7 +12650,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/branches/{branchId}`
 
@@ -11949,7 +12683,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/branches/{branchId}`
 
@@ -12004,7 +12738,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/staff`
 
@@ -12046,7 +12780,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/staff/{staffUserId}`
 
@@ -12079,7 +12813,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/staff/invitations`
 
@@ -12119,7 +12853,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/staff/invitations`
 
@@ -12170,7 +12904,7 @@ Success: HTTP 202.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/staff/{staffUserId}/status`
 
@@ -12218,7 +12952,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/staff/{staffUserId}/branch`
 
@@ -12266,7 +13000,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/staff/{staffUserId}/role`
 
@@ -12316,7 +13050,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/staff/candidates`
 
@@ -12354,7 +13088,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/staff/promotions`
 
@@ -12405,7 +13139,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/staff/invitations/{invitationId}/revoke`
 
@@ -12449,7 +13183,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/catalog/categories`
 
@@ -12489,7 +13223,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/catalog/categories`
 
@@ -12542,7 +13276,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/catalog/categories/{categoryId}`
 
@@ -12596,7 +13330,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/catalog/products`
 
@@ -12699,7 +13433,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/catalog/products`
 
@@ -12816,7 +13550,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/catalog/products/{productId}`
 
@@ -12928,7 +13662,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/catalog/products/{productId}/compatibilities`
 
@@ -12984,7 +13718,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/catalog/products/{productId}/compatibilities/{compatibilityId}`
 
@@ -13041,7 +13775,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/admin/catalog/products/{productId}/compatibilities/{compatibilityId}`
 
@@ -13072,7 +13806,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/catalog/products/{productId}/images`
 
@@ -13135,7 +13869,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/catalog/products/{productId}/images/{imageId}`
 
@@ -13199,7 +13933,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### DELETE `/admin/catalog/products/{productId}/images/{imageId}`
 
@@ -13244,7 +13978,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/inventory`
 
@@ -13295,7 +14029,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/services`
 
@@ -13336,7 +14070,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/services`
 
@@ -13358,6 +14092,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `categoryId` | string / null | No | Identifier of the category resource; ownership is resolved server-side. |
 | `name` | string | Yes | Name validated by this operation's strict request contract. |
 | `slug` | string | Yes | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
@@ -13396,7 +14131,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/services/{serviceId}`
 
@@ -13420,6 +14155,7 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `name` | string | No | Name validated by this operation's strict request contract. |
+| `categoryId` | string / null | No | Identifier of the category resource; ownership is resolved server-side. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
 | `shortDescription` | string / null | No | Short Description validated by this operation's strict request contract. |
@@ -13453,7 +14189,175 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/service-categories`
+
+- Operation ID: `getAdminServiceCategories`
+- Purpose: Literal case-insensitive name-prefix search, ascending name/ID order, signed filter-bound cursor. Public options include only active categories with an active service (limit 1–50). Administrator list includes inactive and empty categories and supports isActive (limit 1–100). List service categories for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+| `isActive` | query | true / false | No | Is Active used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List service categories for administration",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "slug": "synthetic-slug",
+        "description": "synthetic-description",
+        "isActive": true,
+        "version": 0,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/admin/service-categories`
+
+- Operation ID: `postAdminServiceCategories`
+- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Create a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Name validated by this operation's strict request contract. |
+| `slug` | string | Yes | Slug validated by this operation's strict request contract. |
+| `description` | string / null | No | Description validated by this operation's strict request contract. |
+| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+
+Synthetic request example:
+
+```json
+{
+  "name": "synthetic-name",
+  "slug": "synthetic-slug",
+  "description": "synthetic-description",
+  "isActive": true
+}
+```
+
+Success: HTTP 201.
+
+```json
+{
+  "success": true,
+  "message": "Create a service category",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "description": "synthetic-description",
+    "isActive": true,
+    "version": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Duplicate slug or stale version; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PATCH `/admin/service-categories/{categoryId}`
+
+- Operation ID: `patchAdminServiceCategoriesByCategoryId`
+- Purpose: ADMIN or SUPER_ADMIN with verified MFA and CSRF. Category assignments require an active category. Archive removes public grouping without unpublishing services or changing bookings; reactivation restores grouping. Updates require expectedVersion. Mutations are audited. Unique slug prevents duplicate creation; after uncertain creation, read the list before retrying. Update or archive a service category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `name` | string | No | Name validated by this operation's strict request contract. |
+| `slug` | string | No | Slug validated by this operation's strict request contract. |
+| `description` | string / null | No | Description validated by this operation's strict request contract. |
+| `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "name": "synthetic-name",
+  "slug": "synthetic-slug",
+  "description": "synthetic-description",
+  "isActive": true,
+  "expectedVersion": 0
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Update or archive a service category",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "description": "synthetic-description",
+    "isActive": true,
+    "version": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Unknown category; 409 Duplicate slug or stale version; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/orders/expire`
 
@@ -13500,7 +14404,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/promotions`
 
@@ -13540,7 +14444,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/promotions`
 
@@ -13602,7 +14506,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/promotions/{promotionId}`
 
@@ -13635,7 +14539,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/promotions/{promotionId}`
 
@@ -13696,7 +14600,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/vehicle-transactions/expire`
 
@@ -13743,7 +14647,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/audit`
 
@@ -13762,7 +14666,7 @@ Parameters:
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `userId` | query | string (uuid) | No | User Id used to constrain this request. |
 | `action` | query | CREATE / UPDATE / DELETE / READ / LOGIN / LOGOUT / PASSWORD_RESET / EMAIL_VERIFIED / MFA_ENABLED / MFA_DISABLED / SESSION_REVOKED / ROLE_CHANGE / ACCOUNT_SUSPENDED / ACCOUNT_DEACTIVATED / STATUS_CHANGE / INVENTORY_ADJUSTED / PAYMENT_INITIALIZED / PAYMENT_VERIFIED / MANUAL_PAYMENT_APPROVED / REFUND_REQUESTED / REFUND_APPROVED / PAYMENT_REFUNDED / DISPUTE_UPDATED / VEHICLE_RESERVED / VEHICLE_RELEASED / INVITATION_CREATED / INVITATION_ACCEPTED / BRANCH_ASSIGNED | No | Action used to constrain this request. |
-| `entityType` | query | USER / BRANCH / PRIVILEGED_INVITATION / SESSION / MFA_FACTOR / CUSTOMER_PROFILE / STAFF_PROFILE / CUSTOMER_VEHICLE / SERVICE / BOOKING / QUOTE / WORK_ORDER / PRODUCT / INVENTORY / ORDER / PAYMENT / PAYMENT_ATTEMPT / REFUND / DISPUTE / VEHICLE / VEHICLE_LISTING / VEHICLE_TRANSACTION / INSPECTION / REVIEW / ENQUIRY / COMPLAINT / PROMOTION / INVOICE | No | Entity Type used to constrain this request. |
+| `entityType` | query | USER / BRANCH / PRIVILEGED_INVITATION / SESSION / MFA_FACTOR / CUSTOMER_PROFILE / STAFF_PROFILE / CUSTOMER_VEHICLE / SERVICE / SERVICE_CATEGORY / BOOKING / QUOTE / WORK_ORDER / PRODUCT / INVENTORY / ORDER / PAYMENT / PAYMENT_ATTEMPT / REFUND / DISPUTE / VEHICLE / VEHICLE_LISTING / VEHICLE_TRANSACTION / INSPECTION / REVIEW / ENQUIRY / COMPLAINT / PROMOTION / INVOICE | No | Entity Type used to constrain this request. |
 | `entityId` | query | string | No | Entity Id used to constrain this request. |
 | `requestId` | query | string | No | Request Id used to constrain this request. |
 | `from` | query | string (date-time) | No | From used to constrain this request. |
@@ -13789,7 +14693,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/operations/status`
 
@@ -13816,7 +14720,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/operations/jobs`
 
@@ -13857,7 +14761,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/operations/payment-anomalies`
 
@@ -13898,7 +14802,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/operations/payment-disputes`
 
@@ -13939,7 +14843,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/operations/payment-refunds`
 
@@ -13979,12 +14883,12 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/operations/jobs/{source}/{jobId}/retry`
 
 - Operation ID: `postAdminOperationsJobsBySourceByJobIdRetry`
-- Purpose: Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. RETRY_REQUESTED means queued, not delivered; the worker still checks consent, message eligibility and configured providers. Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -14009,7 +14913,7 @@ Synthetic request example:
 
 ```json
 {
-  "expectedAttempts": 1,
+  "expectedAttempts": 0,
   "reason": "synthetic-reason"
 }
 ```
@@ -14030,7 +14934,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 Job state changed; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 Job or linked notification delivery state changed; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/operations/payment-anomalies/{anomalyId}/status`
 
@@ -14082,7 +14986,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 Invalid or stale transition; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 Invalid or stale transition; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/policies`
 
@@ -14121,7 +15025,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/policies`
 
@@ -14178,7 +15082,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/capabilities`
 
@@ -14212,7 +15116,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/capabilities`
 
@@ -14261,7 +15165,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### POST `/admin/capabilities/{id}/revoke`
 
@@ -14305,7 +15209,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 
 ## Payment webhooks

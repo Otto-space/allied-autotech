@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+import { registerFinancialDocumentsOpenApi } from "./documents.openapi.js";
 import {
   customerInvoiceListQuerySchema,
   invoiceCreateBodySchema,
@@ -15,6 +16,7 @@ const response = z.object({
 });
 const headers = z.object({ "x-csrf-token": z.string().min(32) });
 export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
+  registerFinancialDocumentsOpenApi(registry);
   for (const [path, query] of [
     ["/customers/invoices", customerInvoiceListQuerySchema],
     ["/staff/invoices", staffInvoiceListQuerySchema],

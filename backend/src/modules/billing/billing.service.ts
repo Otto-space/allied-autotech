@@ -21,6 +21,7 @@ import type {
   StaffInvoiceListQuery,
 } from "./billing.schemas.js";
 import { invoiceJsonSafe, invoicePage } from "./billing.types.js";
+import { buildInvoiceSnapshot } from "./document-snapshot.js";
 
 const number = () =>
   `INV-${new Date().toISOString().slice(0, 10).replaceAll("-", "")}-${randomUUID().replaceAll("-", "").slice(0, 16).toUpperCase()}`;
@@ -180,6 +181,17 @@ export class BillingService {
       }
       await this.assertBranch(actor, branchId, transaction);
       data.policySnapshot = policySnapshot(finance);
+      data.documentSnapshot = await buildInvoiceSnapshot(transaction, {
+        customerId: data.customerId,
+        orderId: data.orderId ?? null,
+        bookingId: data.bookingId ?? null,
+        vehicleTransactionId: data.vehicleTransactionId ?? null,
+        subtotalKobo: BigInt(data.subtotalKobo),
+        taxKobo: BigInt(data.taxKobo ?? 0),
+        depositCreditKobo: BigInt(data.depositCreditKobo ?? 0),
+        totalKobo: BigInt(data.totalKobo),
+        policySnapshot: data.policySnapshot,
+      });
       const invoice = await this.repository.create(data, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,

@@ -10,6 +10,7 @@ import {
   bookingPolicy,
 } from "../../src/modules/service-operations/service-operations.service.js";
 import { BookingReminderWorker } from "../../src/workers/booking-reminder.worker.js";
+import { ExpirationWorker } from "../../src/workers/expiration.worker.js";
 import {
   quoteCreateBodySchema,
   quoteReplaceBodySchema,
@@ -204,6 +205,52 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         7 * 86_400_000,
       );
       expect(issued.policySnapshot).toMatchObject({ key: "finance" });
+    });
+    it("expires an issued quotation once without changing its immutable document version or amounts", async () => {
+      const f = await fixture();
+      const quote = await prisma.serviceQuote.create({
+        data: {
+          bookingId: f.booking.id,
+          createdByStaffId: f.admin.user.staffProfile!.id,
+          quoteNumber: `EXP-${randomUUID().slice(0, 30)}`,
+          version: 3,
+          revision: 4,
+          status: "ISSUED",
+          subtotalKobo: 10000n,
+          taxKobo: 750n,
+          totalKobo: 10750n,
+          createdAt: new Date(Date.now() - 62 * 86_400_000),
+          issuedAt: new Date(Date.now() - 61 * 86_400_000),
+          expiresAt: new Date(Date.now() - 60 * 86_400_000),
+        },
+      });
+      const worker = new ExpirationWorker(prisma);
+      await worker.runOnce();
+      await worker.runOnce();
+      expect(
+        await prisma.serviceQuote.findUniqueOrThrow({ where: { id: quote.id } }),
+      ).toMatchObject({
+        status: "EXPIRED",
+        version: 3,
+        revision: 5,
+        subtotalKobo: 10000n,
+        taxKobo: 750n,
+        totalKobo: 10750n,
+      });
+      const audits = await prisma.auditLog.findMany({
+        where: { entityType: "QUOTE", entityId: quote.id, action: "STATUS_CHANGE" },
+      });
+      expect(audits).toHaveLength(1);
+      expect(audits[0]!.oldValues).toMatchObject({
+        status: "ISSUED",
+        version: 3,
+        revision: 4,
+      });
+      expect(audits[0]!.newValues).toMatchObject({
+        status: "EXPIRED",
+        version: 3,
+        revision: 5,
+      });
     });
     it("takes a request without payment and requires approved capacity before staff confirmation", async () => {
       const f = await fixture();

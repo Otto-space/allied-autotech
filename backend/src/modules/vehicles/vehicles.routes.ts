@@ -1,4 +1,8 @@
 import { vehiclesService } from "./vehicles.service.js";
+import {
+  vehicleDiscoveryQuerySchema,
+  vehicleFacetQuerySchema,
+} from "./vehicle-discovery.schemas.js";
 import { stockImageParams, stockImageUpdateSchema } from "./stock-media.schemas.js";
 import { mediaVersionSchema } from "../media/media.schemas.js";
 import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
@@ -22,6 +26,7 @@ import {
   listingStatusBodySchema,
   listingUpdateBodySchema,
   publicVehicleListQuerySchema,
+  savedVehiclePageQuerySchema,
   staffVehicleListQuerySchema,
   vehicleCreateBodySchema,
   vehicleEmptySchema,
@@ -32,6 +37,16 @@ import {
 export function createPublicVehiclesRouter(service = vehiclesService): Router {
   const router = Router();
   const controller = new VehiclesController(service);
+  router.get(
+    "/discovery",
+    validate({ query: vehicleDiscoveryQuerySchema }),
+    controller.publicDiscovery,
+  );
+  router.get(
+    "/facets",
+    validate({ query: vehicleFacetQuerySchema }),
+    controller.publicFacets,
+  );
   router.get(
     "/",
     validate({ query: publicVehicleListQuerySchema }),
@@ -53,6 +68,11 @@ export function createCustomerVehiclesDiscoveryRouter(): Router {
   const router = Router();
   const controller = new VehiclesController();
   router.use(authenticate(), requireCustomer);
+  router.get(
+    "/saved-vehicles/page",
+    validate({ query: savedVehiclePageQuerySchema }),
+    controller.savedPage,
+  );
   router.get(
     "/saved-vehicles",
     validate({ query: vehicleEmptySchema }),

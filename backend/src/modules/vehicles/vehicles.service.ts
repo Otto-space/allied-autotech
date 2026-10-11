@@ -38,6 +38,13 @@ import type {
   VehicleUpdateInput,
 } from "./vehicles.schemas.js";
 import { vehicleJsonSafe, vehiclePage } from "./vehicles.types.js";
+import { readSavedVehicleCursor, savedVehicleCursor } from "./saved-vehicle-cursor.js";
+import type { SavedVehiclePageQuery } from "./vehicles.schemas.js";
+import { VehicleDiscoveryRepository } from "./vehicle-discovery.repository.js";
+import type {
+  VehicleDiscoveryQuery,
+  VehicleFacetQuery,
+} from "./vehicle-discovery.schemas.js";
 
 const listingTransitions = {
   DRAFT: ["AVAILABLE", "INACTIVE"],
@@ -61,6 +68,12 @@ export class VehiclesService {
     return vehicleJsonSafe(
       vehiclePage(await this.repository.listPublic(query), query.limit),
     );
+  }
+  publicDiscovery(query: VehicleDiscoveryQuery) {
+    return new VehicleDiscoveryRepository(this.database).listings(query);
+  }
+  publicFacets(query: VehicleFacetQuery) {
+    return new VehicleDiscoveryRepository(this.database).facets(query);
   }
   async publicListing(id: string) {
     const listing = await this.repository.publicListing(id);
@@ -490,6 +503,21 @@ export class VehiclesService {
     const customer = await this.repository.customer(actor.userId);
     if (customer === null) throw vehicleNotFound();
     return vehicleJsonSafe(await this.repository.listSaved(customer.id));
+  }
+  async savedPage(actor: AuthenticatedActor, query: SavedVehiclePageQuery) {
+    assertVehicleCustomer(actor);
+    const customer = await this.repository.customer(actor.userId);
+    if (customer === null) throw vehicleNotFound();
+    const afterId = readSavedVehicleCursor(customer.id, query.cursor);
+    const rows = await this.repository.listSavedPage(customer.id, query.limit, afterId);
+    const items = rows.slice(0, query.limit);
+    const last = items.at(-1);
+    return vehicleJsonSafe({
+      items,
+      ...(rows.length > query.limit && last
+        ? { nextCursor: savedVehicleCursor(customer.id, last.id) }
+        : {}),
+    });
   }
   async save(actor: AuthenticatedActor, listingId: string) {
     assertVehicleCustomer(actor);

@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 
 import { publicApiPaths } from "../../common/contracts/public-api.js";
 import { mediaImageSchema } from "../media/media.schemas.js";
+import { publicServiceCategorySchema } from "./service-discovery.schemas.js";
 import {
   adminServiceListQuerySchema,
   bookingAssignmentBodySchema,
@@ -40,7 +41,9 @@ const responseSchema = z.object({
   data: z.unknown().optional(),
   meta: z.object({ requestId: z.string() }),
 });
-const publicServiceSchema = z.object({
+export const publicServiceSchema = z.object({
+  categoryId: z.uuid().nullable(),
+  category: publicServiceCategorySchema.nullable(),
   image: mediaImageSchema.nullable(),
   id: z.uuid(),
   name: z.string(),

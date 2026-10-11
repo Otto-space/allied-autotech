@@ -8,9 +8,11 @@ import {
 import { VehiclesService } from "../../src/modules/vehicles/vehicles.service.js";
 import { StockMediaService } from "../../src/modules/vehicles/stock-media.service.js";
 import { MemoryMediaStorage } from "../helpers/media-storage.js";
+import { MemoryObjectStorage } from "../helpers/object-storage.js";
+import { objectStorage } from "../../src/providers/storage/s3-object-storage.adapter.js";
 import { createHash, randomUUID } from "node:crypto";
 import request from "supertest";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { createApp } from "../../src/app.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
 import { hashPassword } from "../../src/common/security/passwords.js";
@@ -87,9 +89,20 @@ const mutation = (
 
 describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
   afterAll(async () => prisma.$disconnect());
+  afterEach(() => vi.restoreAllMocks());
 
   it("enforces branch isolation, private assets, immutable history, and one reservation winner", async () => {
     const imageStorage = new MemoryMediaStorage();
+    const privateStorage = new MemoryObjectStorage();
+    vi.spyOn(objectStorage, "createUpload").mockImplementation(
+      privateStorage.createUpload.bind(privateStorage),
+    );
+    vi.spyOn(objectStorage, "verifyObject").mockImplementation(
+      privateStorage.verifyObject.bind(privateStorage),
+    );
+    vi.spyOn(objectStorage, "createDownload").mockImplementation(
+      privateStorage.createDownload.bind(privateStorage),
+    );
     const vehicles = new VehiclesService(
       prisma,
       undefined,
@@ -238,7 +251,8 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
     expect(savedVehicles.status).toBe(200);
     expect(savedVehicles.body.data).toHaveLength(1);
 
-    const checksum = "7".repeat(64);
+    const documentBytes = Buffer.from("%PDF-1.7\nSynthetic ownership document");
+    const checksum = createHash("sha256").update(documentBytes).digest("hex");
     const imageBytes = await sharp({
       create: { width: 96, height: 64, channels: 3, background: "blue" },
     })
@@ -272,10 +286,11 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
       .send({
         kind: "DOCUMENT",
         mimeType: "application/pdf",
-        sizeBytes: 4_096,
+        sizeBytes: documentBytes.length,
         checksumSha256: checksum,
       });
     expect(documentUpload.status).toBe(201);
+    privateStorage.objects.set(privateStorage.prepared.at(-1)!.key, documentBytes);
     const documentResponse = await request(app)
       .post(`/api/v1/staff/vehicles/${vehicleId}/documents`)
       .set(mutation(staffSession))
@@ -499,16 +514,18 @@ describe.skipIf(!runDatabaseTests)("Phase 7 vehicles and vehicle sales", () => {
       where: { id: winnerId },
       data: { status: "PAID", paidAt: new Date(), version: { increment: 1 } },
     });
+    const handoverBytes = Buffer.from("%PDF-1.7\nSynthetic signed handover");
     const handoverUpload = await request(app)
       .post(`/api/v1/staff/vehicles/${vehicleId}/assets/upload`)
       .set(mutation(staffSession))
       .send({
         kind: "HANDOVER",
         mimeType: "application/pdf",
-        sizeBytes: 2_048,
-        checksumSha256: "8".repeat(64),
+        sizeBytes: handoverBytes.length,
+        checksumSha256: createHash("sha256").update(handoverBytes).digest("hex"),
       });
     expect(handoverUpload.status).toBe(201);
+    privateStorage.objects.set(privateStorage.prepared.at(-1)!.key, handoverBytes);
     const createdHandover = await request(app)
       .post(`/api/v1/staff/vehicle-transactions/${winnerId}/handovers`)
       .set(mutation(staffSession))

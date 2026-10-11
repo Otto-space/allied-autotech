@@ -7,6 +7,7 @@ describe("Phase 7 vehicle and API-documentation boundaries", () => {
 
   it.each([
     ["get", "/api/v1/customers/saved-vehicles"],
+    ["get", "/api/v1/customers/saved-vehicles/page"],
     ["post", "/api/v1/customers/vehicle-inspections"],
     ["get", "/api/v1/customers/vehicle-transactions"],
     ["get", "/api/v1/staff/vehicles"],

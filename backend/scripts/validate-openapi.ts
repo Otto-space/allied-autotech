@@ -143,8 +143,14 @@ for (const [path, pathValue] of Object.entries(paths)) {
     const imageMedia = isObject(successContent)
       ? Object.entries(successContent).find(([mime]) => mime.startsWith("image/"))?.[1]
       : undefined;
+    const pdfMedia = isObject(successContent)
+      ? successContent["application/pdf"]
+      : undefined;
     const successMedia = isObject(successContent)
-      ? (successContent["application/json"] ?? successContent["text/html"] ?? imageMedia)
+      ? (successContent["application/json"] ??
+        successContent["text/html"] ??
+        imageMedia ??
+        pdfMedia)
       : undefined;
     const successSchema = isObject(successMedia) ? successMedia["schema"] : undefined;
     if (!isObject(successMedia) || !isObject(successSchema))
@@ -160,12 +166,20 @@ for (const [path, pathValue] of Object.entries(paths)) {
         failures.push(`Success response lacks a synthetic example on ${label}`);
     }
     if (
-      imageMedia !== undefined &&
+      (imageMedia !== undefined || pdfMedia !== undefined) &&
       (!isObject(successSchema) ||
         successSchema["type"] !== "string" ||
         successSchema["format"] !== "binary")
     )
-      failures.push(`Image response lacks a binary string schema on ${label}`);
+      failures.push(`Binary response lacks a binary string schema on ${label}`);
+    if (
+      pdfMedia !== undefined &&
+      isObject(successContent) &&
+      successContent["application/json"] !== undefined
+    )
+      failures.push(
+        `PDF response incorrectly advertises a JSON success envelope on ${label}`,
+      );
     const documentedResponses = isObject(operationValue["responses"])
       ? operationValue["responses"]
       : {};

@@ -151,6 +151,9 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
         (route.path.startsWith("/staff/")
           ? "Requires ADMIN or SUPER_ADMIN with verified MFA. STAFF has no payment, evidence or refund access. Existing separation-of-duties and transactional checks also apply."
           : "Requires the customer account that owns the payment; server verification remains authoritative.") +
+        (route.method === "get" && route.path === "/customers/payments/{paymentId}"
+          ? " The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed."
+          : "") +
         (route.attemptCreation
           ? " Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due."
           : "") +
@@ -175,7 +178,22 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         [route.created ? "201" : "200"]: {
           description: "Request completed",
-          content: { "application/json": { schema: response } },
+          content: {
+            "application/json": {
+              schema:
+                route.method === "get" && route.path === "/customers/payments/{paymentId}"
+                  ? response.extend({
+                      data: z
+                        .object({
+                          id: uuid,
+                          status: z.string(),
+                          checkoutProviders: z.array(z.enum(["PAYSTACK", "MONNIFY"])),
+                        })
+                        .passthrough(),
+                    })
+                  : response,
+            },
+          },
         },
       },
     });

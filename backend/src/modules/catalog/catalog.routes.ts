@@ -8,6 +8,10 @@ import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { CatalogController } from "./catalog.controller.js";
 import {
+  productDiscoveryQuerySchema,
+  productFacetQuerySchema,
+} from "./product-discovery.schemas.js";
+import {
   adminCategoryListQuerySchema,
   adminProductListQuerySchema,
   cartItemBodySchema,
@@ -34,6 +38,16 @@ import {
 export function createPublicCatalogRouter(): Router {
   const router = Router();
   const controller = new CatalogController();
+  router.get(
+    "/products/discovery",
+    validate({ query: productDiscoveryQuerySchema }),
+    controller.publicDiscovery,
+  );
+  router.get(
+    "/facets",
+    validate({ query: productFacetQuerySchema }),
+    controller.publicFacets,
+  );
   router.get(
     "/categories",
     validate({ query: categoryListQuerySchema }),

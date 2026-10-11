@@ -1,6 +1,12 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import {
+  productDiscoveryQuerySchema,
+  productDiscoveryPageSchema,
+  productFacetQuerySchema,
+  productFacetPageSchema,
+} from "./product-discovery.schemas.js";
+import {
   productResponseSchema,
   productImageResponseSchema,
 } from "./product-media.schemas.js";
@@ -51,6 +57,24 @@ interface Path {
 
 export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
   const paths: readonly Path[] = [
+    {
+      method: "get",
+      path: "/public/catalog/products/discovery",
+      summary: "Search public products with exact totals and stable paging",
+      query: productDiscoveryQuerySchema,
+      response: responseSchema.extend({ data: productDiscoveryPageSchema }),
+      description:
+        "Anonymous. Active products in active categories only. Existing product filters retain literal case-insensitive exact brand/make/model matching, inclusive compatibility year bounds on the same compatibility row, and literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported.",
+    },
+    {
+      method: "get",
+      path: "/public/catalog/facets",
+      summary: "Search catalogue category, brand and compatibility options",
+      query: productFacetQuerySchema,
+      response: responseSchema.extend({ data: productFacetPageSchema }),
+      description:
+        "Anonymous. Bounded options backed by active products in active categories, including out-of-stock products. field=category returns category UUID values and stored names; empty categories are omitted. Other fields collapse case variants into lowercase values with deterministic stored labels. Models require an exact case-insensitive make; make is forbidden for other fields. Optional categoryId scopes non-category options. search is a literal case-insensitive prefix (1-120 characters; percent/underscore escaped). Null models for make-wide compatibility do not become named model options; existing product compatibility filtering semantics are preserved. Options sort by lowercase label then value under C collation. Maximum 50/default 20. Authenticated cursors bind field/categoryId/make/search, survive deleted anchors, and reject tampering/filter changes with 422 VALIDATION_FAILED. No nextCursor means the current option search is complete. No global total or cross-request snapshot/cache is promised.",
+    },
     {
       method: "get",
       path: "/public/catalog/categories",

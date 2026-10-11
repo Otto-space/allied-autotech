@@ -7,6 +7,8 @@ import {
 import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { BillingController } from "./billing.controller.js";
+import { invoiceDocument, invoiceDownload } from "./documents.controller.js";
+import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import {
   billingEmptyQuerySchema,
   customerInvoiceListQuerySchema,
@@ -19,6 +21,17 @@ export function createCustomerBillingRouter(): Router {
   const router = Router();
   const controller = new BillingController();
   router.use(authenticate(), requireCustomer);
+  router.get(
+    "/:invoiceId/document",
+    validate({ params: invoiceParamsSchema, query: billingEmptyQuerySchema }),
+    invoiceDocument,
+  );
+  router.get(
+    "/:invoiceId/download",
+    createSensitiveRateLimit(20),
+    validate({ params: invoiceParamsSchema, query: billingEmptyQuerySchema }),
+    invoiceDownload,
+  );
   router.get(
     "/",
     validate({ query: customerInvoiceListQuerySchema }),

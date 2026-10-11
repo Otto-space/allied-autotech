@@ -12,6 +12,7 @@ import type { ObjectStoragePort } from "../../providers/storage/object-storage.p
 import { objectStorage } from "../../providers/storage/s3-object-storage.adapter.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { VehicleSalesRepository } from "./vehicle-sales.repository.js";
+import { withCreationIdempotency } from "./creation-idempotency.js";
 import type {
   CustomerInspectionListQuery,
   CustomerTransactionListQuery,
@@ -95,42 +96,68 @@ export class VehicleSalesService {
     actor: AuthenticatedActor,
     input: InspectionCreateInput,
     context: RequestSecurityContext,
+    rawKey?: string,
   ) {
     assertVehicleSaleCustomer(actor);
-    if (new Date(input.preferredStartAt) <= new Date())
-      throw vehicleSaleConflict("Inspection must be requested for a future time");
     return withTransactionRetry(this.database, async (transaction) => {
       const customer = await this.repository.customer(actor.userId, transaction);
-      const listing = await this.repository.publicListing(
-        input.vehicleListingId,
+      if (customer === null) throw vehicleSaleNotFound();
+      const record = await withCreationIdempotency(
         transaction,
-      );
-      if (customer === null || listing === null) throw vehicleSaleNotFound();
-      const inspection = await transaction.inspectionRequest.create({
-        data: {
-          customerId: customer.id,
-          vehicleListingId: listing.id,
-          customerName: `${customer.firstName} ${customer.lastName}`,
-          customerPhone: customer.phone,
-          customerEmail: customer.user.email,
-          preferredStartAt: new Date(input.preferredStartAt),
+        actor.userId,
+        "inspection-create",
+        rawKey,
+        {
+          vehicleListingId: input.vehicleListingId,
+          preferredStartAt: new Date(input.preferredStartAt).toISOString(),
           preferredEndAt:
-            input.preferredEndAt === undefined ? null : new Date(input.preferredEndAt),
+            input.preferredEndAt === undefined
+              ? null
+              : new Date(input.preferredEndAt).toISOString(),
           notes: input.notes ?? null,
         },
-        select: { id: true },
-      });
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "CREATE",
-        entityType: "INSPECTION",
-        entityId: inspection.id,
-        newValues: { vehicleListingId: listing.id },
-        context,
-      });
-      return vehicleSaleJson(
-        await this.repository.inspection(inspection.id, transaction),
+        async () => {
+          if (new Date(input.preferredStartAt) <= new Date())
+            throw vehicleSaleConflict("Inspection must be requested for a future time");
+          const listing = await this.repository.publicListing(
+            input.vehicleListingId,
+            transaction,
+          );
+          if (listing === null) throw vehicleSaleNotFound();
+          const inspection = await transaction.inspectionRequest.create({
+            data: {
+              customerId: customer.id,
+              vehicleListingId: listing.id,
+              customerName: `${customer.firstName} ${customer.lastName}`,
+              customerPhone: customer.phone,
+              customerEmail: customer.user.email,
+              preferredStartAt: new Date(input.preferredStartAt),
+              preferredEndAt:
+                input.preferredEndAt === undefined
+                  ? null
+                  : new Date(input.preferredEndAt),
+              notes: input.notes ?? null,
+            },
+            select: { id: true },
+          });
+          await appendAuditEvent(transaction, {
+            actorUserId: actor.userId,
+            action: "CREATE",
+            entityType: "INSPECTION",
+            entityId: inspection.id,
+            newValues: { vehicleListingId: listing.id },
+            context,
+          });
+          const created = await this.repository.inspection(inspection.id, transaction);
+          if (created === null) throw vehicleSaleNotFound();
+          return created;
+        },
+        async (id) => {
+          const existing = await this.repository.inspection(id, transaction);
+          return existing?.customerId === customer.id ? existing : null;
+        },
       );
+      return vehicleSaleJson(record);
     });
   }
   async staffInspections(actor: AuthenticatedActor, query: StaffInspectionListQuery) {
@@ -245,68 +272,93 @@ export class VehicleSalesService {
     actor: AuthenticatedActor,
     input: TransactionCreateInput,
     context: RequestSecurityContext,
+    rawKey?: string,
   ) {
     assertVehicleSaleCustomer(actor);
     return withTransactionRetry(this.database, async (transaction) => {
       const customer = await this.repository.customer(actor.userId, transaction);
-      const listing = await this.repository.publicListing(
-        input.vehicleListingId,
+      if (customer === null) throw vehicleSaleNotFound();
+      const record = await withCreationIdempotency(
         transaction,
-      );
-      if (customer === null || listing === null) throw vehicleSaleNotFound();
-      if (input.sourceInspectionId !== undefined) {
-        const inspection = await this.repository.inspection(
-          input.sourceInspectionId,
-          transaction,
-        );
-        if (
-          inspection === null ||
-          inspection.customerId !== customer.id ||
-          inspection.vehicleListingId !== listing.id ||
-          inspection.status !== "COMPLETED"
-        )
-          throw vehicleSaleNotFound();
-      }
-      const created = await transaction.vehicleTransaction.create({
-        data: {
-          vehicleListingId: listing.id,
-          customerId: customer.id,
-          ...(input.sourceInspectionId === undefined
-            ? {}
-            : { sourceInspectionId: input.sourceInspectionId }),
-          transactionNumber: reference(),
-          customerName: `${customer.firstName} ${customer.lastName}`,
-          customerPhone: customer.phone,
-          customerEmail: customer.user.email,
-          askingPriceKobo: listing.priceKobo,
-          currency: "NGN",
-          status:
-            input.sourceInspectionId === undefined ? "ENQUIRY" : "INSPECTION_COMPLETED",
-          statusHistory: {
-            create: {
-              changedByUserId: actor.userId,
-              toStatus:
+        actor.userId,
+        "vehicle-enquiry-create",
+        rawKey,
+        {
+          vehicleListingId: input.vehicleListingId,
+          sourceInspectionId: input.sourceInspectionId ?? null,
+        },
+        async () => {
+          const listing = await this.repository.publicListing(
+            input.vehicleListingId,
+            transaction,
+          );
+          if (listing === null) throw vehicleSaleNotFound();
+          if (input.sourceInspectionId !== undefined) {
+            const inspection = await this.repository.inspection(
+              input.sourceInspectionId,
+              transaction,
+            );
+            if (
+              inspection === null ||
+              inspection.customerId !== customer.id ||
+              inspection.vehicleListingId !== listing.id ||
+              inspection.status !== "COMPLETED"
+            )
+              throw vehicleSaleNotFound();
+          }
+          const created = await transaction.vehicleTransaction.create({
+            data: {
+              vehicleListingId: listing.id,
+              customerId: customer.id,
+              ...(input.sourceInspectionId === undefined
+                ? {}
+                : { sourceInspectionId: input.sourceInspectionId }),
+              transactionNumber: reference(),
+              customerName: `${customer.firstName} ${customer.lastName}`,
+              customerPhone: customer.phone,
+              customerEmail: customer.user.email,
+              askingPriceKobo: listing.priceKobo,
+              currency: "NGN",
+              status:
+                input.sourceInspectionId === undefined
+                  ? "ENQUIRY"
+                  : "INSPECTION_COMPLETED",
+              statusHistory: {
+                create: {
+                  changedByUserId: actor.userId,
+                  toStatus:
+                    input.sourceInspectionId === undefined
+                      ? "ENQUIRY"
+                      : "INSPECTION_COMPLETED",
+                },
+              },
+            },
+            select: { id: true },
+          });
+          await appendAuditEvent(transaction, {
+            actorUserId: actor.userId,
+            action: "CREATE",
+            entityType: "VEHICLE_TRANSACTION",
+            entityId: created.id,
+            newValues: {
+              vehicleListingId: listing.id,
+              status:
                 input.sourceInspectionId === undefined
                   ? "ENQUIRY"
                   : "INSPECTION_COMPLETED",
             },
-          },
+            context,
+          });
+          const result = await this.repository.transaction(created.id, transaction);
+          if (result === null) throw vehicleSaleNotFound();
+          return result;
         },
-        select: { id: true },
-      });
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "CREATE",
-        entityType: "VEHICLE_TRANSACTION",
-        entityId: created.id,
-        newValues: {
-          vehicleListingId: listing.id,
-          status:
-            input.sourceInspectionId === undefined ? "ENQUIRY" : "INSPECTION_COMPLETED",
+        async (id) => {
+          const existing = await this.repository.transaction(id, transaction);
+          return existing?.customerId === customer.id ? existing : null;
         },
-        context,
-      });
-      return vehicleSaleJson(await this.repository.transaction(created.id, transaction));
+      );
+      return vehicleSaleJson(record);
     });
   }
   async staffTransactions(actor: AuthenticatedActor, query: StaffTransactionListQuery) {
@@ -716,18 +768,22 @@ export class VehicleSalesService {
           verifiedAsset.actorUserId !== actor.userId ||
           verifiedAsset.vehicleId !== initialAssetSale.vehicleListing.vehicle.id ||
           verifiedAsset.kind !== "HANDOVER" ||
-          verifiedAsset.expiresAt < Date.now() ||
-          !(await this.storage.verifyObject({
-            key: verifiedAsset.objectKey,
-            mimeType: verifiedAsset.mimeType,
-            sizeBytes: verifiedAsset.sizeBytes,
-            checksumSha256: verifiedAsset.checksumSha256,
-          }))
+          verifiedAsset.expiresAt < Date.now()
         )
           throw new Error("Invalid handover asset");
       } catch {
         throw vehicleSaleConflict("Signed handover asset is invalid or expired");
       }
+      // Keep unavailable storage distinct from a malformed or mismatched ticket.
+      if (
+        !(await this.storage.verifyObject({
+          key: verifiedAsset.objectKey,
+          mimeType: verifiedAsset.mimeType,
+          sizeBytes: verifiedAsset.sizeBytes,
+          checksumSha256: verifiedAsset.checksumSha256,
+        }))
+      )
+        throw vehicleSaleConflict("Signed handover asset is invalid or expired");
     }
     return withTransactionRetry(this.database, async (transaction) => {
       const initial = await this.repository.transaction(id, transaction);

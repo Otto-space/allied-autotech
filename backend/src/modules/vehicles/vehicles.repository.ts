@@ -127,14 +127,17 @@ function vehicleSelect(includeAcquisition: boolean) {
   } satisfies Prisma.VehicleSelect;
 }
 
-function publicWhere(query: PublicVehicleListQuery): Prisma.VehicleListingWhereInput {
+const literalPattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
+export function publicWhere(
+  query: Omit<PublicVehicleListQuery, "cursor">,
+): Prisma.VehicleListingWhereInput {
   const vehicle: Prisma.VehicleWhereInput = {
     ...(query.make === undefined
       ? {}
-      : { make: { equals: query.make, mode: "insensitive" } }),
+      : { make: { equals: literalPattern(query.make), mode: "insensitive" } }),
     ...(query.model === undefined
       ? {}
-      : { model: { equals: query.model, mode: "insensitive" } }),
+      : { model: { equals: literalPattern(query.model), mode: "insensitive" } }),
     ...(query.year === undefined ? {} : { year: query.year }),
     ...(query.bodyType === undefined ? {} : { bodyType: query.bodyType }),
     ...(query.transmission === undefined ? {} : { transmission: query.transmission }),
@@ -161,14 +164,22 @@ function publicWhere(query: PublicVehicleListQuery): Prisma.VehicleListingWhereI
       ? {}
       : {
           OR: [
-            { title: { contains: query.search, mode: "insensitive" } },
-            { vehicle: { make: { contains: query.search, mode: "insensitive" } } },
-            { vehicle: { model: { contains: query.search, mode: "insensitive" } } },
+            { title: { contains: literalPattern(query.search), mode: "insensitive" } },
+            {
+              vehicle: {
+                make: { contains: literalPattern(query.search), mode: "insensitive" },
+              },
+            },
+            {
+              vehicle: {
+                model: { contains: literalPattern(query.search), mode: "insensitive" },
+              },
+            },
           ],
         }),
   };
 }
-function publicOrder(
+export function publicOrder(
   sort: PublicVehicleListQuery["sort"],
 ): Prisma.VehicleListingOrderByWithRelationInput[] {
   if (sort === "price_asc") return [{ priceKobo: "asc" }, { id: "asc" }];
@@ -526,6 +537,22 @@ export class VehiclesRepository {
         vehicleListing: { select: publicListingSelect },
       },
       orderBy: { id: "asc" },
+    });
+  }
+  listSavedPage(customerId: string, limit: number, afterId?: string) {
+    return this.database.savedVehicle.findMany({
+      where: {
+        customerId,
+        ...(afterId === undefined ? {} : { id: { gt: afterId } }),
+        vehicleListing: { status: "AVAILABLE", branch: { isActive: true } },
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        vehicleListing: { select: publicListingSelect },
+      },
+      orderBy: { id: "asc" },
+      take: limit + 1,
     });
   }
   save(customerId: string, listingId: string, client: DatabaseClient) {

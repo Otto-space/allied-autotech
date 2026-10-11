@@ -1,4 +1,5 @@
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { buildInvoiceSnapshot } from "../billing/document-snapshot.js";
 import { requestFreeCancellationRefund } from "../payments/refund-workflow.js";
 import { requestAftercare } from "./order-aftercare.service.js";
 import { customerAftercareView } from "./order-aftercare.schemas.js";
@@ -250,6 +251,14 @@ export class OrdersService {
           taxKobo,
           policySnapshot: policySnapshot(finance),
           totalKobo,
+          documentSnapshot: await buildInvoiceSnapshot(transaction, {
+            customerId: profile.id,
+            orderId,
+            subtotalKobo: totalKobo - taxKobo,
+            taxKobo,
+            totalKobo,
+            policySnapshot: policySnapshot(finance),
+          }),
         },
         select: { id: true },
       });

@@ -90,7 +90,9 @@ function responseDetails(operation: JsonObject): {
   const successResponse = success && isObject(success[1]) ? success[1] : {};
   const content = isObject(successResponse["content"]) ? successResponse["content"] : {};
   const media = isObject(content["application/json"]) ? content["application/json"] : {};
-  const binaryType = Object.keys(content).find((type) => type.startsWith("image/"));
+  const binaryType = Object.keys(content).find(
+    (type) => type.startsWith("image/") || type === "application/pdf",
+  );
   const errors = Object.entries(responses)
     .filter(([status]) => /^[45]\d\d$/u.test(status))
     .map(

@@ -12,6 +12,23 @@ const HTTP_METHODS = new Set([
   "options",
 ]);
 const MUTATION_METHODS = new Set(["post", "put", "patch", "delete"]);
+const PRIVATE_STORAGE_OPERATIONS = new Set([
+  "/staff/vehicles/{vehicleId}/assets/upload",
+  "/staff/vehicles/{vehicleId}/documents",
+  "/staff/vehicles/{vehicleId}/condition-reports",
+  "/staff/vehicles/{vehicleId}/documents/{documentId}/access",
+  "/staff/vehicle-transactions/{transactionId}/handovers",
+  "/staff/vehicle-transactions/{transactionId}/handovers/{handoverId}/access",
+  "/customers/payments/{paymentId}/manual",
+  "/customers/payments/{paymentId}/manual-evidence/upload",
+  "/staff/payments/manual-attempts/{attemptId}/evidence-access",
+  "/staff/refunds/{refundId}/evidence-upload",
+  "/staff/refunds/{refundId}/transfer",
+  "/staff/refunds/{refundId}/evidence-access",
+  "/staff/disputes/{id}/evidence-upload",
+  "/staff/disputes/{id}/evidence",
+  "/staff/disputes/{id}/evidence-access",
+]);
 
 function isObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -324,7 +341,7 @@ function ensureSuccessResponse(
   const content = isObject(response["content"])
     ? response["content"]
     : (response["content"] = {} as JsonObject);
-  if (isObject(content["text/html"])) return;
+  if (isObject(content["text/html"]) || isObject(content["application/pdf"])) return;
   if (
     Object.entries(content).some(
       ([mime, value]) => mime.startsWith("image/") && isObject(value),
@@ -425,9 +442,22 @@ function addErrorResponses(
       "A required provider or database is temporarily unavailable.",
       "PROVIDER_UNAVAILABLE",
     ]);
+  // Database-backed authentication and the production rate-limit store can fail
+  // before a handler runs, including on otherwise public/read-only routes.
+  candidates.push([
+    "503",
+    "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+    "DATABASE_UNAVAILABLE",
+  ]);
   for (const [status, description, code] of candidates)
     if (!isObject(responses[status]))
       responses[status] = errorResponse(description, code);
+  if (method === "post" && PRIVATE_STORAGE_OPERATIONS.has(path)) {
+    const unavailable = responses["503"];
+    if (isObject(unavailable))
+      unavailable["description"] =
+        `${String(unavailable["description"])} PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.`;
+  }
 }
 
 function errorResponseSchema(): JsonObject {
@@ -498,9 +528,10 @@ export function hardenOpenApiDocument<T>(document: T): T {
       const csrf = parameters.some(
         (parameter) => String(parameter["name"]).toLowerCase() === "x-csrf-token",
       );
-      const idempotent = parameters.some(
+      const idempotencyParameter = parameters.find(
         (parameter) => String(parameter["name"]).toLowerCase() === "idempotency-key",
       );
+      const idempotencyRequired = idempotencyParameter?.["required"] === true;
       const access = accessFor(path, secured);
       operationValue["operationId"] = operationId(method, path);
       const specificDescription = operationValue["description"];
@@ -514,18 +545,20 @@ export function hardenOpenApiDocument<T>(document: T): T {
         csrf
           ? "Requires a current session-bound CSRF header."
           : "No CSRF token is required.",
-        idempotent
+        idempotencyRequired
           ? "Requires an Idempotency-Key; a key may only be replayed with the identical request."
-          : "This operation has no idempotency-key contract.",
+          : idempotencyParameter !== undefined
+            ? "Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules."
+            : "This operation has no idempotency-key contract.",
       ].join(" ");
       operationValue["x-access-boundary"] = access.boundary;
       operationValue["x-required-roles"] ??= access.roles;
       operationValue["x-csrf-required"] = csrf;
-      operationValue["x-idempotency-required"] = idempotent;
+      operationValue["x-idempotency-required"] = idempotencyRequired;
       for (const parameter of parameters) {
         const name = String(parameter["name"] ?? "value");
         const location = String(parameter["in"] ?? "request");
-        parameter["description"] = parameterDescription(name, location);
+        parameter["description"] ??= parameterDescription(name, location);
         if (isObject(parameter["schema"])) {
           annotateSchema(parameter["schema"], name);
           parameter["example"] = syntheticValue(name, parameter["schema"]);

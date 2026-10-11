@@ -212,6 +212,8 @@ export async function scheduleReminders(
   });
 }
 
+import { validateServiceCategoryAssignment } from "./service-category.service.js";
+
 export class ServiceOperationsService {
   private readonly repository: ServiceOperationsRepository;
   constructor(private readonly database: PrismaClient = prisma) {
@@ -404,6 +406,7 @@ export class ServiceOperationsService {
   ) {
     assertServiceAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await validateServiceCategoryAssignment(transaction, input.categoryId);
       const service = await this.repository.createService(input, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -433,6 +436,7 @@ export class ServiceOperationsService {
       const existing = await this.repository.service(id, false, transaction);
       if (existing === null) throw serviceOperationNotFound();
       const nextPricing = input.pricingType ?? existing.pricingType;
+      await validateServiceCategoryAssignment(transaction, input.categoryId);
       const nextPrice =
         input.priceKobo === undefined
           ? existing.priceKobo
