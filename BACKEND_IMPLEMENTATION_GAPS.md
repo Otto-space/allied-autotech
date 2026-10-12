@@ -915,6 +915,18 @@ Source audit: 12 October 2026, during the `/dashboard/support` frontend gate. Th
 
 **Evidence:** [routes](backend/src/modules/support/support.routes.ts), [strict schemas](backend/src/modules/support/support.schemas.ts), [creation and branch/source rules](backend/src/modules/support/support.service.ts), [owned projections](backend/src/modules/support/support.repository.ts), and [customer-care design specification](frontend/docs/page-quality/customer-care-oct-concepts/README.md).
 
+### Support reply replay - optional enhancement
+
+**Source finding (12 October 2026):** the customer conversation detail gate is in progress. Existing `POST /customers/support/enquiries/:supportId/messages` and complaint equivalents persist replies, audit them and queue supported notifications. Closed records reject replies; resolved records permit follow-up. Customer bodies cannot select internal visibility. Owned, customer-visible messages are available through bounded cursor pagination. Detail responses also include a bounded customer-visible message projection; the frontend uses the dedicated message endpoint for pagination.
+
+**Current limitation / priority:** P2, optional; backend + frontend + QA. Message creation has no durable request key or original-result replay. After a committed response is lost, resending the same body can duplicate the message and audit. The frontend now implements a conversation/account-scoped pending marker and explicit manual reconciliation, but this does not establish server idempotency or provider delivery.
+
+**Implementation scope if selected:** bind a request key to actor, conversation kind/id and normalized body. Persist the outcome atomically with the message and audit; replay the authorized original identity without a second message, audit or notification enqueue. Specify concurrent calls, body mismatch conflicts, key retention and the behavior when a record closes or ownership/access changes after the original write. Update OpenAPI and generated types before integrating original-key replay.
+
+**Acceptance:** both enquiry and complaint replies survive dropped committed responses and reload with exactly one message, audit and notification intent. Concurrent same-key calls do not duplicate; changed bodies conflict; other accounts and unauthorized roles cannot retrieve/replay the result; closed-record and customer/internal visibility rules remain enforced. Verify real database/API and browser recovery, including later message pages. Notification provider delivery remains under REL-02.
+
+**Evidence:** [customer message service](backend/src/modules/support/support.service.ts), [message routes](backend/src/modules/support/support.routes.ts), [message repository](backend/src/modules/support/support.repository.ts), and [conversation design/verification scope](frontend/docs/page-quality/customer-care-detail-oct-concepts/README.md). This finding does not close the detail-page gate.
+
 ## Customer care - local frontend acceptance
 
 The [customer-care list and creation page](frontend/docs/page-quality/customer-care.md) passed its local gate on 12 October 2026, the forty-fifth expanded milestone. Existing enquiry/complaint routes support the redesigned page. No backend endpoint, schema or migration was added for this frontend gate. Account/category drafts, fresh-session checks, confirmation, stale-read blocking and reload-persistent unknown-outcome recovery preserve server authority without automatic replay.
