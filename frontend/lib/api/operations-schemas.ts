@@ -118,6 +118,16 @@ export type PaymentDispute = z.infer<typeof disputeSchema>;
 export const parseAnomalies = (value: unknown) =>
   z.object({ items: z.array(anomalySchema), nextCursor: uuid.optional() }).parse(value);
 export const parseJobs = (value: unknown) =>
-  z.object({ items: z.array(jobSchema), nextCursor: uuid.optional() }).parse(value);
+  z
+    .object({
+      items: z.array(jobSchema),
+      nextCursor: z
+        .string()
+        .min(80)
+        .max(1024)
+        .regex(/^[A-Za-z0-9_-]+$/)
+        .optional(),
+    })
+    .parse(value);
 export const parseDisputes = (value: unknown) =>
   z.object({ items: z.array(disputeSchema), nextCursor: uuid.optional() }).parse(value);

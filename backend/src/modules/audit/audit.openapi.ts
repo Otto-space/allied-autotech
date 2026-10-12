@@ -1,3 +1,9 @@
+import { auditPageResponseSchema } from "./audit-response.schemas.js";
+import {
+  operationalJobsResponseSchema,
+  operationalRetryResponseSchema,
+  operationsStatusResponseSchema,
+} from "./operations-response.schemas.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 import { disputeRecordSchema } from "../payments/disputes.schemas.js";
@@ -77,6 +83,22 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
       path: route.path,
       tags: ["Audit and operations"],
       summary: route.summary,
+      ...(route.path === "/admin/audit"
+        ? {
+            description:
+              "Admin/Super Admin only with verified privileged session. Private, no-store. Supports every recorded audit action and entity type, including failed logins, booking slots and service categories. Bounded 1 to 100 rows (default 25), ordered by createdAt and ID descending; copy nextCursor unchanged. Successful reads append a READ audit. Both date bounds, when supplied, must be ordered and span at most 90 days. Actor IDs and current roles are returned without account credentials, IP addresses or user agents. Before/after values are nullable selected JSON objects, not complete resource snapshots. Pagination is live, not a snapshot.",
+          }
+        : route.path === "/admin/operations/status"
+          ? {
+              description:
+                "Admin/Super Admin only with verified privileged session. Private, no-store. Current organisation-wide grouped queue counts; absent queue/status groups have zero rows. Includes latest-started reconciliation, open/investigating anomaly count, oldest 100 unresolved alerts and configured expected worker heartbeats. Missing means no heartbeat; overdue means no successful heartbeat within staleAfterMs. A recent success does not prove a currently live worker or provider delivery. No filters accepted.",
+            }
+          : route.path === "/admin/operations/jobs"
+            ? {
+                description:
+                  "Admin/Super Admin only with verified privileged session. Private, no-store. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures and provider credentials are excluded. Every successful read is audited.",
+              }
+            : {}),
       security: [{ sessionCookie: [] }],
       request: "query" in route ? { query: route.query as never } : {},
       responses: {
@@ -85,14 +107,20 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
           content: {
             "application/json": {
               schema:
-                route.path === "/admin/operations/payment-disputes"
-                  ? envelope.extend({
-                      data: z.object({
-                        items: z.array(disputeOverviewSchema),
-                        nextCursor: z.uuid().optional(),
-                      }),
-                    })
-                  : envelope,
+                route.path === "/admin/audit"
+                  ? envelope.extend({ data: auditPageResponseSchema })
+                  : route.path === "/admin/operations/payment-disputes"
+                    ? envelope.extend({
+                        data: z.object({
+                          items: z.array(disputeOverviewSchema),
+                          nextCursor: z.uuid().optional(),
+                        }),
+                      })
+                    : route.path === "/admin/operations/jobs"
+                      ? envelope.extend({ data: operationalJobsResponseSchema })
+                      : route.path === "/admin/operations/status"
+                        ? envelope.extend({ data: operationsStatusResponseSchema })
+                        : envelope,
             },
           },
         },
@@ -115,7 +143,14 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
       },
     },
     responses: {
-      "200": { description: "Retry requested" },
+      "200": {
+        description: "Retry requested",
+        content: {
+          "application/json": {
+            schema: envelope.extend({ data: operationalRetryResponseSchema }),
+          },
+        },
+      },
       "409": { description: "Job or linked notification delivery state changed" },
     },
   });

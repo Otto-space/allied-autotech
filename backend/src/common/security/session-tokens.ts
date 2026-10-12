@@ -19,6 +19,7 @@ export type TokenPurpose =
   | "vehicle-creation-idempotency"
   | "saved-vehicle-cursor"
   | "catalogue-cursor"
+  | "operational-jobs-cursor"
   | "booking-idempotency"
   | "payment-intent-idempotency"
   | "payment-attempt-idempotency"

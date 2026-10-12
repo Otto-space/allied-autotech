@@ -109,6 +109,7 @@ test("operations overview uses real zero counts and links to the exception and j
     }
   });
   await page.goto("/admin");
+  await page.getByText("Processing queues & payment monitoring", { exact: true }).click();
   await expect(page.getByText("0", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Review exceptions", exact: true }),
@@ -146,7 +147,7 @@ for (const route of ["processing-jobs", "payment-exceptions", "payment-disputes"
     expect(calls).toBe(0);
   });
 
-test("job retry validates its reason, guards changed attempts and does not offer broken cursor navigation", async ({
+test("job retry validates its reason and guards changed attempts while paging is available", async ({
   page,
 }) => {
   const job = jobFixture();
@@ -165,7 +166,7 @@ test("job retry validates its reason, guards changed attempts and does not offer
       else
         await reply(route, {
           items: retried ? [] : [{ ...job, lastError: "PRIVATE_BACKEND_DETAIL" }],
-          nextCursor: id(20),
+          ...(retried ? {} : { nextCursor: "A".repeat(100) }),
         });
       return true;
     }
@@ -189,10 +190,7 @@ test("job retry validates its reason, guards changed attempts and does not offer
   failed = false;
   await page.getByRole("button", { name: "Refresh processing jobs" }).click();
   await expect(page.getByRole("heading", { name: job.eventType })).toBeVisible();
-  await expect(
-    page.getByText("More matching records exist.", { exact: false }),
-  ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Next", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeEnabled();
   await expect(page.getByText("PRIVATE_BACKEND_DETAIL", { exact: false })).toHaveCount(0);
   await page.getByRole("button", { name: "Review job retry" }).click();
   await expect(page.getByLabel("Job retry reason")).toBeFocused();
@@ -507,4 +505,54 @@ test("dispute filters reset paging and show precise amounts, Lagos deadlines and
   await page.mouse.move(0, 0);
   await page.screenshot({ path: path.join(os.tmpdir(), "allied-disputes-desktop.png") });
   expect(errors).toEqual([]);
+});
+
+test("processing jobs pages older records, resets filters and performs no mutation on navigation", async ({
+  page,
+}) => {
+  const first = jobFixture(),
+    second = { ...jobFixture(), id: id(21), eventType: "OLDER_SYNTHETIC_JOB" };
+  const reads: URL[] = [];
+  let writes = 0;
+  await fixture(page, async (route, endpoint) => {
+    if (route.request().method() !== "GET") {
+      writes++;
+      return;
+    }
+    if (endpoint === "/admin/operations/jobs") {
+      const url = new URL(route.request().url());
+      reads.push(url);
+      await reply(
+        route,
+        url.searchParams.has("cursor")
+          ? { items: [second] }
+          : { items: [first], nextCursor: "A".repeat(100) },
+      );
+      return true;
+    }
+  });
+  await page.goto("/admin/processing-jobs");
+  await expect(
+    page.getByRole("heading", { name: first.eventType, exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: second.eventType, exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("Page 2", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
+  expect(reads.at(-1)!.searchParams.get("cursor")).toBe("A".repeat(100));
+  await page.getByRole("button", { name: "Previous", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: first.eventType, exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: second.eventType, exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Job status").selectOption("DEAD_LETTER");
+  await expect(page.getByText("Page 1", { exact: true })).toBeVisible();
+  await expect.poll(() => reads.at(-1)?.searchParams.get("status")).toBe("DEAD_LETTER");
+  expect(reads.at(-1)!.searchParams.has("cursor")).toBe(false);
+  expect(writes).toBe(0);
 });

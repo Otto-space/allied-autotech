@@ -1,3 +1,8 @@
+import {
+  decodeJobCursor,
+  encodeJobCursor,
+  jobCursorBinding,
+} from "./operational-job-cursor.js";
 import type { Prisma } from "../../generated/prisma/client.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -81,7 +86,25 @@ export class AuditOperationsService {
     context?: RequestSecurityContext,
   ) {
     assertAuditAdministrator(actor);
-    const result = page(await this.repository.jobs(query), query.limit);
+    const binding = jobCursorBinding(actor.userId, query);
+    const rows = await this.repository.jobs(
+      query,
+      query.cursor ? decodeJobCursor(binding, query.cursor) : undefined,
+    );
+    const items = rows.slice(0, query.limit),
+      last = items.at(-1);
+    const result = {
+      items,
+      ...(rows.length > query.limit && last
+        ? {
+            nextCursor: encodeJobCursor(binding, {
+              id: last.id,
+              source: last.source,
+              updatedAt: last.updatedAt.toISOString(),
+            }),
+          }
+        : {}),
+    };
     if (context)
       await this.auditRead(
         actor,
@@ -114,7 +137,15 @@ export class AuditOperationsService {
         where: { status: { in: ["OPEN", "INVESTIGATING"] } },
       }),
     ]);
-    const heartbeats = await this.database.workerHeartbeat.findMany();
+    const heartbeats = await this.database.workerHeartbeat.findMany({
+      select: {
+        name: true,
+        lastStartedAt: true,
+        lastSucceededAt: true,
+        lastFailedAt: true,
+        errorCode: true,
+      },
+    });
     const expectedWorkers: Array<[string, number]> = [
       ["identity-outbox", 600_000],
       ["notification-delivery", 600_000],
@@ -138,8 +169,18 @@ export class AuditOperationsService {
       openPaymentAnomalies: anomalies,
       lastReconciliation,
       operationalAlerts: await this.database.operationalAlert.findMany({
+        select: {
+          id: true,
+          key: true,
+          category: true,
+          resourceId: true,
+          message: true,
+          createdAt: true,
+          resolvedAt: true,
+          resolvedByUserId: true,
+        },
         where: { resolvedAt: null },
-        orderBy: { createdAt: "asc" },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
         take: 100,
       }),
       workers: expectedWorkers.map(([name, staleAfterMs]) => {

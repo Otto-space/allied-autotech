@@ -1,4 +1,9 @@
 import { z } from "zod";
+import { AuditAction, AuditEntityType } from "../../generated/prisma/enums.js";
+import { operationalJobCursorSchema } from "./operational-job-cursor.js";
+
+export const auditActionSchema = z.enum(AuditAction);
+export const auditEntityTypeSchema = z.enum(AuditEntityType);
 
 const page = {
   cursor: z.uuid().optional(),
@@ -10,71 +15,8 @@ export const auditListQuerySchema = z
   .object({
     ...page,
     userId: z.uuid().optional(),
-    action: z
-      .enum([
-        "CREATE",
-        "UPDATE",
-        "DELETE",
-        "READ",
-        "LOGIN",
-        "LOGOUT",
-        "PASSWORD_RESET",
-        "EMAIL_VERIFIED",
-        "MFA_ENABLED",
-        "MFA_DISABLED",
-        "SESSION_REVOKED",
-        "ROLE_CHANGE",
-        "ACCOUNT_SUSPENDED",
-        "ACCOUNT_DEACTIVATED",
-        "STATUS_CHANGE",
-        "INVENTORY_ADJUSTED",
-        "PAYMENT_INITIALIZED",
-        "PAYMENT_VERIFIED",
-        "MANUAL_PAYMENT_APPROVED",
-        "REFUND_REQUESTED",
-        "REFUND_APPROVED",
-        "PAYMENT_REFUNDED",
-        "DISPUTE_UPDATED",
-        "VEHICLE_RESERVED",
-        "VEHICLE_RELEASED",
-        "INVITATION_CREATED",
-        "INVITATION_ACCEPTED",
-        "BRANCH_ASSIGNED",
-      ])
-      .optional(),
-    entityType: z
-      .enum([
-        "USER",
-        "BRANCH",
-        "PRIVILEGED_INVITATION",
-        "SESSION",
-        "MFA_FACTOR",
-        "CUSTOMER_PROFILE",
-        "STAFF_PROFILE",
-        "CUSTOMER_VEHICLE",
-        "SERVICE",
-        "SERVICE_CATEGORY",
-        "BOOKING",
-        "QUOTE",
-        "WORK_ORDER",
-        "PRODUCT",
-        "INVENTORY",
-        "ORDER",
-        "PAYMENT",
-        "PAYMENT_ATTEMPT",
-        "REFUND",
-        "DISPUTE",
-        "VEHICLE",
-        "VEHICLE_LISTING",
-        "VEHICLE_TRANSACTION",
-        "INSPECTION",
-        "REVIEW",
-        "ENQUIRY",
-        "COMPLAINT",
-        "PROMOTION",
-        "INVOICE",
-      ])
-      .optional(),
+    action: auditActionSchema.optional(),
+    entityType: auditEntityTypeSchema.optional(),
     entityId: z.string().trim().min(1).max(120).optional(),
     requestId: z.string().trim().min(1).max(100).optional(),
     from: isoDate.optional(),
@@ -85,6 +27,7 @@ export const auditListQuerySchema = z
 export const operationalJobsQuerySchema = z
   .object({
     ...page,
+    cursor: operationalJobCursorSchema.optional(),
     source: z.enum(["OUTBOX", "PAYMENT_WEBHOOK"]).optional(),
     status: z.enum(["FAILED", "DEAD_LETTER", "PROCESSING"]).optional(),
   })

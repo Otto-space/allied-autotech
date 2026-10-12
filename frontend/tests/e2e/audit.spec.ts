@@ -307,3 +307,60 @@ test("session invalidation clears expanded history and private filter drafts bef
   await expect(page.getByText("No audit events on this page")).toBeVisible();
   await expect(page.getByLabel("Request reference (optional)")).toHaveValue("");
 });
+
+for (const role of ["ADMIN", "SUPER_ADMIN"]) {
+  test(`${role} reads and filters failed logins, booking slots and service categories`, async ({
+    page,
+  }) => {
+    const variants = [
+      {
+        ...eventFixture(),
+        id: id(51),
+        action: "LOGIN_FAILED" as const,
+        entityType: "USER" as const,
+      },
+      {
+        ...eventFixture(),
+        id: id(52),
+        action: "CREATE" as const,
+        entityType: "BOOKING_SLOT" as const,
+      },
+      {
+        ...eventFixture(),
+        id: id(53),
+        action: "UPDATE" as const,
+        entityType: "SERVICE_CATEGORY" as const,
+      },
+    ];
+    const queries: Record<string, string>[] = [];
+    await fixture(
+      page,
+      async (route) => {
+        expect(route.request().method()).toBe("GET");
+        const query = Object.fromEntries(new URL(route.request().url()).searchParams);
+        queries.push(query);
+        await reply(route, {
+          items: variants.filter(
+            (v) =>
+              (!query.action || v.action === query.action) &&
+              (!query.entityType || v.entityType === query.entityType),
+          ),
+        });
+      },
+      role,
+    );
+    await page.goto("/admin/audit");
+    for (const v of variants)
+      await expect(page.getByText(v.id, { exact: true })).toBeVisible();
+    for (const v of variants) {
+      await page.getByLabel("Action", { exact: true }).selectOption(v.action);
+      await page.getByLabel("Record type", { exact: true }).selectOption(v.entityType);
+      await page.getByRole("button", { name: "Apply audit filters" }).click();
+      await expect.poll(() => queries.at(-1)?.action).toBe(v.action);
+      await expect.poll(() => queries.at(-1)?.entityType).toBe(v.entityType);
+      await expect(page.getByText(v.id, { exact: true })).toBeVisible();
+      for (const other of variants.filter((o) => o.id !== v.id))
+        await expect(page.getByText(other.id, { exact: true })).toHaveCount(0);
+    }
+  });
+}

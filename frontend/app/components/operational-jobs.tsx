@@ -12,7 +12,6 @@ export function OperationalJobs() {
       description="Review failed or active background work. A retry queues another processing attempt and can trigger business actions; it does not prove successful delivery or payment settlement."
       endpoint="/admin/operations/jobs"
       parse={parseJobs}
-      paginate={false}
       initialFilters={{ source: "OUTBOX" }}
       filters={[
         {

@@ -1,3 +1,4 @@
+import type { OperationalJobPosition } from "./operational-job-cursor.js";
 import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { refundQueueSelect } from "../payments/refund-record.js";
@@ -47,13 +48,26 @@ export class AuditRepository {
     });
   }
 
-  async jobs(query: OperationalJobsQuery) {
+  async jobs(query: OperationalJobsQuery, after?: OperationalJobPosition) {
     const take = query.limit + 1;
+    const boundary = (source: OperationalJobPosition["source"]) =>
+      after
+        ? {
+            OR: [
+              { updatedAt: { lt: new Date(after.updatedAt) } },
+              {
+                updatedAt: new Date(after.updatedAt),
+                id: source < after.source ? { lte: after.id } : { lt: after.id },
+              },
+            ],
+          }
+        : {};
     const outbox =
       query.source === "PAYMENT_WEBHOOK"
         ? []
         : await this.database.outboxEvent.findMany({
             where: {
+              ...boundary("OUTBOX"),
               status: query.status ?? { in: ["FAILED", "DEAD_LETTER", "PROCESSING"] },
             },
             select: {
@@ -78,6 +92,7 @@ export class AuditRepository {
         ? []
         : await this.database.paymentWebhookEvent.findMany({
             where: {
+              ...boundary("PAYMENT_WEBHOOK"),
               status: query.status ?? { in: ["FAILED", "DEAD_LETTER", "PROCESSING"] },
             },
             select: {
@@ -99,7 +114,19 @@ export class AuditRepository {
       ...outbox.map((item) => ({ source: "OUTBOX" as const, ...item })),
       ...webhook.map((item) => ({ source: "PAYMENT_WEBHOOK" as const, ...item })),
     ]
-      .sort((left, right) => right.updatedAt.getTime() - left.updatedAt.getTime())
+      .sort(
+        (left, right) =>
+          right.updatedAt.getTime() - left.updatedAt.getTime() ||
+          (left.id === right.id
+            ? left.source < right.source
+              ? 1
+              : left.source > right.source
+                ? -1
+                : 0
+            : left.id < right.id
+              ? 1
+              : -1),
+      )
       .slice(0, take);
   }
 
