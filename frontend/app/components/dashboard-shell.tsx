@@ -396,6 +396,7 @@ export function DashboardShell({
             !/^\/dashboard\/invoices\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/support\/(enquiries|complaints)\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/orders\/[^/]+\/aftercare$/.test(pathname) &&
+            pathname !== "/admin/bookings" &&
             pathname !== (audience === "staff" ? "/admin" : "/dashboard") && (
               <nav className="breadcrumbs dashboard-breadcrumbs" aria-label="Breadcrumb">
                 <Link href={audience === "staff" ? "/admin" : "/dashboard"}>
