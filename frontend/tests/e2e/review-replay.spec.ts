@@ -119,6 +119,8 @@ test("account change during recovery cannot send the retained request", async ({
   await openRecovery(page);
   state.userId = "c4000000-0000-4000-8000-000000000099";
   await page.getByRole("button", { name: "Send or recover review", exact: true }).click();
-  await expect.poll(() => page.evaluate(key => sessionStorage.getItem(key), marker)).toBe("pending");
+  await expect
+    .poll(() => page.evaluate((key) => sessionStorage.getItem(key), marker))
+    .toBe("pending");
   expect(state.writes).toHaveLength(1);
 });
