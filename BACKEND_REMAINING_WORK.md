@@ -1,8 +1,8 @@
 # Allied AutoTech — Remaining Backend Work
 
-Reviewed: 12 October 2026. Scope: the 48 locally accepted frontend milestones through work-dashboard overview, plus the current backend implementation sources. See the [page register](frontend/docs/page-quality/README.md) and [detailed backend handoff](BACKEND_IMPLEMENTATION_GAPS.md).
+Reviewed: 12 October 2026. Scope: the 50 locally accepted frontend milestones through workshop booking detail, plus the current backend implementation sources. See the [page register](frontend/docs/page-quality/README.md) and [detailed backend handoff](BACKEND_IMPLEMENTATION_GAPS.md).
 
-This is an implementation and release checklist based on completed work. Local acceptance is not deployed acceptance. Remaining customer, Staff, Admin and Super Admin page audits may identify additional gaps. Work-dashboard overview `/admin` has passed its local page gate; the next frontend audit is workshop bookings `/admin/bookings`. Existing overview and operations endpoints cover its requirements; no additional backend endpoint or migration is needed. See the [overview acceptance](frontend/docs/page-quality/work-overview.md).
+This is an implementation and release checklist based on completed work. Local acceptance is not deployed acceptance. Remaining customer, Staff, Admin and Super Admin page audits may identify additional gaps. Workshop booking detail `/admin/bookings/[bookingId]` has passed its local page gate; the next frontend audit is appointment slots `/admin/booking-slots`. Existing booking, permission, quotation and work-order contracts cover the detail requirements; no additional backend endpoint or migration is needed. The frontend now hides actions that the existing assignment rules reject. Real local browser/API/database checks verified work-order completion and lost-response recovery without duplicate writes. See the [detail acceptance](frontend/docs/page-quality/work-booking-detail.md).
 
 ## Implementation backlog
 
@@ -104,6 +104,10 @@ Priorities are proposed: P1 requires completion before activating the affected c
 **Evidence:** [audit event contract and verification](backend/docs/audit-event-contract.md).
 
 ## Implemented capabilities with release work remaining
+
+Operational alert scans now advance through disputes, refunds, payments and paid vehicle holds beyond the first 100 unresolved records, using durable checkpoints. Release migration 58 and the matching general worker, then verify progress and restart recovery in the target environment. See [scan behavior and local evidence](backend/docs/operational-alert-scans.md).
+
+Media deployment correction: the general worker now receives the storage configuration needed for cleanup, and production images include Sharp's required optional binaries. Local configuration/install checks passed; Linux image tests and real Spaces verification remain pending. Configure worker storage before releasing the stricter startup guard. See [the evidence and rollout requirements](backend/docs/media-runtime-deployment.md).
 
 Do not rebuild these capabilities: BG-01–BG-10 and API-01–API-05 have recorded local acceptance. BG-11 reservation agreements and BG-12 Paystack dispute handling also have local implementation evidence. Profile text revisions, review-source discovery and durable review submission recovery have separate acceptance reports. Their exact contracts and release dependencies are linked from the [detailed handoff](BACKEND_IMPLEMENTATION_GAPS.md).
 
