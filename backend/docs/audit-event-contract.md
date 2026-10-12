@@ -16,4 +16,13 @@ Deploy the matching backend before the frontend, then refresh already-open admin
 
 ## Verification
 
-Local evidence is being finalized. API tests enumerate every database action and entity, page tied timestamps and check private-field exclusion, access control and read auditing. Frontend tests compare the complete enum sets with OpenAPI and exercise mixed pages and exact filters for both administrator roles. Tests retain append-only synthetic audit evidence in the isolated test database.
+Verified locally on 12 October 2026:
+
+- 17 backend cases passed: five API/PostgreSQL audit cases, five OpenAPI handover cases and seven existing API-boundary cases. The new cases enumerate every database action and entity, page tied timestamps, preserve nested JSON and check private-field exclusion, role/MFA access, invalid queries and successful-read auditing.
+- Six frontend unit cases passed: three new contract-completeness cases and three existing audit-filter/date cases.
+- Nine production-browser cases passed, including mixed event pages and exact filters for Admin and Super Admin, Staff denial, MFA redirect, failed-read recovery, pagination, nullable actors, supported links, literal JSON rendering, session invalidation, keyboard scrolling and accessibility at 320px and 1280px. The inspected screenshots and browser tests use controlled API responses; real persistence/authorization was verified separately through API/PostgreSQL tests.
+- Backend type checks, lint, secret guard, formatting, OpenAPI validation (267 paths) and route coverage (316 operations) passed. Frontend scoped lint and an isolated production build, including TypeScript and standalone packaging, passed. Generated API types were refreshed. Tested audit components, filters and normalized parser source matched the workspace.
+
+The existing isolated `allied_operations_paging_20261012_test` database was used. Its append-only synthetic audit evidence is retained; no application database or provider configuration was changed. The temporary preview was stopped after verification. No new migration is needed.
+
+Entry points: `tests/integration/audit-enum-coverage.test.ts`, frontend `tests/unit/audit-contract.test.ts`, `tests/unit/audit-filters.test.ts` and `tests/e2e/audit.spec.ts`. This fixes contract completeness; it is not a full new visual acceptance gate for the audit page or a claim of deployed acceptance.
