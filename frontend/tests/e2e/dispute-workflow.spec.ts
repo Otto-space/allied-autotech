@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import { disputeId as id, disputeFixture } from "../fixtures/dispute-work";
+import { formatKobo } from "@/lib/format/money";
 const reply = (route: Route, data: unknown) =>
   route.fulfill({
     json: { success: true, data, message: "Isolated", meta: { requestId: "dispute-qa" } },
@@ -39,14 +40,21 @@ async function fixture(page: Page, role = "STAFF") {
         staffProfile: null,
         capabilities: state.grants,
       });
-    if (endpoint === "/staff/disputes") {
+    if (
+      endpoint === "/staff/disputes" ||
+      endpoint === "/admin/operations/payment-disputes"
+    ) {
       state.reads.push(url.search);
       if (state.fail)
         return route.fulfill({
           status: 503,
           json: { success: false, error: { code: "UNAVAILABLE" } },
         });
-      return reply(route, { items: [state.row], nextCursor: state.cursor });
+      return reply(route, {
+        items: [state.row],
+        nextCursor:
+          endpoint === "/staff/disputes" ? state.cursor : (state.cursor ?? undefined),
+      });
     }
     if (endpoint === "/admin/staff")
       return reply(route, {
@@ -118,6 +126,82 @@ async function confirm(page: Page) {
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 }
+
+test("super admin sees confirmed partial chargebacks and unresolved provider outcomes in both queues", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  const toolingCsp: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() !== "error") return;
+    const text = message.text();
+    // Console Ninja is injected by this workstation's development tooling.
+    // Preserve CSP and report its blocked loopback connection separately.
+    if (
+      /^Connecting to 'ws:\/\/127\.0\.0\.1:\d+\/' violates the following Content Security Policy directive: "connect-src 'self'"/.test(
+        text,
+      ) ||
+      text.startsWith("Console Ninja failed to send logs,")
+    )
+      toolingCsp.push(text);
+    else errors.push(text);
+  });
+  const state = await fixture(page, "SUPER_ADMIN");
+  Object.assign(state.row, {
+    status: "ACCEPTED",
+    chargebackAmountKobo: "1200",
+    providerStatus: "resolved",
+    providerResolution: "merchant-accepted",
+    resolvedAt: "2026-10-12T08:00:00Z",
+  });
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/admin/payment-disputes/work");
+  await expect(page).toHaveTitle("Dispute work queue");
+  await expect(
+    page.getByRole("heading", { name: "Dispute work queue", exact: true }),
+  ).toBeVisible();
+  await page.getByLabel("Dispute history").selectOption("all");
+  await expect(page.getByText(formatKobo("1200"), { exact: true })).toBeVisible();
+  await expect(page.getByText("merchant accepted", { exact: true })).toBeVisible();
+  await page.getByText("Confirmed chargeback", { exact: true }).scrollIntoViewIfNeeded();
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-dispute-contract-desktop.png"),
+  });
+  await page.getByRole("link", { name: "View dispute overview" }).click();
+  await expect(page).toHaveURL(/\/admin\/payment-disputes$/);
+  await expect(
+    page.getByRole("heading", { name: "Payment disputes", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText(formatKobo("1200"), { exact: true })).toBeVisible();
+  Object.assign(state.row, {
+    status: "UNDER_REVIEW",
+    chargebackAmountKobo: null,
+    providerResolution: "declined",
+    providerReviewReason: "UNCONFIRMED_PROVIDER_RESOLUTION",
+    resolvedAt: null,
+  });
+  await page.reload();
+  await expect(page.getByText(/provider outcome needs review/)).toBeVisible();
+  await expect(page.getByText("Not confirmed", { exact: true })).toBeVisible();
+  await expect(page.getByText(formatKobo("1200"), { exact: true })).toHaveCount(0);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByText("Confirmed chargeback", { exact: true }).scrollIntoViewIfNeeded();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBe(true);
+  await expect(page.locator("nextjs-portal").getByText(/runtime error/i)).toHaveCount(0);
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-dispute-contract-mobile.png"),
+  });
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(errors).toEqual([]);
+  await test.info().attach("development-tool-csp", {
+    body: JSON.stringify(toolingCsp),
+    contentType: "application/json",
+  });
+  expect(state.writes).toEqual([]);
+});
 
 test("assigned staff acknowledge and record exact provider receipts without claiming resolution", async ({
   page,
@@ -395,10 +479,21 @@ test("work queue fits eleven widths and passes mobile accessibility before conso
   page,
 }) => {
   const errors: string[] = [],
-    logs: string[] = [];
+    logs: string[] = [],
+    toolingCsp: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
-    if (["error", "warning"].includes(message.type())) logs.push(message.text());
+    if (!["error", "warning"].includes(message.type())) return;
+    const text = message.text();
+    // Keep the workstation's Console Ninja CSP noise separate from app errors.
+    if (
+      /^Connecting to 'ws:\/\/127\.0\.0\.1:\d+\/' violates the following Content Security Policy directive: "connect-src 'self'"/.test(
+        text,
+      ) ||
+      text.startsWith("Console Ninja failed to send logs,")
+    )
+      toolingCsp.push(text);
+    else logs.push(text);
   });
   await fixture(page);
   await open(page);
@@ -430,4 +525,8 @@ test("work queue fits eleven widths and passes mobile accessibility before conso
   ).toHaveCount(0);
   expect(errors).toEqual([]);
   expect(logs).toEqual([]);
+  await test.info().attach("development-tool-csp", {
+    body: JSON.stringify(toolingCsp),
+    contentType: "application/json",
+  });
 });

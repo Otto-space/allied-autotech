@@ -12,6 +12,7 @@ import { MutationReview, type MutationProposal } from "./mutation-review";
 import { DisputeAssignment } from "./dispute-assignment";
 import { DisputeProgress } from "./dispute-progress";
 import { DisputeEvidence } from "./dispute-evidence";
+import { DisputeProviderFacts } from "./dispute-provider-facts";
 export function DisputeWorkQueue() {
   const session = useAccountSession(),
     permission = useOwnStaffPermissions();
@@ -147,6 +148,7 @@ export function DisputeWorkQueue() {
                   <p className="status">{record.status.replaceAll("_", " ")}</p>
                   <p>Disputed amount, not a confirmed refund or recovered balance.</p>
                   <dl className="totals">
+                    <DisputeProviderFacts dispute={record} />
                     <dt>Category</dt>
                     <dd>{record.category.replaceAll("_", " ")}</dd>
                     <dt>Opened</dt>

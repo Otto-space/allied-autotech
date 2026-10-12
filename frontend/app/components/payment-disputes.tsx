@@ -9,6 +9,7 @@ import {
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { OperationsQueue } from "./operations-queue";
+import { DisputeProviderFacts } from "./dispute-provider-facts";
 export function PaymentDisputes() {
   const session = useAccountSession();
   return (
@@ -42,6 +43,7 @@ export function PaymentDisputes() {
             <p className="status">{dispute.status.replaceAll("_", " ")}</p>
             <p>Disputed amount, not a confirmed refund or recovered balance.</p>
             <dl className="totals">
+              <DisputeProviderFacts dispute={dispute} />
               <dt>Category</dt>
               <dd>{dispute.category.replaceAll("_", " ")}</dd>
               <dt>Dispute reference</dt>
