@@ -11,17 +11,15 @@ for (const target of ["BUSINESS", "ORDER", "UNCOMMITTED"] as const) {
     page,
   }) => {
     const f = JSON.parse(readFileSync(file!, "utf8"));
-    await page
-      .context()
-      .addCookies([
-        {
-          name: "aat_session",
-          value: f.token,
-          url: process.env.PLAYWRIGHT_BASE_URL!,
-          httpOnly: true,
-          sameSite: "Lax",
-        },
-      ]);
+    await page.context().addCookies([
+      {
+        name: "aat_session",
+        value: f.token,
+        url: process.env.PLAYWRIGHT_BASE_URL!,
+        httpOnly: true,
+        sameSite: "Lax",
+      },
+    ]);
     const writes: {
       body: unknown;
       key?: string;

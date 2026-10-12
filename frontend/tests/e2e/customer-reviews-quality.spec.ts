@@ -150,7 +150,14 @@ for (const mode of ["identity", "role", "unavailable"] as const) {
     if (mode === "role") state.sessionRole = "STAFF";
     if (mode === "unavailable") state.failSession = true;
     await send(page);
-    await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+    if (mode === "unavailable")
+      await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+    else {
+      await expect(
+        page.getByText("Your session changed. Verify your account to continue."),
+      ).toBeVisible();
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+    }
     expect(state.writes).toHaveLength(0);
     expect(await page.evaluate((key) => sessionStorage.getItem(key), marker)).toBeNull();
   });

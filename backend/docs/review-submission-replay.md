@@ -1,0 +1,33 @@
+# Customer review submission recovery
+
+An uncertain customer review can now be recovered using its original request. A committed request returns the same review identity and current moderation state; an uncommitted request creates it once. The browser requires explicit confirmation and never automatically resubmits on reload, reconnection or tab changes.
+
+## Contract and persistence
+
+`POST /customers/support/reviews` requires `Idempotency-Key: review-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>`, in addition to the existing customer session and CSRF header. Both creation and replay return HTTP 201 with the owned review projection and `replayed: false|true`. Every target type is supported. The key is an identifier, not an authorization credential.
+
+The server scopes a SHA-256 key hash to the actor and operation, binds it to normalized, canonically ordered review content, and stores an existing `IdempotencyRecord` receipt containing only the review ID. Receipt, review and creation audit commit in one serializable transaction. A transaction advisory lock serializes same-key requests; only database-aborted transactions are retried. No external side effects run inside the retry callback. Source ownership, completion and unique constraints remain authoritative for a new creation. Replay reads the original owned review without trying to create or revalidate its already-consumed source.
+
+Keys expire 24 hours after their embedded timestamp. PostgreSQL time is checked after locking; keys more than one minute in the future are also rejected. Expired keys return 409 `IDEMPOTENCY_EXPIRED`, including after the ordinary worker has deleted an expired receipt. Changed content, inconsistent receipts or a missing/foreign referenced review return 409 `IDEMPOTENCY_CONFLICT` without replacement. Another account cannot retrieve the original actor's result. Malformed or missing keys return 422. Existing authorization, rate limits, private/no-store responses and moderation rules remain in force.
+
+## Browser behavior
+
+Before sending, the browser verifies the customer session and saves the normalized body and original key in account-scoped session storage. A storage failure prevents submission. Unknown outcomes retain this request across reload. The recovery dialog shows the original content and explains that confirmation may send a request that never reached the server. It resends exactly that body and key after another session check, then clears the draft only after validating the response. Current moderation may differ from initial submission.
+
+Account invalidation redacts stored review contents while retaining an uncertainty marker. Old, damaged, expired or unavailable recovery data falls back to explicit owned-history reconciliation; it never fabricates a replacement key. The 24-hour limit governs replay eligibility, not automatic erasure of browser storage. Confirmed success clears recovery data; closing the browser tab ordinarily ends session storage. Existing account-scoped form draft handling remains separate.
+
+## Release
+
+No migration is added. Deploy the API and matching frontend/generated contract together: older clients that omit the now-required key receive 422. Retain SHA-256 receipt compatibility throughout the recovery window; authentication token-key rotation does not change receipt hashing. Existing requests made before this contract use the conservative history-only recovery path. No application database migration, production publication or provider activation is part of this change. Reservation agreement approval and DigitalOcean Spaces configuration remain pending owner inputs.
+
+## Local verification
+
+The 41-case backend regression passed, covering all five targets, normalized-body replay, moderation, simultaneous same-key requests, mismatch, ownership, expiry before/after receipt cleanup, audit rollback, source eligibility and HTTP boundaries. The first focused run passed ten cases and timed out one database fixture at the default five-second limit; the combined run passed all 41 with a 30-second limit. No production guard was relaxed.
+
+All 443 frontend unit tests passed, including six new recovery-storage cases. The first combined unit invocation omitted the new suite from its JSON result and returned nonzero; its separate verbose rerun and the subsequent complete suite both passed. Backend type checks, lint, formatting, OpenAPI validation (267 paths), route coverage (316 operations plus four infrastructure routes), secret guard and build passed. Frontend generated types, lint and type checking passed; changed code also passed formatting checks.
+
+Fifty-two unique production Edge browser scenarios have passing evidence: 38 customer-review regressions, six authoritative-source cases, five new intercepted recovery cases and three new real API/database cases. The first combined run passed 50 and failed two outdated assertions that expected the old dialog after an account/role change. Those assertions now require the session-verification screen, a closed dialog and zero writes; both passed on rerun. The new intercepted cases cover committed-response loss plus moderation, uncommitted request loss, expiry, account changes, cancellation and no automatic replay. The real business/order cases discarded an actual successful API response, reloaded, then recovered the same identity using the same body/key. A third case interrupted the request before it reached the API, then explicitly created it once. A direct database check found exactly three reviews, three creation audits and three receipts for this synthetic customer.
+
+The real recovery dialog passed WCAG checks and horizontal-overflow checks at 390px and 1440px. Both screenshots (`allied-review-replay-390.png`, `allied-review-replay-1440.png`) were inspected; all three real flows reported no page errors. The production build generated all 71 pages and prepared standalone assets in an isolated source copy because another development process was using the workspace. SHA-256 comparisons matched 477 application, library, script and configuration files. The build path is retained in `allied-review-replay-build-path.txt`. Existing unrelated servers were not stopped.
+
+Evidence is in OS temporary files `allied-review-replay-regression.json`, `allied-review-replay-full-unit.json`, and the `allied-review-replay-playwright` / `allied-review-replay-session-playwright` directories. Verification uses synthetic customers and the isolated `allied_profile_revision_20261013_test` database. The temporary loopback API and production preview were stopped after verification. This report does not certify deployed acceptance or close the overall backend goal.

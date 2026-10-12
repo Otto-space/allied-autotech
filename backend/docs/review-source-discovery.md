@@ -12,7 +12,7 @@ Filtering happens in PostgreSQL before pagination. Queries are bounded to `limit
 
 Optional `sourceId` checks a specific record without relying on a page of history. It cannot be combined with cursor. Foreign, nonexistent, incomplete and already-reviewed sources all produce an empty collection. Unknown query fields, invalid targets and malformed/beyond-limit pagination are rejected. Existing customer-role checks apply to every read; Staff, Admin and Super Admin cannot use this collection.
 
-Availability does not reserve a source. The existing serializable creation transaction, database source-validation trigger, unique constraints, CSRF, rate limits and moderation remain authoritative at submission. A source changing after selection or a competing review still prevents creation. Review submission replay remains a separate open contract enhancement.
+Availability does not reserve a source. The existing serializable creation transaction, database source-validation trigger, unique constraints, CSRF, rate limits and moderation remain authoritative at submission. A source changing after selection or a competing review still prevents creation. [Review submission recovery](review-submission-replay.md) has subsequently added a required original-request key; its separate evidence and coordinated release requirement supersede the earlier creation contract.
 
 ## Frontend
 
