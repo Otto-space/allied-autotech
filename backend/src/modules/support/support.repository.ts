@@ -343,6 +343,19 @@ export class SupportRepository {
     });
   }
 
+  ownedEnquirySummary(customerId: string, id: string, client: DatabaseClient) {
+    return client.enquiry.findFirst({
+      where: { id, customerId },
+      select: enquiryBaseSelect,
+    });
+  }
+  ownedComplaintSummary(customerId: string, id: string, client: DatabaseClient) {
+    return client.complaint.findFirst({
+      where: { id, customerId },
+      select: complaintBaseSelect,
+    });
+  }
+
   customerEnquiry(
     customerId: string,
     id: string,
@@ -378,6 +391,44 @@ export class SupportRepository {
           take: 200,
         },
       },
+    });
+  }
+
+  async lockCustomerThread(
+    customerId: string,
+    kind: "enquiry" | "complaint",
+    id: string,
+    tx: Prisma.TransactionClient,
+  ) {
+    const rows =
+      kind === "enquiry"
+        ? await tx.$queryRaw<
+            { id: string }[]
+          >`SELECT id FROM "Enquiry" WHERE id = ${id}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`
+        : await tx.$queryRaw<
+            { id: string }[]
+          >`SELECT id FROM "Complaint" WHERE id = ${id}::uuid AND "customerId" = ${customerId}::uuid FOR UPDATE`;
+    return rows.length ? this.customerThread(customerId, kind, id, tx) : null;
+  }
+
+  ownedCustomerReply(
+    userId: string,
+    kind: "enquiry" | "complaint",
+    conversationId: string,
+    messageId: string,
+    tx: Prisma.TransactionClient,
+  ) {
+    return tx.supportMessage.findFirst({
+      where: {
+        id: messageId,
+        authorUserId: userId,
+        authorType: "CUSTOMER",
+        visibility: "CUSTOMER",
+        ...(kind === "enquiry"
+          ? { enquiryId: conversationId }
+          : { complaintId: conversationId }),
+      },
+      select: messageSelect,
     });
   }
 

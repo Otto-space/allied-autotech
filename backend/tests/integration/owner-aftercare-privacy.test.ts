@@ -139,6 +139,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         order.id,
         "Synthetic defective item exception review",
         context,
+        `aftercare-v1.${Date.now()}.${randomUUID()}`,
       );
       expect(record.reviewReason).toContain("MANDATORY_RIGHTS");
       const approve = () =>

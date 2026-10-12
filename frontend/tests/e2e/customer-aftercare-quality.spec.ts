@@ -154,12 +154,12 @@ for (const changed of ["account", "role"] as const)
     await page.getByRole("button", { name: "Send order request", exact: true }).click();
     await expect.poll(() => state.writes.length).toBe(0);
     await expect(
-      page.getByRole("button", { name: "Send order request", exact: true }),
-    ).toBeDisabled();
+      page.getByRole("button", { name: "Verify session again", exact: true }),
+    ).toBeVisible();
   });
 
 for (const outcome of ["unknown", "committed-unknown", "mismatch"] as const)
-  test(`${outcome} survives reload and requires explicit successful manual reconciliation`, async ({
+  test(`${outcome} legacy marker survives reload and requires explicit successful manual reconciliation`, async ({
     page,
   }) => {
     const state = await customerAftercareFixture(page, { outcome });
@@ -174,6 +174,7 @@ for (const outcome of ["unknown", "committed-unknown", "mismatch"] as const)
       .click();
     await expect(review(page)).toBeDisabled();
     expect(state.writes).toHaveLength(1);
+    await page.evaluate((key) => sessionStorage.setItem(key, "pending"), marker);
     await page.reload();
     await expect(
       page.getByRole("heading", { name: "Check before sending again" }),
@@ -237,6 +238,68 @@ test("invalid record products fail closed", async ({ page }) => {
   await page.goto(url);
   await expect(page.getByText(/request history did not match this order/)).toBeVisible();
   await expect(review(page)).toBeDisabled();
+});
+
+test("invalid manual history cannot be acknowledged after background recovery", async ({
+  page,
+}) => {
+  const state = await customerAftercareFixture(page, { history: true });
+  await page.addInitScript((key) => sessionStorage.setItem(key, "pending"), marker);
+  await page.goto(url);
+  await expect(refresh(page)).toBeEnabled();
+  state.history[0].items[0].orderItemId = id(99);
+  await refresh(page).click();
+  await expect(page.getByText(/request history did not match this order/)).toBeVisible();
+  state.history[0].items[0].orderItemId = id(3);
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(page.locator(".ca-record")).toHaveCount(1);
+  await expect(acknowledge(page)).toBeDisabled();
+  await refresh(page).click();
+  await expect(acknowledge(page)).toBeEnabled();
+});
+
+test("background failure blocks an open review without discarding its draft", async ({
+  page,
+}) => {
+  const state = await customerAftercareFixture(page);
+  await open(page);
+  await prepare(page);
+  await review(page).click();
+  state.failHistory = true;
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(page.getByText(/request history may be out of date/)).toBeAttached();
+  await page.getByRole("button", { name: "Send order request", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Send order request", exact: true }),
+  ).toBeDisabled();
+  expect(state.writes).toHaveLength(0);
+  await page.getByRole("button", { name: "Go back", exact: true }).click();
+  await expect(page.getByLabel("Reason for your request")).toHaveValue(explanation);
+});
+
+test("rate limit respects Retry-After and does not mark a rejected request as uncertain", async ({
+  page,
+}) => {
+  await customerAftercareFixture(page);
+  await open(page);
+  await prepare(page);
+  await page.route("**/api/v1/customers/orders/*/returns", (route) =>
+    route.fulfill({
+      status: 429,
+      headers: { "Retry-After": "4" },
+      json: { success: false, error: { code: "RATE_LIMITED" } },
+    }),
+  );
+  await confirm(page);
+  await expect(
+    page.getByRole("button", { name: "Send order request", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Go back", exact: true }).click();
+  await expect(review(page)).toBeDisabled();
+  await expect(
+    page.getByRole("heading", { name: "Check before sending again" }),
+  ).toHaveCount(0);
+  await expect(review(page)).toBeEnabled({ timeout: 10000 });
 });
 
 for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1505, 1920])

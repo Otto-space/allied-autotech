@@ -8,6 +8,7 @@ import { OrderAftercareService } from "./order-aftercare.service.js";
 import { jsonSafe } from "./orders.types.js";
 import {
   aftercareParams,
+  aftercareHeaders,
   aftercareReturnBody,
   aftercarePartialBody,
   aftercareReviewBody,
@@ -60,18 +61,28 @@ export function createOrderAftercareRouter() {
     authenticate(),
     requireCustomer,
     requireCsrf,
-    validate({ params: aftercareParams, body: aftercareReturnBody }),
+    validate({
+      params: aftercareParams,
+      body: aftercareReturnBody,
+      headers: aftercareHeaders,
+    }),
     async (req, res) => {
       const { id } = res.locals.validated!["params"] as z.infer<typeof aftercareParams>,
         input = res.locals.validated!["body"] as z.infer<typeof aftercareReturnBody>;
-      const record = await service.request(req.actor!, id, input.reason, context(req));
+      const record = await service.request(
+        req.actor!,
+        id,
+        input.reason,
+        context(req),
+        req.get("idempotency-key")!,
+      );
       res
         .status(201)
         .json(
           successResponse(
             "Return request received for review",
             req.id,
-            jsonSafe(customerAftercareView(record)),
+            jsonSafe({ ...customerAftercareView(record), replayed: record.replayed }),
           ),
         );
     },
@@ -81,18 +92,28 @@ export function createOrderAftercareRouter() {
     authenticate(),
     requireCustomer,
     requireCsrf,
-    validate({ params: aftercareParams, body: aftercarePartialBody }),
+    validate({
+      params: aftercareParams,
+      body: aftercarePartialBody,
+      headers: aftercareHeaders,
+    }),
     async (req, res) => {
       const { id } = res.locals.validated!["params"] as z.infer<typeof aftercareParams>,
         input = res.locals.validated!["body"] as z.infer<typeof aftercarePartialBody>;
-      const record = await service.requestPartial(req.actor!, id, input, context(req));
+      const record = await service.requestPartial(
+        req.actor!,
+        id,
+        input,
+        context(req),
+        req.get("idempotency-key")!,
+      );
       res
         .status(201)
         .json(
           successResponse(
             "Order request received for review",
             req.id,
-            jsonSafe(customerAftercareView(record)),
+            jsonSafe({ ...customerAftercareView(record), replayed: record.replayed }),
           ),
         );
     },

@@ -202,7 +202,9 @@ async function fixture(
       }
       return reply(
         route,
-        options.outcome === "mismatch" ? { ...saved, orderId: id(99) } : state.history[0],
+        options.outcome === "mismatch"
+          ? { ...saved, orderId: id(99), replayed: false }
+          : { ...state.history[0], replayed: false },
       );
     }
     return fail(route, 404);
@@ -445,7 +447,13 @@ for (const surface of ["intake", "review", "evidence"] as const)
       await expect(
         page.getByRole("heading", { name: "SYNTHETIC-AFTERCARE-ORDER", exact: true }),
       ).toBeVisible();
-      await expect(page.getByText(/The outcome of a change is uncertain/)).toBeVisible();
+      await expect(
+        page.getByText(
+          surface === "intake"
+            ? /This order request has an unknown outcome/
+            : /The outcome of a change is uncertain/,
+        ),
+      ).toBeVisible();
       if (surface === "intake")
         await expect(
           page.getByRole("button", { name: "Review order request", exact: true }),

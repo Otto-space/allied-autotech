@@ -2,7 +2,47 @@
 
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { ApiError, apiRequest } from "@/lib/api/client";
+import { ApiError, apiRequest, invalidateSession } from "@/lib/api/client";
+import {
+  aftercareSchema,
+  parseAftercareOrder,
+  matchesAftercareOrder,
+  type AftercareOrder,
+} from "@/lib/api/aftercare-schemas";
+import { draftKey, forgetDraft, DRAFT_SAVED } from "@/lib/forms/drafts";
+import {
+  clearAftercareRecovery,
+  readAftercareRecovery,
+  aftercareIntentActive,
+  saveAftercareRecovery,
+  aftercareIntentSchema,
+  type AftercareIntent,
+} from "./aftercare-recovery";
+
+async function sendOriginal(
+  intent: AftercareIntent,
+  signal: AbortSignal,
+  order: AftercareOrder,
+) {
+  const response = await apiRequest(
+    `/customers/orders/${intent.orderId}/${intent.operation}`,
+    {
+      method: "POST",
+      csrf: true,
+      idempotencyKey: intent.key,
+      body: intent.body,
+      signal,
+    },
+  );
+  z.object({ replayed: z.boolean() }).parse(response.data);
+  const saved = aftercareSchema.parse(response.data);
+  if (
+    !matchesAftercareOrder(saved, order) ||
+    saved.kind !== ("kind" in intent.body ? intent.body.kind : "RETURN")
+  )
+    throw new Error("Unconfirmed order request");
+  return saved;
+}
 
 type ReadState = {
   loading: boolean;
@@ -14,7 +54,7 @@ type ReadState = {
   refresh: () => void;
 };
 
-/** Stores only an account/order pending marker; never automatically repeats intake. */
+/** Retains the exact original request in account-scoped session storage for explicit recovery. */
 export function useAftercareWrite(
   userId: string,
   orderId: string,
@@ -27,30 +67,28 @@ export function useAftercareWrite(
     pending: boolean;
     manual: boolean;
     after: [number, number];
+    intent?: AftercareIntent;
   }>();
   const [storageError, setStorageError] = useState<string>();
   const [busy, setBusy] = useState(false);
   const [remaining, setRemaining] = useState(0);
   const retryAt = useRef(0);
   const request = useRef<AbortController | null>(null);
-  const error = order.error ?? history.error;
-  const refreshError = order.refreshError ?? history.refreshError;
+  const stale = !!(
+    order.error ||
+    order.refreshError ||
+    history.error ||
+    history.refreshError ||
+    !validHistory
+  );
   const unavailable =
-    !validHistory ||
-    [order, history].some(
-      (record) =>
-        record.loading ||
-        record.refreshing ||
-        record.error ||
-        record.refreshError ||
-        !record.data,
-    );
+    stale || [order, history].some((r) => r.loading || r.refreshing || !r.data);
   const latestUnavailable = useRef(unavailable);
   useEffect(() => {
     latestUnavailable.current = unavailable;
   }, [unavailable]);
   useEffect(() => {
-    if (!error && !refreshError) return;
+    if (!stale) return;
     let active = true;
     queueMicrotask(() => {
       if (active)
@@ -61,26 +99,24 @@ export function useAftercareWrite(
     return () => {
       active = false;
     };
-  }, [error, refreshError]);
+  }, [stale]);
   useEffect(() => {
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
-      try {
-        setRecovery({
-          pending: sessionStorage.getItem(marker) !== null,
-          manual: false,
-          after: [-1, -1],
-        });
-      } catch {
-        setRecovery({ pending: false, manual: false, after: [-1, -1] });
-      }
+      const stored = readAftercareRecovery(userId, orderId);
+      setRecovery({
+        pending: !!stored,
+        manual: false,
+        after: [-1, -1],
+        ...(stored?.kind === "pending" ? { intent: stored.intent } : {}),
+      });
     });
     return () => {
       active = false;
       request.current?.abort();
     };
-  }, [marker]);
+  }, [marker, userId, orderId]);
   useEffect(() => {
     if (!remaining) return;
     const timer = window.setInterval(() => {
@@ -91,23 +127,34 @@ export function useAftercareWrite(
 
   function clearMarker() {
     try {
-      sessionStorage.removeItem(marker);
+      clearAftercareRecovery(userId, orderId);
       setStorageError(undefined);
       setRecovery({ pending: false, manual: false, after: [-1, -1] });
       return true;
     } catch {
       setStorageError(
-        "Your browser could not clear the recovery marker. Allow session storage, then refresh and check the saved result.",
+        "Your browser could not clear the recovery marker. Allow session storage, then refresh and check the saved request.",
       );
       setRecovery({ pending: true, manual: false, after: [-1, -1] });
       return false;
     }
   }
 
-  async function run<T>(
+  function forgetSubmittedDraft() {
+    const key = draftKey(
+      `${userId}:CUSTOMER`,
+      window.location.pathname,
+      JSON.stringify(["aftercare-intake:1", orderId]),
+    );
+    forgetDraft(key);
+    window.dispatchEvent(new CustomEvent(DRAFT_SAVED, { detail: key }));
+  }
+
+  async function run(
+    operation: "returns" | "aftercare",
+    body: unknown,
     prepare: (signal: AbortSignal) => Promise<void>,
-    write: (signal: AbortSignal) => Promise<T>,
-  ): Promise<T> {
+  ) {
     if (
       request.current ||
       !recovery ||
@@ -120,19 +167,29 @@ export function useAftercareWrite(
     request.current = controller;
     setBusy(true);
     let sent = false;
+    let intent: AftercareIntent | undefined;
     try {
       const session = z
         .object({ user: z.object({ id: z.string(), role: z.string() }) })
         .parse((await apiRequest("/auth/session", { signal: controller.signal })).data);
-      if (session.user.id !== userId || session.user.role !== "CUSTOMER")
+      if (session.user.id !== userId || session.user.role !== "CUSTOMER") {
+        invalidateSession();
         throw new ApiError(403, { error: { code: "FORBIDDEN" } });
+      }
       await prepare(controller.signal);
       if (controller.signal.aborted || latestUnavailable.current)
         throw new ApiError(409, { error: { code: "CONFLICT" } });
       try {
-        sessionStorage.setItem(marker, "pending");
-        if (sessionStorage.getItem(marker) !== "pending")
-          throw new Error("Recovery storage unavailable");
+        if (readAftercareRecovery(userId, orderId))
+          throw new Error("A request is already pending");
+        intent = aftercareIntentSchema.parse({
+          owner: userId,
+          operation,
+          orderId,
+          key: `aftercare-v1.${Date.now()}.${crypto.randomUUID()}`,
+          body,
+        });
+        saveAftercareRecovery(intent);
       } catch {
         setStorageError(
           "Your browser could not save the recovery marker. Allow session storage before submitting a request.",
@@ -140,8 +197,16 @@ export function useAftercareWrite(
         throw new ApiError(409, { error: { code: "CONFLICT" } });
       }
       sent = true;
-      const result = await write(controller.signal);
-      if (!controller.signal.aborted) clearMarker();
+      const result = await sendOriginal(
+        intent!,
+        controller.signal,
+        parseAftercareOrder(order.data),
+      );
+      if (result.status === "REJECTED") throw new Error("Unconfirmed new order request");
+      if (!controller.signal.aborted) {
+        clearMarker();
+        forgetSubmittedDraft();
+      }
       return result;
     } catch (error) {
       if (controller.signal.aborted) throw error;
@@ -153,6 +218,7 @@ export function useAftercareWrite(
           pending: true,
           manual: false,
           after: [order.settledRevision ?? -1, history.settledRevision ?? -1],
+          intent,
         });
       if (error instanceof ApiError && error.status === 429) {
         const seconds = error.retryAfterSeconds ?? 0;
@@ -170,9 +236,76 @@ export function useAftercareWrite(
     }
   }
 
+  async function recover() {
+    if (
+      request.current ||
+      !recovery?.pending ||
+      latestUnavailable.current ||
+      Date.now() < retryAt.current
+    )
+      throw new ApiError(409, { error: { code: "CONFLICT" } });
+    const stored = readAftercareRecovery(userId, orderId);
+    if (
+      stored?.kind !== "pending" ||
+      !recovery.intent ||
+      JSON.stringify(stored.intent) !== JSON.stringify(recovery.intent)
+    ) {
+      setRecovery({ pending: true, manual: false, after: [-1, -1] });
+      throw new ApiError(409, { error: { code: "IDEMPOTENCY_EXPIRED" } });
+    }
+    const controller = new AbortController();
+    request.current = controller;
+    setBusy(true);
+    try {
+      const session = z
+        .object({ user: z.object({ id: z.string(), role: z.string() }) })
+        .parse((await apiRequest("/auth/session", { signal: controller.signal })).data);
+      if (session.user.id !== userId || session.user.role !== "CUSTOMER") {
+        invalidateSession();
+        throw new ApiError(403, { error: { code: "FORBIDDEN" } });
+      }
+      if (controller.signal.aborted || latestUnavailable.current)
+        throw new ApiError(409, { error: { code: "CONFLICT" } });
+      const saved = await sendOriginal(
+        stored.intent,
+        controller.signal,
+        parseAftercareOrder(order.data),
+      );
+      if (!controller.signal.aborted) {
+        clearMarker();
+        forgetSubmittedDraft();
+      }
+      return saved;
+    } catch (error) {
+      if (
+        error instanceof ApiError &&
+        ["IDEMPOTENCY_EXPIRED", "IDEMPOTENCY_CONFLICT"].includes(error.code)
+      ) {
+        try {
+          sessionStorage.setItem(marker, "pending");
+        } catch {
+          /* Keep the original request if storage fails. */
+        }
+        setRecovery({ pending: true, manual: false, after: [-1, -1] });
+      }
+      if (error instanceof ApiError && error.status === 429) {
+        const seconds = error.retryAfterSeconds ?? 0;
+        retryAt.current = Date.now() + seconds * 1000;
+        setRemaining(seconds);
+      }
+      throw error;
+    } finally {
+      if (!controller.signal.aborted) {
+        request.current = null;
+        setBusy(false);
+      }
+    }
+  }
+
   function refresh() {
     if (recovery?.pending)
       setRecovery({
+        ...recovery,
         pending: true,
         manual: true,
         after: [order.settledRevision ?? -1, history.settledRevision ?? -1],
@@ -182,6 +315,7 @@ export function useAftercareWrite(
   }
   const canAcknowledge =
     !!recovery?.pending &&
+    (!recovery.intent || !aftercareIntentActive(recovery.intent)) &&
     recovery.manual &&
     !unavailable &&
     order.settledRevision !== null &&
@@ -190,6 +324,11 @@ export function useAftercareWrite(
     history.settledRevision > recovery.after[1];
   return {
     run,
+    recover,
+    intent:
+      recovery?.intent && aftercareIntentActive(recovery.intent)
+        ? recovery.intent
+        : undefined,
     refresh,
     busy,
     remaining,

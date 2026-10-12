@@ -17,6 +17,8 @@ import {
   complaintPriorityBodySchema,
   complaintTransitionBodySchema,
   customerComplaintCreateBodySchema,
+  supportCreationHeadersSchema,
+  supportReplyHeadersSchema,
   customerComplaintListQuerySchema,
   customerEnquiryCreateBodySchema,
   customerEnquiryListQuerySchema,
@@ -83,7 +85,11 @@ export function createCustomerSupportRouter(): Router {
     "/enquiries",
     requireCsrf,
     createSensitiveRateLimit(20, 60 * 60_000),
-    validate({ body: customerEnquiryCreateBodySchema, query: supportEmptyQuerySchema }),
+    validate({
+      body: customerEnquiryCreateBodySchema,
+      query: supportEmptyQuerySchema,
+      headers: supportCreationHeadersSchema,
+    }),
     controller.createEnquiry,
   );
   router.get(
@@ -98,6 +104,7 @@ export function createCustomerSupportRouter(): Router {
     validate({
       params: supportIdParamsSchema,
       body: supportMessageBodySchema,
+      headers: supportReplyHeadersSchema,
       query: supportEmptyQuerySchema,
     }),
     controller.messageEnquiry,
@@ -116,7 +123,11 @@ export function createCustomerSupportRouter(): Router {
     "/complaints",
     requireCsrf,
     createSensitiveRateLimit(10, 60 * 60_000),
-    validate({ body: customerComplaintCreateBodySchema, query: supportEmptyQuerySchema }),
+    validate({
+      body: customerComplaintCreateBodySchema,
+      query: supportEmptyQuerySchema,
+      headers: supportCreationHeadersSchema,
+    }),
     controller.createComplaint,
   );
   router.get(
@@ -131,6 +142,7 @@ export function createCustomerSupportRouter(): Router {
     validate({
       params: supportIdParamsSchema,
       body: supportMessageBodySchema,
+      headers: supportReplyHeadersSchema,
       query: supportEmptyQuerySchema,
     }),
     controller.messageComplaint,

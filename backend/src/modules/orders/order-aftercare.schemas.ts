@@ -1,5 +1,11 @@
 import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
+export const aftercareKeySchema = z
+  .string()
+  .regex(
+    /^aftercare-v1\.\d{13}\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+export const aftercareHeaders = z.looseObject({ "idempotency-key": aftercareKeySchema });
 export const aftercareParams = z.object({ id: z.uuid() }).strict();
 export const aftercareItemSchema = z
   .object({ orderItemId: z.uuid(), quantity: z.number().int().min(1).max(100000) })

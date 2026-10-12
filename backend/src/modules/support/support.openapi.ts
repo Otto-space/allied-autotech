@@ -5,6 +5,8 @@ import {
   complaintPriorityBodySchema,
   complaintTransitionBodySchema,
   customerComplaintCreateBodySchema,
+  supportCreationHeadersSchema,
+  supportReplyHeadersSchema,
   customerComplaintListQuerySchema,
   customerEnquiryCreateBodySchema,
   customerEnquiryListQuerySchema,
@@ -60,6 +62,58 @@ const reviewSubmission = z.object({
   service: namedReviewTarget,
   replayed: z.boolean(),
 });
+const supportSubmissionBase = z.object({
+  id: z.uuid(),
+  branchId: z.uuid().nullable(),
+  assignedStaffId: z.uuid().nullable(),
+  subject: z.string(),
+  version: z.number().int().nonnegative(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  resolvedAt: z.iso.datetime().nullable(),
+  closedAt: z.iso.datetime().nullable(),
+  branch: z.object({ id: z.uuid(), code: z.string(), name: z.string() }).nullable(),
+  assignedStaff: z
+    .object({ id: z.uuid(), firstName: z.string(), lastName: z.string() })
+    .nullable(),
+  replayed: z.boolean(),
+});
+const enquirySubmission = supportSubmissionBase.extend({
+  type: z.enum(["GENERAL", "PRODUCT", "SERVICE", "VEHICLE", "BOOKING", "QUOTATION"]),
+  status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"]),
+  message: z.string(),
+  productId: z.uuid().nullable(),
+  serviceId: z.uuid().nullable(),
+  bookingId: z.uuid().nullable(),
+  quoteId: z.uuid().nullable(),
+  vehicleListingId: z.uuid().nullable(),
+});
+const complaintSubmission = supportSubmissionBase.extend({
+  status: z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]),
+  description: z.string(),
+  resolution: z.string().nullable(),
+  bookingId: z.uuid().nullable(),
+  orderId: z.uuid().nullable(),
+  vehicleTransactionId: z.uuid().nullable(),
+  acknowledgedAt: z.iso.datetime().nullable(),
+  acknowledgementDueAt: z.iso.datetime().nullable(),
+  escalatedAt: z.iso.datetime().nullable(),
+});
+const creationDescription =
+  "Requires Idempotency-Key support-create-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Scope is authenticated customer plus enquiry/complaint creation. The normalized body is bound to the key; changed content returns 409 IDEMPOTENCY_CONFLICT. Original-key/body replay within 24 hours returns 201 with the same owned record ID, current state and replayed true, without another creation audit or repeating branch/source checks or complaint deadline assignment. New requests retain branch, source, ownership and policy validation. Keys over 24 hours old or more than one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing/malformed keys return 422. Receipts hold hashes and the record ID, not message/contact text. Private projections exclude contact fields and internal messages. Same-key concurrency serializes; role, CSRF and rate limits apply on every attempt. Public anonymous creation is unchanged. Deploy matching frontend/API; older customer clients must reload.";
+
+const replySubmission = z.object({
+  id: z.uuid(),
+  authorType: z.literal("CUSTOMER"),
+  visibility: z.literal("CUSTOMER"),
+  body: z.string(),
+  createdAt: z.iso.datetime(),
+  replayed: z.boolean(),
+});
+const replyDescription =
+  "Requires Idempotency-Key support-reply-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. The normalized reply is bound to the authenticated customer, conversation kind and ID. Atomic message, audit, notification intent and receipt; original-key recovery returns 201 with the original customer-visible message and replayed true without duplicate effects. Ownership is rechecked on every attempt. Recovery is permitted after closure only for an already committed reply; new replies to closed conversations conflict. Missing or foreign/internal message receipts fail closed. Changed bodies return 409 IDEMPOTENCY_CONFLICT. Keys expire after 24 hours even after cleanup, and timestamps more than one minute ahead fail with 409 IDEMPOTENCY_EXPIRED. Missing/malformed keys return 422. Strict customer-only bodies, CSRF and rate limits remain. Matching API/frontend rollout is required; staff replies are unchanged. Provider delivery is separate from notification enqueue.";
+
 type Route = {
   method: "get" | "post";
   path: string;
@@ -142,6 +196,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/support/enquiries",
       summary: "Create an owned enquiry",
+      description: creationDescription,
+      headers: csrf.extend(supportCreationHeadersSchema.shape),
+      data: enquirySubmission,
       body: customerEnquiryCreateBodySchema,
       security: true,
       mutate: true,
@@ -167,6 +224,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Add a customer message to an owned enquiry",
       params: supportIdParamsSchema,
       body: supportMessageBodySchema,
+      headers: csrf.extend(supportReplyHeadersSchema.shape),
+      description: replyDescription,
+      data: replySubmission,
       security: true,
       mutate: true,
     },
@@ -181,6 +241,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/support/complaints",
       summary: "Create an owned complaint",
+      description: creationDescription,
+      headers: csrf.extend(supportCreationHeadersSchema.shape),
+      data: complaintSubmission,
       body: customerComplaintCreateBodySchema,
       security: true,
       mutate: true,
@@ -198,6 +261,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Add a customer message to an owned complaint",
       params: supportIdParamsSchema,
       body: supportMessageBodySchema,
+      headers: csrf.extend(supportReplyHeadersSchema.shape),
+      description: replyDescription,
+      data: replySubmission,
       security: true,
       mutate: true,
     },

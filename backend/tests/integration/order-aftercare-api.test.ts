@@ -71,11 +71,16 @@ async function account(
 }
 type Account = Awaited<ReturnType<typeof account>>;
 const post = (actor: Account, url: string, body: unknown) =>
-  request(app).post(`/api/v1${url}`).set(actor.headers).send(body);
+  request(app)
+    .post(`/api/v1${url}`)
+    .set(actor.headers)
+    .set("Idempotency-Key", `aftercare-v1.${Date.now()}.${randomUUID()}`)
+    .send(body);
 const get = (actor: Account, url: string) =>
   request(app).get(`/api/v1${url}`).set(actor.headers);
 function customerSafe(value: unknown) {
-  expect(customerAftercareResponse.strict().safeParse(value).success).toBe(true);
+  const { replayed: _replayed, ...record } = value as Record<string, unknown>;
+  expect(customerAftercareResponse.strict().safeParse(record).success).toBe(true);
 }
 async function fixture() {
   const branch = await prisma.branch.create({
@@ -214,7 +219,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).toBe(1);
         const list = await get(f.customer, `${f.path}/aftercare`);
         expect(list.status).toBe(200);
-        expect(list.body.data).toEqual([first.body.data]);
+        const { replayed: _replayed, ...original } = first.body.data;
+        expect(list.body.data).toEqual([original]);
         const cancellation = await post(f.customer, `${f.path}/cancel`, {
           expectedVersion: 0,
           reason: "Synthetic order already completed requires review",

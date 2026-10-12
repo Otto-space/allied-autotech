@@ -1,3 +1,5 @@
+import { aftercareReceipt } from "./order-aftercare-receipt.js";
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import type { Prisma } from "../../generated/prisma/client.js";
@@ -10,7 +12,11 @@ import {
 } from "../policies/policies.service.js";
 import { orderConflict, orderForbidden, orderNotFound } from "./orders.errors.js";
 import { assertCustomer, assertOrderOperator } from "./orders.policy.js";
-import { customerAftercareSelect } from "./order-aftercare.schemas.js";
+import {
+  aftercarePartialBody,
+  aftercareReturnBody,
+  customerAftercareSelect,
+} from "./order-aftercare.schemas.js";
 
 export async function requestAftercare(
   tx: Prisma.TransactionClient,
@@ -95,10 +101,10 @@ export class OrderAftercareService {
     orderId: string,
     reason: string,
     context: RequestSecurityContext,
+    key: string,
   ) {
-    return this.database.$transaction((tx) =>
-      requestAftercare(tx, actor, orderId, "RETURN", reason, context),
-    );
+    const input = aftercareReturnBody.parse({ reason });
+    return this.submit(actor, orderId, "returns", input, context, key);
   }
   async requestPartial(
     actor: AuthenticatedActor,
@@ -109,17 +115,63 @@ export class OrderAftercareService {
       items: Array<{ orderItemId: string; quantity: number }>;
     },
     context: RequestSecurityContext,
+    key: string,
   ) {
-    return this.database.$transaction((tx) =>
-      requestAftercare(
-        tx,
-        actor,
-        orderId,
-        input.kind,
-        input.reason,
-        context,
-        input.items,
-      ),
+    const parsed = aftercarePartialBody.parse(input);
+    parsed.items.sort((a, b) => a.orderItemId.localeCompare(b.orderItemId));
+    return this.submit(actor, orderId, "aftercare", parsed, context, key);
+  }
+  private async submit(
+    actor: AuthenticatedActor,
+    orderId: string,
+    operation: "returns" | "aftercare",
+    input: {
+      reason: string;
+      kind?: "RETURN" | "CANCELLATION";
+      items?: Array<{ orderItemId: string; quantity: number }>;
+    },
+    context: RequestSecurityContext,
+    key: string,
+  ) {
+    assertCustomer(actor);
+    return withTransactionRetry(
+      this.database,
+      async (tx) => {
+        await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${orderId}::uuid FOR UPDATE`;
+        const order = await tx.order.findFirst({
+          where: { id: orderId, customer: { userId: actor.userId } },
+        });
+        if (!order) throw orderNotFound();
+        // Bind the operation in the hash so a key cannot switch intake endpoints.
+        return aftercareReceipt(
+          tx,
+          actor.userId,
+          `aftercare:${order.id}:${actor.userId}`,
+          key,
+          { operation, ...input },
+          () =>
+            requestAftercare(
+              tx,
+              actor,
+              orderId,
+              input.kind ?? "RETURN",
+              input.reason,
+              context,
+              input.items,
+            ),
+          (id) =>
+            tx.orderAftercareRequest.findFirst({
+              where: {
+                id,
+                orderId,
+                customerId: order.customerId,
+                kind: input.kind ?? "RETURN",
+                orderIdRelation: { customer: { userId: actor.userId } },
+              },
+            }),
+        );
+      },
+      { isolationLevel: "Serializable" },
     );
   }
   async staffList(actor: AuthenticatedActor, orderId: string) {

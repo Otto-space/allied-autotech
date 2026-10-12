@@ -1,6 +1,6 @@
 # Customer order aftercare — design specification
 
-Prepared 12 October 2026 before production changes. This is the next page gate, not an accepted implementation. Scope: `/dashboard/orders/[orderId]/aftercare`; existing staff review and fulfillment evidence keep their separate route and behavior.
+Prepared 12 October 2026 before production changes. Implementation has now passed its [local page gate](../customer-aftercare.md). Scope: `/dashboard/orders/[orderId]/aftercare`; existing staff review and fulfillment evidence keep their separate route and behavior.
 
 ## Retained concepts and baseline
 
@@ -31,10 +31,12 @@ Use the real Allied logo and shell instead of generated branding, tagline, inven
 
 ## Functional invariants
 
+Readable selector labels are shortened to `All products` and `Selected products`; the all-products state explicitly says that every ordered quantity is included. Product rows keep the product name and ordered quantity together, with a compact quantity field whose accessible label includes the full product name. These refinements avoid truncation and excessive row height within the specified paired-field layout.
+
 Whole-order returns retain `POST /customers/orders/:id/returns`; selected products and cancellations retain `POST /customers/orders/:id/aftercare`. Backend ownership, strict schemas, quantity rules and non-rejected same-kind duplicate behavior remain authoritative. Approval alone does not cancel orders, change stock or confirm refund payment. No frontend eligibility window is invented.
 
 Before sending, recheck the customer session and fresh owned order/history. Stale or failed reads block submission, including an already-open review. Unknown outcomes survive reload in an account/order-scoped marker. Recovery requires an explicit successful refresh of both reads and acknowledgement; background refresh alone cannot unlock another submission. Never replay automatically. Preserve account/order drafts and clear them only on a validated successful result. Abort reads/writes on owner/route changes. A request marker is not backend idempotency.
 
-## Acceptance still required
+## Acceptance record
 
-Implement and test valid whole/selected requests, quantities, cancellation, duplicate approved/requested responses, failed reads, stale reviews, CSRF/session changes, rate limits, storage failure, lost responses/reload/manual reconciliation, private decision fields, zero amounts and long content. Verify actual API/database persistence and permissions in an isolated environment. Run appropriate static/build/regression checks and native-size concept/render comparisons with a five-point fidelity ledger. This specification does not close the page gate.
+Acceptance covers valid whole/selected requests, quantities, cancellation, duplicate approved/requested responses, failed reads, stale reviews, CSRF/session changes, rate limits, storage failure, lost responses/reload/manual reconciliation, private decision fields, zero amounts and long content. Verified actual API/database persistence and permissions in an isolated environment. Completed appropriate static/build/regression checks and native-size concept/render comparisons with a five-point fidelity ledger. These checks are complete within the local scope documented in the linked acceptance report; application-wide and deployed verification remain open.

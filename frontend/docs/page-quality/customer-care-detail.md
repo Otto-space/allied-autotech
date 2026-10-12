@@ -68,3 +68,9 @@ Final `types-final.log`, `lint-final.log`, scoped Prettier and `git diff --check
 Changed production files: customer-only `customer-support-thread.tsx`, scoped `conversation.css` and the detail route import; customer/staff routing in `support-thread.tsx`; opt-in guarded styling/recovery in `support-reply-form.tsx`; reply marker scope in `use-support-write.ts`; and one breadcrumb exclusion for this route in `dashboard-shell.tsx`. New conversation quality tests, narrowly updated shared confirmation labels/heading assertions and fixture capabilities accompany the change. No backend production source or migration was changed for this gate.
 
 Next: customer order aftercare `/dashboard/orders/[orderId]/aftercare`, then the remaining dashboard and role gates. Durable reply replay remains optional and unimplemented; deployed provider/storage/document and business-policy acceptance remain open.
+
+## Durable customer reply recovery
+
+The customer reply contract now requires an original request key. The account/conversation-scoped original message is retained before sending and can be explicitly reviewed and recovered after reload. Recovery can return an already committed reply from a closed conversation or beyond the first message page, while new replies to closed conversations remain rejected. Current ownership is rechecked; account changes redact private retained text and require session verification. Legacy/expired markers retain manual reconciliation. Staff/internal-note workflows are unchanged.
+
+See [support reply recovery](../../../backend/docs/support-reply-recovery.md) for the backend/API/browser evidence, coordinated release and provider-delivery limitations. Both enquiry and complaint recovery dialogs passed accessibility and overflow checks at 1440 and 390 pixels using the production build. This is a contract extension within the accepted conversation design, not deployed notification acceptance.

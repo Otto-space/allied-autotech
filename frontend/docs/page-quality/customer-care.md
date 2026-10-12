@@ -74,3 +74,9 @@ Next: customer-care detail routes `/dashboard/support/[kind]/[supportId]`, follo
 Browser tools: Browser plugin absent; Playwright with installed Edge on `http://localhost:3001` used the production standalone build. Baselines and concepts were inspected before edits. Both accepted concept images and the resulting native/mobile screenshots were opened directly for comparison. Final production captures confirmed the last desktop CSS adjustment.
 
 The real API/database run passed before that final styling-only adjustment. It does not certify deployed notification delivery, Maps configuration, other browsers or remaining dashboard/detail routes.
+
+## Customer creation recovery contract update
+
+Customer enquiry and complaint creation now requires an original request key, with explicit recovery after response loss and reload. The retained normalized request is reviewed in a separate confirmation; current form edits do not change it, and no navigation/reconnect event sends it automatically. Recovery opens the current owned conversation without duplicate creation or audit. Account changes close the confirmation and require session verification. Legacy or expired markers retain the existing history-reconciliation flow. Customer reply recovery has its own account/conversation-scoped key and confirmation flow; anonymous public-contact recovery remains separate.
+
+Local acceptance: 94 unique production-Edge browser cases passed across the new recovery cases and customer-care/shared-support regression, including four real API/database cases. Both operations passed recovery-dialog accessibility/overflow checks at 1440 and 390 pixels. See [support creation recovery](../../../backend/docs/support-creation-recovery.md) for exact backend/frontend evidence, release coordination and limitations. This updates the contract beneath the accepted design; it does not certify deployed provider delivery.

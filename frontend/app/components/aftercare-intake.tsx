@@ -29,6 +29,7 @@ function RequestedItem({ item }: { item: AftercareOrder["items"][number] }) {
           type="checkbox"
           id={`include-${item.id}`}
           name={`include-${item.id}`}
+          aria-label={item.productName}
           checked={included}
           onChange={(event) => setIncluded(event.target.checked)}
         />
@@ -148,45 +149,58 @@ export function AftercareIntake({
             (
               await apiRequest(
                 `/customers/orders/${order.id}/${wholeReturn ? "returns" : "aftercare"}`,
-                { method: "POST", csrf: true, body, signal },
+                {
+                  method: "POST",
+                  csrf: true,
+                  body,
+                  signal,
+                  idempotencyKey: `aftercare-v1.${Date.now()}.${crypto.randomUUID()}`,
+                },
               )
             ).data,
           );
-          if (
-            !matchesAftercareOrder(saved, order) ||
-            saved.kind !== input.kind ||
-            saved.status === "REJECTED"
-          )
-            throw new Error("Unexpected order request");
-          const canonical = (values: typeof input.items) =>
-            values
-              .map((i) => `${i.orderItemId}:${i.quantity}`)
-              .sort()
-              .join("|");
-          duplicate.current =
-            saved.reason !== input.reason ||
-            canonical(saved.items) !== canonical(input.items) ||
-            saved.status !== "REQUESTED";
+          return saved;
         };
+        let saved;
         if (guard) {
-          await guard.run(async (signal) => {
-            const [freshOrder, freshHistory] = await Promise.all([
-              apiRequest(`/customers/orders/${order.id}`, { signal }),
-              apiRequest(`/customers/orders/${order.id}/aftercare`, { signal }),
-            ]);
-            const checkedOrder = parseAftercareOrder(freshOrder.data);
-            const checkedHistory = parseAftercareList(freshHistory.data);
-            if (
-              JSON.stringify(checkedOrder) !== JSON.stringify(order) ||
-              new Set(checkedHistory.map((record) => record.id)).size !==
-                checkedHistory.length ||
-              !checkedHistory.every((record) =>
-                matchesAftercareOrder(record, checkedOrder),
+          cancelDraftSubmission();
+          saved = await guard.run(
+            wholeReturn ? "returns" : "aftercare",
+            body,
+            async (signal) => {
+              const [freshOrder, freshHistory] = await Promise.all([
+                apiRequest(`/customers/orders/${order.id}`, { signal }),
+                apiRequest(`/customers/orders/${order.id}/aftercare`, { signal }),
+              ]);
+              const checkedOrder = parseAftercareOrder(freshOrder.data);
+              const checkedHistory = parseAftercareList(freshHistory.data);
+              if (
+                JSON.stringify(checkedOrder) !== JSON.stringify(order) ||
+                new Set(checkedHistory.map((record) => record.id)).size !==
+                  checkedHistory.length ||
+                !checkedHistory.every((record) =>
+                  matchesAftercareOrder(record, checkedOrder),
+                )
               )
-            )
-              throw new ApiError(409, { error: { code: "CONFLICT" } });
-          }, write);
-        } else await write();
+                throw new ApiError(409, { error: { code: "CONFLICT" } });
+            },
+          );
+        } else saved = await write();
+        if (
+          !matchesAftercareOrder(saved, order) ||
+          saved.kind !== input.kind ||
+          saved.status === "REJECTED"
+        )
+          throw new Error("Unexpected order request");
+        const canonical = (values: typeof input.items) =>
+          values
+            .map((i) => `${i.orderItemId}:${i.quantity}`)
+            .sort()
+            .join("|");
+        duplicate.current =
+          saved.reason !== input.reason ||
+          canonical(saved.items) !== canonical(input.items) ||
+          saved.status !== "REQUESTED";
       },
       onUncertain,
       retryAfterRejection: false,

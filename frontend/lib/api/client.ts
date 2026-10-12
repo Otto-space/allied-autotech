@@ -6,7 +6,11 @@ import { retryAfterSeconds } from "./retry-after";
 import { redactVehicleRetries } from "./vehicle-creation-retry";
 import { redactReservationRetries } from "./reservation-terms";
 import { redactPreferenceRecoveries } from "../notifications/preference-recovery";
+import { redactAftercareRecoveries } from "../orders/aftercare-recovery";
+import { redactSupportReplyRecoveries } from "../support/reply-recovery";
+import { redactSupportCreationRecoveries } from "../support/creation-recovery";
 import { redactReviewRecoveries } from "../reviews/review-recovery";
+import { redactSupportCreateRecoveries } from "../support/support-recovery";
 import {
   captureDraftSubmission,
   clearAccountDrafts,
@@ -209,6 +213,10 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactVehicleRetries();
   redactReservationRetries();
   redactReviewRecoveries();
+  redactSupportCreateRecoveries();
+  redactSupportCreationRecoveries();
+  redactSupportReplyRecoveries();
+  redactAftercareRecoveries();
   redactPreferenceRecoveries();
   sessionGeneration += 1;
   csrfToken = null;

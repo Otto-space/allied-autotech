@@ -164,7 +164,7 @@ export function SupportReplyForm({
                     )
                       throw new Error("Unconfirmed reply");
                   };
-                  if (guard) await guard.run(prepare, write);
+                  if (guard) await guard.run({ message: values.message }, prepare);
                   else {
                     await prepare(controller.signal);
                     await write(controller.signal);

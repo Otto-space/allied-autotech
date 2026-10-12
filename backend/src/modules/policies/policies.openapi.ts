@@ -1,5 +1,6 @@
 import {
   aftercareReturnBody,
+  aftercareHeaders,
   aftercarePartialBody,
   aftercareReviewBody,
   fulfillmentEvidenceBody,
@@ -259,9 +260,11 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       path: "/customers/orders/{id}/returns",
       summary: "Request a whole-order return for timing and condition review",
       params: id,
+      description:
+        "Requires an aftercare-v1.<13-digit timestamp>.<UUIDv4> Idempotency-Key. Original normalized body and endpoint are bound to the customer and order for 24 hours. Explicit same-key recovery returns the current owned request, including later rejection, without new audit, request, stock, order or refund changes. Mismatched keys return 409 IDEMPOTENCY_CONFLICT; expired/future keys return 409 IDEMPOTENCY_EXPIRED even after receipt cleanup. Fresh keys retain existing non-rejected same-kind request deduplication.",
       body: aftercareReturnBody,
       created: true,
-      data: customerAftercareResponse,
+      data: customerAftercareResponse.extend({ replayed: z.boolean() }),
     },
     {
       method: "post",
@@ -269,9 +272,11 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary:
         "Request selected-line cancellation or return; existing active requests retain their original details",
       params: id,
+      description:
+        "Same 24-hour original-request recovery contract as /returns. Selected items are normalized by order-line ID. Endpoint, kind, reason and quantities must match the original submission. Current ownership is required on every recovery.",
       body: aftercarePartialBody,
       created: true,
-      data: customerAftercareResponse,
+      data: customerAftercareResponse.extend({ replayed: z.boolean() }),
     },
     {
       method: "post",
@@ -448,7 +453,17 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
         ...(route.params ? { params: route.params as never } : {}),
         ...(route.query ? { query: route.query as never } : {}),
         ...(route.method === "post" && secured
-          ? { headers: z.object({ "x-csrf-token": z.string().min(32) }) as never }
+          ? {
+              headers: z.object({
+                "x-csrf-token": z.string().min(32),
+                ...([
+                  "/customers/orders/{id}/aftercare",
+                  "/customers/orders/{id}/returns",
+                ].includes(route.path)
+                  ? aftercareHeaders.shape
+                  : {}),
+              }) as never,
+            }
           : {}),
         ...(route.body
           ? {

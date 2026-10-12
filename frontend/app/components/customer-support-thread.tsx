@@ -1,5 +1,6 @@
 "use client";
 
+import { SupportReplyRecovery } from "./support-reply-recovery";
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
@@ -149,6 +150,8 @@ export function CustomerSupportThread({
     id,
   );
   const [reviewing, setReviewing] = useState(false);
+  const [replyGeneration, setReplyGeneration] = useState(0);
+  const [recovered, setRecovered] = useState(false);
   const reading = messages.loading || messages.refreshing;
   const frozen = guard.busy || reviewing;
   function refreshMessages() {
@@ -202,26 +205,31 @@ export function CustomerSupportThread({
           Please wait {guard.remaining} seconds before sending another reply.
         </p>
       )}
-      {guard.pending && (
-        <section className="ct-recovery" aria-labelledby="ct-recovery-title">
-          <h2 id="ct-recovery-title">Reply needs checking</h2>
-          <p role="status">
-            This reply has an unknown outcome. Refresh messages and check all relevant
-            pages before composing another reply. This request will not be resent
-            automatically.
-          </p>
-          <p>
-            Replies are shown oldest first. Absence from the first page does not prove
-            that your reply failed.
-          </p>
-          <button
-            className="button secondary"
-            onClick={guard.acknowledge}
-            disabled={!guard.canAcknowledge || frozen}
-          >
-            I have checked the conversation
-          </button>
-        </section>
+      <SupportReplyRecovery
+        guard={guard}
+        subject={title}
+        unavailable={
+          detailUnavailable ||
+          messages.loading ||
+          messages.refreshing ||
+          !messages.data ||
+          !!messages.error ||
+          !!messages.refreshError
+        }
+        frozen={frozen}
+        onReviewChange={setReviewing}
+        onRecovered={() => {
+          setReplyGeneration((v) => v + 1);
+          setRecovered(true);
+          detail.refresh();
+          messages.refresh();
+        }}
+      />
+      {recovered && (
+        <Feedback
+          tone="success"
+          message="Original reply confirmed. Messages are shown oldest first; use Next to reach later replies."
+        />
       )}
       {detail.loading && <p role="status">Checking support record…</p>}
       {record && (
@@ -305,6 +313,7 @@ export function CustomerSupportThread({
           <div className="ct-side-column">
             <RecordDetails record={record} />
             <SupportReplyForm
+              key={replyGeneration}
               record={record}
               staff={false}
               base={base}

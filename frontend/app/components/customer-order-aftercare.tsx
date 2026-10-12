@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { z } from "zod";
 import {
@@ -18,6 +18,7 @@ import { useAftercareWrite } from "@/lib/orders/use-aftercare-write";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { useAccountSession } from "./dashboard-shell";
+import { AftercareRecovery } from "./aftercare-recovery";
 import { AftercareIntake } from "./aftercare-intake";
 import { Feedback } from "./feedback";
 
@@ -140,6 +141,8 @@ function CustomerAftercareScreen({
     !history.error &&
     !!history.data &&
     history.data.every((row) => matchesAftercareOrder(row, current));
+  const [recovered, setRecovered] = useState<Aftercare>();
+  const [formRevision, setFormRevision] = useState(0);
   const guard = useAftercareWrite(userId, orderId, order, history, validHistory);
   const reading =
     order.loading || history.loading || order.refreshing || history.refreshing;
@@ -189,7 +192,7 @@ function CustomerAftercareScreen({
         Review requests and follow their progress. An approved request does not by itself
         change stock, cancel an order or confirm a refund payment.
       </p>
-      <Feedback message={order.error ?? history.error ?? guard.storageError} />
+      <Feedback message={order.error ?? guard.storageError} />
       {(order.refreshError || history.refreshError) && (
         <p className="notice" role="status">
           Order details or request history may be out of date. Refresh order requests
@@ -201,30 +204,32 @@ function CustomerAftercareScreen({
           Please wait {guard.remaining} seconds before sending another request.
         </p>
       )}
-      {guard.pending && (
-        <section className="ca-recovery" aria-labelledby="ca-recovery-title">
-          <h2 id="ca-recovery-title">Check before sending again</h2>
-          <p role="status">
-            The outcome of your request is uncertain. Refresh the order and request
-            history, then review the saved requests before continuing. This request will
-            not be resent automatically.
+      {current && (
+        <AftercareRecovery
+          guard={guard}
+          order={current}
+          unavailable={
+            reading ||
+            !validHistory ||
+            !!order.error ||
+            !!order.refreshError ||
+            !!history.error ||
+            !!history.refreshError
+          }
+          frozen={guard.busy}
+          onRecovered={(saved) => {
+            setRecovered(saved);
+            setFormRevision((v) => v + 1);
+            refresh();
+          }}
+        />
+      )}
+      {recovered && current && (
+        <section aria-label="Recovered order request">
+          <p role="status" className="notice">
+            Original order request confirmed. Current review status is shown below.
           </p>
-          <p>
-            History shows the latest 100 requests. If you cannot find the result, contact
-            customer care before sending it again.
-          </p>
-          <div className="actions">
-            <button
-              className="button secondary"
-              onClick={guard.acknowledge}
-              disabled={!guard.canAcknowledge || guard.busy}
-            >
-              I have checked the saved requests
-            </button>
-            <Link className="text-link" href="/dashboard/support">
-              Contact customer care
-            </Link>
-          </div>
+          <RequestRecord item={recovered} order={current} />
         </section>
       )}
       {reading && (
@@ -259,6 +264,7 @@ function CustomerAftercareScreen({
           </section>
           <div className="ca-grid">
             <AftercareIntake
+              key={formRevision}
               order={current}
               disabled={guard.disabled}
               onSaved={refresh}

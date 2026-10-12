@@ -338,3 +338,21 @@ export type SupportMessageInput = z.infer<typeof supportMessageBodySchema>;
 export type StaffSupportMessageInput = z.infer<typeof staffSupportMessageBodySchema>;
 export type ReviewModerationInput = z.infer<typeof reviewModerationBodySchema>;
 export type SupportMessageListQuery = z.infer<typeof supportMessageListQuerySchema>;
+
+export const supportCreationKeySchema = z
+  .string()
+  .regex(
+    /^support-create-v1\.\d{13}\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+export const supportCreationHeadersSchema = z.object({
+  "idempotency-key": supportCreationKeySchema,
+});
+
+export const supportReplyKeySchema = z
+  .string()
+  .regex(
+    /^support-reply-v1\.\d{13}\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+export const supportReplyHeadersSchema = z.object({
+  "idempotency-key": supportReplyKeySchema,
+});

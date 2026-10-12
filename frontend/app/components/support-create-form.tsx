@@ -20,7 +20,7 @@ import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { CopyControl } from "./copy-control";
-import type { useSupportWrite } from "@/lib/support/use-support-write";
+import type { useSupportCreateWrite } from "@/lib/support/use-support-create-write";
 import { draftIdentity, draftKey, forgetDraft, DRAFT_SAVED } from "@/lib/forms/drafts";
 function SelectFrame({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return enabled ? (
@@ -54,7 +54,7 @@ export function SupportCreateForm({
   serviceName?: string;
   presentation?: "contact" | "dashboard";
   userId?: string;
-  guard?: ReturnType<typeof useSupportWrite>;
+  guard?: ReturnType<typeof useSupportCreateWrite>;
   onReviewChange?: (open: boolean) => void;
 }) {
   const [type, setType] = useState(
@@ -325,7 +325,19 @@ export function SupportCreateForm({
                 retryAfterRejection: false,
                 onUncertain,
                 submit: async () => {
-                  const send = async (signal?: AbortSignal) => {
+                  if (guard) {
+                    const saved = await guard.run(body, async () => {
+                      if (latestPickerBlocked.current)
+                        throw new ApiError(409, { error: { code: "CONFLICT" } });
+                    });
+                    setReceiptId(saved.id);
+                    setComplete(true);
+                    onSaved(saved.id);
+                    return;
+                  }
+                  if (!publicMode)
+                    throw new ApiError(409, { error: { code: "CONFLICT" } });
+                  const send = async (signal?: AbortSignal, idempotencyKey?: string) => {
                     const controller = new AbortController();
                     const abort = () => controller.abort();
                     signal?.addEventListener("abort", abort, { once: true });
@@ -339,6 +351,7 @@ export function SupportCreateForm({
                           body,
                           csrf: !publicMode,
                           signal: controller.signal,
+                          idempotencyKey,
                         },
                       );
                       controller.signal.throwIfAborted();
@@ -421,12 +434,7 @@ export function SupportCreateForm({
                       if (pending.current === controller) pending.current = null;
                     }
                   };
-                  const savedId = guard
-                    ? await guard.run(async () => {
-                        if (latestPickerBlocked.current)
-                          throw new ApiError(409, { error: { code: "CONFLICT" } });
-                      }, send)
-                    : await send();
+                  const savedId = await send();
                   onSaved(savedId);
                 },
               });

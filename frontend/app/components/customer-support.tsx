@@ -11,9 +11,10 @@ import {
   type SupportKind,
 } from "@/lib/api/support-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
-import { useSupportWrite } from "@/lib/support/use-support-write";
+import { useSupportCreateWrite } from "@/lib/support/use-support-create-write";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
+import { SupportCreationRecovery } from "./support-creation-recovery";
 import { SupportCreateForm } from "./support-create-form";
 
 const label = (value: string) =>
@@ -40,7 +41,7 @@ function SupportCategory({
     `/customers/support/${kind}?limit=20${status ? `&status=${status}` : ""}${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
     parse,
   );
-  const guard = useSupportWrite(userId, kind, records);
+  const guard = useSupportCreateWrite(userId, kind, records);
   const reading = records.loading || records.refreshing;
   const stale = !!(records.error || records.refreshError);
   function refresh() {
@@ -61,34 +62,13 @@ function SupportCategory({
   return (
     <>
       <Feedback message={guard.storageError} />
-      {guard.pending && (
-        <section className="cc-recovery" aria-label="Submission recovery">
-          <h2>Submission needs checking</h2>
-          <p>
-            This submission has an unknown outcome. Refresh your records and check all
-            relevant pages before starting another request. It will not be resent
-            automatically.
-          </p>
-          <p>
-            A record missing from the first page does not prove that your request was not
-            received.
-          </p>
-          <div className="actions">
-            <a className="button secondary" href="#support-list-heading">
-              View your records
-            </a>
-            <button
-              className="button secondary"
-              disabled={
-                !guard.canAcknowledge || reviewOpen || !!status || pagination.page !== 1
-              }
-              onClick={guard.acknowledge}
-            >
-              I have checked my records
-            </button>
-          </div>
-        </section>
-      )}
+      <SupportCreationRecovery
+        guard={guard}
+        kind={kind}
+        disabled={reviewOpen || !!status || pagination.page !== 1}
+        onReviewChange={reviewChanged}
+        onRecovered={(id) => router.push(`/dashboard/support/${kind}/${id}`)}
+      />
       {stale && records.data && (
         <Feedback
           tone="warning"

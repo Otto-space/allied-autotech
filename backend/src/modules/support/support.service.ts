@@ -1,3 +1,12 @@
+import {
+  supportCreationReceipt,
+  supportReplyReceipt,
+} from "./support-creation-receipt.js";
+import {
+  customerEnquiryCreateBodySchema,
+  supportMessageBodySchema,
+  customerComplaintCreateBodySchema,
+} from "./support.schemas.js";
 import { assignComplaintDeadline } from "./complaint-sla.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { reviewCreationReceipt } from "./review-idempotency.js";
@@ -84,29 +93,49 @@ export class SupportService {
     actor: AuthenticatedActor,
     input: CustomerEnquiryInput,
     context: RequestSecurityContext,
+    rawKey: string,
   ) {
     assertSupportCustomer(actor);
-    return this.database.$transaction(async (transaction) => {
-      const customer = await this.repository.customer(actor.userId, transaction);
-      if (customer === null) throw supportNotFound();
-      const branchId = await this.resolveEnquiryBranch(input, customer.id, transaction);
-      const enquiry = await this.repository.createCustomerEnquiry(
-        customer,
-        input,
-        branchId,
-        transaction,
-      );
-      if (enquiry === null) throw supportNotFound();
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "CREATE",
-        entityType: "ENQUIRY",
-        entityId: enquiry.id,
-        newValues: { type: input.type, branchId },
-        context,
-      });
-      return enquiry;
-    });
+    input = customerEnquiryCreateBodySchema.parse(input);
+    return withTransactionRetry(
+      this.database,
+      async (transaction) => {
+        const customer = await this.repository.customer(actor.userId, transaction);
+        if (customer === null) throw supportNotFound();
+        return supportCreationReceipt(
+          transaction,
+          actor.userId,
+          "enquiries",
+          rawKey,
+          input,
+          async () => {
+            const branchId = await this.resolveEnquiryBranch(
+              input,
+              customer.id,
+              transaction,
+            );
+            const enquiry = await this.repository.createCustomerEnquiry(
+              customer,
+              input,
+              branchId,
+              transaction,
+            );
+            if (enquiry === null) throw supportNotFound();
+            await appendAuditEvent(transaction, {
+              actorUserId: actor.userId,
+              action: "CREATE",
+              entityType: "ENQUIRY",
+              entityId: enquiry.id,
+              newValues: { type: input.type, branchId },
+              context,
+            });
+            return enquiry;
+          },
+          (id) => this.repository.ownedEnquirySummary(customer.id, id, transaction),
+        );
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
   }
 
   async createPublicComplaint(
@@ -143,41 +172,61 @@ export class SupportService {
     actor: AuthenticatedActor,
     input: CustomerComplaintInput,
     context: RequestSecurityContext,
+    rawKey: string,
   ) {
     assertSupportCustomer(actor);
-    return this.database.$transaction(async (transaction) => {
-      const customer = await this.repository.customer(actor.userId, transaction);
-      if (customer === null) throw supportNotFound();
-      const sourceBranch = await this.resolveComplaintSource(
-        input,
-        customer.id,
-        transaction,
-      );
-      const branchId = await this.resolveRequestedBranch(
-        input.branchId,
-        sourceBranch,
-        transaction,
-      );
-      const complaint = await this.repository.createCustomerComplaint(
-        customer,
-        input,
-        branchId,
-        transaction,
-      );
-      if (complaint === null) throw supportNotFound();
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "CREATE",
-        entityType: "COMPLAINT",
-        entityId: complaint.id,
-        newValues: { branchId, priority: complaint.priority },
-        context,
-      });
-      return {
-        ...complaint,
-        ...(await assignComplaintDeadline(transaction, complaint.id)),
-      };
-    });
+    input = customerComplaintCreateBodySchema.parse(input);
+    return withTransactionRetry(
+      this.database,
+      async (transaction) => {
+        const customer = await this.repository.customer(actor.userId, transaction);
+        if (customer === null) throw supportNotFound();
+        return supportCreationReceipt(
+          transaction,
+          actor.userId,
+          "complaints",
+          rawKey,
+          input,
+          async () => {
+            const sourceBranch = await this.resolveComplaintSource(
+              input,
+              customer.id,
+              transaction,
+            );
+            const branchId = await this.resolveRequestedBranch(
+              input.branchId,
+              sourceBranch,
+              transaction,
+            );
+            const complaint = await this.repository.createCustomerComplaint(
+              customer,
+              input,
+              branchId,
+              transaction,
+            );
+            if (complaint === null) throw supportNotFound();
+            await appendAuditEvent(transaction, {
+              actorUserId: actor.userId,
+              action: "CREATE",
+              entityType: "COMPLAINT",
+              entityId: complaint.id,
+              newValues: { branchId, priority: complaint.priority },
+              context,
+            });
+            await assignComplaintDeadline(transaction, complaint.id);
+            const record = await this.repository.ownedComplaintSummary(
+              customer.id,
+              complaint.id,
+              transaction,
+            );
+            if (!record) throw supportNotFound();
+            return record;
+          },
+          (id) => this.repository.ownedComplaintSummary(customer.id, id, transaction),
+        );
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
   }
 
   publicReviews(query: PublicReviewListQuery) {
@@ -259,57 +308,84 @@ export class SupportService {
     id: string,
     input: SupportMessageInput,
     context: RequestSecurityContext,
+    rawKey: string,
   ) {
-    const customer = await this.customer(actor);
-    return this.database.$transaction(async (transaction) => {
-      const record = await this.repository.customerThread(
-        customer.id,
-        kind,
-        id,
-        transaction,
-      );
-      if (record === null) throw supportNotFound();
-      if (record.status === "CLOSED")
-        throw supportConflict("Closed support records cannot receive new messages");
-      const created = await this.repository.createMessage(
-        kind === "enquiry" ? { enquiryId: id } : { complaintId: id },
-        actor.userId,
-        "CUSTOMER",
-        "CUSTOMER",
-        input.message,
-        transaction,
-      );
-      const assignedStaff = record.assignedStaffId
-        ? await transaction.staffProfile.findUnique({
-            where: { id: record.assignedStaffId },
-            select: { userId: true },
-          })
-        : null;
-      if (assignedStaff)
-        await enqueueNotification(transaction, {
-          userId: assignedStaff.userId,
-          type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-          category: "OPERATIONAL",
-          title:
-            kind === "enquiry"
-              ? "New customer enquiry message"
-              : "New customer complaint message",
-          message: "A customer added a message to an assigned support conversation.",
-          deduplicationKey: `${kind}:${id}:customer-message:${created.id}`,
-          resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-          resourceId: id,
-          channels: ["EMAIL"],
-        });
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "CREATE",
-        entityType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-        entityId: id,
-        newValues: { messageId: created.id },
-        context,
-      });
-      return created;
-    });
+    assertSupportCustomer(actor);
+    input = supportMessageBodySchema.parse(input);
+    return withTransactionRetry(
+      this.database,
+      async (transaction) => {
+        const customer = await this.repository.customer(actor.userId, transaction);
+        if (!customer) throw supportNotFound();
+        const record = await this.repository.lockCustomerThread(
+          customer.id,
+          kind,
+          id,
+          transaction,
+        );
+        if (record === null) throw supportNotFound();
+        return supportReplyReceipt(
+          transaction,
+          actor.userId,
+          kind,
+          id,
+          rawKey,
+          input,
+          async () => {
+            if (record.status === "CLOSED")
+              throw supportConflict("Closed support records cannot receive new messages");
+            const created = await this.repository.createMessage(
+              kind === "enquiry" ? { enquiryId: id } : { complaintId: id },
+              actor.userId,
+              "CUSTOMER",
+              "CUSTOMER",
+              input.message,
+              transaction,
+            );
+            const assignedStaff = record.assignedStaffId
+              ? await transaction.staffProfile.findUnique({
+                  where: { id: record.assignedStaffId },
+                  select: { userId: true },
+                })
+              : null;
+            if (assignedStaff)
+              await enqueueNotification(transaction, {
+                userId: assignedStaff.userId,
+                type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+                category: "OPERATIONAL",
+                title:
+                  kind === "enquiry"
+                    ? "New customer enquiry message"
+                    : "New customer complaint message",
+                message:
+                  "A customer added a message to an assigned support conversation.",
+                deduplicationKey: `${kind}:${id}:customer-message:${created.id}`,
+                resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+                resourceId: id,
+                channels: ["EMAIL"],
+              });
+            await appendAuditEvent(transaction, {
+              actorUserId: actor.userId,
+              action: "CREATE",
+              entityType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+              entityId: id,
+              newValues: { messageId: created.id },
+              context,
+            });
+            return created;
+          },
+          (messageId) =>
+            this.repository.ownedCustomerReply(
+              actor.userId,
+              kind,
+              id,
+              messageId,
+              transaction,
+            ),
+        );
+      },
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
   }
 
   async reviewSources(actor: AuthenticatedActor, query: ReviewSourceListQuery) {

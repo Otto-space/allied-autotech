@@ -83,7 +83,17 @@ async function fixture(page: Page, role = "CUSTOMER") {
     contradictory: false,
     stale: false,
     reads: [] as string[],
-    writes: [] as { endpoint: string; body: Record<string, unknown>; csrf?: string }[],
+    writes: [] as {
+      endpoint: string;
+      body: Record<string, unknown>;
+      csrf?: string;
+      idempotencyKey?: string;
+    }[],
+    loseCommittedCreateOnce: false,
+    receipts: new Map<
+      string,
+      { body: Record<string, unknown>; record: Record<string, unknown> }
+    >(),
   };
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
@@ -156,7 +166,13 @@ async function fixture(page: Page, role = "CUSTOMER") {
       return ok(route, { items: [] });
     }
     const body = request.postDataJSON() as Record<string, unknown>;
-    state.writes.push({ endpoint, body, csrf: request.headers()["x-csrf-token"] });
+    const idempotencyKey = request.headers()["idempotency-key"];
+    state.writes.push({
+      endpoint,
+      body,
+      csrf: request.headers()["x-csrf-token"],
+      idempotencyKey,
+    });
     if (state.hold) await new Promise<void>((resolve) => state.releases.push(resolve));
     if (state.unknown) return fail(route);
     if (state.stale) return fail(route, 409, "CONFLICT");
@@ -170,9 +186,21 @@ async function fixture(page: Page, role = "CUSTOMER") {
             createdAt: time,
             priority: "MEDIUM",
           });
+        if (idempotencyKey && state.receipts.has(idempotencyKey)) {
+          const receipt = state.receipts.get(idempotencyKey)!;
+          if (JSON.stringify(receipt.body) !== JSON.stringify(body))
+            return fail(route, 409, "IDEMPOTENCY_CONFLICT");
+          return ok(route, { ...receipt.record, replayed: true });
+        }
         Object.assign(record, body);
         if (state.contradictory) record.type = "PRODUCT";
-        return ok(route, record);
+        const result = { ...record, replayed: false };
+        if (idempotencyKey) state.receipts.set(idempotencyKey, { body, record: result });
+        if (state.loseCommittedCreateOnce) {
+          state.loseCommittedCreateOnce = false;
+          return fail(route);
+        }
+        return ok(route, result);
       }
       if (match[4] === "messages") {
         const saved = {
@@ -183,7 +211,7 @@ async function fixture(page: Page, role = "CUSTOMER") {
         };
         if (state.contradictory) saved.visibility = "INTERNAL";
         state.messages.push(saved);
-        return ok(route, saved);
+        return ok(route, { ...saved, replayed: false });
       }
       Object.assign(record, body, { version: record.version + 1 });
       if (match[4] === "assignment")
@@ -450,6 +478,33 @@ test("uncertain creation stays locked across category switches", async ({ page }
     page.getByRole("button", { name: "Review enquiry", exact: true }),
   ).toBeDisabled();
   expect(state.writes).toHaveLength(1);
+});
+test("customer replays an uncertain creation with its original key and body", async ({
+  page,
+}) => {
+  const state = await fixture(page);
+  state.loseCommittedCreateOnce = true;
+  await page.goto("/dashboard/support");
+  await chooseBranch(page);
+  await fillCreation(page);
+  await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
+  await confirm(page);
+  await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.reload();
+  await expect(page.getByText("Submission needs checking")).toBeVisible();
+  await expect(page.getByLabel("Subject", { exact: true })).toHaveValue(
+    "Created test record",
+  );
+  await page.getByRole("button", { name: "Review original support request" }).click();
+  await page
+    .getByRole("button", { name: "Send or recover request", exact: true })
+    .click();
+  await expect(page).toHaveURL(thread());
+  expect(state.writes).toHaveLength(2);
+  expect(state.writes[1].idempotencyKey).toBe(state.writes[0].idempotencyKey);
+  expect(state.writes[1].body).toEqual(state.writes[0].body);
+  expect(state.receipts.size).toBe(1);
 });
 test("list pagination and filters reset correctly; errors do not masquerade as empty records", async ({
   page,

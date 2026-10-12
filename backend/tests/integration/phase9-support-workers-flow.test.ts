@@ -249,12 +249,100 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
         description: "Visible only to its owner and authorized staff",
       },
       context,
+      `support-create-v1.${Date.now()}.${randomUUID()}`,
     );
     await expect(
       support.customerComplaint(actor(stranger), complaint.id),
     ).rejects.toMatchObject({
       statusCode: 404,
     });
+  }, 30_000);
+
+  it("replays customer support creation without duplicate records or audits", async () => {
+    const support = new SupportService(prisma);
+    const owner = await customer();
+    const branch = await prisma.branch.create({
+      data: {
+        code: `P9-REPLAY-${randomUUID().slice(0, 8)}`,
+        name: "Phase Nine Replay Branch",
+        address: "9 Replay Road",
+        city: "Lagos",
+        state: "Lagos",
+      },
+    });
+    const enquiryInput = {
+      branchId: branch.id,
+      type: "GENERAL" as const,
+      subject: "Synthetic replayed enquiry",
+      message: "Synthetic replayable enquiry content",
+    };
+    const key = `support-create-v1.${Date.now()}.${randomUUID()}`;
+    const first = await support.createCustomerEnquiry(
+      actor(owner),
+      enquiryInput,
+      context,
+      key,
+    );
+    const replay = await support.createCustomerEnquiry(
+      actor(owner),
+      { ...enquiryInput },
+      context,
+      key,
+    );
+    expect(first).toMatchObject({ replayed: false });
+    expect(replay).toMatchObject({ id: first.id, replayed: true });
+    await expect(
+      support.createCustomerEnquiry(
+        actor(owner),
+        { ...enquiryInput, message: "Changed content" },
+        context,
+        key,
+      ),
+    ).rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
+    expect(await prisma.enquiry.count({ where: { customerId: owner.profile!.id } })).toBe(
+      1,
+    );
+    expect(
+      await prisma.auditLog.count({
+        where: { entityId: first.id, entityType: "ENQUIRY", action: "CREATE" },
+      }),
+    ).toBe(1);
+
+    const complaintInput = {
+      branchId: branch.id,
+      subject: "Synthetic replayed complaint",
+      description: "Synthetic replayable complaint content",
+    };
+    const complaintKey = `support-create-v1.${Date.now()}.${randomUUID()}`;
+    const firstComplaint = await support.createCustomerComplaint(
+      actor(owner),
+      complaintInput,
+      context,
+      complaintKey,
+    );
+    const complaintReplay = await support.createCustomerComplaint(
+      actor(owner),
+      { ...complaintInput },
+      context,
+      complaintKey,
+    );
+    expect(firstComplaint).toMatchObject({ replayed: false });
+    expect(complaintReplay).toMatchObject({
+      id: firstComplaint.id,
+      replayed: true,
+    });
+    expect(
+      await prisma.complaint.count({ where: { customerId: owner.profile!.id } }),
+    ).toBe(1);
+    expect(
+      await prisma.auditLog.count({
+        where: {
+          entityId: firstComplaint.id,
+          entityType: "COMPLAINT",
+          action: "CREATE",
+        },
+      }),
+    ).toBe(1);
   }, 30_000);
 
   it("provides an owned, visibility-safe incremental support chat", async () => {

@@ -114,6 +114,9 @@ async function uncertain(page: Page) {
   await send(page);
   await page.getByRole("button", { name: "Close & review record", exact: true }).click();
   await expect(page.getByRole("region", { name: "Submission recovery" })).toBeVisible();
+  // Exercise migration-compatible history reconciliation for legacy markers.
+  await page.evaluate((key) => sessionStorage.setItem(key, "pending"), marker);
+  await page.reload();
   return state;
 }
 
@@ -275,7 +278,15 @@ for (const mode of ["identity", "role", "unavailable"] as const) {
     if (mode === "role") state.sessionRole = "STAFF";
     if (mode === "unavailable") state.failSession = true;
     await send(page);
-    await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+    if (mode === "unavailable")
+      await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+    else {
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(
+        page.getByRole("link", { name: "Go to sign in", exact: true }),
+      ).toBeVisible();
+      await expect(page.getByLabel("Subject", { exact: true })).toHaveCount(0);
+    }
     expect(state.writes).toHaveLength(0);
     expect(await page.evaluate((key) => sessionStorage.getItem(key), marker)).toBeNull();
   });

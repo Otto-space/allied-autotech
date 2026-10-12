@@ -87,12 +87,27 @@ export async function customerSupportFixture(page: Page, role = "CUSTOMER") {
     releaseMessages: [] as (() => void)[],
     failSource: false,
     unknown: false,
+    loseCommittedCreateOnce: false,
+    loseCommittedReplyOnce: false,
+    replyReceipts: new Map<
+      string,
+      { body: unknown; endpoint: string; saved: ReturnType<typeof message> }
+    >(),
+    receipts: new Map<
+      string,
+      { body: Record<string, unknown>; kind: "enquiries" | "complaints" }
+    >(),
     hold: false,
     releases: [] as (() => void)[],
     contradictory: false,
     stale: false,
     reads: [] as string[],
-    writes: [] as { endpoint: string; body: Record<string, unknown>; csrf?: string }[],
+    writes: [] as {
+      endpoint: string;
+      body: Record<string, unknown>;
+      csrf?: string;
+      key?: string;
+    }[],
   };
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
@@ -190,7 +205,8 @@ export async function customerSupportFixture(page: Page, role = "CUSTOMER") {
       return ok(route, { items: [] });
     }
     const body = request.postDataJSON() as Record<string, unknown>;
-    state.writes.push({ endpoint, body, csrf: request.headers()["x-csrf-token"] });
+    const key = request.headers()["idempotency-key"];
+    state.writes.push({ endpoint, body, csrf: request.headers()["x-csrf-token"], key });
     if (state.hold) await new Promise<void>((resolve) => state.releases.push(resolve));
     if (state.rateLimit)
       return route.fulfill({
@@ -210,11 +226,33 @@ export async function customerSupportFixture(page: Page, role = "CUSTOMER") {
             createdAt: time,
             priority: "MEDIUM",
           });
+        if (key && state.receipts.has(key)) {
+          const prior = state.receipts.get(key)!;
+          if (JSON.stringify(prior.body) !== JSON.stringify(body))
+            return fail(route, 409, "IDEMPOTENCY_CONFLICT");
+          return ok(route, { ...state.records[prior.kind], replayed: true });
+        }
         Object.assign(record, body);
         if (state.contradictory) record.type = "PRODUCT";
-        return ok(route, record);
+        if (key)
+          state.receipts.set(key, { body, kind: match[2] as "enquiries" | "complaints" });
+        if (state.loseCommittedCreateOnce) {
+          state.loseCommittedCreateOnce = false;
+          return fail(route);
+        }
+        return ok(route, { ...record, replayed: false });
       }
       if (match[4] === "messages") {
+        if (match[1] === "customers" && key && state.replyReceipts.has(key)) {
+          const receipt = state.replyReceipts.get(key)!;
+          if (
+            receipt.endpoint !== endpoint ||
+            JSON.stringify(receipt.body) !== JSON.stringify(body)
+          )
+            return fail(route, 409, "IDEMPOTENCY_CONFLICT");
+          return ok(route, { ...receipt.saved, replayed: true });
+        }
+        if (record.status === "CLOSED") return fail(route, 409, "CONFLICT");
         const saved = {
           ...message(12),
           body: String(body.message),
@@ -223,7 +261,13 @@ export async function customerSupportFixture(page: Page, role = "CUSTOMER") {
         };
         if (state.contradictory) saved.visibility = "INTERNAL";
         state.messages.push(saved);
-        return ok(route, saved);
+        if (match[1] === "customers" && key)
+          state.replyReceipts.set(key, { body, endpoint, saved });
+        if (state.loseCommittedReplyOnce) {
+          state.loseCommittedReplyOnce = false;
+          return fail(route);
+        }
+        return ok(route, { ...saved, replayed: false });
       }
       Object.assign(record, body, { version: record.version + 1 });
       if (match[4] === "assignment")

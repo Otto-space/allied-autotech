@@ -129,6 +129,11 @@
   border-radius: 8px;
   padding: 22px;
 }
+@media (min-width: 1100px) {
+  .ca-history {
+    padding-right: 34px;
+  }
+}
 .dashboard .dashboard-content .ca-intake {
   box-shadow: 0 5px 20px #01121a05;
 }
@@ -155,7 +160,7 @@
   border: 0;
   min-width: 0;
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 .dashboard .dashboard-content .ca-intake legend {
   width: 100%;
@@ -195,7 +200,7 @@
   gap: 16px;
   align-items: center;
   margin: 0;
-  padding: 12px 0;
+  padding: 6px 0;
   border-bottom: 1px solid var(--ca-line);
 }
 .dashboard .dashboard-content .ca-intake .check-label {
@@ -203,6 +208,7 @@
   align-items: center;
   gap: 12px;
   min-height: 44px;
+  padding: 0;
   overflow-wrap: anywhere;
 }
 .dashboard .dashboard-content .ca-intake .check-label input {
@@ -374,7 +380,6 @@
     gap: 16px;
     padding: 18px;
   }
-  .ca-order > div:first-child,
   .ca-order > div:nth-child(3) {
     grid-column: 1 / -1;
   }

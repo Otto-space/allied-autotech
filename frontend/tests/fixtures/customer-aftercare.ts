@@ -1,7 +1,6 @@
 import { expect, type Page, type Route } from "@playwright/test";
 const id = (n: number) => `ec000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const reason = "Synthetic request for review of the supplied products.";
-const note = "Synthetic review with a documented monetary and condition basis.";
 const initialOrder = () => ({
   id: id(1),
   orderNumber: "SYNTHETIC-AFTERCARE-ORDER",
@@ -79,6 +78,10 @@ export async function customerAftercareFixture(
     order: initialOrder(),
     history: options.history ? [initialRecord()] : [],
     writes: [] as { endpoint: string; body: Record<string, unknown> }[],
+    keys: [] as string[],
+    receipts: new Map<string, ReturnType<typeof initialRecord>>(),
+    unknownOnce: false,
+    committedUnknownOnce: false,
     failOrder: false,
     failHistory: false,
     failPermission: false,
@@ -141,6 +144,14 @@ export async function customerAftercareFixture(
     if (route.request().method() === "POST") {
       const body = route.request().postDataJSON();
       state.writes.push({ endpoint, body });
+      const key = route.request().headers()["idempotency-key"];
+      state.keys.push(key);
+      if (state.unknownOnce) {
+        state.unknownOnce = false;
+        return route.abort("failed");
+      }
+      if (state.receipts.has(key))
+        return reply(route, { ...state.receipts.get(key), replayed: true });
       expect(route.request().headers()["x-csrf-token"]).toBe("aftercare-csrf-".repeat(4));
       if (options.outcome === "unknown") return route.abort("failed");
       if (options.outcome === "stale") return fail(route, 409);
@@ -195,6 +206,11 @@ export async function customerAftercareFixture(
           })),
       };
       state.history = state.history.length ? state.history : [saved];
+      if (key) state.receipts.set(key, state.history[0]);
+      if (state.committedUnknownOnce) {
+        state.committedUnknownOnce = false;
+        return route.abort("failed");
+      }
       if (options.outcome === "committed-unknown") return route.abort("failed");
       if (endpoint.endsWith("/cancel")) {
         state.order.status = "PROCESSING";
@@ -202,7 +218,9 @@ export async function customerAftercareFixture(
       }
       return reply(
         route,
-        options.outcome === "mismatch" ? { ...saved, orderId: id(99) } : state.history[0],
+        options.outcome === "mismatch"
+          ? { ...saved, orderId: id(99), replayed: false }
+          : { ...state.history[0], replayed: false },
       );
     }
     return fail(route, 404);

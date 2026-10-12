@@ -156,6 +156,8 @@ test("unknown reply survives reload and needs successful manual message review",
   await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("heading", { name: "Reply needs checking" })).toBeVisible();
+  // Legacy markers still require explicit history reconciliation.
+  await page.evaluate((key) => sessionStorage.setItem(key, "pending"), marker(s));
   await page.reload();
   await expect(page.getByLabel("Reply text")).toHaveValue(
     "Please keep this uncertain draft.",
@@ -245,7 +247,14 @@ for (const mode of ["account", "role", "session"] as const) {
     if (mode === "role") s.sessionRole = "ADMIN";
     if (mode === "session") s.failSession = true;
     await send(page);
-    await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+    if (mode === "session")
+      await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+    else {
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(
+        page.getByRole("link", { name: "Go to sign in", exact: true }),
+      ).toBeVisible();
+    }
     expect(s.writes).toHaveLength(0);
   });
 }

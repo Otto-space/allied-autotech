@@ -91,6 +91,7 @@ export class SupportController {
             actor(req),
             validated<CustomerEnquiryInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key": string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );
@@ -147,6 +148,7 @@ export class SupportController {
             id(res),
             validated<SupportMessageInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key": string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );
@@ -161,6 +163,7 @@ export class SupportController {
             actor(req),
             validated<CustomerComplaintInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key": string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );
@@ -217,6 +220,7 @@ export class SupportController {
             id(res),
             validated<SupportMessageInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key": string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );

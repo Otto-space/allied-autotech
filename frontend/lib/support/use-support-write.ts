@@ -2,7 +2,39 @@
 
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { ApiError, apiRequest } from "@/lib/api/client";
+import { ApiError, apiRequest, invalidateSession } from "@/lib/api/client";
+import { supportMessageSchema, type SupportKind } from "@/lib/api/support-schemas";
+import { draftKey, forgetDraft, DRAFT_SAVED } from "@/lib/forms/drafts";
+import {
+  clearSupportReplyRecovery,
+  readSupportReplyRecovery,
+  supportReplyIntentActive,
+  saveSupportReplyRecovery,
+  supportReplyIntentSchema,
+  type SupportReplyIntent,
+} from "./reply-recovery";
+
+async function sendOriginal(intent: SupportReplyIntent, signal: AbortSignal) {
+  const response = await apiRequest(
+    `/customers/support/${intent.kind}/${intent.conversationId}/messages`,
+    {
+      method: "POST",
+      csrf: true,
+      idempotencyKey: intent.key,
+      body: intent.body,
+      signal,
+    },
+  );
+  z.object({ replayed: z.boolean() }).parse(response.data);
+  const saved = supportMessageSchema.parse(response.data);
+  if (
+    saved.body !== intent.body.message ||
+    saved.authorType !== "CUSTOMER" ||
+    saved.visibility !== "CUSTOMER"
+  )
+    throw new Error("Unconfirmed support reply");
+  return saved;
+}
 
 type ReadState = {
   loading: boolean;
@@ -14,20 +46,19 @@ type ReadState = {
   refresh: () => void;
 };
 
-/** Stores only a pending marker. No support content or personal data is persisted. */
+/** Retains the exact original request in account-scoped session storage for explicit recovery. */
 export function useSupportWrite(
   userId: string,
-  kind: "enquiries" | "complaints",
+  kind: SupportKind,
   records: ReadState,
-  replyTo?: string,
+  conversationId: string,
 ) {
-  const marker = replyTo
-    ? `aat:support-reply:v1:${userId}:${kind}:${replyTo}`
-    : `aat:support-create:v1:${userId}:${kind}`;
+  const marker = `aat:support-reply:v1:${userId}:${kind}:${conversationId}`;
   const [recovery, setRecovery] = useState<{
     pending: boolean;
     manual: boolean;
     after: number;
+    intent?: SupportReplyIntent;
   }>();
   const [storageError, setStorageError] = useState<string>();
   const [busy, setBusy] = useState(false);
@@ -57,21 +88,19 @@ export function useSupportWrite(
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
-      try {
-        setRecovery({
-          pending: sessionStorage.getItem(marker) !== null,
-          manual: false,
-          after: -1,
-        });
-      } catch {
-        setRecovery({ pending: false, manual: false, after: -1 });
-      }
+      const stored = readSupportReplyRecovery(userId, kind, conversationId);
+      setRecovery({
+        pending: !!stored,
+        manual: false,
+        after: -1,
+        ...(stored?.kind === "pending" ? { intent: stored.intent } : {}),
+      });
     });
     return () => {
       active = false;
       request.current?.abort();
     };
-  }, [marker]);
+  }, [marker, userId, kind, conversationId]);
   useEffect(() => {
     if (!remaining) return;
     const timer = window.setInterval(() => {
@@ -82,23 +111,35 @@ export function useSupportWrite(
 
   function clearMarker() {
     try {
-      sessionStorage.removeItem(marker);
+      clearSupportReplyRecovery(userId, kind, conversationId);
       setStorageError(undefined);
       setRecovery({ pending: false, manual: false, after: -1 });
       return true;
     } catch {
       setStorageError(
-        "Your browser could not clear the recovery marker. Allow session storage, then refresh and check the saved result.",
+        "Your browser could not clear the recovery marker. Allow session storage, then refresh and check the saved message.",
       );
       setRecovery({ pending: true, manual: false, after: -1 });
       return false;
     }
   }
 
-  async function run<T>(
-    prepare: (signal: AbortSignal) => Promise<void>,
-    write: (signal: AbortSignal) => Promise<T>,
-  ): Promise<T> {
+  function forgetSubmittedDraft() {
+    const key = draftKey(
+      `${userId}:CUSTOMER`,
+      window.location.pathname,
+      JSON.stringify([
+        "support-reply-form:2",
+        userId,
+        conversationId,
+        `/customers/support/${kind}/${conversationId}`,
+      ]),
+    );
+    forgetDraft(key);
+    window.dispatchEvent(new CustomEvent(DRAFT_SAVED, { detail: key }));
+  }
+
+  async function run(body: unknown, prepare: (signal: AbortSignal) => Promise<void>) {
     if (
       request.current ||
       !recovery ||
@@ -111,28 +152,41 @@ export function useSupportWrite(
     request.current = controller;
     setBusy(true);
     let sent = false;
+    let intent: SupportReplyIntent | undefined;
     try {
       const session = z
         .object({ user: z.object({ id: z.string(), role: z.string() }) })
         .parse((await apiRequest("/auth/session", { signal: controller.signal })).data);
-      if (session.user.id !== userId || session.user.role !== "CUSTOMER")
+      if (session.user.id !== userId || session.user.role !== "CUSTOMER") {
+        invalidateSession();
         throw new ApiError(403, { error: { code: "FORBIDDEN" } });
+      }
       await prepare(controller.signal);
       if (controller.signal.aborted || latestUnavailable.current)
         throw new ApiError(409, { error: { code: "CONFLICT" } });
       try {
-        sessionStorage.setItem(marker, "pending");
-        if (sessionStorage.getItem(marker) !== "pending")
-          throw new Error("Recovery storage unavailable");
+        if (readSupportReplyRecovery(userId, kind, conversationId))
+          throw new Error("A reply is already pending");
+        intent = supportReplyIntentSchema.parse({
+          owner: userId,
+          kind,
+          conversationId,
+          key: `support-reply-v1.${Date.now()}.${crypto.randomUUID()}`,
+          body,
+        });
+        saveSupportReplyRecovery(intent);
       } catch {
         setStorageError(
-          "Your browser could not save the recovery marker. Allow session storage before submitting a request.",
+          "Your browser could not save the recovery marker. Allow session storage before submitting a reply.",
         );
         throw new ApiError(409, { error: { code: "CONFLICT" } });
       }
       sent = true;
-      const result = await write(controller.signal);
-      if (!controller.signal.aborted) clearMarker();
+      const result = await sendOriginal(intent!, controller.signal);
+      if (!controller.signal.aborted) {
+        clearMarker();
+        forgetSubmittedDraft();
+      }
       return result;
     } catch (error) {
       if (controller.signal.aborted) throw error;
@@ -144,14 +198,77 @@ export function useSupportWrite(
           pending: true,
           manual: false,
           after: records.settledRevision ?? -1,
+          intent,
         });
       if (error instanceof ApiError && error.status === 429) {
         const seconds = error.retryAfterSeconds ?? 0;
         retryAt.current = Date.now() + seconds * 1000;
         setRemaining(seconds);
       }
-      // A failed preflight cannot have submitted a request.
+      // A failed preflight cannot have submitted a reply.
       if (!sent && !rejected) throw new ApiError(409, { error: { code: "CONFLICT" } });
+      throw error;
+    } finally {
+      if (!controller.signal.aborted) {
+        request.current = null;
+        setBusy(false);
+      }
+    }
+  }
+
+  async function recover() {
+    if (
+      request.current ||
+      !recovery?.pending ||
+      latestUnavailable.current ||
+      Date.now() < retryAt.current
+    )
+      throw new ApiError(409, { error: { code: "CONFLICT" } });
+    const stored = readSupportReplyRecovery(userId, kind, conversationId);
+    if (
+      stored?.kind !== "pending" ||
+      !recovery.intent ||
+      JSON.stringify(stored.intent) !== JSON.stringify(recovery.intent)
+    ) {
+      setRecovery({ pending: true, manual: false, after: -1 });
+      throw new ApiError(409, { error: { code: "IDEMPOTENCY_EXPIRED" } });
+    }
+    const controller = new AbortController();
+    request.current = controller;
+    setBusy(true);
+    try {
+      const session = z
+        .object({ user: z.object({ id: z.string(), role: z.string() }) })
+        .parse((await apiRequest("/auth/session", { signal: controller.signal })).data);
+      if (session.user.id !== userId || session.user.role !== "CUSTOMER") {
+        invalidateSession();
+        throw new ApiError(403, { error: { code: "FORBIDDEN" } });
+      }
+      if (controller.signal.aborted || latestUnavailable.current)
+        throw new ApiError(409, { error: { code: "CONFLICT" } });
+      const saved = await sendOriginal(stored.intent, controller.signal);
+      if (!controller.signal.aborted) {
+        clearMarker();
+        forgetSubmittedDraft();
+      }
+      return saved;
+    } catch (error) {
+      if (
+        error instanceof ApiError &&
+        ["IDEMPOTENCY_EXPIRED", "IDEMPOTENCY_CONFLICT"].includes(error.code)
+      ) {
+        try {
+          sessionStorage.setItem(marker, "pending");
+        } catch {
+          /* Keep the original receipt if storage fails. */
+        }
+        setRecovery({ pending: true, manual: false, after: -1 });
+      }
+      if (error instanceof ApiError && error.status === 429) {
+        const seconds = error.retryAfterSeconds ?? 0;
+        retryAt.current = Date.now() + seconds * 1000;
+        setRemaining(seconds);
+      }
       throw error;
     } finally {
       if (!controller.signal.aborted) {
@@ -163,17 +280,28 @@ export function useSupportWrite(
 
   function refresh() {
     if (recovery?.pending)
-      setRecovery({ pending: true, manual: true, after: records.settledRevision ?? -1 });
+      setRecovery({
+        ...recovery,
+        pending: true,
+        manual: true,
+        after: records.settledRevision ?? -1,
+      });
     records.refresh();
   }
   const canAcknowledge =
     !!recovery?.pending &&
+    (!recovery.intent || !supportReplyIntentActive(recovery.intent)) &&
     recovery.manual &&
     !unavailable &&
     records.settledRevision !== null &&
     records.settledRevision > recovery.after;
   return {
     run,
+    recover,
+    intent:
+      recovery?.intent && supportReplyIntentActive(recovery.intent)
+        ? recovery.intent
+        : undefined,
     refresh,
     busy,
     remaining,

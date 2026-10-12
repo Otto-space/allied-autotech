@@ -192,3 +192,47 @@ export function supportTransitions(record: SupportRecord): string[] {
   if (["IN_PROGRESS", "INVESTIGATING"].includes(record.status)) return ["RESOLVED"];
   return record.status === "RESOLVED" ? ["CLOSED"] : [];
 }
+
+const customerRequestFields = {
+  subject: supportText(160),
+  branchId: z.uuid().optional(),
+};
+const enquiryRequestFields = { ...customerRequestFields, message: supportText(4000) };
+export const customerEnquiryRequestSchema = z.discriminatedUnion("type", [
+  z.object({ ...enquiryRequestFields, type: z.literal("GENERAL") }).strict(),
+  z
+    .object({ ...enquiryRequestFields, type: z.literal("PRODUCT"), productId: z.uuid() })
+    .strict(),
+  z
+    .object({ ...enquiryRequestFields, type: z.literal("SERVICE"), serviceId: z.uuid() })
+    .strict(),
+  z
+    .object({
+      ...enquiryRequestFields,
+      type: z.literal("VEHICLE"),
+      vehicleListingId: z.uuid(),
+    })
+    .strict(),
+  z
+    .object({ ...enquiryRequestFields, type: z.literal("BOOKING"), bookingId: z.uuid() })
+    .strict(),
+  z
+    .object({ ...enquiryRequestFields, type: z.literal("QUOTATION"), quoteId: z.uuid() })
+    .strict(),
+]);
+export const customerComplaintRequestSchema = z
+  .object({
+    ...customerRequestFields,
+    description: supportText(4000),
+    bookingId: z.uuid().optional(),
+    orderId: z.uuid().optional(),
+    vehicleTransactionId: z.uuid().optional(),
+  })
+  .strict()
+  .refine(
+    (v) => [v.bookingId, v.orderId, v.vehicleTransactionId].filter(Boolean).length <= 1,
+  );
+export const normalizeSupportCreation = (kind: SupportKind, body: unknown) =>
+  kind === "enquiries"
+    ? customerEnquiryRequestSchema.parse(body)
+    : customerComplaintRequestSchema.parse(body);
