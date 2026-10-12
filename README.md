@@ -7,7 +7,8 @@ identity/general background workers run on separate infrastructure.
 
 Import this repository and set **Root Directory** to `frontend`, **Framework** to
 Next.js and **Node.js** to 24.x. The checked-in `frontend/vercel.json` supplies
-`npm ci` and `npm run build`; leave Output Directory at the framework default.
+`npm ci` and `npm run build`. Turn **Output Directory Override off**; do not type
+`Next.js default` into that field. Vercel selects the Next.js output automatically.
 
 Enter these variables in Vercel's **Production** environment before deploying:
 

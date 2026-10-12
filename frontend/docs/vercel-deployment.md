@@ -151,16 +151,23 @@ The tunnel connects only to the API on port 5000.
 
 Import this Git repository into Vercel with these settings:
 
-| Setting          | Value                                                               |
-| ---------------- | ------------------------------------------------------------------- |
-| Root Directory   | `frontend`                                                          |
-| Framework Preset | Next.js                                                             |
-| Node.js Version  | 24.x (also set in `package.json`)                                   |
-| Install Command  | `npm ci`                                                            |
-| Build Command    | `npm run build`                                                     |
-| Output Directory | Leave the framework default; do not set `out` or `.next/standalone` |
+| Setting          | Value                                                                          |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Root Directory   | `frontend`                                                                     |
+| Framework Preset | Next.js                                                                        |
+| Node.js Version  | 24.x (also set in `package.json`)                                              |
+| Install Command  | `npm ci`                                                                       |
+| Build Command    | `npm run build`                                                                |
+| Output Directory | Turn Override off; do not enter `Next.js default`, `out` or `.next/standalone` |
 
-`frontend/vercel.json` supplies the framework and commands. Keep Vercel's automatic
+`frontend/vercel.json` supplies the framework and commands.
+
+If the build reports a missing directory named `Next.js default`, open the
+project's Settings, then Build and Deployment, remove that Output Directory
+override and save. Redeploy after saving. That text is a UI description, not a
+folder name; the Next.js preset determines the output directory automatically.
+
+Keep Vercel's automatic
 system environment variables enabled. `VERCEL=1` selects native Next.js output and
 skips standalone asset copying. Local builds and other Node hosts still produce
 the standalone server used by `npm start`. Vercel does not run `npm start`.
