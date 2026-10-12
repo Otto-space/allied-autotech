@@ -507,3 +507,15 @@
     padding-block: 0;
   }
 }
+/* Keep the appointment and short reference on one line when space permits. */
+.work-booking-service > a {
+  display: block;
+}
+.work-booking-service > a > strong {
+  display: block;
+  margin-bottom: 3px;
+}
+.work-booking-service > a > span {
+  display: inline-block;
+  margin-right: 6px;
+}
