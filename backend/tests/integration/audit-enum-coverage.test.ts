@@ -48,25 +48,28 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       request(app)
         .get(endpoint)
         .set(account.headers)
-        .query({ entityId: reference, ...query });
-    it("filters every database audit action, including failed logins", async () => {
-      for (const action of Object.values(AuditAction)) {
+        .query({ entityId: reference, ...query })
+        .timeout({ response: 10000, deadline: 15000 });
+    it.each(Object.values(AuditAction))(
+      "filters recorded audit action %s",
+      async (action) => {
         const response = await read({ action, limit: 100 });
         expect(response.status, action).toBe(200);
         const data = auditPageResponseSchema.parse(response.body.data);
         expect(data.items.length).toBeGreaterThan(0);
         expect(data.items.every((item) => item.action === action)).toBe(true);
-      }
-    });
-    it("filters every database entity type, including booking slots and service categories", async () => {
-      for (const entityType of Object.values(AuditEntityType)) {
+      },
+    );
+    it.each(Object.values(AuditEntityType))(
+      "filters recorded entity type %s",
+      async (entityType) => {
         const response = await read({ entityType, limit: 100 });
         expect(response.status, entityType).toBe(200);
         const data = auditPageResponseSchema.parse(response.body.data);
         expect(data.items.length).toBeGreaterThan(0);
         expect(data.items.every((item) => item.entityType === entityType)).toBe(true);
-      }
-    });
+      },
+    );
     it("pages tied timestamps once, preserves nested values and excludes private actor/request fields", async () => {
       const expected = await prisma.auditLog.findMany({
         where: { entityId: reference },

@@ -26,3 +26,7 @@ Verified locally on 12 October 2026:
 The existing isolated `allied_operations_paging_20261012_test` database was used. Its append-only synthetic audit evidence is retained; no application database or provider configuration was changed. The temporary preview was stopped after verification. No new migration is needed.
 
 Entry points: `tests/integration/audit-enum-coverage.test.ts`, frontend `tests/unit/audit-contract.test.ts`, `tests/unit/audit-filters.test.ts` and `tests/e2e/audit.spec.ts`. This fixes contract completeness; it is not a full new visual acceptance gate for the audit page or a claim of deployed acceptance.
+
+### Combined-suite verification follow-up
+
+The enum checks are now parameterized into one request per action/entity, producing 62 audit cases instead of five grouped cases with the same coverage. Requests have explicit 10-second response and 15-second total deadlines, below the 30-second case timeout. During the combined run, a database connection timeout outlasted a grouped case and its remaining requests interfered with subsequent read-count assertions. The revised 62-case run passed on that same populated database. The original connection interruption's cause is not established; no production connection deadline or authorization rule was relaxed.

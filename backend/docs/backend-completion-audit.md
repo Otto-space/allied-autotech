@@ -1,5 +1,7 @@
 # Backend completion audit
 
+**Later checkpoint:** [Integrated regression audit, 12 October 2026](backend-regression-audit-20261012.md) reconciles all 1,046 current cases across the shared run and corrected isolated reruns. It preserves the initial nine failures and explains the test changes. The 857-case record below remains the earlier baseline.
+
 This record covers the current local backend working tree and the complete Vitest regression command. It supplements the capability-specific acceptance reports; it does not replace deployed acceptance or approve business policies.
 
 ## Verification results

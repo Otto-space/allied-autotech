@@ -37,3 +37,7 @@ Verified locally on 12 October 2026:
 The fixture setup initially violated protected webhook deletion and required verification/timestamp constraints. The fixtures were corrected to honor those constraints; no database protections were disabled. The final focused run passed all 14 cases, followed by all 46 regressions.
 
 Reproducible test entry points are `tests/integration/operational-jobs-pagination.test.ts`, `tests/unit/operational-job-cursor.test.ts`, frontend `tests/unit/operational-job-page.test.ts`, `tests/e2e/operations.spec.ts` and `tests/e2e/operational-jobs-real.spec.ts`. The guarded `tests/helpers/operations-paging-api-server.ts` requires the named isolated database, disabled providers, explicit test flags and a session-fixture file outside the repository. Run real browser paging on its seeded database before worker regressions add unrelated jobs. These tests do not certify deployed provider delivery or production database performance.
+
+### Combined-suite isolation follow-up
+
+The seven exact queue/heartbeat/alert cases now require `RUN_OPERATIONS_PAGING_TESTS=true` and a separately migrated empty test database. A shared full run correctly returned other suites' jobs and alerts, contradicting the fixture's empty-database assumption. The dedicated run preserves those strong assertions without deleting unrelated protected evidence. See [isolated database verification](../tests/helpers/database.md). The real-browser helper retains its separate browser flag and database guard.
