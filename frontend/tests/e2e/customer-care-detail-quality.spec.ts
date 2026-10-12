@@ -25,6 +25,79 @@ async function send(page: Page) {
     .click();
 }
 
+for (const state of ["empty", "error", "closed", "uncertain"] as const) {
+  test(`conversation ${state} state is accessible`, async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const s = await customerSupportFixture(page);
+    if (state === "empty") s.messages = [];
+    if (state === "error") s.failMessages = true;
+    if (state === "closed") s.records.enquiries.status = "CLOSED";
+    if (state === "uncertain")
+      await page.addInitScript(
+        (key) => sessionStorage.setItem(key, "pending"),
+        marker(s),
+      );
+    await page.goto(thread(s));
+    if (state === "empty")
+      await expect(page.getByText("No replies on this page.")).toBeVisible();
+    if (state === "error") {
+      await expect(page.locator(".ct-message-content").getByRole("alert")).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Review reply", exact: true }),
+      ).toBeDisabled();
+    }
+    if (state === "closed")
+      await expect(
+        page.getByText("This record is closed. The reply form is unavailable."),
+      ).toBeVisible();
+    if (state === "uncertain")
+      await expect(
+        page.getByRole("heading", { name: "Reply needs checking" }),
+      ).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  });
+}
+
+test("loading messages never appear as an empty conversation", async ({ page }) => {
+  const s = await customerSupportFixture(page);
+  s.delayMessages = true;
+  await page.goto(thread(s));
+  await expect(page.getByText("Checking messages…")).toBeVisible();
+  await expect(page.getByText("No replies on this page.")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Review reply", exact: true }),
+  ).toBeDisabled();
+  s.delayMessages = false;
+  s.releaseMessages.forEach((release) => release());
+  await ready(page);
+});
+
+test("stale record blocks a reviewed reply and preserves existing content", async ({
+  page,
+}) => {
+  const s = await customerSupportFixture(page);
+  await page.goto(thread(s));
+  await review(page);
+  // A temporary background failure, rather than a permission revocation.
+  await page.route(
+    `**/api/v1/customers/support/enquiries/${s.records.enquiries.id}`,
+    (route) =>
+      route.fulfill({
+        status: 503,
+        json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
+      }),
+  );
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await expect(
+    page.getByText(
+      "Record details may be out of date. Refresh the record before replying.",
+    ),
+  ).toBeAttached();
+  await send(page);
+  await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
+  expect(s.writes).toHaveLength(0);
+});
+
 for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
   test(`conversation fits ${width}px with readable owned breadcrumb`, async ({
     page,
