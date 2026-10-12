@@ -4075,7 +4075,7 @@ export interface paths {
     put?: never;
     /**
      * Add a customer message to an owned enquiry
-     * @description Add a customer message to an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires Idempotency-Key support-reply-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. The normalized reply is bound to the authenticated customer, conversation kind and ID. Atomic message, audit, notification intent and receipt; original-key recovery returns 201 with the original customer-visible message and replayed true without duplicate effects. Ownership is rechecked on every attempt. Recovery is permitted after closure only for an already committed reply; new replies to closed conversations conflict. Missing or foreign/internal message receipts fail closed. Changed bodies return 409 IDEMPOTENCY_CONFLICT. Keys expire after 24 hours even after cleanup, and timestamps more than one minute ahead fail with 409 IDEMPOTENCY_EXPIRED. Missing/malformed keys return 422. Strict customer-only bodies, CSRF and rate limits remain. Matching API/frontend rollout is required; staff replies are unchanged. Provider delivery is separate from notification enqueue. Add a customer message to an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersSupportEnquiriesBySupportIdMessages"];
     delete?: never;
@@ -4119,7 +4119,7 @@ export interface paths {
     put?: never;
     /**
      * Add a customer message to an owned complaint
-     * @description Add a customer message to an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires Idempotency-Key support-reply-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. The normalized reply is bound to the authenticated customer, conversation kind and ID. Atomic message, audit, notification intent and receipt; original-key recovery returns 201 with the original customer-visible message and replayed true without duplicate effects. Ownership is rechecked on every attempt. Recovery is permitted after closure only for an already committed reply; new replies to closed conversations conflict. Missing or foreign/internal message receipts fail closed. Changed bodies return 409 IDEMPOTENCY_CONFLICT. Keys expire after 24 hours even after cleanup, and timestamps more than one minute ahead fail with 409 IDEMPOTENCY_EXPIRED. Missing/malformed keys return 422. Strict customer-only bodies, CSRF and rate limits remain. Matching API/frontend rollout is required; staff replies are unchanged. Provider delivery is separate from notification enqueue. Add a customer message to an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersSupportComplaintsBySupportIdMessages"];
     delete?: never;
@@ -4163,7 +4163,7 @@ export interface paths {
     put?: never;
     /**
      * Create an owned enquiry
-     * @description Create an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires Idempotency-Key support-create-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Scope is authenticated customer plus enquiry/complaint creation. The normalized body is bound to the key; changed content returns 409 IDEMPOTENCY_CONFLICT. Original-key/body replay within 24 hours returns 201 with the same owned record ID, current state and replayed true, without another creation audit or repeating branch/source checks or complaint deadline assignment. New requests retain branch, source, ownership and policy validation. Keys over 24 hours old or more than one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing/malformed keys return 422. Receipts hold hashes and the record ID, not message/contact text. Private projections exclude contact fields and internal messages. Same-key concurrency serializes; role, CSRF and rate limits apply on every attempt. Public anonymous creation is unchanged. Deploy matching frontend/API; older customer clients must reload. Create an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersSupportEnquiries"];
     delete?: never;
@@ -4255,7 +4255,7 @@ export interface paths {
     put?: never;
     /**
      * Create an owned complaint
-     * @description Create an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires Idempotency-Key support-create-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Scope is authenticated customer plus enquiry/complaint creation. The normalized body is bound to the key; changed content returns 409 IDEMPOTENCY_CONFLICT. Original-key/body replay within 24 hours returns 201 with the same owned record ID, current state and replayed true, without another creation audit or repeating branch/source checks or complaint deadline assignment. New requests retain branch, source, ownership and policy validation. Keys over 24 hours old or more than one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing/malformed keys return 422. Receipts hold hashes and the record ID, not message/contact text. Private projections exclude contact fields and internal messages. Same-key concurrency serializes; role, CSRF and rate limits apply on every attempt. Public anonymous creation is unchanged. Deploy matching frontend/API; older customer clients must reload. Create an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersSupportComplaints"];
     delete?: never;
@@ -4705,7 +4705,7 @@ export interface paths {
     };
     /**
      * Search append-only audit events
-     * @description Search append-only audit events. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Admin/Super Admin only with verified privileged session. Private, no-store. Supports every recorded audit action and entity type, including failed logins, booking slots and service categories. Bounded 1 to 100 rows (default 25), ordered by createdAt and ID descending; copy nextCursor unchanged. Successful reads append a READ audit. Both date bounds, when supplied, must be ordered and span at most 90 days. Actor IDs and current roles are returned without account credentials, IP addresses or user agents. Before/after values are nullable selected JSON objects, not complete resource snapshots. Pagination is live, not a snapshot. Search append-only audit events. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getAdminAudit"];
     put?: never;
@@ -4725,7 +4725,7 @@ export interface paths {
     };
     /**
      * Read queue and reconciliation status
-     * @description Read queue and reconciliation status. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Admin/Super Admin only with verified privileged session. Private, no-store. Current organisation-wide grouped queue counts; absent queue/status groups have zero rows. Includes latest-started reconciliation, open/investigating anomaly count, oldest 100 unresolved alerts and configured expected worker heartbeats. Missing means no heartbeat; overdue means no successful heartbeat within staleAfterMs. A recent success does not prove a currently live worker or provider delivery. No filters accepted. Read queue and reconciliation status. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getAdminOperationsStatus"];
     put?: never;
@@ -4745,7 +4745,7 @@ export interface paths {
     };
     /**
      * List failed or leased operational jobs
-     * @description List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+     * @description Admin/Super Admin only with verified privileged session. Private, no-store. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures and provider credentials are excluded. Every successful read is audited. List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
      */
     get: operations["getAdminOperationsJobs"];
     put?: never;
@@ -5147,7 +5147,7 @@ export interface paths {
     put?: never;
     /**
      * Request selected-line cancellation or return; existing active requests retain their original details
-     * @description Request selected-line cancellation or return; existing active requests retain their original details. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Same 24-hour original-request recovery contract as /returns. Selected items are normalized by order-line ID. Endpoint, kind, reason and quantities must match the original submission. Current ownership is required on every recovery. Request selected-line cancellation or return; existing active requests retain their original details. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersOrdersByIdAftercare"];
     delete?: never;
@@ -5187,7 +5187,7 @@ export interface paths {
     put?: never;
     /**
      * Request a whole-order return for timing and condition review
-     * @description Request a whole-order return for timing and condition review. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires an aftercare-v1.<13-digit timestamp>.<UUIDv4> Idempotency-Key. Original normalized body and endpoint are bound to the customer and order for 24 hours. Explicit same-key recovery returns the current owned request, including later rejection, without new audit, request, stock, order or refund changes. Mismatched keys return 409 IDEMPOTENCY_CONFLICT; expired/future keys return 409 IDEMPOTENCY_EXPIRED even after receipt cleanup. Fresh keys retain existing non-rejected same-kind request deduplication. Request a whole-order return for timing and condition review. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     post: operations["postCustomersOrdersByIdReturns"];
     delete?: never;
@@ -65536,6 +65536,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path: {
         /**
@@ -65572,7 +65577,11 @@ export interface operations {
            *       "message": "Add a customer message to an owned enquiry",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "authorType": "CUSTOMER",
+           *         "visibility": "CUSTOMER",
+           *         "body": "synthetic-body",
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "replayed": true
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -65584,17 +65593,32 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Add a customer message to an owned enquiry. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /**
+               * @description Author Type validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              authorType: "CUSTOMER";
+              /**
+               * @description Visibility validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              visibility: "CUSTOMER";
+              /** @description Body validated by this operation's strict request contract. */
+              body: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -66355,6 +66379,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path: {
         /**
@@ -66391,7 +66420,11 @@ export interface operations {
            *       "message": "Add a customer message to an owned complaint",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "authorType": "CUSTOMER",
+           *         "visibility": "CUSTOMER",
+           *         "body": "synthetic-body",
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "replayed": true
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -66403,17 +66436,32 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Add a customer message to an owned complaint. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /**
+               * @description Author Type validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              authorType: "CUSTOMER";
+              /**
+               * @description Visibility validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              visibility: "CUSTOMER";
+              /** @description Body validated by this operation's strict request contract. */
+              body: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -67068,6 +67116,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path?: never;
       cookie?: never;
@@ -67219,7 +67272,33 @@ export interface operations {
            *       "message": "Create an owned enquiry",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "branchId": "00000000-0000-4000-8000-000000000001",
+           *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+           *         "subject": "synthetic-subject",
+           *         "version": 0,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z",
+           *         "resolvedAt": "2030-01-15T10:00:00.000Z",
+           *         "closedAt": "2030-01-15T10:00:00.000Z",
+           *         "branch": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "code": "synthetic-code",
+           *           "name": "synthetic-name"
+           *         },
+           *         "assignedStaff": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "firstName": "synthetic-firstname",
+           *           "lastName": "synthetic-lastname"
+           *         },
+           *         "replayed": true,
+           *         "type": "GENERAL",
+           *         "status": "OPEN",
+           *         "message": "synthetic-message",
+           *         "productId": "00000000-0000-4000-8000-000000000001",
+           *         "serviceId": "00000000-0000-4000-8000-000000000001",
+           *         "bookingId": "00000000-0000-4000-8000-000000000001",
+           *         "quoteId": "00000000-0000-4000-8000-000000000001",
+           *         "vehicleListingId": "00000000-0000-4000-8000-000000000001"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -67231,17 +67310,111 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Create an owned enquiry. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /**
+               * Format: uuid
+               * @description Identifier of the branch resource; ownership is resolved server-side.
+               */
+              branchId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the assigned staff resource; ownership is resolved server-side.
+               */
+              assignedStaffId: string | null;
+              /** @description Subject validated by this operation's strict request contract. */
+              subject: string;
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              resolvedAt: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              closedAt: string | null;
+              /** @description Branch validated by this operation's strict request contract. */
+              branch: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                code: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+              } | null;
+              /** @description Assigned Staff validated by this operation's strict request contract. */
+              assignedStaff: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description First Name validated by this operation's strict request contract. */
+                firstName: string;
+                /** @description Last Name validated by this operation's strict request contract. */
+                lastName: string;
+              } | null;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
+              /**
+               * @description Type validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              type:
+                "GENERAL" | "PRODUCT" | "SERVICE" | "VEHICLE" | "BOOKING" | "QUOTATION";
+              /**
+               * @description Requested or filtered lifecycle state from the documented enum.
+               * @enum {string}
+               */
+              status: "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+              /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+              message: string;
+              /**
+               * Format: uuid
+               * @description Identifier of the product resource; ownership is resolved server-side.
+               */
+              productId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the service resource; ownership is resolved server-side.
+               */
+              serviceId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the booking resource; ownership is resolved server-side.
+               */
+              bookingId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the quote resource; ownership is resolved server-side.
+               */
+              quoteId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the vehicle listing resource; ownership is resolved server-side.
+               */
+              vehicleListingId: string | null;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -68933,6 +69106,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path?: never;
       cookie?: never;
@@ -68990,7 +69168,35 @@ export interface operations {
            *       "message": "Create an owned complaint",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "branchId": "00000000-0000-4000-8000-000000000001",
+           *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+           *         "subject": "synthetic-subject",
+           *         "version": 0,
+           *         "createdAt": "2030-01-15T10:00:00.000Z",
+           *         "updatedAt": "2030-01-15T10:00:00.000Z",
+           *         "resolvedAt": "2030-01-15T10:00:00.000Z",
+           *         "closedAt": "2030-01-15T10:00:00.000Z",
+           *         "branch": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "code": "synthetic-code",
+           *           "name": "synthetic-name"
+           *         },
+           *         "assignedStaff": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "firstName": "synthetic-firstname",
+           *           "lastName": "synthetic-lastname"
+           *         },
+           *         "replayed": true,
+           *         "status": "OPEN",
+           *         "priority": "LOW",
+           *         "description": "synthetic-description",
+           *         "resolution": "synthetic-resolution",
+           *         "bookingId": "00000000-0000-4000-8000-000000000001",
+           *         "orderId": "00000000-0000-4000-8000-000000000001",
+           *         "vehicleTransactionId": "00000000-0000-4000-8000-000000000001",
+           *         "acknowledgedAt": "2030-01-15T10:00:00.000Z",
+           *         "acknowledgementDueAt": "2030-01-15T10:00:00.000Z",
+           *         "escalatedAt": "2030-01-15T10:00:00.000Z"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -69002,17 +69208,117 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Create an owned complaint. */
-            data?: {
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
               /**
                * Format: uuid
-               * @description Public or authorized resource identifier.
+               * @description Identifier of the id resource; ownership is resolved server-side.
                */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+              id: string;
+              /**
+               * Format: uuid
+               * @description Identifier of the branch resource; ownership is resolved server-side.
+               */
+              branchId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the assigned staff resource; ownership is resolved server-side.
+               */
+              assignedStaffId: string | null;
+              /** @description Subject validated by this operation's strict request contract. */
+              subject: string;
+              /** @description Version validated by this operation's strict request contract. */
+              version: number;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              createdAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              updatedAt: string;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              resolvedAt: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              closedAt: string | null;
+              /** @description Branch validated by this operation's strict request contract. */
+              branch: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                code: string;
+                /** @description Name validated by this operation's strict request contract. */
+                name: string;
+              } | null;
+              /** @description Assigned Staff validated by this operation's strict request contract. */
+              assignedStaff: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description First Name validated by this operation's strict request contract. */
+                firstName: string;
+                /** @description Last Name validated by this operation's strict request contract. */
+                lastName: string;
+              } | null;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
+              /**
+               * @description Requested or filtered lifecycle state from the documented enum.
+               * @enum {string}
+               */
+              status: "OPEN" | "INVESTIGATING" | "RESOLVED" | "CLOSED";
+              /**
+               * @description Priority validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              priority: "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+              /** @description Description validated by this operation's strict request contract. */
+              description: string;
+              /** @description Resolution validated by this operation's strict request contract. */
+              resolution: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the booking resource; ownership is resolved server-side.
+               */
+              bookingId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the order resource; ownership is resolved server-side.
+               */
+              orderId: string | null;
+              /**
+               * Format: uuid
+               * @description Identifier of the vehicle transaction resource; ownership is resolved server-side.
+               */
+              vehicleTransactionId: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              acknowledgedAt: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              acknowledgementDueAt: string | null;
+              /**
+               * Format: date-time
+               * @description ISO 8601 timestamp interpreted and validated by the server.
+               */
+              escalatedAt: string | null;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -75507,23 +75813,24 @@ export interface operations {
         userId?: string;
         /**
          * @description Action used to constrain this request.
-         * @example CREATE
+         * @example READ
          */
         action?:
+          | "READ"
           | "CREATE"
           | "UPDATE"
           | "DELETE"
-          | "READ"
           | "LOGIN"
           | "LOGOUT"
+          | "LOGIN_FAILED"
           | "PASSWORD_RESET"
           | "EMAIL_VERIFIED"
           | "MFA_ENABLED"
           | "MFA_DISABLED"
-          | "SESSION_REVOKED"
           | "ROLE_CHANGE"
           | "ACCOUNT_SUSPENDED"
           | "ACCOUNT_DEACTIVATED"
+          | "SESSION_REVOKED"
           | "STATUS_CHANGE"
           | "INVENTORY_ADJUSTED"
           | "PAYMENT_INITIALIZED"
@@ -75553,6 +75860,7 @@ export interface operations {
           | "CUSTOMER_VEHICLE"
           | "SERVICE"
           | "SERVICE_CATEGORY"
+          | "BOOKING_SLOT"
           | "BOOKING"
           | "QUOTE"
           | "WORK_ORDER"
@@ -75613,7 +75921,17 @@ export interface operations {
            *         "items": [
            *           {
            *             "id": "00000000-0000-4000-8000-000000000001",
-           *             "status": "synthetic-status"
+           *             "userId": "00000000-0000-4000-8000-000000000001",
+           *             "action": "READ",
+           *             "entityType": "USER",
+           *             "entityId": "synthetic-entityid",
+           *             "requestId": "synthetic-requestid",
+           *             "oldValues": "synthetic-oldvalues",
+           *             "newValues": "synthetic-newvalues",
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "user": {
+           *               "role": "CUSTOMER"
+           *             }
            *           }
            *         ],
            *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -75628,25 +75946,120 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Cursor-paginated result for: Search append-only audit events. */
-            data?: {
-              /** @description Authorized resource projections for this page. */
-              items: ({
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: {
                 /**
                  * Format: uuid
-                 * @description Public or authorized resource identifier.
+                 * @description Identifier of the id resource; ownership is resolved server-side.
                  */
-                id?: string;
-                /** @description Current server-owned lifecycle state when applicable. */
-                status?: string;
-              } & {
-                [key: string]: unknown;
-              })[];
+                id: string;
+                /**
+                 * Format: uuid
+                 * @description Identifier of the user resource; ownership is resolved server-side.
+                 */
+                userId: string | null;
+                /**
+                 * @description Action validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                action:
+                  | "READ"
+                  | "CREATE"
+                  | "UPDATE"
+                  | "DELETE"
+                  | "LOGIN"
+                  | "LOGOUT"
+                  | "LOGIN_FAILED"
+                  | "PASSWORD_RESET"
+                  | "EMAIL_VERIFIED"
+                  | "MFA_ENABLED"
+                  | "MFA_DISABLED"
+                  | "ROLE_CHANGE"
+                  | "ACCOUNT_SUSPENDED"
+                  | "ACCOUNT_DEACTIVATED"
+                  | "SESSION_REVOKED"
+                  | "STATUS_CHANGE"
+                  | "INVENTORY_ADJUSTED"
+                  | "PAYMENT_INITIALIZED"
+                  | "PAYMENT_VERIFIED"
+                  | "MANUAL_PAYMENT_APPROVED"
+                  | "REFUND_REQUESTED"
+                  | "REFUND_APPROVED"
+                  | "PAYMENT_REFUNDED"
+                  | "DISPUTE_UPDATED"
+                  | "VEHICLE_RESERVED"
+                  | "VEHICLE_RELEASED"
+                  | "INVITATION_CREATED"
+                  | "INVITATION_ACCEPTED"
+                  | "BRANCH_ASSIGNED";
+                /**
+                 * @description Entity Type validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                entityType:
+                  | "USER"
+                  | "BRANCH"
+                  | "PRIVILEGED_INVITATION"
+                  | "SESSION"
+                  | "MFA_FACTOR"
+                  | "CUSTOMER_PROFILE"
+                  | "STAFF_PROFILE"
+                  | "CUSTOMER_VEHICLE"
+                  | "SERVICE"
+                  | "SERVICE_CATEGORY"
+                  | "BOOKING_SLOT"
+                  | "BOOKING"
+                  | "QUOTE"
+                  | "WORK_ORDER"
+                  | "PRODUCT"
+                  | "INVENTORY"
+                  | "ORDER"
+                  | "PAYMENT"
+                  | "PAYMENT_ATTEMPT"
+                  | "REFUND"
+                  | "DISPUTE"
+                  | "VEHICLE"
+                  | "VEHICLE_LISTING"
+                  | "VEHICLE_TRANSACTION"
+                  | "INSPECTION"
+                  | "REVIEW"
+                  | "ENQUIRY"
+                  | "COMPLAINT"
+                  | "PROMOTION"
+                  | "INVOICE";
+                /** @description Identifier of the entity resource; ownership is resolved server-side. */
+                entityId: string | null;
+                /** @description Identifier of the request resource; ownership is resolved server-side. */
+                requestId: string | null;
+                /** @description Old Values validated by this operation's strict request contract. */
+                oldValues: {
+                  [key: string]: unknown;
+                } | null;
+                /** @description New Values validated by this operation's strict request contract. */
+                newValues: {
+                  [key: string]: unknown;
+                } | null;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /** @description User validated by this operation's strict request contract. */
+                user: {
+                  /**
+                   * @description Role validated by this operation's strict request contract.
+                   * @enum {string}
+                   */
+                  role: "CUSTOMER" | "STAFF" | "ADMIN" | "SUPER_ADMIN";
+                } | null;
+              }[];
               /**
                * Format: uuid
-               * @description Cursor for the next page, or null/omitted when exhausted.
+               * @description Next Cursor validated by this operation's strict request contract.
                */
-              nextCursor?: string | null;
+              nextCursor?: string;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -75825,8 +76238,43 @@ export interface operations {
            *       "success": true,
            *       "message": "Read queue and reconciliation status",
            *       "data": {
-           *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "queues": [
+           *           {
+           *             "queue": "outbox",
+           *             "status": "PENDING",
+           *             "count": 0
+           *           }
+           *         ],
+           *         "openPaymentAnomalies": 0,
+           *         "lastReconciliation": {
+           *           "id": "00000000-0000-4000-8000-000000000001",
+           *           "status": "RUNNING",
+           *           "periodStart": "2030-01-15T10:00:00.000Z",
+           *           "periodEnd": "2030-01-15T10:00:00.000Z",
+           *           "differenceCount": 0,
+           *           "completedAt": "2030-01-15T10:00:00.000Z",
+           *           "startedAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "workers": [
+           *           {
+           *             "name": "synthetic-name",
+           *             "staleAfterMs": 0,
+           *             "missing": true,
+           *             "overdue": true
+           *           }
+           *         ],
+           *         "operationalAlerts": [
+           *           {
+           *             "id": "00000000-0000-4000-8000-000000000001",
+           *             "key": "synthetic-key",
+           *             "category": "synthetic-category",
+           *             "resourceId": "00000000-0000-4000-8000-000000000001",
+           *             "message": "synthetic-message",
+           *             "createdAt": "2030-01-15T10:00:00.000Z",
+           *             "resolvedAt": "2030-01-15T10:00:00.000Z",
+           *             "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
+           *           }
+           *         ]
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -75838,17 +76286,173 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Authorized response projection for: Read queue and reconciliation status. */
-            data?: {
-              /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
-               */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Queues validated by this operation's strict request contract. */
+              queues: (
+                | {
+                    /**
+                     * @description Queue validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    queue: "outbox";
+                    /**
+                     * @description Requested or filtered lifecycle state from the documented enum.
+                     * @enum {string}
+                     */
+                    status:
+                      "PENDING" | "PROCESSING" | "PUBLISHED" | "FAILED" | "DEAD_LETTER";
+                    /** @description Count validated by this operation's strict request contract. */
+                    count: number;
+                  }
+                | {
+                    /**
+                     * @description Queue validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    queue: "notification_delivery";
+                    /**
+                     * @description Requested or filtered lifecycle state from the documented enum.
+                     * @enum {string}
+                     */
+                    status:
+                      "PENDING" | "PROCESSING" | "PUBLISHED" | "FAILED" | "DEAD_LETTER";
+                    /** @description Count validated by this operation's strict request contract. */
+                    count: number;
+                  }
+                | {
+                    /**
+                     * @description Queue validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    queue: "payment_webhook";
+                    /**
+                     * @description Requested or filtered lifecycle state from the documented enum.
+                     * @enum {string}
+                     */
+                    status:
+                      "RECEIVED" | "PROCESSING" | "PROCESSED" | "FAILED" | "DEAD_LETTER";
+                    /** @description Count validated by this operation's strict request contract. */
+                    count: number;
+                  }
+              )[];
+              /** @description Open Payment Anomalies validated by this operation's strict request contract. */
+              openPaymentAnomalies: number;
+              /** @description Last Reconciliation validated by this operation's strict request contract. */
+              lastReconciliation: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /**
+                 * @description Requested or filtered lifecycle state from the documented enum.
+                 * @enum {string}
+                 */
+                status: "RUNNING" | "MATCHED" | "DIFFERENCES_FOUND" | "FAILED";
+                /**
+                 * Format: date-time
+                 * @description Period Start validated by this operation's strict request contract.
+                 */
+                periodStart: string;
+                /**
+                 * Format: date-time
+                 * @description Period End validated by this operation's strict request contract.
+                 */
+                periodEnd: string;
+                /** @description Difference Count validated by this operation's strict request contract. */
+                differenceCount: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                completedAt: string | null;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                startedAt: string;
+              } | null;
+              /** @description Workers validated by this operation's strict request contract. */
+              workers: (
+                | {
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                    /** @description Stale After Ms validated by this operation's strict request contract. */
+                    staleAfterMs: number;
+                    /**
+                     * @description Missing validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    missing: true;
+                    /**
+                     * @description Overdue validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    overdue: true;
+                  }
+                | {
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                    /** @description Stale After Ms validated by this operation's strict request contract. */
+                    staleAfterMs: number;
+                    /**
+                     * @description Missing validated by this operation's strict request contract.
+                     * @enum {boolean}
+                     */
+                    missing: false;
+                    /** @description Overdue validated by this operation's strict request contract. */
+                    overdue: boolean;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    lastStartedAt: string;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    lastSucceededAt: string | null;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    lastFailedAt: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    errorCode: string | null;
+                  }
+              )[];
+              /** @description Operational Alerts validated by this operation's strict request contract. */
+              operationalAlerts: {
+                /**
+                 * Format: uuid
+                 * @description Identifier of the id resource; ownership is resolved server-side.
+                 */
+                id: string;
+                /** @description Key validated by this operation's strict request contract. */
+                key: string;
+                /** @description Category validated by this operation's strict request contract. */
+                category: string;
+                /**
+                 * Format: uuid
+                 * @description Identifier of the resource resource; ownership is resolved server-side.
+                 */
+                resourceId: string | null;
+                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                message: string;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                createdAt: string;
+                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                resolvedAt: null;
+                /**
+                 * Format: uuid
+                 * @description Identifier of the resolved by user resource; ownership is resolved server-side.
+                 */
+                resolvedByUserId: string | null;
+              }[];
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -76012,7 +76616,7 @@ export interface operations {
       query?: {
         /**
          * @description Opaque cursor returned by the preceding page.
-         * @example 00000000-0000-4000-8000-000000000001
+         * @example synthetic-cursor
          */
         cursor?: string;
         /**
@@ -76051,10 +76655,21 @@ export interface operations {
            *         "items": [
            *           {
            *             "id": "00000000-0000-4000-8000-000000000001",
-           *             "status": "synthetic-status"
+           *             "eventType": "synthetic-eventtype",
+           *             "status": "FAILED",
+           *             "lockedAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z",
+           *             "source": "OUTBOX",
+           *             "eventId": "00000000-0000-4000-8000-000000000001",
+           *             "aggregateType": "synthetic-aggregatetype",
+           *             "aggregateId": "synthetic-aggregateid",
+           *             "attempts": 0,
+           *             "availableAt": "2030-01-15T10:00:00.000Z",
+           *             "lastError": "synthetic-lasterror",
+           *             "createdAt": "2030-01-15T10:00:00.000Z"
            *           }
            *         ],
-           *         "nextCursor": "00000000-0000-4000-8000-000000000001"
+           *         "nextCursor": "synthetic-nextcursor"
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -76066,25 +76681,110 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
-            /** @description Cursor-paginated result for: List failed or leased operational jobs. */
-            data?: {
-              /** @description Authorized resource projections for this page. */
-              items: ({
-                /**
-                 * Format: uuid
-                 * @description Public or authorized resource identifier.
-                 */
-                id?: string;
-                /** @description Current server-owned lifecycle state when applicable. */
-                status?: string;
-              } & {
-                [key: string]: unknown;
-              })[];
-              /**
-               * Format: uuid
-               * @description Cursor for the next page, or null/omitted when exhausted.
-               */
-              nextCursor?: string | null;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Items validated by this operation's strict request contract. */
+              items: (
+                | {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Event Type validated by this operation's strict request contract. */
+                    eventType: string;
+                    /**
+                     * @description Requested or filtered lifecycle state from the documented enum.
+                     * @enum {string}
+                     */
+                    status: "FAILED" | "DEAD_LETTER" | "PROCESSING";
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    lockedAt: string | null;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    updatedAt: string;
+                    /**
+                     * @description Source validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    source: "OUTBOX";
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the event resource; ownership is resolved server-side.
+                     */
+                    eventId: string;
+                    /** @description Aggregate Type validated by this operation's strict request contract. */
+                    aggregateType: string;
+                    /** @description Identifier of the aggregate resource; ownership is resolved server-side. */
+                    aggregateId: string;
+                    /** @description Attempts validated by this operation's strict request contract. */
+                    attempts: number;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    availableAt: string;
+                    /** @description Last Error validated by this operation's strict request contract. */
+                    lastError: string | null;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    createdAt: string;
+                  }
+                | {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the id resource; ownership is resolved server-side.
+                     */
+                    id: string;
+                    /** @description Event Type validated by this operation's strict request contract. */
+                    eventType: string;
+                    /**
+                     * @description Requested or filtered lifecycle state from the documented enum.
+                     * @enum {string}
+                     */
+                    status: "FAILED" | "DEAD_LETTER" | "PROCESSING";
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    lockedAt: string | null;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    updatedAt: string;
+                    /**
+                     * @description Source validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    source: "PAYMENT_WEBHOOK";
+                    /** @description Processing Attempts validated by this operation's strict request contract. */
+                    processingAttempts: number;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    nextAttemptAt: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    lastErrorCode: string | null;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    lastErrorMessage: string | null;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    receivedAt: string;
+                  }
+              )[];
+              /** @description Next Cursor validated by this operation's strict request contract. */
+              nextCursor?: string;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -77118,7 +77818,9 @@ export interface operations {
            *       "message": "Retry a failed job using optimistic attempt matching",
            *       "data": {
            *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "source": "outbox",
+           *         "status": "RETRY_REQUESTED",
+           *         "attempts": 0
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -77130,22 +77832,30 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /**
+               * Format: uuid
+               * @description Identifier of the id resource; ownership is resolved server-side.
+               */
+              id: string;
+              /**
+               * @description Source validated by this operation's strict request contract.
+               * @enum {string}
+               */
+              source: "outbox" | "webhook";
+              /**
+               * @description Requested or filtered lifecycle state from the documented enum.
+               * @enum {string}
+               */
+              status: "RETRY_REQUESTED";
+              /** @description Attempts validated by this operation's strict request contract. */
+              attempts: number;
+            };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
               /** @description Identifier of the request resource; ownership is resolved server-side. */
               requestId: string;
-            };
-            /** @description Authorized response projection for: Retry a failed job using optimistic attempt matching. */
-            data?: {
-              /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
-               */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
             };
           };
         };
@@ -83413,6 +84123,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path: {
         /**
@@ -83489,7 +84204,8 @@ export interface operations {
            *         "reviewedAt": "2030-01-15T10:00:00.000Z",
            *         "reviewNote": "synthetic-reviewnote",
            *         "refundDueAt": "2030-01-15T10:00:00.000Z",
-           *         "refundClockStatus": "synthetic-refundclockstatus"
+           *         "refundClockStatus": "synthetic-refundclockstatus",
+           *         "replayed": true
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -83568,6 +84284,8 @@ export interface operations {
               refundDueAt: string | null;
               /** @description Refund Clock Status validated by this operation's strict request contract. */
               refundClockStatus: string;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
@@ -84118,6 +84836,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path: {
         /**
@@ -84172,7 +84895,8 @@ export interface operations {
            *         "reviewedAt": "2030-01-15T10:00:00.000Z",
            *         "reviewNote": "synthetic-reviewnote",
            *         "refundDueAt": "2030-01-15T10:00:00.000Z",
-           *         "refundClockStatus": "synthetic-refundclockstatus"
+           *         "refundClockStatus": "synthetic-refundclockstatus",
+           *         "replayed": true
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -84251,6 +84975,8 @@ export interface operations {
               refundDueAt: string | null;
               /** @description Refund Clock Status validated by this operation's strict request contract. */
               refundClockStatus: string;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
             };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {

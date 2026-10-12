@@ -78561,6 +78561,7 @@
           "Support"
         ],
         "summary": "Add a customer message to an owned enquiry",
+        "description": "Requires Idempotency-Key support-reply-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. The normalized reply is bound to the authenticated customer, conversation kind and ID. Atomic message, audit, notification intent and receipt; original-key recovery returns 201 with the original customer-visible message and replayed true without duplicate effects. Ownership is rechecked on every attempt. Recovery is permitted after closure only for an already committed reply; new replies to closed conversations conflict. Missing or foreign/internal message receipts fail closed. Changed bodies return 409 IDEMPOTENCY_CONFLICT. Keys expire after 24 hours even after cleanup, and timestamps more than one minute ahead fail with 409 IDEMPOTENCY_EXPIRED. Missing/malformed keys return 422. Strict customer-only bodies, CSRF and rate limits remain. Matching API/frontend rollout is required; staff replies are unchanged. Provider delivery is separate from notification enqueue. Add a customer message to an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -78590,6 +78591,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^support-reply-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -78636,19 +78649,49 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Add a customer message to an owned enquiry.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
                         },
-                        "status": {
+                        "authorType": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "enum": [
+                            "CUSTOMER"
+                          ],
+                          "description": "Author Type validated by this operation's strict request contract."
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": [
+                            "CUSTOMER"
+                          ],
+                          "description": "Visibility validated by this operation's strict request contract."
+                        },
+                        "body": {
+                          "type": "string",
+                          "description": "Body validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "id",
+                        "authorType",
+                        "visibility",
+                        "body",
+                        "createdAt",
+                        "replayed"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -78667,6 +78710,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -78676,7 +78720,11 @@
                   "message": "Add a customer message to an owned enquiry",
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "authorType": "CUSTOMER",
+                    "visibility": "CUSTOMER",
+                    "body": "synthetic-body",
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "replayed": true
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -78867,13 +78915,12 @@
           }
         },
         "operationId": "postCustomersSupportEnquiriesBySupportIdMessages",
-        "description": "Add a customer message to an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/public/support/enquiries": {
@@ -79641,6 +79688,7 @@
           "Support"
         ],
         "summary": "Add a customer message to an owned complaint",
+        "description": "Requires Idempotency-Key support-reply-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. The normalized reply is bound to the authenticated customer, conversation kind and ID. Atomic message, audit, notification intent and receipt; original-key recovery returns 201 with the original customer-visible message and replayed true without duplicate effects. Ownership is rechecked on every attempt. Recovery is permitted after closure only for an already committed reply; new replies to closed conversations conflict. Missing or foreign/internal message receipts fail closed. Changed bodies return 409 IDEMPOTENCY_CONFLICT. Keys expire after 24 hours even after cleanup, and timestamps more than one minute ahead fail with 409 IDEMPOTENCY_EXPIRED. Missing/malformed keys return 422. Strict customer-only bodies, CSRF and rate limits remain. Matching API/frontend rollout is required; staff replies are unchanged. Provider delivery is separate from notification enqueue. Add a customer message to an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -79670,6 +79718,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^support-reply-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -79716,19 +79776,49 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Add a customer message to an owned complaint.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
                         },
-                        "status": {
+                        "authorType": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "enum": [
+                            "CUSTOMER"
+                          ],
+                          "description": "Author Type validated by this operation's strict request contract."
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": [
+                            "CUSTOMER"
+                          ],
+                          "description": "Visibility validated by this operation's strict request contract."
+                        },
+                        "body": {
+                          "type": "string",
+                          "description": "Body validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "id",
+                        "authorType",
+                        "visibility",
+                        "body",
+                        "createdAt",
+                        "replayed"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -79747,6 +79837,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -79756,7 +79847,11 @@
                   "message": "Add a customer message to an owned complaint",
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "authorType": "CUSTOMER",
+                    "visibility": "CUSTOMER",
+                    "body": "synthetic-body",
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "replayed": true
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -79947,13 +80042,12 @@
           }
         },
         "operationId": "postCustomersSupportComplaintsBySupportIdMessages",
-        "description": "Add a customer message to an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/public/support/complaints": {
@@ -80530,6 +80624,7 @@
           "Support"
         ],
         "summary": "Create an owned enquiry",
+        "description": "Requires Idempotency-Key support-create-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Scope is authenticated customer plus enquiry/complaint creation. The normalized body is bound to the key; changed content returns 409 IDEMPOTENCY_CONFLICT. Original-key/body replay within 24 hours returns 201 with the same owned record ID, current state and replayed true, without another creation audit or repeating branch/source checks or complaint deadline assignment. New requests retain branch, source, ownership and policy validation. Keys over 24 hours old or more than one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing/malformed keys return 422. Receipts hold hashes and the record ID, not message/contact text. Private projections exclude contact fields and internal messages. Same-key concurrency serializes; role, CSRF and rate limits apply on every attempt. Public anonymous creation is unchanged. Deploy matching frontend/API; older customer clients must reload. Create an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -80547,6 +80642,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^support-create-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -80831,19 +80938,211 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Create an owned enquiry.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "branchId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the branch resource; ownership is resolved server-side."
+                        },
+                        "assignedStaffId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the assigned staff resource; ownership is resolved server-side."
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "Subject validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "resolvedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "closedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "branch": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "code": {
+                              "type": "string",
+                              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "code",
+                            "name"
+                          ],
+                          "description": "Branch validated by this operation's strict request contract."
+                        },
+                        "assignedStaff": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "firstName": {
+                              "type": "string",
+                              "description": "First Name validated by this operation's strict request contract."
+                            },
+                            "lastName": {
+                              "type": "string",
+                              "description": "Last Name validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "firstName",
+                            "lastName"
+                          ],
+                          "description": "Assigned Staff validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "GENERAL",
+                            "PRODUCT",
+                            "SERVICE",
+                            "VEHICLE",
+                            "BOOKING",
+                            "QUOTATION"
+                          ],
+                          "description": "Type validated by this operation's strict request contract."
                         },
                         "status": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "enum": [
+                            "OPEN",
+                            "IN_PROGRESS",
+                            "RESOLVED",
+                            "CLOSED"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "productId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the product resource; ownership is resolved server-side."
+                        },
+                        "serviceId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the service resource; ownership is resolved server-side."
+                        },
+                        "bookingId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the booking resource; ownership is resolved server-side."
+                        },
+                        "quoteId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the quote resource; ownership is resolved server-side."
+                        },
+                        "vehicleListingId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the vehicle listing resource; ownership is resolved server-side."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "id",
+                        "branchId",
+                        "assignedStaffId",
+                        "subject",
+                        "version",
+                        "createdAt",
+                        "updatedAt",
+                        "resolvedAt",
+                        "closedAt",
+                        "branch",
+                        "assignedStaff",
+                        "replayed",
+                        "type",
+                        "status",
+                        "message",
+                        "productId",
+                        "serviceId",
+                        "bookingId",
+                        "quoteId",
+                        "vehicleListingId"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -80862,6 +81161,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -80871,7 +81171,33 @@
                   "message": "Create an owned enquiry",
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "branchId": "00000000-0000-4000-8000-000000000001",
+                    "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+                    "subject": "synthetic-subject",
+                    "version": 0,
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "updatedAt": "2030-01-15T10:00:00.000Z",
+                    "resolvedAt": "2030-01-15T10:00:00.000Z",
+                    "closedAt": "2030-01-15T10:00:00.000Z",
+                    "branch": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "code": "synthetic-code",
+                      "name": "synthetic-name"
+                    },
+                    "assignedStaff": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "firstName": "synthetic-firstname",
+                      "lastName": "synthetic-lastname"
+                    },
+                    "replayed": true,
+                    "type": "GENERAL",
+                    "status": "OPEN",
+                    "message": "synthetic-message",
+                    "productId": "00000000-0000-4000-8000-000000000001",
+                    "serviceId": "00000000-0000-4000-8000-000000000001",
+                    "bookingId": "00000000-0000-4000-8000-000000000001",
+                    "quoteId": "00000000-0000-4000-8000-000000000001",
+                    "vehicleListingId": "00000000-0000-4000-8000-000000000001"
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -81042,13 +81368,12 @@
           }
         },
         "operationId": "postCustomersSupportEnquiries",
-        "description": "Create an owned enquiry. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/staff/support/enquiries/{supportId}/messages": {
@@ -82890,6 +83215,7 @@
           "Support"
         ],
         "summary": "Create an owned complaint",
+        "description": "Requires Idempotency-Key support-create-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Scope is authenticated customer plus enquiry/complaint creation. The normalized body is bound to the key; changed content returns 409 IDEMPOTENCY_CONFLICT. Original-key/body replay within 24 hours returns 201 with the same owned record ID, current state and replayed true, without another creation audit or repeating branch/source checks or complaint deadline assignment. New requests retain branch, source, ownership and policy validation. Keys over 24 hours old or more than one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing/malformed keys return 422. Receipts hold hashes and the record ID, not message/contact text. Private projections exclude contact fields and internal messages. Same-key concurrency serializes; role, CSRF and rate limits apply on every attempt. Public anonymous creation is unchanged. Deploy matching frontend/API; older customer clients must reload. Create an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -82907,6 +83233,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^support-create-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -82985,19 +83323,226 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Create an owned complaint.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "branchId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the branch resource; ownership is resolved server-side."
+                        },
+                        "assignedStaffId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the assigned staff resource; ownership is resolved server-side."
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "Subject validated by this operation's strict request contract."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "resolvedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "closedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "branch": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "code": {
+                              "type": "string",
+                              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "code",
+                            "name"
+                          ],
+                          "description": "Branch validated by this operation's strict request contract."
+                        },
+                        "assignedStaff": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "firstName": {
+                              "type": "string",
+                              "description": "First Name validated by this operation's strict request contract."
+                            },
+                            "lastName": {
+                              "type": "string",
+                              "description": "Last Name validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "firstName",
+                            "lastName"
+                          ],
+                          "description": "Assigned Staff validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
                         },
                         "status": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "enum": [
+                            "OPEN",
+                            "INVESTIGATING",
+                            "RESOLVED",
+                            "CLOSED"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "priority": {
+                          "type": "string",
+                          "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH",
+                            "URGENT"
+                          ],
+                          "description": "Priority validated by this operation's strict request contract."
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Description validated by this operation's strict request contract."
+                        },
+                        "resolution": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Resolution validated by this operation's strict request contract."
+                        },
+                        "bookingId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the booking resource; ownership is resolved server-side."
+                        },
+                        "orderId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the order resource; ownership is resolved server-side."
+                        },
+                        "vehicleTransactionId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the vehicle transaction resource; ownership is resolved server-side."
+                        },
+                        "acknowledgedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "acknowledgementDueAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "escalatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "id",
+                        "branchId",
+                        "assignedStaffId",
+                        "subject",
+                        "version",
+                        "createdAt",
+                        "updatedAt",
+                        "resolvedAt",
+                        "closedAt",
+                        "branch",
+                        "assignedStaff",
+                        "replayed",
+                        "status",
+                        "priority",
+                        "description",
+                        "resolution",
+                        "bookingId",
+                        "orderId",
+                        "vehicleTransactionId",
+                        "acknowledgedAt",
+                        "acknowledgementDueAt",
+                        "escalatedAt"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -83016,6 +83561,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -83025,7 +83571,35 @@
                   "message": "Create an owned complaint",
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "branchId": "00000000-0000-4000-8000-000000000001",
+                    "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+                    "subject": "synthetic-subject",
+                    "version": 0,
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "updatedAt": "2030-01-15T10:00:00.000Z",
+                    "resolvedAt": "2030-01-15T10:00:00.000Z",
+                    "closedAt": "2030-01-15T10:00:00.000Z",
+                    "branch": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "code": "synthetic-code",
+                      "name": "synthetic-name"
+                    },
+                    "assignedStaff": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "firstName": "synthetic-firstname",
+                      "lastName": "synthetic-lastname"
+                    },
+                    "replayed": true,
+                    "status": "OPEN",
+                    "priority": "LOW",
+                    "description": "synthetic-description",
+                    "resolution": "synthetic-resolution",
+                    "bookingId": "00000000-0000-4000-8000-000000000001",
+                    "orderId": "00000000-0000-4000-8000-000000000001",
+                    "vehicleTransactionId": "00000000-0000-4000-8000-000000000001",
+                    "acknowledgedAt": "2030-01-15T10:00:00.000Z",
+                    "acknowledgementDueAt": "2030-01-15T10:00:00.000Z",
+                    "escalatedAt": "2030-01-15T10:00:00.000Z"
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -83196,13 +83770,12 @@
           }
         },
         "operationId": "postCustomersSupportComplaints",
-        "description": "Create an owned complaint. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/customers/support/complaints/{supportId}": {
@@ -91304,6 +91877,7 @@
           "Audit and operations"
         ],
         "summary": "Search append-only audit events",
+        "description": "Admin/Super Admin only with verified privileged session. Private, no-store. Supports every recorded audit action and entity type, including failed logins, booking slots and service categories. Bounded 1 to 100 rows (default 25), ordered by createdAt and ID descending; copy nextCursor unchanged. Successful reads append a READ audit. Both date bounds, when supplied, must be ordered and span at most 90 days. Actor IDs and current roles are returned without account credentials, IP addresses or user agents. Before/after values are nullable selected JSON objects, not complete resource snapshots. Pagination is live, not a snapshot. Search append-only audit events. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -91352,20 +91926,21 @@
             "schema": {
               "type": "string",
               "enum": [
+                "READ",
                 "CREATE",
                 "UPDATE",
                 "DELETE",
-                "READ",
                 "LOGIN",
                 "LOGOUT",
+                "LOGIN_FAILED",
                 "PASSWORD_RESET",
                 "EMAIL_VERIFIED",
                 "MFA_ENABLED",
                 "MFA_DISABLED",
-                "SESSION_REVOKED",
                 "ROLE_CHANGE",
                 "ACCOUNT_SUSPENDED",
                 "ACCOUNT_DEACTIVATED",
+                "SESSION_REVOKED",
                 "STATUS_CHANGE",
                 "INVENTORY_ADJUSTED",
                 "PAYMENT_INITIALIZED",
@@ -91387,7 +91962,7 @@
             "name": "action",
             "in": "query",
             "description": "Action used to constrain this request.",
-            "example": "CREATE"
+            "example": "READ"
           },
           {
             "schema": {
@@ -91403,6 +91978,7 @@
                 "CUSTOMER_VEHICLE",
                 "SERVICE",
                 "SERVICE_CATEGORY",
+                "BOOKING_SLOT",
                 "BOOKING",
                 "QUOTE",
                 "WORK_ORDER",
@@ -91500,41 +92076,184 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Cursor-paginated result for: Search append-only audit events.",
                       "properties": {
                         "items": {
                           "type": "array",
-                          "description": "Authorized resource projections for this page.",
                           "items": {
                             "type": "object",
-                            "description": "Safe item projection returned by Search append-only audit events.",
                             "properties": {
                               "id": {
                                 "type": "string",
                                 "format": "uuid",
-                                "description": "Public or authorized resource identifier."
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
                               },
-                              "status": {
+                              "userId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "uuid",
+                                "description": "Identifier of the user resource; ownership is resolved server-side."
+                              },
+                              "action": {
                                 "type": "string",
-                                "description": "Current server-owned lifecycle state when applicable."
+                                "enum": [
+                                  "READ",
+                                  "CREATE",
+                                  "UPDATE",
+                                  "DELETE",
+                                  "LOGIN",
+                                  "LOGOUT",
+                                  "LOGIN_FAILED",
+                                  "PASSWORD_RESET",
+                                  "EMAIL_VERIFIED",
+                                  "MFA_ENABLED",
+                                  "MFA_DISABLED",
+                                  "ROLE_CHANGE",
+                                  "ACCOUNT_SUSPENDED",
+                                  "ACCOUNT_DEACTIVATED",
+                                  "SESSION_REVOKED",
+                                  "STATUS_CHANGE",
+                                  "INVENTORY_ADJUSTED",
+                                  "PAYMENT_INITIALIZED",
+                                  "PAYMENT_VERIFIED",
+                                  "MANUAL_PAYMENT_APPROVED",
+                                  "REFUND_REQUESTED",
+                                  "REFUND_APPROVED",
+                                  "PAYMENT_REFUNDED",
+                                  "DISPUTE_UPDATED",
+                                  "VEHICLE_RESERVED",
+                                  "VEHICLE_RELEASED",
+                                  "INVITATION_CREATED",
+                                  "INVITATION_ACCEPTED",
+                                  "BRANCH_ASSIGNED"
+                                ],
+                                "description": "Action validated by this operation's strict request contract."
+                              },
+                              "entityType": {
+                                "type": "string",
+                                "enum": [
+                                  "USER",
+                                  "BRANCH",
+                                  "PRIVILEGED_INVITATION",
+                                  "SESSION",
+                                  "MFA_FACTOR",
+                                  "CUSTOMER_PROFILE",
+                                  "STAFF_PROFILE",
+                                  "CUSTOMER_VEHICLE",
+                                  "SERVICE",
+                                  "SERVICE_CATEGORY",
+                                  "BOOKING_SLOT",
+                                  "BOOKING",
+                                  "QUOTE",
+                                  "WORK_ORDER",
+                                  "PRODUCT",
+                                  "INVENTORY",
+                                  "ORDER",
+                                  "PAYMENT",
+                                  "PAYMENT_ATTEMPT",
+                                  "REFUND",
+                                  "DISPUTE",
+                                  "VEHICLE",
+                                  "VEHICLE_LISTING",
+                                  "VEHICLE_TRANSACTION",
+                                  "INSPECTION",
+                                  "REVIEW",
+                                  "ENQUIRY",
+                                  "COMPLAINT",
+                                  "PROMOTION",
+                                  "INVOICE"
+                                ],
+                                "description": "Entity Type validated by this operation's strict request contract."
+                              },
+                              "entityId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Identifier of the entity resource; ownership is resolved server-side."
+                              },
+                              "requestId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Identifier of the request resource; ownership is resolved server-side."
+                              },
+                              "oldValues": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "additionalProperties": {},
+                                "description": "Old Values validated by this operation's strict request contract."
+                              },
+                              "newValues": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "additionalProperties": {},
+                                "description": "New Values validated by this operation's strict request contract."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "user": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "role": {
+                                    "type": "string",
+                                    "enum": [
+                                      "CUSTOMER",
+                                      "STAFF",
+                                      "ADMIN",
+                                      "SUPER_ADMIN"
+                                    ],
+                                    "description": "Role validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "role"
+                                ],
+                                "additionalProperties": false,
+                                "description": "User validated by this operation's strict request contract."
                               }
                             },
-                            "additionalProperties": true
-                          }
+                            "required": [
+                              "id",
+                              "userId",
+                              "action",
+                              "entityType",
+                              "entityId",
+                              "requestId",
+                              "oldValues",
+                              "newValues",
+                              "createdAt",
+                              "user"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 100,
+                          "description": "Items validated by this operation's strict request contract."
                         },
                         "nextCursor": {
-                          "type": [
-                            "string",
-                            "null"
-                          ],
+                          "type": "string",
                           "format": "uuid",
-                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                          "description": "Next Cursor validated by this operation's strict request contract."
                         }
                       },
                       "required": [
                         "items"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -91553,6 +92272,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -91564,7 +92284,17 @@
                     "items": [
                       {
                         "id": "00000000-0000-4000-8000-000000000001",
-                        "status": "synthetic-status"
+                        "userId": "00000000-0000-4000-8000-000000000001",
+                        "action": "READ",
+                        "entityType": "USER",
+                        "entityId": "synthetic-entityid",
+                        "requestId": "synthetic-requestid",
+                        "oldValues": "synthetic-oldvalues",
+                        "newValues": "synthetic-newvalues",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "user": {
+                          "role": "CUSTOMER"
+                        }
                       }
                     ],
                     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -91718,7 +92448,6 @@
           }
         },
         "operationId": "getAdminAudit",
-        "description": "Search append-only audit events. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "x-access-boundary": "mfa-verified-admin",
         "x-required-roles": [
           "ADMIN",
@@ -91734,6 +92463,7 @@
           "Audit and operations"
         ],
         "summary": "Read queue and reconciliation status",
+        "description": "Admin/Super Admin only with verified privileged session. Private, no-store. Current organisation-wide grouped queue counts; absent queue/status groups have zero rows. Includes latest-started reconciliation, open/investigating anomaly count, oldest 100 unresolved alerts and configured expected worker heartbeats. Missing means no heartbeat; overdue means no successful heartbeat within staleAfterMs. A recent success does not prove a currently live worker or provider delivery. No filters accepted. Read queue and reconciliation status. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -91757,19 +92487,385 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Read queue and reconciliation status.",
                       "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                        "queues": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "queue": {
+                                    "type": "string",
+                                    "enum": [
+                                      "outbox"
+                                    ],
+                                    "description": "Queue validated by this operation's strict request contract."
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PENDING",
+                                      "PROCESSING",
+                                      "PUBLISHED",
+                                      "FAILED",
+                                      "DEAD_LETTER"
+                                    ],
+                                    "description": "Requested or filtered lifecycle state from the documented enum."
+                                  },
+                                  "count": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991,
+                                    "description": "Count validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "queue",
+                                  "status",
+                                  "count"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Queues Item validated by this operation's strict request contract."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "queue": {
+                                    "type": "string",
+                                    "enum": [
+                                      "notification_delivery"
+                                    ],
+                                    "description": "Queue validated by this operation's strict request contract."
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PENDING",
+                                      "PROCESSING",
+                                      "PUBLISHED",
+                                      "FAILED",
+                                      "DEAD_LETTER"
+                                    ],
+                                    "description": "Requested or filtered lifecycle state from the documented enum."
+                                  },
+                                  "count": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991,
+                                    "description": "Count validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "queue",
+                                  "status",
+                                  "count"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Queues Item validated by this operation's strict request contract."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "queue": {
+                                    "type": "string",
+                                    "enum": [
+                                      "payment_webhook"
+                                    ],
+                                    "description": "Queue validated by this operation's strict request contract."
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "RECEIVED",
+                                      "PROCESSING",
+                                      "PROCESSED",
+                                      "FAILED",
+                                      "DEAD_LETTER"
+                                    ],
+                                    "description": "Requested or filtered lifecycle state from the documented enum."
+                                  },
+                                  "count": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991,
+                                    "description": "Count validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "queue",
+                                  "status",
+                                  "count"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Queues Item validated by this operation's strict request contract."
+                              }
+                            ],
+                            "description": "Queues Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 15,
+                          "description": "Queues validated by this operation's strict request contract."
                         },
-                        "status": {
-                          "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                        "openPaymentAnomalies": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991,
+                          "description": "Open Payment Anomalies validated by this operation's strict request contract."
+                        },
+                        "lastReconciliation": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "RUNNING",
+                                "MATCHED",
+                                "DIFFERENCES_FOUND",
+                                "FAILED"
+                              ],
+                              "description": "Requested or filtered lifecycle state from the documented enum."
+                            },
+                            "periodStart": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "Period Start validated by this operation's strict request contract."
+                            },
+                            "periodEnd": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "Period End validated by this operation's strict request contract."
+                            },
+                            "differenceCount": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991,
+                              "description": "Difference Count validated by this operation's strict request contract."
+                            },
+                            "completedAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "startedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "status",
+                            "periodStart",
+                            "periodEnd",
+                            "differenceCount",
+                            "completedAt",
+                            "startedAt"
+                          ],
+                          "additionalProperties": false,
+                          "description": "Last Reconciliation validated by this operation's strict request contract."
+                        },
+                        "workers": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100,
+                                    "description": "Name validated by this operation's strict request contract."
+                                  },
+                                  "staleAfterMs": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991,
+                                    "description": "Stale After Ms validated by this operation's strict request contract."
+                                  },
+                                  "missing": {
+                                    "type": "boolean",
+                                    "enum": [
+                                      true
+                                    ],
+                                    "description": "Missing validated by this operation's strict request contract."
+                                  },
+                                  "overdue": {
+                                    "type": "boolean",
+                                    "enum": [
+                                      true
+                                    ],
+                                    "description": "Overdue validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "staleAfterMs",
+                                  "missing",
+                                  "overdue"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Workers Item validated by this operation's strict request contract."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "maxLength": 100,
+                                    "description": "Name validated by this operation's strict request contract."
+                                  },
+                                  "staleAfterMs": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991,
+                                    "description": "Stale After Ms validated by this operation's strict request contract."
+                                  },
+                                  "missing": {
+                                    "type": "boolean",
+                                    "enum": [
+                                      false
+                                    ],
+                                    "description": "Missing validated by this operation's strict request contract."
+                                  },
+                                  "overdue": {
+                                    "type": "boolean",
+                                    "description": "Overdue validated by this operation's strict request contract."
+                                  },
+                                  "lastStartedAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "lastSucceededAt": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "lastFailedAt": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "errorCode": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "staleAfterMs",
+                                  "missing",
+                                  "overdue",
+                                  "lastStartedAt",
+                                  "lastSucceededAt",
+                                  "lastFailedAt",
+                                  "errorCode"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Workers Item validated by this operation's strict request contract."
+                              }
+                            ],
+                            "description": "Workers Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 9,
+                          "description": "Workers validated by this operation's strict request contract."
+                        },
+                        "operationalAlerts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "key": {
+                                "type": "string",
+                                "description": "Key validated by this operation's strict request contract."
+                              },
+                              "category": {
+                                "type": "string",
+                                "description": "Category validated by this operation's strict request contract."
+                              },
+                              "resourceId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "uuid",
+                                "description": "Identifier of the resource resource; ownership is resolved server-side."
+                              },
+                              "message": {
+                                "type": "string",
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "resolvedAt": {
+                                "type": "null",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "resolvedByUserId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "uuid",
+                                "description": "Identifier of the resolved by user resource; ownership is resolved server-side."
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "key",
+                              "category",
+                              "resourceId",
+                              "message",
+                              "createdAt",
+                              "resolvedAt",
+                              "resolvedByUserId"
+                            ],
+                            "additionalProperties": false,
+                            "description": "Operational Alerts Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 100,
+                          "description": "Operational Alerts validated by this operation's strict request contract."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "queues",
+                        "openPaymentAnomalies",
+                        "lastReconciliation",
+                        "workers",
+                        "operationalAlerts"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -91788,6 +92884,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -91796,8 +92893,43 @@
                   "success": true,
                   "message": "Read queue and reconciliation status",
                   "data": {
-                    "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "queues": [
+                      {
+                        "queue": "outbox",
+                        "status": "PENDING",
+                        "count": 0
+                      }
+                    ],
+                    "openPaymentAnomalies": 0,
+                    "lastReconciliation": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "status": "RUNNING",
+                      "periodStart": "2030-01-15T10:00:00.000Z",
+                      "periodEnd": "2030-01-15T10:00:00.000Z",
+                      "differenceCount": 0,
+                      "completedAt": "2030-01-15T10:00:00.000Z",
+                      "startedAt": "2030-01-15T10:00:00.000Z"
+                    },
+                    "workers": [
+                      {
+                        "name": "synthetic-name",
+                        "staleAfterMs": 0,
+                        "missing": true,
+                        "overdue": true
+                      }
+                    ],
+                    "operationalAlerts": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "key": "synthetic-key",
+                        "category": "synthetic-category",
+                        "resourceId": "00000000-0000-4000-8000-000000000001",
+                        "message": "synthetic-message",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "resolvedAt": "2030-01-15T10:00:00.000Z",
+                        "resolvedByUserId": "00000000-0000-4000-8000-000000000001"
+                      }
+                    ]
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -91948,7 +93080,6 @@
           }
         },
         "operationId": "getAdminOperationsStatus",
-        "description": "Read queue and reconciliation status. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "x-access-boundary": "mfa-verified-admin",
         "x-required-roles": [
           "ADMIN",
@@ -91964,6 +93095,7 @@
           "Audit and operations"
         ],
         "summary": "List failed or leased operational jobs",
+        "description": "Admin/Super Admin only with verified privileged session. Private, no-store. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures and provider credentials are excluded. Every successful read is audited. List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -91973,14 +93105,16 @@
           {
             "schema": {
               "type": "string",
-              "format": "uuid",
+              "minLength": 80,
+              "maxLength": 1024,
+              "pattern": "^[A-Za-z0-9_-]+$",
               "description": "Opaque cursor returned by the previous page."
             },
             "required": false,
             "name": "cursor",
             "in": "query",
             "description": "Opaque cursor returned by the preceding page.",
-            "example": "00000000-0000-4000-8000-000000000001"
+            "example": "synthetic-cursor"
           },
           {
             "schema": {
@@ -92046,41 +93180,217 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Cursor-paginated result for: List failed or leased operational jobs.",
                       "properties": {
                         "items": {
                           "type": "array",
-                          "description": "Authorized resource projections for this page.",
                           "items": {
-                            "type": "object",
-                            "description": "Safe item projection returned by List failed or leased operational jobs.",
-                            "properties": {
-                              "id": {
-                                "type": "string",
-                                "format": "uuid",
-                                "description": "Public or authorized resource identifier."
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "eventType": {
+                                    "type": "string",
+                                    "description": "Event Type validated by this operation's strict request contract."
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "FAILED",
+                                      "DEAD_LETTER",
+                                      "PROCESSING"
+                                    ],
+                                    "description": "Requested or filtered lifecycle state from the documented enum."
+                                  },
+                                  "lockedAt": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "enum": [
+                                      "OUTBOX"
+                                    ],
+                                    "description": "Source validated by this operation's strict request contract."
+                                  },
+                                  "eventId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the event resource; ownership is resolved server-side."
+                                  },
+                                  "aggregateType": {
+                                    "type": "string",
+                                    "description": "Aggregate Type validated by this operation's strict request contract."
+                                  },
+                                  "aggregateId": {
+                                    "type": "string",
+                                    "description": "Identifier of the aggregate resource; ownership is resolved server-side."
+                                  },
+                                  "attempts": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991,
+                                    "description": "Attempts validated by this operation's strict request contract."
+                                  },
+                                  "availableAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "lastError": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Last Error validated by this operation's strict request contract."
+                                  },
+                                  "createdAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "eventType",
+                                  "status",
+                                  "lockedAt",
+                                  "updatedAt",
+                                  "source",
+                                  "eventId",
+                                  "aggregateType",
+                                  "aggregateId",
+                                  "attempts",
+                                  "availableAt",
+                                  "lastError",
+                                  "createdAt"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Items Item validated by this operation's strict request contract."
                               },
-                              "status": {
-                                "type": "string",
-                                "description": "Current server-owned lifecycle state when applicable."
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "eventType": {
+                                    "type": "string",
+                                    "description": "Event Type validated by this operation's strict request contract."
+                                  },
+                                  "status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "FAILED",
+                                      "DEAD_LETTER",
+                                      "PROCESSING"
+                                    ],
+                                    "description": "Requested or filtered lifecycle state from the documented enum."
+                                  },
+                                  "lockedAt": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "updatedAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "source": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PAYMENT_WEBHOOK"
+                                    ],
+                                    "description": "Source validated by this operation's strict request contract."
+                                  },
+                                  "processingAttempts": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 9007199254740991,
+                                    "description": "Processing Attempts validated by this operation's strict request contract."
+                                  },
+                                  "nextAttemptAt": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  },
+                                  "lastErrorCode": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                                  },
+                                  "lastErrorMessage": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                                  },
+                                  "receivedAt": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "eventType",
+                                  "status",
+                                  "lockedAt",
+                                  "updatedAt",
+                                  "source",
+                                  "processingAttempts",
+                                  "nextAttemptAt",
+                                  "lastErrorCode",
+                                  "lastErrorMessage",
+                                  "receivedAt"
+                                ],
+                                "additionalProperties": false,
+                                "description": "Items Item validated by this operation's strict request contract."
                               }
-                            },
-                            "additionalProperties": true
-                          }
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 100,
+                          "description": "Items validated by this operation's strict request contract."
                         },
                         "nextCursor": {
-                          "type": [
-                            "string",
-                            "null"
-                          ],
-                          "format": "uuid",
-                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                          "type": "string",
+                          "minLength": 80,
+                          "maxLength": 1024,
+                          "pattern": "^[A-Za-z0-9_-]+$",
+                          "description": "Next Cursor validated by this operation's strict request contract."
                         }
                       },
                       "required": [
                         "items"
                       ],
-                      "additionalProperties": false
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -92099,6 +93409,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -92110,10 +93421,21 @@
                     "items": [
                       {
                         "id": "00000000-0000-4000-8000-000000000001",
-                        "status": "synthetic-status"
+                        "eventType": "synthetic-eventtype",
+                        "status": "FAILED",
+                        "lockedAt": "2030-01-15T10:00:00.000Z",
+                        "updatedAt": "2030-01-15T10:00:00.000Z",
+                        "source": "OUTBOX",
+                        "eventId": "00000000-0000-4000-8000-000000000001",
+                        "aggregateType": "synthetic-aggregatetype",
+                        "aggregateId": "synthetic-aggregateid",
+                        "attempts": 0,
+                        "availableAt": "2030-01-15T10:00:00.000Z",
+                        "lastError": "synthetic-lasterror",
+                        "createdAt": "2030-01-15T10:00:00.000Z"
                       }
                     ],
-                    "nextCursor": "00000000-0000-4000-8000-000000000001"
+                    "nextCursor": "synthetic-nextcursor"
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -92264,7 +93586,6 @@
           }
         },
         "operationId": "getAdminOperationsJobs",
-        "description": "List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "x-access-boundary": "mfa-verified-admin",
         "x-required-roles": [
           "ADMIN",
@@ -93490,6 +94811,45 @@
                       "type": "string",
                       "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                     },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "outbox",
+                            "webhook"
+                          ],
+                          "description": "Source validated by this operation's strict request contract."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "RETRY_REQUESTED"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "attempts": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 9007199254740991,
+                          "description": "Attempts validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "source",
+                        "status",
+                        "attempts"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Data validated by this operation's strict request contract."
+                    },
                     "meta": {
                       "type": "object",
                       "properties": {
@@ -93502,27 +94862,12 @@
                         "requestId"
                       ],
                       "description": "Meta validated by this operation's strict request contract."
-                    },
-                    "data": {
-                      "type": "object",
-                      "description": "Authorized response projection for: Retry a failed job using optimistic attempt matching.",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "Public or authorized resource identifier."
-                        },
-                        "status": {
-                          "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
-                        }
-                      },
-                      "additionalProperties": true
                     }
                   },
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -93532,7 +94877,9 @@
                   "message": "Retry a failed job using optimistic attempt matching",
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "source": "outbox",
+                    "status": "RETRY_REQUESTED",
+                    "attempts": 0
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -102499,6 +103846,7 @@
           "Owner policy operations"
         ],
         "summary": "Request selected-line cancellation or return; existing active requests retain their original details",
+        "description": "Same 24-hour original-request recovery contract as /returns. Selected items are normalized by order-line ID. Endpoint, kind, reason and quantities must match the original submission. Current ownership is required on every recovery. Request selected-line cancellation or return; existing active requests retain their original details. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -102528,6 +103876,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^aftercare-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -102741,6 +104101,10 @@
                         "refundClockStatus": {
                           "type": "string",
                           "description": "Refund Clock Status validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -102758,7 +104122,8 @@
                         "reviewedAt",
                         "reviewNote",
                         "refundDueAt",
-                        "refundClockStatus"
+                        "refundClockStatus",
+                        "replayed"
                       ],
                       "description": "Data validated by this operation's strict request contract."
                     },
@@ -102813,7 +104178,8 @@
                     "reviewedAt": "2030-01-15T10:00:00.000Z",
                     "reviewNote": "synthetic-reviewnote",
                     "refundDueAt": "2030-01-15T10:00:00.000Z",
-                    "refundClockStatus": "synthetic-refundclockstatus"
+                    "refundClockStatus": "synthetic-refundclockstatus",
+                    "replayed": true
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -103004,13 +104370,12 @@
           }
         },
         "operationId": "postCustomersOrdersByIdAftercare",
-        "description": "Request selected-line cancellation or return; existing active requests retain their original details. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/staff/orders/{id}/aftercare": {
@@ -103489,6 +104854,7 @@
           "Owner policy operations"
         ],
         "summary": "Request a whole-order return for timing and condition review",
+        "description": "Requires an aftercare-v1.<13-digit timestamp>.<UUIDv4> Idempotency-Key. Original normalized body and endpoint are bound to the customer and order for 24 hours. Explicit same-key recovery returns the current owned request, including later rejection, without new audit, request, stock, order or refund changes. Mismatched keys return 409 IDEMPOTENCY_CONFLICT; expired/future keys return 409 IDEMPOTENCY_EXPIRED even after receipt cleanup. Fresh keys retain existing non-rejected same-kind request deduplication. Request a whole-order return for timing and condition review. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -103518,6 +104884,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^aftercare-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -103686,6 +105064,10 @@
                         "refundClockStatus": {
                           "type": "string",
                           "description": "Refund Clock Status validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -103703,7 +105085,8 @@
                         "reviewedAt",
                         "reviewNote",
                         "refundDueAt",
-                        "refundClockStatus"
+                        "refundClockStatus",
+                        "replayed"
                       ],
                       "description": "Data validated by this operation's strict request contract."
                     },
@@ -103758,7 +105141,8 @@
                     "reviewedAt": "2030-01-15T10:00:00.000Z",
                     "reviewNote": "synthetic-reviewnote",
                     "refundDueAt": "2030-01-15T10:00:00.000Z",
-                    "refundClockStatus": "synthetic-refundclockstatus"
+                    "refundClockStatus": "synthetic-refundclockstatus",
+                    "replayed": true
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -103949,13 +105333,12 @@
           }
         },
         "operationId": "postCustomersOrdersByIdReturns",
-        "description": "Request a whole-order return for timing and condition review. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/staff/orders/{id}/fulfillment-evidence": {
