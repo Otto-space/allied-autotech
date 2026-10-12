@@ -26,6 +26,8 @@ import {
   publicEnquiryCreateBodySchema,
   publicReviewListQuerySchema,
   reviewCreateBodySchema,
+  reviewRequestHeadersSchema,
+  reviewSourceListQuerySchema,
   reviewIdParamsSchema,
   reviewModerationBodySchema,
   staffComplaintListQuerySchema,
@@ -67,6 +69,11 @@ export function createCustomerSupportRouter(): Router {
   const router = Router();
   const controller = new SupportController();
   router.use(authenticate(), requireCustomer);
+  router.get(
+    "/review-sources",
+    validate({ query: reviewSourceListQuerySchema }),
+    controller.reviewSources,
+  );
   router.get(
     "/enquiries",
     validate({ query: customerEnquiryListQuerySchema }),
@@ -142,7 +149,11 @@ export function createCustomerSupportRouter(): Router {
     "/reviews",
     requireCsrf,
     createSensitiveRateLimit(10, 60 * 60_000),
-    validate({ body: reviewCreateBodySchema, query: supportEmptyQuerySchema }),
+    validate({
+      body: reviewCreateBodySchema,
+      query: supportEmptyQuerySchema,
+      headers: reviewRequestHeadersSchema,
+    }),
     controller.createReview,
   );
   return router;

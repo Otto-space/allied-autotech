@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+import { disputeRecordSchema } from "../payments/disputes.schemas.js";
 import {
   anomalyListQuerySchema,
   anomalyParamsSchema,
@@ -18,6 +19,27 @@ const envelope = z.object({
   message: z.string(),
   data: z.unknown().optional(),
   meta: z.object({ requestId: z.string() }),
+});
+const disputeOverviewSchema = disputeRecordSchema.pick({
+  id: true,
+  paymentAttemptId: true,
+  provider: true,
+  providerDisputeId: true,
+  status: true,
+  category: true,
+  amountKobo: true,
+  currency: true,
+  chargebackAmountKobo: true,
+  providerStatus: true,
+  providerResolution: true,
+  providerReviewReason: true,
+  providerUpdatedAt: true,
+  responseDueAt: true,
+  openedAt: true,
+  respondedAt: true,
+  resolvedAt: true,
+  hasEvidence: true,
+  updatedAt: true,
 });
 
 export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
@@ -60,7 +82,19 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         "200": {
           description: "Operational data retrieved",
-          content: { "application/json": { schema: envelope } },
+          content: {
+            "application/json": {
+              schema:
+                route.path === "/admin/operations/payment-disputes"
+                  ? envelope.extend({
+                      data: z.object({
+                        items: z.array(disputeOverviewSchema),
+                        nextCursor: z.uuid().optional(),
+                      }),
+                    })
+                  : envelope,
+            },
+          },
         },
       },
     });

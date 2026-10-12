@@ -14,6 +14,9 @@ import {
   publicEnquiryCreateBodySchema,
   publicReviewListQuerySchema,
   reviewCreateBodySchema,
+  reviewRequestHeadersSchema,
+  reviewSourceListQuerySchema,
+  reviewSourcePageSchema,
   reviewIdParamsSchema,
   reviewModerationBodySchema,
   staffComplaintListQuerySchema,
@@ -32,6 +35,31 @@ const response = z.object({
   meta: z.object({ requestId: z.string() }),
 });
 const csrf = z.object({ "x-csrf-token": z.string().min(32) });
+const namedReviewTarget = z
+  .object({ id: z.uuid(), name: z.string(), slug: z.string() })
+  .nullable();
+const reviewSubmission = z.object({
+  id: z.uuid(),
+  targetType: z.enum(["BUSINESS", "PRODUCT", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"]),
+  productId: z.uuid().nullable(),
+  orderItemId: z.uuid().nullable(),
+  serviceId: z.uuid().nullable(),
+  bookingId: z.uuid().nullable(),
+  orderId: z.uuid().nullable(),
+  vehicleTransactionId: z.uuid().nullable(),
+  rating: z.number().int().min(1).max(5),
+  title: z.string().nullable(),
+  comment: z.string(),
+  status: z.enum(["PENDING", "APPROVED", "REJECTED"]),
+  moderationNote: z.string().nullable(),
+  moderatedAt: z.iso.datetime().nullable(),
+  version: z.number().int().nonnegative(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  product: namedReviewTarget,
+  service: namedReviewTarget,
+  replayed: z.boolean(),
+});
 type Route = {
   method: "get" | "post";
   path: string;
@@ -42,10 +70,23 @@ type Route = {
   params?: ZodType;
   mutate?: boolean;
   accepted?: boolean;
+  description?: string;
+  data?: ZodType;
+  headers?: ZodType;
 };
 
 export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
   const routes: Route[] = [
+    {
+      method: "get",
+      path: "/customers/support/review-sources",
+      summary: "List owned completed sources still available for review",
+      description:
+        "Customer-only, private no-store collection. Requires PRODUCT, SERVICE, ORDER or VEHICLE_TRANSACTION targetType; BUSINESS reviews require no source. Excludes sources with any pending, approved or rejected review. Product reviews also exclude every purchase of a product this customer has already reviewed, matching the existing customer/product unique constraint. Product items and whole orders are independent targets. Orders by source UUID ascending, with exclusive UUID cursor and limit 1–50 (default 20). Cursor need not remain eligible or exist; it is only a keyset boundary and grants no record access. Optional sourceId checks one source and cannot be combined with cursor; missing, foreign, incomplete and reviewed sources all return an empty collection. Availability is a current read, not a reservation: POST /customers/support/reviews still validates ownership, completed state and unique source constraints atomically. Responses include only display labels and IDs required for submission, never contacts, financial amounts or internal notes.",
+      query: reviewSourceListQuerySchema,
+      data: reviewSourcePageSchema,
+      security: true,
+    },
     {
       method: "get",
       path: "/public/support/reviews",
@@ -171,6 +212,10 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/customers/support/reviews",
       summary: "Submit an eligible review for moderation",
+      description:
+        "Requires Idempotency-Key review-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Keys are scoped to the authenticated customer and this operation and bind the strictly normalized request body. Both initial success and replay return 201, with replayed false/true respectively. Within 24 hours of key time, original-key/body replay returns the same review ID with its current moderation state and one creation audit; source eligibility is rechecked only for new creation. Changed content conflicts with 409 IDEMPOTENCY_CONFLICT. Keys more than 24 hours old or over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup, and never create a replacement. Receipts store hashes and the resource ID, not review text or credentials. Concurrent same-key requests serialize; database-aborted transactions alone may be retried. Authorization, CSRF, rate limits and source uniqueness still apply to every attempt. Missing or malformed keys return 422. Deploy matching clients; older clients must reload before creating reviews.",
+      data: reviewSubmission,
+      headers: csrf.extend(reviewRequestHeadersSchema.shape),
       body: reviewCreateBodySchema,
       security: true,
       mutate: true,
@@ -297,11 +342,16 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       path: route.path,
       tags: ["Support"],
       summary: route.summary,
+      ...(route.description ? { description: route.description } : {}),
       ...(route.security ? { security: [{ sessionCookie: [] }] } : { security: [] }),
       request: {
         ...(route.params ? { params: route.params as never } : {}),
         ...(route.query ? { query: route.query as never } : {}),
-        ...(route.mutate ? { headers: csrf as never } : {}),
+        ...(route.headers
+          ? { headers: route.headers as never }
+          : route.mutate
+            ? { headers: csrf as never }
+            : {}),
         ...(route.body
           ? {
               body: {
@@ -314,7 +364,11 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         [status]: {
           description: "Request completed",
-          content: { "application/json": { schema: response } },
+          content: {
+            "application/json": {
+              schema: route.data ? response.extend({ data: route.data }) : response,
+            },
+          },
         },
       },
     });

@@ -120,13 +120,76 @@ The four specially isolated cases also passed separately: three owner-provisioni
 - Resolution: constrain Paystack correlation to Paystack attempts, record conflicting observations without rewriting completed refunds, preserve review holds on non-success callbacks, and re-read refund status after provider polling before changing it. Existing approval, ledger uniqueness and database immutability controls remain in place.
 - Verification: 14 initial failures plus three additional hold-case failures reproduced; all 21 focused refund cases pass after repair. Broader results and rollout boundaries are recorded in [refund observation acceptance](backend/docs/refund-observation-integrity.md). No new migration, provider activation, money movement or deployment.
 
-### SEC-026 — Vehicle reservations trusted customer-supplied agreement versions (backend repair implemented)
+### SEC-026 — Vehicle reservations trusted customer-supplied agreement versions (resolved locally; business content pending)
 
 - Severity: Medium (acceptance evidence and reservation-workflow integrity).
 - Evidence: [agreement validation](backend/src/modules/vehicle-sales/reservation-terms.ts), [reservation transaction](backend/src/modules/vehicle-sales/vehicle-sales.service.ts:488), [database safeguards](backend/prisma/migrations/20261011180000_vehicle_reservation_terms/migration.sql), and [HTTP/database cases](backend/tests/integration/reservation-terms.test.ts).
 - Original behavior: a customer could supply any non-empty version string to reserve an agreed vehicle. No published document established what the customer accepted, and the acceptance metadata was not frozen independently of payment activity.
 - Resolution: reuse Super Admin policy publication with immutable approved content, expose an owner-scoped agreement read, validate the current document under a publication lock, link the accepting customer and document, and protect that evidence in PostgreSQL. Retained original-key retries survive later withdrawal while changed requests conflict. Existing historical metadata is preserved without fabricated agreement text.
-- Verification and remaining boundaries: 52-migration replay and an additive upgrade preserving four historical synthetic records passed. Focused agreement/contract/owner-policy checks passed; see [acceptance and rollout](backend/docs/vehicle-reservation-terms.md). Approved business wording, frontend acceptance, browser verification and deployment remain open. No production terms, provider activation or live reservation was created.
+- Verification and remaining boundaries: 52-migration replay and an additive upgrade preserving four historical synthetic records passed. Backend checks and subsequent owner/customer local browser/API/database acceptance passed; see [acceptance and rollout](backend/docs/vehicle-reservation-terms.md). On 12 October the owner confirmed the business agreement remains unapproved. Approved wording and deployment remain open. No production terms, provider activation or live reservation was created.
+
+### SEC-027 — Storage verification and body consumption lacked complete bounds (resolved locally)
+
+- Severity: Medium (availability and safe failure handling for evidence uploads, media reads and cleanup).
+- Evidence: [S3 adapter](backend/src/providers/storage/s3-object-storage.adapter.ts), [complete operation deadline and bounded reader](backend/src/providers/storage/storage-io.ts), [fault-injection tests](backend/tests/unit/storage-io-bounds.test.ts), and [real SDK/loopback HTTP tests](backend/tests/unit/storage-http-bounds.test.ts).
+- Reproduced behavior: private verification had no abort deadline and buffered an entire signature response; a provider ignoring Range could exceed the intended 16 bytes. Managed reads could await cancellation indefinitely and did not cancel a body rejected by Content-Length. Provider/configuration faults were returned as invalid-file results. Eleven new assertions failed against the old code.
+- Resolution: one 20-second deadline covers verification metadata and signature reads, and each managed read/write/delete operation. It aborts transport and bounds caller completion even when the transport or cancellation ignores abort. Reads enforce byte limits before collecting extra chunks and cancel discarded responses. Verification returns false for missing/invalid bytes and safe retryable `PROVIDER_UNAVAILABLE` for outages; media retains its existing error codes. No provider detail is attached to the returned error.
+- Verification: all 48 tests across ten files passed, including fault injection, real SDK/loopback HTTP, private evidence replay, media confirmation/cleanup concurrency, refunds and disputes against isolated PostgreSQL. Backend typecheck/build/lint, affected formatting, secret scanning, OpenAPI validation (266 paths), mounted-route coverage (315 operations plus four infrastructure routes), regenerated frontend contracts and frontend typecheck passed. See [acceptance and rollout](backend/docs/private-storage-availability.md). No migration, real bucket call, configuration change or deployment. A timeout does not prove a remote write/delete failed; callers must retain existing reconciliation and orphan-cleanup behavior.
+
+### SEC-028 — Concurrent refund polls could replace newer retry decisions (resolved locally)
+
+- Severity: Medium (refund workflow integrity and availability).
+- Evidence: [refund worker](backend/src/workers/refund.worker.ts:108), [callback handling](backend/src/modules/payments/payments.service.ts:1272), [additive migration](backend/prisma/migrations/20261012180000_refund_poll_ownership/migration.sql:1), and [PostgreSQL regressions](backend/tests/integration/refund-poll-ownership.test.ts).
+- Reproduced behavior: due refunds were discovered without ownership; overlapping workers could poll the same record and count failures from stale snapshots. A discovered row was still polled after another process rescheduled it. A delayed failure could replace a newer pending observation's schedule and retry count.
+- Resolution: claim each poll with a UUID and expiring UTC lease, recheck eligibility before provider I/O, and verify ownership under the row lock for success/failure writes. Callback decisions revoke older polls. Exhaustion retains counts and protects live claims; new internal claim fields are excluded from API responses. Conflicting observations remain auditable without rewriting settled refunds.
+- Verification: the final 83-case database regression and separate 27-case security/financial-transaction follow-up passed without skips (110 tests across 16 files). All 53 migrations replayed, and an additive upgrade preserved 111 historical synthetic refunds and ledger data. Prisma, typecheck/build/lint, affected formatting, secret scanning, OpenAPI/route coverage and diff checks passed. See [behavior and rollout](backend/docs/refund-poll-ownership.md). No live provider call or deployment is claimed.
+
+### SEC-029 — Batch refund dispatch could bypass a later review hold (resolved locally)
+
+- Severity: High (external money movement after a dispute or review decision).
+- Evidence: [dispatch worker](backend/src/workers/refund.worker.ts:44), [authorization and receipt recording](backend/src/modules/payments/refund-dispatch.ts:14), [dispute ordering](backend/src/modules/payments/payments.service.ts:1481), and [database regressions](backend/tests/integration/refund-dispatch-boundary.test.ts).
+- Reproduced behavior: every batch item was marked as submitted before its network call. Later items were still sent after a dispute or review hold arrived while the first call was waiting. A late successful submission response was discarded after recovery changed the status. All four baseline cases failed.
+- Resolution: claim and recheck each item immediately before submission, order dispute observations against dispatch authorization, refuse expired dispatch windows, retain late receipt identities without releasing review holds, and preserve conflicting identities as anomalies without rebinding another refund. Database retries exclude external provider calls.
+- Verification: the expanded 82-case database regression and final 10-case dispatch run passed without skips (83 unique tests). The added cases prove dispute transaction ordering, expired dispatch refusal, late receipt retention, identity conflict handling and receipt-transaction retry without duplicate provider submission. Backend typecheck/lint/build, formatting, secrets, OpenAPI/route and diff checks passed. See [behavior and rollout](backend/docs/refund-dispatch-boundary.md). No external provider call, application database change or deployment is claimed.
+
+### SEC-030 — Conflicting dispute callbacks could alter another payment's dispute (resolved locally)
+
+- Severity: High (financial correlation and immutable outcome integrity).
+- Evidence: [dispute handler](backend/src/modules/payments/payments.service.ts:1447), [database guard](backend/prisma/migrations/20261012200000_dispute_resolution_integrity/migration.sql:1), and [regressions](backend/tests/integration/dispute-observation-integrity.test.ts).
+- Reproduced behavior: an existing provider dispute ID accepted a status change despite a conflicting payment reference, amount or currency. Later callbacks changed resolved metadata, and the database permitted direct outcome/time rewrites. All 14 baseline cases failed.
+- Resolution: require matching recorded identity before changing an open dispute; retain conflicting observations as anomalies; preserve the first resolved row and ledger; make anomaly retention conditional on webhook transaction ownership; and enforce resolved outcome/time immutability in PostgreSQL.
+- Verification: the 127-case regression and final 17-case dispute run passed without skips (128 unique tests). All 54 migrations replayed, and an additive upgrade preserved 12 historical synthetic disputes plus ledger data. Typecheck/lint/build, formatting, secrets, OpenAPI/route coverage and diff checks passed. See [acceptance and remaining provider work](backend/docs/dispute-observation-integrity.md). BG-12 provider payload/status normalization is addressed by SEC-031 below; deployed acceptance remains open.
+
+### SEC-031 - Paystack dispute contract could reject real events or overstate a partial loss (resolved locally)
+
+- Severity: High (financial amount and provider-state integrity).
+- Evidence: [provider normalization](backend/src/providers/payments/paystack-dispute.ts), [adapter](backend/src/providers/payments/paystack.adapter.ts), [signed HTTP tests](backend/tests/integration/paystack-dispute-contract.test.ts), and [acceptance record](backend/docs/paystack-dispute-contract.md).
+- Resolution: fetch every raw dispute event and durable retry from the authenticated provider API, validate environment and capture identity, map documented provider states, preserve ambiguous resolutions for review, and record only the confirmed chargeback amount. Changed reminders receive distinct receipt identities. Stale observations and resolved conflicts cannot overwrite financial history. The database additionally protects resolved chargeback amounts.
+- Verification: 154 backend regression cases plus a final 41-case run (159 unique cases), six frontend unit cases, 14 browser scenarios, 55-migration replay and an upgrade preserving 12 disputes and 52 ledger entries passed. Provider test/live acceptance and deployment remain required. Unknown provider outcomes remain under review; merchant decline is not treated as a win.
+
+### SEC-032 - Provider body buffering and cancellation could exhaust resources (resolved locally)
+
+- Severity: Medium; availability impact depends on a slow, malformed or faulty upstream transport.
+- Evidence: [shared HTTP guard](backend/src/providers/provider-http.ts:2), [bounded byte reader](backend/src/providers/provider-http.ts:47), [adversarial regressions](backend/tests/unit/provider-http-bounds.test.ts), and [real HTTP tests](backend/tests/unit/provider-http-loopback.test.ts).
+- Reproduced behavior: all eight initial cases failed. Payment adapters buffered complete bodies before checking their limit, and messaging adapters could wait indefinitely on cancellation after headers. A transport ignoring abort also kept callers pending.
+- Resolution: independent request deadline plus abort, streaming decoded-byte limits, non-blocking cancellation, late-header disposal and shared adoption across Paystack, Monnify, Resend and Termii. No request retries or provider activation changes were introduced.
+- Verification: 36 focused transport cases within a 154-case, 14-file regression passed without skips. Typecheck, lint, build, formatting, secrets, OpenAPI/route coverage and diff checks passed. See [acceptance and rollout](backend/docs/provider-http-availability.md). Staging provider acceptance and the broader audit remain open.
+
+### SEC-033 - Raw exceptions and request paths exposed private values in logs (resolved locally)
+
+- Severity: High (credential and personal-data confidentiality in operational logs).
+- Evidence: [safe error projection](backend/src/common/observability/safe-error.ts:78), [logger serializer and hook](backend/src/common/observability/logger.ts:7), [HTTP error boundary](backend/src/common/middleware/error-handler.ts:19), and [emitted-log regressions](backend/tests/api/logging-privacy.test.ts).
+- Reproduced behavior: all 11 baseline cases failed. Default serialization retained request bodies, Prisma invocation text, nested provider causes, arbitrary exception fields and raw URL values. Character-shape checks also accepted arbitrary error names/codes.
+- Resolution: safe metadata projection at the HTTP boundary and logger sinks, fixed implicit error messages, recognized metadata allowlists, preserved migration guidance and matched route templates instead of raw paths. Existing request IDs, timing, statuses, worker diagnostics and field redaction remain available.
+- Verification: 16 log privacy cases within 135 tests across 12 files passed with no skips. Typecheck, lint, build, formatting, secret scan, OpenAPI/route coverage and diff checks passed. See [acceptance and rollout](backend/docs/logging-privacy.md). Historical logs and deployment were not modified.
+
+### SEC-034 - Profile updates lacked conflict checks and retained old phone verification (resolved locally)
+
+- Severity: Medium (contact-data and verification-status integrity; no phone-based authentication bypass is claimed).
+- Evidence: [profile update](backend/src/modules/customers/customers.repository.ts), [request contract](backend/src/modules/customers/customers.schemas.ts), [database guard](backend/prisma/migrations/20261013100000_customer_profile_revision/migration.sql) and [database/HTTP regressions](backend/tests/integration/profile-revision.test.ts).
+- Source review: profile text writes matched only the owner and had no revision precondition. Replacing the phone did not clear its previous verification timestamp.
+- Resolution: required owned-profile revision, atomic compare/increment with transactional audit, explicit stale-write rejection, independent media revisions and phone-change verification invalidation. Browser drafts retain their original revision and require saved-value review after conflicts or uncertain outcomes, including after reload.
+- Verification: 21 new cases within 74 unique passing backend regressions, 430 frontend unit tests, fresh 56-migration replay and an upgrade preserving 5,347 existing synthetic profiles. Real browser/API conflict and dropped-response recovery passed. See [acceptance and rollout](backend/docs/customer-profile-revisions.md). Deployed verification remains open; older unversioned API writers must be drained.
 
 ## Historical application review — 10 September 2026
 
@@ -204,7 +267,6 @@ OAuth, Google sign-in, and JWT access tokens were not added. They are not needed
 ## Verification record
 
 The release gate includes migration replay from an empty PostgreSQL database, Prisma validation/status, strict TypeScript compilation, lint and formatting checks, OpenAPI generation/validation, unit/API/integration/security tests, current-tree and history secret scans, `git diff --check`, production builds, and container smoke tests. Results and any environment-dependent exclusions are recorded in `backend/docs/backend-completion-staging-readiness.md`.
-
 
 ## Service discovery security verification - 9 October 2026
 

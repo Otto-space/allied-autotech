@@ -28,4 +28,4 @@ Backend typecheck, lint, build and affected-file formatting passed. OpenAPI vali
 
 Deploy the API and general workers together after draining older processes. This change has not been deployed. It adds no endpoint or response field; webhook descriptions document the behavior in the generated API artifacts.
 
-Review historical failed callbacks and anomalies against provider evidence before requesting any retry. This repair does not rewrite financial history or reset retry budgets. Live provider acceptance, overlapping reconciliation retry scheduling and historical stranded notification recovery remain separate work. Existing owner policy and disabled Monnify configuration remain unchanged.
+Review historical failed callbacks and anomalies against provider evidence before requesting any retry. This repair does not rewrite financial history or reset retry budgets. [SEC-028](refund-poll-ownership.md) subsequently repairs overlapping reconciliation ownership and retry scheduling. Live provider acceptance and historical stranded notification recovery remain separate work. Existing owner policy and disabled Monnify configuration remain unchanged.

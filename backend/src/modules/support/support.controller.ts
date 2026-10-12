@@ -15,6 +15,7 @@ import type {
   PublicEnquiryInput,
   PublicReviewListQuery,
   ReviewCreateInput,
+  ReviewSourceListQuery,
   ReviewModerationInput,
   StaffComplaintListQuery,
   StaffEnquiryListQuery,
@@ -25,8 +26,10 @@ import type {
 } from "./support.schemas.js";
 import { supportService, type SupportService } from "./support.service.js";
 
-const validated = <T>(response: Response, location: "body" | "params" | "query") =>
-  response.locals.validated?.[location] as T;
+const validated = <T>(
+  response: Response,
+  location: "body" | "params" | "query" | "headers",
+) => response.locals.validated?.[location] as T;
 const actor = (request: Request) => request.actor as AuthenticatedActor;
 const context = (request: Request): RequestSecurityContext => ({
   requestId: String(request.id),
@@ -217,6 +220,20 @@ export class SupportController {
           ),
         ),
       );
+  reviewSources = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Available review sources retrieved",
+          req.id,
+          await this.service.reviewSources(
+            actor(req),
+            validated<ReviewSourceListQuery>(res, "query"),
+          ),
+        ),
+      );
+
   createReview = async (req: Request, res: Response) =>
     res
       .status(201)
@@ -228,6 +245,7 @@ export class SupportController {
             actor(req),
             validated<ReviewCreateInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key": string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );

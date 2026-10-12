@@ -456,7 +456,7 @@ function addErrorResponses(
     const unavailable = responses["503"];
     if (isObject(unavailable))
       unavailable["description"] =
-        `${String(unavailable["description"])} PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.`;
+        `${String(unavailable["description"])} PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.`;
   }
 }
 

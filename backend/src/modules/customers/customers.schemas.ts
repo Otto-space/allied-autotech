@@ -29,6 +29,7 @@ const nullableText = (maximum: number) => cleanText(maximum).nullable();
 
 export const customerProfileUpdateBodySchema = z
   .object({
+    expectedVersion: z.number().int().min(0).max(2_147_483_646),
     firstName: name.optional(),
     lastName: name.optional(),
     phone: phone.optional(),
@@ -38,7 +39,10 @@ export const customerProfileUpdateBodySchema = z
     country: z.literal("Nigeria").optional(),
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required");
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedVersion"),
+    "At least one profile field is required",
+  );
 
 const vehicleFields = {
   make: cleanText(80),

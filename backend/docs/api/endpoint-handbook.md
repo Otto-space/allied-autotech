@@ -2403,7 +2403,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/profile`
 
 - Operation ID: `getCustomersProfile`
-- Purpose: Get own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Customer owner only. Profile text has its own profileVersion, independent of mediaVersion. PATCH requires expectedVersion from the owned profile read and at least one editable field. The update, revision increment and changed-field audit commit atomically. A stale version returns 409 STALE_VERSION without changes. Missing versions return 422; there is no unversioned update bypass. Changing the phone clears its previous verification. Optional address/city/state accept null. On a lost response, GET and explicitly review saved details before another update; automatic replay is not supported. Deploy the additive profile-version migration and matching backend/frontend together. Get own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -2433,6 +2433,7 @@ Success: HTTP 200.
       "email": "customer@example.test"
     },
     "mediaVersion": 1,
+    "profileVersion": 0,
     "photo": {
       "id": "00000000-0000-4000-8000-000000000001",
       "url": "https://example.test/continue",
@@ -2454,7 +2455,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/customers/profile`
 
 - Operation ID: `patchCustomersProfile`
-- Purpose: Update own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Customer owner only. Profile text has its own profileVersion, independent of mediaVersion. PATCH requires expectedVersion from the owned profile read and at least one editable field. The update, revision increment and changed-field audit commit atomically. A stale version returns 409 STALE_VERSION without changes. Missing versions return 422; there is no unversioned update bypass. Changing the phone clears its previous verification. Optional address/city/state accept null. On a lost response, GET and explicitly review saved details before another update; automatic replay is not supported. Deploy the additive profile-version migration and matching backend/frontend together. Update own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -2470,6 +2471,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `firstName` | string | No | First Name validated by this operation's strict request contract. |
 | `lastName` | string | No | Last Name validated by this operation's strict request contract. |
 | `phone` | string | No | Customer or business phone number in international format. |
@@ -2482,6 +2484,7 @@ Synthetic request example:
 
 ```json
 {
+  "expectedVersion": 0,
   "firstName": "synthetic-firstname",
   "lastName": "synthetic-lastname",
   "phone": "+2348000000000",
@@ -2516,6 +2519,7 @@ Success: HTTP 200.
       "email": "customer@example.test"
     },
     "mediaVersion": 1,
+    "profileVersion": 0,
     "photo": {
       "id": "00000000-0000-4000-8000-000000000001",
       "url": "https://example.test/continue",
@@ -5120,7 +5124,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/customers/payments/{paymentId}/manual-evidence/upload`
 
@@ -5172,7 +5176,51 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
+
+### GET `/customers/support/review-sources`
+
+- Operation ID: `getCustomersSupportReviewSources`
+- Purpose: Customer-only, private no-store collection. Requires PRODUCT, SERVICE, ORDER or VEHICLE_TRANSACTION targetType; BUSINESS reviews require no source. Excludes sources with any pending, approved or rejected review. Product reviews also exclude every purchase of a product this customer has already reviewed, matching the existing customer/product unique constraint. Product items and whole orders are independent targets. Orders by source UUID ascending, with exclusive UUID cursor and limit 1–50 (default 20). Cursor need not remain eligible or exist; it is only a keyset boundary and grants no record access. Optional sourceId checks one source and cannot be combined with cursor; missing, foreign, incomplete and reviewed sources all return an empty collection. Availability is a current read, not a reservation: POST /customers/support/reviews still validates ownership, completed state and unique source constraints atomically. Responses include only display labels and IDs required for submission, never contacts, financial amounts or internal notes. List owned completed sources still available for review. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `targetType` | query | PRODUCT / SERVICE / ORDER / VEHICLE_TRANSACTION | Yes | Target Type used to constrain this request. |
+| `sourceId` | query | string (uuid) | No | Source Id used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List owned completed sources still available for review",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "label": "synthetic-label",
+        "targetType": "PRODUCT",
+        "productId": "00000000-0000-4000-8000-000000000001",
+        "orderItemId": "00000000-0000-4000-8000-000000000001"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/customers/support/enquiries/{supportId}/messages`
 
@@ -5640,17 +5688,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/support/reviews`
 
 - Operation ID: `postCustomersSupportReviews`
-- Purpose: Submit an eligible review for moderation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires Idempotency-Key review-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Keys are scoped to the authenticated customer and this operation and bind the strictly normalized request body. Both initial success and replay return 201, with replayed false/true respectively. Within 24 hours of key time, original-key/body replay returns the same review ID with its current moderation state and one creation audit; source eligibility is rechecked only for new creation. Changed content conflicts with 409 IDEMPOTENCY_CONFLICT. Keys more than 24 hours old or over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup, and never create a replacement. Receipts store hashes and the resource ID, not review text or credentials. Concurrent same-key requests serialize; database-aborted transactions alone may be retried. Authorization, CSRF, rate limits and source uniqueness still apply to every attempt. Missing or malformed keys return 422. Deploy matching clients; older clients must reload before creating reviews. Submit an eligible review for moderation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
-- Idempotency: Not required
+- Idempotency: Required in `Idempotency-Key`
 
 Parameters:
 
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 Synthetic request example:
 
@@ -5671,7 +5720,33 @@ Success: HTTP 201.
   "message": "Submit an eligible review for moderation",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "targetType": "BUSINESS",
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "orderItemId": "00000000-0000-4000-8000-000000000001",
+    "serviceId": "00000000-0000-4000-8000-000000000001",
+    "bookingId": "00000000-0000-4000-8000-000000000001",
+    "orderId": "00000000-0000-4000-8000-000000000001",
+    "vehicleTransactionId": "00000000-0000-4000-8000-000000000001",
+    "rating": 1,
+    "title": "synthetic-title",
+    "comment": "synthetic-comment",
+    "status": "PENDING",
+    "moderationNote": "synthetic-moderationnote",
+    "moderatedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "product": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug"
+    },
+    "service": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug"
+    },
+    "replayed": true
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -8357,7 +8432,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/vehicles/{vehicleId}/images`
 
@@ -8624,7 +8699,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/vehicles/{vehicleId}/condition-reports`
 
@@ -8684,7 +8759,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/vehicles/{vehicleId}/documents/{documentId}/review`
 
@@ -8772,7 +8847,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### GET `/staff/vehicle-inspections`
 
@@ -9107,7 +9182,7 @@ Success: HTTP 201.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/vehicle-transactions/{transactionId}/handovers/{handoverId}/status`
 
@@ -9193,7 +9268,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### GET `/staff/payments`
 
@@ -9319,7 +9394,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/payments/refunds`
 
@@ -11077,7 +11152,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/refunds/{refundId}/transfer`
 
@@ -11141,7 +11216,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/refunds/{refundId}/evidence-access`
 
@@ -11194,7 +11269,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/refunds/{refundId}/check`
 
@@ -11287,6 +11362,11 @@ Success: HTTP 200.
         "status": "AWAITING_RESPONSE",
         "category": "NOT_RECOGNIZED",
         "amountKobo": "300000",
+        "chargebackAmountKobo": "300000",
+        "providerStatus": "synthetic-providerstatus",
+        "providerResolution": "synthetic-providerresolution",
+        "providerReviewReason": "synthetic-providerreviewreason",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
         "currency": "NGN",
         "openedAt": "2030-01-15T10:00:00.000Z",
         "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -11368,6 +11448,11 @@ Success: HTTP 200.
     "status": "AWAITING_RESPONSE",
     "category": "NOT_RECOGNIZED",
     "amountKobo": "300000",
+    "chargebackAmountKobo": "300000",
+    "providerStatus": "synthetic-providerstatus",
+    "providerResolution": "synthetic-providerresolution",
+    "providerReviewReason": "synthetic-providerreviewreason",
+    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
     "currency": "NGN",
     "openedAt": "2030-01-15T10:00:00.000Z",
     "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -11444,6 +11529,11 @@ Success: HTTP 200.
     "status": "AWAITING_RESPONSE",
     "category": "NOT_RECOGNIZED",
     "amountKobo": "300000",
+    "chargebackAmountKobo": "300000",
+    "providerStatus": "synthetic-providerstatus",
+    "providerResolution": "synthetic-providerresolution",
+    "providerReviewReason": "synthetic-providerreviewreason",
+    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
     "currency": "NGN",
     "openedAt": "2030-01-15T10:00:00.000Z",
     "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -11529,7 +11619,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/disputes/{id}/evidence`
 
@@ -11585,6 +11675,11 @@ Success: HTTP 200.
     "status": "AWAITING_RESPONSE",
     "category": "NOT_RECOGNIZED",
     "amountKobo": "300000",
+    "chargebackAmountKobo": "300000",
+    "providerStatus": "synthetic-providerstatus",
+    "providerResolution": "synthetic-providerresolution",
+    "providerReviewReason": "synthetic-providerreviewreason",
+    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
     "currency": "NGN",
     "openedAt": "2030-01-15T10:00:00.000Z",
     "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -11613,7 +11708,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/disputes/{id}/evidence-access`
 
@@ -11658,7 +11753,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.
 
 ### POST `/staff/disputes/{id}/submission`
 
@@ -11710,6 +11805,11 @@ Success: HTTP 200.
     "status": "AWAITING_RESPONSE",
     "category": "NOT_RECOGNIZED",
     "amountKobo": "300000",
+    "chargebackAmountKobo": "300000",
+    "providerStatus": "synthetic-providerstatus",
+    "providerResolution": "synthetic-providerresolution",
+    "providerReviewReason": "synthetic-providerreviewreason",
+    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
     "currency": "NGN",
     "openedAt": "2030-01-15T10:00:00.000Z",
     "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -14883,7 +14983,24 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "paymentAttemptId": "00000000-0000-4000-8000-000000000001",
+        "provider": "PAYSTACK",
+        "providerDisputeId": "synthetic-providerdisputeid",
+        "status": "AWAITING_RESPONSE",
+        "category": "NOT_RECOGNIZED",
+        "amountKobo": "300000",
+        "currency": "NGN",
+        "chargebackAmountKobo": "300000",
+        "providerStatus": "synthetic-providerstatus",
+        "providerResolution": "synthetic-providerresolution",
+        "providerReviewReason": "synthetic-providerreviewreason",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
+        "responseDueAt": "2030-01-15T10:00:00.000Z",
+        "openedAt": "2030-01-15T10:00:00.000Z",
+        "respondedAt": "2030-01-15T10:00:00.000Z",
+        "resolvedAt": "2030-01-15T10:00:00.000Z",
+        "hasEvidence": true,
+        "updatedAt": "2030-01-15T10:00:00.000Z"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"

@@ -316,6 +316,7 @@
                   "NOT_FOUND",
                   "CONFLICT",
                   "IDEMPOTENCY_CONFLICT",
+                  "IDEMPOTENCY_EXPIRED",
                   "PAYMENT_ATTEMPT_PENDING",
                   "PAYMENT_TARGET_PENDING",
                   "INSUFFICIENT_STOCK",
@@ -6332,6 +6333,7 @@
           "Customers"
         ],
         "summary": "Get own customer profile",
+        "description": "Customer owner only. Profile text has its own profileVersion, independent of mediaVersion. PATCH requires expectedVersion from the owned profile read and at least one editable field. The update, revision increment and changed-field audit commit atomically. A stale version returns 409 STALE_VERSION without changes. Missing versions return 422; there is no unversioned update bypass. Changing the phone clears its previous verification. Optional address/city/state accept null. On a lost response, GET and explicitly review saved details before another update; automatic replay is not supported. Deploy the additive profile-version migration and matching backend/frontend together. Get own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -6446,6 +6448,11 @@
                           "type": "integer",
                           "description": "Media Version validated by this operation's strict request contract."
                         },
+                        "profileVersion": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Profile Version validated by this operation's strict request contract."
+                        },
                         "photo": {
                           "type": [
                             "object",
@@ -6512,6 +6519,7 @@
                         "updatedAt",
                         "user",
                         "mediaVersion",
+                        "profileVersion",
                         "photo"
                       ],
                       "description": "Data validated by this operation's strict request contract."
@@ -6559,6 +6567,7 @@
                       "email": "customer@example.test"
                     },
                     "mediaVersion": 1,
+                    "profileVersion": 0,
                     "photo": {
                       "id": "00000000-0000-4000-8000-000000000001",
                       "url": "https://example.test/continue",
@@ -6718,7 +6727,6 @@
           }
         },
         "operationId": "getCustomersProfile",
-        "description": "Get own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -6731,6 +6739,7 @@
           "Customers"
         ],
         "summary": "Update own customer profile",
+        "description": "Customer owner only. Profile text has its own profileVersion, independent of mediaVersion. PATCH requires expectedVersion from the owned profile read and at least one editable field. The update, revision increment and changed-field audit commit atomically. A stale version returns 409 STALE_VERSION without changes. Missing versions return 422; there is no unversioned update bypass. Changing the phone clears its previous verification. Optional address/city/state accept null. On a lost response, GET and explicitly review saved details before another update; automatic replay is not supported. Deploy the additive profile-version migration and matching backend/frontend together. Update own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -6757,6 +6766,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483646,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
                   "firstName": {
                     "type": "string",
                     "minLength": 1,
@@ -6813,10 +6828,14 @@
                     "description": "Country validated by this operation's strict request contract."
                   }
                 },
+                "required": [
+                  "expectedVersion"
+                ],
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
+                "expectedVersion": 0,
                 "firstName": "synthetic-firstname",
                 "lastName": "synthetic-lastname",
                 "phone": "+2348000000000",
@@ -6937,6 +6956,11 @@
                           "type": "integer",
                           "description": "Media Version validated by this operation's strict request contract."
                         },
+                        "profileVersion": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Profile Version validated by this operation's strict request contract."
+                        },
                         "photo": {
                           "type": [
                             "object",
@@ -7003,6 +7027,7 @@
                         "updatedAt",
                         "user",
                         "mediaVersion",
+                        "profileVersion",
                         "photo"
                       ],
                       "description": "Data validated by this operation's strict request contract."
@@ -7050,6 +7075,7 @@
                       "email": "customer@example.test"
                     },
                     "mediaVersion": 1,
+                    "profileVersion": 0,
                     "photo": {
                       "id": "00000000-0000-4000-8000-000000000001",
                       "url": "https://example.test/continue",
@@ -7229,7 +7255,6 @@
           }
         },
         "operationId": "patchCustomersProfile",
-        "description": "Update own customer profile. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -64528,7 +64553,7 @@
             }
           },
           "503": {
-            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -66225,7 +66250,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -66613,7 +66638,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -67274,7 +67299,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -71818,7 +71843,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -72473,7 +72498,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -75063,7 +75088,7 @@
             }
           },
           "503": {
-            "description": "A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -75402,7 +75427,7 @@
             }
           },
           "503": {
-            "description": "A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -76361,7 +76386,7 @@
             }
           },
           "503": {
-            "description": "A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required provider or database is temporarily unavailable. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -77510,6 +77535,452 @@
         "x-access-boundary": "provider-webhook",
         "x-required-roles": [
           "PAYMENT_PROVIDER"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/customers/support/review-sources": {
+      "get": {
+        "tags": [
+          "Support"
+        ],
+        "summary": "List owned completed sources still available for review",
+        "description": "Customer-only, private no-store collection. Requires PRODUCT, SERVICE, ORDER or VEHICLE_TRANSACTION targetType; BUSINESS reviews require no source. Excludes sources with any pending, approved or rejected review. Product reviews also exclude every purchase of a product this customer has already reviewed, matching the existing customer/product unique constraint. Product items and whole orders are independent targets. Orders by source UUID ascending, with exclusive UUID cursor and limit 1–50 (default 20). Cursor need not remain eligible or exist; it is only a keyset boundary and grants no record access. Optional sourceId checks one source and cannot be combined with cursor; missing, foreign, incomplete and reviewed sources all return an empty collection. Availability is a current read, not a reservation: POST /customers/support/reviews still validates ownership, completed state and unique source constraints atomically. Responses include only display labels and IDs required for submission, never contacts, financial amounts or internal notes. List owned completed sources still available for review. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": 1
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PRODUCT",
+                "SERVICE",
+                "ORDER",
+                "VEHICLE_TRANSACTION"
+              ],
+              "description": "Target Type validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "targetType",
+            "in": "query",
+            "description": "Target Type used to constrain this request.",
+            "example": "PRODUCT"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the source resource; ownership is resolved server-side."
+            },
+            "required": false,
+            "name": "sourceId",
+            "in": "query",
+            "description": "Source Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: List owned completed sources still available for review.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "label": {
+                                    "type": "string",
+                                    "description": "Label validated by this operation's strict request contract."
+                                  },
+                                  "targetType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PRODUCT"
+                                    ],
+                                    "description": "Target Type validated by this operation's strict request contract."
+                                  },
+                                  "productId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the product resource; ownership is resolved server-side."
+                                  },
+                                  "orderItemId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the order item resource; ownership is resolved server-side."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "label",
+                                  "targetType",
+                                  "productId",
+                                  "orderItemId"
+                                ],
+                                "description": "Items Item validated by this operation's strict request contract."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "label": {
+                                    "type": "string",
+                                    "description": "Label validated by this operation's strict request contract."
+                                  },
+                                  "targetType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "SERVICE"
+                                    ],
+                                    "description": "Target Type validated by this operation's strict request contract."
+                                  },
+                                  "serviceId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the service resource; ownership is resolved server-side."
+                                  },
+                                  "bookingId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the booking resource; ownership is resolved server-side."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "label",
+                                  "targetType",
+                                  "serviceId",
+                                  "bookingId"
+                                ],
+                                "description": "Items Item validated by this operation's strict request contract."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "label": {
+                                    "type": "string",
+                                    "description": "Label validated by this operation's strict request contract."
+                                  },
+                                  "targetType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "ORDER"
+                                    ],
+                                    "description": "Target Type validated by this operation's strict request contract."
+                                  },
+                                  "orderId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the order resource; ownership is resolved server-side."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "label",
+                                  "targetType",
+                                  "orderId"
+                                ],
+                                "description": "Items Item validated by this operation's strict request contract."
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "label": {
+                                    "type": "string",
+                                    "description": "Label validated by this operation's strict request contract."
+                                  },
+                                  "targetType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "VEHICLE_TRANSACTION"
+                                    ],
+                                    "description": "Target Type validated by this operation's strict request contract."
+                                  },
+                                  "vehicleTransactionId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the vehicle transaction resource; ownership is resolved server-side."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "label",
+                                  "targetType",
+                                  "vehicleTransactionId"
+                                ],
+                                "description": "Items Item validated by this operation's strict request contract."
+                              }
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "description": "Items validated by this operation's strict request contract."
+                        },
+                        "nextCursor": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Next Cursor validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "List owned completed sources still available for review",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "label": "synthetic-label",
+                        "targetType": "PRODUCT",
+                        "productId": "00000000-0000-4000-8000-000000000001",
+                        "orderItemId": "00000000-0000-4000-8000-000000000001"
+                      }
+                    ],
+                    "nextCursor": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "A valid session and required assurance are missing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A valid session and required assurance are missing.",
+                  "error": {
+                    "code": "UNAUTHORIZED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The actor is not authorized for this resource or action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The actor is not authorized for this resource or action.",
+                  "error": {
+                    "code": "FORBIDDEN"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getCustomersSupportReviewSources",
+        "x-access-boundary": "authenticated-customer",
+        "x-required-roles": [
+          "CUSTOMER"
         ],
         "x-csrf-required": false,
         "x-idempotency-required": false
@@ -83328,6 +83799,7 @@
           "Support"
         ],
         "summary": "Submit an eligible review for moderation",
+        "description": "Requires Idempotency-Key review-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Keys are scoped to the authenticated customer and this operation and bind the strictly normalized request body. Both initial success and replay return 201, with replayed false/true respectively. Within 24 hours of key time, original-key/body replay returns the same review ID with its current moderation state and one creation audit; source eligibility is rechecked only for new creation. Changed content conflicts with 409 IDEMPOTENCY_CONFLICT. Keys more than 24 hours old or over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup, and never create a replacement. Receipts store hashes and the resource ID, not review text or credentials. Concurrent same-key requests serialize; database-aborted transactions alone may be retried. Authorization, CSRF, rate limits and source uniqueness still apply to every attempt. Missing or malformed keys return 422. Deploy matching clients; older clients must reload before creating reviews. Submit an eligible review for moderation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -83345,6 +83817,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^review-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -83604,19 +84088,209 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Submit an eligible review for moderation.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "targetType": {
+                          "type": "string",
+                          "enum": [
+                            "BUSINESS",
+                            "PRODUCT",
+                            "SERVICE",
+                            "ORDER",
+                            "VEHICLE_TRANSACTION"
+                          ],
+                          "description": "Target Type validated by this operation's strict request contract."
+                        },
+                        "productId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the product resource; ownership is resolved server-side."
+                        },
+                        "orderItemId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the order item resource; ownership is resolved server-side."
+                        },
+                        "serviceId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the service resource; ownership is resolved server-side."
+                        },
+                        "bookingId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the booking resource; ownership is resolved server-side."
+                        },
+                        "orderId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the order resource; ownership is resolved server-side."
+                        },
+                        "vehicleTransactionId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the vehicle transaction resource; ownership is resolved server-side."
+                        },
+                        "rating": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 5,
+                          "description": "Whole-number customer rating from 1 (lowest) to 5 (highest)."
+                        },
+                        "title": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "comment": {
+                          "type": "string",
+                          "description": "Comment validated by this operation's strict request contract."
                         },
                         "status": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "enum": [
+                            "PENDING",
+                            "APPROVED",
+                            "REJECTED"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "moderationNote": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "moderatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Version validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "product": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "slug": {
+                              "type": "string",
+                              "description": "Slug validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "slug"
+                          ],
+                          "description": "Product validated by this operation's strict request contract."
+                        },
+                        "service": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "slug": {
+                              "type": "string",
+                              "description": "Slug validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "slug"
+                          ],
+                          "description": "Service validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "id",
+                        "targetType",
+                        "productId",
+                        "orderItemId",
+                        "serviceId",
+                        "bookingId",
+                        "orderId",
+                        "vehicleTransactionId",
+                        "rating",
+                        "title",
+                        "comment",
+                        "status",
+                        "moderationNote",
+                        "moderatedAt",
+                        "version",
+                        "createdAt",
+                        "updatedAt",
+                        "product",
+                        "service",
+                        "replayed"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -83635,6 +84309,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -83644,7 +84319,33 @@
                   "message": "Submit an eligible review for moderation",
                   "data": {
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "targetType": "BUSINESS",
+                    "productId": "00000000-0000-4000-8000-000000000001",
+                    "orderItemId": "00000000-0000-4000-8000-000000000001",
+                    "serviceId": "00000000-0000-4000-8000-000000000001",
+                    "bookingId": "00000000-0000-4000-8000-000000000001",
+                    "orderId": "00000000-0000-4000-8000-000000000001",
+                    "vehicleTransactionId": "00000000-0000-4000-8000-000000000001",
+                    "rating": 1,
+                    "title": "synthetic-title",
+                    "comment": "synthetic-comment",
+                    "status": "PENDING",
+                    "moderationNote": "synthetic-moderationnote",
+                    "moderatedAt": "2030-01-15T10:00:00.000Z",
+                    "version": 0,
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "updatedAt": "2030-01-15T10:00:00.000Z",
+                    "product": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "synthetic-name",
+                      "slug": "synthetic-slug"
+                    },
+                    "service": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "synthetic-name",
+                      "slug": "synthetic-slug"
+                    },
+                    "replayed": true
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -83815,13 +84516,12 @@
           }
         },
         "operationId": "postCustomersSupportReviews",
-        "description": "Submit an eligible review for moderation. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/staff/support/enquiries": {
@@ -91675,41 +92375,183 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Cursor-paginated result for: List payment disputes without private evidence keys.",
                       "properties": {
                         "items": {
                           "type": "array",
-                          "description": "Authorized resource projections for this page.",
                           "items": {
                             "type": "object",
-                            "description": "Safe item projection returned by List payment disputes without private evidence keys.",
                             "properties": {
                               "id": {
                                 "type": "string",
                                 "format": "uuid",
-                                "description": "Public or authorized resource identifier."
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
+                              },
+                              "paymentAttemptId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Identifier of the payment attempt resource; ownership is resolved server-side."
+                              },
+                              "provider": {
+                                "type": "string",
+                                "enum": [
+                                  "PAYSTACK",
+                                  "MONNIFY",
+                                  "MANUAL"
+                                ],
+                                "description": "Provider validated by this operation's strict request contract."
+                              },
+                              "providerDisputeId": {
+                                "type": "string",
+                                "description": "Identifier of the provider dispute resource; ownership is resolved server-side."
                               },
                               "status": {
                                 "type": "string",
-                                "description": "Current server-owned lifecycle state when applicable."
+                                "enum": [
+                                  "AWAITING_RESPONSE",
+                                  "UNDER_REVIEW",
+                                  "WON",
+                                  "LOST",
+                                  "ACCEPTED",
+                                  "EXPIRED"
+                                ],
+                                "description": "Requested or filtered lifecycle state from the documented enum."
+                              },
+                              "category": {
+                                "type": "string",
+                                "enum": [
+                                  "NOT_RECOGNIZED",
+                                  "FRAUD",
+                                  "NOT_RECEIVED",
+                                  "NOT_AS_DESCRIBED",
+                                  "DUPLICATE_CHARGE",
+                                  "REFUND_NOT_RECEIVED",
+                                  "OTHER"
+                                ],
+                                "description": "Category validated by this operation's strict request contract."
+                              },
+                              "amountKobo": {
+                                "type": "string",
+                                "pattern": "^\\d+$",
+                                "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                              },
+                              "currency": {
+                                "type": "string",
+                                "enum": [
+                                  "NGN"
+                                ],
+                                "description": "Currency validated by this operation's strict request contract."
+                              },
+                              "chargebackAmountKobo": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "pattern": "^\\d+$",
+                                "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                              },
+                              "providerStatus": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Provider Status validated by this operation's strict request contract."
+                              },
+                              "providerResolution": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Provider Resolution validated by this operation's strict request contract."
+                              },
+                              "providerReviewReason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              },
+                              "providerUpdatedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "responseDueAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "openedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "respondedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "resolvedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "hasEvidence": {
+                                "type": "boolean",
+                                "description": "Boolean control for has evidence; authorization is still enforced server-side."
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
                               }
                             },
-                            "additionalProperties": true
-                          }
+                            "required": [
+                              "id",
+                              "paymentAttemptId",
+                              "provider",
+                              "providerDisputeId",
+                              "status",
+                              "category",
+                              "amountKobo",
+                              "currency",
+                              "chargebackAmountKobo",
+                              "providerStatus",
+                              "providerResolution",
+                              "providerReviewReason",
+                              "providerUpdatedAt",
+                              "responseDueAt",
+                              "openedAt",
+                              "respondedAt",
+                              "resolvedAt",
+                              "hasEvidence",
+                              "updatedAt"
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "description": "Items validated by this operation's strict request contract."
                         },
                         "nextCursor": {
-                          "type": [
-                            "string",
-                            "null"
-                          ],
+                          "type": "string",
                           "format": "uuid",
-                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                          "description": "Next Cursor validated by this operation's strict request contract."
                         }
                       },
                       "required": [
                         "items"
                       ],
-                      "additionalProperties": false
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -91728,6 +92570,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -91739,7 +92582,24 @@
                     "items": [
                       {
                         "id": "00000000-0000-4000-8000-000000000001",
-                        "status": "synthetic-status"
+                        "paymentAttemptId": "00000000-0000-4000-8000-000000000001",
+                        "provider": "PAYSTACK",
+                        "providerDisputeId": "synthetic-providerdisputeid",
+                        "status": "AWAITING_RESPONSE",
+                        "category": "NOT_RECOGNIZED",
+                        "amountKobo": "300000",
+                        "currency": "NGN",
+                        "chargebackAmountKobo": "300000",
+                        "providerStatus": "synthetic-providerstatus",
+                        "providerResolution": "synthetic-providerresolution",
+                        "providerReviewReason": "synthetic-providerreviewreason",
+                        "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
+                        "responseDueAt": "2030-01-15T10:00:00.000Z",
+                        "openedAt": "2030-01-15T10:00:00.000Z",
+                        "respondedAt": "2030-01-15T10:00:00.000Z",
+                        "resolvedAt": "2030-01-15T10:00:00.000Z",
+                        "hasEvidence": true,
+                        "updatedAt": "2030-01-15T10:00:00.000Z"
                       }
                     ],
                     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -105506,7 +106366,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -105945,7 +106805,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -106324,7 +107184,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -106892,6 +107752,43 @@
                                 "pattern": "^\\d+$",
                                 "description": "Integer amount in Nigerian kobo; the server remains authoritative."
                               },
+                              "chargebackAmountKobo": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "pattern": "^\\d+$",
+                                "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                              },
+                              "providerStatus": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Provider Status validated by this operation's strict request contract."
+                              },
+                              "providerResolution": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Provider Resolution validated by this operation's strict request contract."
+                              },
+                              "providerReviewReason": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                              },
+                              "providerUpdatedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
                               "currency": {
                                 "type": "string",
                                 "enum": [
@@ -107040,6 +107937,11 @@
                               "status",
                               "category",
                               "amountKobo",
+                              "chargebackAmountKobo",
+                              "providerStatus",
+                              "providerResolution",
+                              "providerReviewReason",
+                              "providerUpdatedAt",
                               "currency",
                               "openedAt",
                               "primaryUserId",
@@ -107116,6 +108018,11 @@
                         "status": "AWAITING_RESPONSE",
                         "category": "NOT_RECOGNIZED",
                         "amountKobo": "300000",
+                        "chargebackAmountKobo": "300000",
+                        "providerStatus": "synthetic-providerstatus",
+                        "providerResolution": "synthetic-providerresolution",
+                        "providerReviewReason": "synthetic-providerreviewreason",
+                        "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
                         "currency": "NGN",
                         "openedAt": "2030-01-15T10:00:00.000Z",
                         "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -107448,6 +108355,43 @@
                           "pattern": "^\\d+$",
                           "description": "Integer amount in Nigerian kobo; the server remains authoritative."
                         },
+                        "chargebackAmountKobo": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "pattern": "^\\d+$",
+                          "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                        },
+                        "providerStatus": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Status validated by this operation's strict request contract."
+                        },
+                        "providerResolution": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Resolution validated by this operation's strict request contract."
+                        },
+                        "providerReviewReason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "providerUpdatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
                         "currency": {
                           "type": "string",
                           "enum": [
@@ -107596,6 +108540,11 @@
                         "status",
                         "category",
                         "amountKobo",
+                        "chargebackAmountKobo",
+                        "providerStatus",
+                        "providerResolution",
+                        "providerReviewReason",
+                        "providerUpdatedAt",
                         "currency",
                         "openedAt",
                         "primaryUserId",
@@ -107653,6 +108602,11 @@
                     "status": "AWAITING_RESPONSE",
                     "category": "NOT_RECOGNIZED",
                     "amountKobo": "300000",
+                    "chargebackAmountKobo": "300000",
+                    "providerStatus": "synthetic-providerstatus",
+                    "providerResolution": "synthetic-providerresolution",
+                    "providerReviewReason": "synthetic-providerreviewreason",
+                    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
                     "currency": "NGN",
                     "openedAt": "2030-01-15T10:00:00.000Z",
                     "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -108016,6 +108970,43 @@
                           "pattern": "^\\d+$",
                           "description": "Integer amount in Nigerian kobo; the server remains authoritative."
                         },
+                        "chargebackAmountKobo": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "pattern": "^\\d+$",
+                          "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                        },
+                        "providerStatus": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Status validated by this operation's strict request contract."
+                        },
+                        "providerResolution": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Resolution validated by this operation's strict request contract."
+                        },
+                        "providerReviewReason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "providerUpdatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
                         "currency": {
                           "type": "string",
                           "enum": [
@@ -108164,6 +109155,11 @@
                         "status",
                         "category",
                         "amountKobo",
+                        "chargebackAmountKobo",
+                        "providerStatus",
+                        "providerResolution",
+                        "providerReviewReason",
+                        "providerUpdatedAt",
                         "currency",
                         "openedAt",
                         "primaryUserId",
@@ -108221,6 +109217,11 @@
                     "status": "AWAITING_RESPONSE",
                     "category": "NOT_RECOGNIZED",
                     "amountKobo": "300000",
+                    "chargebackAmountKobo": "300000",
+                    "providerStatus": "synthetic-providerstatus",
+                    "providerResolution": "synthetic-providerresolution",
+                    "providerReviewReason": "synthetic-providerreviewreason",
+                    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
                     "currency": "NGN",
                     "openedAt": "2030-01-15T10:00:00.000Z",
                     "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -108800,7 +109801,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -109008,6 +110009,43 @@
                           "pattern": "^\\d+$",
                           "description": "Integer amount in Nigerian kobo; the server remains authoritative."
                         },
+                        "chargebackAmountKobo": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "pattern": "^\\d+$",
+                          "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                        },
+                        "providerStatus": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Status validated by this operation's strict request contract."
+                        },
+                        "providerResolution": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Resolution validated by this operation's strict request contract."
+                        },
+                        "providerReviewReason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "providerUpdatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
                         "currency": {
                           "type": "string",
                           "enum": [
@@ -109156,6 +110194,11 @@
                         "status",
                         "category",
                         "amountKobo",
+                        "chargebackAmountKobo",
+                        "providerStatus",
+                        "providerResolution",
+                        "providerReviewReason",
+                        "providerUpdatedAt",
                         "currency",
                         "openedAt",
                         "primaryUserId",
@@ -109213,6 +110256,11 @@
                     "status": "AWAITING_RESPONSE",
                     "category": "NOT_RECOGNIZED",
                     "amountKobo": "300000",
+                    "chargebackAmountKobo": "300000",
+                    "providerStatus": "synthetic-providerstatus",
+                    "providerResolution": "synthetic-providerresolution",
+                    "providerReviewReason": "synthetic-providerreviewreason",
+                    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
                     "currency": "NGN",
                     "openedAt": "2030-01-15T10:00:00.000Z",
                     "primaryUserId": "00000000-0000-4000-8000-000000000001",
@@ -109403,7 +110451,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -109725,7 +110773,7 @@
             }
           },
           "503": {
-            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is not configured. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Configure storage before retrying an uncommitted upload.",
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation. PROVIDER_UNAVAILABLE when private file storage is unconfigured, unreachable, denied by the provider or exceeds its 20-second verification deadline. Verification shares that deadline across metadata and a bounded 16-byte signature read. Invalid or missing bytes retain the operation's existing validation/conflict response. No upload URL, successful verification or evidence attachment is fabricated; existing committed records remain unchanged. Restore storage before retrying an uncommitted upload, and check current state after an uncertain mutation.",
             "content": {
               "application/json": {
                 "schema": {
@@ -109913,6 +110961,43 @@
                           "pattern": "^\\d+$",
                           "description": "Integer amount in Nigerian kobo; the server remains authoritative."
                         },
+                        "chargebackAmountKobo": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "pattern": "^\\d+$",
+                          "description": "Integer amount in Nigerian kobo; the server remains authoritative."
+                        },
+                        "providerStatus": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Status validated by this operation's strict request contract."
+                        },
+                        "providerResolution": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Provider Resolution validated by this operation's strict request contract."
+                        },
+                        "providerReviewReason": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "providerUpdatedAt": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
                         "currency": {
                           "type": "string",
                           "enum": [
@@ -110061,6 +111146,11 @@
                         "status",
                         "category",
                         "amountKobo",
+                        "chargebackAmountKobo",
+                        "providerStatus",
+                        "providerResolution",
+                        "providerReviewReason",
+                        "providerUpdatedAt",
                         "currency",
                         "openedAt",
                         "primaryUserId",
@@ -110118,6 +111208,11 @@
                     "status": "AWAITING_RESPONSE",
                     "category": "NOT_RECOGNIZED",
                     "amountKobo": "300000",
+                    "chargebackAmountKobo": "300000",
+                    "providerStatus": "synthetic-providerstatus",
+                    "providerResolution": "synthetic-providerresolution",
+                    "providerReviewReason": "synthetic-providerreviewreason",
+                    "providerUpdatedAt": "2030-01-15T10:00:00.000Z",
                     "currency": "NGN",
                     "openedAt": "2030-01-15T10:00:00.000Z",
                     "primaryUserId": "00000000-0000-4000-8000-000000000001",

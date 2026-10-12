@@ -194,6 +194,37 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       eventIds.length = 0;
     });
     afterAll(() => prisma.$disconnect());
+    it("a pending Paystack callback supersedes an older poll failure without changing its retry count", async () => {
+      const f = await fixture("PAYSTACK"),
+        started = gate(),
+        finish = gate();
+      const run = new RefundWorker(
+        prisma,
+        registry(async () => {
+          started.release();
+          await finish.promise;
+          throw new Error("Late synthetic outage");
+        }),
+      ).runOnce(1, f.refund.id);
+      try {
+        await started.promise;
+        expect((await f.snapshot()).reconciliationToken).toBeTruthy();
+        await f.observe({ ...f.exact, status: "pending" });
+        const current = await f.snapshot();
+        expect(current).toMatchObject({
+          status: "PENDING",
+          reconciliationFailures: 0,
+          reconciliationToken: null,
+          reconciliationLeaseUntil: null,
+        });
+        finish.release();
+        await run;
+        expect(await f.snapshot()).toEqual(current);
+      } finally {
+        finish.release();
+        await run;
+      }
+    });
     for (const provider of ["PAYSTACK", "MONNIFY"] as const) {
       it.each(["pending", "failed"] as const)(
         `${provider}: a later %s callback preserves a mismatch review hold`,

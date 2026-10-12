@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { projectResourceImage, resourceImageSelect } from "../media/media.projection.js";
 import { enqueueMediaCleanup } from "../media/media.service.js";
+import { staleCustomerProfile } from "./customers.errors.js";
 import type {
   CustomerProfileUpdateInput,
   CustomerVehicleCreateInput,
@@ -42,6 +43,7 @@ export class CustomersRepository {
           country: true,
           avatarUrl: true,
           mediaVersion: true,
+          profileVersion: true,
           mediaImages: { select: resourceImageSelect, take: 1 },
           createdAt: true,
           updatedAt: true,
@@ -58,12 +60,21 @@ export class CustomersRepository {
       });
   }
 
-  updateProfile(
+  async updateProfile(
     userId: string,
     input: CustomerProfileUpdateInput,
     client: DatabaseClient,
   ) {
-    const data: Prisma.CustomerProfileUpdateInput = {
+    // Prisma omits undefined filters; a caller outside the HTTP validator must
+    // never turn the compare-and-update into an unversioned write.
+    if (
+      !Number.isInteger(input.expectedVersion) ||
+      input.expectedVersion < 0 ||
+      input.expectedVersion > 2_147_483_646
+    )
+      throw staleCustomerProfile();
+    const data: Prisma.CustomerProfileUpdateManyMutationInput = {
+      profileVersion: { increment: 1 },
       ...(input.firstName === undefined ? {} : { firstName: input.firstName }),
       ...(input.lastName === undefined ? {} : { lastName: input.lastName }),
       ...(input.phone === undefined ? {} : { phone: input.phone }),
@@ -72,35 +83,12 @@ export class CustomersRepository {
       ...(input.state === undefined ? {} : { state: input.state }),
       ...(input.country === undefined ? {} : { country: input.country }),
     };
-    return client.customerProfile
-      .update({
-        where: { userId },
-        data,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          phone: true,
-          phoneVerifiedAt: true,
-          address: true,
-          city: true,
-          state: true,
-          country: true,
-          avatarUrl: true,
-          mediaVersion: true,
-          mediaImages: { select: resourceImageSelect, take: 1 },
-          createdAt: true,
-          updatedAt: true,
-          user: { select: { id: true, email: true } },
-        },
-      })
-      .then((row) => {
-        const { mediaImages, ...profile } = row;
-        return {
-          ...profile,
-          photo: mediaImages[0] ? projectResourceImage(mediaImages[0]) : null,
-        };
-      });
+    const result = await client.customerProfile.updateMany({
+      where: { userId, profileVersion: input.expectedVersion },
+      data,
+    });
+    if (result.count !== 1) throw staleCustomerProfile();
+    return this.profile(userId, client);
   }
 
   async listVehicles(userId: string, cursor: string | undefined, limit: number) {

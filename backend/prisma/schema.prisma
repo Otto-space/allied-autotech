@@ -811,6 +811,7 @@ model StaffProfile {
 }
 
 model CustomerProfile {
+  profileVersion  Int             @default(0)
   mediaVersion    Int             @default(0)
   mediaImages     ResourceImage[]
   id              String          @id @default(uuid()) @db.Uuid
@@ -938,6 +939,7 @@ model ServiceCategory {
   services    Service[]
 
   @@index([isActive, name, id])
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "ServiceCategory_name_search_idx")
 }
 
 model Service {
@@ -969,6 +971,9 @@ model Service {
   @@index([isActive, createdAt(sort: Desc), id(sort: Desc)])
   @@index([isActive, durationMinutes, id])
   @@index([categoryId, isActive, id])
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin, map: "Service_name_search_idx")
+  @@index([shortDescription(ops: raw("gin_trgm_ops"))], type: Gin, map: "Service_shortDescription_search_idx")
+  @@index([description(ops: raw("gin_trgm_ops"))], type: Gin, map: "Service_description_search_idx")
 }
 
 model BookingSlot {
@@ -1570,45 +1575,47 @@ model ManualPaymentReview {
 }
 
 model Refund {
-  reconciliationFailures Int          @default(0)
-  dueAt                  DateTime?
-  clockPolicySnapshot    Json?
-  clockStatus            String       @default("ANCHOR_AND_BANK_CALENDAR_PENDING") @db.VarChar(80)
-  authorizationKind      String       @default("HUMAN") @db.VarChar(40)
-  policyVersionId        String?      @db.Uuid
-  policySnapshot         Json?
-  submissionStartedAt    DateTime?
-  nextReconcileAt        DateTime?
-  transferredByUserId    String?      @db.Uuid
-  transferRecordedAt     DateTime?
-  bankReference          String?      @db.VarChar(160)
-  bankTransferAt         DateTime?
-  beneficiaryEncrypted   Json?
-  evidenceObjectKey      String?      @db.VarChar(512)
-  evidenceSha256         String?      @db.Char(64)
-  checkedByUserId        String?      @db.Uuid
-  checkedAt              DateTime?
-  id                     String       @id @default(uuid()) @db.Uuid
-  paymentAttemptId       String       @db.Uuid
-  requestedByUserId      String?      @db.Uuid
-  approvedByUserId       String?      @db.Uuid
-  refundNumber           String       @unique @db.VarChar(50)
-  idempotencyKeyHash     String       @unique @db.Char(64)
-  providerRefundId       String?      @unique @db.VarChar(160)
-  amountKobo             BigInt
-  currency               String       @default("NGN") @db.Char(3)
-  status                 RefundStatus @default(REQUESTED)
-  reason                 String
-  providerStatus         String?      @db.VarChar(80)
-  failureCode            String?      @db.VarChar(100)
-  failureMessage         String?
-  requestedAt            DateTime     @default(now())
-  approvedAt             DateTime?
-  processedAt            DateTime?
-  failedAt               DateTime?
-  cancelledAt            DateTime?
-  createdAt              DateTime     @default(now())
-  updatedAt              DateTime     @updatedAt
+  reconciliationFailures   Int          @default(0)
+  dueAt                    DateTime?
+  clockPolicySnapshot      Json?
+  clockStatus              String       @default("ANCHOR_AND_BANK_CALENDAR_PENDING") @db.VarChar(80)
+  authorizationKind        String       @default("HUMAN") @db.VarChar(40)
+  policyVersionId          String?      @db.Uuid
+  policySnapshot           Json?
+  submissionStartedAt      DateTime?
+  nextReconcileAt          DateTime?
+  reconciliationToken      String?      @db.Uuid
+  reconciliationLeaseUntil DateTime?
+  transferredByUserId      String?      @db.Uuid
+  transferRecordedAt       DateTime?
+  bankReference            String?      @db.VarChar(160)
+  bankTransferAt           DateTime?
+  beneficiaryEncrypted     Json?
+  evidenceObjectKey        String?      @db.VarChar(512)
+  evidenceSha256           String?      @db.Char(64)
+  checkedByUserId          String?      @db.Uuid
+  checkedAt                DateTime?
+  id                       String       @id @default(uuid()) @db.Uuid
+  paymentAttemptId         String       @db.Uuid
+  requestedByUserId        String?      @db.Uuid
+  approvedByUserId         String?      @db.Uuid
+  refundNumber             String       @unique @db.VarChar(50)
+  idempotencyKeyHash       String       @unique @db.Char(64)
+  providerRefundId         String?      @unique @db.VarChar(160)
+  amountKobo               BigInt
+  currency                 String       @default("NGN") @db.Char(3)
+  status                   RefundStatus @default(REQUESTED)
+  reason                   String
+  providerStatus           String?      @db.VarChar(80)
+  failureCode              String?      @db.VarChar(100)
+  failureMessage           String?
+  requestedAt              DateTime     @default(now())
+  approvedAt               DateTime?
+  processedAt              DateTime?
+  failedAt                 DateTime?
+  cancelledAt              DateTime?
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
 
   paymentAttempt          PaymentAttempt              @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
   requestedBy             User?                       @relation("RefundRequester", fields: [requestedByUserId], references: [id], onDelete: Restrict)
@@ -1622,6 +1629,7 @@ model Refund {
   policyVersionIdRelation BusinessPolicyVersion? @relation("Owner_Refund_policyVersionId", fields: [policyVersionId], references: [id], onDelete: Restrict, onUpdate: NoAction)
 
   transferredByUserIdRelation User? @relation("Owner_Refund_transferredByUserId", fields: [transferredByUserId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  // SQL migration adds Refund_reconciliation_due_idx for due online polls only.
 
   @@index([paymentAttemptId, status])
   @@index([status, createdAt])
@@ -1630,6 +1638,11 @@ model Refund {
 }
 
 model PaymentDispute {
+  providerStatus              String?         @db.VarChar(80)
+  providerResolution          String?         @db.VarChar(80)
+  providerReviewReason        String?         @db.VarChar(100)
+  providerUpdatedAt           DateTime?
+  chargebackAmountKobo        BigInt?
   primaryUserId               String?         @db.Uuid
   backupUserId                String?         @db.Uuid
   acknowledgedAt              DateTime?

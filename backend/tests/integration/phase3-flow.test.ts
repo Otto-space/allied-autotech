@@ -104,7 +104,12 @@ describe.skipIf(!runDatabaseTests)("Phase 3 customer and organization flow", () 
       .set("Origin", origin)
       .set("Cookie", customerASession.cookie)
       .set("X-CSRF-Token", customerASession.csrfToken)
-      .send({ city: "Lagos", state: "Lagos", address: null });
+      .send({
+        expectedVersion: profile.body.data.profileVersion,
+        city: "Lagos",
+        state: "Lagos",
+        address: null,
+      });
     expect(updatedProfile.status).toBe(200);
     expect(updatedProfile.body.data.city).toBe("Lagos");
 

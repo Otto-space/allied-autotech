@@ -55,23 +55,40 @@ try {
 const prismaCli = fileURLToPath(
   new URL("../node_modules/prisma/build/index.js", import.meta.url),
 );
-const child = spawn(process.execPath, [prismaCli, "migrate", "deploy"], {
-  env: process.env,
-  stdio: "inherit",
-  shell: false,
-});
-
-await new Promise<void>((resolve, reject) => {
-  child.once("error", reject);
-  child.once("exit", (code, signal) => {
-    if (signal !== null) {
-      reject(new Error(`Migration replay terminated by ${signal}`));
-      return;
-    }
-    if (code !== 0) {
-      reject(new Error(`Migration replay failed with exit code ${String(code)}`));
-      return;
-    }
-    resolve();
+async function runPrisma(args: string[], label: string): Promise<void> {
+  const child = spawn(process.execPath, [prismaCli, ...args], {
+    env: process.env,
+    stdio: "inherit",
+    shell: false,
   });
-});
+
+  await new Promise<void>((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => {
+      if (signal !== null) {
+        reject(new Error(`${label} terminated by ${signal}`));
+        return;
+      }
+      if (code !== 0) {
+        reject(new Error(`${label} failed with exit code ${String(code)}`));
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+await runPrisma(["migrate", "deploy"], "Migration replay");
+// A successful replay alone does not prove that schema.prisma preserves all
+// representable migrated objects when a future migration is generated.
+await runPrisma(
+  [
+    "migrate",
+    "diff",
+    "--from-config-datasource",
+    "--to-schema",
+    fileURLToPath(new URL("../prisma/schema.prisma", import.meta.url)),
+    "--exit-code",
+  ],
+  "Migration schema comparison",
+);

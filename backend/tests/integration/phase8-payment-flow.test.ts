@@ -239,6 +239,9 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
         }),
     ]);
     expect(refunds.map(({ status }) => status).sort()).toEqual([201, 409]);
+    expect(JSON.stringify(refunds.map(({ body }) => body))).not.toMatch(
+      /reconciliationToken|reconciliationLeaseUntil/,
+    );
     const refundId = refunds.find(({ status }) => status === 201)!.body.data.refund
       .id as string;
     const decision = await request(app)
@@ -497,6 +500,19 @@ describe.skipIf(!runDatabaseTests)("Phase 8 payment flow", () => {
       "provider-refund",
       context,
     )) as { refund: { id: string } };
+    const replayed = await service.requestRefund(
+      requesterActor,
+      {
+        paymentAttemptId: attempt.id,
+        amountKobo: 1_000n,
+        reason: "Provider refund test",
+      },
+      "provider-refund",
+      context,
+    );
+    expect(JSON.stringify({ requested, replayed })).not.toMatch(
+      /reconciliationToken|reconciliationLeaseUntil/,
+    );
     await service.decideRefund(
       adminActor,
       requested.refund.id,

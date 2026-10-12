@@ -9,6 +9,8 @@ import type {
   PublicEnquiryInput,
   PublicReviewListQuery,
   ReviewCreateInput,
+  ReviewSourceListQuery,
+  ReviewSource,
   StaffComplaintListQuery,
   StaffEnquiryListQuery,
   StaffReviewListQuery,
@@ -625,6 +627,86 @@ export class SupportRepository {
     });
   }
 
+  async reviewSources(
+    customerId: string,
+    query: ReviewSourceListQuery,
+  ): Promise<ReviewSource[]> {
+    // UUID keyset ordering does not depend on a cursor row remaining eligible.
+    const id = query.sourceId ?? (query.cursor ? { gt: query.cursor } : undefined);
+    const options = { orderBy: { id: "asc" as const }, take: query.limit + 1 };
+    if (query.targetType === "PRODUCT") {
+      const rows = await this.database.orderItem.findMany({
+        ...options,
+        where: {
+          ...(id ? { id } : {}),
+          order: { customerId, status: "COMPLETED" },
+          review: null,
+          product: { reviews: { none: { customerId, targetType: "PRODUCT" } } },
+        },
+        select: {
+          id: true,
+          productId: true,
+          productName: true,
+          order: { select: { orderNumber: true } },
+        },
+      });
+      return rows.map((row) => ({
+        id: row.id,
+        targetType: "PRODUCT",
+        label: `${row.productName} · ${row.order.orderNumber}`,
+        productId: row.productId,
+        orderItemId: row.id,
+      }));
+    }
+    if (query.targetType === "SERVICE") {
+      const rows = await this.database.booking.findMany({
+        ...options,
+        where: { ...(id ? { id } : {}), customerId, status: "COMPLETED", review: null },
+        select: {
+          id: true,
+          serviceId: true,
+          scheduledAt: true,
+          service: { select: { name: true } },
+        },
+      });
+      return rows.map((row) => ({
+        id: row.id,
+        targetType: "SERVICE",
+        label: `${row.service.name} · ${row.scheduledAt.toLocaleDateString("en-NG", { timeZone: "Africa/Lagos" })}`,
+        serviceId: row.serviceId,
+        bookingId: row.id,
+      }));
+    }
+    if (query.targetType === "ORDER") {
+      const rows = await this.database.order.findMany({
+        ...options,
+        where: { ...(id ? { id } : {}), customerId, status: "COMPLETED", review: null },
+        select: { id: true, orderNumber: true },
+      });
+      return rows.map((row) => ({
+        id: row.id,
+        targetType: "ORDER",
+        label: row.orderNumber,
+        orderId: row.id,
+      }));
+    }
+    const rows = await this.database.vehicleTransaction.findMany({
+      ...options,
+      where: { ...(id ? { id } : {}), customerId, status: "COMPLETED", review: null },
+      select: {
+        id: true,
+        transactionNumber: true,
+        vehicleListing: { select: { title: true } },
+      },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      targetType: "VEHICLE_TRANSACTION",
+      label: `${row.transactionNumber} · ${row.vehicleListing.title}`,
+      vehicleTransactionId: row.id,
+    }));
+  }
+
   createReview(customerId: string, input: ReviewCreateInput, client: DatabaseClient) {
     return client.review.create({
       data: {
@@ -656,6 +738,13 @@ export class SupportRepository {
         customerId: true,
         customer: { select: { userId: true } },
       },
+    });
+  }
+
+  ownedReview(id: string, customerId: string, client: DatabaseClient) {
+    return client.review.findFirst({
+      where: { id, customerId },
+      select: reviewBaseSelect,
     });
   }
 

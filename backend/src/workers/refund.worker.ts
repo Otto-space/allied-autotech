@@ -1,4 +1,9 @@
+import { randomUUID } from "node:crypto";
 import { prisma } from "../config/database.js";
+import {
+  claimRefundSubmission,
+  recordRefundSubmission,
+} from "../modules/payments/refund-dispatch.js";
 import { Prisma, type PrismaClient } from "../generated/prisma/client.js";
 import {
   recordRefundObservationConflict,
@@ -34,48 +39,65 @@ export class RefundWorker {
           "Reconcile the dispute and any chargeback before issuing this refund",
       },
     });
-    const claimed = await this.database.$queryRaw<Array<{ id: string }>>(Prisma.sql`
-      WITH candidates AS (
-        SELECT r."id" FROM "Refund" r JOIN "PaymentAttempt" a ON a."id" = r."paymentAttemptId"
-        WHERE r."status" = 'APPROVED' AND r."submissionStartedAt" IS NULL AND a."provider" <> 'MANUAL'
-          AND (${refundId ?? null}::uuid IS NULL OR r."id" = ${refundId ?? null}::uuid)
-          AND NOT EXISTS (SELECT 1 FROM "PaymentDispute" d WHERE d."paymentAttemptId" = a."id" AND d."status" <> 'WON')
-        ORDER BY r."createdAt", r."id" FOR UPDATE OF r SKIP LOCKED LIMIT ${limit}
-      ) UPDATE "Refund" r SET "submissionStartedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
-          "status" = 'PROCESSING', "providerStatus" = 'SUBMISSION_STARTED', "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'),
-          "nextReconcileAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + INTERVAL '10 minutes'
-        FROM candidates c WHERE r."id" = c."id" RETURNING r."id"
-    `);
-    for (const { id } of claimed) {
-      const refund = await this.database.refund.findUniqueOrThrow({
-        where: { id },
-        include: { paymentAttempt: true },
-      });
+    const candidates = await this.database.refund.findMany({
+      where: {
+        ...(refundId ? { id: refundId } : {}),
+        status: "APPROVED",
+        submissionStartedAt: null,
+        providerRefundId: null,
+        paymentAttempt: { provider: { not: "MANUAL" } },
+      },
+      select: { id: true, paymentAttemptId: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: limit,
+    });
+    let submitted = 0;
+    for (const candidate of candidates) {
+      const refund = await claimRefundSubmission(this.database, candidate);
+      if (!refund) continue;
+      const id = refund.id;
+      if (refund.nextReconcileAt!.getTime() <= Date.now()) {
+        await this.database.refund.updateMany({
+          where: {
+            id,
+            status: "PROCESSING",
+            providerRefundId: null,
+            submissionStartedAt: refund.submissionStartedAt,
+          },
+          data: {
+            status: "NEEDS_ATTENTION",
+            nextReconcileAt: null,
+            providerStatus: "DISPATCH_WINDOW_EXPIRED",
+            failureMessage:
+              "Dispatch authorization expired before sending; review the original refund before further action",
+          },
+        });
+        continue;
+      }
       try {
         if (!refund.paymentAttempt.gatewayTransactionId)
           throw new Error("Missing captured transaction identity");
-        const result = await this.providers
-          .get(refund.paymentAttempt.provider as OnlinePaymentProvider)
-          .refund({
-            gatewayTransactionId: refund.paymentAttempt.gatewayTransactionId,
-            amountKobo: refund.amountKobo,
-            currency: "NGN",
-            refundReference: refund.refundNumber,
-            reason: refund.reason,
-            customerNote: "Allied AutoTech refund",
-          });
-        await this.database.refund.updateMany({
-          where: { id, status: "PROCESSING", providerRefundId: null },
-          data: {
-            status: "PENDING",
-            providerRefundId: result.providerRefundId,
-            providerStatus: result.status,
-            nextReconcileAt: new Date(Date.now() + 60_000),
-          },
+        const provider = this.providers.get(
+          refund.paymentAttempt.provider as OnlinePaymentProvider,
+        );
+        submitted++;
+        const result = await provider.refund({
+          gatewayTransactionId: refund.paymentAttempt.gatewayTransactionId,
+          amountKobo: refund.amountKobo,
+          currency: "NGN",
+          refundReference: refund.refundNumber,
+          reason: refund.reason,
+          customerNote: "Allied AutoTech refund",
         });
+        await recordRefundSubmission(this.database, refund, result);
       } catch {
         await this.database.refund.updateMany({
-          where: { id, status: "PROCESSING", providerRefundId: null },
+          where: {
+            id,
+            status: "PROCESSING",
+            providerRefundId: null,
+            submissionStartedAt: refund.submissionStartedAt,
+          },
           data: {
             status: "NEEDS_ATTENTION",
             providerStatus: "PROVIDER_SUBMISSION_UNCONFIRMED",
@@ -102,18 +124,63 @@ export class RefundWorker {
           "Worker stopped during submission; provider reconciliation required before further money movement",
       },
     });
+    // Older releases could leave exhausted rows pending after overlapping polls.
+    // Retain their count and require review without disturbing a live claim.
+    await this.database.refund.updateMany({
+      where: {
+        ...(refundId ? { id: refundId } : {}),
+        status: { in: ["PENDING", "PROCESSING"] },
+        providerRefundId: { not: null },
+        reconciliationFailures: { gte: 8 },
+        OR: [
+          { reconciliationLeaseUntil: null },
+          { reconciliationLeaseUntil: { lte: new Date() } },
+        ],
+      },
+      data: {
+        status: "NEEDS_ATTENTION",
+        nextReconcileAt: null,
+        reconciliationToken: null,
+        reconciliationLeaseUntil: null,
+        failureMessage:
+          "Provider refund reconciliation exhausted; review the original refund before further action",
+      },
+    });
     const pending = await this.database.refund.findMany({
       where: {
         ...(refundId ? { id: refundId } : {}),
         status: { in: ["PENDING", "PROCESSING"] },
         providerRefundId: { not: null },
+        reconciliationFailures: { lt: 8 },
         nextReconcileAt: { lte: new Date() },
+        OR: [
+          { reconciliationLeaseUntil: null },
+          { reconciliationLeaseUntil: { lte: new Date() } },
+        ],
       },
       include: { paymentAttempt: true },
       take: limit,
-      orderBy: { nextReconcileAt: "asc" },
+      orderBy: [{ nextReconcileAt: "asc" }, { id: "asc" }],
     });
+    let reconciled = 0;
     for (const refund of pending) {
+      const token = randomUUID();
+      // Claim immediately before I/O, not at batch discovery. A fresh claim must
+      // survive other workers, and an expired claim must never own newer writes.
+      const owned = await this.database.$executeRaw(Prisma.sql`
+        UPDATE "Refund" SET "reconciliationToken" = ${token}::uuid,
+          "reconciliationLeaseUntil" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC') + INTERVAL '10 minutes',
+          "updatedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+        WHERE "id" = ${refund.id}::uuid AND "status" IN ('PENDING', 'PROCESSING')
+          AND "providerRefundId" = ${refund.providerRefundId}
+          AND "reconciliationFailures" < 8
+          AND "nextReconcileAt" = ${refund.nextReconcileAt}
+          AND "nextReconcileAt" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')
+          AND ("reconciliationLeaseUntil" IS NULL OR
+            "reconciliationLeaseUntil" <= (CURRENT_TIMESTAMP AT TIME ZONE 'UTC'))
+      `);
+      if (owned !== 1) continue;
+      reconciled++;
       try {
         const provider = this.providers.get(
           refund.paymentAttempt.provider as OnlinePaymentProvider,
@@ -124,11 +191,14 @@ export class RefundWorker {
           await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${refund.id}::uuid FOR UPDATE`;
           const current = await tx.refund.findUniqueOrThrow({ where: { id: refund.id } });
           const exact = refundObservationMatches(current, result);
+          // Preserve conflicting provider evidence even when a newer claim or
+          // callback owns the state; the ownership guard below protects money.
           if (!exact || (current.status === "SUCCEEDED" && result.status === "failed"))
             await recordRefundObservationConflict(tx, current, result, "RECONCILIATION");
           // Re-read after the provider call: a callback may have completed the
           // refund or placed it under review while this poll was in flight.
           if (current.status !== "PENDING" && current.status !== "PROCESSING") return;
+          if (current.reconciliationToken !== token) return;
           if (!exact) {
             await tx.refund.update({
               where: { id: refund.id },
@@ -136,6 +206,8 @@ export class RefundWorker {
                 status: "NEEDS_ATTENTION",
                 providerStatus: "RECONCILIATION_MISMATCH",
                 nextReconcileAt: null,
+                reconciliationToken: null,
+                reconciliationLeaseUntil: null,
               },
             });
             return;
@@ -151,9 +223,15 @@ export class RefundWorker {
                     : "PENDING",
               providerStatus: result.status,
               reconciliationFailures: 0,
+              reconciliationToken: null,
+              reconciliationLeaseUntil: null,
+              failureMessage: null,
               ...(result.status === "succeeded"
                 ? { processedAt: new Date(), nextReconcileAt: null }
-                : { nextReconcileAt: new Date(Date.now() + 300_000) }),
+                : {
+                    nextReconcileAt:
+                      result.status === "failed" ? null : new Date(Date.now() + 300_000),
+                  }),
             },
           });
           if (result.status === "succeeded")
@@ -172,24 +250,35 @@ export class RefundWorker {
             });
         });
       } catch {
-        await this.database.refund.updateMany({
-          where: { id: refund.id, status: { in: ["PENDING", "PROCESSING"] } },
-          data: {
-            reconciliationFailures: { increment: 1 },
-            ...(refund.reconciliationFailures >= 7
-              ? { status: "NEEDS_ATTENTION", nextReconcileAt: null }
-              : {
-                  nextReconcileAt: new Date(
-                    Date.now() +
-                      Math.min(3_600_000, 60_000 * 2 ** refund.reconciliationFailures),
-                  ),
-                }),
-            failureMessage:
-              "Provider refund reconciliation unavailable; original refund retained, no money movement retried",
-          },
+        await this.database.$transaction(async (tx) => {
+          await tx.$queryRaw`SELECT "id" FROM "Refund" WHERE "id" = ${refund.id}::uuid FOR UPDATE`;
+          const current = await tx.refund.findUniqueOrThrow({ where: { id: refund.id } });
+          if (
+            current.reconciliationToken !== token ||
+            (current.status !== "PENDING" && current.status !== "PROCESSING")
+          )
+            return;
+          await tx.refund.update({
+            where: { id: refund.id },
+            data: {
+              reconciliationToken: null,
+              reconciliationLeaseUntil: null,
+              reconciliationFailures: { increment: 1 },
+              ...(current.reconciliationFailures >= 7
+                ? { status: "NEEDS_ATTENTION", nextReconcileAt: null }
+                : {
+                    nextReconcileAt: new Date(
+                      Date.now() +
+                        Math.min(3_600_000, 60_000 * 2 ** current.reconciliationFailures),
+                    ),
+                  }),
+              failureMessage:
+                "Provider refund reconciliation unavailable; original refund retained, no money movement retried",
+            },
+          });
         });
       }
     }
-    return { submitted: claimed.length, reconciled: pending.length };
+    return { submitted, reconciled };
   }
 }

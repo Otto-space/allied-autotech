@@ -1,3 +1,4 @@
+import { newReviewRequestKey } from "../helpers/review-request.js";
 import { randomUUID } from "node:crypto";
 import { afterAll, describe, expect, it } from "vitest";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
@@ -100,6 +101,7 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
         comment: "Synthetic completed-service review",
       },
       context,
+      newReviewRequestKey(),
     );
     const category = await prisma.category.create({
       data: { name: "Phase Nine Review Category", slug: `p9-review-${randomUUID()}` },
@@ -148,6 +150,7 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
         comment: "Synthetic verified-purchase product review",
       },
       context,
+      newReviewRequestKey(),
     );
     const businessReview = await support.createReview(
       actor(owner),
@@ -157,6 +160,7 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
         comment: "Synthetic overall experience review",
       },
       context,
+      newReviewRequestKey(),
     );
     await expect(
       support.createReview(
@@ -169,6 +173,7 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
           comment: "Synthetic unauthorized review attempt",
         },
         context,
+        newReviewRequestKey(),
       ),
     ).rejects.toMatchObject({ statusCode: 409 });
     expect(

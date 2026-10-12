@@ -1,4 +1,6 @@
 import { assignComplaintDeadline } from "./complaint-sla.js";
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { reviewCreationReceipt } from "./review-idempotency.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { prisma } from "../../config/database.js";
@@ -31,6 +33,7 @@ import type {
   PublicEnquiryInput,
   PublicReviewListQuery,
   ReviewCreateInput,
+  ReviewSourceListQuery,
   ReviewModerationInput,
   StaffComplaintListQuery,
   StaffEnquiryListQuery,
@@ -309,36 +312,56 @@ export class SupportService {
     });
   }
 
+  async reviewSources(actor: AuthenticatedActor, query: ReviewSourceListQuery) {
+    const customer = await this.customer(actor);
+    return supportPage(
+      await this.repository.reviewSources(customer.id, query),
+      query.limit,
+    );
+  }
+
   async createReview(
     actor: AuthenticatedActor,
     input: ReviewCreateInput,
     context: RequestSecurityContext,
+    rawKey: string,
   ) {
     const customer = await this.customer(actor);
-    const created = await this.database.$transaction(
-      async (transaction) => {
-        await this.assertReviewSource(customer.id, input, transaction);
-        const review = await this.repository.createReview(
-          customer.id,
-          input,
+    return withTransactionRetry(
+      this.database,
+      async (transaction) =>
+        reviewCreationReceipt(
           transaction,
-        );
-        await appendAuditEvent(transaction, {
-          actorUserId: actor.userId,
-          action: "CREATE",
-          entityType: "REVIEW",
-          entityId: review.id,
-          newValues: { targetType: input.targetType, rating: input.rating },
-          context,
-        });
-        return review;
-      },
+          actor.userId,
+          rawKey,
+          input,
+          async (normalized) => {
+            await this.assertReviewSource(customer.id, normalized, transaction);
+            const review = await this.repository.createReview(
+              customer.id,
+              normalized,
+              transaction,
+            );
+            await appendAuditEvent(transaction, {
+              actorUserId: actor.userId,
+              action: "CREATE",
+              entityType: "REVIEW",
+              entityId: review.id,
+              newValues: { targetType: normalized.targetType, rating: normalized.rating },
+              context,
+            });
+            const record = await this.repository.ownedReview(
+              review.id,
+              customer.id,
+              transaction,
+            );
+            if (!record) throw supportNotFound();
+            return record;
+          },
+          (id) => this.repository.ownedReview(id, customer.id, transaction),
+        ),
       { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
     );
-    const review = await this.repository.review(created.id);
-    if (review === null) throw supportNotFound();
-    const { customer: _customer, customerId: _customerId, ...safe } = review;
-    return safe;
   }
 
   async staffEnquiries(

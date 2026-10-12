@@ -17,6 +17,7 @@ const profileResponse = z.object({
   updatedAt: z.iso.datetime(),
   user: z.object({ id: z.uuid(), email: z.string() }),
   mediaVersion: z.number().int(),
+  profileVersion: z.number().int().nonnegative(),
   photo: mediaImageSchema.nullable(),
 });
 const garageVehicleResponse = z.object({
@@ -126,6 +127,12 @@ export function registerCustomersOpenApi(registry: OpenAPIRegistry): void {
       path: path.path,
       tags: ["Customers"],
       summary: path.summary,
+      ...(path.path === "/customers/profile"
+        ? {
+            description:
+              "Customer owner only. Profile text has its own profileVersion, independent of mediaVersion. PATCH requires expectedVersion from the owned profile read and at least one editable field. The update, revision increment and changed-field audit commit atomically. A stale version returns 409 STALE_VERSION without changes. Missing versions return 422; there is no unversioned update bypass. Changing the phone clears its previous verification. Optional address/city/state accept null. On a lost response, GET and explicitly review saved details before another update; automatic replay is not supported. Deploy the additive profile-version migration and matching backend/frontend together.",
+          }
+        : {}),
       security: [{ sessionCookie: [] }],
       request: {
         ...(path.params === undefined ? {} : { params: path.params }),

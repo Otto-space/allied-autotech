@@ -108,6 +108,9 @@ export class PaymentWebhookRetryWorker {
         const value = redactedSchema.parse(item.redactedPayload);
         const event: PaystackWebhookEvent = {
           ...value,
+          ...(value.eventType.startsWith("charge.dispute.")
+            ? { disputeLookupRequired: true }
+            : {}),
           amountKobo: value.amountKobo === null ? null : BigInt(value.amountKobo),
           paidAt: value.paidAt ? new Date(value.paidAt) : null,
           providerFeeKobo:

@@ -271,6 +271,7 @@ export class AuditOperationsService {
       rows.map(({ evidenceSha256, ...item }) => ({
         ...item,
         amountKobo: item.amountKobo.toString(),
+        chargebackAmountKobo: item.chargebackAmountKobo?.toString() ?? null,
         hasEvidence: evidenceSha256 !== null,
       })),
       query.limit,

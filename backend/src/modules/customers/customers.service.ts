@@ -42,12 +42,19 @@ export class CustomersService {
         input,
         transaction,
       );
+      if (profile === null) throw customerResourceNotFound();
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "UPDATE",
         entityType: "CUSTOMER_PROFILE",
         entityId: existing.id,
-        newValues: { changedFields: Object.keys(input).sort().join(",") },
+        newValues: {
+          changedFields: Object.keys(input)
+            .filter((key) => key !== "expectedVersion")
+            .sort()
+            .join(","),
+          profileVersion: profile.profileVersion,
+        },
         context,
       });
       return profile;

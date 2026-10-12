@@ -45,6 +45,8 @@ Local verification uses `allied_service_discovery_20261009_test`, created separa
 
 ## Verification commands
 
+The subsequent [complete backend audit](backend-completion-audit.md) found that the four migrated service/category GIN indexes were missing from `schema.prisma`. Their exact declarations are now included, so schema comparison no longer proposes dropping them. The migration-replay command now checks that comparison automatically. No additional database migration or search behavior change is required.
+
 Backend: `npm run prisma:generate`, `npm run typecheck`, `npm run lint`, `npm run check:secrets`, `npm run openapi:export`, `npm run check:openapi`, `npm run check:routes`, and the discovery/service-flow/media/security/OpenAPI/migration Vitest suites.
 
 Frontend: `npm run api:types`, `npm run typecheck`, `npm test`, targeted ESLint/Prettier, `npm run build`, and Playwright `services-quality.spec.ts` plus `service-discovery-real.spec.ts`. The real browser tests require `SERVICE_DISCOVERY_REAL=true`, the isolated helper API on 5025 and the preview configured with `BACKEND_ORIGIN=http://127.0.0.1:5025`. Browser plugin not available; verification uses the repository Playwright workflow with Microsoft Edge.

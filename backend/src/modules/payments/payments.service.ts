@@ -8,6 +8,9 @@ import {
   policySnapshot,
 } from "../policies/policies.service.js";
 import { createHash, randomUUID } from "node:crypto";
+import { lockRefundDispatch } from "./refund-dispatch.js";
+import { disputeOutcome } from "../../providers/payments/paystack-dispute.js";
+import { providerUnavailable } from "../../common/errors/provider-error-mapper.js";
 import { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -713,6 +716,7 @@ export class PaymentsService {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`refund:${keyHash}`}, 0))`;
       const existing = await tx.refund.findUnique({
         where: { idempotencyKeyHash: keyHash },
+        omit: { reconciliationToken: true, reconciliationLeaseUntil: true },
       });
       if (existing) {
         if (
@@ -768,6 +772,7 @@ export class PaymentsService {
         throw paymentConflict("Refund total exceeds the captured amount");
       const refundPolicy = await approvedPolicy(tx, "manual-refund");
       const refund = await tx.refund.create({
+        omit: { reconciliationToken: true, reconciliationLeaseUntil: true },
         data: {
           policyVersionId: refundPolicy.id,
           policySnapshot: policySnapshot(refundPolicy),
@@ -904,6 +909,7 @@ export class PaymentsService {
               method: event.method,
               category: event.category,
               responseDueAt: event.responseDueAt?.toISOString() ?? null,
+              ...(event.disputeLookupRequired ? { disputeLookupRequired: true } : {}),
             },
           },
         });
@@ -1283,6 +1289,8 @@ export class PaymentsService {
               status: "NEEDS_ATTENTION",
               providerStatus: "REFUND_MISMATCH",
               nextReconcileAt: null,
+              reconciliationToken: null,
+              reconciliationLeaseUntil: null,
             },
           });
       } else if (result.status === "succeeded" && refund.status !== "SUCCEEDED") {
@@ -1293,6 +1301,8 @@ export class PaymentsService {
             processedAt: now,
             providerStatus: result.status,
             nextReconcileAt: null,
+            reconciliationToken: null,
+            reconciliationLeaseUntil: null,
           },
         });
         await tx.paymentLedgerEntry.upsert({
@@ -1311,7 +1321,14 @@ export class PaymentsService {
       } else if (result.status === "failed") {
         await tx.refund.updateMany({
           where: { id: refundId, status: { notIn: ["SUCCEEDED", "NEEDS_ATTENTION"] } },
-          data: { status: "FAILED", failedAt: now, providerStatus: result.status },
+          data: {
+            status: "FAILED",
+            failedAt: now,
+            providerStatus: result.status,
+            nextReconcileAt: null,
+            reconciliationToken: null,
+            reconciliationLeaseUntil: null,
+          },
         });
       }
       await writeWebhookResult(tx, claim, {
@@ -1399,6 +1416,8 @@ export class PaymentsService {
                   ? "SUCCEEDED"
                   : "PENDING",
             providerStatus: exact ? event.status : "REFUND_MISMATCH",
+            reconciliationToken: null,
+            reconciliationLeaseUntil: null,
             ...(!exact || state === "failed" ? { nextReconcileAt: null } : {}),
             ...(exact && state === "succeeded"
               ? { processedAt: now, nextReconcileAt: null }
@@ -1434,6 +1453,29 @@ export class PaymentsService {
     claim: WebhookClaim,
     context: RequestSecurityContext,
   ) {
+    const originalReference = event.reference;
+    const adapter = event.disputeLookupRequired ? this.providers.get("PAYSTACK") : null;
+    if (event.disputeLookupRequired && (!event.resourceId || !adapter?.verifyDispute))
+      throw providerUnavailable();
+    // Fetch outside the transaction: retries must observe the provider again and
+    // must never hold a financial row lock across network I/O.
+    const verified = adapter?.verifyDispute
+      ? await adapter.verifyDispute(event.resourceId!)
+      : null;
+    if (verified && verified.providerDisputeId !== event.resourceId)
+      throw providerUnavailable();
+    const outcome = verified ? disputeOutcome(verified) : null;
+    if (verified && outcome)
+      event = {
+        ...event,
+        reference: verified.reference,
+        gatewayTransactionId: verified.gatewayTransactionId,
+        amountKobo: verified.transactionAmountKobo,
+        currency: verified.currency,
+        status: outcome.status,
+        category: verified.category,
+        responseDueAt: verified.responseDueAt,
+      };
     await withTransactionRetry(this.database, async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`dispute:${event.resourceId}`}, 0))`;
       const attempt = event.reference
@@ -1462,6 +1504,39 @@ export class PaymentsService {
       }
       const rawStatus =
         event.status?.toUpperCase().replaceAll(" ", "_") ?? "AWAITING_RESPONSE";
+      await lockRefundDispatch(tx, attempt.id);
+      if (
+        verified &&
+        ((originalReference !== null && originalReference !== verified.reference) ||
+          attempt.status !== "SUCCESSFUL" ||
+          attempt.gatewayTransactionId !== verified.gatewayTransactionId ||
+          attempt.verifiedAmountKobo !== verified.transactionAmountKobo ||
+          attempt.verifiedCurrency !== verified.currency ||
+          verified.currency !== "NGN" ||
+          (verified.resolvedAt !== null &&
+            verified.resolvedAt.getTime() > now.getTime()) ||
+          (verified.updatedAt !== null && verified.updatedAt.getTime() > now.getTime()))
+      ) {
+        await tx.paymentAnomaly.create({
+          data: {
+            paymentAttemptId: attempt.id,
+            type: "OTHER",
+            summary:
+              "Verified dispute does not match the captured payment or has future timestamps",
+            details: { source: "PAYSTACK_DISPUTE", providerDisputeId: event.resourceId },
+          },
+        });
+        await writeWebhookResult(tx, claim, {
+          status: "FAILED",
+          failedAt: now,
+          lockedAt: null,
+          nextAttemptAt: new Date(now.getTime() + 60_000),
+          lastErrorCode: "DISPUTE_VERIFICATION_CONFLICT",
+          lastErrorMessage:
+            "Dispute requires review of provider identity, capture or timestamps",
+        });
+        return;
+      }
       const status =
         (
           [
@@ -1488,11 +1563,91 @@ export class PaymentsService {
         ).find((value) => value === rawCategory) ?? "OTHER";
       const terminal = ["WON", "LOST", "ACCEPTED", "EXPIRED"].includes(status);
       const providerDisputeId = event.resourceId;
+      await tx.$queryRaw`SELECT "id" FROM "PaymentDispute" WHERE "provider" = 'PAYSTACK' AND "providerDisputeId" = ${providerDisputeId} FOR UPDATE`;
       const prior = await tx.paymentDispute.findUnique({
         where: {
           provider_providerDisputeId: { provider: "PAYSTACK", providerDisputeId },
         },
       });
+      if (prior) {
+        const identityConflict =
+          prior.paymentAttemptId !== attempt.id ||
+          prior.amountKobo !== event.amountKobo ||
+          prior.currency !== event.currency;
+        const resolved =
+          prior.resolvedAt !== null ||
+          ["WON", "LOST", "ACCEPTED", "EXPIRED"].includes(prior.status);
+        const resolutionConflict =
+          resolved &&
+          terminal &&
+          (prior.status !== status ||
+            (verified !== null &&
+              prior.chargebackAmountKobo !== outcome?.chargebackAmountKobo));
+        if (identityConflict || resolved) {
+          if (identityConflict || resolutionConflict)
+            await tx.paymentAnomaly.create({
+              data: {
+                paymentAttemptId: prior.paymentAttemptId,
+                disputeId: prior.id,
+                type: "OTHER",
+                summary:
+                  "Provider dispute observation conflicts with the recorded dispute",
+                details: {
+                  source: "PAYSTACK_DISPUTE",
+                  recordedStatus: prior.status,
+                  observedStatus: status,
+                  paymentIdentityMatched: prior.paymentAttemptId === attempt.id,
+                  expectedAmountKobo: prior.amountKobo.toString(),
+                  observedAmountKobo: event.amountKobo.toString(),
+                  expectedCurrency: prior.currency,
+                  observedCurrency: event.currency,
+                  ...(verified && outcome
+                    ? {
+                        expectedChargebackAmountKobo:
+                          prior.chargebackAmountKobo?.toString() ?? null,
+                        observedChargebackAmountKobo:
+                          outcome.chargebackAmountKobo?.toString() ?? null,
+                        observedProviderStatus: verified.providerStatus,
+                        observedProviderResolution: verified.resolution,
+                      }
+                    : {}),
+                },
+              },
+            });
+          // Preserve completed facts and retain conflicts without applying their
+          // status, deadline or ledger effects to the original payment.
+          await writeWebhookResult(tx, claim, {
+            disputeId: prior.id,
+            status: "PROCESSED",
+            processedAt: now,
+            lockedAt: null,
+          });
+          return;
+        }
+        if (
+          verified &&
+          prior.providerUpdatedAt &&
+          (!verified.updatedAt || verified.updatedAt < prior.providerUpdatedAt)
+        ) {
+          await writeWebhookResult(tx, claim, {
+            disputeId: prior.id,
+            status: "PROCESSED",
+            processedAt: now,
+            lockedAt: null,
+          });
+          return;
+        }
+      }
+      const providerFacts =
+        verified && outcome
+          ? {
+              providerStatus: verified.providerStatus,
+              providerResolution: verified.resolution,
+              providerReviewReason: outcome.reviewReason,
+              providerUpdatedAt: verified.updatedAt,
+              chargebackAmountKobo: outcome.chargebackAmountKobo,
+            }
+          : {};
       const dispute = await tx.paymentDispute.upsert({
         where: {
           provider_providerDisputeId: { provider: "PAYSTACK", providerDisputeId },
@@ -1507,12 +1662,14 @@ export class PaymentsService {
           currency: event.currency,
           openedAt: now,
           responseDueAt: event.responseDueAt,
-          ...(terminal ? { resolvedAt: now } : {}),
+          ...providerFacts,
+          ...(terminal ? { resolvedAt: verified?.resolvedAt ?? now } : {}),
         },
         update: {
-          status: prior?.resolvedAt ? prior.status : status,
+          status,
           ...(event.responseDueAt ? { responseDueAt: event.responseDueAt } : {}),
-          ...(terminal ? { resolvedAt: now } : {}),
+          ...providerFacts,
+          ...(terminal ? { resolvedAt: verified?.resolvedAt ?? now } : {}),
         },
       });
       if (
@@ -1535,9 +1692,9 @@ export class PaymentsService {
             sourceKey: `chargeback:${dispute.id}`,
             type: "CHARGEBACK",
             direction: "DEBIT",
-            amountKobo: dispute.amountKobo,
+            amountKobo: dispute.chargebackAmountKobo ?? dispute.amountKobo,
             currency: dispute.currency,
-            occurredAt: now,
+            occurredAt: dispute.resolvedAt ?? now,
           },
           update: {},
         });
@@ -1551,7 +1708,7 @@ export class PaymentsService {
         action: "DISPUTE_UPDATED",
         entityType: "DISPUTE",
         entityId: dispute.id,
-        newValues: { status },
+        newValues: { status: dispute.status },
         context,
       });
     });

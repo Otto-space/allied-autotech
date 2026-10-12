@@ -1,0 +1,37 @@
+# Owned review source discovery
+
+The customer review picker now reads an authoritative availability collection instead of filtering general order, booking and vehicle-transaction pages. Completed records that already have a review no longer appear as available. Rejected reviews continue to consume their source; no resubmission policy was changed.
+
+## Contract
+
+`GET /customers/support/review-sources` requires an authenticated customer and `targetType=PRODUCT|SERVICE|ORDER|VEHICLE_TRANSACTION`. Business reviews need no transaction source. Responses are private/no-store and contain `items`, with optional `nextCursor`.
+
+Each item contains its source ID, target type, display label and only the IDs required for review creation. Contact details, financial amounts, internal notes and customer identity are excluded. Product items refer to order items, services to bookings, orders to orders and vehicle purchases to vehicle transactions. Product-item and whole-order reviews are independent. The existing SQL-only `Review_customer_product_once_key` also permits only one product review per customer/product across separate purchases; discovery honors that restriction for every moderation state. Another customer's product review does not affect the current customer's eligibility.
+
+Filtering happens in PostgreSQL before pagination. Queries are bounded to `limit + 1` rows, with default limit 20 and maximum 50. Source UUIDs sort ascending and the cursor is an exclusive UUID boundary. This ordering is stable, not chronological. A cursor source may become reviewed or disappear without breaking traversal; foreign/nonexistent UUID boundaries cannot grant access to other customers' records. New or changed eligibility between reads is not a snapshot: refresh to discover records that become available behind a previously used boundary.
+
+Optional `sourceId` checks a specific record without relying on a page of history. It cannot be combined with cursor. Foreign, nonexistent, incomplete and already-reviewed sources all produce an empty collection. Unknown query fields, invalid targets and malformed/beyond-limit pagination are rejected. Existing customer-role checks apply to every read; Staff, Admin and Super Admin cannot use this collection.
+
+Availability does not reserve a source. The existing serializable creation transaction, database source-validation trigger, unique constraints, CSRF, rate limits and moderation remain authoritative at submission. A source changing after selection or a competing review still prevents creation. Review submission replay remains a separate open contract enhancement.
+
+## Frontend
+
+The picker and confirmation preflight both use this endpoint. Returned source types and identities must agree; only allowlisted submission IDs are carried into POST. A failed or malformed collection blocks submission. Empty results explain that no completed records are available for review.
+
+Reloading a draft from a later source page resolves its stored source ID through the owned lookup before restoring the selection. Stored labels, request paths or ownership are never trusted. If the source is no longer available, feedback remains in the form and the customer is asked to choose another source. Existing unknown-outcome review recovery remains conservative and does not automatically repeat POST.
+
+## Local evidence and release
+
+Thirty backend cases passed across the new 15-case source suite and existing Phase 9 support/worker and HTTP boundary suites. These cover all four source types, all moderation states, repeated product purchases, ownership, role restrictions, CSRF on creation, raw data minimization, keyset traversal after a cursor becomes reviewed, malformed queries, source changes and competing submissions. Twenty-one frontend unit cases passed across source parsing, background refresh, mutation confirmation and form drafts.
+
+Fourteen unique browser cases passed across the focused runs: six new mocked source cases, three real API/database scenarios and five existing draft, recovery, stale-read and accessibility cases. The final 11-case regression passed together; the real later-page restoration scenario passed again with its optional saved page cursor removed and an asserted successful source-ID lookup. This proves the selection can be recovered independently of pagination context. Real writes left exactly five reviews and five creation audit entries. Browser plugin was unavailable, so the repository Playwright workflow used Edge at `http://localhost:3000/dashboard/reviews` with the isolated API on loopback port 5011.
+
+Page identity, meaningful content, successful interactions and absence of a framework overlay were verified. Real create-flow page-error capture was empty. Accessibility and horizontal-overflow checks passed at 390px and 1440px; screenshots `allied-review-sources-390.png` and `allied-review-sources-1440.png` were inspected. Development tooling emitted the existing Console Ninja connection notice and Node/Vite tooling warnings; these were not classified as application failures. The isolated API and development server were stopped after browser verification.
+
+OpenAPI validation covers 267 paths; route verification matches 316 documented operations plus four explicit infrastructure routes. Backend/frontend type checks and lint passed, as did the backend build and secret guard. The normal frontend build hit Windows `EBUSY` on `.next/standalone`, held by a pre-existing port-3001 preview. That process was left running. The production build and standalone packaging passed in an isolated source copy; SHA-256 comparisons matched all 518 application, library, script and configuration files against the worktree. The temporary build location is retained in `allied-review-build-path.txt`. The ordinary worktree build remains subject to the existing preview lock.
+
+Initial fixture failures exposed the existing product uniqueness rule and missing vehicle reservation/cancellation data. Fixtures were corrected to use the synthetic reservation-acceptance helper and separate vehicle listings. Rate-limited tests now use an independent application instance per case; production limits were preserved. The first browser pass used an incorrect close-button label in one test; the rendered rejected-preflight dialog correctly used **Go back**. No production guard was relaxed.
+
+Evidence is in OS temporary files `allied-review-sources-regression-final.json` (30 passing), `allied-review-sources-final-projection.json` (15 focused passing after strengthening raw response-key assertions), `allied-review-sources-frontend-units.json` (21 passing), and the `allied-review-sources-*-playwright` directories. Real verification uses an isolated `_test` database, synthetic customers and loopback API; it does not certify deployed acceptance. Synthetic reservation terms used by the vehicle fixtures are not approved business terms.
+
+No migration is required. Release the backend endpoint before or together with the matching frontend/generated contract. Older frontend clients continue to use the supported general collections; the new frontend fails closed if the endpoint is missing. No application database was migrated, no real agreement was published and no external providers were enabled.

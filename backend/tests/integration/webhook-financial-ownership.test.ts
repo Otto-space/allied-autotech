@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
-import { afterAll, afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
+import { paystackProvider } from "../../src/providers/payments/paystack.adapter.js";
 import { prisma } from "../../src/config/database.js";
 import type { Prisma, PrismaClient } from "../../src/generated/prisma/client.js";
 import { PaymentsService } from "../../src/modules/payments/payments.service.js";
@@ -50,6 +51,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   () => {
     const jobs: string[] = [];
     afterEach(async () => {
+      vi.restoreAllMocks();
       await prisma.paymentWebhookEvent.updateMany({
         where: { id: { in: jobs }, status: { not: "PROCESSED" } },
         data: { status: "DEAD_LETTER", failedAt: new Date(), lockedAt: null },
@@ -58,7 +60,11 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     });
     afterAll(() => prisma.$disconnect());
 
-    async function fixture(provider: "PAYSTACK" | "MONNIFY", refundNeeded = false) {
+    async function fixture(
+      provider: "PAYSTACK" | "MONNIFY",
+      refundNeeded = false,
+      captured = false,
+    ) {
       const user = await prisma.user.create({
         data: {
           email: `${randomUUID()}@example.test`,
@@ -112,7 +118,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           internalReference: randomUUID(),
           provider,
           amountKobo: 10000n,
-          ...(refundNeeded
+          ...(refundNeeded || captured
             ? {
                 status: "SUCCESSFUL",
                 verificationStatus: "VERIFIED",
@@ -188,7 +194,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
     it.each(cases)(
       "%s %s rolls back business writes after losing the claim",
       async (provider, kind) => {
-        const f = await fixture(provider, kind === "refund");
+        const f = await fixture(provider, kind === "refund", kind === "dispute");
         const payloadSha256 = digest(randomUUID());
         const event: PaystackWebhookEvent = {
           eventType:
@@ -287,6 +293,21 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           where: { id: row.id },
           data: { lockedAt: new Date(0) },
         });
+        if (kind === "dispute")
+          vi.spyOn(paystackProvider, "verifyDispute").mockResolvedValue({
+            providerDisputeId: event.resourceId!,
+            reference: f.attempt.internalReference,
+            gatewayTransactionId: f.attempt.gatewayTransactionId!,
+            transactionAmountKobo: 10000n,
+            currency: "NGN",
+            providerStatus: "lost",
+            resolution: null,
+            refundAmountKobo: 10000n,
+            category: null,
+            responseDueAt: null,
+            resolvedAt: new Date(),
+            updatedAt: new Date(),
+          });
         await new PaymentWebhookRetryWorker(prisma, new PaymentsService(prisma)).runOnce(
           100,
         );

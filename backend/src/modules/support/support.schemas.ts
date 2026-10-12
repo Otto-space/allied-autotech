@@ -138,10 +138,57 @@ export const reviewCreateBodySchema = z.discriminatedUnion("targetType", [
     .strict(),
 ]);
 
+export const reviewRequestKeySchema = z
+  .string()
+  .regex(
+    /^review-v1\.\d{13}\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+export const reviewRequestHeadersSchema = z.object({
+  "idempotency-key": reviewRequestKeySchema,
+});
+
 const page = {
   cursor: uuid.optional(),
   limit: z.coerce.number().int().min(1).max(50).default(20),
 } as const;
+
+export const reviewSourceListQuerySchema = z
+  .object({
+    ...page,
+    targetType: z.enum(["PRODUCT", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"]),
+    sourceId: uuid.optional(),
+  })
+  .strict()
+  .refine((value) => !value.sourceId || !value.cursor, {
+    message: "sourceId and cursor cannot be combined",
+  });
+const sourceFields = { id: uuid, label: z.string() };
+export const reviewSourceSchema = z.discriminatedUnion("targetType", [
+  z.object({
+    ...sourceFields,
+    targetType: z.literal("PRODUCT"),
+    productId: uuid,
+    orderItemId: uuid,
+  }),
+  z.object({
+    ...sourceFields,
+    targetType: z.literal("SERVICE"),
+    serviceId: uuid,
+    bookingId: uuid,
+  }),
+  z.object({ ...sourceFields, targetType: z.literal("ORDER"), orderId: uuid }),
+  z.object({
+    ...sourceFields,
+    targetType: z.literal("VEHICLE_TRANSACTION"),
+    vehicleTransactionId: uuid,
+  }),
+]);
+export const reviewSourcePageSchema = z.object({
+  items: z.array(reviewSourceSchema),
+  nextCursor: uuid.optional(),
+});
+export type ReviewSourceListQuery = z.infer<typeof reviewSourceListQuerySchema>;
+export type ReviewSource = z.infer<typeof reviewSourceSchema>;
 
 export const supportIdParamsSchema = z.object({ supportId: uuid }).strict();
 export const reviewIdParamsSchema = z.object({ reviewId: uuid }).strict();
