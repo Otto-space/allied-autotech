@@ -49,13 +49,20 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
     failPreferences: false,
     malformed: false,
     unknown: false,
+    dropCommitted: false,
+    receipts: new Map<string, { body: string; preference: NotificationPreference }>(),
     wrongResponse: false,
     deny: false,
     paginate: false,
     delay: false,
     release: undefined as (() => void) | undefined,
     reads: [] as string[],
-    writes: [] as { endpoint: string; body: Record<string, unknown>; csrf?: string }[],
+    writes: [] as {
+      endpoint: string;
+      body: Record<string, unknown>;
+      csrf?: string;
+      key?: string;
+    }[],
   };
   await page.route("**/api/v1/**", async (route) => {
     const request = route.request();
@@ -114,6 +121,7 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
       endpoint,
       body: request.postDataJSON(),
       csrf: request.headers()["x-csrf-token"],
+      key: request.headers()["idempotency-key"],
     });
     if (state.delay)
       await new Promise<void>((resolve) => {
@@ -129,8 +137,32 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
     if (state.deny) return fail(route, 403);
     if (endpoint.endsWith("/preferences/current")) {
       const input = request.postDataJSON();
+      const key = request.headers()["idempotency-key"];
+      if (!key) return fail(route, 422);
+      const receipt = state.receipts.get(key);
+      const current = state.preferences.find(
+        (p) => p.category === input.category && p.channel === input.channel,
+      );
+      if (receipt) {
+        if (receipt.body !== JSON.stringify(input))
+          return route.fulfill({
+            status: 409,
+            json: { success: false, error: { code: "IDEMPOTENCY_CONFLICT" } },
+          });
+        return reply(route, {
+          preference: current,
+          appliedVersion: receipt.preference.version,
+          replayed: true,
+        });
+      }
+      if ((current?.version ?? 0) !== input.expectedVersion)
+        return route.fulfill({
+          status: 409,
+          json: { success: false, error: { code: "CONFLICT" } },
+        });
       const saved: NotificationPreference = {
         ...input,
+        version: input.expectedVersion + 1,
         consentedAt: input.category === "MARKETING" && input.enabled ? time : null,
         updatedAt: time,
       };
@@ -140,12 +172,18 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         ),
         saved,
       ];
-      return reply(
-        route,
-        state.wrongResponse
+      state.receipts.set(key, { body: JSON.stringify(input), preference: saved });
+      if (state.dropCommitted) {
+        state.dropCommitted = false;
+        return route.abort("connectionreset");
+      }
+      return reply(route, {
+        preference: state.wrongResponse
           ? { ...saved, channel: input.channel === "EMAIL" ? "SMS" : "EMAIL" }
           : saved,
-      );
+        appliedVersion: saved.version,
+        replayed: false,
+      });
     }
     if (endpoint.endsWith("/read-all")) {
       const updated = state.items.filter((row) => !row.readAt).length;

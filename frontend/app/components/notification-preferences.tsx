@@ -1,16 +1,46 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { apiRequest } from "@/lib/api/client";
+import { useState } from "react";
+import { usePreferenceWrite } from "@/lib/notifications/use-preference-write";
+import { PreferenceRecovery } from "./preference-recovery";
+import { useAccountSession } from "./dashboard-shell";
+import type { PreferenceIntent } from "@/lib/notifications/preference-recovery";
 import { useResource } from "@/lib/api/use-resource";
 import {
   parseNotificationPreferences,
   preferenceEnabled,
-  preferenceSchema,
   type NotificationPreference,
 } from "@/lib/api/notification-schemas";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 export function NotificationPreferences({ base }: { base: string }) {
+  const session = useAccountSession();
+  if (!session) return null;
+  const role = session.user.role;
+  if (
+    role !== "CUSTOMER" &&
+    role !== "STAFF" &&
+    role !== "ADMIN" &&
+    role !== "SUPER_ADMIN"
+  )
+    return null;
+  return (
+    <OwnedPreferences
+      key={`${session.user.id}:${session.user.role}`}
+      base={base}
+      userId={session.user.id}
+      role={role}
+    />
+  );
+}
+function OwnedPreferences({
+  base,
+  userId,
+  role,
+}: {
+  base: string;
+  userId: string;
+  role: PreferenceIntent["role"];
+}) {
   const records = useResource(
     `${base}/preferences/current`,
     parseNotificationPreferences,
@@ -18,17 +48,17 @@ export function NotificationPreferences({ base }: { base: string }) {
   const preferences = records.data?.preferences;
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
-  const [uncertain, setUncertain] = useState(false);
-  const pending = useRef<AbortController | null>(null);
-  useEffect(() => () => pending.current?.abort(), []);
-  const disabled =
-    records.loading || !!records.error || !records.data || !!proposal || uncertain;
+  const guard = usePreferenceWrite(userId, role, records);
+  const disabled = guard.disabled || !!proposal;
   function review(
     category: NotificationPreference["category"],
     channel: NotificationPreference["channel"],
     enabled: boolean,
   ) {
     if (disabled) return;
+    const expectedVersion =
+      preferences?.find((p) => p.category === category && p.channel === channel)
+        ?.version ?? 0;
     setMessage(undefined);
     setProposal({
       title: `${enabled ? "Enable" : "Disable"} ${category.toLowerCase()} ${channel === "EMAIL" ? "email" : "SMS"}?`,
@@ -41,32 +71,13 @@ export function NotificationPreferences({ base }: { base: string }) {
         { label: "Channel", value: channel },
         { label: "New preference", value: enabled ? "Enabled" : "Disabled" },
       ],
-      onUncertain: () => setUncertain(true),
+      retryAfterRejection: false,
       submit: async () => {
-        const controller = new AbortController();
-        pending.current = controller;
-        try {
-          const response = await apiRequest(`${base}/preferences/current`, {
-            method: "PUT",
-            csrf: true,
-            body: { category, channel, enabled },
-            signal: controller.signal,
-          });
-          const updated = preferenceSchema.parse(response.data);
-          if (
-            updated.category !== category ||
-            updated.channel !== channel ||
-            updated.enabled !== enabled ||
-            (category === "MARKETING" && enabled && !updated.consentedAt)
-          )
-            throw new Error("Unconfirmed preference");
-          setMessage(
-            "Delivery preference saved. Message delivery also depends on available contact details and enabled delivery services.",
-          );
-          records.refresh();
-        } finally {
-          pending.current = null;
-        }
+        await guard.run({ category, channel, enabled, expectedVersion });
+        setMessage(
+          "Delivery preference saved. Message delivery also depends on available contact details and enabled delivery services.",
+        );
+        records.refresh();
       },
     });
   }
@@ -87,17 +98,22 @@ export function NotificationPreferences({ base }: { base: string }) {
         tone="success"
         toast="Notification preferences updated."
       />
-      {uncertain && (
-        <p className="notice" role="status">
-          The preference change could not be confirmed. Refresh to inspect saved
-          preferences. Further changes are paused in this view; no request will be
-          replayed automatically.
-        </p>
-      )}
+      <Feedback message={records.refreshError} />
+      <PreferenceRecovery
+        guard={guard}
+        onRecovered={(superseded) => {
+          setMessage(
+            superseded
+              ? "Original change confirmed. A newer preference is already saved; it has been preserved."
+              : "Preference change confirmed.",
+          );
+          records.refresh();
+        }}
+      />
       <button
         className="button secondary"
-        disabled={records.loading || !!proposal}
-        onClick={records.refresh}
+        disabled={records.loading || records.refreshing || guard.busy || !!proposal}
+        onClick={guard.refresh}
       >
         Refresh preferences
       </button>

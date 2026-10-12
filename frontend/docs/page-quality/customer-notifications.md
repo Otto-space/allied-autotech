@@ -76,3 +76,7 @@ Material mismatches fixed: loose initial desktop filter placement, duplicate unc
 Marketing execution remains disabled pending Q12 content/consent/sender/unsubscribe approval and its own implementation/release verification. Preference PUT has no expected revision or durable replay contract, so it must not be described as conflict-safe across sessions. These limits are recorded in [backend gaps](../../../BACKEND_IMPLEMENTATION_GAPS.md#marketing-delivery-and-preference-contracts---policy-dependent-follow-up). Existing owner/role/CSRF rules remain intact. No backend source, schema, provider configuration, shared shell or staff redesign was changed for this gate.
 
 **Accepted locally:** all required page checks above are complete. The whole-app goal remains active. Next: customer reviews `/dashboard/reviews`; remaining customer support and staff/admin/Super Admin routes retain their own gates.
+
+## Subsequent preference revisions and recovery
+
+The preference contract now requires the displayed version and an original request key. Customer and staff screens use explicit original-request recovery after an uncertain result and reload. Recovery preserves later choices, including consent withdrawal; it does not submit automatically. Legacy markers still require explicit current-state reconciliation. The earlier preference mutation/recovery behavior and counts in this report are historical. See [migration, API, browser and rollout evidence](../../../backend/docs/notification-preference-recovery.md).

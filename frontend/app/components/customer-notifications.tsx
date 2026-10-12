@@ -12,10 +12,11 @@ import {
   parseNotificationPreferences,
   parseNotifications,
   preferenceEnabled,
-  preferenceSchema,
   type InboxNotification,
   type NotificationPreference,
 } from "@/lib/api/notification-schemas";
+import { usePreferenceWrite } from "@/lib/notifications/use-preference-write";
+import { PreferenceRecovery } from "./preference-recovery";
 import { useNotificationWrite } from "@/lib/notifications/use-notification-write";
 import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountSession } from "./dashboard-shell";
@@ -87,7 +88,7 @@ function CustomerPreferences({ userId }: { userId: string }) {
     `${base}/preferences/current`,
     parseNotificationPreferences,
   );
-  const guard = useNotificationWrite(userId, "preferences", records);
+  const guard = usePreferenceWrite(userId, "CUSTOMER", records);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
   function review(
@@ -96,6 +97,10 @@ function CustomerPreferences({ userId }: { userId: string }) {
     enabled: boolean,
   ) {
     if (guard.disabled || proposal) return;
+    const expectedVersion =
+      records.data?.preferences.find(
+        (p) => p.category === category && p.channel === channel,
+      )?.version ?? 0;
     setMessage(undefined);
     setProposal({
       title: `${enabled ? "Enable" : "Disable"} ${label(category)} ${channel === "EMAIL" ? "email" : "SMS"}?`,
@@ -110,26 +115,7 @@ function CustomerPreferences({ userId }: { userId: string }) {
       ],
       retryAfterRejection: false,
       submit: async () => {
-        await guard.run(async (signal) => {
-          const updated = preferenceSchema.parse(
-            (
-              await apiRequest(`${base}/preferences/current`, {
-                method: "PUT",
-                csrf: true,
-                body: { category, channel, enabled },
-                signal,
-              })
-            ).data,
-          );
-          if (
-            updated.category !== category ||
-            updated.channel !== channel ||
-            updated.enabled !== enabled ||
-            (category === "MARKETING" && enabled && !updated.consentedAt)
-          )
-            throw new Error("Unconfirmed preference");
-          return updated;
-        });
+        await guard.run({ category, channel, enabled, expectedVersion });
         setMessage(
           "Delivery preference saved. Message delivery also depends on available contact details and enabled delivery services.",
         );
@@ -156,7 +142,17 @@ function CustomerPreferences({ userId }: { userId: string }) {
             changes.
           </p>
         )}
-        <WriteFeedback guard={guard} scope="preferences" />
+        <PreferenceRecovery
+          guard={guard}
+          onRecovered={(superseded) => {
+            setMessage(
+              superseded
+                ? "Original change confirmed. A newer preference is already saved; it has been preserved."
+                : "Preference change confirmed.",
+            );
+            records.refresh();
+          }}
+        />
         {records.loading && (
           <div
             role="status"

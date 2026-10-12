@@ -173,6 +173,13 @@ test("preference recovery reconciles committed result without repeating consent"
   await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
   await confirm(page).click();
   await page.getByRole("button", { name: "Close & review record" }).click();
+  // Legacy clients retained only uncertainty; keep that compatibility path covered.
+  await page.evaluate(() =>
+    sessionStorage.setItem(
+      "aat:notification-write:v1:b3000000-0000-4000-8000-000000000020:preferences",
+      "pending",
+    ),
+  );
   await page.reload();
   const ack = page.getByRole("button", { name: "I've checked preferences", exact: true });
   await expect(ack).toBeDisabled();

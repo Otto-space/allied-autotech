@@ -5,6 +5,7 @@ import { errorMessage, fieldErrors, isRecord } from "./errors";
 import { retryAfterSeconds } from "./retry-after";
 import { redactVehicleRetries } from "./vehicle-creation-retry";
 import { redactReservationRetries } from "./reservation-terms";
+import { redactPreferenceRecoveries } from "../notifications/preference-recovery";
 import { redactReviewRecoveries } from "../reviews/review-recovery";
 import {
   captureDraftSubmission,
@@ -208,6 +209,7 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactVehicleRetries();
   redactReservationRetries();
   redactReviewRecoveries();
+  redactPreferenceRecoveries();
   sessionGeneration += 1;
   csrfToken = null;
   csrfRequest = null;

@@ -112,6 +112,7 @@ async function fixture(page: Page, role = "CUSTOMER") {
       const input = request.postDataJSON();
       const saved: NotificationPreference = {
         ...input,
+        version: input.expectedVersion + 1,
         consentedAt: input.category === "MARKETING" && input.enabled ? time : null,
         updatedAt: time,
       };
@@ -121,12 +122,13 @@ async function fixture(page: Page, role = "CUSTOMER") {
         ),
         saved,
       ];
-      return reply(
-        route,
-        state.wrongResponse
+      return reply(route, {
+        preference: state.wrongResponse
           ? { ...saved, channel: input.channel === "EMAIL" ? "SMS" : "EMAIL" }
           : saved,
-      );
+        appliedVersion: saved.version,
+        replayed: false,
+      });
     }
     if (endpoint.endsWith("/read-all")) {
       const updated = state.items.filter((row) => !row.readAt).length;
@@ -225,6 +227,7 @@ test("preferences derive defaults and require explicit marketing consent", async
     category: "MARKETING",
     channel: "EMAIL",
     enabled: true,
+    expectedVersion: 0,
   });
   await page
     .getByRole("button", { name: "Disable operational sms", exact: true })
@@ -460,6 +463,7 @@ test("marketing without a recorded consent remains disabled", async ({ page }) =
       category: "MARKETING",
       channel: "EMAIL",
       enabled: true,
+      version: 1,
       consentedAt: null,
       updatedAt: time,
     },

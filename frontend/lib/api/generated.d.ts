@@ -4602,7 +4602,7 @@ export interface paths {
     get: operations["getCustomersNotificationsPreferencesCurrent"];
     /**
      * Update one mutable notification preference
-     * @description Update one mutable notification preference. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires expectedVersion (zero for an absent pair) and Idempotency-Key preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Conflicting revisions return 409 CONFLICT. Original key/body replay within 24 hours returns appliedVersion and current preference without a second consent record or audit; a later withdrawal is never overwritten. Changed content returns 409 IDEMPOTENCY_CONFLICT; expired keys and keys over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing or malformed keys/versions return 422. Replay retains role, CSRF and ownership checks. Marketing dispatch stays disabled. Deploy the revision migration, API and matching clients together. Update one mutable notification preference. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     put: operations["putCustomersNotificationsPreferencesCurrent"];
     post?: never;
@@ -4686,7 +4686,7 @@ export interface paths {
     get: operations["getStaffNotificationsPreferencesCurrent"];
     /**
      * Update one mutable notification preference
-     * @description Update one mutable notification preference. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+     * @description Requires expectedVersion (zero for an absent pair) and Idempotency-Key preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Conflicting revisions return 409 CONFLICT. Original key/body replay within 24 hours returns appliedVersion and current preference without a second consent record or audit; a later withdrawal is never overwritten. Changed content returns 409 IDEMPOTENCY_CONFLICT; expired keys and keys over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing or malformed keys/versions return 422. Replay retains role, CSRF and ownership checks. Marketing dispatch stays disabled. Deploy the revision migration, API and matching clients together. Update one mutable notification preference. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
      */
     put: operations["putStaffNotificationsPreferencesCurrent"];
     post?: never;
@@ -73719,8 +73719,19 @@ export interface operations {
            *       "success": true,
            *       "message": "Get mutable operational and marketing preferences",
            *       "data": {
-           *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "immutableCategories": [
+           *           "SECURITY"
+           *         ],
+           *         "preferences": [
+           *           {
+           *             "category": "OPERATIONAL",
+           *             "channel": "EMAIL",
+           *             "enabled": true,
+           *             "version": 1,
+           *             "consentedAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z"
+           *           }
+           *         ]
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -73732,22 +73743,42 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Immutable Categories validated by this operation's strict request contract. */
+              immutableCategories: ("SECURITY" | "TRANSACTIONAL")[];
+              /** @description Preferences validated by this operation's strict request contract. */
+              preferences: {
+                /**
+                 * @description Category validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                category: "OPERATIONAL" | "MARKETING";
+                /**
+                 * @description Channel validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                channel: "EMAIL" | "SMS";
+                /** @description Enabled validated by this operation's strict request contract. */
+                enabled: boolean;
+                /** @description Version validated by this operation's strict request contract. */
+                version: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                consentedAt: string | null;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              }[];
+            };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
               /** @description Identifier of the request resource; ownership is resolved server-side. */
               requestId: string;
-            };
-            /** @description Authorized response projection for: Get mutable operational and marketing preferences. */
-            data?: {
-              /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
-               */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
             };
           };
         };
@@ -73910,6 +73941,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path?: never;
       cookie?: never;
@@ -73920,7 +73956,8 @@ export interface operations {
          * @example {
          *       "category": "OPERATIONAL",
          *       "channel": "EMAIL",
-         *       "enabled": true
+         *       "enabled": true,
+         *       "expectedVersion": 0
          *     }
          */
         "application/json": {
@@ -73936,6 +73973,8 @@ export interface operations {
           channel: "EMAIL" | "SMS";
           /** @description Enabled validated by this operation's strict request contract. */
           enabled: boolean;
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
         };
       };
     };
@@ -73951,8 +73990,16 @@ export interface operations {
            *       "success": true,
            *       "message": "Update one mutable notification preference",
            *       "data": {
-           *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "preference": {
+           *           "category": "OPERATIONAL",
+           *           "channel": "EMAIL",
+           *           "enabled": true,
+           *           "version": 1,
+           *           "consentedAt": "2030-01-15T10:00:00.000Z",
+           *           "updatedAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "appliedVersion": 1,
+           *         "replayed": true
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -73964,22 +74011,44 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Preference validated by this operation's strict request contract. */
+              preference: {
+                /**
+                 * @description Category validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                category: "OPERATIONAL" | "MARKETING";
+                /**
+                 * @description Channel validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                channel: "EMAIL" | "SMS";
+                /** @description Enabled validated by this operation's strict request contract. */
+                enabled: boolean;
+                /** @description Version validated by this operation's strict request contract. */
+                version: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                consentedAt: string | null;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              };
+              /** @description Applied Version validated by this operation's strict request contract. */
+              appliedVersion: number;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
+            };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
               /** @description Identifier of the request resource; ownership is resolved server-side. */
               requestId: string;
-            };
-            /** @description Authorized response projection for: Update one mutable notification preference. */
-            data?: {
-              /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
-               */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
             };
           };
         };
@@ -74914,8 +74983,19 @@ export interface operations {
            *       "success": true,
            *       "message": "Get mutable operational and marketing preferences",
            *       "data": {
-           *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "immutableCategories": [
+           *           "SECURITY"
+           *         ],
+           *         "preferences": [
+           *           {
+           *             "category": "OPERATIONAL",
+           *             "channel": "EMAIL",
+           *             "enabled": true,
+           *             "version": 1,
+           *             "consentedAt": "2030-01-15T10:00:00.000Z",
+           *             "updatedAt": "2030-01-15T10:00:00.000Z"
+           *           }
+           *         ]
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -74927,22 +75007,42 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Immutable Categories validated by this operation's strict request contract. */
+              immutableCategories: ("SECURITY" | "TRANSACTIONAL")[];
+              /** @description Preferences validated by this operation's strict request contract. */
+              preferences: {
+                /**
+                 * @description Category validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                category: "OPERATIONAL" | "MARKETING";
+                /**
+                 * @description Channel validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                channel: "EMAIL" | "SMS";
+                /** @description Enabled validated by this operation's strict request contract. */
+                enabled: boolean;
+                /** @description Version validated by this operation's strict request contract. */
+                version: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                consentedAt: string | null;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              }[];
+            };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
               /** @description Identifier of the request resource; ownership is resolved server-side. */
               requestId: string;
-            };
-            /** @description Authorized response projection for: Get mutable operational and marketing preferences. */
-            data?: {
-              /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
-               */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
             };
           };
         };
@@ -75105,6 +75205,11 @@ export interface operations {
          * @example synthetic-token-value-not-a-real-secret
          */
         "x-csrf-token": string;
+        /**
+         * @description Unique retry key for this logical mutation. Reuse it only with the identical request.
+         * @example synthetic-idempotency-key
+         */
+        "idempotency-key": string;
       };
       path?: never;
       cookie?: never;
@@ -75115,7 +75220,8 @@ export interface operations {
          * @example {
          *       "category": "OPERATIONAL",
          *       "channel": "EMAIL",
-         *       "enabled": true
+         *       "enabled": true,
+         *       "expectedVersion": 0
          *     }
          */
         "application/json": {
@@ -75131,6 +75237,8 @@ export interface operations {
           channel: "EMAIL" | "SMS";
           /** @description Enabled validated by this operation's strict request contract. */
           enabled: boolean;
+          /** @description Last server version observed by the client; stale writes are rejected. */
+          expectedVersion: number;
         };
       };
     };
@@ -75146,8 +75254,16 @@ export interface operations {
            *       "success": true,
            *       "message": "Update one mutable notification preference",
            *       "data": {
-           *         "id": "00000000-0000-4000-8000-000000000001",
-           *         "status": "synthetic-status"
+           *         "preference": {
+           *           "category": "OPERATIONAL",
+           *           "channel": "EMAIL",
+           *           "enabled": true,
+           *           "version": 1,
+           *           "consentedAt": "2030-01-15T10:00:00.000Z",
+           *           "updatedAt": "2030-01-15T10:00:00.000Z"
+           *         },
+           *         "appliedVersion": 1,
+           *         "replayed": true
            *       },
            *       "meta": {
            *         "requestId": "req_0000000000000001"
@@ -75159,22 +75275,44 @@ export interface operations {
             success: boolean;
             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
             message: string;
+            /** @description Data validated by this operation's strict request contract. */
+            data: {
+              /** @description Preference validated by this operation's strict request contract. */
+              preference: {
+                /**
+                 * @description Category validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                category: "OPERATIONAL" | "MARKETING";
+                /**
+                 * @description Channel validated by this operation's strict request contract.
+                 * @enum {string}
+                 */
+                channel: "EMAIL" | "SMS";
+                /** @description Enabled validated by this operation's strict request contract. */
+                enabled: boolean;
+                /** @description Version validated by this operation's strict request contract. */
+                version: number;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                consentedAt: string | null;
+                /**
+                 * Format: date-time
+                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                 */
+                updatedAt: string;
+              };
+              /** @description Applied Version validated by this operation's strict request contract. */
+              appliedVersion: number;
+              /** @description Replayed validated by this operation's strict request contract. */
+              replayed: boolean;
+            };
             /** @description Meta validated by this operation's strict request contract. */
             meta: {
               /** @description Identifier of the request resource; ownership is resolved server-side. */
               requestId: string;
-            };
-            /** @description Authorized response projection for: Update one mutable notification preference. */
-            data?: {
-              /**
-               * Format: uuid
-               * @description Public or authorized resource identifier.
-               */
-              id?: string;
-              /** @description Current server-owned lifecycle state when applicable. */
-              status?: string;
-            } & {
-              [key: string]: unknown;
             };
           };
         };

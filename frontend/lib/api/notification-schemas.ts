@@ -49,6 +49,7 @@ export const preferenceSchema = z.object({
   category: z.enum(["OPERATIONAL", "MARKETING"]),
   channel: z.enum(["EMAIL", "SMS"]),
   enabled: z.boolean(),
+  version: z.number().int().min(1).max(2147483647),
   consentedAt: timestamp.nullable(),
   updatedAt: timestamp,
 });
@@ -81,3 +82,17 @@ export function preferenceEnabled(
     ? preference?.enabled === true && preference.consentedAt !== null
     : preference?.enabled !== false;
 }
+
+export const preferenceWriteBodySchema = z
+  .object({
+    category: z.enum(["OPERATIONAL", "MARKETING"]),
+    channel: z.enum(["EMAIL", "SMS"]),
+    enabled: z.boolean(),
+    expectedVersion: z.number().int().min(0).max(2147483646),
+  })
+  .strict();
+export const preferenceWriteResultSchema = z.object({
+  preference: preferenceSchema,
+  appliedVersion: z.number().int().positive(),
+  replayed: z.boolean(),
+});
