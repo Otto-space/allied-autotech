@@ -6,6 +6,12 @@ import {
   type BusinessCalendar,
 } from "../modules/support/business-calendar.js";
 import { requestFreeCancellationRefund } from "../modules/payments/refund-workflow.js";
+import {
+  readOperationalScan,
+  operationalScanBoundary,
+  advanceOperationalScan,
+  operationalScanLimit,
+} from "./operational-scan.js";
 
 export class OperationalAlertsWorker {
   constructor(private readonly database = prisma) {}
@@ -26,10 +32,11 @@ export class OperationalAlertsWorker {
       await this.database.$transaction((tx) =>
         requestFreeCancellationRefund(tx, order.id, order.customer.userId),
       );
+    const disputeScan = await readOperationalScan(this.database, "disputes");
     const disputes = await this.database.paymentDispute.findMany({
-      where: { resolvedAt: null },
-      orderBy: { openedAt: "asc" },
-      take: 100,
+      where: { resolvedAt: null, AND: operationalScanBoundary(disputeScan) },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: operationalScanLimit,
     });
     const disputePolicy = await currentPolicy(this.database, "disputes");
     const settings = disputePolicy.settings as Record<string, unknown>;
@@ -105,8 +112,11 @@ export class OperationalAlertsWorker {
         }
       }
     }
+    await advanceOperationalScan(this.database, disputeScan, disputes);
+    const refundScan = await readOperationalScan(this.database, "refunds");
     const attentionRefunds = await this.database.refund.findMany({
       where: {
+        AND: operationalScanBoundary(refundScan),
         OR: [
           { status: "NEEDS_ATTENTION" },
           {
@@ -119,8 +129,9 @@ export class OperationalAlertsWorker {
           },
         ],
       },
-      select: { id: true },
-      take: 100,
+      select: { id: true, createdAt: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: operationalScanLimit,
     });
     for (const refund of attentionRefunds)
       await this.database.operationalAlert.upsert({
@@ -134,6 +145,7 @@ export class OperationalAlertsWorker {
             "Refund needs reconciliation or independent bank evidence checking. Never resubmit an uncertain gateway refund or pay it a second time by bank.",
         },
       });
+    await advanceOperationalScan(this.database, refundScan, attentionRefunds);
     const due = await this.database.complaint.findMany({
       where: {
         priority: "URGENT",
@@ -195,14 +207,16 @@ export class OperationalAlertsWorker {
           data: { escalatedAt: new Date() },
         });
       });
+    const paymentScan = await readOperationalScan(this.database, "payments");
     const stuck = await this.database.payment.findMany({
       where: {
+        AND: operationalScanBoundary(paymentScan),
         status: { in: ["REQUIRES_REVIEW", "PROCESSING"] },
         createdAt: { lt: new Date(Date.now() - 86_400_000) },
       },
-      select: { id: true },
-      take: 100,
-      orderBy: { createdAt: "asc" },
+      select: { id: true, createdAt: true },
+      take: operationalScanLimit,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
     for (const payment of stuck)
       await this.database.operationalAlert.upsert({
@@ -216,13 +230,17 @@ export class OperationalAlertsWorker {
             "Payment has remained in processing/review for over 24 hours. Reconcile provider/bank evidence; do not release protected vehicle allocations or re-charge blindly.",
         },
       });
+    await advanceOperationalScan(this.database, paymentScan, stuck);
+    const vehicleScan = await readOperationalScan(this.database, "vehicle-holds");
     const paidHoldPending = await this.database.vehicleTransaction.findMany({
       where: {
+        AND: operationalScanBoundary(vehicleScan),
         status: { in: ["PARTIALLY_PAID", "PAID", "HANDOVER_PENDING"] },
         paidHoldStartsAt: null,
       },
-      select: { id: true },
-      take: 100,
+      select: { id: true, createdAt: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take: operationalScanLimit,
     });
     for (const vehicle of paidHoldPending)
       await this.database.operationalAlert.upsert({
@@ -236,6 +254,7 @@ export class OperationalAlertsWorker {
             "Paid vehicle allocation remains protected. Paid-hold anchor, delayed-confirmation handling and expiry disposition require approved policy; no automatic forfeiture or reassignment.",
         },
       });
+    await advanceOperationalScan(this.database, vehicleScan, paidHoldPending);
     // Close derived alerts only when their underlying recorded condition is resolved.
     await this.database.$executeRaw`
       UPDATE "OperationalAlert" a SET "resolvedAt" = (CURRENT_TIMESTAMP AT TIME ZONE 'UTC')

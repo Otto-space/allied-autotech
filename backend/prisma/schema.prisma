@@ -2514,6 +2514,14 @@ model WorkerHeartbeat {
   errorCode       String?   @db.VarChar(100)
 }
 
+model WorkerScanCheckpoint {
+  name           String    @id @db.VarChar(100)
+  afterCreatedAt DateTime?
+  afterId        String?   @db.Uuid
+  version        Int       @default(1)
+  updatedAt      DateTime  @updatedAt
+}
+
 model ConsentRecord {
   id             String   @id @default(uuid()) @db.Uuid
   userId         String   @db.Uuid
