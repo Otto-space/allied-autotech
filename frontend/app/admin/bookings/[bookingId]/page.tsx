@@ -1,3 +1,4 @@
+import "./booking-detail.css";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { StaffBookingDetail } from "@/app/components/staff-booking-detail";

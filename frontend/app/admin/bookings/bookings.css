@@ -519,3 +519,13 @@
   display: inline-block;
   margin-right: 6px;
 }
+.dashboard .dashboard-content .work-bookings [aria-invalid="true"] {
+  border-color: #b90200;
+}
+.work-booking-filters > p.field-error {
+  color: #a50000;
+}
+.dashboard .dashboard-content .work-bookings :is(input, select):focus-visible {
+  outline: 2px solid #b90200;
+  outline-offset: 3px;
+}

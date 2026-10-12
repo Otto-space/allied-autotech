@@ -6,7 +6,8 @@ import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
 import { parseStaffBooking } from "@/lib/api/staff-booking-schemas";
-import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
+import { ChevronRight, RefreshCw } from "lucide-react";
+import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
@@ -33,34 +34,88 @@ const textField = (max: number) =>
       "Use a single paragraph without control characters.",
     );
 export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
+  const session = useAccountSession();
+  if (!session || !["STAFF", "ADMIN", "SUPER_ADMIN"].includes(session.user.role))
+    return null;
+  return (
+    <BookingRecord
+      key={`${session.user.id}:${session.user.role}:${bookingId}`}
+      bookingId={bookingId}
+    />
+  );
+}
+function BookingRecord({ bookingId }: { bookingId: string }) {
+  const session = useAccountSession()!;
   const booking = useResource(`/staff/bookings/${bookingId}`, parseStaffBooking);
-  const access = useResource("/staff/profile", parseOwnStaffProfile);
+  const access = useOwnStaffPermissions();
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
-  const current = booking.data;
-  const disabled = booking.loading || !!booking.error || !!proposal;
-  const quoteOperator = access.data && !access.error && access.data.status === "ACTIVE";
-  const canChangeQuotes =
-    !!quoteOperator &&
-    !!current &&
-    (access.data?.role === "ADMIN" ||
-      access.data?.role === "SUPER_ADMIN" ||
-      (access.data?.role === "STAFF" &&
-        !!access.data.staffProfile &&
-        access.data.staffProfile.branchId === current.branch?.id &&
-        access.data.staffProfile.id === current.assignedStaff?.id));
+  const [invalidField, setInvalidField] = useState<string>();
+  const readError =
+    booking.error ||
+    (booking.data && booking.data.id !== bookingId
+      ? "We could not read this booking. Please try again."
+      : undefined);
+  const current = readError ? undefined : booking.data;
+  const stale = !!booking.refreshError || !!access.refreshError;
+  const verifiedAccess =
+    !access.loading &&
+    !access.error &&
+    access.data?.id === session.user.id &&
+    access.data.role === session.user.role &&
+    access.data.status === "ACTIVE";
+  const admin = verifiedAccess && ["ADMIN", "SUPER_ADMIN"].includes(session.user.role);
+  const ownBranch =
+    verifiedAccess &&
+    !!current?.branch &&
+    !!access.data?.staffProfile &&
+    access.data.staffProfile.branchId === current.branch.id;
+  const assigned =
+    ownBranch && access.data?.staffProfile?.id === current?.assignedStaff?.id;
+  const canOperate = !!(admin || assigned);
+  const canAssign = !!current?.branch && !!(admin || ownBranch);
+  const canConfirm =
+    !!(admin || ownBranch) && !!access.data?.capabilities.includes("BOOKING_CONFIRM");
+  const disabled =
+    booking.loading ||
+    booking.refreshing ||
+    !!readError ||
+    stale ||
+    access.loading ||
+    access.refreshing ||
+    !verifiedAccess ||
+    !!proposal;
+  const canChangeQuotes = canOperate;
   const choices = current
-    ? (transitions[current.status] ?? []).filter(
-        (status) =>
-          status !== "CONFIRMED" ||
-          (!access.loading &&
-            !access.error &&
-            access.data?.capabilities.includes("BOOKING_CONFIRM")),
+    ? (transitions[current.status] ?? []).filter((status) =>
+        status === "CONFIRMED" ? canConfirm : canOperate,
       )
     : [];
+  const assignmentVisible =
+    canAssign &&
+    !!current &&
+    ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"].includes(
+      current.status,
+    );
+  function invalidate(message: string, field: string) {
+    setValidation(message);
+    setInvalidField(field);
+    document.getElementById(field)?.focus();
+  }
+  function fieldError(field: string) {
+    return {
+      "aria-invalid": invalidField === field,
+      "aria-describedby": invalidField === field ? "booking-validation" : undefined,
+    };
+  }
+  function reviewProposal(next: MutationProposal) {
+    if (disabled) return;
+    setProposal({ ...next, retryAfterRejection: false });
+  }
   function review(kind: "assignment" | "status" | "disruption", form: FormData) {
     setValidation(undefined);
+    setInvalidField(undefined);
     setMessage(undefined);
     if (!current || disabled) return;
     const facts = [
@@ -70,10 +125,10 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
     const submit = (suffix: string, method: "POST" | "PATCH", body: unknown) => () =>
       apiRequest(`/staff/bookings/${current.id}/${suffix}`, { method, csrf: true, body });
     if (kind === "assignment") {
+      if (!canAssign) return;
       const assignedStaffId = z.string().uuid().safeParse(form.get("staffId"));
       if (!assignedStaffId.success) {
-        setValidation("Choose an available staff profile.");
-        document.getElementById("booking-staff")?.focus();
+        invalidate("Choose an available staff profile.", "booking-staff");
         return;
       }
       const body: RequestBody<"/staff/bookings/{bookingId}/assignment", "patch"> = {
@@ -81,7 +136,7 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
         expectedVersion: current.version,
       };
       const select = document.getElementById("booking-staff") as HTMLSelectElement | null;
-      setProposal({
+      reviewProposal({
         title: "Assign this booking?",
         description:
           "The server will check branch permissions and schedule conflicts before saving.",
@@ -102,18 +157,19 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
       (reason || kind === "disruption" || status === "CANCELLED") &&
       !textField(kind === "disruption" ? 1000 : 500).safeParse(reason).success
     ) {
-      setValidation(
+      invalidate(
         `Enter a reason of up to ${kind === "disruption" ? 1000 : 500} characters, in one paragraph.`,
+        `booking-${kind}-reason`,
       );
-      document.getElementById(`booking-${kind}-reason`)?.focus();
       return;
     }
     if (kind === "disruption") {
+      if (!canOperate) return;
       const body: RequestBody<"/staff/bookings/{bookingId}/disruption", "post"> = {
         expectedVersion: current.version,
         reason,
       };
-      setProposal({
+      reviewProposal({
         title: "Report a business disruption?",
         description:
           "This notifies the customer that Allied AutoTech cannot fulfil the appointment. They can request another slot or cancel free. Historical deposits require a reviewed refund; this action does not refund money.",
@@ -129,16 +185,18 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
       (resourceReviewNote.length < 10 ||
         !textField(2000).safeParse(resourceReviewNote).success)
     ) {
-      setValidation(
-        "Describe the available staff and equipment in 10–2,000 characters before confirming.",
+      invalidate(
+        "Describe the available staff and equipment in 10-2,000 characters before confirming.",
+        "booking-resource-review",
       );
-      document.getElementById("booking-resource-review")?.focus();
       return;
     }
     const notes = String(form.get("staffNotes") ?? "").trim();
     if (notes && !textField(4000).safeParse(notes).success) {
-      setValidation("Staff notes must be one paragraph of up to 4,000 characters.");
-      document.getElementById("booking-staff-notes")?.focus();
+      invalidate(
+        "Staff notes must be one paragraph of up to 4,000 characters.",
+        "booking-staff-notes",
+      );
       return;
     }
     const body: RequestBody<"/staff/bookings/{bookingId}/status", "post"> = {
@@ -148,7 +206,7 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
       staffNotes: notes || null,
       ...(status === "CONFIRMED" ? { resourceReviewNote } : {}),
     };
-    setProposal({
+    reviewProposal({
       title: "Update booking status?",
       description:
         status === "NO_SHOW"
@@ -169,80 +227,188 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
     });
   }
   return (
-    <>
-      <Link className="text-link" href="/admin/bookings">
-        Back to workshop bookings
-      </Link>
-      <h1>Manage workshop booking</h1>
-      <Feedback message={booking.error} />
-      <Feedback message={access.error} />
-      <Feedback message={validation} />
+    <div className="work-booking-detail">
+      <nav className="booking-detail-breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li>
+            <Link href="/admin">Overview</Link>
+          </li>
+          <li>
+            <ChevronRight aria-hidden="true" />
+            <Link href="/admin/bookings">Workshop bookings</Link>
+          </li>
+          <li>
+            <ChevronRight aria-hidden="true" />
+            <span aria-current="page" title={current?.service.name}>
+              {current?.service.name ?? "Booking details"}
+            </span>
+          </li>
+        </ol>
+      </nav>
+      <header className="booking-detail-heading">
+        <div>
+          <h1>Manage workshop booking</h1>
+          <p>Review the appointment, coordinate the team and record service progress.</p>
+        </div>
+        <button
+          type="button"
+          className="button secondary"
+          disabled={booking.loading || booking.refreshing || !!proposal}
+          onClick={() => {
+            booking.refresh();
+            access.refresh();
+          }}
+        >
+          <RefreshCw aria-hidden="true" />
+          Refresh booking
+        </button>
+      </header>
       <Feedback message={message} tone="success" toast="Booking change recorded." />
-      <button
-        className="button secondary"
-        disabled={booking.loading || !!proposal}
-        onClick={() => {
-          booking.refresh();
-          access.refresh();
-        }}
-      >
-        Refresh booking
-      </button>
-      {booking.loading && <p role="status">Checking booking…</p>}
+      {readError && (
+        <section className="booking-detail-state">
+          <h2>Booking unavailable</h2>
+          <Feedback message={readError} />
+          <button
+            className="button secondary"
+            onClick={() => {
+              booking.refresh();
+              access.refresh();
+            }}
+          >
+            Retry booking
+          </button>
+        </section>
+      )}
+      {booking.loading && !current && (
+        <section className="booking-detail-state" role="status">
+          <p>Checking booking...</p>
+          <div className="booking-detail-skeleton" aria-hidden="true" />
+        </section>
+      )}
+      {booking.loading && current && <p role="status">Checking booking...</p>}
       {current && (
         <>
-          <section className="detail-section">
-            <h2>{current.service.name}</h2>
-            <p className="muted">Booking {current.id}</p>
-            <span className="status">{current.status.replaceAll("_", " ")}</span>
-            <dl className="totals">
-              <dt>Appointment</dt>
-              <dd>{formatBusinessDate(current.scheduledAt)}</dd>
-              <dt>Branch</dt>
-              <dd>{current.branch?.name ?? "Not assigned"}</dd>
-              <dt>Assigned staff</dt>
-              <dd>
-                {current.assignedStaff
-                  ? `${current.assignedStaff.firstName} ${current.assignedStaff.lastName}`
-                  : "Not assigned"}
-              </dd>
-              <dt>Vehicle</dt>
-              <dd>
-                {current.vehicle
-                  ? `${current.vehicle.year} ${current.vehicle.make} ${current.vehicle.model}${current.vehicle.registrationNumber ? ` · ${current.vehicle.registrationNumber}` : ""}`
-                  : "Not linked"}
-              </dd>
-              <dt>Deposit requested</dt>
-              <dd>
-                {current.depositAmountKobo === null
-                  ? "Not recorded"
-                  : formatKobo(current.depositAmountKobo)}
-              </dd>
-              <dt>Deposit payment</dt>
-              <dd>
-                {current.depositPaidAt
-                  ? `Recorded ${formatBusinessDate(current.depositPaidAt)}`
-                  : "Not recorded"}
-              </dd>
-            </dl>
-            {current.customerNotes && <p>Customer notes: {current.customerNotes}</p>}
-            {current.staffNotes && <p>Staff notes: {current.staffNotes}</p>}
-            {current.disruptionRequestedAt && (
-              <div className="empty">
-                <h3>Business disruption recorded</h3>
-                <p>{current.disruptionReason}</p>
-                <p>
-                  Resolution:{" "}
-                  {current.disruptionResolution?.replaceAll("_", " ") ?? "Not recorded"}
-                </p>
+          {stale && (
+            <p className="booking-detail-notice" role="status">
+              Booking may be out of date. Refresh before making changes.
+            </p>
+          )}
+          {access.error && (
+            <div className="booking-detail-notice">
+              <p>
+                Booking access could not be checked. Refresh to check your available
+                actions.
+              </p>
+              <Feedback message={access.error} />
+            </div>
+          )}
+          <section className="booking-detail-summary" aria-label="Appointment summary">
+            <header>
+              <div>
+                <h2>{current.service.name}</h2>
+                <p>Booking {current.id}</p>
               </div>
-            )}
+              <span className="booking-detail-status">
+                {current.status.replaceAll("_", " ")}
+              </span>
+            </header>
+            <dl className="booking-detail-facts">
+              <div>
+                <dt>Appointment</dt>
+                <dd>{formatBusinessDate(current.scheduledAt)}</dd>
+              </div>
+              <div>
+                <dt>Branch</dt>
+                <dd>{current.branch?.name ?? "Not assigned"}</dd>
+              </div>
+              <div>
+                <dt>Assigned staff</dt>
+                <dd>
+                  {current.assignedStaff
+                    ? `${current.assignedStaff.firstName} ${current.assignedStaff.lastName}`
+                    : "Not assigned"}
+                </dd>
+              </div>
+              <div>
+                <dt>Vehicle</dt>
+                <dd>
+                  {current.vehicle
+                    ? `${current.vehicle.year} ${current.vehicle.make} ${current.vehicle.model}${current.vehicle.registrationNumber ? ` \u00b7 ${current.vehicle.registrationNumber}` : ""}`
+                    : "Not linked"}
+                </dd>
+              </div>
+            </dl>
           </section>
-          {current.branch &&
-            ["REQUESTED", "AWAITING_DEPOSIT", "CONFIRMED", "IN_PROGRESS"].includes(
-              current.status,
-            ) && (
-              <section className="detail-section">
+          {(current.customerNotes || current.staffNotes) && (
+            <dl className="booking-detail-notes">
+              {current.customerNotes && (
+                <div>
+                  <dt>Customer notes</dt>
+                  <dd>{current.customerNotes}</dd>
+                </div>
+              )}
+              {current.staffNotes && (
+                <div>
+                  <dt>Staff notes</dt>
+                  <dd>{current.staffNotes}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+          {(current.depositAmountKobo !== null || current.depositPaidAt) && (
+            <details className="booking-detail-history">
+              <summary>Historical deposit record</summary>
+              <dl className="booking-detail-facts">
+                <div>
+                  <dt>Deposit requested</dt>
+                  <dd>
+                    {current.depositAmountKobo === null
+                      ? "Not recorded"
+                      : formatKobo(current.depositAmountKobo)}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Deposit payment</dt>
+                  <dd>
+                    {current.depositPaidAt
+                      ? `Recorded ${formatBusinessDate(current.depositPaidAt)}`
+                      : "Not recorded"}
+                  </dd>
+                </div>
+              </dl>
+            </details>
+          )}
+          {current.disruptionRequestedAt && (
+            <section className="booking-detail-notice">
+              <h3>Business disruption recorded</h3>
+              <p>{current.disruptionReason}</p>
+              <p>
+                Resolution:{" "}
+                {current.disruptionResolution?.replaceAll("_", " ") ?? "Not recorded"}
+              </p>
+            </section>
+          )}
+          <nav className="booking-detail-jumps" aria-label="Booking sections">
+            {assignmentVisible && <a href="#booking-assignment">Assignment</a>}
+            {choices.length > 0 && <a href="#booking-progress">Service progress</a>}
+            <a href="#quotations">Quotations</a>
+            <a href="#booking-work-order">Work order</a>
+          </nav>
+          {access.loading && <p role="status">Checking booking access...</p>}
+          {verifiedAccess && !canOperate && (
+            <p className="booking-detail-notice">
+              Service progress and work-order changes are available to the assigned staff
+              member and authorised administrators.
+            </p>
+          )}
+          {validation && (
+            <p id="booking-validation" className="field-error" role="alert">
+              {validation}
+            </p>
+          )}
+          <div className="booking-detail-operations">
+            {assignmentVisible && current.branch && (
+              <section className="detail-section" id="booking-assignment">
                 <h2>Staff assignment</h2>
                 <form
                   data-draft-key={JSON.stringify(["staff-booking-detail:1", bookingId])}
@@ -257,7 +423,12 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
                     <StaffPicker
                       branchId={current.branch.id}
                       id="booking-staff"
-                      initialId={current.assignedStaff?.id}
+                      initialId={
+                        session.user.role === "STAFF"
+                          ? access.data?.staffProfile?.id
+                          : current.assignedStaff?.id
+                      }
+                      error={invalidField === "booking-staff" ? validation : undefined}
                     />
                   </div>
                   <button className="button" disabled={disabled}>
@@ -266,80 +437,97 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
                 </form>
               </section>
             )}
-          {choices.length > 0 && (
-            <section className="detail-section">
-              <h2>Service progress</h2>
-              <form
-                data-draft-key={JSON.stringify(["staff-booking-detail:2", bookingId])}
-                key={`status-${current.version}`}
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  review("status", new FormData(event.currentTarget));
-                }}
-              >
-                <div className="field">
-                  <label htmlFor="booking-status">Next status</label>
-                  <select id="booking-status" name="status" required>
-                    <option value="">Choose next status</option>
-                    {choices.map((status) => (
-                      <option value={status} key={status}>
-                        {status.replaceAll("_", " ")}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {choices.includes("CONFIRMED") && (
+            {choices.length > 0 && (
+              <section className="detail-section" id="booking-progress">
+                <h2>Service progress</h2>
+                <form
+                  data-draft-key={JSON.stringify(["staff-booking-detail:2", bookingId])}
+                  key={`status-${current.version}`}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    review("status", new FormData(event.currentTarget));
+                  }}
+                >
                   <div className="field">
-                    <label htmlFor="booking-resource-review">
-                      People and equipment review (required for confirmation)
-                    </label>
-                    <textarea
-                      id="booking-resource-review"
-                      name="resourceReviewNote"
-                      maxLength={2000}
-                      aria-describedby="booking-resource-hint"
-                    />
-                    <span className="field-hint" id="booking-resource-hint">
-                      Check that the assigned staff member and required workshop equipment
-                      are available for this appointment.
-                    </span>
+                    <label htmlFor="booking-status">Next status</label>
+                    <select id="booking-status" name="status" required>
+                      <option value="">Choose next status</option>
+                      {choices.map((status) => (
+                        <option value={status} key={status}>
+                          {status.replaceAll("_", " ")}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
-                <div className="field">
-                  <label htmlFor="booking-status-reason">
-                    Reason (required for cancellation)
-                  </label>
-                  <input id="booking-status-reason" name="reason" maxLength={500} />
-                </div>
-                <div className="field">
-                  <label htmlFor="booking-staff-notes">Internal staff notes</label>
-                  <input
-                    id="booking-staff-notes"
-                    name="staffNotes"
-                    defaultValue={current.staffNotes ?? ""}
-                    maxLength={4000}
-                  />
-                </div>
-                <button className="button" disabled={disabled}>
-                  Review status change
-                </button>
-              </form>
-            </section>
-          )}
-          {current.status === "REQUESTED" && !choices.includes("CONFIRMED") && (
-            <p className="notice">
-              Confirmation requires an active booking-confirmation permission. Ask the
-              Super Admin to review your access, then refresh this booking.
-            </p>
-          )}
+                  {choices.includes("CONFIRMED") && (
+                    <div className="field">
+                      <label htmlFor="booking-resource-review">
+                        People and equipment review (required for confirmation)
+                      </label>
+                      <textarea
+                        id="booking-resource-review"
+                        {...fieldError("booking-resource-review")}
+                        name="resourceReviewNote"
+                        maxLength={2000}
+                        aria-describedby={
+                          invalidField === "booking-resource-review"
+                            ? "booking-resource-hint booking-validation"
+                            : "booking-resource-hint"
+                        }
+                      />
+                      <span className="field-hint" id="booking-resource-hint">
+                        Check that the assigned staff member and required workshop
+                        equipment are available for this appointment.
+                      </span>
+                    </div>
+                  )}
+                  <div className="field">
+                    <label htmlFor="booking-status-reason">
+                      Reason (required for cancellation)
+                    </label>
+                    <input
+                      id="booking-status-reason"
+                      {...fieldError("booking-status-reason")}
+                      name="reason"
+                      maxLength={500}
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="booking-staff-notes">Internal staff notes</label>
+                    <input
+                      id="booking-staff-notes"
+                      {...fieldError("booking-staff-notes")}
+                      name="staffNotes"
+                      defaultValue={current.staffNotes ?? ""}
+                      maxLength={4000}
+                    />
+                  </div>
+                  <button className="button" disabled={disabled}>
+                    Review status change
+                  </button>
+                </form>
+              </section>
+            )}
+          </div>
+          {current.status === "REQUESTED" &&
+            verifiedAccess &&
+            !choices.includes("CONFIRMED") && (
+              <p className="notice">
+                Confirmation requires an active booking-confirmation permission. Ask the
+                Super Admin to review your access, then refresh this booking.
+              </p>
+            )}
           {current.status === "AWAITING_DEPOSIT" && current.bookingSlotId && (
             <p>Deposit-backed bookings are confirmed by verified payment.</p>
           )}
-          {current.status === "CONFIRMED" &&
+          {canOperate &&
+            current.status === "CONFIRMED" &&
             current.bookingSlotId &&
             current.disruptionResolution !== "PENDING" && (
-              <section className="detail-section">
-                <h2>Business-caused disruption</h2>
+              <details className="detail-section booking-detail-disruption">
+                <summary>
+                  <h2>Business-caused disruption</h2>
+                </summary>
                 <p>
                   If Allied AutoTech cannot fulfil this appointment, record the reason so
                   the customer can request another slot or cancel free. Any historical
@@ -356,6 +544,7 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
                     <label htmlFor="booking-disruption-reason">Disruption reason</label>
                     <input
                       id="booking-disruption-reason"
+                      {...fieldError("booking-disruption-reason")}
                       name="reason"
                       required
                       maxLength={1000}
@@ -365,7 +554,7 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
                     Review disruption
                   </button>
                 </form>
-              </section>
+              </details>
             )}
           <StaffQuoteRecords
             booking={current}
@@ -373,12 +562,17 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
             canChange={canChangeQuotes}
             canAuthor={canChangeQuotes && !!access.data?.staffProfile}
             checkingAccess={access.loading}
-            onReview={setProposal}
+            onReview={reviewProposal}
           />
-          <StaffWorkOrder booking={current} disabled={disabled} onReview={setProposal} />
+          <StaffWorkOrder
+            booking={current}
+            disabled={disabled}
+            canChange={canOperate}
+            onReview={reviewProposal}
+          />
         </>
       )}
-      {proposal && (
+      {proposal && current && verifiedAccess && !stale && (
         <MutationReview
           proposal={proposal}
           onClose={() => {
@@ -390,6 +584,6 @@ export function StaffBookingDetail({ bookingId }: { bookingId: string }) {
           }
         />
       )}
-    </>
+    </div>
   );
 }

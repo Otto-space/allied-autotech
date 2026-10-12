@@ -10,7 +10,12 @@ export function ServiceLineTable({
 }) {
   if (items.length === 0) return <p>No line items recorded.</p>;
   return (
-    <div className="table-region" role="region" aria-label={label} tabIndex={0}>
+    <div
+      className="table-region service-line-table"
+      role="region"
+      aria-label={label}
+      tabIndex={0}
+    >
       <table>
         <thead>
           <tr>
@@ -24,11 +29,11 @@ export function ServiceLineTable({
         <tbody>
           {items.map((item) => (
             <tr key={item.id}>
-              <td>{item.description}</td>
-              <td>{item.type}</td>
-              <td>{item.quantity}</td>
-              <td>{formatKobo(item.unitPriceKobo)}</td>
-              <td>{formatKobo(item.subtotalKobo)}</td>
+              <td data-label="Description">{item.description}</td>
+              <td data-label="Type">{item.type}</td>
+              <td data-label="Quantity">{item.quantity}</td>
+              <td data-label="Unit price">{formatKobo(item.unitPriceKobo)}</td>
+              <td data-label="Subtotal">{formatKobo(item.subtotalKobo)}</td>
             </tr>
           ))}
         </tbody>

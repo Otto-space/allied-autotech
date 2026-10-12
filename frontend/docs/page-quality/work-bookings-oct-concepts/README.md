@@ -1,6 +1,6 @@
 # Workshop bookings design specification
 
-Prepared 12 October 2026 before production changes. Route `/admin/bookings`; STAFF, ADMIN and SUPER_ADMIN. Gate 49 is in progress.
+Prepared 12 October 2026 before production changes. Route `/admin/bookings`; STAFF, ADMIN and SUPER_ADMIN. Gate 49 was locally accepted after implementation and final comparison; see the [acceptance report](../work-bookings.md).
 
 Fresh [desktop](desktop.png) and [mobile/state](mobile-states.png) concepts govern the complete list, filtering, paging, empty, error and stale views. Baseline captures: `C:/Users/PC/.codex/work-bookings-oct-before-{1440,390}.png`. Browser plugin unavailable; Playwright/Edge fallback.
 
@@ -21,6 +21,6 @@ Fresh [desktop](desktop.png) and [mobile/state](mobile-states.png) concepts gove
 
 Preserve actual branding/type and the existing sidebar instead of generated substitutes. Desktop concept heading is oversized: use 28px. Mobile description must keep the supplied permitted-branches wording. The results strip remains ink on mobile. Generated sample values are test-only. Use the backend safe-error wording, single coherent filter submission, and real record-order guidance. Branch/staff choices page independently; do not imply the first directory page is complete. Staff is assigned one branch, not the concept's plural claim. Own-assignment is optional; no assignment mutations here.
 
-## Acceptance pending
+## Acceptance record
 
-Verify roles, dates/timezone boundaries, all statuses, URL recovery, paging, choices errors/pagination, record links, invalid/duplicate/out-of-scope responses, loading/empty/error/stale states, session invalidation, long labels and keyboard behavior. Capture 320/360/375/390/430/768/1024/1280/1440 plus native desktop and landscape. Compare both concepts with final renders on six fidelity points. Run appropriate unit/browser/backend checks, real browser/API/database isolation, lint, type and production build. No gate acceptance or whole-goal completion is claimed yet.
+The pre-implementation acceptance checklist was: verify roles, dates/timezone boundaries, all statuses, URL recovery, paging, choices errors/pagination, record links, invalid/duplicate/out-of-scope responses, loading/empty/error/stale states, session invalidation, long labels and keyboard behavior. Capture 320/360/375/390/430/768/1024/1280/1440 plus native desktop and landscape. Compare both concepts with final renders on six fidelity points. Run appropriate unit/browser/backend checks, real browser/API/database isolation, lint, type and production build. These checks are complete for this page; results, corrections, six-point fidelity comparison and evidence limitations are recorded in the linked acceptance report. The application-wide goal remains active.

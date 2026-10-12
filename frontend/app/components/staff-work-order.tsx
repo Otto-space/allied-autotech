@@ -32,16 +32,25 @@ const notesSchema = z.object({ diagnosis: note, internalNotes: note });
 type Props = {
   booking: StaffBooking;
   disabled: boolean;
+  canChange?: boolean;
   onReview: (proposal: MutationProposal) => void;
 };
-export function StaffWorkOrder({ booking, disabled, onReview }: Props) {
+export function StaffWorkOrder({ booking, disabled, canChange = true, onReview }: Props) {
   const [addingItems, setAddingItems] = useState(false);
   const work = booking.workOrder;
-  const editable = work
-    ? !["COMPLETED", "CANCELLED"].includes(work.status)
-    : booking.status === "CONFIRMED";
+  const editable =
+    canChange &&
+    (work
+      ? !["COMPLETED", "CANCELLED"].includes(work.status)
+      : booking.status === "CONFIRMED");
   function reviewStatus(status: Status) {
-    if (!work || disabled || !(transitions[work.status] ?? []).includes(status)) return;
+    if (
+      !canChange ||
+      !work ||
+      disabled ||
+      !(transitions[work.status] ?? []).includes(status)
+    )
+      return;
     const body: RequestBody<
       "/staff/bookings/{bookingId}/work-orders/{workOrderId}/status",
       "post"
@@ -68,7 +77,7 @@ export function StaffWorkOrder({ booking, disabled, onReview }: Props) {
     });
   }
   return (
-    <section className="detail-section">
+    <section className="detail-section booking-detail-work" id="booking-work-order">
       <h2>Work order</h2>
       {work ? (
         <>
@@ -81,7 +90,7 @@ export function StaffWorkOrder({ booking, disabled, onReview }: Props) {
             label={`${work.workOrderNumber} line items`}
           />
           <div className="actions">
-            {(transitions[work.status] ?? [])
+            {(canChange ? (transitions[work.status] ?? []) : [])
               .filter((status) => status !== "APPROVED" || booking.status === "CONFIRMED")
               .map((status) => (
                 <button
