@@ -89028,6 +89028,84 @@
                       "type": "string",
                       "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                     },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "immutableCategories": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "SECURITY",
+                              "TRANSACTIONAL"
+                            ],
+                            "description": "Immutable Categories Item validated by this operation's strict request contract."
+                          },
+                          "description": "Immutable Categories validated by this operation's strict request contract."
+                        },
+                        "preferences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "category": {
+                                "type": "string",
+                                "enum": [
+                                  "OPERATIONAL",
+                                  "MARKETING"
+                                ],
+                                "description": "Category validated by this operation's strict request contract."
+                              },
+                              "channel": {
+                                "type": "string",
+                                "enum": [
+                                  "EMAIL",
+                                  "SMS"
+                                ],
+                                "description": "Channel validated by this operation's strict request contract."
+                              },
+                              "enabled": {
+                                "type": "boolean",
+                                "description": "Enabled validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "consentedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "category",
+                              "channel",
+                              "enabled",
+                              "version",
+                              "consentedAt",
+                              "updatedAt"
+                            ],
+                            "description": "Preferences Item validated by this operation's strict request contract."
+                          },
+                          "description": "Preferences validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "immutableCategories",
+                        "preferences"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
                     "meta": {
                       "type": "object",
                       "properties": {
@@ -89040,27 +89118,12 @@
                         "requestId"
                       ],
                       "description": "Meta validated by this operation's strict request contract."
-                    },
-                    "data": {
-                      "type": "object",
-                      "description": "Authorized response projection for: Get mutable operational and marketing preferences.",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "Public or authorized resource identifier."
-                        },
-                        "status": {
-                          "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
-                        }
-                      },
-                      "additionalProperties": true
                     }
                   },
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -89069,8 +89132,19 @@
                   "success": true,
                   "message": "Get mutable operational and marketing preferences",
                   "data": {
-                    "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "immutableCategories": [
+                      "SECURITY"
+                    ],
+                    "preferences": [
+                      {
+                        "category": "OPERATIONAL",
+                        "channel": "EMAIL",
+                        "enabled": true,
+                        "version": 1,
+                        "consentedAt": "2030-01-15T10:00:00.000Z",
+                        "updatedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ]
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -89234,6 +89308,7 @@
           "Notifications"
         ],
         "summary": "Update one mutable notification preference",
+        "description": "Requires expectedVersion (zero for an absent pair) and Idempotency-Key preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Conflicting revisions return 409 CONFLICT. Original key/body replay within 24 hours returns appliedVersion and current preference without a second consent record or audit; a later withdrawal is never overwritten. Changed content returns 409 IDEMPOTENCY_CONFLICT; expired keys and keys over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing or malformed keys/versions return 422. Replay retains role, CSRF and ownership checks. Marketing dispatch stays disabled. Deploy the revision migration, API and matching clients together. Update one mutable notification preference. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -89251,6 +89326,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^preference-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -89279,12 +89366,19 @@
                   "enabled": {
                     "type": "boolean",
                     "description": "Enabled validated by this operation's strict request contract."
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483646,
+                    "description": "Last server version observed by the client; stale writes are rejected."
                   }
                 },
                 "required": [
                   "category",
                   "channel",
-                  "enabled"
+                  "enabled",
+                  "expectedVersion"
                 ],
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."
@@ -89292,7 +89386,8 @@
               "example": {
                 "category": "OPERATIONAL",
                 "channel": "EMAIL",
-                "enabled": true
+                "enabled": true,
+                "expectedVersion": 0
               }
             }
           }
@@ -89313,6 +89408,78 @@
                       "type": "string",
                       "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                     },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "preference": {
+                          "type": "object",
+                          "properties": {
+                            "category": {
+                              "type": "string",
+                              "enum": [
+                                "OPERATIONAL",
+                                "MARKETING"
+                              ],
+                              "description": "Category validated by this operation's strict request contract."
+                            },
+                            "channel": {
+                              "type": "string",
+                              "enum": [
+                                "EMAIL",
+                                "SMS"
+                              ],
+                              "description": "Channel validated by this operation's strict request contract."
+                            },
+                            "enabled": {
+                              "type": "boolean",
+                              "description": "Enabled validated by this operation's strict request contract."
+                            },
+                            "version": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Version validated by this operation's strict request contract."
+                            },
+                            "consentedAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": [
+                            "category",
+                            "channel",
+                            "enabled",
+                            "version",
+                            "consentedAt",
+                            "updatedAt"
+                          ],
+                          "description": "Preference validated by this operation's strict request contract."
+                        },
+                        "appliedVersion": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Applied Version validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "preference",
+                        "appliedVersion",
+                        "replayed"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
                     "meta": {
                       "type": "object",
                       "properties": {
@@ -89325,27 +89492,12 @@
                         "requestId"
                       ],
                       "description": "Meta validated by this operation's strict request contract."
-                    },
-                    "data": {
-                      "type": "object",
-                      "description": "Authorized response projection for: Update one mutable notification preference.",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "Public or authorized resource identifier."
-                        },
-                        "status": {
-                          "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
-                        }
-                      },
-                      "additionalProperties": true
                     }
                   },
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -89354,8 +89506,16 @@
                   "success": true,
                   "message": "Update one mutable notification preference",
                   "data": {
-                    "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "preference": {
+                      "category": "OPERATIONAL",
+                      "channel": "EMAIL",
+                      "enabled": true,
+                      "version": 1,
+                      "consentedAt": "2030-01-15T10:00:00.000Z",
+                      "updatedAt": "2030-01-15T10:00:00.000Z"
+                    },
+                    "appliedVersion": 1,
+                    "replayed": true
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -89526,13 +89686,12 @@
           }
         },
         "operationId": "putCustomersNotificationsPreferencesCurrent",
-        "description": "Update one mutable notification preference. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/staff/notifications": {
@@ -90469,6 +90628,84 @@
                       "type": "string",
                       "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                     },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "immutableCategories": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "SECURITY",
+                              "TRANSACTIONAL"
+                            ],
+                            "description": "Immutable Categories Item validated by this operation's strict request contract."
+                          },
+                          "description": "Immutable Categories validated by this operation's strict request contract."
+                        },
+                        "preferences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "category": {
+                                "type": "string",
+                                "enum": [
+                                  "OPERATIONAL",
+                                  "MARKETING"
+                                ],
+                                "description": "Category validated by this operation's strict request contract."
+                              },
+                              "channel": {
+                                "type": "string",
+                                "enum": [
+                                  "EMAIL",
+                                  "SMS"
+                                ],
+                                "description": "Channel validated by this operation's strict request contract."
+                              },
+                              "enabled": {
+                                "type": "boolean",
+                                "description": "Enabled validated by this operation's strict request contract."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "exclusiveMinimum": 0,
+                                "description": "Version validated by this operation's strict request contract."
+                              },
+                              "consentedAt": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              }
+                            },
+                            "required": [
+                              "category",
+                              "channel",
+                              "enabled",
+                              "version",
+                              "consentedAt",
+                              "updatedAt"
+                            ],
+                            "description": "Preferences Item validated by this operation's strict request contract."
+                          },
+                          "description": "Preferences validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "immutableCategories",
+                        "preferences"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
                     "meta": {
                       "type": "object",
                       "properties": {
@@ -90481,27 +90718,12 @@
                         "requestId"
                       ],
                       "description": "Meta validated by this operation's strict request contract."
-                    },
-                    "data": {
-                      "type": "object",
-                      "description": "Authorized response projection for: Get mutable operational and marketing preferences.",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "Public or authorized resource identifier."
-                        },
-                        "status": {
-                          "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
-                        }
-                      },
-                      "additionalProperties": true
                     }
                   },
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -90510,8 +90732,19 @@
                   "success": true,
                   "message": "Get mutable operational and marketing preferences",
                   "data": {
-                    "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "immutableCategories": [
+                      "SECURITY"
+                    ],
+                    "preferences": [
+                      {
+                        "category": "OPERATIONAL",
+                        "channel": "EMAIL",
+                        "enabled": true,
+                        "version": 1,
+                        "consentedAt": "2030-01-15T10:00:00.000Z",
+                        "updatedAt": "2030-01-15T10:00:00.000Z"
+                      }
+                    ]
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -90677,6 +90910,7 @@
           "Notifications"
         ],
         "summary": "Update one mutable notification preference",
+        "description": "Requires expectedVersion (zero for an absent pair) and Idempotency-Key preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Conflicting revisions return 409 CONFLICT. Original key/body replay within 24 hours returns appliedVersion and current preference without a second consent record or audit; a later withdrawal is never overwritten. Changed content returns 409 IDEMPOTENCY_CONFLICT; expired keys and keys over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing or malformed keys/versions return 422. Replay retains role, CSRF and ownership checks. Marketing dispatch stays disabled. Deploy the revision migration, API and matching clients together. Update one mutable notification preference. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.",
         "security": [
           {
             "sessionCookie": []
@@ -90694,6 +90928,18 @@
             "in": "header",
             "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
             "example": "synthetic-token-value-not-a-real-secret"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^preference-v1\\.\\d{13}\\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "description": "Idempotency Key validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "idempotency-key",
+            "in": "header",
+            "description": "Unique retry key for this logical mutation. Reuse it only with the identical request.",
+            "example": "synthetic-idempotency-key"
           }
         ],
         "requestBody": {
@@ -90722,12 +90968,19 @@
                   "enabled": {
                     "type": "boolean",
                     "description": "Enabled validated by this operation's strict request contract."
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2147483646,
+                    "description": "Last server version observed by the client; stale writes are rejected."
                   }
                 },
                 "required": [
                   "category",
                   "channel",
-                  "enabled"
+                  "enabled",
+                  "expectedVersion"
                 ],
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."
@@ -90735,7 +90988,8 @@
               "example": {
                 "category": "OPERATIONAL",
                 "channel": "EMAIL",
-                "enabled": true
+                "enabled": true,
+                "expectedVersion": 0
               }
             }
           }
@@ -90756,6 +91010,78 @@
                       "type": "string",
                       "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
                     },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "preference": {
+                          "type": "object",
+                          "properties": {
+                            "category": {
+                              "type": "string",
+                              "enum": [
+                                "OPERATIONAL",
+                                "MARKETING"
+                              ],
+                              "description": "Category validated by this operation's strict request contract."
+                            },
+                            "channel": {
+                              "type": "string",
+                              "enum": [
+                                "EMAIL",
+                                "SMS"
+                              ],
+                              "description": "Channel validated by this operation's strict request contract."
+                            },
+                            "enabled": {
+                              "type": "boolean",
+                              "description": "Enabled validated by this operation's strict request contract."
+                            },
+                            "version": {
+                              "type": "integer",
+                              "exclusiveMinimum": 0,
+                              "description": "Version validated by this operation's strict request contract."
+                            },
+                            "consentedAt": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": [
+                            "category",
+                            "channel",
+                            "enabled",
+                            "version",
+                            "consentedAt",
+                            "updatedAt"
+                          ],
+                          "description": "Preference validated by this operation's strict request contract."
+                        },
+                        "appliedVersion": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Applied Version validated by this operation's strict request contract."
+                        },
+                        "replayed": {
+                          "type": "boolean",
+                          "description": "Replayed validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "preference",
+                        "appliedVersion",
+                        "replayed"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
                     "meta": {
                       "type": "object",
                       "properties": {
@@ -90768,27 +91094,12 @@
                         "requestId"
                       ],
                       "description": "Meta validated by this operation's strict request contract."
-                    },
-                    "data": {
-                      "type": "object",
-                      "description": "Authorized response projection for: Update one mutable notification preference.",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "format": "uuid",
-                          "description": "Public or authorized resource identifier."
-                        },
-                        "status": {
-                          "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
-                        }
-                      },
-                      "additionalProperties": true
                     }
                   },
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -90797,8 +91108,16 @@
                   "success": true,
                   "message": "Update one mutable notification preference",
                   "data": {
-                    "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "preference": {
+                      "category": "OPERATIONAL",
+                      "channel": "EMAIL",
+                      "enabled": true,
+                      "version": 1,
+                      "consentedAt": "2030-01-15T10:00:00.000Z",
+                      "updatedAt": "2030-01-15T10:00:00.000Z"
+                    },
+                    "appliedVersion": 1,
+                    "replayed": true
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -90969,7 +91288,6 @@
           }
         },
         "operationId": "putStaffNotificationsPreferencesCurrent",
-        "description": "Update one mutable notification preference. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "mfa-verified-staff",
         "x-required-roles": [
           "STAFF",
@@ -90977,7 +91295,7 @@
           "SUPER_ADMIN"
         ],
         "x-csrf-required": true,
-        "x-idempotency-required": false
+        "x-idempotency-required": true
       }
     },
     "/admin/audit": {

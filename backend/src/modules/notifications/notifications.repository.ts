@@ -64,6 +64,7 @@ export class NotificationsRepository {
         category: true,
         channel: true,
         enabled: true,
+        version: true,
         consentedAt: true,
         updatedAt: true,
       },

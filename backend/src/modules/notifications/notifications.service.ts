@@ -1,3 +1,5 @@
+import { withTransactionRetry } from "../../common/database/transaction-retry.js";
+import { writePreferenceReceipt } from "./preference-write.js";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -177,75 +179,89 @@ export class NotificationsService {
     actor: AuthenticatedActor,
     input: PreferenceUpdateInput,
     context: RequestSecurityContext,
+    rawKey: string,
   ) {
     assertNotificationActor(actor);
-    return this.database.$transaction(async (transaction) => {
-      const existing = await transaction.notificationPreference.findUnique({
-        where: {
-          userId_category_channel: {
-            userId: actor.userId,
-            category: input.category,
-            channel: input.channel,
+    return withTransactionRetry(
+      this.database,
+      async (transaction) =>
+        writePreferenceReceipt(
+          transaction,
+          actor.userId,
+          rawKey,
+          input,
+          async (input) => {
+            const existing = await transaction.notificationPreference.findUnique({
+              where: {
+                userId_category_channel: {
+                  userId: actor.userId,
+                  category: input.category,
+                  channel: input.channel,
+                },
+              },
+            });
+            const preference = await transaction.notificationPreference.upsert({
+              where: {
+                userId_category_channel: {
+                  userId: actor.userId,
+                  category: input.category,
+                  channel: input.channel,
+                },
+              },
+              create: {
+                userId: actor.userId,
+                category: input.category,
+                channel: input.channel,
+                enabled: input.enabled,
+                ...(input.category === "MARKETING" && input.enabled
+                  ? { consentedAt: new Date() }
+                  : {}),
+              },
+              update: {
+                enabled: input.enabled,
+                ...(input.category === "MARKETING" &&
+                input.enabled &&
+                existing?.consentedAt == null
+                  ? { consentedAt: new Date() }
+                  : {}),
+              },
+              select: {
+                id: true,
+                version: true,
+                category: true,
+                channel: true,
+                enabled: true,
+                consentedAt: true,
+                updatedAt: true,
+              },
+            });
+            await transaction.consentRecord.create({
+              data: {
+                userId: actor.userId,
+                scope: `${input.category}:${input.channel}`,
+                source: "authenticated-preferences",
+                wordingVersion: "owner-checklist-Q12-pending-marketing-wording",
+                granted: input.enabled,
+              },
+            });
+            await appendAuditEvent(transaction, {
+              actorUserId: actor.userId,
+              action: "UPDATE",
+              entityType: "USER",
+              entityId: actor.userId,
+              oldValues: { notificationEnabled: existing?.enabled ?? null },
+              newValues: {
+                notificationCategory: input.category,
+                notificationChannel: input.channel,
+                notificationEnabled: input.enabled,
+              },
+              context,
+            });
+            return preference;
           },
-        },
-      });
-      const preference = await transaction.notificationPreference.upsert({
-        where: {
-          userId_category_channel: {
-            userId: actor.userId,
-            category: input.category,
-            channel: input.channel,
-          },
-        },
-        create: {
-          userId: actor.userId,
-          category: input.category,
-          channel: input.channel,
-          enabled: input.enabled,
-          ...(input.category === "MARKETING" && input.enabled
-            ? { consentedAt: new Date() }
-            : {}),
-        },
-        update: {
-          enabled: input.enabled,
-          ...(input.category === "MARKETING" &&
-          input.enabled &&
-          existing?.consentedAt == null
-            ? { consentedAt: new Date() }
-            : {}),
-        },
-        select: {
-          category: true,
-          channel: true,
-          enabled: true,
-          consentedAt: true,
-          updatedAt: true,
-        },
-      });
-      await transaction.consentRecord.create({
-        data: {
-          userId: actor.userId,
-          scope: `${input.category}:${input.channel}`,
-          source: "authenticated-preferences",
-          wordingVersion: "owner-checklist-Q12-pending-marketing-wording",
-          granted: input.enabled,
-        },
-      });
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "UPDATE",
-        entityType: "USER",
-        entityId: actor.userId,
-        oldValues: { notificationEnabled: existing?.enabled ?? null },
-        newValues: {
-          notificationCategory: input.category,
-          notificationChannel: input.channel,
-          notificationEnabled: input.enabled,
-        },
-        context,
-      });
-      return preference;
-    });
+        ),
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    );
   }
 }
 

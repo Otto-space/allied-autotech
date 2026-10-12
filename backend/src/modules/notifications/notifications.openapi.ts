@@ -4,6 +4,9 @@ import {
   notificationListQuerySchema,
   notificationParamsSchema,
   preferenceUpdateBodySchema,
+  preferenceRequestHeadersSchema,
+  preferenceResponseSchema,
+  preferenceWriteResponseSchema,
 } from "./notifications.schemas.js";
 
 const response = z.object({
@@ -54,22 +57,48 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
       tags: ["Notifications"],
       summary: "Get mutable operational and marketing preferences",
       security: [{ sessionCookie: [] }],
-      responses: { "200": { description: "Preferences retrieved" } },
+      responses: {
+        "200": {
+          description:
+            "Preferences retrieved; omitted pairs have version zero and default values",
+          content: {
+            "application/json": {
+              schema: response.extend({
+                data: z.object({
+                  immutableCategories: z.array(z.enum(["SECURITY", "TRANSACTIONAL"])),
+                  preferences: z.array(preferenceResponseSchema),
+                }),
+              }),
+            },
+          },
+        },
+      },
     });
     registry.registerPath({
       method: "put",
       path: `${prefix}/preferences/current`,
       tags: ["Notifications"],
       summary: "Update one mutable notification preference",
+      description:
+        "Requires expectedVersion (zero for an absent pair) and Idempotency-Key preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Conflicting revisions return 409 CONFLICT. Original key/body replay within 24 hours returns appliedVersion and current preference without a second consent record or audit; a later withdrawal is never overwritten. Changed content returns 409 IDEMPOTENCY_CONFLICT; expired keys and keys over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing or malformed keys/versions return 422. Replay retains role, CSRF and ownership checks. Marketing dispatch stays disabled. Deploy the revision migration, API and matching clients together.",
       security: [{ sessionCookie: [] }],
       request: {
-        headers: csrf as never,
+        headers: csrf.extend(preferenceRequestHeadersSchema.shape) as never,
         body: {
           required: true,
           content: { "application/json": { schema: preferenceUpdateBodySchema } },
         },
       },
-      responses: { "200": { description: "Preference updated" } },
+      responses: {
+        "200": {
+          description: "Preference updated or recovered",
+          content: {
+            "application/json": {
+              schema: response.extend({ data: preferenceWriteResponseSchema }),
+            },
+          },
+        },
+      },
     });
   }
 }

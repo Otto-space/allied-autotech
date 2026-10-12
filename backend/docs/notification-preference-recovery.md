@@ -1,0 +1,41 @@
+# Notification preference revisions and recovery
+
+Customer, Staff, Admin and Super Admin preference writes now require the displayed revision and an original request key. A stale session cannot silently replace a newer setting, and a retry cannot append a second consent record or audit. Marketing delivery remains disabled pending business approval.
+
+## Contract
+
+The existing customer and staff `GET /notifications/preferences/current` routes return `version` on each stored pair. An omitted category/channel pair has expected version zero and retains the existing default: operational enabled, marketing disabled. Existing stored pairs begin at version one.
+
+Both `PUT /customers/notifications/preferences/current` and `PUT /staff/notifications/preferences/current` require `{ category, channel, enabled, expectedVersion }` and `Idempotency-Key: preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>`. The revision is a strict integer from zero through 2147483646. Only OPERATIONAL/MARKETING and EMAIL/SMS are mutable. Actor ownership comes exclusively from the session. Staff routes retain MFA; customer routes remain customer-only. CSRF, private/no-store responses and existing authentication protections remain in force.
+
+Success returns HTTP 200 with `{ preference, appliedVersion, replayed }`. `preference` is the current safe projection (category, channel, enabled, consentedAt, updatedAt, version). `appliedVersion` identifies the revision originally committed by this request. On replay, a newer current revision is returned without applying the original change again. In particular, replaying a grant after a later withdrawal never re-enables consent. A response confirming an old request is not proof that its value remains current.
+
+An expected revision that no longer matches the saved pair conflicts with 409 `CONFLICT`. Reusing a key with different category, channel, value or expected revision returns 409 `IDEMPOTENCY_CONFLICT`. Missing, foreign or inconsistent receipt resources also conflict without replacement. Malformed/missing revisions and keys return 422. Keys expire 24 hours after their embedded timestamp; keys over one minute in the future are rejected too. Expired keys return 409 `IDEMPOTENCY_EXPIRED` even after receipt cleanup, and cannot become new requests.
+
+## Persistence and migration
+
+`20261013110000_notification_preference_revision` adds a positive integer revision with default one and a database trigger that advances it on every update, including older/direct writers. Historical preference values, timestamps and consent records are preserved. Missing rows use expected version zero; the first stored version is one. Revisions do not reset when the value is unchanged or changes back to its previous value.
+
+Actor/operation-scoped SHA-256 hashes bind request identity to the normalized body. An existing IdempotencyRecord stores only resource ID and applied version, plus hashes and expiry. The preference, consent record, audit and receipt commit together in a serializable transaction. Advisory locks serialize the request key and category/channel pair. Only database-aborted transactions retry, and callbacks perform no external side effects. Expired receipts remain subject to existing worker cleanup. Consent history remains append-only; recovery adds no new history. Existing consent wording and dispatch safeguards are preserved.
+
+## Frontend and release
+
+Both customer and staff preference screens capture the revision shown when confirmation opens. A conflict requires a new review using refreshed state. Before PUT, the browser verifies the current account/role and persists the exact request in account-scoped session storage. Storage failure blocks submission. Unknown results survive reload and expose an explicit original-request recovery dialog. Its confirmation can submit a request that never reached the API, or return the committed result. Reload, tab change and reconnection never automatically submit.
+
+Recovery distinguishes a confirmed original revision from a later saved setting. Account invalidation redacts the retained choice and preserves an uncertainty marker. Legacy, expired and invalid markers require a fresh explicit preferences read and acknowledgement. Inbox read/read-all behavior is unchanged. The replay window limits eligibility, not automatic browser-storage erasure.
+
+Drain older API writers, deploy migration 57 and the regenerated Prisma client, then release matching API and frontend together. Older clients missing the revision or key receive 422 and must reload. The trigger advances revisions for direct writes but cannot make an older unversioned API enforce optimistic concurrency. No application database has been migrated or deployment performed by local verification.
+
+## Local evidence
+
+All 57 migrations replayed into a fresh `allied_preferences_20261013_test` database; the subsequent schema comparison found no drift. A real upgrade preserved three pre-existing preferences on `allied_profile_revision_20261013_test`; that database contained no consent rows. A separate transaction-scoped old-shape fixture verified byte-equivalent preservation of 71 preferences and 73 consent records when applying the new migration, then rolled back its temporary schema.
+
+The final 35-case regression passed: 17 preference cases plus existing notification retry and support/worker cases. Coverage includes all pairs, all four roles, missing MFA, CSRF, actor isolation, strict bodies, conflicting revisions, same-key concurrency, withdrawal before replay, changed content, tampered receipts, expiry before/after cleanup, trigger revision advancement and audit rollback. Initial test-only corrections used ConsentRecord.recordedAt and the sole owner's existing baseline revision; production guards were preserved.
+
+All 452 frontend unit tests passed, including six new storage/contract cases. OpenAPI and route checks retain 267 paths and 316 operations plus four infrastructure routes. Both backend and frontend production builds passed; the frontend built all 71 pages and prepared standalone assets in an isolated snapshot. SHA-256 checks matched all eight changed preference/contract sources against that build. Backend formatting, lint, secret guard and type checks passed. Frontend type checking, generated types and changed-file lint/formatting passed. A full frontend lint attempt found an unrelated unused `note` variable in `tests/fixtures/customer-aftercare.ts`, alongside a JSX apostrophe issue in the new recovery component. The apostrophe was corrected and the final production snapshot rebuilt; the unrelated fixture was preserved.
+
+Sixty-one unique production Edge scenarios have passing evidence: 52 existing notification cases, five role/concurrency recovery cases, two expired/account-change cases and two real browser/API/database cases. The first combined run passed 58 of 59; the remaining real test incorrectly requested CSRF using GET. It was corrected to the existing POST contract. Both real cases plus the two added boundary cases then passed together on a fresh synthetic customer. No application guard was changed for these test corrections.
+
+The real committed-response test discarded an actual successful response, withdrew consent in another request, reloaded and explicitly recovered the original key/body. EMAIL remained disabled at revision two, with the receipt confirming original applied revision one. The second test interrupted the request before it reached the server, then explicitly sent it once after reload. Final database counts were two preference rows, three consent records, three audits and three receipts: one grant, one withdrawal and one recovered initial SMS change. Recovery added no duplicate record. Both real flows reported no page errors. WCAG and horizontal-overflow checks passed at 390px/1440px; screenshots `allied-preference-390.png` and `allied-preference-1440.png` were inspected.
+
+Artifacts are in the OS temporary directory: `allied-preference-regression-final.json`, `allied-preference-units.json`, `allied-preference-playwright`, `allied-preference-final-playwright`, and `allied-preference-build-path.txt`. Target-environment/provider acceptance and the broader backend goal remain open.

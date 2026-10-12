@@ -10,6 +10,7 @@ import {
   notificationsEmptyBodySchema,
   notificationsEmptyQuerySchema,
   preferenceUpdateBodySchema,
+  preferenceRequestHeadersSchema,
 } from "./notifications.schemas.js";
 
 function routes(): Router {
@@ -43,7 +44,11 @@ function routes(): Router {
   router.put(
     "/preferences/current",
     requireCsrf,
-    validate({ body: preferenceUpdateBodySchema, query: notificationsEmptyQuerySchema }),
+    validate({
+      body: preferenceUpdateBodySchema,
+      query: notificationsEmptyQuerySchema,
+      headers: preferenceRequestHeadersSchema,
+    }),
     controller.updatePreference,
   );
   return router;

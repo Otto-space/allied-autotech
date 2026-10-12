@@ -11,8 +11,10 @@ import {
   type NotificationsService,
 } from "./notifications.service.js";
 
-const validated = <T>(response: Response, location: "body" | "params" | "query") =>
-  response.locals.validated?.[location] as T;
+const validated = <T>(
+  response: Response,
+  location: "body" | "params" | "query" | "headers",
+) => response.locals.validated?.[location] as T;
 const actor = (request: Request) => request.actor as AuthenticatedActor;
 const context = (request: Request): RequestSecurityContext => ({
   requestId: String(request.id),
@@ -80,6 +82,7 @@ export class NotificationsController {
             actor(req),
             validated<PreferenceUpdateInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key": string }>(res, "headers")["idempotency-key"],
           ),
         ),
       );

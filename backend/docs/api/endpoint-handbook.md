@@ -5881,8 +5881,19 @@ Success: HTTP 200.
   "success": true,
   "message": "Get mutable operational and marketing preferences",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "immutableCategories": [
+      "SECURITY"
+    ],
+    "preferences": [
+      {
+        "category": "OPERATIONAL",
+        "channel": "EMAIL",
+        "enabled": true,
+        "version": 1,
+        "consentedAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -5895,17 +5906,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PUT `/customers/notifications/preferences/current`
 
 - Operation ID: `putCustomersNotificationsPreferencesCurrent`
-- Purpose: Update one mutable notification preference. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires expectedVersion (zero for an absent pair) and Idempotency-Key preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Conflicting revisions return 409 CONFLICT. Original key/body replay within 24 hours returns appliedVersion and current preference without a second consent record or audit; a later withdrawal is never overwritten. Changed content returns 409 IDEMPOTENCY_CONFLICT; expired keys and keys over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing or malformed keys/versions return 422. Replay retains role, CSRF and ownership checks. Marketing dispatch stays disabled. Deploy the revision migration, API and matching clients together. Update one mutable notification preference. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
-- Idempotency: Not required
+- Idempotency: Required in `Idempotency-Key`
 
 Parameters:
 
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
@@ -5914,6 +5926,7 @@ JSON request fields:
 | `category` | OPERATIONAL / MARKETING | Yes | Category validated by this operation's strict request contract. |
 | `channel` | EMAIL / SMS | Yes | Channel validated by this operation's strict request contract. |
 | `enabled` | boolean | Yes | Enabled validated by this operation's strict request contract. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -5921,7 +5934,8 @@ Synthetic request example:
 {
   "category": "OPERATIONAL",
   "channel": "EMAIL",
-  "enabled": true
+  "enabled": true,
+  "expectedVersion": 0
 }
 ```
 
@@ -5932,8 +5946,16 @@ Success: HTTP 200.
   "success": true,
   "message": "Update one mutable notification preference",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "preference": {
+      "category": "OPERATIONAL",
+      "channel": "EMAIL",
+      "enabled": true,
+      "version": 1,
+      "consentedAt": "2030-01-15T10:00:00.000Z",
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "appliedVersion": 1,
+    "replayed": true
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10292,8 +10314,19 @@ Success: HTTP 200.
   "success": true,
   "message": "Get mutable operational and marketing preferences",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "immutableCategories": [
+      "SECURITY"
+    ],
+    "preferences": [
+      {
+        "category": "OPERATIONAL",
+        "channel": "EMAIL",
+        "enabled": true,
+        "version": 1,
+        "consentedAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z"
+      }
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10306,17 +10339,18 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PUT `/staff/notifications/preferences/current`
 
 - Operation ID: `putStaffNotificationsPreferencesCurrent`
-- Purpose: Update one mutable notification preference. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires expectedVersion (zero for an absent pair) and Idempotency-Key preference-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Conflicting revisions return 409 CONFLICT. Original key/body replay within 24 hours returns appliedVersion and current preference without a second consent record or audit; a later withdrawal is never overwritten. Changed content returns 409 IDEMPOTENCY_CONFLICT; expired keys and keys over one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing or malformed keys/versions return 422. Replay retains role, CSRF and ownership checks. Marketing dispatch stays disabled. Deploy the revision migration, API and matching clients together. Update one mutable notification preference. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. Requires an Idempotency-Key; a key may only be replayed with the identical request.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
-- Idempotency: Not required
+- Idempotency: Required in `Idempotency-Key`
 
 Parameters:
 
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | Yes | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 
@@ -10325,6 +10359,7 @@ JSON request fields:
 | `category` | OPERATIONAL / MARKETING | Yes | Category validated by this operation's strict request contract. |
 | `channel` | EMAIL / SMS | Yes | Channel validated by this operation's strict request contract. |
 | `enabled` | boolean | Yes | Enabled validated by this operation's strict request contract. |
+| `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 
 Synthetic request example:
 
@@ -10332,7 +10367,8 @@ Synthetic request example:
 {
   "category": "OPERATIONAL",
   "channel": "EMAIL",
-  "enabled": true
+  "enabled": true,
+  "expectedVersion": 0
 }
 ```
 
@@ -10343,8 +10379,16 @@ Success: HTTP 200.
   "success": true,
   "message": "Update one mutable notification preference",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "preference": {
+      "category": "OPERATIONAL",
+      "channel": "EMAIL",
+      "enabled": true,
+      "version": 1,
+      "consentedAt": "2030-01-15T10:00:00.000Z",
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "appliedVersion": 1,
+    "replayed": true
   },
   "meta": {
     "requestId": "req_0000000000000001"
