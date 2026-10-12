@@ -1,0 +1,51 @@
+# Customer-care conversations - expanded page gate
+
+Routes: `/dashboard/support/enquiries/[supportId]` and `/dashboard/support/complaints/[supportId]`.
+
+Status: **in progress**, candidate forty-sixth expanded milestone. The previous customer-care list gate remains accepted. No whole-application or deployed acceptance is implied.
+
+## Audit and implementation
+
+The [pre-code concept specification](customer-care-detail-oct-concepts/README.md) records the contract audit, four inspected baselines, fresh complete desktop/mobile/state images, tokens, component plan and allowed deviations. Previously, full-width record details and large vertical gaps pushed replies below the desktop viewport. Unknown reply state disappeared after reload; background failures did not block writes; failed later message pages also disabled Previous.
+
+The customer thread now has a compact subject/refresh heading, original message and ruled conversation on the left, with record details and reply form on the right. Mobile reads original message, record details, messages and reply. A semantic ordered breadcrumb uses the owned subject, chevrons and clickable ancestors; only the breadcrumb truncates long subjects. The approved shell and Quicksand typography remain. Staff uses the existing separate rendering path.
+
+The existing reply form accepts opt-in customer styling and the existing support write guard with a reply-specific account/kind/record marker. A fresh CUSTOMER session and current record are checked before POST; closed records reject replies while resolved records permit them. Stale detail or message reads block submission, including an already-open confirmation. Customer payloads contain only the message and use CSRF. Response body, visibility and author type must match before reporting success. Pending markers contain only `pending`, survive reload, and require successful manual message refresh plus explicit acknowledgement. Customers are told to inspect all relevant pages; there is no automatic replay or proof of failure from an absent first-page message.
+
+Drafts remain account/conversation scoped. Confirmed success clears the matching draft. During the first quality run, an unknown reply restored its marker but left the disabled textarea blank because the shared draft restorer waits for enabled controls. The customer reply form now restores its own validated saved text while locked; the focused reload test passed after the fix. No shared draft policy was weakened.
+
+The backend supplies customer-owned detail and paginated message routes, complaint resolution/acknowledgement/escalation fields and closed-record enforcement. No production backend code or migration was changed for this page. [Durable reply replay](../../../BACKEND_IMPLEMENTATION_GAPS.md#support-reply-replay---optional-enhancement) is an optional contract extension; notification delivery remains a separate deployed check.
+
+## Verification to date
+
+Evidence artifacts are under `C:/Users/PC/.codex/`, prefixed `customer-care-detail-oct-`.
+
+| Check | Current evidence |
+| --- | --- |
+| Baseline and initial render | Four widths 390/768/1280/1440 captured with no horizontal overflow. All baselines inspected; initial new desktop/mobile renders inspected. |
+| Focused quality suite | `quality.log`: 24 passed, 2 failed out of 26. One 1280px accessibility/focus case timed out; the other found the draft restoration defect described above. `draft-recheck.log`: the corrected unknown-reply reload case passed without assertion relaxation. |
+| Shared support regression | `regression.log`: 40 passed, 6 failed. Three creation flows timed out during development-preview testing; three accessibility cases failed through timeout or Console Ninja websocket/CSP console errors. These remain pending production recheck; CSP and test assertions are unchanged. |
+| Scoped lint | `lint.log` passed. An initial React Hook Form `watch()` compiler warning was fixed using `useWatch`; `lint-draft.log` passed after the recovery draft change. |
+| Backend safeguards | `backend-unit-recheck.log`: six support/notification cases passed using the repository Vitest runner. An earlier incorrect Node test-runner invocation failed to initialize Vitest and ran no valid test cases. |
+| Production build | `build.log` passed compilation, TypeScript, 71 routes and standalone preparation. The final draft-restoration fix was made after that build's compilation; `build-final.log` is the required updated build. |
+| Real API/database | `real.log` exercised browser paging, cancellation, resolved reply persistence, committed-response loss/reload recovery with one reply/audit and no replay, then closed-before-confirmation rejection. It subsequently failed a helper assumption that detail responses omit all embedded messages. The repository explicitly includes bounded customer-visible messages. The helper now checks their visibility/private fields; `real-recheck.log` is the corrected full acceptance run. Final result remains to be recorded. |
+
+The initial old port-3001 standalone preview had broken static chunks and did not hydrate. Fresh port-3002 development captures succeeded. Browser plugin unavailable; Playwright with Edge used. Development Console Ninja attempted a websocket denied by the existing CSP; production checks must verify a clean console without relaxing the policy.
+
+## Initial fidelity ledger
+
+| Comparison | Finding and action |
+| --- | --- |
+| Composition | Initial 1440 render matches the original/messages left and details/reply right arrangement. Content-driven height replaces generated empty message space as specified before coding. |
+| Branding/type | Actual approved wordmark, shell and Quicksand retained; generated alternative branding/account identity excluded. Compact title and section hierarchy verified in initial screenshots. |
+| Palette/containers | White panels, cool-grey canvas, ink message header and red reply CTA match the locked tokens. No blue privacy callout or red-tinted recovery card. |
+| Copy/data | Original and paginated reply text, actual dates/branch/assignment, conditional complaint fields. No invented presence, unread counts or response promises. Breadcrumb uses the real subject. |
+| Mobile | Initial 390 render shows the specified section order, paired detail rows, wrapped dates, stacked message metadata and full-width review action. No overflow at all ten automated widths. |
+| Recovery | Reload test exposed missing visible draft; restoration fixed. Final uncertain-state screenshot and production recheck remain required. |
+
+## Remaining acceptance
+
+- Complete the final build and run the full quality/shared support/Contact suite on the production bundle; investigate any remaining failures without weakening assertions.
+- Finish corrected real API/database acceptance, including private message projections, owner/role/CSRF boundaries and closed-record rejection.
+- Capture final native 1505x1045, 320-1536 widths, loading/empty/error/resolved/closed/recovery/confirmation states and mobile bottom clearance. Open both retained concepts and final browser images in the same fidelity review; finish the copy/icon/typography comparison.
+- Record final health, static checks and evidence. Accept gate 46 only after these checks pass, then proceed to the next unaudited dashboard route.
