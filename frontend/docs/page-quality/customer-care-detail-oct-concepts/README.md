@@ -1,6 +1,6 @@
 # Customer-care conversation concept specification
 
-Routes: `/dashboard/support/enquiries/[supportId]` and `/dashboard/support/complaints/[supportId]`. Gate 46, in progress. Recorded before production edits on 12 October 2026.
+Routes: `/dashboard/support/enquiries/[supportId]` and `/dashboard/support/complaints/[supportId]`. Gate 46 has [passed local acceptance](../customer-care-detail.md). Recorded before production edits on 12 October 2026.
 
 ## Audit
 
