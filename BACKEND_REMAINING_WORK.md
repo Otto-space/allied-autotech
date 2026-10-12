@@ -1,8 +1,8 @@
 # Allied AutoTech — Remaining Backend Work
 
-Reviewed: 12 October 2026. Scope: the 46 locally accepted frontend milestones through customer-care conversations, plus the current backend implementation sources. See the [page register](frontend/docs/page-quality/README.md) and [detailed backend handoff](BACKEND_IMPLEMENTATION_GAPS.md).
+Reviewed: 12 October 2026. Scope: the 48 locally accepted frontend milestones through work-dashboard overview, plus the current backend implementation sources. See the [page register](frontend/docs/page-quality/README.md) and [detailed backend handoff](BACKEND_IMPLEMENTATION_GAPS.md).
 
-This is an implementation and release checklist based on completed work. Local acceptance is not deployed acceptance. Remaining customer, Staff, Admin and Super Admin page audits may identify additional gaps. Customer order aftercare has not yet passed its page gate.
+This is an implementation and release checklist based on completed work. Local acceptance is not deployed acceptance. Remaining customer, Staff, Admin and Super Admin page audits may identify additional gaps. Work-dashboard overview `/admin` has passed its local page gate; the next frontend audit is workshop bookings `/admin/bookings`. Existing overview and operations endpoints cover its requirements; no additional backend endpoint or migration is needed. See the [overview acceptance](frontend/docs/page-quality/work-overview.md).
 
 ## Implementation backlog
 
@@ -10,35 +10,32 @@ Priorities are proposed: P1 requires completion before activating the affected c
 
 | Item                                                     | Current status                                                        | Priority             | Responsible roles                             |
 | -------------------------------------------------------- | --------------------------------------------------------------------- | -------------------- | --------------------------------------------- |
-| Durable support request recovery                         | Not implemented                                                       | P2                   | Backend, frontend, QA                         |
-| Durable support reply recovery                           | Not implemented                                                       | P2                   | Backend, frontend, QA                         |
+| Audit event/filter completeness                          | Locally verified; matching API/frontend release pending               | P1 before release    | Backend, frontend, QA                         |
+| Operational jobs pagination and monitoring types         | Locally verified; coordinated release and deployed acceptance pending | P2                   | Backend, frontend, QA                         |
+| Durable support request recovery                         | Locally verified; coordinated release and deployed acceptance pending | P2                   | Backend, frontend, QA                         |
+| Durable aftercare original-request recovery              | Locally verified; coordinated release and deployed acceptance pending | P2                   | Backend, frontend, QA                         |
+| Durable support reply recovery                           | Locally verified; coordinated release and deployed acceptance pending | P2                   | Backend, frontend, QA                         |
 | Notification preference conflict protection and recovery | Locally verified; coordinated release and deployed acceptance pending | P2                   | Backend, frontend, QA                         |
 | Marketing delivery                                       | Disabled; policy and implementation required                          | P1 before activation | Business owner, backend, QA                   |
 | Privacy deletion/anonymization execution                 | Disabled; policy and implementation required                          | P1 before activation | Business owner, policy reviewers, backend, QA |
 
-### 1. Durable support request recovery
+### 1. Complete customer support creation release
 
-**Affected pages:** customer-care request creation at `/dashboard/support`.
+**Affected page:** `/dashboard/support`.
 
-**Existing behavior:** customer enquiry and complaint creation, ownership checks, branch selection, source validation, history and auditing already exist. A lost response after a successful commit cannot be replayed using an original request key. Repeating the submission can create another record; absence from the first history page does not prove failure.
+**Current status:** implemented and locally verified. Customer enquiry/complaint creation now binds the normalized original request to a customer- and operation-scoped key. The record, audit, complaint policy work and receipt commit atomically. Explicit frontend recovery survives reload, returns the current owned record and never repeats creation or deadline assignment after a committed request. See [support creation recovery](backend/docs/support-creation-recovery.md) for the contract and evidence.
 
-**Implement:** extend the existing customer creation operations with an actor- and operation-scoped request key bound to the normalized body. Commit the receipt, support record and creation audit atomically. Define concurrent-request handling, changed-body conflicts, retention/expiry, and authorized replay of the original result after later source or branch changes. Preserve complaint policy, rate limits, CSRF and ownership. Update OpenAPI, generated types and explicit frontend recovery together. Anonymous public-contact recovery needs a separate scope decision; customer-scoped keys do not solve it automatically.
+**Remaining:** release the matching API/frontend together and verify in the target environment. Older clients must reload to send the required key. No new migration is needed. Anonymous contact recovery and support replies remain separate; provider delivery is not established by local persistence or browser tests.
 
-**Acceptance:** for both enquiry and complaint creation, lose a committed response, reload and explicitly replay the original key/body. Verify one record and one creation audit. Concurrent duplicates must return the original result; changed bodies and foreign actors must fail without writes or information disclosure. Verify source/branch changes and expired keys. Provider delivery needs separate evidence.
-
-**Evidence:** [support routes](backend/src/modules/support/support.routes.ts), [support service](backend/src/modules/support/support.service.ts), [completed customer-care page](frontend/docs/page-quality/customer-care.md), and [detailed criteria](BACKEND_IMPLEMENTATION_GAPS.md#support-creation-replay---optional-enhancement).
-
-### 2. Durable support reply recovery
+### 2. Complete support reply recovery release
 
 **Affected pages:** enquiry and complaint conversations at `/dashboard/support/[kind]/[supportId]`.
 
-**Existing behavior:** owned, paginated messages and customer replies work. Closed conversations reject new replies; resolved conversations permit follow-up. The frontend preserves uncertain outcomes and offers manual reconciliation, but resending a lost-response reply can create another message and audit.
+**Current status:** implemented and locally verified. Original reply keys are scoped to customer, conversation kind/ID and normalized contents. The reply, audit, notification/outbox intent and receipt commit together. Explicit recovery rechecks current ownership, returns an already committed customer-visible message after closure and works independently of history pagination. New replies to closed conversations remain rejected.
 
-**Implement:** bind a request key to the actor, conversation kind/ID and normalized reply. Commit receipt, message, audit and any notification intent atomically. Replay the authorized original result without another message, audit or notification enqueue. Define expiry and what happens when the conversation closes or access changes after the original write. Keep internal messages private and preserve customer-only payload validation.
+**Remaining:** release matching API/frontend contracts together and verify in the target environment. Older customer clients must reload to send the required key. No migration is added. Staff reply contracts remain unchanged, and notification enqueue does not establish provider delivery.
 
-**Acceptance:** test both conversation kinds with response loss, reload, concurrent same-key requests, body mismatch, expiry, closed records and revoked access. One committed reply must produce one message, one audit and at most the original notification intent. Include recovery when the reply is beyond the first message page. Browser/API/database evidence is required.
-
-**Evidence:** [message service](backend/src/modules/support/support.service.ts), [completed conversation pages](frontend/docs/page-quality/customer-care-detail.md), and [detailed criteria](BACKEND_IMPLEMENTATION_GAPS.md#support-reply-replay---optional-enhancement).
+**Evidence:** [reply recovery contract and local verification](backend/docs/support-reply-recovery.md), [backend integration tests](backend/tests/integration/support-reply-replay.test.ts), and [real browser recovery](frontend/tests/e2e/support-reply-real.spec.ts).
 
 ### 3. Complete notification preference acceptance
 
@@ -76,6 +73,36 @@ Priorities are proposed: P1 requires completion before activating the affected c
 
 **Evidence:** [privacy routes](backend/src/modules/policies/privacy.routes.ts), [capability projection](backend/src/modules/policies/policies.service.ts), [completed privacy page](frontend/docs/page-quality/customer-privacy.md), and [detailed criteria](BACKEND_IMPLEMENTATION_GAPS.md#privacy-execution---policy-dependent-future-capability).
 
+### 6. Complete aftercare original-request recovery release
+
+**Affected page:** `/dashboard/orders/[orderId]/aftercare`.
+
+**Current status:** implemented and locally verified. Both intake endpoints now bind the normalized original operation and payload to a customer/order-scoped key. Request, audit and receipt commit atomically. Explicit browser recovery survives reload and returns the current owned original request after rejection or outside the latest-100 history window. Recovery does not create another request or change stock, order state or refund settlement. Local evidence includes 20 backend cases, 474 frontend unit cases and 62 unique production-browser cases.
+
+**Remaining:** release the matching API/frontend together and verify in the target environment. Older customer clients must reload to send the required key. No migration is needed. The latest-100 history contract remains bounded; older-history browsing would require a separate owned pagination contract.
+
+**Evidence:** [aftercare recovery contract and verification](backend/docs/aftercare-request-recovery.md), [API/database tests](backend/tests/integration/aftercare-replay.test.ts), and [real browser recovery](frontend/tests/e2e/aftercare-real.spec.ts).
+
+### 7. Complete operational jobs pagination release
+
+**Affected page:** `/admin/processing-jobs` for Admin and Super Admin; typed monitoring is also available to `/admin`.
+
+**Current status:** the backend now honors a signed, actor/filter-bound cursor across both job sources; Next/Previous navigation is enabled. The original page boundary survives retry or removal of its row. Job, retry and status response contracts are explicit in OpenAPI and regenerated frontend types. This is live pagination; refreshing page one is necessary to see jobs that moved to newer positions.
+
+**Remaining:** release the matching API/frontend together and verify deployed traversal. Older clients must reload because operational-job cursors are now opaque rather than UUIDs. No migration or provider activation is required.
+
+**Evidence:** [contract and local verification](backend/docs/operational-jobs-pagination.md), [integration cases](backend/tests/integration/operational-jobs-pagination.test.ts), and [real browser cases](frontend/tests/e2e/operational-jobs-real.spec.ts).
+
+### 8. Release complete audit event support
+
+**Affected page:** `/admin/audit` for Admin and Super Admin.
+
+**Current status:** fixed a contract mismatch that could reject an entire page containing existing failed-login, booking-slot or service-category events. Backend filters use the database enums; frontend options/parser cover them completely and are checked against OpenAPI. The audit page response is now explicitly typed. Local verification passed 17 backend cases, six frontend unit cases and nine production-browser cases.
+
+**Remaining:** deploy the matching API before the frontend and refresh existing administrator tabs. No migration or permission change is required. Verify mixed-event reads and filters in the target environment.
+
+**Evidence:** [audit event contract and verification](backend/docs/audit-event-contract.md).
+
 ## Implemented capabilities with release work remaining
 
 Do not rebuild these capabilities: BG-01–BG-10 and API-01–API-05 have recorded local acceptance. BG-11 reservation agreements and BG-12 Paystack dispute handling also have local implementation evidence. Profile text revisions, review-source discovery and durable review submission recovery have separate acceptance reports. Their exact contracts and release dependencies are linked from the [detailed handoff](BACKEND_IMPLEMENTATION_GAPS.md).
@@ -93,10 +120,10 @@ Do not rebuild these capabilities: BG-01–BG-10 and API-01–API-05 have record
 ## Recommended sequence and completion record
 
 1. Release the locally verified preference revision/recovery contract in the documented order.
-2. If selected for implementation, add support creation recovery, then reply recovery, with matching frontend contracts and regression evidence.
+2. Release the matching support creation, reply and aftercare recovery API/frontend contracts after their local gates and verify them in the target environment.
 3. Obtain marketing/privacy policy decisions before implementing or activating those capabilities.
 4. Complete release verification for locally accepted features and record the outcome in the target environment.
 
 For each item, record the assigned owner, deployed revision, target environment, prerequisites, test results and evidence links. Keep local and deployed acceptance separate. Use synthetic records and omit credentials or customer data from evidence.
 
-The original handoff was a documentation-only source review. Subsequent preference implementation and verification are recorded in the linked acceptance report; other entries retain their original evidence boundaries. No business policy or deployed setting was activated.
+The original handoff was a documentation-only source review. Subsequent preference and support creation implementations and verification are recorded in their linked acceptance reports; other entries retain their original evidence boundaries. No business policy or deployed setting was activated.
