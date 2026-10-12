@@ -137,6 +137,7 @@ const operationalGroups: DashboardGroup[] = [
       { href: "/admin/vehicles", label: "Vehicle stock" },
       { href: "/admin/inspections", label: "Vehicle inspections" },
       { href: "/admin/vehicle-sales", label: "Vehicle sales" },
+      { href: "/admin/reservation-terms", label: "Reservation agreements", roles: ["SUPER_ADMIN"] },
     ],
   },
   {

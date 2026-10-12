@@ -55,6 +55,19 @@ export async function purchaseDetailFixture(page: Page, role = "CUSTOMER") {
         mfaRequired: role !== "CUSTOMER",
         mfaVerifiedAt: role === "CUSTOMER" ? null : "2026-10-09T08:00:00Z",
       };
+    if (endpoint.endsWith("/reservation-terms"))
+      return route.fulfill({
+        json: {
+          success: true,
+          data: {
+            current: null,
+            accepted: null,
+            legacyAcceptance: state.record.termsAcceptedAt !== null,
+          },
+          message: "Synthetic historical agreement",
+          meta: { requestId: "terms-qa" },
+        },
+      });
     if (endpoint.startsWith("/customers/vehicle-transactions/")) {
       if (state.mode === "hold")
         await new Promise<void>((resolve) => {

@@ -1,0 +1,51 @@
+.reservation-agreement {
+  margin-block: 1.5rem;
+  min-width: 0;
+}
+.reservation-agreement fieldset {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.reservation-agreement details {
+  margin-block: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border, #bbc8d4);
+  border-radius: 0.5rem;
+}
+.reservation-agreement summary {
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.agreement-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  line-height: 1.65;
+  padding: 1rem;
+  margin-block: 1rem;
+  border: 1px solid var(--border, #bbc8d4);
+  border-radius: 0.5rem;
+  max-height: 26rem;
+  overflow: auto;
+  background: var(--surface, #fff);
+  color: var(--text, #152d3f);
+}
+.reservation-agreement .actions {
+  flex-wrap: wrap;
+}
+.reservation-agreement .check-row {
+  align-items: flex-start;
+}
+.reservation-agreement .notice {
+  overflow-wrap: anywhere;
+}
+.agreement-review .spec-row {
+  display: block;
+}
+.agreement-review .spec-row dd {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
+  margin: 0.5rem 0 1rem;
+}

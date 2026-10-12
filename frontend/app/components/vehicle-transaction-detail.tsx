@@ -10,6 +10,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { formatKobo } from "@/lib/format/money";
 import { PublicMedia } from "./public-media";
 import { VehiclePaymentRequests } from "./vehicle-payment-requests";
+import { VehicleReservationAgreement } from "./vehicle-reservation-agreement";
 
 function RecordedDate({ value }: { value: string }) {
   return <time dateTime={value}>{formatBusinessDate(value)}</time>;
@@ -105,6 +106,7 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
               <div className="pd-photo">
                 <PublicMedia
                   key={photo?.url ?? "missing"}
+                  loading="eager"
                   src={photo?.url}
                   alt={photo?.altText || current.vehicleListing.title}
                   sizes="(max-width: 600px) 100vw, 32vw"
@@ -163,15 +165,11 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
               <p>{current.cancellationReason}</p>
             </div>
           )}
-          {current.status === "NEGOTIATING" && current.agreedPriceKobo !== null && (
-            <div className="pd-alert">
-              <h2>Reservation terms are not available online</h2>
-              <p>
-                Contact our team to review the approved terms before reserving this
-                vehicle. Contacting us does not reserve or extend a hold.
-              </p>
-            </div>
-          )}
+          <VehicleReservationAgreement
+            record={current}
+            disabled={busy || stale}
+            refreshPurchase={transaction.refresh}
+          />
         </>
       )}
       <div className="pd-columns">

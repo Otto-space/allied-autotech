@@ -9,6 +9,11 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
     await page.setViewportSize({ width, height: 1000 });
     const s = await profileFixture(page);
     await page.goto(path);
+    await expect(page).toHaveTitle("Your profile \u00b7 Allied AutoTech");
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
+      "content",
+      /noindex/,
+    );
     await expect(
       page.getByRole("heading", { name: "Your profile", exact: true }),
     ).toBeVisible();
@@ -54,7 +59,7 @@ test("save sends changed fields only; clearing address is explicit null", async 
     {
       method: "PATCH",
       path: "/customers/profile",
-      body: { firstName: "Ada", address: null },
+      body: { firstName: "Ada", address: null, expectedVersion: 0 },
     },
   ]);
   await expect(
@@ -72,6 +77,10 @@ test("discard restores saved details without a mutation", async ({ page }) => {
     "08031234567",
   );
   expect(s.writes).toEqual([]);
+  await page.reload();
+  await expect(page.getByLabel("Phone number", { exact: true })).toHaveValue(
+    "08031234567",
+  );
 });
 test("invalid name and phone focus the field without writing", async ({ page }) => {
   const s = await profileFixture(page);
@@ -150,6 +159,7 @@ test("lost PATCH response locks repeat saves until saved details reload", async 
     page.getByRole("button", { name: "Save profile", exact: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Reload saved details", exact: true }).click();
+  await page.getByRole("button", { name: "Use saved details", exact: true }).click();
   await expect(page.getByLabel("First name", { exact: true })).toHaveValue("Ada");
   await expect(page.getByLabel("First name", { exact: true })).toBeEnabled();
   expect(s.writes.filter((w) => w.method === "PATCH")).toHaveLength(1);
@@ -247,13 +257,11 @@ test("mobile photo disclosure and invalid file remain usable", async ({ page }) 
   await page.goto(path);
   await expect(page.locator("#profile-photo-file")).not.toBeVisible();
   await page.locator(".cp-photo summary").click();
-  await page
-    .locator("#profile-photo-file")
-    .setInputFiles({
-      name: "wrong.txt",
-      mimeType: "text/plain",
-      buffer: Buffer.from("not a photo"),
-    });
+  await page.locator("#profile-photo-file").setInputFiles({
+    name: "wrong.txt",
+    mimeType: "text/plain",
+    buffer: Buffer.from("not a photo"),
+  });
   await expect(
     page.getByText("Choose a JPEG, PNG or WebP image.", { exact: true }),
   ).toBeVisible();
@@ -283,4 +291,70 @@ test("short viewport keeps form actions and keyboard focus reachable", async ({
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
+});
+
+test("server validation focuses the rejected field and preserves changes", async ({
+  page,
+}) => {
+  const s = await profileFixture(page);
+  s.saveMode = "invalid";
+  await page.goto(path);
+  await page.getByLabel("Phone number", { exact: true }).fill("08039999999");
+  await page.getByRole("button", { name: "Save profile", exact: true }).click();
+  await expect(page.getByLabel("Phone number", { exact: true })).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await expect(page.getByLabel("Phone number", { exact: true })).toBeFocused();
+  await expect(page.getByLabel("Phone number", { exact: true })).toHaveValue(
+    "08039999999",
+  );
+  await expect(
+    page.getByRole("button", { name: "Reload saved details", exact: true }),
+  ).toHaveCount(0);
+});
+test("long identity and contact values fit at 320px", async ({ page }) => {
+  const s = await profileFixture(page);
+  s.record.firstName = "A".repeat(80);
+  s.record.lastName = "B".repeat(80);
+  s.record.user.email = "long-customer-email-address@example.test";
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto(path);
+  await expect(page.getByLabel("First name", { exact: true })).toHaveValue(
+    s.record.firstName,
+  );
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+});
+test("photo review is keyboard contained and accessible", async ({ page }) => {
+  const s = await profileFixture(page);
+  s.record.photo = {
+    id: profileId(8),
+    url: "/api/v1/customers/media/images/" + profileId(8),
+    altText: null,
+    sortOrder: 0,
+    isPrimary: true,
+    width: 80,
+    height: 80,
+  };
+  await page.setViewportSize({ width: 390, height: 560 });
+  await page.goto(path);
+  await page.locator(".cp-photo summary").click();
+  await page.getByRole("button", { name: "Remove profile photo", exact: true }).click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Go back", exact: true })).toBeFocused();
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Remove profile photo", exact: true }),
+  ).toBeFocused();
+  expect(s.writes).toEqual([]);
 });
