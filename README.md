@@ -10,7 +10,7 @@ Next.js and **Node.js** to 24.x. The checked-in `frontend/vercel.json` supplies
 `npm ci` and `npm run build`. Turn **Output Directory Override off**; do not type
 `Next.js default` into that field. Vercel selects the Next.js output automatically.
 
-Enter these variables in Vercel's **Production** environment before deploying:
+Configure these variables in Vercel's **Production** environment as needed:
 
 | Variable         | Value                                                         |
 | ---------------- | ------------------------------------------------------------- |
@@ -18,8 +18,9 @@ Enter these variables in Vercel's **Production** environment before deploying:
 | `SITE_ORIGIN`    | Your production HTTPS frontend origin                         |
 | `SITE_INDEXING`  | `disabled` until public launch, then `enabled` if appropriate |
 
-Set `SITE_ORIGIN=https://alliedautotech.com`. Production requires a valid frontend
-origin. Both Preview and Production can render without an API by leaving
+Set `SITE_ORIGIN=https://alliedautotech.com` for your production domain. Leaving
+it unset allows deployment with indexing disabled and canonical URLs omitted.
+Both Preview and Production can render without an API by leaving
 `BACKEND_ORIGIN` unset; API-dependent features stay unavailable. If connected, the
 API must have a distinct HTTPS origin. Previews always disable search indexing.
 

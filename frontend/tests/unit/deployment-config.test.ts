@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { backendOrigin } from "@/lib/backend-origin";
 import { validateDeploymentConfig } from "@/lib/deployment-config";
+import { indexingEnabled, publicMetadata } from "@/lib/seo";
 
 beforeEach(() => {
   vi.stubEnv("VERCEL", "");
@@ -42,11 +43,28 @@ describe("backend deployment configuration", () => {
     expect(() => validateDeploymentConfig()).not.toThrow();
   });
 
-  it("requires a distinct approved frontend origin in production", () => {
+  it.each([undefined, "", "   "])(
+    "allows production with missing or blank frontend origin %s and keeps indexing off",
+    (origin) => {
+      vi.stubEnv("VERCEL", "1");
+      vi.stubEnv("VERCEL_ENV", "production");
+      vi.stubEnv("SITE_ORIGIN", origin);
+      vi.stubEnv("SITE_INDEXING", "enabled");
+      expect(() => validateDeploymentConfig()).not.toThrow();
+      expect(indexingEnabled()).toBe(false);
+      const metadata = publicMetadata("Parts", "Published parts", "/parts");
+      expect(metadata.alternates).toBeUndefined();
+      expect(metadata.robots).toEqual({ index: false, follow: false });
+      vi.stubEnv("BACKEND_ORIGIN", "https://api.example.test");
+      expect(() => validateDeploymentConfig()).not.toThrow();
+    },
+  );
+
+  it("requires distinct origins when configured in production", () => {
     vi.stubEnv("VERCEL", "1");
     vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("BACKEND_ORIGIN", "https://api.example.test");
-    expect(() => validateDeploymentConfig()).toThrow(/SITE_ORIGIN is required/);
+    expect(() => validateDeploymentConfig()).not.toThrow();
     vi.stubEnv("SITE_ORIGIN", "https://api.example.test");
     expect(() => validateDeploymentConfig()).toThrow(/not the frontend/);
     vi.stubEnv("SITE_ORIGIN", "https://www.example.test");
@@ -129,11 +147,12 @@ it("retains standalone output on other hosts", async () => {
   expect(config.output).toBe("standalone");
 });
 
-it("validates production before generating Vercel routes", async () => {
+it("rejects invalid supplied production configuration before generating Vercel routes", async () => {
   vi.stubEnv("VERCEL", "1");
   vi.stubEnv("VERCEL_ENV", "production");
+  vi.stubEnv("SITE_ORIGIN", "https://alliedautotech.com/path");
   vi.resetModules();
-  await expect(import("../../next.config")).rejects.toThrow(/SITE_ORIGIN is required/);
+  await expect(import("../../next.config")).rejects.toThrow(/SITE_ORIGIN, when set/);
 });
 
 it.each(["preview", "production"])(
@@ -141,7 +160,6 @@ it.each(["preview", "production"])(
   async (environment) => {
     vi.stubEnv("VERCEL", "1");
     vi.stubEnv("VERCEL_ENV", environment);
-    vi.stubEnv("SITE_ORIGIN", "https://alliedautotech.com");
     vi.resetModules();
     const { default: config } = await import("../../next.config");
     expect(config.output).toBeUndefined();

@@ -25,8 +25,10 @@ Keep `SITE_INDEXING=disabled` and `SITE_ORIGIN` empty until the actual productio
 Import the repository with **Root Directory `frontend`** and the **Next.js** preset.
 The checked-in Vercel configuration uses `npm ci`, `npm run build`, and Node.js 24.
 To see the frontend without a backend, leave `BACKEND_ORIGIN` unset in Vercel.
-This works for both **Preview** and **Production** deployments. Production requires
-`SITE_ORIGIN=https://alliedautotech.com`. Set `BACKEND_ORIGIN` only after hosting an API.
+This works for both **Preview** and **Production** deployments. Set
+`SITE_ORIGIN=https://alliedautotech.com` for your production domain; leaving it unset
+allows deployment with indexing disabled and canonical URLs omitted.
+Set `BACKEND_ORIGIN` only after hosting an API.
 Enter them in Vercel's Production environment using
 [`.env.production.example`](.env.production.example) as the inventory, then redeploy.
 No API, database or tunnel is required. Keep `SITE_INDEXING=disabled`.

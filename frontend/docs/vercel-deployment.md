@@ -9,7 +9,9 @@ temporary development tunnel is not a production backend.
 1. Import this repository with **Root Directory `frontend`**, **Next.js** and
    **Node.js 24.x**. Keep `npm ci`, `npm run build` and the default output directory.
 2. In Vercel's **Production** environment, set
-   `SITE_ORIGIN=https://alliedautotech.com`. Leave `BACKEND_ORIGIN` unset until
+   `SITE_ORIGIN=https://alliedautotech.com` for canonical URLs. It is optional;
+   leaving it unset keeps search indexing disabled and omits canonical URLs.
+   Leave `BACKEND_ORIGIN` unset until
    your API is hosted. This permits a frontend-only production deployment;
    login, live data, bookings, payments and saves remain unavailable. Once hosted,
    set `BACKEND_ORIGIN` to the API's distinct HTTPS origin without `/api/v1`.
@@ -30,8 +32,8 @@ temporary development tunnel is not a production backend.
    post-deployment checks against the matching hosted backend. Use isolated test
    accounts and provider test mode before enabling live payment processing.
 
-Production builds stop early if the frontend origin is missing or invalid, or a
-supplied backend origin is invalid. An omitted backend enables frontend-only mode.
+Production builds stop early if a supplied frontend or backend origin is invalid.
+An omitted frontend origin disables indexing; an omitted backend enables frontend-only mode.
 Configuration checks do not establish that the remote API is online. GitHub
 Actions runs the frontend release checks on Linux with example origins; it does
 not publish a deployment or validate the database, workers or payment providers.
@@ -66,7 +68,8 @@ Normal local builds still prepare the standalone server used by `npm start`.
    tunnel URL). Set `SITE_INDEXING=disabled` and leave `SITE_ORIGIN` unset.
 5. Use a **Preview** deployment (a branch outside Vercel's configured production
    branch, or `vercel deploy` from `frontend`). Frontend-only Production is also
-   supported with `SITE_ORIGIN=https://alliedautotech.com` and no backend origin.
+   supported without either origin. Set `SITE_ORIGIN=https://alliedautotech.com`
+   when configuring your public domain.
    Redeploy after changing environment variables.
 
 No database, API host or tunnel is needed. The landing page, public layouts,
@@ -175,7 +178,7 @@ the standalone server used by `npm start`. Vercel does not run `npm start`.
 ## Frontend environment variables
 
 The backend and storage settings are optional for a frontend-only deployment.
-Production requires `SITE_ORIGIN`. For the local-backend workflow,
+`SITE_ORIGIN` is optional; leaving it unset keeps indexing disabled. For the local-backend workflow,
 use the tunnel URL and keep indexing disabled. A separately hosted backend can
 also be used later.
 
@@ -188,8 +191,8 @@ also be used later.
 | `ASSET_STORAGE_HOSTS`     | Optional comma-separated private-upload/download storage hostnames. Must match backend storage and its browser CORS configuration.                                                                 |
 
 An omitted backend origin enables a frontend-only Preview or Production deployment.
-Production requires `SITE_ORIGIN`. If supplied, the
-origin must be a reachable HTTPS URL; local or non-HTTPS origins are rejected. A build
+Both origins are optional. If supplied, the frontend origin must be a valid HTTPS
+origin and the backend origin must be a reachable HTTPS origin; local or non-HTTPS origins are rejected. A build
 does not prove that the remote API is online or correctly configured. Redeploy
 after environment changes: API rewrites and public media settings are compiled
 at build time. Keep database credentials, signing keys and provider secrets on
