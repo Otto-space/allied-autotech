@@ -42,8 +42,6 @@ export function ProfilePhoto({
   }, []);
   return (
     <section className="detail-section" aria-labelledby="profile-photo-title">
-      <h2 id="profile-photo-title">Profile photo</h2>
-      <p>Your photo is private and visible only to you.</p>
       <Feedback message={message} tone="success" toast={message} />
       <FileUpload
         key={revision}

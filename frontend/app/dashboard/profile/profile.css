@@ -123,6 +123,9 @@
   font-size: 17px;
   margin: 0 0 6px;
 }
+.cp-photo summary h2 {
+  margin: 0;
+}
 .cp-photo p {
   color: var(--cp-muted);
   font-size: 12px;
@@ -477,4 +480,28 @@
   .cp-skeleton > div {
     animation: none;
   }
+}
+
+.cp-review {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.cp-review dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  gap: 16px;
+  margin-block: 20px;
+}
+.cp-review dt {
+  font-size: 13px;
+  font-weight: 600;
+}
+.cp-review dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+.cp-review .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }

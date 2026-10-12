@@ -5,6 +5,7 @@ export const profileId = (n: number) =>
   `e7000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 export function profileRecord(): z.infer<typeof profileSchema> {
   return {
+    profileVersion: 0,
     mediaVersion: 0,
     photo: null,
     firstName: "Amara",
@@ -58,18 +59,18 @@ export async function profileFixture(page: Page) {
       });
     if (endpoint === "/auth/csrf")
       return route.fulfill({
-        json: success({ csrfToken: "synthetic-profile-csrf-token" }),
+        json: success({ csrfToken: "synthetic-profile-csrf-token-for-browser-qa" }),
       });
     if (endpoint === "/customers/profile") {
       if (method === "PATCH") {
         if (state.saveMode === "rate") return fail(429, "RATE_LIMITED");
         if (state.saveMode === "invalid")
           return route.fulfill({
-            status: 400,
+            status: 422,
             json: {
               success: false,
               error: {
-                code: "VALIDATION_ERROR",
+                code: "VALIDATION_FAILED",
                 fields: { "body.phone": ["Invalid phone"] },
               },
               meta: { requestId: "profile-qa" },
@@ -79,7 +80,11 @@ export async function profileFixture(page: Page) {
           await new Promise<void>((resolve) => {
             state.held = resolve;
           });
-        Object.assign(state.record, req.postDataJSON());
+        const { expectedVersion, ...changes } = req.postDataJSON();
+        if (expectedVersion !== state.record.profileVersion)
+          return fail(409, "STALE_VERSION");
+        Object.assign(state.record, changes);
+        state.record.profileVersion++;
         if (state.saveMode === "lost") return fail(503, "DATABASE_UNAVAILABLE");
         return route.fulfill({ json: success(state.record) });
       }

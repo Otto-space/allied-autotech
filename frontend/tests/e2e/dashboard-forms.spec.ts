@@ -65,6 +65,7 @@ test("customer profile has clear groups, keyboard focus and unchanged save valid
   page,
 }) => {
   let profile = {
+    profileVersion: 0,
     mediaVersion: 0,
     photo: null,
     firstName: "Ada",

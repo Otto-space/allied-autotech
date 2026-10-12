@@ -87,6 +87,7 @@ test("private profile photo upload, refresh, failed replacement, replacement and
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
   await expect(image).toHaveAttribute("src", replacement!);
+  await page.locator(".cp-photo summary").click();
   await expect(
     page.getByRole("heading", { name: "Profile photo", exact: true }),
   ).toBeVisible();
@@ -107,6 +108,7 @@ test("private profile photo upload, refresh, failed replacement, replacement and
     .click();
   await expect(image).toHaveCount(0);
   await page.reload();
+  await page.locator(".cp-photo summary").click();
   await expect(
     page.getByRole("button", { name: "Remove profile photo", exact: true }),
   ).toHaveCount(0);

@@ -15,6 +15,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
+import { draftIdentity, draftKey, forgetDraft, DRAFT_SAVED } from "@/lib/forms/drafts";
+import {
+  readProfileDraft,
+  saveProfileDraft,
+  rebaseProfileDraft,
+} from "@/lib/forms/profile-draft";
 import {
   parseProfile,
   profileSchema,
@@ -79,7 +85,14 @@ function ProfileForm({
 }) {
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
-  const [uncertain, setUncertain] = useState(false);
+  const [initial] = useState(() => readProfileDraft(profile));
+  const [baseline, setBaseline] = useState(initial.context);
+  const baselineRef = useRef(baseline);
+  const [uncertain, setUncertain] = useState(initial.context.recovery);
+  const recoveryRef = useRef(initial.context.recovery);
+  const resetting = useRef(false);
+  const [review, setReview] = useState<Profile>();
+  const staleDraft = baseline.version !== profile.profileVersion;
   const [reloading, setReloading] = useState(false);
   const pending = useRef<AbortController | null>(null);
   const retryAt = useRef(0);
@@ -96,11 +109,57 @@ function ProfileForm({
   }, [waiting]);
   const form = useForm<z.infer<typeof profileFormSchema>>({
     resolver: zodResolver(profileFormSchema),
-    values: profileFormValues(profile),
-    resetOptions: { keepDirtyValues: true },
+    defaultValues: initial.context.baseline,
+    values: initial.values,
+    resetOptions: { keepDefaultValues: true },
   });
+  useEffect(() => {
+    const subscription = form.watch(() => {
+      if (!resetting.current)
+        saveProfileDraft(
+          profile,
+          { ...baselineRef.current, recovery: recoveryRef.current },
+          form.getValues(),
+        );
+    });
+    return () => subscription.unsubscribe();
+  }, [form, profile]);
   const locked =
-    disabled || uncertain || reloading || form.formState.isSubmitting || waiting;
+    disabled ||
+    uncertain ||
+    staleDraft ||
+    !!review ||
+    reloading ||
+    form.formState.isSubmitting ||
+    waiting;
+  function resetToSaved(saved: Profile) {
+    const next = {
+      version: saved.profileVersion,
+      baseline: profileFormValues(saved),
+      recovery: false,
+    };
+    baselineRef.current = next;
+    recoveryRef.current = false;
+    setBaseline(next);
+    setUncertain(false);
+    setReview(undefined);
+    resetting.current = true;
+    form.reset(profileFormValues(saved), {
+      keepDirtyValues: false,
+      keepDefaultValues: false,
+    });
+    resetting.current = false;
+    const owner = draftIdentity();
+    if (owner) {
+      const key = draftKey(
+        owner,
+        window.location.pathname,
+        JSON.stringify(["profile-panel:1", profile.user.id]),
+      );
+      forgetDraft(key);
+      window.dispatchEvent(new CustomEvent(DRAFT_SAVED, { detail: key }));
+    }
+  }
   async function reloadSaved() {
     if (pending.current || disabled) return;
     const controller = new AbortController();
@@ -113,13 +172,9 @@ function ProfileForm({
       });
       const saved = parseProfile(response.data);
       if (saved.user.id !== profile.user.id) throw new Error("Account changed");
-      form.reset(profileFormValues(saved));
-      setUncertain(false);
+      setReview(saved);
       setError(undefined);
-      setMessage(
-        "Your saved details have been reloaded. Review them before making another change.",
-      );
-      refresh();
+      setMessage(undefined);
     } catch (value) {
       if (!controller.signal.aborted)
         setError(
@@ -137,10 +192,18 @@ function ProfileForm({
   }
   async function save(values: z.infer<typeof profileFormSchema>) {
     // handleSubmit sets isSubmitting before this callback; use the request ref here.
-    if (pending.current || disabled || uncertain || Date.now() < retryAt.current) return;
-    const body = profileChanges(profile, values);
+    if (
+      pending.current ||
+      disabled ||
+      uncertain ||
+      staleDraft ||
+      review ||
+      Date.now() < retryAt.current
+    )
+      return;
+    const body = profileChanges({ ...profile, ...baseline.baseline }, values);
     if (!Object.keys(body).length) {
-      form.reset(values);
+      resetToSaved(profile);
       setMessage("Your profile is already up to date.");
       return;
     }
@@ -149,23 +212,29 @@ function ProfileForm({
     onBusyChange(true);
     setError(undefined);
     setMessage(undefined);
+    recoveryRef.current = true;
+    saveProfileDraft(profile, { ...baselineRef.current, recovery: true }, values);
     try {
       const response = await apiRequest("/customers/profile", {
         method: "PATCH",
         csrf: true,
-        body,
+        body: { ...body, expectedVersion: baseline.version },
         signal: controller.signal,
       });
       const saved = parseProfile(response.data);
       if (saved.user.id !== profile.user.id) throw new Error("Account changed");
-      form.reset(profileFormValues(saved));
+      resetToSaved(saved);
       setMessage("Your profile has been updated.");
       refresh();
     } catch (value) {
       if (controller.signal.aborted) return;
       const rejected =
         value instanceof ApiError && value.status >= 400 && value.status < 500;
-      setUncertain(!rejected);
+      const mustReview =
+        !rejected || (value instanceof ApiError && value.code === "STALE_VERSION");
+      recoveryRef.current = mustReview;
+      setUncertain(mustReview);
+      saveProfileDraft(profile, { ...baselineRef.current, recovery: mustReview }, values);
       setError(
         rejected
           ? value.message
@@ -182,7 +251,12 @@ function ProfileForm({
           form.setError(field.name, {
             message: "Check this field and enter a valid value.",
           });
-        if (invalid[0]) form.setFocus(invalid[0].name);
+        if (invalid[0]) {
+          const name = invalid[0].name;
+          requestAnimationFrame(() => {
+            if (!controller.signal.aborted) form.setFocus(name);
+          });
+        }
       }
     } finally {
       if (!controller.signal.aborted) onBusyChange(false);
@@ -193,7 +267,12 @@ function ProfileForm({
     <div className="cp-editor">
       <Feedback message={error} toast="Please review the message on this page." />
       <Feedback message={message} tone="success" toast={message} />
-      {uncertain && (
+      {(uncertain || staleDraft) && !review && (
+        <p role="status">
+          Your draft is preserved. Review the latest saved details before continuing.
+        </p>
+      )}
+      {(uncertain || staleDraft) && !review && (
         <button
           className="button secondary cp-reload"
           disabled={disabled || reloading}
@@ -202,7 +281,62 @@ function ProfileForm({
           {reloading ? "Reloading saved details…" : "Reload saved details"}
         </button>
       )}
+      {review && (
+        <section className="cp-review" aria-labelledby="profile-review-title">
+          <h2 id="profile-review-title">Review the latest saved details</h2>
+          <p>
+            Compare these saved details with your draft below. Keeping your changes does
+            not save them yet.
+          </p>
+          <dl>
+            {fields.map((field) => (
+              <div key={field.name}>
+                <dt>{field.label}</dt>
+                <dd>{profileFormValues(review)[field.name] || "Not provided"}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="actions">
+            <button
+              className="button"
+              disabled={disabled || reloading}
+              onClick={() => {
+                const values = rebaseProfileDraft(
+                  baselineRef.current,
+                  form.getValues(),
+                  review,
+                );
+                resetToSaved(review);
+                resetting.current = true;
+                form.reset(values, { keepDefaultValues: true });
+                resetting.current = false;
+                saveProfileDraft(profile, baselineRef.current, values);
+                setMessage(
+                  "Your draft is ready. Review it, then save when you are ready.",
+                );
+                refresh();
+              }}
+            >
+              Keep my changes
+            </button>
+            <button
+              className="button secondary"
+              disabled={disabled || reloading}
+              onClick={() => {
+                resetToSaved(review);
+                setMessage(
+                  "Your saved details have been reloaded. Review them before making another change.",
+                );
+                refresh();
+              }}
+            >
+              Use saved details
+            </button>
+          </div>
+        </section>
+      )}
       <form
+        data-no-draft
         data-draft-key={JSON.stringify(["profile-panel:1", profile.user.id])}
         className="cp-form"
         onSubmit={form.handleSubmit(save)}
@@ -269,7 +403,7 @@ function ProfileForm({
           <p role="status">
             {waiting
               ? `Try again in ${waitSeconds} seconds.`
-              : uncertain
+              : uncertain || staleDraft || review
                 ? "Reload your saved details to continue."
                 : form.formState.isDirty
                   ? "You have unsaved changes."
@@ -284,7 +418,7 @@ function ProfileForm({
               type="button"
               disabled={locked || !form.formState.isDirty}
               onClick={() => {
-                form.reset(profileFormValues(profile));
+                resetToSaved(profile);
                 setError(undefined);
                 setMessage(undefined);
               }}
@@ -351,7 +485,7 @@ function PhotoDisclosure({ children }: { children: React.ReactNode }) {
           setExpanded(!open);
         }}
       >
-        <span>Manage your photo</span>
+        <h2 id="profile-photo-title">Profile photo</h2>
         <ChevronDown size={18} aria-hidden="true" />
       </summary>
       {children}

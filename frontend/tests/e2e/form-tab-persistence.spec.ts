@@ -47,6 +47,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
           country: "Nigeria",
           photo: null,
           mediaVersion: 0,
+          profileVersion: 0,
           user: { id, email: "form@example.test" },
         };
       }
@@ -66,7 +67,7 @@ for (const role of ["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"]) {
     const customer = role === "CUSTOMER";
     const target = customer ? "/dashboard/profile" : "/admin/vehicles/new";
     await page.goto(target);
-    await expect(page).toHaveTitle(customer ? /^Allied AutoTech$/ : /Add vehicle record/);
+    await expect(page).toHaveTitle(customer ? /Your profile/ : /Add vehicle record/);
     await expect(
       page.getByRole("heading", {
         name: customer ? "Your profile" : "Add vehicle record",

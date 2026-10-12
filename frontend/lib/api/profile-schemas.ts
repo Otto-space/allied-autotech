@@ -10,6 +10,7 @@ export const profilePhotoSchema = z.object({
   height: z.number().int().positive(),
 });
 export const profileSchema = z.object({
+  profileVersion: z.number().int().nonnegative(),
   mediaVersion: z.number().int().nonnegative(),
   photo: profilePhotoSchema.nullable(),
   firstName: z.string(),
@@ -68,12 +69,12 @@ export function profileFormValues(profile: z.infer<typeof profileSchema>) {
   };
 }
 
-// Metadata has no version contract. Avoid resending untouched fields from a stale form.
+// Keep the original editing baseline; current reads must not silently rebase a draft.
 export function profileChanges(
   profile: z.infer<typeof profileSchema>,
   values: z.infer<typeof profileFormSchema>,
 ) {
-  const changes: RequestBody<"/customers/profile", "patch"> = {};
+  const changes: Omit<RequestBody<"/customers/profile", "patch">, "expectedVersion"> = {};
   const previous = profileFormValues(profile);
   for (const key of Object.keys(previous) as (keyof typeof values)[])
     if (values[key] !== previous[key]) {
