@@ -1,5 +1,5 @@
 "use client";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import {
   parseSupportSources,
@@ -13,10 +13,14 @@ export function SupportSourcePicker({
   type,
   value,
   onChange,
+  onAvailabilityChange,
+  draftContext = false,
 }: {
   type: SupportSourceType;
   value?: SupportSource;
   onChange: (value?: SupportSource) => void;
+  onAvailabilityChange?: (blocked: boolean) => void;
+  draftContext?: boolean;
 }) {
   const pagination = useCursorPage();
   const parse = useCallback((value: unknown) => parseSupportSources(type, value), [type]);
@@ -24,13 +28,24 @@ export function SupportSourcePicker({
     `${supportSourcePaths[type]}?limit=20${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
     parse,
   );
+  const unavailable =
+    records.loading ||
+    records.refreshing ||
+    !!records.error ||
+    !!records.refreshError ||
+    !records.data;
+  useEffect(() => {
+    onAvailabilityChange?.(unavailable);
+  }, [unavailable, onAvailabilityChange]);
   return (
     <div className="field">
       <label htmlFor="support-source">Related record</label>
       <select
         id="support-source"
+        name={draftContext ? "supportSource" : undefined}
+        data-draft-context={draftContext || undefined}
         value={value?.id ?? ""}
-        disabled={records.loading || !!records.error}
+        disabled={unavailable}
         onChange={(event) =>
           onChange(records.data?.items.find((item) => item.id === event.target.value))
         }
@@ -45,7 +60,7 @@ export function SupportSourcePicker({
           </option>
         ))}
       </select>
-      <Feedback message={records.error} />
+      <Feedback message={records.error || records.refreshError} />
       {records.loading && <p role="status">Loading related records…</p>}
       {!records.loading && !records.error && records.data?.items.length === 0 && (
         <p>No related records on this page.</p>
@@ -60,8 +75,8 @@ export function SupportSourcePicker({
       </button>
       <CursorPagination
         pagination={pagination}
-        nextCursor={records.data?.nextCursor}
-        disabled={records.loading || !!records.error}
+        nextCursor={!unavailable ? records.data?.nextCursor : undefined}
+        disabled={records.loading || records.refreshing}
         label="Related records"
       />
     </div>

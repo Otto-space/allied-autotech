@@ -1,7 +1,5 @@
 import { z } from "zod";
-import { orderSchema } from "./commerce-schemas";
-import { bookingSchema } from "./booking-schemas";
-import { vehicleTransactionSchema } from "./vehicle-schemas";
+
 export const reviewTargets = [
   "BUSINESS",
   "PRODUCT",
@@ -43,6 +41,7 @@ export const reviewSchema = publicReviewSchema.extend({
   updatedAt: timestamp,
 });
 export type ReviewRecord = z.infer<typeof reviewSchema>;
+export const reviewSubmissionSchema = reviewSchema.extend({ replayed: z.boolean() });
 export type PublicReview = z.infer<typeof publicReviewSchema>;
 const page = <T extends z.ZodType>(item: T) =>
   z.object({ items: z.array(item), nextCursor: z.uuid().optional() });
@@ -77,6 +76,41 @@ export const reviewFormSchema = z.object({
   comment: content(2000),
 });
 export type ReviewFormValues = z.infer<typeof reviewFormSchema>;
+const submittedContent = {
+  rating: z.number().int().min(1).max(5),
+  title: content(120).optional(),
+  comment: content(2000),
+};
+export const reviewSubmissionBodySchema = z.discriminatedUnion("targetType", [
+  z.object({ ...submittedContent, targetType: z.literal("BUSINESS") }).strict(),
+  z
+    .object({
+      ...submittedContent,
+      targetType: z.literal("PRODUCT"),
+      productId: z.uuid(),
+      orderItemId: z.uuid(),
+    })
+    .strict(),
+  z
+    .object({
+      ...submittedContent,
+      targetType: z.literal("SERVICE"),
+      serviceId: z.uuid(),
+      bookingId: z.uuid(),
+    })
+    .strict(),
+  z
+    .object({ ...submittedContent, targetType: z.literal("ORDER"), orderId: z.uuid() })
+    .strict(),
+  z
+    .object({
+      ...submittedContent,
+      targetType: z.literal("VEHICLE_TRANSACTION"),
+      vehicleTransactionId: z.uuid(),
+    })
+    .strict(),
+]);
+export type ReviewSubmissionBody = z.infer<typeof reviewSubmissionBodySchema>;
 export const moderationFormSchema = z
   .object({
     decision: z.enum(["APPROVED", "REJECTED"]),
@@ -92,83 +126,67 @@ export type ReviewSource = {
   path: string;
   fields: Record<string, string>;
 };
-const order = orderSchema.pick({
-  id: true,
-  orderNumber: true,
-  status: true,
-  items: true,
-});
-const booking = bookingSchema.pick({
-  id: true,
-  status: true,
-  scheduledAt: true,
-  service: true,
-});
-const sale = vehicleTransactionSchema.pick({
-  id: true,
-  status: true,
-  transactionNumber: true,
-  vehicleListing: true,
-});
-export const reviewSourcePaths = {
-  PRODUCT: "/customers/orders",
-  ORDER: "/customers/orders",
-  SERVICE: "/customers/bookings",
-  VEHICLE_TRANSACTION: "/customers/vehicle-transactions",
-} as const;
+const sourceBase = { id: z.uuid(), label: z.string().min(1) };
+export const reviewSourceSchema = z.discriminatedUnion("targetType", [
+  z.object({
+    ...sourceBase,
+    targetType: z.literal("PRODUCT"),
+    productId: z.uuid(),
+    orderItemId: z.uuid(),
+  }),
+  z.object({
+    ...sourceBase,
+    targetType: z.literal("SERVICE"),
+    serviceId: z.uuid(),
+    bookingId: z.uuid(),
+  }),
+  z.object({ ...sourceBase, targetType: z.literal("ORDER"), orderId: z.uuid() }),
+  z.object({
+    ...sourceBase,
+    targetType: z.literal("VEHICLE_TRANSACTION"),
+    vehicleTransactionId: z.uuid(),
+  }),
+]);
+export const reviewSourcePath = "/customers/support/review-sources";
 export function reviewSources(
   target: Exclude<ReviewTarget, "BUSINESS">,
   value: unknown,
 ): { items: ReviewSource[]; nextCursor?: string } {
-  if (target === "SERVICE") {
-    const result = page(booking).parse(value);
-    return {
-      ...result,
-      items: result.items
-        .filter((row) => row.status === "COMPLETED")
-        .map((row) => ({
-          id: row.id,
-          label: `${row.service.name} · ${row.scheduledAt ? new Date(row.scheduledAt).toLocaleDateString("en-NG", { timeZone: "Africa/Lagos" }) : row.id}`,
-          path: `${reviewSourcePaths.SERVICE}/${row.id}`,
-          fields: { serviceId: row.service.id, bookingId: row.id },
-        })),
-    };
-  }
-  if (target === "VEHICLE_TRANSACTION") {
-    const result = page(sale).parse(value);
-    return {
-      ...result,
-      items: result.items
-        .filter((row) => row.status === "COMPLETED")
-        .map((row) => ({
-          id: row.id,
-          label: `${row.transactionNumber} · ${row.vehicleListing.title}`,
-          path: `${reviewSourcePaths.VEHICLE_TRANSACTION}/${row.id}`,
-          fields: { vehicleTransactionId: row.id },
-        })),
-    };
-  }
-  const result = page(order).parse(value);
+  const result = page(reviewSourceSchema).parse(value);
   return {
     ...result,
-    items: result.items
-      .filter((row) => row.status === "COMPLETED")
-      .flatMap<ReviewSource>((row) =>
-        target === "ORDER"
-          ? [
-              {
-                id: row.id,
-                label: row.orderNumber,
-                path: `${reviewSourcePaths.ORDER}/${row.id}`,
-                fields: { orderId: row.id },
-              },
-            ]
-          : row.items.map((item) => ({
-              id: item.id,
-              label: `${item.productName} · ${row.orderNumber}`,
-              path: `${reviewSourcePaths.PRODUCT}/${row.id}`,
-              fields: { productId: item.productId, orderItemId: item.id },
-            })),
-      ),
+    items: result.items.map((row) => {
+      if (row.targetType !== target) throw new Error("Unexpected review source type");
+      let fields: Record<string, string>;
+      switch (row.targetType) {
+        case "PRODUCT":
+          fields = { productId: row.productId, orderItemId: row.orderItemId };
+          break;
+        case "SERVICE":
+          fields = { serviceId: row.serviceId, bookingId: row.bookingId };
+          break;
+        case "ORDER":
+          fields = { orderId: row.orderId };
+          break;
+        case "VEHICLE_TRANSACTION":
+          fields = { vehicleTransactionId: row.vehicleTransactionId };
+          break;
+      }
+      const sourceId =
+        row.targetType === "PRODUCT"
+          ? row.orderItemId
+          : row.targetType === "SERVICE"
+            ? row.bookingId
+            : row.targetType === "ORDER"
+              ? row.orderId
+              : row.vehicleTransactionId;
+      if (row.id !== sourceId) throw new Error("Unexpected review source identity");
+      return {
+        id: row.id,
+        label: row.label,
+        path: `${reviewSourcePath}?targetType=${target}&sourceId=${row.id}`,
+        fields,
+      };
+    }),
   };
 }

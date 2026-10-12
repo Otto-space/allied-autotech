@@ -54,7 +54,7 @@ it("keeps an already visible message and keyboard focus in place", () => {
   expect(screen.getByRole("alert").textContent).toContain("another appointment");
 });
 
-it("scrolls offscreen feedback into view without animation when reduced motion is requested", () => {
+function offscreenFeedback() {
   vi.mocked(HTMLElement.prototype.getBoundingClientRect).mockReturnValue({
     top: 1200,
     bottom: 1250,
@@ -66,9 +66,73 @@ it("scrolls offscreen feedback into view without animation when reduced motion i
     y: 1200,
     toJSON: () => ({}),
   });
+}
+
+it("does not scroll offscreen load failures into view on mount", () => {
+  offscreenFeedback();
+  render(
+    <>
+      <Feedback message="Online services are not connected yet." />
+      <Feedback message="Public information is temporarily unavailable." />
+    </>,
+  );
+  expect(screen.getAllByRole("alert")).toHaveLength(2);
+  expect(scroll).not.toHaveBeenCalled();
+  expect(noticeSnapshot()).toHaveLength(0);
+});
+
+it("keeps keyboard focus and the viewport in place when background failures arrive", () => {
+  offscreenFeedback();
+  const content = (message?: string) => (
+    <>
+      <button>Continue reading</button>
+      <Feedback message={message} />
+    </>
+  );
+  const { rerender } = render(content());
+  const reading = screen.getByRole("button");
+  reading.focus();
+  rerender(content("Online services are not connected yet."));
+  rerender(content("The connection was interrupted."));
+  expect(screen.getByRole("alert").textContent).toContain(
+    "The connection was interrupted.",
+  );
+  expect(document.activeElement).toBe(reading);
+  expect(scroll).not.toHaveBeenCalled();
+});
+
+it("scrolls offscreen action feedback into view without animation when reduced motion is requested", () => {
+  offscreenFeedback();
   vi.stubGlobal("matchMedia", () => ({ matches: true }));
-  render(<Feedback message="Your request was received." tone="success" />);
+  render(
+    <Feedback
+      message="Your request was received."
+      tone="success"
+      toast="Request received."
+    />,
+  );
   expect(scroll).toHaveBeenCalledWith({ behavior: "instant", block: "center" });
+});
+
+it("allows user-triggered feedback to request scrolling without a toast", () => {
+  offscreenFeedback();
+  render(<Feedback message="Review your request." scrollToMessage />);
+  expect(scroll).toHaveBeenCalledWith({ behavior: "smooth", block: "center" });
+  expect(noticeSnapshot()).toHaveLength(0);
+});
+
+it("can preserve the viewport even when a toast is requested", () => {
+  offscreenFeedback();
+  render(
+    <Feedback
+      message="Updated."
+      toast="Updated."
+      tone="success"
+      scrollToMessage={false}
+    />,
+  );
+  expect(noticeSnapshot()).toHaveLength(1);
+  expect(scroll).not.toHaveBeenCalled();
 });
 
 it("does not toast read errors and deduplicates explicit action feedback", () => {

@@ -17,6 +17,7 @@ import { StaffPicker } from "./staff-picker";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
 import { SupportCreateForm } from "./support-create-form";
+import { CustomerSupport } from "./customer-support";
 function SupportList({ kind, staff }: { kind: SupportKind; staff: boolean }) {
   const role = useAccountSession()?.user.role;
   const admin = role === "ADMIN" || role === "SUPER_ADMIN";
@@ -194,6 +195,15 @@ function SupportList({ kind, staff }: { kind: SupportKind; staff: boolean }) {
   );
 }
 export function SupportPanel({ staff = false }: { staff?: boolean }) {
+  const session = useAccountSession();
+  if (!staff) {
+    if (!session || session.user.role !== "CUSTOMER") return null;
+    return <CustomerSupport key={session.user.id} userId={session.user.id} />;
+  }
+  return <StaffSupportPanel />;
+}
+function StaffSupportPanel() {
+  const staff = true;
   const router = useRouter();
   const [kind, setKind] = useState<SupportKind>("enquiries");
   const [locked, setLocked] = useState<SupportKind[]>([]);

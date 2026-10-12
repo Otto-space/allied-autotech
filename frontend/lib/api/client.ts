@@ -4,6 +4,8 @@ import type { ApiErrorBody, ApiSuccess } from "./types";
 import { errorMessage, fieldErrors, isRecord } from "./errors";
 import { retryAfterSeconds } from "./retry-after";
 import { redactVehicleRetries } from "./vehicle-creation-retry";
+import { redactReservationRetries } from "./reservation-terms";
+import { redactReviewRecoveries } from "../reviews/review-recovery";
 import {
   captureDraftSubmission,
   clearAccountDrafts,
@@ -204,6 +206,8 @@ export function refreshCsrf(): Promise<string> {
 export function invalidateSession(reason?: "password-changed"): void {
   clearAccountDrafts();
   redactVehicleRetries();
+  redactReservationRetries();
+  redactReviewRecoveries();
   sessionGeneration += 1;
   csrfToken = null;
   csrfRequest = null;

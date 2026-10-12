@@ -7,12 +7,16 @@ export function Feedback({
   message,
   tone = "error",
   toast,
+  scrollToMessage = Boolean(toast),
 }: {
   message?: string | null;
   tone?: NoticeTone;
   toast?: string;
+  scrollToMessage?: boolean;
 }) {
-  const ref = useScrollToMessage(message);
+  // Passive load failures announce inline without moving the reader's viewport.
+  // Action feedback opts in with a toast or an explicit scrollToMessage flag.
+  const ref = useScrollToMessage(scrollToMessage ? message : undefined);
   useEffect(() => {
     if (message && toast) notify(toast, { tone, inlineAnnounced: true });
   }, [message, toast, tone]);

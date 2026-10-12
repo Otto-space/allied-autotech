@@ -50,6 +50,8 @@ export const messages: Readonly<Record<string, string>> = {
     "The current record could not be checked. No change was submitted. Refresh it before trying again.",
   IDEMPOTENCY_CONFLICT:
     "This submission has already been used with different details. Check the current status before starting again.",
+  IDEMPOTENCY_EXPIRED:
+    "The original submission recovery window has ended. Check your saved submissions before starting another review.",
   PAYMENT_ATTEMPT_PENDING:
     "This payment already has an attempt awaiting confirmation or review. Check its status before making another payment.",
   PAYMENT_TARGET_PENDING:

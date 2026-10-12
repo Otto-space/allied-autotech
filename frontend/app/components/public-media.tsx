@@ -14,6 +14,7 @@ export function PublicMedia({
   src,
   alt,
   priority = false,
+  loading,
   adminPreview = false,
   stockPreview = false,
   fallbackIcon,
@@ -22,6 +23,7 @@ export function PublicMedia({
   src?: string;
   alt: string;
   priority?: boolean;
+  loading?: "lazy" | "eager";
   adminPreview?: boolean;
   stockPreview?: boolean;
   fallbackIcon?: ReactNode;
@@ -42,6 +44,7 @@ export function PublicMedia({
           fill
           unoptimized
           priority={priority}
+          loading={loading}
           sizes={sizes}
           onError={() => setFailed(true)}
         />

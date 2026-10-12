@@ -1,5 +1,5 @@
 "use client";
-import { useState, type Ref } from "react";
+import { useEffect, useState, type Ref } from "react";
 import { z } from "zod";
 import { useResource } from "@/lib/api/use-resource";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
@@ -20,6 +20,8 @@ export function SlotCatalogPicker({
   onChange,
   inputRef,
   error,
+  onAvailabilityChange,
+  draftContext = false,
 }: {
   kind: "branch" | "service";
   id: string;
@@ -27,6 +29,8 @@ export function SlotCatalogPicker({
   onChange: (value: string, label: string) => void;
   inputRef?: Ref<HTMLSelectElement>;
   error?: string;
+  onAvailabilityChange?: (blocked: boolean) => void;
+  draftContext?: boolean;
 }) {
   const pagination = useCursorPage();
   const [selectedLabel, setSelectedLabel] = useState("Selected record");
@@ -34,6 +38,15 @@ export function SlotCatalogPicker({
     `${kind === "branch" ? "/public/branches?" : "/public/services?pricingType=FIXED&"}limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
     parseChoices,
   );
+  const unavailable =
+    choices.loading ||
+    choices.refreshing ||
+    !!choices.error ||
+    !!choices.refreshError ||
+    !choices.data;
+  useEffect(() => {
+    onAvailabilityChange?.(unavailable);
+  }, [unavailable, onAvailabilityChange]);
   const visible =
     choices.data?.items.filter(
       (item) =>
@@ -46,6 +59,9 @@ export function SlotCatalogPicker({
     <>
       <select
         id={id}
+        name={draftContext ? id : undefined}
+        data-draft-context={draftContext || undefined}
+        disabled={!!onAvailabilityChange && unavailable}
         ref={inputRef}
         value={value}
         aria-invalid={!!error}
@@ -77,8 +93,12 @@ export function SlotCatalogPicker({
         </p>
       )}
       {choices.loading && <p role="status">Loading {kind} choices…</p>}
-      <Feedback message={choices.error} />
-      {choices.error && (
+      <Feedback
+        message={
+          choices.error || (onAvailabilityChange ? choices.refreshError : undefined)
+        }
+      />
+      {(choices.error || (onAvailabilityChange && choices.refreshError)) && (
         <button type="button" className="text-link" onClick={choices.refresh}>
           Retry {kind} choices
         </button>

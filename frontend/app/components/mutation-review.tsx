@@ -4,7 +4,7 @@ import { ApiError } from "@/lib/api/client";
 import { Feedback } from "./feedback";
 
 export type MutationProposal = {
-  presentation?: "quotation";
+  presentation?: "quotation" | "agreement";
   title: string;
   description: string;
   facts: { label: string; value: string }[];
@@ -88,7 +88,7 @@ export function MutationReview({
   return (
     <dialog
       ref={dialog}
-      className={`support-dialog mutation-review${proposal.presentation === "quotation" ? " quotation-review" : ""}`}
+      className={`support-dialog mutation-review${proposal.presentation === "quotation" ? " quotation-review" : proposal.presentation === "agreement" ? " agreement-review" : ""}`}
       aria-labelledby="mutation-title"
       onCancel={(event) => {
         if (busy) event.preventDefault();

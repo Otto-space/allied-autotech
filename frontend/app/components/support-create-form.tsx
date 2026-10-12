@@ -20,6 +20,8 @@ import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { CopyControl } from "./copy-control";
+import type { useSupportWrite } from "@/lib/support/use-support-write";
+import { draftIdentity, draftKey, forgetDraft, DRAFT_SAVED } from "@/lib/forms/drafts";
 function SelectFrame({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return enabled ? (
     <div className="contact-select">
@@ -39,6 +41,9 @@ export function SupportCreateForm({
   serviceId,
   serviceName,
   presentation,
+  userId,
+  guard,
+  onReviewChange,
 }: {
   kind: SupportKind;
   publicMode?: boolean;
@@ -47,7 +52,10 @@ export function SupportCreateForm({
   onSaved: (id: string) => void;
   serviceId?: string;
   serviceName?: string;
-  presentation?: "contact";
+  presentation?: "contact" | "dashboard";
+  userId?: string;
+  guard?: ReturnType<typeof useSupportWrite>;
+  onReviewChange?: (open: boolean) => void;
 }) {
   const [type, setType] = useState(
     serviceId ? "SERVICE" : kind === "enquiries" ? "GENERAL" : "NONE",
@@ -72,6 +80,26 @@ export function SupportCreateForm({
   const [selectionError, setSelectionError] = useState<"branch" | "source">();
   const successHeading = useRef<HTMLHeadingElement>(null);
   const isContact = presentation === "contact";
+  const isDashboard = presentation === "dashboard";
+  const [sourceBlocked, setSourceBlocked] = useState(false);
+  const [branchBlocked, setBranchBlocked] = useState(false);
+  const latestPickerBlocked = useRef(false);
+  const pickerBlocked = !!(
+    (source && sourceBlocked) ||
+    (!source?.inheritsBranch && branchBlocked)
+  );
+  useEffect(() => {
+    latestPickerBlocked.current = pickerBlocked;
+  }, [pickerBlocked]);
+  useEffect(() => {
+    onReviewChange?.(!!proposal);
+    return () => onReviewChange?.(false);
+  }, [proposal, onReviewChange]);
+  const draftId = JSON.stringify(
+    isDashboard
+      ? ["support-create-form:2", userId, kind]
+      : ["support-create-form:1", serviceId, kind],
+  );
   useEffect(() => {
     if (complete && isContact) {
       successHeading.current?.focus({ preventScroll: true });
@@ -101,7 +129,7 @@ export function SupportCreateForm({
   const messageValue = useWatch({
     control: form.control,
     name: "message",
-    disabled: !isContact,
+    disabled: !isContact && !isDashboard,
   });
   const { reset } = form;
   useEffect(() => {
@@ -195,12 +223,15 @@ export function SupportCreateForm({
       </div>
     );
   return (
-    <section className="detail-section" aria-labelledby="support-create-heading">
+    <section
+      className={isDashboard ? "cc-form" : "detail-section"}
+      aria-labelledby="support-create-heading"
+    >
       <h2 id="support-create-heading">
         {kind === "enquiries" ? "Send an enquiry" : "Raise a complaint"}
       </h2>
       <p>
-        {isContact
+        {isContact || isDashboard
           ? "Keep passwords, card details and private documents out of your message."
           : "Please avoid passwords, card details and private documents. There is no response-time guarantee."}
       </p>
@@ -214,7 +245,12 @@ export function SupportCreateForm({
           message="Your session changed. Please enter your contact details again. A request already sent may still have completed."
         />
       )}
-      {locked && (
+      {isDashboard && guard && guard.remaining > 0 && (
+        <p role="status">
+          Wait {guard.remaining} seconds before sending another request.
+        </p>
+      )}
+      {locked && !isDashboard && (
         <p className="notice" role="status">
           This submission has an unknown outcome.{" "}
           {publicMode
@@ -224,14 +260,14 @@ export function SupportCreateForm({
         </p>
       )}
       <form
-        data-draft-key={JSON.stringify(["support-create-form:1", serviceId, kind])}
+        data-draft-key={draftId}
         noValidate
         onSubmit={(event) => {
           const generation = draftGeneration.current;
           void form.handleSubmit(
             (values) => {
               if (generation !== draftGeneration.current) return;
-              if (locked || proposal) return;
+              if (locked || proposal || guard?.disabled || pickerBlocked) return;
               setError(undefined);
               setSelectionError(undefined);
               if (sourceType && !source) {
@@ -289,84 +325,109 @@ export function SupportCreateForm({
                 retryAfterRejection: false,
                 onUncertain,
                 submit: async () => {
-                  const controller = new AbortController();
-                  pending.current = controller;
-                  try {
-                    const response = await apiRequest(
-                      `/${publicMode ? "public" : "customers"}/support/${kind}`,
-                      {
-                        method: "POST",
-                        body,
-                        csrf: !publicMode,
-                        signal: controller.signal,
-                      },
-                    );
-                    controller.signal.throwIfAborted();
-                    const saved = publicMode
-                      ? publicSupportResult.parse(response.data)
-                      : parseSupportRecord(kind, false, response.data);
-                    if (
-                      "subject" in saved &&
-                      (saved.subject !== values.subject ||
-                        saved.text !== values.message ||
-                        (saved.kind === "enquiries" && saved.type !== type) ||
-                        (branch && !source?.inheritsBranch && saved.branchId !== branch))
-                    )
-                      throw new Error("Unconfirmed support record");
-                    if (
-                      "subject" in saved &&
-                      source &&
-                      Object.entries(source.fields).some(
-                        ([key, value]) =>
-                          !Object.entries(saved).some(
-                            ([savedKey, savedValue]) =>
-                              savedKey === key && savedValue === value,
-                          ),
+                  const send = async (signal?: AbortSignal) => {
+                    const controller = new AbortController();
+                    const abort = () => controller.abort();
+                    signal?.addEventListener("abort", abort, { once: true });
+                    if (signal?.aborted) controller.abort();
+                    pending.current = controller;
+                    try {
+                      const response = await apiRequest(
+                        `/${publicMode ? "public" : "customers"}/support/${kind}`,
+                        {
+                          method: "POST",
+                          body,
+                          csrf: !publicMode,
+                          signal: controller.signal,
+                        },
+                      );
+                      controller.signal.throwIfAborted();
+                      const saved = publicMode
+                        ? publicSupportResult.parse(response.data)
+                        : parseSupportRecord(kind, false, response.data);
+                      if (
+                        "subject" in saved &&
+                        (saved.subject !== values.subject ||
+                          saved.text !== values.message ||
+                          (saved.kind === "enquiries" && saved.type !== type) ||
+                          (branch &&
+                            !source?.inheritsBranch &&
+                            saved.branchId !== branch))
                       )
-                    )
-                      throw new Error("Unconfirmed related record");
-                    setReceiptId(saved.id);
-                    setComplete(true);
-                    onSaved(saved.id);
-                  } catch (failure) {
-                    if (
-                      isContact &&
-                      failure instanceof ApiError &&
-                      failure.status >= 400 &&
-                      failure.status < 500 &&
-                      failure.fields
-                    ) {
-                      const fieldNames = [
-                        "name",
-                        "email",
-                        "phone",
-                        "subject",
-                        "message",
-                      ] as const;
-                      const invalid = fieldNames.filter(
-                        (name) =>
-                          failure.fields?.[
-                            `body.${name === "message" && kind === "complaints" ? "description" : name}`
-                          ],
-                      );
-                      invalid.forEach((name) =>
-                        form.setError(name, {
-                          type: "server",
-                          message: "Check this field and enter a valid value.",
-                        }),
-                      );
-                      if (invalid.length) {
-                        setProposal(null);
-                        setError(
-                          "Please check the highlighted fields before continuing.",
-                        );
-                        requestAnimationFrame(() => form.setFocus(invalid[0]));
+                        throw new Error("Unconfirmed support record");
+                      if (
+                        "subject" in saved &&
+                        source &&
+                        Object.entries(source.fields).some(
+                          ([key, value]) =>
+                            !Object.entries(saved).some(
+                              ([savedKey, savedValue]) =>
+                                savedKey === key && savedValue === value,
+                            ),
+                        )
+                      )
+                        throw new Error("Unconfirmed related record");
+                      if (isDashboard) {
+                        const owner = draftIdentity();
+                        if (owner) {
+                          const key = draftKey(owner, window.location.pathname, draftId);
+                          forgetDraft(key);
+                          window.dispatchEvent(
+                            new CustomEvent(DRAFT_SAVED, { detail: key }),
+                          );
+                        }
                       }
+                      setReceiptId(saved.id);
+                      setComplete(true);
+                      return saved.id;
+                    } catch (failure) {
+                      if (
+                        isContact &&
+                        failure instanceof ApiError &&
+                        failure.status >= 400 &&
+                        failure.status < 500 &&
+                        failure.fields
+                      ) {
+                        const fieldNames = [
+                          "name",
+                          "email",
+                          "phone",
+                          "subject",
+                          "message",
+                        ] as const;
+                        const invalid = fieldNames.filter(
+                          (name) =>
+                            failure.fields?.[
+                              `body.${name === "message" && kind === "complaints" ? "description" : name}`
+                            ],
+                        );
+                        invalid.forEach((name) =>
+                          form.setError(name, {
+                            type: "server",
+                            message: "Check this field and enter a valid value.",
+                          }),
+                        );
+                        if (invalid.length) {
+                          setProposal(null);
+                          setError(
+                            "Please check the highlighted fields before continuing.",
+                          );
+                          requestAnimationFrame(() => form.setFocus(invalid[0]));
+                        }
+                      }
+                      throw failure;
+                    } finally {
+                      signal?.removeEventListener("abort", abort);
+                      if (pending.current === controller) pending.current = null;
                     }
-                    throw failure;
-                  } finally {
-                    if (pending.current === controller) pending.current = null;
-                  }
+                  };
+                  const savedId = guard
+                    ? await guard.run(async () => {
+                        if (latestPickerBlocked.current)
+                          throw new ApiError(409, { error: { code: "CONFLICT" } });
+                      }, send)
+                    : await send();
+                  onSaved(savedId);
                 },
               });
             },
@@ -378,8 +439,10 @@ export function SupportCreateForm({
         }}
       >
         <fieldset
-          disabled={locked}
-          className={isContact ? "contact-field-grid" : undefined}
+          disabled={locked || !!guard?.busy}
+          className={
+            isContact ? "contact-field-grid" : isDashboard ? "cc-form-grid" : undefined
+          }
         >
           {isContact && (
             <legend className="sr-only">Your contact details and request</legend>
@@ -423,10 +486,13 @@ export function SupportCreateForm({
               <SelectFrame enabled={isContact}>
                 <select
                   id="support-type"
+                  name={isDashboard ? "supportType" : undefined}
+                  data-draft-context={isDashboard || undefined}
                   value={type}
                   onChange={(event) => {
                     setType(event.target.value);
                     setSource(undefined);
+                    setSourceBlocked(false);
                     setError(undefined);
                   }}
                 >
@@ -434,7 +500,7 @@ export function SupportCreateForm({
                     <option key={value} value={value}>
                       {value === "NONE"
                         ? "No related transaction"
-                        : isContact
+                        : isContact || isDashboard
                           ? value[0] + value.slice(1).toLowerCase().replaceAll("_", " ")
                           : value.toLowerCase().replaceAll("_", " ")}
                     </option>
@@ -468,6 +534,8 @@ export function SupportCreateForm({
                 type={sourceType}
                 value={source}
                 onChange={setSource}
+                onAvailabilityChange={isDashboard ? setSourceBlocked : undefined}
+                draftContext={isDashboard}
               />
             ))}
           {serviceId && <p>Related service: {serviceName ?? "Selected service"}</p>}
@@ -506,6 +574,13 @@ export function SupportCreateForm({
                   kind="branch"
                   id="support-branch"
                   value={branch}
+                  onAvailabilityChange={isDashboard ? setBranchBlocked : undefined}
+                  draftContext={isDashboard}
+                  error={
+                    isDashboard && selectionError === "branch"
+                      ? "Choose the branch handling your request."
+                      : undefined
+                  }
                   onChange={(value, label) => {
                     setBranch(value);
                     setBranchLabel(label);
@@ -544,19 +619,27 @@ export function SupportCreateForm({
             <p id="support-opening-error" className="field-error">
               {form.formState.errors.message?.message}
             </p>
-            {isContact && (
+            {(isContact || isDashboard) && (
               <p
-                className="contact-character-count"
+                className={isDashboard ? "cc-character-count" : "contact-character-count"}
                 aria-label={`${messageValue?.length ?? 0} of 4000 characters`}
               >
-                {messageValue?.length ?? 0}/4000
+                {messageValue?.length ?? 0}
+                {isDashboard ? " / 4000 characters" : "/4000"}
               </p>
             )}
           </div>
-          <button type="submit" className="button">
+          <button
+            type="submit"
+            className="button"
+            disabled={!!guard?.disabled || pickerBlocked}
+          >
             Review {kind === "enquiries" ? "enquiry" : "complaint"}
             {isContact && <ArrowRight size={16} aria-hidden="true" />}
           </button>
+          {isDashboard && (
+            <p className="cc-form-help">Review your details before sending.</p>
+          )}
           {isContact && (
             <p className="contact-field-help contact-field-wide">
               You can check your details before sending.
@@ -569,9 +652,9 @@ export function SupportCreateForm({
           proposal={proposal}
           onClose={() => setProposal(null)}
           onSuccess={() => {}}
-          exposeBusyState={isContact}
+          exposeBusyState={isContact || isDashboard}
           confirmLabel={
-            isContact
+            isContact || isDashboard
               ? kind === "enquiries"
                 ? "Send enquiry"
                 : "Send complaint"

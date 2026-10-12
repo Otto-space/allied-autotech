@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { SupportThread } from "@/app/components/support-thread";
+import "../../conversation.css";
 export const metadata = { title: "Support conversation" };
 export default async function Page({
   params,

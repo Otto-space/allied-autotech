@@ -8,6 +8,8 @@ import { Feedback } from "./feedback";
 import { SupportMessages } from "./support-messages";
 import { SupportStaffActions } from "./support-staff-actions";
 import { ComplaintAcknowledgement } from "./complaint-acknowledgement";
+import { useAccountSession } from "./dashboard-shell";
+import { CustomerSupportThread } from "./customer-support-thread";
 export function SupportThread({
   kind,
   id,
@@ -16,6 +18,29 @@ export function SupportThread({
   kind: SupportKind;
   id: string;
   staff?: boolean;
+}) {
+  const session = useAccountSession();
+  if (!staff) {
+    if (session?.user.role !== "CUSTOMER") return null;
+    return (
+      <CustomerSupportThread
+        key={`${session.user.id}:${kind}:${id}`}
+        userId={session.user.id}
+        kind={kind}
+        id={id}
+      />
+    );
+  }
+  return <StaffSupportThread kind={kind} id={id} staff={staff} />;
+}
+function StaffSupportThread({
+  kind,
+  id,
+  staff,
+}: {
+  kind: SupportKind;
+  id: string;
+  staff: boolean;
 }) {
   const base = `/${staff ? "staff" : "customers"}/support/${kind}/${id}`;
   const parse = useCallback(

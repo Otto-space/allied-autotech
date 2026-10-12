@@ -200,7 +200,9 @@ const thread = (kind = "enquiries", staffMode = false) =>
 async function confirm(page: Page) {
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: /^(Confirm change|Send enquiry|Send complaint)$/ })
+    .getByRole("button", {
+      name: /^(Confirm change|Send enquiry|Send complaint|Send reply)$/,
+    })
     .click();
 }
 async function chooseBranch(page: Page) {
@@ -429,7 +431,7 @@ test("unknown reply locks resubmission and preserves the draft", async ({ page }
   await page.getByRole("button", { name: "Refresh record", exact: true }).click();
   await expect(page.getByLabel("Reply text")).toBeVisible();
   await expect(page.getByRole("button", { name: "Review reply" })).toBeDisabled();
-  await expect(page.getByText(/A support change has an unknown outcome/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Reply needs checking" })).toBeVisible();
   expect(state.writes).toHaveLength(1);
 });
 test("uncertain creation stays locked across category switches", async ({ page }) => {
