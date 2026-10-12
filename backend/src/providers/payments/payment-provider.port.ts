@@ -47,8 +47,24 @@ export interface VerifiedRefund {
 }
 
 export interface PaymentProviderPort {
+  verifyDispute?(reference: string): Promise<VerifiedDispute>;
   initialize(command: InitializePaymentCommand): Promise<InitializedPayment>;
   verify(reference: string): Promise<VerifiedPayment>;
   refund(command: InitiateRefundCommand): Promise<InitiatedRefund>;
   verifyRefund?(reference: string): Promise<VerifiedRefund>;
+}
+
+export interface VerifiedDispute {
+  providerDisputeId: string;
+  reference: string;
+  gatewayTransactionId: string;
+  transactionAmountKobo: bigint;
+  currency: string;
+  providerStatus: string;
+  resolution: string | null;
+  refundAmountKobo: bigint | null;
+  category: string | null;
+  responseDueAt: Date | null;
+  resolvedAt: Date | null;
+  updatedAt: Date | null;
 }

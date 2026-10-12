@@ -5,10 +5,13 @@ import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 export async function withTransactionRetry<T>(
   database: PrismaClient,
   work: (tx: Prisma.TransactionClient) => Promise<T>,
+  options?: { isolationLevel: Prisma.TransactionIsolationLevel },
 ): Promise<T> {
   for (let attempt = 0; ; attempt++) {
     try {
-      return await database.$transaction(work);
+      return await (options
+        ? database.$transaction(work, options)
+        : database.$transaction(work));
     } catch (error) {
       const failure = error as {
         code?: string;

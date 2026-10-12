@@ -5,6 +5,7 @@ import {
 } from "../../common/errors/provider-error-mapper.js";
 import { env } from "../../config/env.js";
 import type { EmailProvider, TransactionalEmail } from "./email-provider.port.js";
+import { withProviderResponse } from "../provider-http.js";
 
 export class ResendEmailProvider implements EmailProvider {
   private readonly apiKey: string;
@@ -20,35 +21,37 @@ export class ResendEmailProvider implements EmailProvider {
 
   async send(message: TransactionalEmail): Promise<void> {
     try {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        redirect: "error",
-        signal: AbortSignal.timeout(env.MESSAGING_REQUEST_TIMEOUT_MS),
-        headers: {
-          authorization: `Bearer ${this.apiKey}`,
-          "content-type": "application/json",
-          "idempotency-key": message.idempotencyKey,
+      await withProviderResponse(
+        "https://api.resend.com/emails",
+        {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${this.apiKey}`,
+            "content-type": "application/json",
+            "idempotency-key": message.idempotencyKey,
+          },
+          body: JSON.stringify({
+            from: this.from,
+            to: [message.to],
+            subject: message.subject,
+            text: message.text,
+            html: message.html,
+          }),
         },
-        body: JSON.stringify({
-          from: this.from,
-          to: [message.to],
-          subject: message.subject,
-          text: message.text,
-          html: message.html,
-        }),
-      });
-      if (!response.ok) {
-        await response.body?.cancel();
-        if (
-          response.status === 408 ||
-          response.status === 425 ||
-          response.status === 429 ||
-          response.status >= 500
-        )
-          throw providerUnavailable();
-        throw providerRejected();
-      }
-      await response.body?.cancel();
+        env.MESSAGING_REQUEST_TIMEOUT_MS,
+        (response) => {
+          if (!response.ok) {
+            if (
+              response.status === 408 ||
+              response.status === 425 ||
+              response.status === 429 ||
+              response.status >= 500
+            )
+              throw providerUnavailable();
+            throw providerRejected();
+          }
+        },
+      );
     } catch (error: unknown) {
       if (error instanceof AppError) throw error;
       throw providerUnavailable(error);

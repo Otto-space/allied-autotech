@@ -6,6 +6,8 @@ import {
 } from "../../common/errors/provider-error-mapper.js";
 import { assertPaystackMode, env } from "../../config/env.js";
 import { parsePaystackJson, paystackIdentifier } from "./paystack-json.js";
+import { paystackDisputeSchema, verifiedDispute } from "./paystack-dispute.js";
+import { readProviderBytes, withProviderResponse } from "../provider-http.js";
 import type {
   InitializePaymentCommand,
   InitiateRefundCommand,
@@ -55,6 +57,19 @@ function parseProviderResponse<T>(schema: z.ZodType<T>, value: unknown): T {
 }
 
 export class PaystackAdapter implements PaymentProviderPort {
+  async verifyDispute(reference: string) {
+    const parsed = parseProviderResponse(
+      envelope(paystackDisputeSchema),
+      await this.request(`/dispute/${encodeURIComponent(reference)}`),
+    );
+    if (
+      !parsed.status ||
+      String(parsed.data.id) !== reference ||
+      parsed.data.domain !== env.PAYSTACK_MODE
+    )
+      throw providerUnavailable();
+    return verifiedDispute(parsed.data);
+  }
   private readonly baseUrl = "https://api.paystack.co";
 
   private secret(): string {
@@ -65,34 +80,37 @@ export class PaystackAdapter implements PaymentProviderPort {
 
   private async request(path: string, init?: RequestInit): Promise<unknown> {
     try {
-      const response = await fetch(`${this.baseUrl}${path}`, {
-        ...init,
-        headers: {
-          Authorization: `Bearer ${this.secret()}`,
-          "Content-Type": "application/json",
-          ...init?.headers,
+      return await withProviderResponse(
+        `${this.baseUrl}${path}`,
+        {
+          ...init,
+          headers: {
+            Authorization: `Bearer ${this.secret()}`,
+            "Content-Type": "application/json",
+            ...init?.headers,
+          },
         },
-        redirect: "error",
-        signal: AbortSignal.timeout(env.PAYSTACK_REQUEST_TIMEOUT_MS),
-      });
-      const declaredLength = Number(response.headers.get("content-length") ?? 0);
-      if (declaredLength > env.PAYSTACK_MAX_RESPONSE_BYTES)
-        throw new Error("Provider response too large");
-      const bytes = Buffer.from(await response.arrayBuffer());
-      if (bytes.byteLength > env.PAYSTACK_MAX_RESPONSE_BYTES)
-        throw new Error("Provider response too large");
-      const body = parsePaystackJson(bytes.toString("utf8"));
-      if (!response.ok) {
-        if (
-          response.status === 408 ||
-          response.status === 425 ||
-          response.status === 429 ||
-          response.status >= 500
-        )
-          throw providerUnavailable();
-        throw providerRejected();
-      }
-      return body;
+        env.PAYSTACK_REQUEST_TIMEOUT_MS,
+        async (response, signal) => {
+          const bytes = await readProviderBytes(
+            response,
+            env.PAYSTACK_MAX_RESPONSE_BYTES,
+            signal,
+          );
+          const body = parsePaystackJson(bytes.toString("utf8"));
+          if (!response.ok) {
+            if (
+              response.status === 408 ||
+              response.status === 425 ||
+              response.status === 429 ||
+              response.status >= 500
+            )
+              throw providerUnavailable();
+            throw providerRejected();
+          }
+          return body;
+        },
+      );
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw providerUnavailable(error);

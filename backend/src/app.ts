@@ -1,6 +1,6 @@
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import express, { type Express, type Router } from "express";
+import express, { type Express, type Router, type Request } from "express";
 import helmet from "helmet";
 import { pinoHttp } from "pino-http";
 
@@ -14,6 +14,7 @@ import { createGlobalRateLimit } from "./common/middleware/rate-limits.js";
 import { rawWebhookBody } from "./common/middleware/raw-webhook-body.js";
 import { requestContext } from "./common/middleware/request-context.js";
 import { logger } from "./common/observability/logger.js";
+import { safeErrorAttributes } from "./common/observability/safe-error.js";
 import { env } from "./config/env.js";
 import { prisma } from "./config/database.js";
 import { createApiRouter } from "./routes/index.js";
@@ -32,6 +33,10 @@ async function defaultReadinessCheck(): Promise<void> {
   await withTimeout(async () => {
     await prisma.$queryRaw`SELECT 1`;
   }, env.READINESS_TIMEOUT_MS);
+}
+
+function loggedRoute(request: Request): string {
+  return typeof request.route?.path === "string" ? request.route.path : "UNRESOLVED";
 }
 
 export function createApp(options: CreateAppOptions = {}): Express {
@@ -55,17 +60,25 @@ export function createApp(options: CreateAppOptions = {}): Express {
   app.use(
     pinoHttp({
       logger,
+      wrapSerializers: false,
       serializers: {
+        err: safeErrorAttributes,
         req(request) {
           return {
             id: request.id,
             method: request.method,
-            path: new URL(request.url, "https://local.invalid").pathname,
           };
         },
         res(response) {
           return { statusCode: response.statusCode };
         },
+      },
+      // Express route patterns contain no URL parameter values.
+      customSuccessObject(request, _response, value) {
+        return { ...value, route: loggedRoute(request as Request) };
+      },
+      customErrorObject(request, _response, _error, value) {
+        return { ...value, route: loggedRoute(request as Request) };
       },
     }),
   );

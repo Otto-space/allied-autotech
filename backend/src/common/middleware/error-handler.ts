@@ -4,6 +4,7 @@ import { classifyError } from "../errors/error-classification.js";
 import { toPublicError } from "../errors/http-error-mapper.js";
 import type { ApiResponse } from "../http/api-response.js";
 import { logger } from "../observability/logger.js";
+import { safeErrorAttributes } from "../observability/safe-error.js";
 
 export const errorHandler: ErrorRequestHandler = (
   error: unknown,
@@ -17,7 +18,7 @@ export const errorHandler: ErrorRequestHandler = (
 
   logger[classification.severity](
     {
-      err: error,
+      err: safeErrorAttributes(error),
       requestId,
       errorCode: publicError.code,
       retryable: classification.retryable,

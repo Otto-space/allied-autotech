@@ -23,15 +23,16 @@ const refundSchema = z.object({
 });
 const disputeSchema = z.object({
   id: paystackIdentifier,
-  status: z.string().min(1).max(80),
-  amount: z.number().int().safe().positive(),
-  currency: z.string().length(3),
+  status: z.string().min(1).max(80).nullable().optional(),
+  amount: z.number().int().safe().positive().nullable().optional(),
+  currency: z.string().length(3).nullable().optional(),
   category: z.string().max(80).nullable().optional(),
-  dueAt: z.string().nullable().optional(),
-  transaction: z.object({ reference: z.string().min(1).max(160) }),
+  dueAt: z.iso.datetime({ offset: true }).nullable().optional(),
+  transaction: z.object({ reference: z.string().min(1).max(160).optional() }).optional(),
 });
 
 export type PaystackWebhookEvent = {
+  disputeLookupRequired?: boolean;
   eventType: string;
   providerEventId: string | null;
   resourceId: string | null;
@@ -105,13 +106,14 @@ export function parsePaystackWebhook(rawBody: Buffer): PaystackWebhookEvent {
     const data = disputeSchema.parse(envelope.data);
     return {
       eventType: envelope.event,
-      providerEventId: `${envelope.event}:${String(data.id)}`,
+      providerEventId: `dispute:${paystackPayloadSha256(rawBody)}`,
+      disputeLookupRequired: true,
       resourceId: String(data.id),
-      reference: data.transaction.reference,
+      reference: data.transaction?.reference ?? null,
       gatewayTransactionId: null,
-      status: data.status,
-      amountKobo: BigInt(data.amount),
-      currency: data.currency.toUpperCase(),
+      status: data.status ?? null,
+      amountKobo: data.amount == null ? null : BigInt(data.amount),
+      currency: data.currency?.toUpperCase() ?? null,
       paidAt: null,
       providerFeeKobo: null,
       method: null,

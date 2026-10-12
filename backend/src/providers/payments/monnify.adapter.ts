@@ -6,6 +6,7 @@ import {
   providerUnavailable,
 } from "../../common/errors/provider-error-mapper.js";
 import { assertMonnifyMode, env } from "../../config/env.js";
+import { readProviderBytes, withProviderResponse } from "../provider-http.js";
 import type {
   InitializePaymentCommand,
   InitiateRefundCommand,
@@ -159,40 +160,40 @@ export class MonnifyAdapter implements PaymentProviderPort {
     };
   }
 
-  private async readBounded(response: Response): Promise<unknown> {
-    const declaredLength = Number(response.headers.get("content-length") ?? 0);
-    if (declaredLength > this.options.maxResponseBytes)
-      throw new Error("Provider response too large");
-    const bytes = Buffer.from(await response.arrayBuffer());
-    if (bytes.byteLength > this.options.maxResponseBytes)
-      throw new Error("Provider response too large");
-    return JSON.parse(bytes.toString("utf8")) as unknown;
-  }
-
   private async request(
     path: string,
     init: RequestInit,
     authorization: string,
   ): Promise<unknown> {
     try {
-      const response = await (this.options.fetcher ?? fetch)(`${this.baseUrl()}${path}`, {
-        ...init,
-        headers: {
-          Authorization: authorization,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          ...init.headers,
+      return await withProviderResponse(
+        `${this.baseUrl()}${path}`,
+        {
+          ...init,
+          headers: {
+            Authorization: authorization,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            ...init.headers,
+          },
         },
-        redirect: "error",
-        signal: AbortSignal.timeout(this.options.requestTimeoutMs),
-      });
-      const body = await this.readBounded(response);
-      if (!response.ok) {
-        if ([408, 425, 429].includes(response.status) || response.status >= 500)
-          throw providerUnavailable();
-        throw providerRejected();
-      }
-      return body;
+        this.options.requestTimeoutMs,
+        async (response, signal) => {
+          const bytes = await readProviderBytes(
+            response,
+            this.options.maxResponseBytes,
+            signal,
+          );
+          const body: unknown = JSON.parse(bytes.toString("utf8"));
+          if (!response.ok) {
+            if ([408, 425, 429].includes(response.status) || response.status >= 500)
+              throw providerUnavailable();
+            throw providerRejected();
+          }
+          return body;
+        },
+        this.options.fetcher,
+      );
     } catch (error) {
       if (error instanceof AppError) throw error;
       throw providerUnavailable(error);

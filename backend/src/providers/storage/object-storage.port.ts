@@ -14,6 +14,7 @@ export interface SignedUpload {
 
 export interface ObjectStoragePort {
   createUpload(request: UploadRequest): Promise<SignedUpload>;
+  /** False means missing/invalid bytes; storage availability failures throw a safe 503. */
   verifyObject(request: UploadRequest): Promise<boolean>;
   createDownload(key: string, downloadName: string): Promise<string>;
   createView(key: string): Promise<string>;

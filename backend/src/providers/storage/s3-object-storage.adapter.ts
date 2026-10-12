@@ -11,6 +11,11 @@ import { env } from "../../config/env.js";
 import { AppError } from "../../common/errors/app-error.js";
 import { mediaError } from "../../modules/media/media.errors.js";
 import type { MediaStoragePort } from "./media-storage.port.js";
+import {
+  readStorageBody,
+  StorageByteLimitError,
+  withStorageDeadline,
+} from "./storage-io.js";
 import type {
   ObjectStoragePort,
   SignedUpload,
@@ -107,33 +112,47 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
     // Missing configuration is an outage, never evidence that bytes exist.
     const bucket = this.bucket();
     try {
-      const metadata = await this.client.send(
-        new HeadObjectCommand({
-          Bucket: bucket,
-          Key: request.key,
-          ChecksumMode: "ENABLED",
-        }),
-      );
-      const metadataMatches =
-        metadata.ContentLength === request.sizeBytes &&
-        metadata.ContentType === request.mimeType &&
-        metadata.ChecksumSHA256 ===
-          Buffer.from(request.checksumSha256, "hex").toString("base64");
-      if (!metadataMatches) return false;
-      const object = await this.client.send(
-        new GetObjectCommand({
-          Bucket: bucket,
-          Key: request.key,
-          Range: "bytes=0-15",
-        }),
-      );
-      if (object.Body === undefined) return false;
-      return matchesAllowedFileSignature(
-        request.mimeType,
-        await object.Body.transformToByteArray(),
-      );
-    } catch {
-      return false;
+      return await withStorageDeadline(async (signal) => {
+        const metadata = await this.client.send(
+          new HeadObjectCommand({
+            Bucket: bucket,
+            Key: request.key,
+            ChecksumMode: "ENABLED",
+          }),
+          { abortSignal: signal },
+        );
+        signal.throwIfAborted();
+        const metadataMatches =
+          metadata.ContentLength === request.sizeBytes &&
+          metadata.ContentType === request.mimeType &&
+          metadata.ChecksumSHA256 ===
+            Buffer.from(request.checksumSha256, "hex").toString("base64");
+        if (!metadataMatches) return false;
+        const object = await this.client.send(
+          new GetObjectCommand({
+            Bucket: bucket,
+            Key: request.key,
+            Range: "bytes=0-15",
+          }),
+          { abortSignal: signal },
+        );
+        const bytes = await readStorageBody(object, 16, signal);
+        return (
+          bytes !== undefined && matchesAllowedFileSignature(request.mimeType, bytes)
+        );
+      });
+    } catch (error) {
+      if (
+        error instanceof StorageByteLimitError ||
+        (error instanceof Error && ["NoSuchKey", "NotFound"].includes(error.name))
+      )
+        return false;
+      throw new AppError({
+        code: "PROVIDER_UNAVAILABLE",
+        statusCode: 503,
+        message: "File storage is temporarily unavailable",
+        retryable: true,
+      });
     }
   }
 
@@ -150,29 +169,17 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
 
   async read(key: string, maximumBytes: number): Promise<Buffer> {
     try {
-      const response = await this.client.send(
-        new GetObjectCommand({ Bucket: this.bucket(), Key: key }),
-        { abortSignal: AbortSignal.timeout(20_000) },
-      );
-      if (!response.Body) throw mediaError("MEDIA_OBJECT_MISSING", 404);
-      if (response.ContentLength !== undefined && response.ContentLength > maximumBytes)
-        throw mediaError("MEDIA_TOO_LARGE");
-      const reader = response.Body.transformToWebStream().getReader();
-      const chunks: Uint8Array[] = [];
-      let size = 0;
-      try {
-        while (true) {
-          const result = await reader.read();
-          if (result.done) break;
-          size += result.value.length;
-          if (size > maximumBytes) throw mediaError("MEDIA_TOO_LARGE");
-          chunks.push(result.value);
-        }
-      } finally {
-        await reader.cancel().catch(() => undefined);
-      }
-      return Buffer.concat(chunks);
+      return await withStorageDeadline(async (signal) => {
+        const response = await this.client.send(
+          new GetObjectCommand({ Bucket: this.bucket(), Key: key }),
+          { abortSignal: signal },
+        );
+        const bytes = await readStorageBody(response, maximumBytes, signal);
+        if (bytes === undefined) throw mediaError("MEDIA_OBJECT_MISSING", 404);
+        return bytes;
+      });
     } catch (error) {
+      if (error instanceof StorageByteLimitError) throw mediaError("MEDIA_TOO_LARGE");
       if (
         error instanceof Error &&
         "code" in error &&
@@ -187,17 +194,19 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
   }
   async write(key: string, bytes: Buffer, mimeType: string): Promise<void> {
     try {
-      await this.client.send(
-        new PutObjectCommand({
-          Bucket: this.bucket(),
-          Key: key,
-          Body: bytes,
-          ContentType: mimeType,
-          ContentLength: bytes.length,
-          ServerSideEncryption: "AES256",
-          CacheControl: "private, no-store",
-        }),
-        { abortSignal: AbortSignal.timeout(20_000) },
+      await withStorageDeadline((signal) =>
+        this.client.send(
+          new PutObjectCommand({
+            Bucket: this.bucket(),
+            Key: key,
+            Body: bytes,
+            ContentType: mimeType,
+            ContentLength: bytes.length,
+            ServerSideEncryption: "AES256",
+            CacheControl: "private, no-store",
+          }),
+          { abortSignal: signal },
+        ),
       );
     } catch {
       throw mediaError("MEDIA_STORAGE_UNAVAILABLE", 503);
@@ -205,9 +214,10 @@ export class S3ObjectStorageAdapter implements ObjectStoragePort, MediaStoragePo
   }
   async delete(key: string): Promise<void> {
     try {
-      await this.client.send(
-        new DeleteObjectCommand({ Bucket: this.bucket(), Key: key }),
-        { abortSignal: AbortSignal.timeout(20_000) },
+      await withStorageDeadline((signal) =>
+        this.client.send(new DeleteObjectCommand({ Bucket: this.bucket(), Key: key }), {
+          abortSignal: signal,
+        }),
       );
     } catch {
       throw mediaError("MEDIA_STORAGE_UNAVAILABLE", 503);

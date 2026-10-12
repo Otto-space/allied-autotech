@@ -35,7 +35,9 @@ describe("exact Paystack transaction identity", () => {
     it.each(ids)(`${event} preserves numeric ID %s without rounding`, (id) => {
       expect(parsePaystackWebhook(webhook(event, id))).toMatchObject({
         resourceId: id,
-        providerEventId: `${event}:${id}`,
+        ...(event.startsWith("charge.dispute.")
+          ? { disputeLookupRequired: true }
+          : { providerEventId: `${event}:${id}` }),
         ...(event === "charge.success" ? { gatewayTransactionId: id } : {}),
       });
     });

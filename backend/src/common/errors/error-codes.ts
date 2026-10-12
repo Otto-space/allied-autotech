@@ -30,6 +30,7 @@ export const errorCodes = {
   notFound: "NOT_FOUND",
   conflict: "CONFLICT",
   idempotencyConflict: "IDEMPOTENCY_CONFLICT",
+  idempotencyExpired: "IDEMPOTENCY_EXPIRED",
   paymentAttemptPending: "PAYMENT_ATTEMPT_PENDING",
   paymentTargetPending: "PAYMENT_TARGET_PENDING",
   insufficientStock: "INSUFFICIENT_STOCK",
