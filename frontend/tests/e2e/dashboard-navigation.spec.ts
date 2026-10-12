@@ -122,7 +122,7 @@ for (const width of [320, 360, 390, 768, 850, 900, 901, 1024, 1440, 1655]) {
     await page.setViewportSize({ width, height: width === 1655 ? 1133 : 960 });
     await page.goto("/admin");
     await expect(
-      page.getByRole("heading", { name: "Welcome back.", exact: true }),
+      page.getByRole("heading", { name: "Workshop overview", exact: true }),
     ).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Administration", exact: true });
     if (width <= 900) {

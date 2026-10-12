@@ -282,7 +282,7 @@ for (const role of ["ADMIN", "STAFF"]) {
     const state = await fixture(page, role);
     await page.goto("/admin");
     await expect(
-      page.getByRole("heading", { name: "Welcome back.", exact: true }),
+      page.getByRole("heading", { name: "Workshop overview", exact: true }),
     ).toBeVisible();
     const heading = page.getByRole("heading", {
       name: "Overdue orders and reservations",

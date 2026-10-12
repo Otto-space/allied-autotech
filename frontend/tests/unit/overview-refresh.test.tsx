@@ -82,3 +82,28 @@ it("pauses hidden or offline polling and refreshes when the visible connection r
   await act(async () => window.dispatchEvent(new Event("online")));
   expect(request).toHaveBeenCalledTimes(3);
 });
+
+it("does not interrupt a held background read and backs off its failure", async () => {
+  const { result } = renderHook(() => useOverview(path));
+  await settle();
+  let rejectRead: ((error: Error) => void) | undefined;
+  request.mockImplementation(
+    () =>
+      new Promise((_resolve, reject) => {
+        rejectRead = reject;
+      }),
+  );
+  await act(async () => window.dispatchEvent(new Event("online")));
+  expect(result.current.refreshing).toBe(true);
+  await advance(600_000);
+  expect(request).toHaveBeenCalledTimes(2);
+  await act(async () => rejectRead?.(new Error("offline")));
+  expect(result.current.refreshError).toBeTruthy();
+  expect(result.current.data).toBeDefined();
+  await advance(119_999);
+  expect(request).toHaveBeenCalledTimes(2);
+  request.mockResolvedValue({ data: overviewFixture("CUSTOMER") });
+  await advance(1);
+  expect(request).toHaveBeenCalledTimes(3);
+  expect(result.current.refreshError).toBeUndefined();
+});

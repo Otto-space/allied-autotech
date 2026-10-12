@@ -6,11 +6,14 @@ import { parseOverview } from "./overview-schemas";
 export function useOverview(path: string | null) {
   const resource = useResource(path, parseOverview);
   const failures = useRef({ path, count: 0 });
-  const { loading, error, refresh, settledRevision } = resource;
+  const { loading, refreshing, error, refreshError, refresh, settledRevision } = resource;
   useEffect(() => {
-    if (!path || loading) return;
+    if (!path || loading || refreshing) return;
     const previous = failures.current.path === path ? failures.current.count : 0;
-    failures.current = { path, count: error ? Math.min(previous + 1, 3) : 0 };
+    failures.current = {
+      path,
+      count: error || refreshError ? Math.min(previous + 1, 3) : 0,
+    };
     const timer = window.setTimeout(
       () => {
         if (document.visibilityState === "visible" && navigator.onLine) refresh();
@@ -18,6 +21,6 @@ export function useOverview(path: string | null) {
       Math.min(60_000 * 2 ** failures.current.count, 300_000),
     );
     return () => window.clearTimeout(timer);
-  }, [path, loading, error, refresh, settledRevision]);
+  }, [path, loading, refreshing, error, refreshError, refresh, settledRevision]);
   return resource;
 }

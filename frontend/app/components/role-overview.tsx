@@ -138,7 +138,13 @@ function SummaryCards({
   );
 }
 
-export function RoleOverview({ customerDesign = false }: { customerDesign?: boolean }) {
+export function RoleOverview({
+  customerDesign = false,
+  workDesign = false,
+}: {
+  customerDesign?: boolean;
+  workDesign?: boolean;
+}) {
   const session = useAccountSession();
   const customer = session?.user.role === "CUSTOMER";
   const administrator =
@@ -159,7 +165,11 @@ export function RoleOverview({ customerDesign = false }: { customerDesign?: bool
       ? data.scope === "CUSTOMER" && !data.finance && (!customerDesign || !!data.care)
       : administrator
         ? data.scope === "ORGANISATION" && !!data.finance
-        : data.scope === "BRANCH" && !data.finance);
+        : data.scope === "BRANCH" && !data.finance) &&
+    (!workDesign ||
+      (data.range.from === range.from &&
+        data.range.to === range.to &&
+        (administrator ? data.branch === null : !!data.branch)));
   const error =
     resource.error ||
     (data && !scopeMatches
@@ -169,15 +179,17 @@ export function RoleOverview({ customerDesign = false }: { customerDesign?: bool
   const overviewFeedback = (
     <>
       <div className="overview-update" role="status">
-        {resource.loading
+        {resource.loading || resource.refreshing
           ? visible
             ? "Refreshing your overview…"
             : "Loading your overview…"
           : error
             ? "Overview unavailable"
-            : visible
-              ? `Updated ${formatBusinessDate(visible.generatedAt)} · Refreshes every minute while visible`
-              : ""}
+            : resource.refreshError
+              ? "Overview may be out of date. Refresh to check current figures."
+              : visible
+                ? `Updated ${formatBusinessDate(visible.generatedAt)} · Refreshes every minute while visible`
+                : ""}
       </div>
       {error && (
         <div className="overview-error" role="alert">
@@ -197,7 +209,14 @@ export function RoleOverview({ customerDesign = false }: { customerDesign?: bool
       </label>
       <select
         id="overview-preset"
-        value=""
+        value={
+          workDesign
+            ? ([7, 30, 90].find((days) => {
+                const preset = overviewDates(days);
+                return preset.from === range.from && preset.to === range.to;
+              }) ?? "")
+            : ""
+        }
         onChange={(event) => {
           const next = overviewDates(Number(event.target.value));
           setRange(next);
@@ -206,7 +225,7 @@ export function RoleOverview({ customerDesign = false }: { customerDesign?: bool
         }}
       >
         <option value="" disabled>
-          Select period
+          {workDesign ? "Custom period" : "Select period"}
         </option>
         <option value="7">Last 7 days</option>
         <option value="30">Last 30 days</option>
@@ -215,16 +234,26 @@ export function RoleOverview({ customerDesign = false }: { customerDesign?: bool
     </>
   );
   return (
-    <div className={`overview${customerDesign ? " customer-overview" : ""}`}>
+    <div
+      className={`overview${customerDesign ? " customer-overview" : ""}${workDesign ? " work-overview" : ""}`}
+    >
       <div className="overview-welcome">
         <div>
-          <h1>{customer ? "Your vehicle care, connected." : "Welcome back."}</h1>
+          <h1>
+            {customer
+              ? "Your vehicle care, connected."
+              : workDesign
+                ? "Workshop overview"
+                : "Welcome back."}
+          </h1>
           <p>
             {customer
               ? "Your bookings, orders and vehicle care at a glance."
-              : data?.branch && !error
-                ? `${data.branch.name} · Your branch at a glance.`
-                : "Your workshop activity at a glance."}
+              : administrator && workDesign
+                ? "Organisation-wide activity in your selected period."
+                : visible?.branch
+                  ? `${visible.branch.name} · Your branch at a glance.`
+                  : "Your workshop activity at a glance."}
           </p>
         </div>
         <div className="overview-top-actions">
@@ -233,15 +262,15 @@ export function RoleOverview({ customerDesign = false }: { customerDesign?: bool
               Book a service
             </Link>
           )}
-          {!customerDesign && datePreset}
+          {!customerDesign && !workDesign && datePreset}
           <button
             className="button overview-refresh"
             type="button"
-            disabled={resource.loading}
+            disabled={resource.loading || resource.refreshing}
             onClick={resource.refresh}
           >
             <RefreshCw size={16} aria-hidden="true" />
-            {resource.loading ? "Updating…" : "Refresh"}
+            {resource.loading || resource.refreshing ? "Updating…" : "Refresh"}
           </button>
         </div>
       </div>
@@ -275,6 +304,12 @@ export function RoleOverview({ customerDesign = false }: { customerDesign?: bool
         }}
       >
         {customerDesign && <div className="customer-period-preset">{datePreset}</div>}
+        {workDesign && (
+          <div className="work-period-preset">
+            <label htmlFor="overview-preset">Period</label>
+            {datePreset}
+          </div>
+        )}
         <label>
           From
           <input
