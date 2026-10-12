@@ -355,6 +355,29 @@ function requireHttps(urls: readonly string[], purpose: string): void {
   }
 }
 
+function requireProductionObjectStorage(
+  runtime: typeof env,
+  source: NodeJS.ProcessEnv,
+  processName: string,
+): void {
+  requireConfiguredVariables(
+    processName,
+    [
+      "OBJECT_STORAGE_ENDPOINT",
+      "OBJECT_STORAGE_BUCKET",
+      "OBJECT_STORAGE_ACCESS_KEY_ID",
+      "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+    ],
+    source,
+  );
+  if (
+    runtime.OBJECT_STORAGE_ENDPOINT === undefined ||
+    new URL(runtime.OBJECT_STORAGE_ENDPOINT).protocol !== "https:"
+  ) {
+    throw new Error("Production object storage must use HTTPS");
+  }
+}
+
 export function assertApiEnvironment(
   runtime: typeof env = env,
   source: NodeJS.ProcessEnv = process.env,
@@ -383,10 +406,6 @@ export function assertApiEnvironment(
       "FRONTEND_PRIVILEGED_INVITATION_URL",
       "PAYSTACK_MODE",
       "MONNIFY_MODE",
-      "OBJECT_STORAGE_ENDPOINT",
-      "OBJECT_STORAGE_BUCKET",
-      "OBJECT_STORAGE_ACCESS_KEY_ID",
-      "OBJECT_STORAGE_SECRET_ACCESS_KEY",
     ],
     source,
   );
@@ -411,12 +430,7 @@ export function assertApiEnvironment(
     ],
     "identity and WebAuthn URLs",
   );
-  if (
-    runtime.OBJECT_STORAGE_ENDPOINT === undefined ||
-    new URL(runtime.OBJECT_STORAGE_ENDPOINT).protocol !== "https:"
-  ) {
-    throw new Error("Production object storage must use HTTPS");
-  }
+  requireProductionObjectStorage(runtime, source, "API");
   if (
     runtime.PAYSTACK_CALLBACK_URL !== undefined &&
     new URL(runtime.PAYSTACK_CALLBACK_URL).protocol !== "https:"
@@ -468,6 +482,7 @@ export function assertGeneralWorkerEnvironment(
     source,
   );
   requireHttps(runtime.FRONTEND_URL, "booking reminder origin");
+  requireProductionObjectStorage(runtime, source, "general worker media cleanup");
   if (runtime.EMAIL_DELIVERY_ENABLED) {
     requireConfiguredVariables(
       "general worker email delivery",

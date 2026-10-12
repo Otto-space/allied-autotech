@@ -271,3 +271,27 @@ test("duplicate components cannot substitute for a missing pushed image", () => 
   manifest.images[3] = manifest.images[0];
   assert.throws(() => validateManifest(manifest, manifest.registry));
 });
+
+test("media storage is configured for API and cleanup worker, with credentials runtime-scoped and absent from other processes", () => {
+  const { input, manifest, keys } = fixtures();
+  const spec = renderSpec(template, input, manifest, keys);
+  const api = spec.services.find((c) => c.name === "api");
+  const worker = spec.workers.find((c) => c.name === "general-worker");
+  const apiStorage = api.envs.filter((e) => e.key.startsWith("OBJECT_STORAGE_"));
+  const workerStorage = worker.envs.filter((e) => e.key.startsWith("OBJECT_STORAGE_"));
+  assert.deepEqual(workerStorage, apiStorage);
+  assert.equal(workerStorage.length, 6);
+  for (const key of [
+    "OBJECT_STORAGE_ACCESS_KEY_ID",
+    "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+  ]) {
+    assert.equal(workerStorage.find((e) => e.key === key).type, "SECRET");
+    assert.equal(workerStorage.find((e) => e.key === key).scope, "RUN_TIME");
+  }
+  assert.ok(!worker.envs.some((e) => e.key === "MFA_ENCRYPTION_KEY"));
+  for (const component of [
+    ...spec.workers.filter((c) => c.name !== "general-worker"),
+    ...spec.jobs,
+  ])
+    assert.ok(!component.envs.some((e) => e.key.startsWith("OBJECT_STORAGE_")));
+});

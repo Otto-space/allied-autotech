@@ -3,7 +3,7 @@
 Generated from `ops/digitalocean/staging.app.yaml.template`. `Secret` means the component entry is secret-scoped; `Set` means a nonsecret configured value. A dash means omitted for that process (optional parser defaults may still apply). Values and placeholder inventories are in `.env.staging.example` / `.env.production.example`; replace only in an ignored private deployment copy.
 
 | Variable | api | identity-worker | general-worker | migrate |
-| --- | --- | --- | --- | --- |
+| ------------------------------------ | ------ | --------------- | -------------- | ------- |
 | `API_DOCS_ENABLED` | Set | - | - | - |
 | `ASSET_DOWNLOAD_TTL_SECONDS` | Set | - | - | - |
 | `ASSET_TICKET_KEY` | Secret | - | Secret | - |
@@ -44,12 +44,12 @@ Generated from `ops/digitalocean/staging.app.yaml.template`. `Secret` means the 
 | `MONNIFY_REQUEST_TIMEOUT_MS` | Set | - | Set | - |
 | `MONNIFY_SECRET_KEY` | Set | - | Set | - |
 | `NODE_ENV` | Set | Set | Set | Set |
-| `OBJECT_STORAGE_ACCESS_KEY_ID` | Secret | - | - | - |
-| `OBJECT_STORAGE_BUCKET` | Set | - | - | - |
-| `OBJECT_STORAGE_ENDPOINT` | Set | - | - | - |
-| `OBJECT_STORAGE_FORCE_PATH_STYLE` | Set | - | - | - |
-| `OBJECT_STORAGE_REGION` | Set | - | - | - |
-| `OBJECT_STORAGE_SECRET_ACCESS_KEY` | Secret | - | - | - |
+| `OBJECT_STORAGE_ACCESS_KEY_ID`       | Secret | -               | Secret         | -       |
+| `OBJECT_STORAGE_BUCKET`              | Set    | -               | Set            | -       |
+| `OBJECT_STORAGE_ENDPOINT`            | Set    | -               | Set            | -       |
+| `OBJECT_STORAGE_FORCE_PATH_STYLE`    | Set    | -               | Set            | -       |
+| `OBJECT_STORAGE_REGION`              | Set    | -               | Set            | -       |
+| `OBJECT_STORAGE_SECRET_ACCESS_KEY`   | Secret | -               | Secret         | -       |
 | `OUTBOX_ENCRYPTION_KEY` | Secret | Secret | Secret | - |
 | `OUTBOX_ENCRYPTION_KEY_ID` | Set | Set | Set | - |
 | `PAYMENT_INTENT_TTL_SECONDS` | Set | - | - | - |
@@ -84,4 +84,4 @@ Generated from `ops/digitalocean/staging.app.yaml.template`. `Secret` means the 
 | `WORKER_BATCH_SIZE` | Set | Set | Set | - |
 | `WORKER_POLL_INTERVAL_MS` | Set | - | Set | - |
 
-No process gets `RUN_DATABASE_TESTS`, `TEST_DB_NAME`, `RUN_OWNER_PROVISIONING_TESTS` or `CONFIRM_EMPTY_MIGRATION_DATABASE`. API/worker DB roles need DML only; the migrator receives a distinct DDL role. `DB_SSL_CA_BASE64` is decoded and removed by the shell entrypoint before Node/Prisma starts.
+No process gets `RUN_DATABASE_TESTS`, `TEST_DB_NAME`, `RUN_OWNER_PROVISIONING_TESTS`, `RUN_WORKSHOP_ACCESS_TESTS`, `RUN_OPERATIONS_PAGING_TESTS`, `RUN_OPERATIONAL_SCAN_TESTS` or `CONFIRM_EMPTY_MIGRATION_DATABASE`. API/worker DB roles need DML only; the migrator receives a distinct DDL role. `DB_SSL_CA_BASE64` is decoded and removed by the shell entrypoint before Node/Prisma starts.

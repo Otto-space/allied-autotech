@@ -40,6 +40,7 @@ RUN DB_HOST=localhost \
     && npm run build
 
 
+# Sharp's platform-specific optional binaries are required for runtime image validation.
 FROM base AS production-dependencies
 
 ENV NODE_ENV=production \
@@ -48,7 +49,7 @@ ENV NODE_ENV=production \
 
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci --omit=dev --omit=optional --no-audit --no-fund
+    npm ci --omit=dev --include=optional --no-audit --no-fund
 
 
 FROM base AS runtime

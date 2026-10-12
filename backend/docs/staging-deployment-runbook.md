@@ -240,9 +240,13 @@ payment-provider, object-storage, email, or frontend configuration.
 
 The identity worker receives only database/outbox encryption and Resend
 delivery settings. The general worker receives database/outbox encryption,
-notification providers, Paystack test/Monnify sandbox reconciliation, and bounded
-worker schedules. It owns booking hold expiry, versioned 7-day/72-hour/48-hour/
-24-hour reminders, webhook retry, notification delivery, and reconciliation.
+notification providers, Paystack test/Monnify sandbox reconciliation, private Spaces
+configuration/credentials for media cleanup, and bounded worker schedules. API and
+cleanup worker must target the same bucket and endpoint. The general worker owns
+booking hold expiry, versioned 7-day/72-hour/48-hour/24-hour reminders, webhook retry,
+notification delivery, media cleanup, and reconciliation. Hosted startup rejects
+missing storage settings and HTTP storage endpoints. Keep Spaces credentials
+runtime-scoped and out of identity-worker and migrator configuration.
 SMS remains explicitly disabled unless Termii staging credentials,
 its account-specific HTTPS base URL, sender, and recipient allowlist are added.
 

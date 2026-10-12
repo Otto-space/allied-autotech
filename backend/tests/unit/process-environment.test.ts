@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   assertApiEnvironment,
+  assertGeneralWorkerEnvironment,
   assertIdentityWorkerEnvironment,
   env,
 } from "../../src/config/env.js";
@@ -84,5 +85,63 @@ describe("process-specific production environment validation", () => {
         configuredApiVariables,
       ),
     ).toThrow(/documentation must remain disabled/u);
+  });
+});
+
+const configuredGeneralWorker = {
+  FRONTEND_URL: "configured",
+  OUTBOX_ENCRYPTION_KEY: "configured",
+  TOKEN_HASH_KEY: "configured",
+  ASSET_TICKET_KEY: "configured",
+  OBJECT_STORAGE_ENDPOINT: "configured",
+  OBJECT_STORAGE_BUCKET: "configured",
+  OBJECT_STORAGE_ACCESS_KEY_ID: "configured",
+  OBJECT_STORAGE_SECRET_ACCESS_KEY: "configured",
+} satisfies NodeJS.ProcessEnv;
+const storageFields = [
+  "OBJECT_STORAGE_ENDPOINT",
+  "OBJECT_STORAGE_BUCKET",
+  "OBJECT_STORAGE_ACCESS_KEY_ID",
+  "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+] as const;
+describe("hosted media cleanup configuration", () => {
+  it("requires no MFA or delivery credentials when those worker capabilities are disabled", () => {
+    expect(() =>
+      assertGeneralWorkerEnvironment(productionApi, configuredGeneralWorker),
+    ).not.toThrow();
+  });
+  for (const [name, assertion, source] of [
+    ["API", assertApiEnvironment, configuredApiVariables],
+    ["general worker", assertGeneralWorkerEnvironment, configuredGeneralWorker],
+  ] as const) {
+    it.each(storageFields)(
+      `${name} rejects missing storage setting %s without revealing other values`,
+      (field) => {
+        const values: NodeJS.ProcessEnv = {
+          ...source,
+          OBJECT_STORAGE_SECRET_ACCESS_KEY: "PRIVATE-STORAGE-SECRET-CANARY",
+        };
+        delete values[field];
+        expect(() => assertion(productionApi, values)).toThrow(field);
+        try {
+          assertion(productionApi, values);
+        } catch (error) {
+          expect(String(error)).not.toContain("PRIVATE-STORAGE-SECRET-CANARY");
+        }
+      },
+    );
+    it(`${name} rejects HTTP storage endpoints`, () => {
+      expect(() =>
+        assertion(
+          { ...productionApi, OBJECT_STORAGE_ENDPOINT: "http://objects.example.test" },
+          source,
+        ),
+      ).toThrow("Production object storage must use HTTPS");
+    });
+  }
+  it("retains local development behavior while credentials are deferred", () => {
+    expect(() =>
+      assertGeneralWorkerEnvironment({ ...env, NODE_ENV: "development" }, {}),
+    ).not.toThrow();
   });
 });

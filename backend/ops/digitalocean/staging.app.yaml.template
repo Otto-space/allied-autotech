@@ -982,6 +982,42 @@
           "value": "allied-autotech-staging-general-worker",
           "scope": "RUN_TIME",
           "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ENDPOINT",
+          "value": "https://REPLACE_SPACES_REGION.digitaloceanspaces.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_REGION",
+          "value": "us-east-1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_BUCKET",
+          "value": "REPLACE_PRIVATE_STAGING_BUCKET",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ACCESS_KEY_ID",
+          "value": "REPLACE_STAGING_SPACES_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "value": "REPLACE_STAGING_SPACES_SECRET",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_FORCE_PATH_STYLE",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
         }
       ],
       "termination": {

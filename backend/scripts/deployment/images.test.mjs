@@ -152,3 +152,53 @@ test("CA entrypoint rejects private keys and unsafe paths before starting Node",
     assert.ok(!`${result.stdout}${result.stderr}`.includes(privateKey));
   }
 });
+
+const runtimeProbes = [
+  ...["api", "general-worker"].map((name) => ({
+    name,
+    description: "loads Sharp and decodes/encodes media",
+    file: "media-runtime-probe.mjs",
+    expected: { format: "webp", width: 32, height: 32 },
+  })),
+  {
+    name: "api",
+    description:
+      "imports the application and workers, verifies passwords and includes document fonts",
+    file: "application-runtime-probe.mjs",
+    expected: { imports: 3, passwordHashVerified: true, fonts: 2 },
+  },
+];
+for (const { name, description, file, expected } of runtimeProbes) {
+  test(`${name} image ${description} without network or database access`, () => {
+    const image = images.find((i) => i.name === name);
+    const probe = readFileSync(path.join(backend, "scripts/deployment", file), "utf8");
+    const result = spawnSync(
+      "docker",
+      [
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "-e",
+        "DB_SSL_MODE=verify-full",
+        "-e",
+        "DB_SSL_CA_FILE=/tmp/allied-autotech-secrets/database-ca.pem",
+        "-e",
+        "DB_SSL_CA_BASE64",
+        `${image.repository}:${commit}`,
+        "node",
+        "--input-type=module",
+        "-e",
+        probe,
+      ],
+      {
+        encoding: "utf8",
+        windowsHide: true,
+        timeout: 60000,
+        env: { ...process.env, DB_SSL_CA_BASE64: ca },
+      },
+    );
+    assert.equal(result.status, 0, `Runtime image probe failed: ${description}.`);
+    assert.deepEqual(JSON.parse(result.stdout), expected);
+  });
+}
