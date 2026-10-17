@@ -26,6 +26,15 @@ export const publicReviewSchema = z.object({
   createdAt: timestamp,
   product: named,
   service: named,
+  reviewer: z
+    .object({
+      displayName: z.string().trim().min(1),
+      photoUrl: z
+        .string()
+        .regex(/^\/api\/v1\/public\/support\/reviews\/[0-9a-f-]{36}\/photo(?:\?v=\d+)?$/i)
+        .nullable(),
+    })
+    .optional(),
 });
 export const reviewSchema = publicReviewSchema.extend({
   status: z.enum(["PENDING", "APPROVED", "REJECTED"]),

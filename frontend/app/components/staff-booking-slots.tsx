@@ -1,19 +1,26 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  ChevronRight,
+  RefreshCw,
+} from "lucide-react";
+import { workSlotQuery } from "@/lib/work-slot-query";
+import { parseWorkSlots } from "@/lib/api/work-slot-schema";
+import { WorkSlotFilters } from "./work-slot-filters";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { useResource } from "@/lib/api/use-resource";
-import {
-  parseStaffSlots,
-  parseStaffProfile,
-  type staffSlotSchema,
-} from "@/lib/api/staff-booking-schemas";
+import { type staffSlotSchema } from "@/lib/api/staff-booking-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
-import { useAccountSession } from "./dashboard-shell";
-import { CursorPagination, useCursorPage } from "./cursor-pagination";
+import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { StaffPicker } from "./staff-picker";
 import { SlotCatalogPicker } from "./slot-catalog-picker";
@@ -27,20 +34,96 @@ const slotFormSchema = z.object({
 type SlotForm = z.infer<typeof slotFormSchema>;
 export function StaffBookingSlots() {
   const session = useAccountSession();
-  const requiresStaffProfile = session?.user.role === "STAFF";
-  const profile = useResource("/staff/profile", parseStaffProfile);
-  const pagination = useCursorPage();
-  const [status, setStatus] = useState("");
+  if (!session || !["STAFF", "ADMIN", "SUPER_ADMIN"].includes(session.user.role))
+    return null;
+  return (
+    <SlotWorkspace
+      key={`${session.user.id}:${session.user.role}`}
+      admin={session.user.role !== "STAFF"}
+    />
+  );
+}
+function SlotWorkspace({ admin }: { admin: boolean }) {
+  const profile = useOwnStaffPermissions();
+  const search = useSearchParams();
+  const { params, api, invalid, path } = workSlotQuery(
+    new URLSearchParams(search.toString()),
+    admin,
+  );
+  const slots = useResource(path, parseWorkSlots);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
   const [formKey, setFormKey] = useState(0);
-  const slots = useResource(
-    `/staff/booking-slots?limit=25${status ? `&status=${status}` : ""}${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
-    parseStaffSlots,
+  const own = profile.data?.staffProfile;
+  // Keep an existing draft mounted through a failed permission refresh. The
+  // current profile still controls every read and write; a session change remounts.
+  const [author, setAuthor] = useState(own);
+  if (own && author !== own) setAuthor(own);
+  const profileBlocked =
+    !admin &&
+    (profile.loading ||
+      profile.refreshing ||
+      !!profile.error ||
+      !!profile.refreshError ||
+      !own?.branchId);
+  const mismatch = slots.data?.items.some(
+    (slot) =>
+      (api.has("status") && slot.status !== api.get("status")) ||
+      (api.has("branchId") && slot.branchId !== api.get("branchId")) ||
+      (api.has("serviceId") && slot.serviceId !== api.get("serviceId")) ||
+      (api.has("staffId") && slot.staff.id !== api.get("staffId")) ||
+      (!admin && own?.branchId && slot.branchId !== own.branchId) ||
+      (api.has("startsFrom") &&
+        Date.parse(slot.startsAt) < Date.parse(api.get("startsFrom")!)) ||
+      (api.has("startsTo") &&
+        Date.parse(slot.startsAt) >= Date.parse(api.get("startsTo")!)),
   );
-  const disabled = slots.loading || !!slots.error || !!proposal;
+  const error =
+    slots.error ||
+    (mismatch
+      ? "The returned slots do not match your filters. Refresh to check availability."
+      : undefined);
+  const data =
+    !invalid && !slots.loading && !error && (admin || (!!own?.branchId && !profile.error))
+      ? slots.data
+      : undefined;
+  const busy = slots.loading || slots.refreshing;
+  const disabled =
+    busy ||
+    !!error ||
+    !!slots.refreshError ||
+    invalid ||
+    !!proposal ||
+    profileBlocked ||
+    !data;
+  const filters = new URLSearchParams(params);
+  filters.delete("cursor");
+  filters.delete("_trail");
+  const cursor = params.get("cursor"),
+    trail = params.get("_trail")?.split(",") ?? [];
+  function navigate(next: URLSearchParams, focus = false) {
+    window.history.pushState(
+      null,
+      "",
+      `/admin/booking-slots${next.size ? `?${next}` : ""}`,
+    );
+    if (focus) {
+      document.getElementById("slot-records")?.focus({ preventScroll: true });
+      document
+        .getElementById("slot-records")
+        ?.scrollIntoView({ block: "start", behavior: "instant" });
+    }
+  }
+  function clear() {
+    navigate(new URLSearchParams());
+    requestAnimationFrame(() => document.getElementById("slot-status-filter")?.focus());
+  }
+  function refresh() {
+    slots.refresh();
+    profile.refresh();
+  }
   function change(slot: z.infer<typeof staffSlotSchema>) {
-    if (disabled) return;
+    if (disabled || (!admin && slot.staff.id !== own?.id)) return;
     const nextStatus = slot.status === "OPEN" ? "CLOSED" : "OPEN";
     const body: RequestBody<"/staff/booking-slots/{slotId}", "patch"> = {
       expectedVersion: slot.version,
@@ -59,6 +142,7 @@ export function StaffBookingSlots() {
         { label: "Staff", value: `${slot.staff.firstName} ${slot.staff.lastName}` },
         { label: "Starts", value: formatBusinessDate(slot.startsAt) },
       ],
+      retryAfterRejection: false,
       submit: () =>
         apiRequest(`/staff/booking-slots/${slot.id}`, {
           method: "PATCH",
@@ -68,120 +152,264 @@ export function StaffBookingSlots() {
     });
   }
   return (
-    <>
-      <h1>Appointment slots</h1>
-      <p className="lead">
-        Set available appointment times for your workshop. Customers can request a time
-        that meets the booking rules.
-      </p>
-      <Feedback message={slots.error} />
-      <Feedback message={profile.error} />
+    <div className="work-slots">
+      <nav className="work-slot-breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li>
+            <Link href="/admin">Overview</Link>
+          </li>
+          <li>
+            <ChevronRight size={14} aria-hidden="true" />
+            <span aria-current="page">Appointment slots</span>
+          </li>
+        </ol>
+      </nav>
+      <header className="work-slot-heading">
+        <div>
+          <h1>Appointment slots</h1>
+          <p>
+            Set available appointment times for your workshop. Customers can request a
+            time that meets the booking rules.
+          </p>
+        </div>
+        <div className="work-slot-actions">
+          <button
+            className="button secondary"
+            disabled={busy || !!proposal}
+            onClick={refresh}
+          >
+            <RefreshCw size={16} aria-hidden="true" />
+            Refresh slots
+          </button>
+          {(admin || own?.branchId) && (
+            <a className="button" href="#publish-slot">
+              Publish slot
+            </a>
+          )}
+        </div>
+      </header>
+      <WorkSlotFilters
+        key={`${filters}:${invalid}`}
+        initial={filters.toString()}
+        admin={admin}
+        ownId={own?.id}
+        onApply={navigate}
+        onClear={clear}
+      />
+      {invalid && (
+        <div className="work-slot-notice" role="alert">
+          <p>
+            These slot filters are invalid. Clear them and choose a valid status, date
+            range or record.
+          </p>
+          <button className="button secondary" onClick={clear}>
+            Clear invalid filters
+          </button>
+        </div>
+      )}
+      {!admin && <Feedback message={profile.error || profile.refreshError} />}
+      {!admin && profile.data && !own?.branchId && (
+        <Feedback message="A staff profile is required to publish or manage appointment slots. Ask an administrator to complete your staff record." />
+      )}
       <Feedback
         message={message}
         tone="success"
         toast="Appointment availability updated."
       />
-      <div className="field">
-        <label htmlFor="slot-status-filter">Slot status</label>
-        <select
-          id="slot-status-filter"
-          value={status}
-          onChange={(event) => {
-            setStatus(event.target.value);
-            pagination.reset();
-          }}
+      {slots.refreshError && data && (
+        <p className="work-slot-notice" role="status">
+          Slots may be out of date. Refresh before making changes.
+        </p>
+      )}
+      <div className="work-slot-layout">
+        <section
+          className="work-slot-results"
+          aria-labelledby="slot-records"
+          aria-busy={busy}
         >
-          <option value="">All statuses</option>
-          <option value="OPEN">Open</option>
-          <option value="CLOSED">Closed</option>
-        </select>
+          <div className="work-slot-band">
+            <h2 id="slot-records" tabIndex={-1}>
+              Appointment records
+            </h2>
+            <span role="status">
+              {data
+                ? `${data.items.length} ${data.items.length === 1 ? "slot" : "slots"} on this page`
+                : busy
+                  ? "Checking appointment slots..."
+                  : "Records unavailable"}
+            </span>
+          </div>
+          <p className="work-slot-scope">
+            Applied scope:{" "}
+            {params.get("status") === "OPEN"
+              ? "Open"
+              : params.get("status") === "CLOSED"
+                ? "Closed"
+                : "All statuses"}{" "}
+            /{" "}
+            {params.has("from") || params.has("to")
+              ? `${params.get("from") ?? "Any start"} to ${params.get("to") ?? "Any end"} (Lagos dates)`
+              : "Any start date"}
+            {params.has("branchId") ? " / Branch filtered" : ""}
+            {params.has("serviceId") ? " / Service filtered" : ""}
+            {params.has("staffId") ? " / Staff filtered" : ""}
+          </p>
+          {slots.loading && (
+            <div className="work-slot-skeleton" aria-hidden="true">
+              {[0, 1, 2].map((i) => (
+                <div key={i}>
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              ))}
+            </div>
+          )}
+          {!slots.loading && error && (
+            <div className="work-slot-state">
+              <h3>Appointment slots unavailable</h3>
+              <Feedback message={error} />
+              <button className="button secondary" onClick={refresh}>
+                Retry slots
+              </button>
+            </div>
+          )}
+          {data && data.items.length > 0 && (
+            <table className="work-slot-table">
+              <caption className="sr-only">
+                Appointment slots. All times are shown in Lagos time.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Service &amp; branch</th>
+                  <th scope="col">Appointment</th>
+                  <th scope="col">Staff</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Availability</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.items.map((slot) => (
+                  <tr key={slot.id}>
+                    <td data-label="Service">
+                      <strong>{slot.service.name}</strong>
+                      <span className="work-slot-meta">{slot.branch.name}</span>
+                    </td>
+                    <td data-label="Appointment">
+                      <time dateTime={slot.startsAt}>
+                        {formatBusinessDate(slot.startsAt)}
+                      </time>
+                      <span className="work-slot-meta">
+                        Ends{" "}
+                        <time dateTime={slot.endsAt}>
+                          {formatBusinessDate(slot.endsAt)}
+                        </time>
+                      </span>
+                    </td>
+                    <td data-label="Staff">
+                      {slot.staff.firstName} {slot.staff.lastName}
+                    </td>
+                    <td data-label="Status">
+                      <span className={`work-slot-status ${slot.status.toLowerCase()}`}>
+                        {slot.status === "OPEN" ? "Open" : "Closed"}
+                      </span>
+                    </td>
+                    <td data-label="Availability">
+                      {admin || slot.staff.id === own?.id ? (
+                        <button
+                          className="button secondary"
+                          disabled={disabled}
+                          onClick={() => change(slot)}
+                        >
+                          {slot.status === "OPEN" ? "Close slot" : "Open slot"}
+                        </button>
+                      ) : (
+                        <span className="work-slot-meta">
+                          Assigned staff or administrator manages this slot.
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          {data && data.items.length === 0 && (
+            <div className="work-slot-state">
+              <CalendarDays size={24} aria-hidden="true" />
+              <h3>No appointment slots match this page and filter.</h3>
+              <p>
+                {filters.size
+                  ? "Try a different status, date or scope."
+                  : "Publish a future appointment slot to make workshop time available."}
+              </p>
+              {filters.size > 0 && (
+                <button className="button secondary" onClick={clear}>
+                  Clear slot filters
+                </button>
+              )}
+              {cursor && (
+                <button
+                  className="button secondary"
+                  onClick={() => navigate(filters, true)}
+                >
+                  Return to first page
+                </button>
+              )}
+            </div>
+          )}
+          <footer className="work-slot-footer">
+            <p>Earliest appointment first. All times are in Lagos.</p>
+            <nav aria-label="Appointment slots pagination">
+              <button
+                className="button secondary"
+                disabled={busy || !cursor || !!error || invalid}
+                onClick={() => {
+                  const next = new URLSearchParams(filters),
+                    previous = trail.at(-1);
+                  if (previous && previous !== "start") next.set("cursor", previous);
+                  if (trail.length > 1) next.set("_trail", trail.slice(0, -1).join(","));
+                  navigate(next, true);
+                }}
+              >
+                <ArrowLeft size={14} aria-hidden="true" />
+                Previous
+              </button>
+              <span>
+                {cursor
+                  ? trail.length
+                    ? `Page ${trail.length + 1}`
+                    : "Linked page"
+                  : "Page 1"}
+              </span>
+              <button
+                className="button secondary"
+                disabled={busy || !!error || invalid || !data?.nextCursor}
+                onClick={() => {
+                  if (!data?.nextCursor) return;
+                  const next = new URLSearchParams(filters);
+                  next.set("cursor", data.nextCursor);
+                  if (trail.length < 50 && (!cursor || trail.length))
+                    next.set("_trail", [...trail, cursor ?? "start"].join(","));
+                  navigate(next, true);
+                }}
+              >
+                Next
+                <ArrowRight size={14} aria-hidden="true" />
+              </button>
+            </nav>
+          </footer>
+        </section>
+        {(admin || author?.branchId) && (
+          <SlotCreateForm
+            key={`${formKey}:${admin ? "admin" : author?.id}:${admin ? "all" : author?.branchId}`}
+            disabled={disabled}
+            own={admin ? undefined : (author ?? undefined)}
+            onReview={setProposal}
+            onSaved={() => setFormKey((key) => key + 1)}
+          />
+        )}
       </div>
-      <button
-        className="button secondary"
-        disabled={slots.loading || !!proposal}
-        onClick={() => {
-          slots.refresh();
-          profile.refresh();
-        }}
-      >
-        Refresh slots
-      </button>
-      {slots.loading && <p role="status">Checking appointment slots…</p>}
-      <div
-        className="table-region"
-        role="region"
-        aria-label="Appointment slots"
-        tabIndex={0}
-      >
-        <table>
-          <thead>
-            <tr>
-              <th>Service & branch</th>
-              <th>Appointment</th>
-              <th>Staff</th>
-              <th>Status</th>
-              <th>Availability</th>
-            </tr>
-          </thead>
-          <tbody>
-            {slots.data?.items.map((slot) => (
-              <tr key={slot.id}>
-                <td>
-                  {slot.service.name}
-                  <p className="muted">{slot.branch.name}</p>
-                </td>
-                <td>
-                  {formatBusinessDate(slot.startsAt)}
-                  <p className="muted">Ends {formatBusinessDate(slot.endsAt)}</p>
-                </td>
-                <td>
-                  {slot.staff.firstName} {slot.staff.lastName}
-                </td>
-                <td>{slot.status}</td>
-                <td>
-                  {session?.user.role !== "STAFF" ||
-                  slot.staff.id === profile.data?.staffProfile?.id ? (
-                    <button
-                      className="button secondary"
-                      disabled={disabled}
-                      onClick={() => change(slot)}
-                    >
-                      {slot.status === "OPEN" ? "Close slot" : "Open slot"}
-                    </button>
-                  ) : (
-                    <span className="muted">
-                      Assigned staff or administrator manages this slot.
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {!slots.loading && !slots.error && slots.data?.items.length === 0 && (
-        <p className="empty">No appointment slots match this page and filter.</p>
-      )}
-      <CursorPagination
-        pagination={pagination}
-        nextCursor={slots.data?.nextCursor}
-        disabled={disabled}
-        label="Appointment slots"
-      />
-      <SlotCreateForm
-        key={formKey}
-        disabled={
-          disabled ||
-          !session ||
-          (requiresStaffProfile &&
-            (profile.loading || !!profile.error || !profile.data?.staffProfile))
-        }
-        onReview={setProposal}
-        onSaved={() => setFormKey((key) => key + 1)}
-      />
-      {requiresStaffProfile && profile.data && !profile.data.staffProfile && (
-        <Feedback message="A staff profile is required to publish or manage appointment slots. Ask an administrator to complete your staff record." />
-      )}
       {proposal && (
         <MutationReview
           proposal={proposal}
@@ -194,28 +422,38 @@ export function StaffBookingSlots() {
           }
         />
       )}
-    </>
+    </div>
   );
 }
 function SlotCreateForm({
   disabled,
   onReview,
   onSaved,
+  own,
 }: {
   disabled: boolean;
+  own?: { id: string; branchId: string | null; firstName: string; lastName: string };
   onReview: (proposal: MutationProposal) => void;
   onSaved: () => void;
 }) {
   const [uncertain, setUncertain] = useState(false);
+  const [branchBlocked, setBranchBlocked] = useState(true);
+  const [serviceBlocked, setServiceBlocked] = useState(true);
+  const [staffBlocked, setStaffBlocked] = useState(true);
   const form = useForm<SlotForm>({
     resolver: zodResolver(slotFormSchema),
     shouldFocusError: false,
-    defaultValues: { branchId: "", serviceId: "", staffId: "", startsAt: "" },
+    defaultValues: {
+      branchId: own?.branchId ?? "",
+      serviceId: "",
+      staffId: own?.id ?? "",
+      startsAt: "",
+    },
   });
   const branchId = useWatch({ control: form.control, name: "branchId" });
   const errors = form.formState.errors;
   function review(values: SlotForm, submittedAt: number) {
-    if (disabled || uncertain) return;
+    if (disabled || uncertain || branchBlocked || serviceBlocked || staffBlocked) return;
     const startsAt = `${values.startsAt}:00+01:00`;
     if (
       !z.iso.datetime({ offset: true }).safeParse(startsAt).success ||
@@ -242,6 +480,7 @@ function SlotCreateForm({
         { label: "Staff", value: selected("new-slot-staff") },
         { label: "Starts", value: formatBusinessDate(startsAt) },
       ],
+      retryAfterRejection: false,
       onUncertain: () => setUncertain(true),
       submit: async () => {
         await apiRequest("/staff/booking-slots", { method: "POST", csrf: true, body });
@@ -250,8 +489,14 @@ function SlotCreateForm({
     });
   }
   return (
-    <section className="detail-section">
-      <h2>Publish an appointment slot</h2>
+    <section
+      className="work-slot-create"
+      id="publish-slot"
+      aria-labelledby="publish-slot-heading"
+    >
+      <h2 id="publish-slot-heading" tabIndex={-1}>
+        Publish an appointment slot
+      </h2>
       <p>
         Choose a branch, service and staff member, then set the start time. The service
         must have a price and duration before you can select it.
@@ -288,13 +533,15 @@ function SlotCreateForm({
               render={({ field }) => (
                 <SlotCatalogPicker
                   kind="branch"
+                  branchId={own?.branchId ?? undefined}
+                  onAvailabilityChange={setBranchBlocked}
                   id="new-slot-branch"
                   error={errors.branchId?.message}
                   inputRef={field.ref}
                   value={field.value}
                   onChange={(value) => {
                     field.onChange(value);
-                    form.setValue("staffId", "");
+                    form.setValue("staffId", own?.id ?? "");
                   }}
                 />
               )}
@@ -308,6 +555,7 @@ function SlotCreateForm({
               render={({ field }) => (
                 <SlotCatalogPicker
                   kind="service"
+                  onAvailabilityChange={setServiceBlocked}
                   id="new-slot-service"
                   error={errors.serviceId?.message}
                   inputRef={field.ref}
@@ -317,7 +565,7 @@ function SlotCreateForm({
               )}
             />
           </div>
-          {branchId && (
+          {branchId ? (
             <div className="field">
               <label htmlFor="new-slot-staff">Appointment staff member</label>
               <Controller
@@ -326,6 +574,7 @@ function SlotCreateForm({
                 render={({ field }) => (
                   <StaffPicker
                     key={branchId}
+                    onAvailabilityChange={setStaffBlocked}
                     id="new-slot-staff"
                     error={errors.staffId?.message}
                     branchId={branchId}
@@ -336,6 +585,16 @@ function SlotCreateForm({
                   />
                 )}
               />
+            </div>
+          ) : (
+            <div className="field">
+              <label htmlFor="new-slot-staff">Appointment staff member</label>
+              <select id="new-slot-staff" disabled aria-describedby="new-slot-staff-hint">
+                <option>Choose a branch first</option>
+              </select>
+              <p className="field-hint" id="new-slot-staff-hint">
+                Staff choices depend on the appointment branch.
+              </p>
             </div>
           )}
           <div className="field">
@@ -355,9 +614,18 @@ function SlotCreateForm({
               {errors.startsAt?.message ?? "Port Harcourt local time, UTC+01:00."}
             </p>
           </div>
-          <button className="button">Review new slot</button>
+          <button
+            className="button"
+            disabled={branchBlocked || serviceBlocked || (!!branchId && staffBlocked)}
+          >
+            Review new slot
+          </button>
         </fieldset>
       </form>
+      <p className="work-slot-create-note">
+        The service duration determines the end time. Customer availability also depends
+        on the booking rules.
+      </p>
     </section>
   );
 }

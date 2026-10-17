@@ -1,0 +1,31 @@
+.authenticator-help {
+  border-top: 1px solid #cbd5df;
+  margin-top: 16px;
+  padding-top: 8px;
+}
+.authenticator-help summary {
+  min-height: 44px;
+  display: list-item;
+  align-content: center;
+  cursor: pointer;
+  color: #435563;
+  font:
+    600 13px/1.6 var(--font-quicksand),
+    sans-serif;
+  list-style-position: inside;
+}
+.authenticator-help summary:focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.authenticator-help p {
+  overflow-wrap: anywhere;
+}
+.authenticator-help .text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 13px;
+  line-height: 1.6;
+}

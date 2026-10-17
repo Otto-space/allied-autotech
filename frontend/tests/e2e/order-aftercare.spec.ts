@@ -216,7 +216,9 @@ const staffUrl = `/admin/orders/${id(1)}/aftercare`;
 async function open(page: Page, staff = false) {
   await page.goto(staff ? staffUrl : customerUrl);
   await expect(
-    page.getByRole("heading", { name: "SYNTHETIC-AFTERCARE-ORDER", exact: true }),
+    staff
+      ? page.locator(".wa-summary").filter({ hasText: "SYNTHETIC-AFTERCARE-ORDER" })
+      : page.getByRole("heading", { name: "SYNTHETIC-AFTERCARE-ORDER", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Refresh order requests", exact: true }),
@@ -445,7 +447,9 @@ for (const surface of ["intake", "review", "evidence"] as const)
         .getByRole("button", { name: "Refresh order requests", exact: true })
         .click();
       await expect(
-        page.getByRole("heading", { name: "SYNTHETIC-AFTERCARE-ORDER", exact: true }),
+        staff
+          ? page.locator(".wa-summary").filter({ hasText: "SYNTHETIC-AFTERCARE-ORDER" })
+          : page.getByRole("heading", { name: "SYNTHETIC-AFTERCARE-ORDER", exact: true }),
       ).toBeVisible();
       await expect(
         page.getByText(
@@ -482,36 +486,26 @@ test("staff permissions are explicit and revoked or mismatched profile data lock
     "Record returned goods received",
   ]);
   state.canDecide = true;
-  await page
-    .getByRole("button", { name: "Refresh review permission", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Refresh order requests", exact: true }).click();
   await expect(
     page.getByLabel("Next review action").locator("option[value=REJECTED]"),
   ).toHaveCount(1);
   state.canDecide = false;
-  await page
-    .getByRole("button", { name: "Refresh review permission", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Refresh order requests", exact: true }).click();
   await expect(
     page.getByLabel("Next review action").locator("option[value=REJECTED]"),
   ).toHaveCount(0);
   state.wrongBranch = true;
-  await page
-    .getByRole("button", { name: "Refresh review permission", exact: true })
-    .click();
-  await expect(page.getByLabel("Next review action")).toBeDisabled();
+  await page.getByRole("button", { name: "Refresh order requests", exact: true }).click();
+  await expect(page.getByLabel("Next review action")).toHaveCount(0);
   state.wrongBranch = false;
   state.wrongPermission = true;
-  await page
-    .getByRole("button", { name: "Refresh review permission", exact: true })
-    .click();
-  await expect(page.getByLabel("Next review action")).toBeDisabled();
+  await page.getByRole("button", { name: "Refresh order requests", exact: true }).click();
+  await expect(page.getByLabel("Next review action")).toHaveCount(0);
   state.wrongPermission = false;
   state.failPermission = true;
-  await page
-    .getByRole("button", { name: "Refresh review permission", exact: true })
-    .click();
-  await expect(page.getByLabel("Next review action")).toBeDisabled();
+  await page.getByRole("button", { name: "Refresh order requests", exact: true }).click();
+  await expect(page.getByLabel("Next review action")).toHaveCount(0);
   expect(state.writes).toHaveLength(0);
 });
 test("stale review prevents retry and refreshes before another proposal", async ({

@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ setup?: string }>;
+  searchParams: Promise<{ setup?: string; replace?: string }>;
 }) {
-  const { setup } = await searchParams;
+  const { setup, replace } = await searchParams;
   return (
     <AccessShell mode="mfa">
-      <MfaForm enroll={setup === "1"} />
+      <MfaForm enroll={setup === "1"} replace={replace === "1"} />
     </AccessShell>
   );
 }

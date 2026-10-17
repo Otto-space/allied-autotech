@@ -27,7 +27,12 @@ export const positiveNaira = z
   );
 export const recordSchema = z.object({
   branchId: z.string().uuid("Choose a branch."),
-  stockNumber: text(40).min(1, "Enter the stock number."),
+  stockNumber: text(40)
+    .min(1, "Enter the stock number.")
+    .refine(
+      (value) => value.toUpperCase().length <= 40,
+      "Use at most 40 characters after stock-number capitalization.",
+    ),
   make: text(80).min(1, "Enter the make."),
   model: text(80).min(1, "Enter the model."),
   trim: text(80),
@@ -59,7 +64,11 @@ export const recordSchema = z.object({
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Choose a valid Lagos date and time.")
       .refine(
-        (value) => Number.isFinite(Date.parse(`${value}:00+01:00`)),
+        (value) =>
+          Number.isFinite(Date.parse(`${value}:00+01:00`)) &&
+          new Date(Date.parse(`${value}:00+01:00`) + 3600000)
+            .toISOString()
+            .slice(0, 16) === value,
         "Choose a valid date and time.",
       ),
   ]),

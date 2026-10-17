@@ -87,6 +87,7 @@ async function fixture(
         email: "stock@example.test",
         role,
         status: "ACTIVE",
+        capabilities: [],
         staffProfile: {
           id: id(6),
           firstName: "Isolated",
@@ -96,6 +97,12 @@ async function fixture(
       });
     if (endpoint === "/public/branches")
       return reply(route, { items: [{ id: id(2), name: "Isolated branch" }] });
+    if (endpoint === "/admin/branches")
+      return reply(route, {
+        items: [{ id: id(2), name: "Isolated branch", isActive: true }],
+      });
+    if (endpoint === `/admin/branches/${id(2)}`)
+      return reply(route, { id: id(2), name: "Isolated branch", isActive: true });
     return route.fulfill({
       status: 404,
       json: { success: false, error: { code: "NOT_FOUND" } },
@@ -729,6 +736,10 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"] as const)
     await fixture(
       page,
       async (route, endpoint) => {
+        if (endpoint === "/staff/vehicles" && route.request().method() === "GET") {
+          await reply(route, { items: [] });
+          return true;
+        }
         if (endpoint === "/staff/vehicles" && route.request().method() === "POST") {
           const body = route.request().postDataJSON();
           writes.push({ method: "POST", body });
@@ -754,7 +765,7 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"] as const)
     await expect(page.getByRole("heading", { name: "Add vehicle record" })).toBeVisible();
     if (role === "STAFF") {
       await expect(
-        page.getByText("Your assigned branch will be used", { exact: false }),
+        page.getByText("assigned active branch will be used", { exact: false }),
       ).toBeVisible();
       await expect(page.getByLabel("Workshop branch")).toHaveCount(0);
     } else await page.getByLabel("Workshop branch").selectOption(id(2));
@@ -1012,9 +1023,23 @@ test("stock filter errors, branch selection and cursor resets preserve honest re
           });
         else
           await reply(route, {
-            items: query.get("search") ? [] : [vehicle],
-            ...(!query.has("cursor") ? { nextCursor: id(10) } : {}),
+            items: query.get("search")
+              ? []
+              : [
+                  query.has("cursor")
+                    ? { ...vehicle, id: id(10), stockNumber: "ISOLATED-STOCK-010" }
+                    : vehicle,
+                ],
+            ...(!query.has("cursor") && !query.get("search")
+              ? { nextCursor: vehicle.id }
+              : {}),
           });
+        return true;
+      }
+      if (endpoint === "/admin/branches") {
+        await reply(route, {
+          items: [{ id: id(2), name: "Isolated branch", isActive: true }],
+        });
         return true;
       }
     },
@@ -1033,8 +1058,8 @@ test("stock filter errors, branch selection and cursor resets preserve honest re
     .getByRole("navigation", { name: "Vehicle stock pages" })
     .getByRole("button", { name: "Next" })
     .click();
-  await expect.poll(() => queries.at(-1)?.get("cursor")).toBe(id(10));
-  await page.getByLabel("Active branch filter").selectOption(id(2));
+  await expect.poll(() => queries.at(-1)?.get("cursor")).toBe(vehicle.id);
+  await page.getByLabel("Branch filter", { exact: true }).selectOption(id(2));
   await page.getByLabel("Search stock records").fill("no-match");
   await page.getByRole("button", { name: "Apply stock filters" }).click();
   await expect(
@@ -1042,8 +1067,13 @@ test("stock filter errors, branch selection and cursor resets preserve honest re
   ).toBeVisible();
   expect(queries.at(-1)?.get("branchId")).toBe(id(2));
   expect(queries.at(-1)?.has("cursor")).toBe(false);
-  await page.getByRole("button", { name: "Clear stock filters" }).click();
-  await expect(page.getByRole("link", { name: vehicle.stockNumber })).toBeVisible();
+  await page.getByRole("button", { name: "Clear stock filters" }).first().click();
+  await expect(
+    page.getByRole("link", {
+      name: `Manage ${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.stockNumber})`,
+      exact: true,
+    }),
+  ).toBeVisible();
   expect(queries.at(-1)?.has("search")).toBe(false);
 });
 

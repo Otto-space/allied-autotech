@@ -6,7 +6,7 @@ import { apiRequest, newIdempotencyKey } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import type { Inventory, InventoryReservation } from "@/lib/api/inventory-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
-import type { MutationProposal } from "./mutation-review";
+import type { InventoryProposal } from "@/lib/admin/work-inventory-detail";
 const count = z
   .number({ error: "Enter a whole-number quantity." })
   .int("Enter a whole number.")
@@ -67,7 +67,7 @@ const reservationSchema = z
 type Common = {
   inventory: Inventory;
   disabled: boolean;
-  onReview: (proposal: MutationProposal) => void;
+  onReview: (proposal: InventoryProposal) => void;
 };
 function references(value: {
   referenceType: z.infer<typeof referenceFields.referenceType>;
@@ -131,6 +131,8 @@ export function InventoryMovementForm({
     const key = newIdempotencyKey();
     onReview({
       title: "Record this stock movement?",
+      operation: "movement",
+      input: body,
       description:
         values.type === "ADJUSTMENT"
           ? "This sets the total on-hand quantity to the entered count. Reserved stock remains protected by the server."
@@ -311,6 +313,8 @@ export function InventoryReservationForm({ inventory, disabled, onReview }: Comm
     const key = newIdempotencyKey();
     onReview({
       title: "Reserve these parts?",
+      operation: "reservation",
+      input: body,
       description:
         "Reserved units become unavailable for other sales until consumed or released. This does not record a payment or extend any existing booking or order deadline.",
       facts: [
@@ -341,7 +345,7 @@ export function InventoryReservationForm({ inventory, disabled, onReview }: Comm
     });
   }
   return (
-    <section className="detail-section">
+    <section className="detail-section" id="inventory-reserve">
       <h2>Reserve stock</h2>
       <p>
         Use a future expiry within seven days. The server checks current available stock.
@@ -450,6 +454,8 @@ export function ReorderLevelForm({ inventory, disabled, onReview }: Common) {
     };
     onReview({
       title: "Update the reorder level?",
+      operation: "reorder",
+      input: body,
       description:
         "The low-stock filter uses available stock and this threshold. This does not place an order or change stock quantities.",
       facts: [

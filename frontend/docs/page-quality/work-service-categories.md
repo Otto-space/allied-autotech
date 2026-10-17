@@ -1,0 +1,45 @@
+# Service-category administration — local acceptance
+
+Route `/admin/service-categories`. Admin and Super Admin. Gate 54 passed locally on 13 October 2026. The whole application and deployed verification remain open.
+
+## Changes
+
+The generic page hid table actions inside a horizontal mobile scroll region, exposed no category search/visibility controls and placed its broad form beneath the desktop list. Three fresh [desktop/mobile/state concepts and the preimplementation specification](work-service-categories-oct-concepts/spec.md) preceded code.
+
+The dedicated page retains the real shell and Quicksand interface. It provides prefix search, visibility filters, URL-backed signed paging/history, an ink results band, ruled desktop records, fully reachable mobile actions and a compact creation/editing rail. Counts describe only the current page. Category name, URL name, description and active status remain complete; no media, service totals, deletion or unsupported public-visibility promises were added.
+
+`?edit={categoryId}` reloads the selected editor independently of list position. Typed direct reads and current-revision checks support complete mutation review, cancellation, stale-write rejection and explicit interrupted-save recovery. Owner-scoped drafts and uncertainty markers survive reload. There is no automatic mutation replay. Creation uses manual list reconciliation before a blank draft. Transient background errors preserve drafts while blocking writes; denied/malformed reads remove private records and controls. Backend CSRF, MFA and expected-version rules remain authoritative. Deactivation keeps active services available.
+
+The one backend prerequisite, administrator direct-category read, now has [local contract/API/database acceptance](../../../backend/docs/admin-service-categories.md). No schema or migration change was needed.
+
+## Verification
+
+- **84 distinct production-browser scenarios have passing evidence:** 19 category cases, 20 service-catalogue cases, 20 service-detail cases, two draft regressions and 23 shared navigation cases. The initial combined run passed 60/61; its stale-revision test expected the uncertain-save dismissal label. It was corrected to assert disabled confirmation and use the existing Go back action. All 42 final category/navigation cases passed on the corrected production build. No assertion about mutation count or recovery was removed.
+- Eighteen unit cases passed: five category boundary/form/query cases, five resource-refresh cases and eight draft cases. Frontend full lint, TypeScript and the final packaged production build passed. All five new production-source hashes match that build input.
+- Thirteen widths were captured: 320, 360, 375, 390, 430, 768, 844, 1024, 1280, 1440, 1467, 1505 and 1920px. The 844px capture uses 390px short-landscape height; desktop comparison uses native 1467x1072. Empty, read-error, denied, malformed, stale, edit, validation, review, uncertain and long-content states were captured, with a separate loading-state check. No horizontal page overflow or page errors occurred. Axe at 320/390/1467 and state scans reported zero violations. Failed-network messages in intentionally broken reads/writes are expected; successful width captures had no console errors.
+- Ten backend direct-read cases and 15 existing discovery cases passed on a fresh isolated PostgreSQL 18 database after separating test index maintenance from restricted runtime credentials. All 58 migrations replayed and `db:check` passed. See the backend report for the initial maintenance failure and exact safeguards.
+- Real browser/API/PostgreSQL verified 25+2 filtered paging/reload, direct editing beyond page one, cancellation without writes/audits, audited creation and deactivation, preservation of active services, stale-version/CSRF rejection, lost committed-response recovery without replay, and role boundaries. No page errors occurred. The application connection had no schema-creation, TRUNCATE, ownership or administrator privileges.
+
+The shared development server was unavailable when the first browser attempt ran; all 19 cases failed with connection-refused errors. The isolated production run replaced that unavailable target. The first screenshot helper used Playwright's page convenience method, which Axe rejects; it was corrected to use an explicit browser context. Initial screenshots exposed inherited shaded name cells and filter action borders/spacing; both were corrected and recaptured. A PowerShell/.NET helper compatibility error during isolated cluster setup was corrected and its bootstrap credential rotated before database creation or application testing. These failures remain in local logs.
+
+## Fidelity ledger
+
+Final `view_image` comparison used all three retained references and current desktop/mobile/review screenshots. The accepted specification includes the preimplementation corrections for generated content and responsive sizing.
+
+| Point | Reference and browser comparison | Correction / accepted result |
+| --- | --- | --- |
+| Shell and branding | Desktop's ink navigation and mobile compact header align with the current real shell. | Preserved the established logo, navigation and account controls; excluded state-sheet invented navigation. |
+| Hierarchy and typography | Clear title, subtitle, guidance, filters, results and editor in the same order. | Retained the specified compact 28/24px heading and Quicksand UI scale rather than oversized generated proportions. |
+| Desktop composition | Results and editor occupy an approximately 62:38 split with a 24px gap. | Both panels begin together; name-cell inherited shading was removed to restore white ruled rows. |
+| Filters and actions | Name-prefix and visibility fields precede Apply/Clear filters. | Removed inherited action border/offset; actions align with fields. Clear filters retains the established outlined-button treatment rather than the reference's desktop text link. |
+| Phone records | Every name, slug, description, visibility and action remains visible. | Stacked fields and labeled rows at actual 390/320 CSS pixels; no sideways scroll to reach View & edit. Row actions stay outlined as specified. |
+| Forms and review | Complete four-field form, bordered inputs, active choice, full review and cancellation. | Preserved optional-field guidance and shared review wording. Review includes the full deactivation explanation. No unsupported public-visibility helper was copied. |
+| Palette and state behavior | Ink results strip, white panels, red primary actions, neutral visibility/stale notices. | Removed generated green badge treatment; existing feedback and explicit recovery actions cover error/conflict/uncertain states. |
+
+Above-the-fold copy matches the specification: title, subtitle, deactivation guidance, filters and primary actions. Shared shell copy remains authoritative. Generated row examples are synthetic QA records. No production photography was introduced. The page was faithfully verified against the accepted specification with these documented reference corrections; no local visual blocker remains.
+
+## Evidence and limits
+
+Browser plugin was unavailable; installed Playwright and Edge provided automation, Axe scans and screenshots. Local artifacts are under `C:/Users/PC/.codex/`: `work-service-categories-before-*`, `work-categories-dev-tests.log`, `work-categories-production-tests.log`, `work-categories-final-tests.log`, `work-categories-final-build.log`, `work-categories-full-lint.log`, `work-service-categories-unit.log`, `work-categories-final-captures.json`, `work-categories-final-*.png`, `work-categories-loading.json`, `work-categories-source-hashes.json` and `work-categories-real.log`.
+
+No deployment, backup/restore rehearsal, off-device backup verification or provider activation occurred. The new direct read must be deployed before the dependent frontend. The separate category detail route subsequently passed [gate 55](work-category-detail.md). Durable category-creation receipts remain optional; manual reconciliation is the supported current behavior. These local checks do not complete the whole-application goal.

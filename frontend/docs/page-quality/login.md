@@ -4,6 +4,8 @@ Status: locally accepted on 8 October 2026, the twenty-second expanded milestone
 
 ## Contract and behavior
 
+Authentication layout update, 13 October 2026: the shared `AccessShell` now omits the decorative workshop image. The existing 46/54 desktop split, logo, dark brand panel, motto, white form area and mobile form-first layout remain. The brand panel has its own viewport height and the form starts at a stable position, so validation messages and shorter confirmation states cannot resize the branding or recenter the form heading. This supersedes the image-based composition described in the original acceptance record below. The homepage's opening headline now uses “Built on Trust, Driven by Quality.”, matching the authentication panel, About page, footer and invoice motto.
+
 The page uses existing `POST /auth/login` and authenticated `POST /auth/csrf` contracts. The backend normalizes email, verifies Argon2 credentials, checks active/verified/lock state, applies request/account throttles, creates an HttpOnly session and independently enforces MFA. Work accounts always require MFA; customers with an enrolled factor also require it. No backend endpoint, schema or migration was added.
 
 The form validates the returned identity, role and MFA flag before continuing. Unsupported or external `next` destinations fall back to the customer dashboard, including work-dashboard paths supplied to a customer. MFA-required responses route to the existing `/mfa` page; this gate verifies handoff, not completion of every MFA method or preserving a continuation through MFA.

@@ -181,9 +181,7 @@ async function fixture(page: Page) {
 }
 async function ready(page: Page) {
   await page.goto("/");
-  await expect(page.locator("main h1")).toHaveText(
-    "Precision care.Confidence on every road.",
-  );
+  await expect(page.locator("main h1")).toHaveText("Built on Trust,Driven by Quality.");
   await page.evaluate(() => document.fonts.ready);
 }
 async function noOverflow(page: Page) {
@@ -281,7 +279,7 @@ test("carousel, keyboard, FAQ and navigation perform their advertised actions", 
     "/parts",
   );
   await page.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(page.locator("main h1")).toContainText("Precision care.");
+  await expect(page.locator("main h1")).toContainText("Built on Trust,");
   await page
     .locator("main")
     .getByText("Where is Allied AutoTech?", { exact: true })
@@ -357,7 +355,11 @@ test("published reviews refresh with a busy state and retain their real ratings"
   const state = await fixture(page);
   await ready(page);
   await expect(page.locator(".home-feedback .review-card")).toHaveCount(3);
-  await expect(page.getByLabel("3 out of 5 stars")).toBeVisible();
+  await expect(
+    page.locator(
+      '.home-reviews-slide[data-active="true"] [aria-label="3 out of 5 stars"]',
+    ),
+  ).toBeVisible();
   state.delayReviews = true;
   await page.getByRole("button", { name: "Refresh customer feedback" }).click();
   await expect(
@@ -405,7 +407,7 @@ test("mobile menu, touch carousel and paused autoplay remain usable", async ({
   await page.getByRole("button", { name: "Pause slideshow", exact: true }).click();
   await page.mouse.move(1, 1);
   await page.waitForTimeout(7200);
-  await expect(page.locator("main h1")).toContainText("Precision care.");
+  await expect(page.locator("main h1")).toContainText("Built on Trust,");
   const hero = page.locator(".home-hero");
   await hero.dispatchEvent("pointerdown", {
     pointerType: "touch",

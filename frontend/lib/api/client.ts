@@ -7,6 +7,8 @@ import { redactVehicleRetries } from "./vehicle-creation-retry";
 import { redactReservationRetries } from "./reservation-terms";
 import { redactPreferenceRecoveries } from "../notifications/preference-recovery";
 import { redactAftercareRecoveries } from "../orders/aftercare-recovery";
+import { redactPromotionCreations } from "../admin/promotion-creation";
+import { redactStockCreations } from "../admin/vehicle-stock-creation";
 import { redactSupportReplyRecoveries } from "../support/reply-recovery";
 import { redactSupportCreationRecoveries } from "../support/creation-recovery";
 import { redactReviewRecoveries } from "../reviews/review-recovery";
@@ -217,6 +219,8 @@ export function invalidateSession(reason?: "password-changed"): void {
   redactSupportCreationRecoveries();
   redactSupportReplyRecoveries();
   redactAftercareRecoveries();
+  redactPromotionCreations();
+  redactStockCreations();
   redactPreferenceRecoveries();
   sessionGeneration += 1;
   csrfToken = null;

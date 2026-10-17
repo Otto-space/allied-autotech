@@ -1,0 +1,214 @@
+.work-orders-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  gap: 18px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #dce4ec;
+  border-radius: 8px;
+}
+.work-orders-filters.has-branch {
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+.work-order-filter-actions {
+  display: flex;
+  gap: 10px;
+  align-items: start;
+  padding-top: 25px;
+}
+.work-order-customer-filter {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.work-order-customer-filter .text-link {
+  min-height: 44px;
+}
+.work-orders-note {
+  margin: 18px 0 22px;
+  color: #53677a;
+}
+.work-orders-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.work-orders .work-orders-table th,
+.work-orders .work-orders-table td {
+  padding: 18px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid #e1e7ee;
+  font-size: 13px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .work-orders .work-orders-table tbody th {
+  background: #fff;
+}
+.work-orders .work-orders-table thead th {
+  background: #f4f6f8;
+  color: #42586a;
+  font-size: 12px;
+  font-weight: 600;
+}
+.work-orders-table th:first-child {
+  width: 28%;
+}
+.work-orders-table th:nth-child(2) {
+  width: 19%;
+}
+.work-orders-table th:nth-child(3) {
+  width: 16%;
+}
+.work-orders-table th:nth-child(4) {
+  width: 21%;
+}
+.work-orders-table th:nth-child(5) {
+  width: 16%;
+}
+.work-order-link {
+  display: inline-block;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.work-orders-table small {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #53677a;
+}
+.work-order-method {
+  display: block;
+  margin-top: 5px;
+}
+.work-order-status {
+  display: inline-block;
+  border-radius: 5px;
+  padding: 4px 7px;
+  background: #f0f3f5;
+  color: #354956;
+  font-size: 12px;
+}
+.work-order-value {
+  font-variant-numeric: tabular-nums;
+}
+.work-order-mobile-label {
+  display: none;
+}
+.work-orders .work-service-pagination {
+  margin: 0;
+  padding: 20px;
+}
+.work-orders-skeleton {
+  margin-top: 20px;
+  height: 180px;
+  background: repeating-linear-gradient(#f0f3f5 0 40px, transparent 40px 60px);
+}
+@media (max-width: 1399px) {
+  .work-orders-filters.has-branch {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .has-branch .work-order-filter-actions {
+    grid-column: 1 / -1;
+    padding-top: 0;
+    justify-content: flex-end;
+  }
+  .work-orders .work-orders-table th,
+  .work-orders .work-orders-table td {
+    padding: 16px 10px;
+  }
+}
+@media (max-width: 1023px) {
+  .work-orders-filters,
+  .work-orders-filters.has-branch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .work-order-filter-actions,
+  .has-branch .work-order-filter-actions {
+    grid-column: 1 / -1;
+    padding-top: 0;
+  }
+  .work-orders-table,
+  .work-orders-table tbody {
+    display: block;
+  }
+  .work-orders-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .work-orders-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 14px;
+    border: 1px solid #dce4ec;
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    gap: 14px 20px;
+  }
+  .work-orders .work-orders-table tbody th,
+  .work-orders .work-orders-table td {
+    width: auto;
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+  .work-orders .work-orders-table tbody th {
+    grid-column: 1 / -1;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #e1e7ee;
+  }
+  .work-order-mobile-label {
+    display: block;
+    color: #53677a;
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+}
+@media (max-width: 767px) {
+  .work-orders .work-service-heading {
+    align-items: flex-start;
+  }
+  .work-orders-filters,
+  .work-orders-filters.has-branch {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    gap: 16px;
+  }
+  .work-order-filter-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .work-orders-catalogue {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+  }
+  .work-orders .work-service-band {
+    background: transparent;
+    color: #01121a;
+    padding: 0 0 14px;
+    flex-wrap: wrap;
+  }
+  .dashboard .dashboard-content .work-orders .work-service-band h2 {
+    color: #01121a;
+  }
+  .work-orders-table tr {
+    margin: 0 0 14px;
+  }
+  .work-orders .work-service-pagination {
+    padding: 4px 0 0;
+  }
+  .work-orders .work-service-breadcrumb ol {
+    flex-wrap: wrap;
+  }
+}

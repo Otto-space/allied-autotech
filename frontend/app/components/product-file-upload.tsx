@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { z } from "zod";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, ApiError } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { prepareProductImage, validateProductImage } from "@/lib/api/product-media";
 import { FileUpload, type AssetSelection } from "./file-upload";
@@ -14,6 +14,7 @@ export function ProductFileUpload({
   refresh,
   onSaved,
   onCancel,
+  onPendingChange,
 }: {
   productId: string;
   version: number;
@@ -21,6 +22,7 @@ export function ProductFileUpload({
   refresh: () => void;
   onSaved: (version: number) => void;
   onCancel: () => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const [selection, setSelection] = useState<AssetSelection>(null);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
@@ -72,16 +74,31 @@ export function ProductFileUpload({
             ],
             retrySafely: true,
             retryAfterRejection: false,
-            onUncertain: refresh,
+            onUncertain: () => {
+              onPendingChange?.(true);
+              refresh();
+            },
             submit: async () => {
-              const response = await apiRequest(
-                `/admin/catalog/products/${productId}/images/confirm`,
-                { method: "POST", csrf: true, body },
-              );
-              savedVersion.current = z
-                .object({ version: z.number().int().nonnegative() })
-                .parse(response.data).version;
-              return response;
+              onPendingChange?.(true);
+              try {
+                const response = await apiRequest(
+                  `/admin/catalog/products/${productId}/images/confirm`,
+                  { method: "POST", csrf: true, body },
+                );
+                savedVersion.current = z
+                  .object({ version: z.number().int().nonnegative() })
+                  .parse(response.data).version;
+                onPendingChange?.(false);
+                return response;
+              } catch (error) {
+                if (
+                  error instanceof ApiError &&
+                  error.status >= 400 &&
+                  error.status < 500
+                )
+                  onPendingChange?.(false);
+                throw error;
+              }
             },
           });
         }}

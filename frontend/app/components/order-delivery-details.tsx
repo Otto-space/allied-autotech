@@ -3,7 +3,16 @@ import type { operationalOrderSchema } from "@/lib/api/commerce-schemas";
 export function OrderDeliveryDetails({
   order,
 }: {
-  order: z.infer<typeof operationalOrderSchema>;
+  order: Pick<
+    z.infer<typeof operationalOrderSchema>,
+    | "fulfillmentMethod"
+    | "deliveryName"
+    | "deliveryPhone"
+    | "deliveryAddress"
+    | "deliveryCity"
+    | "deliveryState"
+    | "deliveryCountry"
+  >;
 }) {
   if (order.fulfillmentMethod !== "DELIVERY") return null;
   return (

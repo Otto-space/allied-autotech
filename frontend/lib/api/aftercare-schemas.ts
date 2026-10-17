@@ -2,6 +2,7 @@ import { z } from "zod";
 import { operationalOrderSchema, money } from "./commerce-schemas";
 const date = z.iso.datetime({ offset: true }).nullable();
 export const aftercareOrderSchema = operationalOrderSchema.extend({
+  branch: operationalOrderSchema.shape.branch.nullable(),
   confirmedAt: date,
   fulfillmentEvidenceAt: date,
   fulfillmentEvidenceReference: z.string().nullable(),

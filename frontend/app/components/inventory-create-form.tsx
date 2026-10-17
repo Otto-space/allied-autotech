@@ -1,10 +1,19 @@
 "use client";
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, ApiError } from "@/lib/api/client";
+import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
+import {
+  clearInventoryCreation,
+  inventoryCreationKey,
+  parseWorkInventories,
+  readInventoryCreation,
+  saveInventoryCreation,
+} from "@/lib/admin/work-inventory";
 import { useResource } from "@/lib/api/use-resource";
 import { parseProducts } from "@/lib/api/commerce-schemas";
 import { parseInventory } from "@/lib/api/inventory-schemas";
@@ -23,11 +32,33 @@ const schema = z.object({
     .max(1000000),
 });
 type Values = z.infer<typeof schema>;
-export function InventoryCreateForm({ onSaved }: { onSaved: () => void }) {
+export function InventoryCreateForm({
+  onSaved,
+  owner,
+  role,
+}: {
+  onSaved: () => void;
+  owner: string;
+  role: string;
+}) {
   const router = useRouter();
   const pagination = useCursorPage();
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
-  const [uncertain, setUncertain] = useState(false);
+  const key = inventoryCreationKey(owner);
+  const [pending, setPending] = useState(() => readInventoryCreation(key));
+  const [checking, setChecking] = useState(false),
+    [message, setMessage] = useState<string>(),
+    [savedId, setSavedId] = useState<string>();
+  const active = useRef(true),
+    request = useRef<AbortController | null>(null),
+    attempted = useRef(false);
+  useEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+      request.current?.abort();
+    };
+  }, []);
   const [selectedLabel, setSelectedLabel] = useState("Selected part");
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
@@ -43,7 +74,8 @@ export function InventoryCreateForm({ onSaved }: { onSaved: () => void }) {
   );
   const errors = form.formState.errors;
   function review(values: Values) {
-    if (proposal || uncertain) return;
+    if (proposal || pending || checking) return;
+    attempted.current = false;
     const body: RequestBody<"/admin/inventory", "post"> = values;
     const branch =
       (document.getElementById("inventory-create-branch") as HTMLSelectElement | null)
@@ -57,40 +89,189 @@ export function InventoryCreateForm({ onSaved }: { onSaved: () => void }) {
         { label: "Part", value: selectedLabel },
         { label: "Reorder level", value: String(values.reorderLevel) },
       ],
-      onUncertain: () => setUncertain(true),
+      onUncertain: () => {
+        if (active.current) setPending(readInventoryCreation(key));
+      },
+      retryAfterRejection: false,
       submit: async () => {
-        const response = await apiRequest("/admin/inventory", {
-          method: "POST",
-          csrf: true,
-          body,
-        });
-        const inventory = parseInventory(response.data);
-        onSaved();
-        router.push(`/admin/inventory/${inventory.id}`);
+        if (request.current || pending || !active.current)
+          throw new Error("Creation is blocked");
+        const controller = new AbortController();
+        request.current = controller;
+        let sent = false;
+        try {
+          const access = parseOwnStaffProfile(
+            (await apiRequest("/staff/profile", { signal: controller.signal })).data,
+          );
+          if (
+            access.id !== owner ||
+            access.role !== role ||
+            access.status !== "ACTIVE" ||
+            !["ADMIN", "SUPER_ADMIN"].includes(access.role)
+          )
+            throw new Error("Current administrator access could not be confirmed");
+          if (!active.current || controller.signal.aborted)
+            throw new Error("Session changed");
+          saveInventoryCreation(key, {
+            branchId: body.branchId,
+            productId: body.productId,
+          });
+          sent = true;
+          attempted.current = true;
+          const response = await apiRequest("/admin/inventory", {
+            method: "POST",
+            csrf: true,
+            body,
+            signal: controller.signal,
+          });
+          const inventory = parseInventory(response.data);
+          if (
+            inventory.branch.id !== body.branchId ||
+            inventory.product.id !== body.productId ||
+            inventory.quantity !== 0 ||
+            inventory.reserved !== 0 ||
+            inventory.available !== 0 ||
+            inventory.reorderLevel !== body.reorderLevel
+          )
+            throw new Error("Unexpected inventory creation result");
+          clearInventoryCreation(key);
+          if (!active.current) return;
+          setPending(undefined);
+          onSaved();
+          router.push(`/admin/inventory/${inventory.id}`);
+        } catch (error) {
+          if (sent && error instanceof ApiError && [408, 429].includes(error.status))
+            throw new Error(
+              "The creation response must be reconciled before another record",
+            );
+          if (
+            sent &&
+            error instanceof ApiError &&
+            error.status >= 400 &&
+            error.status < 500 &&
+            ![408, 429].includes(error.status)
+          )
+            clearInventoryCreation(key);
+          throw error;
+        } finally {
+          if (active.current) request.current = null;
+        }
       },
     });
   }
+  async function reconcile() {
+    if (checking || request.current) return;
+    const controller = new AbortController();
+    request.current = controller;
+    setChecking(true);
+    setMessage(undefined);
+    setSavedId(undefined);
+    try {
+      const access = parseOwnStaffProfile(
+        (await apiRequest("/staff/profile", { signal: controller.signal })).data,
+      );
+      if (
+        access.id !== owner ||
+        access.role !== role ||
+        access.status !== "ACTIVE" ||
+        !["ADMIN", "SUPER_ADMIN"].includes(access.role)
+      )
+        throw Error("Current administrator access could not be confirmed.");
+      if (!pending || pending === "unknown")
+        throw Error(
+          "The pending branch and part could not be read. Check your inventory records before continuing; this form remains locked.",
+        );
+      const query = new URLSearchParams({
+        limit: "25",
+        branchId: pending.branchId,
+        productId: pending.productId,
+      });
+      const rows = parseWorkInventories(
+        (await apiRequest(`/staff/inventory?${query}`, { signal: controller.signal }))
+          .data,
+      );
+      if (
+        rows.items.length > 1 ||
+        rows.nextCursor ||
+        rows.items.some(
+          (row) =>
+            row.branch.id !== pending.branchId || row.product.id !== pending.productId,
+        )
+      )
+        throw Error(
+          "The saved inventory did not match this branch and part. The creation remains locked.",
+        );
+      if (!active.current || controller.signal.aborted) return;
+      clearInventoryCreation(key);
+      setPending(undefined);
+      setSavedId(rows.items[0]?.id);
+      setMessage(
+        rows.items.length
+          ? "An inventory record exists for this branch and part. Review its saved details. Nothing was resent."
+          : "No inventory record is currently saved for this branch and part. The pending creation is cleared. Nothing was resent.",
+      );
+      onSaved();
+    } catch (error) {
+      if (active.current)
+        setMessage(
+          error instanceof Error
+            ? error.message
+            : "The saved inventory could not be checked. The creation remains locked.",
+        );
+    } finally {
+      if (active.current) {
+        request.current = null;
+        setChecking(false);
+      }
+    }
+  }
   return (
     <section className="detail-section">
-      <h2>Add a branch inventory record</h2>
+      <h2 id="inventory-create-title" tabIndex={-1}>
+        Add a branch inventory record
+      </h2>
+      <p>Creation does not add physical stock.</p>
       <Feedback
         message={
-          uncertain
-            ? "The creation outcome is uncertain. Refresh the inventory list and check this branch and part before creating another record. This form cannot be resubmitted."
+          pending
+            ? "The creation outcome is uncertain. Check the saved branch and part before creating another record. This form remains locked until that check succeeds."
             : undefined
         }
       />
+      {pending && (
+        <button
+          className="button secondary"
+          type="button"
+          disabled={checking || !!proposal}
+          onClick={() => void reconcile()}
+        >
+          Check saved branch inventory
+        </button>
+      )}
+      <Feedback message={message} tone="info" />
+      {savedId && (
+        <p>
+          <Link className="text-link" href={`/admin/inventory/${savedId}`}>
+            Open saved inventory record
+          </Link>
+        </p>
+      )}
       <form
-        data-draft-key="inventory-create-form:1"
-        onSubmit={form.handleSubmit(review, (validation) => {
-          const first = (["branchId", "productId", "reorderLevel"] as const).find(
-            (name) => validation[name],
-          );
-          if (first) form.setFocus(first);
-        })}
+        data-draft-key={JSON.stringify(["inventory-create-form:2", owner])}
+        onSubmit={(event) => {
+          void form.handleSubmit(
+            (values) => review(values),
+            (validation) => {
+              const first = (["branchId", "productId", "reorderLevel"] as const).find(
+                (name) => validation[name],
+              );
+              if (first) form.setFocus(first);
+            },
+          )(event);
+        }}
         noValidate
       >
-        <fieldset disabled={!!proposal || uncertain}>
+        <fieldset disabled={!!proposal || !!pending || checking}>
           <div className="field">
             <label htmlFor="inventory-create-branch">Inventory branch</label>
             <Controller
@@ -200,7 +381,9 @@ export function InventoryCreateForm({ onSaved }: { onSaved: () => void }) {
               </p>
             )}
           </div>
-          <button className="button">Review inventory record</button>
+          <button id="inventory-create-review" className="button">
+            Review inventory record
+          </button>
         </fieldset>
       </form>
       {proposal && (
@@ -208,9 +391,15 @@ export function InventoryCreateForm({ onSaved }: { onSaved: () => void }) {
           proposal={proposal}
           onClose={() => {
             setProposal(null);
-            onSaved();
+            if (attempted.current) {
+              onSaved();
+              document.getElementById("work-inventory-title")?.focus();
+            } else
+              requestAnimationFrame(() =>
+                document.getElementById("inventory-create-review")?.focus(),
+              );
           }}
-          onSuccess={() => setUncertain(false)}
+          onSuccess={() => setPending(undefined)}
         />
       )}
     </section>

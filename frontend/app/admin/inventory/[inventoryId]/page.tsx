@@ -1,6 +1,10 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { StaffInventoryDetail } from "@/app/components/staff-inventory-detail";
+import type { Metadata } from "next";
+import "../../services/services.css";
+import "./inventory-detail.css";
+export const metadata: Metadata = { title: "Inventory record" };
 export default async function Page({
   params,
 }: {

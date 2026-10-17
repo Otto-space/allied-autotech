@@ -7,7 +7,10 @@ import {
   matchesAftercareOrder,
   type Aftercare,
   type AftercareOrder,
+  aftercareKinds,
+  aftercareLabels,
 } from "@/lib/api/aftercare-schemas";
+import { aftercareStages, type RunAftercareWrite } from "@/lib/admin/work-aftercare";
 import { nairaToKobo } from "@/lib/format/currency-input";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
@@ -27,6 +30,7 @@ export function AftercareReview({
   onSaved,
   onRefresh,
   onUncertain,
+  runWrite,
 }: {
   record: Aftercare;
   order: AftercareOrder;
@@ -35,28 +39,14 @@ export function AftercareReview({
   onSaved: () => void;
   onRefresh: () => void;
   onUncertain: () => void;
+  runWrite: RunAftercareWrite;
 }) {
   const [stage, setStage] = useState<Stage | "">("");
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [validation, setValidation] = useState<string>();
   const attempted = useRef(false);
   if (record.status === "APPROVED" || record.status === "REJECTED") return null;
-  const stages: Stage[] = [
-    ...(record.kind === "RETURN" && record.status === "REQUESTED"
-      ? ["RECEIVED" as const]
-      : []),
-    ...(record.kind === "RETURN" && record.status === "RECEIVED"
-      ? ["INSPECTED" as const]
-      : []),
-    ...(canDecide
-      ? [
-          ...(record.kind === "CANCELLATION" || record.status === "INSPECTED"
-            ? ["APPROVED" as const]
-            : []),
-          "REJECTED" as const,
-        ]
-      : []),
-  ];
+  const stages = aftercareStages(record, canDecide);
   function invalid(message: string, field: string) {
     setValidation(message);
     document.getElementById(`${record.id}-${field}`)?.focus();
@@ -116,48 +106,55 @@ export function AftercareReview({
         ...(fee !== undefined ? [{ label: "Reviewed fee", value: formatKobo(fee) }] : []),
         { label: "Note", value: note },
       ],
-      submit: async () => {
-        attempted.current = true;
-        const saved = staffAftercareSchema.parse(
-          (
-            await apiRequest(`/staff/order-requests/${record.id}/review`, {
-              method: "POST",
-              csrf: true,
-              body,
-            })
-          ).data,
-        );
-        if (
-          saved.id !== record.id ||
-          saved.kind !== record.kind ||
-          saved.items.length !== record.items.length ||
-          !saved.items.every((item) =>
-            record.items.some(
-              (original) =>
-                original.orderItemId === item.orderItemId &&
-                original.quantity === item.quantity,
-            ),
-          ) ||
-          !matchesAftercareOrder(saved, order) ||
-          saved.status !== body.stage ||
-          (body.stage === "RECEIVED" && !saved.receivedAt) ||
-          (body.stage === "INSPECTED" &&
-            (!saved.inspectedAt ||
-              saved.goodCondition !== body.goodCondition ||
-              saved.inspectionNote !== body.note)) ||
-          (["APPROVED", "REJECTED"].includes(body.stage) &&
-            (!saved.reviewedAt || saved.reviewNote !== body.note)) ||
-          (body.stage === "APPROVED" && saved.approvedFeeKobo !== body.approvedFeeKobo)
-        )
-          throw new Error("Unexpected order review result");
-      },
+      submit: () =>
+        runWrite(async (signal) => {
+          attempted.current = true;
+          const saved = staffAftercareSchema.parse(
+            (
+              await apiRequest(`/staff/order-requests/${record.id}/review`, {
+                method: "POST",
+                csrf: true,
+                body,
+                signal,
+              })
+            ).data,
+          );
+          if (
+            saved.id !== record.id ||
+            saved.kind !== record.kind ||
+            saved.items.length !== record.items.length ||
+            !saved.items.every((item) =>
+              record.items.some(
+                (original) =>
+                  original.orderItemId === item.orderItemId &&
+                  original.quantity === item.quantity,
+              ),
+            ) ||
+            !matchesAftercareOrder(saved, order) ||
+            saved.status !== body.stage ||
+            (body.stage === "RECEIVED" && !saved.receivedAt) ||
+            (body.stage === "INSPECTED" &&
+              (!saved.inspectedAt ||
+                saved.goodCondition !== body.goodCondition ||
+                saved.inspectionNote !== body.note)) ||
+            (["APPROVED", "REJECTED"].includes(body.stage) &&
+              (!saved.reviewedAt || saved.reviewNote !== body.note)) ||
+            (body.stage === "APPROVED" && saved.approvedFeeKobo !== body.approvedFeeKobo)
+          )
+            throw new Error("Unexpected order review result");
+        }),
       onUncertain,
       retryAfterRejection: false,
     });
   }
   return (
     <section className="detail-section">
-      <h4>Review this request</h4>
+      <h2 id="aftercare-review-title" tabIndex={-1}>
+        Review this request
+      </h2>
+      <p className="wa-selected-request">
+        {aftercareKinds[record.kind]} · {aftercareLabels[record.status]}
+      </p>
       {!canDecide && (
         <p>
           Approval and rejection require an active financial-policy approval permission.
@@ -166,7 +163,12 @@ export function AftercareReview({
       <Feedback message={validation} />
       {stages.length > 0 && (
         <form
-          data-draft-key={JSON.stringify(["aftercare-review:1", record?.id, order?.id])}
+          data-draft-key={JSON.stringify([
+            "aftercare-review:2",
+            record?.id,
+            order?.id,
+            record.status,
+          ])}
           onSubmit={(e) => {
             e.preventDefault();
             review(new FormData(e.currentTarget));
@@ -239,7 +241,9 @@ export function AftercareReview({
                 maxLength={2000}
               />
             </div>
-            <button className="button">Review recorded action</button>
+            <button className="button" disabled={!!proposal}>
+              Review recorded action
+            </button>
           </fieldset>
         </form>
       )}
@@ -249,7 +253,14 @@ export function AftercareReview({
           confirmLabel="Save order review"
           onClose={() => {
             setProposal(null);
-            if (attempted.current) onRefresh();
+            if (attempted.current) {
+              onRefresh();
+              requestAnimationFrame(() =>
+                document
+                  .getElementById("work-aftercare-title")
+                  ?.focus({ preventScroll: true }),
+              );
+            }
             attempted.current = false;
           }}
           onSuccess={onSaved}

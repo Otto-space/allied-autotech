@@ -35,6 +35,11 @@ export const parseProductExtrasPage = (value: unknown) =>
   z
     .object({ items: z.array(productExtrasSchema), nextCursor: z.uuid().optional() })
     .parse(value);
+// Accept the legacy catalogue page and the independent administrator product read.
+export const parseProductExtrasSource = (value: unknown) => {
+  const direct = productExtrasSchema.safeParse(value);
+  return direct.success ? { items: [direct.data] } : parseProductExtrasPage(value);
+};
 // Compatibility writes have no version counter; compare the complete child projection too.
 export const productExtrasRevision = (product: ProductExtras) => JSON.stringify(product);
 export const parseCompatibilityChange = (value: unknown) =>

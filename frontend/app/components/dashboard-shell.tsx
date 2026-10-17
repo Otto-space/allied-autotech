@@ -397,6 +397,24 @@ export function DashboardShell({
             !/^\/dashboard\/support\/(enquiries|complaints)\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/orders\/[^/]+\/aftercare$/.test(pathname) &&
             pathname !== "/admin/bookings" &&
+            pathname !== "/admin/booking-slots" &&
+            pathname !== "/admin/services" &&
+            pathname !== "/admin/products" &&
+            pathname !== "/admin/categories" &&
+            pathname !== "/admin/orders" &&
+            pathname !== "/admin/inventory" &&
+            pathname !== "/admin/promotions" &&
+            pathname !== "/admin/vehicles" &&
+            pathname !== "/admin/vehicles/new" &&
+            pathname !== "/admin/promotions/new" &&
+            !/^\/admin\/promotions\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/inventory\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/orders\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/orders\/[^/]+\/aftercare$/.test(pathname) &&
+            !/^\/admin\/categories\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/products\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/services\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/service-categories\/[^/]+$/.test(pathname) &&
             !/^\/admin\/bookings\/[^/]+$/.test(pathname) &&
             pathname !== (audience === "staff" ? "/admin" : "/dashboard") && (
               <nav className="breadcrumbs dashboard-breadcrumbs" aria-label="Breadcrumb">

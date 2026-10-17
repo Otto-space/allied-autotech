@@ -4,6 +4,7 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import type { AftercareOrder } from "@/lib/api/aftercare-schemas";
+import type { RunAftercareWrite } from "@/lib/admin/work-aftercare";
 import { lagosDateTime } from "@/lib/forms/vehicle-condition";
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
@@ -14,12 +15,14 @@ export function FulfillmentEvidence({
   onSaved,
   onRefresh,
   onUncertain,
+  runWrite,
 }: {
   order: AftercareOrder;
   disabled: boolean;
   onSaved: () => void;
   onRefresh: () => void;
   onUncertain: () => void;
+  runWrite: RunAftercareWrite;
 }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [validation, setValidation] = useState<string>();
@@ -63,30 +66,32 @@ export function FulfillmentEvidence({
         { label: "Fulfilled", value: formatBusinessDate(body.at) },
         { label: "Evidence reference", value: reference },
       ],
-      submit: async () => {
-        attempted.current = true;
-        const saved = z
-          .object({
-            id: z.uuid(),
-            fulfillmentEvidenceAt: z.iso.datetime({ offset: true }),
-            fulfillmentEvidenceReference: z.string(),
-          })
-          .parse(
-            (
-              await apiRequest(`/staff/orders/${order.id}/fulfillment-evidence`, {
-                method: "POST",
-                csrf: true,
-                body,
-              })
-            ).data,
-          );
-        if (
-          saved.id !== order.id ||
-          Date.parse(saved.fulfillmentEvidenceAt) !== timestamp ||
-          saved.fulfillmentEvidenceReference !== reference
-        )
-          throw new Error("Unexpected fulfillment evidence");
-      },
+      submit: () =>
+        runWrite(async (signal) => {
+          attempted.current = true;
+          const saved = z
+            .object({
+              id: z.uuid(),
+              fulfillmentEvidenceAt: z.iso.datetime({ offset: true }),
+              fulfillmentEvidenceReference: z.string(),
+            })
+            .parse(
+              (
+                await apiRequest(`/staff/orders/${order.id}/fulfillment-evidence`, {
+                  method: "POST",
+                  csrf: true,
+                  body,
+                  signal,
+                })
+              ).data,
+            );
+          if (
+            saved.id !== order.id ||
+            Date.parse(saved.fulfillmentEvidenceAt) !== timestamp ||
+            saved.fulfillmentEvidenceReference !== reference
+          )
+            throw new Error("Unexpected fulfillment evidence");
+        }),
       onUncertain,
       retryAfterRejection: false,
     });
@@ -143,7 +148,9 @@ export function FulfillmentEvidence({
                   maxLength={300}
                 />
               </div>
-              <button className="button">Review fulfillment evidence</button>
+              <button className="button" disabled={!!proposal}>
+                Review fulfillment evidence
+              </button>
             </fieldset>
           </form>
         </>
@@ -154,7 +161,14 @@ export function FulfillmentEvidence({
           confirmLabel="Record fulfillment evidence"
           onClose={() => {
             setProposal(null);
-            if (attempted.current) onRefresh();
+            if (attempted.current) {
+              onRefresh();
+              requestAnimationFrame(() =>
+                document
+                  .getElementById("work-aftercare-title")
+                  ?.focus({ preventScroll: true }),
+              );
+            }
             attempted.current = false;
           }}
           onSuccess={onSaved}

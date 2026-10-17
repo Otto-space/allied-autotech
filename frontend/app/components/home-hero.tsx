@@ -6,10 +6,10 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const slides = [
   {
-    title: "Precision care.",
-    emphasis: "Confidence on every road.",
+    title: "Built on Trust,",
+    emphasis: "Driven by Quality.",
     description:
-      "Professional diagnostics, maintenance and repairs from a team built on trust and driven by quality.",
+      "Professional diagnostics, maintenance and repairs, with clear advice and careful workmanship at every step.",
     action: "Book a Service",
     href: "/services",
     image: "/images/allied-autotech/workshop-editorial.webp",

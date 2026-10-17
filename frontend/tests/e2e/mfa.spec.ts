@@ -115,7 +115,7 @@ test("existing factor blocks first-factor setup, including a direct setup query"
   await fixture(page);
   await page.goto("/mfa?setup=1");
   await page.getByRole("button", { name: "Check first-factor setup" }).click();
-  await expect(page.getByText(/An existing MFA method is available/)).toBeVisible();
+  await expect(page.getByText(/An MFA method is already linked/)).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Set up authenticator app" }),
   ).toHaveCount(0);

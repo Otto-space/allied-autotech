@@ -5,8 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
-import { useResource } from "@/lib/api/use-resource";
-import { parseStaffProfile } from "@/lib/api/staff-booking-schemas";
+
 import { vehicleEnums, type StaffVehicle } from "@/lib/api/staff-vehicle-schemas";
 import {
   recordSchema,
@@ -22,39 +21,7 @@ import { useAccountSession } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 
-export function NewVehicleRecord() {
-  const session = useAccountSession();
-  const ownBranch = session?.user.role === "STAFF";
-  const profile = useResource(ownBranch ? "/staff/profile" : null, parseStaffProfile);
-  if (
-    ownBranch &&
-    (profile.loading || profile.error || !profile.data?.staffProfile?.branchId)
-  )
-    return (
-      <>
-        <Feedback message={profile.error} />
-        <p>
-          {profile.loading
-            ? "Checking your assigned branch…"
-            : "An assigned staff branch is required to create a stock record."}
-        </p>
-        <button
-          className="button secondary"
-          disabled={profile.loading}
-          onClick={profile.refresh}
-        >
-          Refresh staff profile
-        </button>
-      </>
-    );
-  return (
-    <VehicleRecordForm
-      branchId={
-        ownBranch ? (profile.data?.staffProfile?.branchId ?? undefined) : undefined
-      }
-    />
-  );
-}
+export { WorkVehicleCreate as NewVehicleRecord } from "./work-vehicle-create";
 
 const fields = [
   ["stockNumber", "Stock number", 40],
