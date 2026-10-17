@@ -185,7 +185,7 @@ test("rendered spec preserves all four process boundaries and initial staging sa
   assert.equal(api.PRIVATE_TESTING_PASSWORD, input.values.PRIVATE_TESTING_PASSWORD);
   assert.equal(
     spec.jobs[0].run_command,
-    "node --import tsx scripts/check-database-safety.ts",
+    "aat-with-database-ca node --import tsx scripts/check-database-safety.ts",
   );
   const pools = [...spec.services, ...spec.workers].map((c) =>
     Number(c.envs.find((e) => e.key === "DB_POOL_MAX").value),

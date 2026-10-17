@@ -1147,7 +1147,7 @@
           "type": "GENERAL"
         }
       ],
-      "run_command": "node --import tsx scripts/check-database-safety.ts"
+      "run_command": "aat-with-database-ca node --import tsx scripts/check-database-safety.ts"
     }
   ],
   "ingress": {

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { images } from "./spec.mjs";
+import { images, parseTemplate } from "./spec.mjs";
 
 const backend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const commit = execFileSync("git", ["rev-parse", "HEAD"], {
@@ -110,6 +110,59 @@ for (const image of images) {
     });
   });
 }
+
+test("App Platform job command bootstraps TLS when the Docker entrypoint is replaced", () => {
+  const template = parseTemplate(
+    readFileSync(
+      path.join(backend, "ops/digitalocean/staging.app.yaml.template"),
+      "utf8",
+    ),
+  );
+  const [bootstrap, ...command] = template.jobs[0].run_command.split(" ");
+  assert.equal(bootstrap, "aat-with-database-ca");
+  assert.deepEqual(command, [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/check-database-safety.ts",
+  ]);
+  const result = spawnSync(
+    "docker",
+    [
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "--entrypoint",
+      "/bin/sh",
+      "-e",
+      "DB_SSL_MODE=verify-full",
+      "-e",
+      "DB_SSL_CA_FILE=/tmp/allied-autotech-secrets/database-ca.pem",
+      "-e",
+      "DB_SSL_CA_BASE64",
+      `allied-autotech-migrate:${imageTag}`,
+      "-c",
+      'exec "$@"',
+      "app-platform-job",
+      bootstrap,
+      "node",
+      "-e",
+      "const fs=require('node:fs');const assert=require('node:assert/strict');assert.match(fs.readFileSync(process.env.DB_SSL_CA_FILE,'utf8'),/BEGIN CERTIFICATE/);assert.equal(process.env.DB_SSL_CA_BASE64,undefined);assert.equal(fs.statSync(process.env.DB_SSL_CA_FILE).mode & 511,256);",
+    ],
+    {
+      encoding: "utf8",
+      windowsHide: true,
+      timeout: 60_000,
+      env: { ...process.env, DB_SSL_CA_BASE64: ca },
+    },
+  );
+  assert.equal(
+    result.status,
+    0,
+    "Overridden entrypoint must still materialize the TLS CA.",
+  );
+});
 
 test("CA entrypoint rejects private keys and unsafe paths before starting Node", () => {
   const privateKey = readFileSync(path.join(directory, "key.pem"), "utf8");
