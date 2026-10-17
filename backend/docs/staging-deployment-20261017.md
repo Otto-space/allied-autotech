@@ -86,3 +86,33 @@ Remaining sequence:
 5. Keep hosted frontend testing deferred until the user supplies an appropriate existing Vercel plan or approves its additional cost.
 
 Private evidence resides in the ignored, ACL-restricted `backend/ops/digitalocean/.private` directories. Do not commit, upload or paste their contents. Local backup receipts expire after one hour; refresh before migrations when required.
+
+## Frontend connection preparation
+
+After the backend handoff, the user authorized all connection preparation within
+the existing purchasing limits. Vercel was rechecked: the existing project still
+uses Hobby, and no upgrade or hosted frontend deployment was made.
+
+Seven private-preview environment values are prepared in the protected
+`frontend-private-testing.env` and `vercel-preview-env-payload.json` evidence files.
+Vercel rejected branch-specific creation because the release branch has not been
+published to the connected Git repository. A follow-up read confirmed the hosted
+environment variables were unchanged. The preparation branch now has a checked-in
+automatic Git deployment guard so it can be published before its sensitive Preview
+settings are saved, once the hosting plan is resolved.
+
+A local production frontend image was built against the real DigitalOcean API
+using a BuildKit secret mount. The connected read-only smoke test passed: anonymous
+and incorrect-password denial, API readiness, real frontend-to-API rewrites,
+separate application authentication, login and server-rendered service pages,
+storage CSP, and secret absence in returned HTML/headers and 250 public assets.
+It created no application records and removed its temporary container. Script
+syntax, targeted ESLint and formatting checks passed.
+
+The actual private frontend origin, corresponding backend authentication/link
+settings and Spaces CORS still need finalization at deployment. The runtime Spaces
+key returned 403 for bucket-CORS inspection; this correctly keeps administrative
+bucket configuration outside runtime permissions. No key scope was widened.
+Email, SMS and payments remain disabled. See the prepared values, exact remaining
+steps and verification command in the
+[frontend deployment guide](../../frontend/docs/vercel-deployment.md#prepared-private-connection--17-october-2026).

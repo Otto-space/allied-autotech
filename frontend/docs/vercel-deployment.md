@@ -1,5 +1,84 @@
 # Deploy the frontend to Vercel
 
+## Prepared private connection — 17 October 2026
+
+The DigitalOcean backend is active at
+`https://allied-autotech-staging-825no.ondigitalocean.app`. A local production
+frontend build has passed read-only checks against this real API. This does not
+mean a connected Vercel preview has been deployed.
+
+The existing Vercel project is `allied-autotech` in
+`michael-enochs-projects-3da06943`, with root `frontend`, Next.js, Node 24.x and
+production branch `master`. The team was rechecked and remains on Hobby. A paid
+upgrade has not been authorized; do not purchase one or deploy this commercial
+project on Hobby. The existing hosted site and environment variables were preserved.
+
+Prepared values are stored locally in the ignored, ACL-restricted
+`backend/ops/digitalocean/.private/frontend-private-testing.env`, alongside
+`vercel-preview-env-payload.json`. These files contain the private testing
+password: never commit them, print them, or upload them as frontend assets.
+
+| Variable                   | Prepared value / handling                                                                                            |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `BACKEND_ORIGIN`           | `https://allied-autotech-staging-825no.ondigitalocean.app`                                                           |
+| `PRIVATE_TESTING_ENABLED`  | `true`                                                                                                               |
+| `PRIVATE_TESTING_PASSWORD` | Same existing secret as the API; Vercel sensitive variable, server-only                                              |
+| `SITE_INDEXING`            | `disabled`                                                                                                           |
+| `SITE_ORIGIN`              | Empty until the actual private frontend HTTPS address is confirmed                                                   |
+| `ASSET_STORAGE_HOSTS`      | `allied-autotech-staging-5ae8fa4d.lon1.digitaloceanspaces.com`                                                       |
+| `NEXT_PUBLIC_MEDIA_HOSTS`  | Empty: managed images use the authenticated same-origin API proxy; add only separately approved external image hosts |
+
+The prepared Vercel payload targets only Preview and branch
+`deploy/private-testing-20261017`. Vercel rejected saving it because that branch
+does not yet exist in the connected remote repository; all seven values remain
+prepared locally, not saved in Vercel. A subsequent API read confirmed the existing
+Vercel variables were unchanged. Do not widen these secrets to Production to work
+around this restriction.
+
+`vercel.json` disables automatic Git deployments for this one preparation branch.
+Other branches retain their existing behavior. After an appropriate Vercel plan
+is available, publish the reviewed branch with that configuration, save and verify
+the branch-scoped Preview variables, and create a manual Preview deployment.
+Never push an unprotected preparation branch and rely on adding the password later.
+
+Then confirm an actual stable frontend hostname and finish these exact settings:
+
+1. Set Preview `SITE_ORIGIN` to that HTTPS origin. Do not reuse the public production
+   hostname for private testing or assume `staging.alliedautotech.com` has DNS.
+2. Update API `FRONTEND_URL`, WebAuthn RP hostname/origins, verification/reset/staff
+   invitation links, and configured callback URLs to that same origin. Preserve
+   private access, stable encryption keys, disabled payments and component sizes.
+3. Update Spaces CORS to permit the exact frontend origin for required upload
+   methods/headers. The runtime bucket key correctly denies bucket-CORS inspection
+   (403); use a temporary administrative provisioning key for this operation and
+   revoke it afterwards. Do not broaden runtime permissions or use wildcard CORS.
+4. Redeploy the frontend because API rewrites are build-time configuration. Apply
+   the reviewed backend settings without migrations, then verify hosted sessions,
+   CSRF-protected saves, MFA and real image uploads with designated test accounts.
+5. Keep live payments, email and SMS disabled until their configuration and any
+   associated expenditure are approved. Local provider entries were not activated
+   or copied blindly; no emails, texts, payments or application writes were made.
+
+Read-only connection verification is reproducible with Docker running:
+
+```powershell
+$env:AAT_FRONTEND_TEST_IMAGE = 'allied-autotech-frontend:connected-private-20261017'
+$env:AAT_FRONTEND_TEST_ENV = 'C:\Users\PC\Desktop\allied-autotech\backend\ops\digitalocean\.private\frontend-private-testing.env'
+node frontend/scripts/check-hosted-backend.mjs
+```
+
+The image was built from the isolated release frontend using a BuildKit secret
+mount for the private env file, not a secret build argument or copied `.env`.
+The test publishes no local ports and removes its temporary container. It passed
+anonymous/wrong-password denial, hosted readiness, real API rewrites, application
+session enforcement, login rendering, server-rendered services, storage CSP, and
+absence of the testing secret from returned HTML/headers and 250 public build
+assets. This is not a browser mutation, upload, load or hosted Vercel test.
+
+References: [Vercel branch-specific environment variables](https://vercel.com/docs/environment-variables),
+[sensitive variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables),
+and [Git deployment controls](https://vercel.com/docs/project-configuration/git-configuration).
+
 ## Production deployment
 
 Vercel hosts the Next.js frontend. The Express API, PostgreSQL database, identity
