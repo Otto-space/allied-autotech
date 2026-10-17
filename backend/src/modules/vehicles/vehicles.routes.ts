@@ -103,7 +103,10 @@ export function createCustomerVehiclesDiscoveryRouter(): Router {
 export function createStaffVehiclesRouter(service = vehiclesService): Router {
   const router = Router();
   const controller = new VehiclesController(service);
-  router.use(authenticate(), requireStaff);
+  router.use(authenticate(), requireStaff, (_req, res, next) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    next();
+  });
   router.get("/", validate({ query: staffVehicleListQuerySchema }), controller.staffList);
   router.post(
     "/",

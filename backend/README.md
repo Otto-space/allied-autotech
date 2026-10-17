@@ -1,6 +1,16 @@
 # Allied AutoTech backend
 
+Private hosting preparation (13 October): [owner meeting brief](../OWNER_MEETING_BRIEF.md)
+and [deployment/cost plan](docs/hosting-approval-plan.md). Purchases and public launch
+remain subject to Mike's explicit approval.
+
 Standalone Node 24.13.0 / Express 5 / Prisma PostgreSQL package. Run npm commands from this directory; the repository root is not an npm workspace.
+
+Mandatory [database safety rules](../AGENTS.md) and the [protected workflow](docs/database-safety.md)
+apply to every change. Development and worker commands refuse pending migrations/schema drift;
+the API and workers also verify actual columns before accepting traffic or processing jobs.
+`npm run db:migrate` verifies history and backs up the database before pending migrations.
+Reset, schema overwrite and unreviewed direct SQL commands are blocked through the Prisma config.
 
 Current owner-policy delivery (24 September 2026):
 

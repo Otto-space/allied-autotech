@@ -39,7 +39,11 @@ export const changePasswordBodySchema = z
 export const sessionParamsSchema = z.object({ sessionId: z.uuid() }).strict();
 export const factorParamsSchema = z.object({ factorId: z.uuid() }).strict();
 export const totpVerifyBodySchema = z
-  .object({ factorId: z.uuid(), code: z.string().regex(/^\d{6}$/) })
+  .object({
+    factorId: z.uuid(),
+    code: z.string().regex(/^\d{6}$/),
+    replaceFactorId: z.uuid().optional(),
+  })
   .strict();
 export const factorDeleteBodySchema = z
   .object({ password: z.string().min(1).max(128) })

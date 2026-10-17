@@ -60,6 +60,7 @@ export const categoryListQuerySchema = z.object(pageFields).strict();
 export const adminCategoryListQuerySchema = z
   .object({
     ...pageFields,
+    search: cleanText(120).optional(),
     isActive: optionalBoolean,
   })
   .strict();
@@ -73,13 +74,17 @@ export const categoryCreateBodySchema = z
   .strict();
 export const categoryUpdateBodySchema = z
   .object({
+    expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     name: cleanText(120).optional(),
     slug: slug.optional(),
     description: nullableText(2_000),
     isActive: z.boolean().optional(),
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required");
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedUpdatedAt"),
+    "At least one field is required",
+  );
 
 export const productListQuerySchema = z
   .object({
@@ -128,6 +133,7 @@ export const productCreateBodySchema = z
   });
 export const productUpdateBodySchema = z
   .object({
+    expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     categoryId: productFields.categoryId.optional(),
     name: productFields.name.optional(),
     slug: productFields.slug.optional(),
@@ -142,7 +148,10 @@ export const productUpdateBodySchema = z
     featured: z.boolean().optional(),
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required")
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedUpdatedAt"),
+    "At least one product field is required",
+  )
   .refine(validPrices, {
     path: ["compareAtPriceKobo"],
     message: "Must not be below the selling price",

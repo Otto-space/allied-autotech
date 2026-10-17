@@ -3,6 +3,7 @@ import { pathToFileURL } from "node:url";
 
 import type { PrismaClient } from "../generated/prisma/client.js";
 import { prisma } from "../config/database.js";
+import { assertDatabaseSchemaCompatible } from "../common/database/schema-safety.js";
 import { assertIdentityWorkerEnvironment, env } from "../config/env.js";
 import {
   decryptIdentityPayload,
@@ -217,6 +218,7 @@ async function runIdentityWorker(): Promise<void> {
     while (!stop.signal.aborted) {
       try {
         await prisma.$connect();
+        await assertDatabaseSchemaCompatible(prisma);
         await prisma.workerHeartbeat.upsert({
           where: { name: "identity-outbox" },
           update: { lastStartedAt: new Date() },

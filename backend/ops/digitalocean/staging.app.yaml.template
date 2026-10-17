@@ -1,4 +1,4 @@
-# Review-only App Platform spec; JSON syntax is valid YAML. Replace placeholders in a private copy.
+# Review-only private testing spec; JSON syntax is valid YAML. See docs/hosting-approval-plan.md.
 {
   "name": "allied-autotech-staging",
   "region": "REPLACE_DO_REGION",
@@ -168,7 +168,7 @@
         },
         {
           "key": "DB_POOL_MAX",
-          "value": "10",
+          "value": "4",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -495,6 +495,18 @@
           "value": "REPLACE_BASE64_ENCODED_CA_PEM",
           "scope": "RUN_TIME",
           "type": "SECRET"
+        },
+        {
+          "key": "PRIVATE_TESTING_ENABLED",
+          "value": "true",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRIVATE_TESTING_PASSWORD",
+          "value": "REPLACE_PRIVATE_TESTING_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
         }
       ]
     }
@@ -509,7 +521,7 @@
         "digest": "sha256:REPLACE_IDENTITY_WORKER_DIGEST"
       },
       "instance_count": 1,
-      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
+      "instance_size_slug": "apps-s-1vcpu-0.5gb",
       "envs": [
         {
           "key": "NODE_ENV",
@@ -573,7 +585,7 @@
         },
         {
           "key": "DB_POOL_MAX",
-          "value": "3",
+          "value": "1",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -669,7 +681,7 @@
         "digest": "sha256:REPLACE_GENERAL_WORKER_DIGEST"
       },
       "instance_count": 1,
-      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
+      "instance_size_slug": "apps-s-1vcpu-0.5gb",
       "envs": [
         {
           "key": "NODE_ENV",
@@ -733,7 +745,7 @@
         },
         {
           "key": "DB_POOL_MAX",
-          "value": "5",
+          "value": "2",
           "scope": "RUN_TIME",
           "type": "GENERAL"
         },
@@ -1134,7 +1146,8 @@
           "scope": "RUN_TIME",
           "type": "GENERAL"
         }
-      ]
+      ],
+      "run_command": "node --import tsx scripts/check-database-safety.ts"
     }
   ],
   "ingress": {

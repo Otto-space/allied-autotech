@@ -1,5 +1,6 @@
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
+import { publicReviewer } from "./public-review-profile.js";
 import type {
   CustomerComplaintInput,
   CustomerEnquiryInput,
@@ -624,27 +625,42 @@ export class SupportRepository {
   }
 
   listPublicReviews(query: PublicReviewListQuery) {
-    return this.database.review.findMany({
-      where: {
-        status: "APPROVED",
-        ...(query.targetType ? { targetType: query.targetType } : {}),
-        ...(query.productId ? { productId: query.productId } : {}),
-        ...(query.serviceId ? { serviceId: query.serviceId } : {}),
-      },
-      select: {
-        id: true,
-        targetType: true,
-        rating: true,
-        title: true,
-        comment: true,
-        createdAt: true,
-        product: { select: { id: true, name: true, slug: true } },
-        service: { select: { id: true, name: true, slug: true } },
-      },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      take: query.limit + 1,
-      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
-    });
+    return this.database.review
+      .findMany({
+        where: {
+          status: "APPROVED",
+          ...(query.targetType ? { targetType: query.targetType } : {}),
+          ...(query.productId ? { productId: query.productId } : {}),
+          ...(query.serviceId ? { serviceId: query.serviceId } : {}),
+        },
+        select: {
+          id: true,
+          targetType: true,
+          rating: true,
+          title: true,
+          comment: true,
+          createdAt: true,
+          customer: {
+            select: {
+              firstName: true,
+              lastName: true,
+              mediaVersion: true,
+              mediaImages: { select: { id: true }, take: 1 },
+            },
+          },
+          product: { select: { id: true, name: true, slug: true } },
+          service: { select: { id: true, name: true, slug: true } },
+        },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: query.limit + 1,
+        ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+      })
+      .then((rows) =>
+        rows.map(({ customer, ...review }) => ({
+          ...review,
+          reviewer: publicReviewer(review.id, customer),
+        })),
+      );
   }
 
   listCustomerReviews(customerId: string, query: CustomerReviewListQuery) {

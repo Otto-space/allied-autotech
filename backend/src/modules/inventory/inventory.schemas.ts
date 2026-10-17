@@ -37,6 +37,15 @@ export const inventoryListQuerySchema = z
     ...pageFields,
     branchId: z.uuid().optional(),
     productId: z.uuid().optional(),
+    search: cleanText(100)
+      .refine(
+        (value) =>
+          Array.from(value).every(
+            (char) => char.charCodeAt(0) > 31 && char.charCodeAt(0) !== 127,
+          ),
+        "Use printable search text",
+      )
+      .optional(),
     lowStock: optionalBoolean,
   })
   .strict();

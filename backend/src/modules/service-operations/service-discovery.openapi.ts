@@ -86,6 +86,28 @@ export function registerServiceDiscoveryOpenApi(registry: OpenAPIRegistry) {
       404: { description: "Inactive, empty or unknown category" },
     },
   });
+  registry.registerPath({
+    method: "get",
+    path: "/admin/service-categories/{categoryId}",
+    summary: "Read a service category for administration",
+    description:
+      "ADMIN or SUPER_ADMIN with verified MFA. Returns the current category and revision, including inactive and empty categories, independently of list filters or pagination. Private, no-store. Does not include service records or change category visibility. Updates retain expectedVersion and CSRF enforcement.",
+    security: [{ sessionCookie: [] }],
+    request: {
+      params: serviceCategoryParamsSchema,
+      query: z.object({}).strict(),
+    },
+    responses: {
+      200: {
+        description: "Current administrator category",
+        content: {
+          "application/json": { schema: envelope(adminServiceCategorySchema) },
+        },
+      },
+      404: { description: "Unknown category" },
+      422: { description: "Malformed category ID or unsupported query" },
+    },
+  });
   for (const update of [false, true])
     registry.registerPath({
       method: update ? "patch" : "post",

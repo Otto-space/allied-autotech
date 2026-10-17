@@ -399,6 +399,13 @@ export class ServiceOperationsService {
     return jsonSafe(page(await this.repository.listServices(query, false), query.limit));
   }
 
+  async adminService(actor: AuthenticatedActor, id: string) {
+    assertServiceAdministrator(actor);
+    const service = await this.repository.service(id, false);
+    if (service === null) throw serviceOperationNotFound();
+    return jsonSafe(service);
+  }
+
   async createService(
     actor: AuthenticatedActor,
     input: ServiceCreateInput,

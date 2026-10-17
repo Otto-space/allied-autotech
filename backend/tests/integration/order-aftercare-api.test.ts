@@ -368,6 +368,84 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).toBe(2);
     });
 
+    it("reads a private request outside the history window and rejects inactive branch access", async () => {
+      const f = await fixture();
+      const intake = await post(f.customer, `${f.path}/returns`, {
+        reason: f.body.reason,
+      });
+      expect(intake.status).toBe(201);
+      const original = await prisma.orderAftercareRequest.update({
+        where: { id: intake.body.data.id },
+        data: { requestedAt: new Date(Date.now() - 172800000) },
+      });
+      await prisma.orderAftercareRequest.createMany({
+        data: Array.from({ length: 101 }, (_, n) => ({
+          orderId: f.order.id,
+          customerId: f.customer.user.profile!.id,
+          kind: "CANCELLATION",
+          status: "REJECTED",
+          reason: "Synthetic history entry",
+          reviewReason: "Synthetic fixture basis",
+          items: [{ orderItemId: f.order.items[0]!.id, quantity: 1 }],
+          policySnapshot: {},
+          requestedAt: new Date(Date.now() - n * 1000),
+        })),
+      });
+      const history = await get(f.staff, `/staff/orders/${f.order.id}/aftercare`);
+      expect(history.status).toBe(200);
+      expect(history.headers["cache-control"]).toBe("private, no-store");
+      expect(history.body.data).toHaveLength(100);
+      expect(
+        history.body.data.some((row: { id: string }) => row.id === original.id),
+      ).toBe(false);
+      const path = `/staff/order-requests/${original.id}`,
+        single = await get(f.staff, path);
+      expect(single.status).toBe(200);
+      expect(single.headers["cache-control"]).toBe("private, no-store");
+      expect(single.body.data.id).toBe(original.id);
+      expect(single.body.data).toHaveProperty("inspectionNote");
+      expect((await get(f.customer, path)).status).toBe(403);
+      expect((await get(await account("STAFF"), path)).status).toBe(403);
+      expect((await get(await account("STAFF", f.branch.id, false), path)).status).toBe(
+        403,
+      );
+      expect((await request(app).get(`/api/v1${path}`)).status).toBe(401);
+      await prisma.branch.update({
+        where: { id: f.branch.id },
+        data: { isActive: false },
+      });
+      for (const url of [path, `/staff/orders/${f.order.id}/aftercare`])
+        expect((await get(f.staff, url)).status).toBe(403);
+      expect(
+        (
+          await post(f.staff, `${path}/review`, {
+            stage: "RECEIVED",
+            note,
+            expectedStatus: "REQUESTED",
+          })
+        ).status,
+      ).toBe(403);
+      expect(
+        (
+          await post(f.staff, `/staff/orders/${f.order.id}/fulfillment-evidence`, {
+            at: new Date(Date.now() - 1800000).toISOString(),
+            reference: "Synthetic signed record",
+          })
+        ).status,
+      ).toBe(403);
+      expect((await get(f.admin, path)).status).toBe(200);
+      expect(
+        (
+          await prisma.orderAftercareRequest.findUniqueOrThrow({
+            where: { id: original.id },
+          })
+        ).status,
+      ).toBe("REQUESTED");
+      expect(
+        (await prisma.order.findUniqueOrThrow({ where: { id: f.order.id } }))
+          .fulfillmentEvidenceAt,
+      ).toBeNull();
+    });
     it("records one-time evidence with a bounded timestamp, branch authorization and exact reference", async () => {
       const f = await fixture(),
         path = `/staff/orders/${f.order.id}/fulfillment-evidence`;

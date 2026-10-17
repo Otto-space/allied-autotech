@@ -70,7 +70,8 @@ export function registerOrdersOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "get",
       path: "/staff/orders/{orderId}",
-      summary: "Get a branch-authorized order",
+      summary:
+        "Get a branch-authorized order with currently available fulfilment transitions",
       params: orderParamsSchema,
     },
     {

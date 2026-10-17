@@ -1054,7 +1054,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/vehicles/facets`
 
@@ -1096,7 +1096,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/public/vehicles`
 
@@ -1206,10 +1206,31 @@ Binary image/webp bytes (no JSON envelope).
 
 Relevant errors: 400 The request is malformed.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
 
+### GET `/public/support/reviews/{reviewId}/photo`
+
+- Operation ID: `getPublicSupportReviewsByReviewIdPhoto`
+- Purpose: Returns only the current reviewer profile image for an APPROVED review. Missing, pending or rejected reviews and profiles without an attached portrait return 404. Customer contact details, profile IDs, object keys and private garage images are never exposed. Responses are private/no-store so removal, replacement and moderation are rechecked on the next request. Read the profile portrait for a currently approved review. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `reviewId` | path | string (uuid) | Yes | Identifier selecting the review resource. |
+| `v` | query | integer | No | Current profile media version, used to reload a replaced portrait. |
+
+Success: HTTP 200.
+Binary image/webp bytes (no JSON envelope).
+
+Relevant errors: 400 The request is malformed.; 404 No published review portrait is available; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Image storage is temporarily unavailable
+
 ### GET `/public/support/reviews`
 
 - Operation ID: `getPublicSupportReviews`
-- Purpose: List approved reviews without customer identity. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Only approved reviews are published. Reviewer metadata contains a display name and a review-scoped photo URL or null. Contact information, customer/user IDs, moderation records and storage keys are excluded. List approved reviews with reviewer display names and profile portraits. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1230,12 +1251,30 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "List approved reviews without customer identity",
+  "message": "List approved reviews with reviewer display names and profile portraits",
   "data": {
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "targetType": "BUSINESS",
+        "rating": 1,
+        "title": "synthetic-title",
+        "comment": "synthetic-comment",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "product": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug"
+        },
+        "service": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug"
+        },
+        "reviewer": {
+          "displayName": "synthetic-displayname",
+          "photoUrl": "https://example.test/continue"
+        }
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -1849,7 +1888,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/auth/mfa/totp/setup`
 
 - Operation ID: `postAuthMfaTotpSetup`
-- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. A session rotated or revoked after middleware is rejected. Start TOTP enrollment. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. TOTP verification may include replaceFactorId to revoke one owned active TOTP registration atomically, only after the new authenticator code is verified. Other factors remain active; invalid codes or failed session rotation leave the previous registration intact. A session rotated or revoked after middleware is rejected. Start TOTP enrollment. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -1882,7 +1921,7 @@ Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired
 ### POST `/auth/mfa/totp/verify`
 
 - Operation ID: `postAuthMfaTotpVerify`
-- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. A session rotated or revoked after middleware is rejected. Complete TOTP enrollment. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. TOTP verification may include replaceFactorId to revoke one owned active TOTP registration atomically, only after the new authenticator code is verified. Other factors remain active; invalid codes or failed session rotation leave the previous registration intact. A session rotated or revoked after middleware is rejected. Complete TOTP enrollment. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -1900,13 +1939,15 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `factorId` | string (uuid) | Yes | Identifier of the factor resource; ownership is resolved server-side. |
 | `code` | string | Yes | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `replaceFactorId` | string (uuid) | No | Identifier of the replace factor resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
 ```json
 {
   "factorId": "00000000-0000-4000-8000-000000000001",
-  "code": "synthetic-code"
+  "code": "synthetic-code",
+  "replaceFactorId": "00000000-0000-4000-8000-000000000001"
 }
 ```
 
@@ -1931,7 +1972,7 @@ Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired
 ### POST `/auth/mfa/webauthn/options`
 
 - Operation ID: `postAuthMfaWebauthnOptions`
-- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. A session rotated or revoked after middleware is rejected. Create WebAuthn registration options. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. TOTP verification may include replaceFactorId to revoke one owned active TOTP registration atomically, only after the new authenticator code is verified. Other factors remain active; invalid codes or failed session rotation leave the previous registration intact. A session rotated or revoked after middleware is rejected. Create WebAuthn registration options. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -1978,7 +2019,7 @@ Relevant errors: 400 The request is malformed.; 401 Session unavailable, expired
 ### POST `/auth/mfa/webauthn/verify`
 
 - Operation ID: `postAuthMfaWebauthnVerify`
-- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. A session rotated or revoked after middleware is rejected. Complete WebAuthn registration. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. TOTP verification may include replaceFactorId to revoke one owned active TOTP registration atomically, only after the new authenticator code is verified. Other factors remain active; invalid codes or failed session rotation leave the previous registration intact. A session rotated or revoked after middleware is rejected. Complete WebAuthn registration. Access boundary: authenticated-user. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: AUTHENTICATED
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -4453,7 +4494,7 @@ Success: HTTP 200.
 }
 ```
 
-Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 NOT_FOUND for unavailable or unowned resources; MEDIA_OBJECT_MISSING when an authorized pending object is absent.; 409 STALE_VERSION, MEDIA_COUNT_LIMIT, MEDIA_LAST_PUBLISHED_IMAGE or MEDIA_TICKET_CONSUMED. Reread authoritative state before a new mutation; exact confirmation retries retain their original token and body.; 422 VALIDATION_FAILED or MEDIA_INVALID, MEDIA_UNSUPPORTED_FORMAT, MEDIA_TOO_LARGE, MEDIA_INVALID_DIMENSIONS, MEDIA_CHECKSUM_MISMATCH, MEDIA_TICKET_EXPIRED, MEDIA_TICKET_INVALID, MEDIA_WRONG_PURPOSE or MEDIA_WRONG_RESOURCE. Current attached images are preserved.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 MEDIA_STORAGE_UNAVAILABLE. Storage details and credentials are withheld. Reread the resource after an uncertain confirmation; preparation and validation failures preserve existing images.
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PUT `/customers/saved-vehicles/{listingId}`
 
@@ -6482,6 +6523,7 @@ Parameters:
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `productId` | query | string (uuid) | No | Product Id used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
 | `lowStock` | query | true / false | No | Low Stock used to constrain this request. |
 
 Success: HTTP 200.
@@ -7668,6 +7710,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `orderNumber` | query | string | No | Exact, case-sensitive full order number; restricted to authorized branches |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `customerId` | query | string (uuid) | No | Customer Id used to constrain this request. |
 | `status` | query | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No | Status used to constrain this request. |
@@ -7698,7 +7741,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/orders/{orderId}`
 
 - Operation ID: `getStaffOrdersByOrderId`
-- Purpose: Branch-authorized fulfilment. Invoice records are omitted entirely for STAFF; only ADMIN/SUPER_ADMIN receive embedded invoices. Commercial order totals and payment clearance dates remain available for fulfilment. Get a branch-authorized order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Branch-authorized fulfilment. Invoice records are omitted entirely for STAFF; only ADMIN/SUPER_ADMIN receive embedded invoices. Commercial order totals and payment clearance dates remain available for fulfilment. Get a branch-authorized order with currently available fulfilment transitions. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -7715,7 +7758,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Get a branch-authorized order",
+  "message": "Get a branch-authorized order with currently available fulfilment transitions",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
     "status": "synthetic-status"
@@ -8005,7 +8048,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/vehicles`
 
 - Operation ID: `getStaffVehicles`
-- Purpose: List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with status. Listing status matches any stored listing on a record, including history. Existing createdAt/ID descending cursor paging is retained. The stock UI uses search, exact make/model, year, branch and listing filters only; inherited public-discovery price/specification/sort parameters require a separate stock-query contract audit. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -8030,6 +8073,7 @@ Parameters:
 | `sort` | query | newest / price_asc / price_desc / year_desc | No | Sort used to constrain this request. |
 | `status` | query | DRAFT / AVAILABLE / RESERVED / SOLD / INACTIVE / ARCHIVED | No | Status used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
+| `listed` | query | true / false | No | Listed used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -10889,6 +10933,62 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/order-requests/{id}`
+
+- Operation ID: `getStaffOrderRequestsById`
+- Purpose: Private no-store direct read, independent of the latest-100 history window. Requires staff MFA and an active assigned branch for STAFF. Does not replay a review or change order, stock or refunds. Read one branch-authorized aftercare request for explicit recovery. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read one branch-authorized aftercare request for explicit recovery",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "orderId": "00000000-0000-4000-8000-000000000001",
+    "kind": "RETURN",
+    "status": "REQUESTED",
+    "reason": "synthetic-reason",
+    "items": [
+      {
+        "orderItemId": "00000000-0000-4000-8000-000000000001",
+        "quantity": 1
+      }
+    ],
+    "requestedAt": "2030-01-15T10:00:00.000Z",
+    "receivedAt": "2030-01-15T10:00:00.000Z",
+    "inspectedAt": "2030-01-15T10:00:00.000Z",
+    "goodCondition": "synthetic-goodcondition",
+    "approvedFeeKobo": "300000",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "reviewNote": "synthetic-reviewnote",
+    "refundDueAt": "2030-01-15T10:00:00.000Z",
+    "refundClockStatus": "synthetic-refundclockstatus",
+    "customerId": "00000000-0000-4000-8000-000000000001",
+    "reviewReason": "synthetic-reviewreason",
+    "inspectedByUserId": "00000000-0000-4000-8000-000000000001",
+    "inspectionNote": "synthetic-inspectionnote",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### POST `/staff/orders/{id}/fulfillment-evidence`
 
 - Operation ID: `postStaffOrdersByIdFulfillmentEvidence`
@@ -13453,7 +13553,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/admin/catalog/categories`
 
 - Operation ID: `getAdminCatalogCategories`
-- Purpose: List all categories. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Admin/Super Admin with verified MFA. Private, no-store. Optional literal case-insensitive name-prefix search (1–120 characters) and isActive filter. Name/ID ascending; UUID cursor and limit 1–100 (default 25) remain supported. Reset cursor when filters change. Live pagination can move records after renames and does not promise a total or snapshot. List all categories. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -13465,6 +13565,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `search` | query | string | No | Search used to constrain this request. |
 | `isActive` | query | true / false | No | Is Active used to constrain this request. |
 
 Success: HTTP 200.
@@ -13543,10 +13644,48 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/catalog/categories/{categoryId}`
+
+- Operation ID: `getAdminCatalogCategoriesByCategoryId`
+- Purpose: Admin/Super Admin with verified MFA. Private, no-store. Includes inactive and empty categories independently of catalogue filters/pagination. No products, stock or customer data. Missing category returns 404; invalid UUID or nonempty query returns 422. Does not create an audit or change visibility. Read a product category for administrator management. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read a product category for administrator management",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "description": "synthetic-description",
+    "isActive": true,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### PATCH `/admin/catalog/categories/{categoryId}`
 
 - Operation ID: `patchAdminCatalogCategoriesByCategoryId`
-- Purpose: Update a category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Admin/Super Admin with verified MFA and CSRF. Optional expectedUpdatedAt is a millisecond-precision ISO timestamp, checked under a category row lock in the audited transaction; stale input returns 409 without changes. New editors should always send it. Legacy requests without it remain supported without stale-snapshot protection. Every successful category edit advances updatedAt. Active products must be deactivated before their category; concurrent product creation/activation shares the category lock. No original-request receipt is provided. Update a category. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -13563,6 +13702,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `name` | string | No | Name validated by this operation's strict request contract. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
@@ -13572,6 +13712,7 @@ Synthetic request example:
 
 ```json
 {
+  "expectedUpdatedAt": "2030-01-15T10:00:00.000Z",
   "name": "synthetic-name",
   "slug": "synthetic-slug",
   "description": "synthetic-description",
@@ -13817,10 +13958,98 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/catalog/products/{productId}`
+
+- Operation ID: `getAdminCatalogProductsByProductId`
+- Purpose: Admin or Super Admin with the existing staff MFA assurance. Includes inactive products and inactive categories, safe administrator media metadata, compatibility and branch availability booleans; no raw inventory quantities or storage keys. Private no-store. Strict UUID and empty query. Missing records return 404. The returned updatedAt can be supplied as expectedUpdatedAt on product updates. Get an administrator product independently of catalogue paging. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Get an administrator product independently of catalogue paging",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "sku": "synthetic-sku",
+    "brand": "synthetic-brand",
+    "manufacturerPartNumber": "synthetic-manufacturerpartnumber",
+    "description": "synthetic-description",
+    "priceKobo": "300000",
+    "compareAtPriceKobo": "300000",
+    "currency": "NGN",
+    "isActive": true,
+    "featured": true,
+    "mediaVersion": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "category": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug",
+      "description": "synthetic-description",
+      "isActive": true,
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "images": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "url": "https://example.test/continue",
+        "altText": "synthetic-alttext",
+        "sortOrder": 1,
+        "isPrimary": true,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "source": "UPLOADED",
+        "width": "synthetic-width",
+        "height": "synthetic-height"
+      }
+    ],
+    "compatibilities": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "yearFrom": "synthetic-yearfrom",
+        "yearTo": "synthetic-yearto",
+        "notes": "synthetic-notes"
+      }
+    ],
+    "availability": [
+      {
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "code": "synthetic-code",
+          "name": "synthetic-name"
+        },
+        "inStock": true
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### PATCH `/admin/catalog/products/{productId}`
 
 - Operation ID: `patchAdminCatalogProductsByProductId`
-- Purpose: Update a product. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Admin or Super Admin with CSRF and existing MFA assurance. New editors supply expectedUpdatedAt from the direct administrator read. A mismatched timestamp returns 409 without changing the product or appending an audit. The comparison and update hold a product row lock; successful catalogue edits advance updatedAt by at least one millisecond. The precondition is optional for compatibility with existing clients; clients omitting it retain the existing update behavior and do not receive stale-snapshot protection. This is not an original-request receipt. Existing active-category, comparison-price and inventory-reservation rules remain authoritative. Update a product. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -13837,6 +14066,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `categoryId` | string (uuid) | No | Identifier of the category resource; ownership is resolved server-side. |
 | `name` | string | No | Name validated by this operation's strict request contract. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
@@ -14299,7 +14529,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/admin/services`
 
 - Operation ID: `getAdminServices`
-- Purpose: List all services. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Admin and Super Admin only. Search is a trimmed, case-insensitive literal substring (2-100 characters) across name, shortDescription and description. Category, pricing and visibility filters combine with search; inactive categories remain usable. Results use ascending UUID order. A UUID cursor is an exclusive position and remains usable after its record is removed or no longer matches. Reset the cursor when filters change; refresh page one to see earlier changes. Existing cursor, limit, pricingType and isActive clients remain supported. List all services. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -14313,6 +14543,8 @@ Parameters:
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `pricingType` | query | FIXED / QUOTE_REQUIRED | No | Pricing Type used to constrain this request. |
 | `isActive` | query | true / false | No | Is Active used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -14323,8 +14555,34 @@ Success: HTTP 200.
   "data": {
     "items": [
       {
+        "categoryId": "00000000-0000-4000-8000-000000000001",
+        "category": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "slug": "synthetic-slug"
+        },
+        "image": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "url": "https://example.test/continue",
+          "altText": "synthetic-alttext",
+          "sortOrder": 1,
+          "isPrimary": true,
+          "width": 1,
+          "height": 1
+        },
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "name": "synthetic-name",
+        "slug": "synthetic-slug",
+        "description": "synthetic-description",
+        "shortDescription": "synthetic-shortdescription",
+        "pricingType": "FIXED",
+        "priceKobo": "300000",
+        "currency": "NGN",
+        "durationMinutes": "synthetic-durationminutes",
+        "isActive": true,
+        "version": 1,
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -14397,6 +14655,65 @@ Success: HTTP 201.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/services/{serviceId}`
+
+- Operation ID: `getAdminServicesByServiceId`
+- Purpose: Admin and Super Admin only. Includes inactive services and assigned categories, the current revision, and authorized image metadata. Returns 404 for a missing service and 422 for invalid parameters. STAFF and customers are denied. Reads do not replace the expectedVersion requirement for PATCH. Get a service for administrator management. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `serviceId` | path | string (uuid) | Yes | Identifier selecting the service resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Get a service for administrator management",
+  "data": {
+    "categoryId": "00000000-0000-4000-8000-000000000001",
+    "category": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "slug": "synthetic-slug"
+    },
+    "image": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "url": "https://example.test/continue",
+      "altText": "synthetic-alttext",
+      "sortOrder": 1,
+      "isPrimary": true,
+      "width": 1,
+      "height": 1
+    },
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "description": "synthetic-description",
+    "shortDescription": "synthetic-shortdescription",
+    "pricingType": "FIXED",
+    "priceKobo": "300000",
+    "currency": "NGN",
+    "durationMinutes": "synthetic-durationminutes",
+    "isActive": true,
+    "version": 1,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### PATCH `/admin/services/{serviceId}`
 
@@ -14562,6 +14879,45 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Duplicate slug or stale version; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/service-categories/{categoryId}`
+
+- Operation ID: `getAdminServiceCategoriesByCategoryId`
+- Purpose: ADMIN or SUPER_ADMIN with verified MFA. Returns the current category and revision, including inactive and empty categories, independently of list filters or pagination. Private, no-store. Does not include service records or change category visibility. Updates retain expectedVersion and CSRF enforcement. Read a service category for administration. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `categoryId` | path | string (uuid) | Yes | Identifier selecting the category resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read a service category for administration",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "slug": "synthetic-slug",
+    "description": "synthetic-description",
+    "isActive": true,
+    "version": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Unknown category; 422 Malformed category ID or unsupported query; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### PATCH `/admin/service-categories/{categoryId}`
 
 - Operation ID: `patchAdminServiceCategoriesByCategoryId`
@@ -14671,10 +15027,43 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/promotions/creation-receipts/{requestKey}`
+
+- Operation ID: `getAdminPromotionsCreationReceiptsByRequestKey`
+- Purpose: Admin/Super Admin with verified MFA. Private, no-store, read only. Actor-scoped non-bearer reference valid for 24 hours from its issued timestamp. Returns key and promotionId (null if no committed receipt is currently visible). A null result does not prove an earlier request cannot still commit. Never unlock a new creation on that basis; retry the identical original key/payload only within its recovery window. Expired references fail closed even after receipt cleanup. Check an administrator's promotion creation receipt. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `requestKey` | path | string | Yes | Identifier selecting the request key resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Check an administrator's promotion creation receipt",
+  "data": {
+    "key": "synthetic-key",
+    "promotionId": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/admin/promotions`
 
 - Operation ID: `getAdminPromotions`
-- Purpose: List promotions. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Admin/Super Admin with verified MFA. Private, no-store. Optional trimmed literal case-insensitive name/code substring search (1–160 printable characters), configuration isActive and discountType filters compose with existing createdAt/ID descending cursor pagination. Reset the cursor when filters change. Percent, underscore and backslash are literal search characters. Enabled is configuration, not checkout eligibility; redemption counts and remaining uses are not returned. List promotions. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -14687,6 +15076,8 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `isActive` | query | true / false | No | Is Active used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `discountType` | query | PERCENTAGE / FIXED_AMOUNT | No | Discount Type used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -14714,7 +15105,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/admin/promotions`
 
 - Operation ID: `postAdminPromotions`
-- Purpose: Create a promotion. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Optional Idempotency-Key promotion-v1.<13-digit issued milliseconds>.<UUIDv4> enables actor-scoped, atomic 24-hour creation replay. The normalized payload must match; different input conflicts. Replays return the current promotion plus replayed=true without another creation or audit. First keyed save returns replayed=false. Expired/future keys fail closed, including after cleanup. Unkeyed legacy requests retain their existing behavior. Configuration defaults are unchanged; clients should explicitly send isActive=false for a disabled draft. Create a promotion. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. Supports an optional Idempotency-Key; see the header contract for compatibility, replay and retention rules.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -14725,6 +15116,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+| `idempotency-key` | header | string | No | Unique retry key for this logical mutation. Reuse it only with the identical request. |
 
 JSON request fields:
 

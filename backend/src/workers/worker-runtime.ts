@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { logger } from "../common/observability/logger.js";
 import { safeErrorAttributes } from "../common/observability/safe-error.js";
 import { prisma } from "../config/database.js";
+import { assertDatabaseSchemaCompatible } from "../common/database/schema-safety.js";
 import { assertGeneralWorkerEnvironment, env } from "../config/env.js";
 import { ResendEmailProvider } from "../providers/messaging/resend-email.adapter.js";
 import { TermiiSmsProvider } from "../providers/messaging/termii-sms.adapter.js";
@@ -74,6 +75,7 @@ export async function runGeneralWorker(): Promise<void> {
   let nextReconciliationAt = Date.now() + env.RECONCILIATION_INTERVAL_MS;
 
   await prisma.$connect();
+  await assertDatabaseSchemaCompatible(prisma);
   logger.info(
     {
       emailDelivery: env.EMAIL_DELIVERY_ENABLED,

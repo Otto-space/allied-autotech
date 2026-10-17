@@ -36,8 +36,7 @@ RUN DB_HOST=localhost \
     DB_NAME=container_build \
     DB_USER=container_build \
     DB_PASSWORD=container_build \
-    npm run prisma:generate \
-    && npm run build
+    npm run build
 
 
 # Sharp's platform-specific optional binaries are required for runtime image validation.
@@ -103,13 +102,16 @@ LABEL org.opencontainers.image.title="Allied AutoTech migration job" \
 COPY --chown=node:node prisma.config.ts ./prisma.config.ts
 COPY --chown=node:node src/config/database-tls.ts ./src/config/database-tls.ts
 COPY --chown=node:node src/config/database-url.ts ./src/config/database-url.ts
+COPY --chown=node:node src/config/prisma-command-safety.ts ./src/config/prisma-command-safety.ts
+COPY --chown=node:node scripts/lib/database-safety.ts ./scripts/lib/database-safety.ts
+COPY --chown=node:node scripts/backup-database.ts scripts/migrate-safely.ts scripts/check-database-safety.ts ./scripts/
 COPY --chown=node:node prisma ./prisma
 
 USER node
 
 ENTRYPOINT ["aat-with-database-ca"]
 
-CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"]
+CMD ["node", "--import", "tsx", "scripts/migrate-safely.ts"]
 
 
 # The final stage is the default production API image.

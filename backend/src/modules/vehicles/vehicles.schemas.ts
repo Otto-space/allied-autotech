@@ -73,12 +73,18 @@ export const publicVehicleListQuerySchema = z
       BigInt(value.minPriceKobo) <= BigInt(value.maxPriceKobo),
     { path: ["maxPriceKobo"], message: "Must be at least minPriceKobo" },
   );
-export const staffVehicleListQuerySchema = publicVehicleListQuerySchema.safeExtend({
-  status: z
-    .enum(["DRAFT", "AVAILABLE", "RESERVED", "SOLD", "INACTIVE", "ARCHIVED"])
-    .optional(),
-  branchId: uuid.optional(),
-});
+export const staffVehicleListQuerySchema = publicVehicleListQuerySchema
+  .safeExtend({
+    status: z
+      .enum(["DRAFT", "AVAILABLE", "RESERVED", "SOLD", "INACTIVE", "ARCHIVED"])
+      .optional(),
+    branchId: uuid.optional(),
+    listed: optionalBoolean,
+  })
+  .refine((value) => value.listed !== false || value.status === undefined, {
+    path: ["listed"],
+    message: "An unlisted record cannot have a listing status",
+  });
 
 export const vehicleCreateBodySchema = z
   .object({

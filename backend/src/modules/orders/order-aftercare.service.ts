@@ -184,6 +184,14 @@ export class OrderAftercareService {
       });
     });
   }
+  async staffRequest(actor: AuthenticatedActor, id: string) {
+    return this.database.$transaction(async (tx) => {
+      const record = await tx.orderAftercareRequest.findUnique({ where: { id } });
+      if (!record) throw orderNotFound();
+      await this.authorize(tx, actor, record.orderId);
+      return record;
+    });
+  }
   async list(actor: AuthenticatedActor, orderId: string) {
     assertCustomer(actor);
     if (
@@ -210,8 +218,13 @@ export class OrderAftercareService {
     if (actor.role === "STAFF") {
       const profile = await tx.staffProfile.findUnique({
         where: { userId: actor.userId },
+        select: { branchId: true, branch: { select: { isActive: true } } },
       });
-      if (!profile?.branchId || profile.branchId !== order.branchId)
+      if (
+        !profile?.branchId ||
+        profile.branchId !== order.branchId ||
+        !profile.branch?.isActive
+      )
         throw orderForbidden();
     }
     return order;

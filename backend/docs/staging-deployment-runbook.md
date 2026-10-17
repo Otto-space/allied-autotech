@@ -1,5 +1,10 @@
 # First staging deployment runbook
 
+For the current private-first size, access controls, purchase boundaries and external
+guarded migration sequence, start with [hosting-approval-plan.md](hosting-approval-plan.md).
+References below to the migration component mean its image/job name; App Platform
+now runs a read-only PRE_DEPLOY check after the external guarded migration.
+
 ## Scope and release boundary
 
 This runbook prepares the first Allied AutoTech staging release for:
@@ -238,6 +243,12 @@ The migration job receives only `NODE_ENV`, discrete PostgreSQL credentials,
 TLS mode, CA destination, and CA binding. It does not receive identity,
 payment-provider, object-storage, email, or frontend configuration.
 
+The guarded migration runner requires a confirmed `DB_MIGRATION_TARGET` and fresh
+verified durable backup evidence. Run migrations on the trusted external release
+runner before promotion. The App Platform job retains the `migrate` name but runs
+the read-only schema/history checker. Follow [the current private hosting plan](hosting-approval-plan.md)
+and [database safety](database-safety.md); do not migrate from ephemeral App storage.
+
 The identity worker receives only database/outbox encryption and Resend
 delivery settings. The general worker receives database/outbox encryption,
 notification providers, Paystack test/Monnify sandbox reconciliation, private Spaces
@@ -423,8 +434,9 @@ only for this file-boundary check, never for a database connection.
 - [ ] Create a private Spaces bucket with public listing/access disabled and a
       staging-only least-privilege access key.
 - [ ] Review App Platform's cost summary before clicking Create App.
-- [ ] Confirm the migration job starts first, materializes the CA, applies all
-      forward migrations, and exits `0`.
+- [ ] Complete the guarded external migration with verified durable backup evidence.
+      Confirm the PRE_DEPLOY job materializes the CA, checks history/schema without
+      writing to the database, and exits `0`.
 - [ ] If migration fails, the API revision is not promoted. Preserve logs and
       fix forward; do not reset the database or mark a migration applied
       without database review.

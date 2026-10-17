@@ -22,7 +22,10 @@ import {
 export function createStaffInventoryRouter(): Router {
   const router = Router();
   const controller = new InventoryController();
-  router.use(authenticate(), requireStaff);
+  router.use(authenticate(), requireStaff, (_req, res, next) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    next();
+  });
   router.get("/", validate({ query: inventoryListQuerySchema }), controller.list);
   router.get(
     "/:inventoryId",

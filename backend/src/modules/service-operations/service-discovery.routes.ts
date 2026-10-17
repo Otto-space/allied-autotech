@@ -100,6 +100,24 @@ export function createServiceDiscoveryRouter() {
         );
     },
   );
+  admin.get(
+    "/:categoryId",
+    validate({
+      params: serviceCategoryParamsSchema,
+      query: serviceOperationsEmptyQuerySchema,
+    }),
+    async (req, res) => {
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Service category retrieved",
+            req.id,
+            await repository.adminCategory(categoryId(res)),
+          ),
+        );
+    },
+  );
   admin.post(
     "/",
     requireCsrf,

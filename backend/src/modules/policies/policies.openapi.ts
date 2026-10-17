@@ -256,6 +256,15 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       data: z.array(staffAftercareResponse),
     },
     {
+      method: "get",
+      path: "/staff/order-requests/{id}",
+      summary: "Read one branch-authorized aftercare request for explicit recovery",
+      description:
+        "Private no-store direct read, independent of the latest-100 history window. Requires staff MFA and an active assigned branch for STAFF. Does not replay a review or change order, stock or refunds.",
+      params: id,
+      data: staffAftercareResponse,
+    },
+    {
       method: "post",
       path: "/customers/orders/{id}/returns",
       summary: "Request a whole-order return for timing and condition review",

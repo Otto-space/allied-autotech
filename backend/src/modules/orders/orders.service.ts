@@ -386,7 +386,10 @@ export class OrdersService {
         context,
       }),
     );
-    return jsonSafe(order);
+    return jsonSafe({
+      ...order,
+      allowedTransitions: await this.allowedTransitions(order),
+    });
   }
   async customerCancel(
     actor: AuthenticatedActor,
@@ -520,7 +523,26 @@ export class OrdersService {
       actor.role === "ADMIN" || actor.role === "SUPER_ADMIN",
     );
     if (updated === null) throw orderNotFound();
-    return jsonSafe(updated);
+    return jsonSafe({
+      ...updated,
+      allowedTransitions: await this.allowedTransitions(updated),
+    });
+  }
+  private async allowedTransitions(order: {
+    id: string;
+    status: keyof typeof transitions;
+    paidAt: Date | null;
+  }) {
+    const cancellationAllowed =
+      order.status === "PENDING" ||
+      ((order.status === "CONFIRMED" || order.status === "PROCESSING") &&
+        (await this.database.orderAftercareRequest.findFirst({
+          where: { orderId: order.id, kind: "CANCELLATION", status: "APPROVED" },
+          select: { id: true },
+        })) !== null);
+    return (transitions[order.status] as readonly string[]).filter((status) =>
+      status === "CANCELLED" ? cancellationAllowed : order.paidAt !== null,
+    );
   }
   async expireDue(
     actor: AuthenticatedActor,

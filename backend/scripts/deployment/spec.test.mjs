@@ -74,6 +74,7 @@ function fixtures() {
       OBJECT_STORAGE_BUCKET: "synthetic-private-bucket",
       OBJECT_STORAGE_ACCESS_KEY_ID: "synthetic-access-key",
       OBJECT_STORAGE_SECRET_ACCESS_KEY: randomBytes(24).toString("hex"),
+      PRIVATE_TESTING_PASSWORD: randomBytes(32).toString("hex"),
     },
   };
   const keys = Object.fromEntries(
@@ -81,6 +82,30 @@ function fixtures() {
   );
   return { input, manifest, keys };
 }
+
+test("disabled payments need no provider key and cannot enable reconciliation or live payments", () => {
+  const { input, manifest, keys } = fixtures();
+  input.paystackMode = "disabled";
+  input.values.PAYSTACK_SECRET_KEY = "";
+  const spec = renderSpec(template, input, manifest, keys);
+  for (const component of [...spec.services, ...spec.workers]) {
+    const env = Object.fromEntries(
+      component.envs.map((entry) => [entry.key, entry.value]),
+    );
+    if (env.PAYSTACK_MODE !== undefined) {
+      assert.equal(env.PAYSTACK_MODE, "disabled");
+      assert.equal(env.PAYSTACK_SECRET_KEY, "");
+      assert.equal(env.PAYSTACK_LIVE_ENABLED, "false");
+    }
+    if (env.PAYMENT_RECONCILIATION_ENABLED !== undefined) {
+      assert.equal(env.PAYMENT_RECONCILIATION_ENABLED, "false");
+    }
+  }
+  input.values.PAYSTACK_SECRET_KEY = "sk_live_synthetic";
+  assert.throws(() => renderSpec(template, input, manifest, keys), /empty Paystack key/);
+  input.paystackMode = "live";
+  assert.throws(() => renderSpec(template, input, manifest, keys), /disabled or test/);
+});
 
 test("rendered spec preserves all four process boundaries and initial staging safety gates", () => {
   const { input, manifest, keys } = fixtures();
@@ -97,7 +122,7 @@ test("rendered spec preserves all four process boundaries and initial staging sa
   assert.equal(spec.services[0].liveness_health_check.http_path, "/api/v1/health/live");
   for (const component of [...spec.services, ...spec.workers, ...spec.jobs]) {
     assert.equal(component.instance_count, 1);
-    assert.equal(component.image.registry, input.registry);
+    assert.equal(component.image.registry, undefined);
     assert.match(component.image.digest, /^sha256:[a-f0-9]{64}$/);
     assert.equal(component.image.tag, undefined);
     const env = Object.fromEntries(
@@ -123,6 +148,7 @@ test("rendered spec preserves all four process boundaries and initial staging sa
           "PAYSTACK_SECRET_KEY",
           "OBJECT_STORAGE_ACCESS_KEY_ID",
           "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "PRIVATE_TESTING_PASSWORD",
         ].includes(entry.key)
       ) {
         assert.equal(entry.type, "SECRET");
@@ -155,9 +181,33 @@ test("rendered spec preserves all four process boundaries and initial staging sa
   assert.equal(api.TRUST_PROXY_CIDRS, "");
   assert.equal(api.WEBAUTHN_RP_ID, "staging.alliedautotech.com");
   assert.equal(api.FRONTEND_URL, "https://staging.alliedautotech.com");
+  assert.equal(api.PRIVATE_TESTING_ENABLED, "true");
+  assert.equal(api.PRIVATE_TESTING_PASSWORD, input.values.PRIVATE_TESTING_PASSWORD);
+  assert.equal(
+    spec.jobs[0].run_command,
+    "node --import tsx scripts/check-database-safety.ts",
+  );
+  const pools = [...spec.services, ...spec.workers].map((c) =>
+    Number(c.envs.find((e) => e.key === "DB_POOL_MAX").value),
+  );
+  assert.deepEqual(pools, [4, 1, 2]);
+  assert.ok(pools.reduce((a, b) => a + b, 0) * 2 + 4 <= 22);
+  assert.equal(spec.services[0].instance_size_slug, "apps-s-1vcpu-1gb-fixed");
+  assert.ok(spec.workers.every((c) => c.instance_size_slug === "apps-s-1vcpu-0.5gb"));
+  assert.ok(
+    [...spec.workers, ...spec.jobs].every(
+      (c) => !c.envs.some((e) => e.key === "PRIVATE_TESTING_PASSWORD"),
+    ),
+  );
 });
 
 for (const [description, mutate] of [
+  [
+    "weak private testing credential",
+    ({ input }) => {
+      input.values.PRIVATE_TESTING_PASSWORD = "weak";
+    },
+  ],
   [
     "unresolved credentials",
     ({ input }) => {

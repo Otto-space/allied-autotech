@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [ValidateSet('preflight', 'init', 'keys', 'build', 'push', 'spec', 'validate')]
+    [ValidateSet('preflight', 'init', 'keys', 'private-access', 'build', 'push', 'spec', 'validate')]
     [string]$Action
 )
 

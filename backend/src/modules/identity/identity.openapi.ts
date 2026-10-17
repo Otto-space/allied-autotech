@@ -41,7 +41,7 @@ function registerPost(
     ...(enrollment
       ? {
           description:
-            "Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. A session rotated or revoked after middleware is rejected.",
+            "Requires a current session and CSRF token. A session without MFA verification may enroll only when the account has no active MFA factor and no unused recovery code. Otherwise verify an existing MFA method first (403 MFA_REQUIRED). Eligibility is rechecked atomically during activation. Factor activation, replacement recovery codes, audit and session rotation commit together. TOTP verification may include replaceFactorId to revoke one owned active TOTP registration atomically, only after the new authenticator code is verified. Other factors remain active; invalid codes or failed session rotation leave the previous registration intact. A session rotated or revoked after middleware is rejected.",
         }
       : {}),
     ...(secured ? { security: [{ sessionCookie: [] }] } : {}),

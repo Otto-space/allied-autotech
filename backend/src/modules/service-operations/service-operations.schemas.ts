@@ -46,6 +46,8 @@ export const publicServiceListQuerySchema = z
   .strict();
 export const adminServiceListQuerySchema = publicServiceListQuerySchema.extend({
   isActive: optionalBoolean,
+  search: cleanText(100).min(2).optional(),
+  categoryId: uuid.optional(),
 });
 
 const serviceFields = {

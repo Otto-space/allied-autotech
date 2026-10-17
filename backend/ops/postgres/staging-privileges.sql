@@ -52,7 +52,7 @@ ALTER DEFAULT PRIVILEGES FOR ROLE :"migration_role" IN SCHEMA public
 ALTER DEFAULT PRIVILEGES FOR ROLE :"migration_role" IN SCHEMA public
   GRANT USAGE, SELECT ON SEQUENCES TO :"runtime_role";
 -- On an empty database this table does not exist yet. Re-run after the first
--- PRE_DEPLOY migration, before opening business ingress, to remove this grant.
+-- guarded external migration, before opening business ingress, to remove this grant.
 SELECT format('REVOKE ALL ON TABLE public._prisma_migrations FROM %I', :'runtime_role')
 WHERE to_regclass('public._prisma_migrations') IS NOT NULL
 \gexec

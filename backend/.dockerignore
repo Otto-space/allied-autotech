@@ -22,7 +22,13 @@ compose*.yaml
 docs
 ops
 tests
-scripts
+scripts/**
+!scripts/backup-database.ts
+!scripts/migrate-safely.ts
+!scripts/check-database-safety.ts
+!scripts/lib/
+scripts/lib/**
+!scripts/lib/database-safety.ts
 src/generated
 AGENTS.md
 CLAUDE.md

@@ -231,22 +231,33 @@ export class VehiclesRepository {
           : { branchId }),
         ...(query.make === undefined
           ? {}
-          : { make: { equals: query.make, mode: "insensitive" } }),
+          : { make: { equals: literalPattern(query.make), mode: "insensitive" } }),
         ...(query.model === undefined
           ? {}
-          : { model: { equals: query.model, mode: "insensitive" } }),
+          : { model: { equals: literalPattern(query.model), mode: "insensitive" } }),
         ...(query.year === undefined ? {} : { year: query.year }),
-        ...(query.status === undefined
-          ? {}
-          : { listings: { some: { status: query.status } } }),
+        ...(query.listed === false
+          ? { listings: { none: {} } }
+          : query.status !== undefined
+            ? { listings: { some: { status: query.status } } }
+            : query.listed === true
+              ? { listings: { some: {} } }
+              : {}),
         ...(query.search === undefined
           ? {}
           : {
               OR: [
-                { stockNumber: { contains: query.search, mode: "insensitive" } },
-                { make: { contains: query.search, mode: "insensitive" } },
-                { model: { contains: query.search, mode: "insensitive" } },
-                { vin: { contains: query.search, mode: "insensitive" } },
+                {
+                  stockNumber: {
+                    contains: literalPattern(query.search),
+                    mode: "insensitive",
+                  },
+                },
+                { make: { contains: literalPattern(query.search), mode: "insensitive" } },
+                {
+                  model: { contains: literalPattern(query.search), mode: "insensitive" },
+                },
+                { vin: { contains: literalPattern(query.search), mode: "insensitive" } },
               ],
             }),
       },

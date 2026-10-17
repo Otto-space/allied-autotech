@@ -668,6 +668,7 @@ export class IdentityService {
     session: MfaEnrollmentSession,
     factorId: string,
     code: string,
+    replaceFactorId?: string,
   ) {
     await this.database.$transaction((tx) =>
       this.assertMfaEnrollment(tx, userId, session),
@@ -687,11 +688,48 @@ export class IdentityService {
     const usedAt = verification.usedAt;
     return this.database.$transaction(async (tx) => {
       await this.assertMfaEnrollment(tx, userId, session);
+      if (replaceFactorId) {
+        const previous = await tx.mfaFactor.findFirst({
+          where: {
+            id: replaceFactorId,
+            userId,
+            type: "TOTP",
+            status: "ACTIVE",
+            revokedAt: null,
+          },
+          select: { id: true },
+        });
+        if (!previous) throw invalidToken();
+      }
       const activated = await tx.mfaFactor.updateMany({
         where: { id: factor.id, userId, status: "PENDING", revokedAt: null },
         data: { status: "ACTIVE", verifiedAt: now, lastUsedAt: usedAt },
       });
       if (activated.count !== 1) throw invalidToken();
+      if (replaceFactorId) {
+        // Activate first, then revoke only the selected old registration. Commit
+        // together with recovery codes/audit/session rotation, or roll back everything.
+        const revoked = await tx.mfaFactor.updateMany({
+          where: {
+            id: replaceFactorId,
+            userId,
+            type: "TOTP",
+            status: "ACTIVE",
+            revokedAt: null,
+          },
+          data: { status: "REVOKED", revokedAt: now },
+        });
+        if (revoked.count !== 1) throw invalidToken();
+        await tx.auditLog.create({
+          data: {
+            userId,
+            action: "MFA_DISABLED",
+            entityType: "MFA_FACTOR",
+            entityId: replaceFactorId,
+            newValues: { replacementFactorId: factor.id },
+          },
+        });
+      }
       await tx.mfaRecoveryCode.deleteMany({ where: { userId } });
       await tx.mfaRecoveryCode.createMany({
         data: recoveryCodes.map(({ hash }) => ({ userId, codeHash: hash })),
