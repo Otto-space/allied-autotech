@@ -2275,6 +2275,7 @@ model Promotion {
   description               String?
   discountType              DiscountType
   percentageBasisPoints     Int?
+  /// Zero is valid configuration; checkout rejects a zero payable discount.
   fixedAmountKobo           BigInt?
   minimumOrderAmountKobo    BigInt?
   maximumDiscountAmountKobo BigInt?
