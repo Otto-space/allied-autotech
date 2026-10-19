@@ -7,9 +7,9 @@ Vercel API, and the private frontend is now deployed and connected to DigitalOce
 
 - Frontend: https://allied-autotech-staging-5ae8fa4d.vercel.app
 - Backend: https://allied-autotech-staging-825no.ondigitalocean.app
-- Vercel deployment: `dpl_GdFDNkZoXwBrV9zUcYEXQp3XWhMW`, `READY`.
+- Vercel deployment: `dpl_A9v1J2s4pN2USSHUxZHhGgBjGbxE`, `READY`.
 - Source: `deploy/private-testing-20261017`, commit
-  `8d12e25ed3139a5e1e1c083502299cd74d15322b`.
+  `8ace6e62d647d7f6253b335b1c47205cadf0147e`.
 - Backend configuration deployment: `4bd5e10f-a02d-4cab-ab43-8608dc2e34ed`, `ACTIVE`.
 
 The existing project is `allied-autotech` in
@@ -26,10 +26,15 @@ additional DigitalOcean resource was purchased for this connection.
    existing password from the local, ignored, ACL-restricted
    `backend/ops/digitalocean/.private/private-access.json`. Never paste that file
    or password into chat, source control, screenshots or public documentation.
-3. The application's own Sign in page is a separate account login. No hosted
+3. After successful private entry, a signed, host-only, Secure/HttpOnly cookie
+   remembers access for eight hours across tabs and reloads in that browser.
+   A different browser/profile, cleared cookies or expired access requires the
+   password again. Rotating the shared password invalidates existing cookies.
+   This cookie grants no application account permissions.
+4. The application's own Sign in page is a separate account login. No hosted
    owner account or local customer/catalogue data has been imported. Empty
    services/products/vehicles therefore do not indicate a failed connection.
-4. Staff who cannot pass Vercel protection need an intentionally shared preview
+5. Staff who cannot pass Vercel protection need an intentionally shared preview
    through Vercel's sharing controls, or the later custom staging domain. Do not
    disable protection project-wide or purchase extra seats as a workaround.
 
@@ -78,7 +83,7 @@ team, with this non-secret body and authenticated CLI/API access:
     "type": "github",
     "repoId": "1361226429",
     "ref": "deploy/private-testing-20261017",
-    "sha": "8d12e25ed3139a5e1e1c083502299cd74d15322b"
+    "sha": "8ace6e62d647d7f6253b335b1c47205cadf0147e"
   }
 }
 ```
@@ -111,10 +116,79 @@ script. Expected unauthenticated session requests returned 401. These checks do
 not establish successful authenticated saves, MFA, image uploads or checkout.
 Those workflows need designated verified staging accounts and approved test data.
 
-`staging.alliedautotech.com` has not been attached or configured in DNS by this
-work. Moving to it later requires coordinated Vercel/domain, backend link and
-WebAuthn settings; passkeys are tied to the RP hostname. Email/SMS/payment
-activation, business policy publication and public launch remain separate steps.
+### Remembered private access verification - 19 October
+
+The private-access fix is live in commit `8ace6e62d647d7f6253b335b1c47205cadf0147e`
+and deployment `dpl_A9v1J2s4pN2USSHUxZHhGgBjGbxE`. The cookie contains a random,
+HMAC-signed, host-bound proof with an eight-hour expiry, not the shared password.
+The backend keeps its existing Basic gate; the frontend supplies that credential
+only as an internal request override for its fixed `/api/v1` rewrite after
+validating the private cookie. Account cookies, origin and CSRF headers remain
+intact. No database or backend change was required.
+
+Validation completed:
+
+- 20 targeted unit tests passed, including expiry, tampering, host binding,
+  password rotation, cookie attributes and application-header preservation.
+- Targeted ESLint, formatting, full production build and TypeScript passed.
+- The built Next server passed the existing synthetic-API probe extended for
+  cookie-only page/API access and response-secret checks. Docker was unavailable,
+  so this probe ran against a temporary local production server and fake API on
+  loopback, with generated test credentials and no database connection. Both
+  processes were stopped afterwards; this was not a Docker-image test.
+- Hosted Chrome received the Secure/HttpOnly/SameSite=Lax cookie, invisible to
+  page JavaScript. A separate context using only the stored cookie, with no Basic
+  credentials configured, passed reload, new tab, tab switching, catalogue API
+  and a page reload after the expected unauthenticated application-session 401.
+- Every checked browser request lacked an Authorization header; returned headers
+  contained no shared testing password or upstream Basic credential. API session
+  still required application authentication. Missing and altered private cookies
+  returned 401 with the private gate challenge.
+- All seven build/runtime environment names were verified, the stable alias was
+  assigned, and production deployment/protection remained unchanged. Temporary
+  automation access was revoked and both verification browsers were closed.
+
+### Custom domain preparation and deferred email setup
+
+`staging.alliedautotech.com` is now attached in Vercel to the private release
+branch. Vercel accepted ownership but reports missing DNS. Cloudflare is the
+current authoritative DNS provider. Add this record in its `alliedautotech.com`
+zone when ready:
+
+| Type  | Name      | Target                                | Proxy    | TTL  |
+| ----- | --------- | ------------------------------------- | -------- | ---- |
+| CNAME | `staging` | `e59765530a95057a.vercel-dns-017.com` | DNS only | Auto |
+
+This target was returned by the Vercel domain-configuration API on 19 October.
+No Cloudflare records were changed. The existing `vercel.app` preview remains
+the configured application origin. DNS alone is not a completed cutover: confirm
+TLS and private access, then coordinate Preview `SITE_ORIGIN`, backend links and
+WebAuthn RP/origins before using the custom hostname for account registration or
+passkeys. Space CORS already includes this exact custom origin.
+
+The user deferred Resend and Super Admin setup. A read-only check found that the
+locally configured Resend API key was rejected as invalid; its sender uses
+`resend.dev`, and no staging recipient allowlist is configured. Nothing was sent
+or enabled. Later setup needs a verified owned sender domain, valid sending key,
+an approved real test recipient and normal email verification before owner
+bootstrap. No account should be auto-verified.
+
+The supplied Cloudflare MX records (`route1`, `route2`, `route3.mx.cloudflare.net`),
+DKIM TXT and SPF TXT configure incoming Email Routing, independently of Resend
+sending. Public DNS checks on 19 October found no existing MX/SPF records and no
+published supplied DKIM record. Recheck before changing DNS because that snapshot
+can become stale. Preserve any existing mailbox provider if the dashboard shows
+conflicting records. Cloudflare's wizard should add its exact proposed values;
+do not invent or shorten the DKIM key. Verify the destination mailbox and create
+routing rules before expecting forwarded mail. Setting up forwarding does not
+configure this application's Resend provider or branded replies from a mailbox.
+
+References: [Cloudflare routing setup](https://developers.cloudflare.com/email-service/get-started/route-emails/),
+[Resend domain verification](https://resend.com/docs/dashboard/domains/introduction),
+and [Vercel custom domains](https://vercel.com/docs/domains/working-with-domains/add-a-domain).
+
+Email/SMS/payment activation, business policy publication and public launch remain
+separate steps.
 
 Private evidence is under `backend/ops/digitalocean/.private/*20261019*`.
 Earlier local Docker connection/secret-exposure checks remain documented in the

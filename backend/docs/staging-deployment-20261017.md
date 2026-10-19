@@ -5,7 +5,7 @@ The backend and connected Vercel frontend are active for private testing as of 1
 - Backend: https://allied-autotech-staging-825no.ondigitalocean.app
 - Active backend deployment: `4bd5e10f-a02d-4cab-ab43-8608dc2e34ed`
 - Frontend: https://allied-autotech-staging-5ae8fa4d.vercel.app
-- Active frontend deployment: `dpl_GdFDNkZoXwBrV9zUcYEXQp3XWhMW`
+- Active frontend deployment: `dpl_A9v1J2s4pN2USSHUxZHhGgBjGbxE`
 - Private gate username: `allied-test`. Its password is stored only in the ignored, ACL-restricted `backend/ops/digitalocean/.private/private-access.json`; do not paste it into chat or commit it.
 - The private gate is separate from customer/staff application login. No owner account or customer data was imported into staging.
 
@@ -153,3 +153,27 @@ Vercel production remained `dpl_HGgU9YQ28xdj8VTzdHTkPrJQsppf`; its variables and
 project-wide sign-in protection were preserved. Email, SMS and payments remain
 disabled. See the [frontend guide](../../frontend/docs/vercel-deployment.md) for
 private access instructions, remaining account setup and repeat deployment steps.
+
+## Private-access follow-up - 19 October 2026
+
+The frontend-only remembered-access fix is deployed from
+`8ace6e62d647d7f6253b335b1c47205cadf0147e` as
+`dpl_A9v1J2s4pN2USSHUxZHhGgBjGbxE`. Successful private entry now sets a signed,
+host-bound, Secure/HttpOnly cookie valid for eight hours. Chrome verified reloads,
+multiple tabs and API access without browser Basic credentials, plus rejection of
+missing/altered cookies and continued application-session enforcement. The shared
+password was absent from checked responses. Twenty unit tests, the production
+build, targeted static checks and a local built-server probe passed; Docker was
+unavailable, so no image rebuild/check is claimed for this frontend-only change.
+The temporary Vercel bypass was revoked. Production remained unchanged.
+
+`staging.alliedautotech.com` is attached to the private release branch in Vercel;
+its Cloudflare CNAME is still pending. Keep using the configured `vercel.app`
+origin until DNS/TLS and a coordinated origin/WebAuthn cutover are verified.
+The exact DNS target is in the frontend deployment guide.
+
+The user explicitly deferred Resend and initial owner setup. The local Resend key
+was rejected as invalid during a read-only domain API check, and the configured
+sender uses `resend.dev`. No email was sent, provider enabled, owner created,
+application record changed or database/schema operation performed. The previously
+verified backups and restore rehearsal were not repeated for this frontend change.
