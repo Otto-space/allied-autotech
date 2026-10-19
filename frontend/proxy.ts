@@ -6,6 +6,10 @@ import { indexingEnabled, privatePage } from "./lib/seo";
 import {
   privateTestingAllowed,
   privateTestingAuthorization,
+  createPrivateTestingCookie,
+  privateTestingCookieAllowed,
+  privateTestingCookieName,
+  privateTestingCookieSeconds,
 } from "./lib/private-testing";
 
 function contentSecurityPolicy(nonce: string, allowWorkshopMap: boolean): string {
@@ -54,11 +58,19 @@ export function proxy(request: NextRequest) {
     /^\/images\/allied-autotech\/[a-z0-9-]+\.(?:webp|png|jpe?g|svg|avif)$/.test(
       request.nextUrl.pathname,
     );
-  if (
+  const basicAllowed = Boolean(
     authorization &&
-    !publicBrandImage &&
-    !privateTestingAllowed(request.headers.get("authorization"), authorization)
-  ) {
+    privateTestingAllowed(request.headers.get("authorization"), authorization),
+  );
+  const cookieAllowed = Boolean(
+    authorization &&
+    privateTestingCookieAllowed(
+      request.cookies.get(privateTestingCookieName)?.value,
+      request.nextUrl.host,
+      authorization,
+    ),
+  );
+  if (authorization && !publicBrandImage && !basicAllowed && !cookieAllowed) {
     return new NextResponse("Private testing access is required.", {
       status: 401,
       headers: {
@@ -68,6 +80,22 @@ export function proxy(request: NextRequest) {
         "X-Robots-Tag": "noindex, nofollow",
       },
     });
+  }
+  function rememberAccess(response: NextResponse) {
+    if (authorization && basicAllowed && !cookieAllowed && !publicBrandImage) {
+      response.cookies.set(
+        privateTestingCookieName,
+        createPrivateTestingCookie(request.nextUrl.host, authorization),
+        {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          path: "/",
+          maxAge: privateTestingCookieSeconds,
+        },
+      );
+    }
+    return response;
   }
   // Gate API rewrites, prefetches and assets too, but keep the established CSP
   // handling limited to page responses. Authorization passes through the rewrite.
@@ -79,12 +107,27 @@ export function proxy(request: NextRequest) {
     request.headers.has("next-router-prefetch") ||
     request.headers.get("purpose") === "prefetch"
   ) {
-    const response = NextResponse.next();
+    // Only the fixed backend rewrite needs the upstream Basic credential when
+    // the browser presents its signed proof. These are internal REQUEST headers,
+    // never response headers or client-side configuration.
+    let forwardedHeaders: Headers | undefined;
+    if (
+      authorization &&
+      cookieAllowed &&
+      !basicAllowed &&
+      /^\/api\/v1(?:\/|$)/.test(request.nextUrl.pathname)
+    ) {
+      forwardedHeaders = new Headers(request.headers);
+      forwardedHeaders.set("authorization", authorization);
+    }
+    const response = NextResponse.next(
+      forwardedHeaders ? { request: { headers: forwardedHeaders } } : undefined,
+    );
     if (authorization) {
       response.headers.set("Cache-Control", "private, no-store");
       response.headers.set("X-Robots-Tag", "noindex, nofollow");
     }
-    return response;
+    return rememberAccess(response);
   }
   const nonce = crypto.randomUUID().replaceAll("-", "");
   const csp = contentSecurityPolicy(
@@ -106,7 +149,7 @@ export function proxy(request: NextRequest) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   else if (!privatePage(request.nextUrl.pathname) && request.nextUrl.search)
     response.headers.set("X-Robots-Tag", "noindex, follow");
-  return response;
+  return rememberAccess(response);
 }
 
 export const config = {
