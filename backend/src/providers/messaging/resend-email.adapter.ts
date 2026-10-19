@@ -10,13 +10,19 @@ import { withProviderResponse } from "../provider-http.js";
 export class ResendEmailProvider implements EmailProvider {
   private readonly apiKey: string;
   private readonly from: string;
+  private readonly replyTo: string | undefined;
 
-  constructor(apiKey = env.RESEND_API_KEY, from = env.RESEND_FROM_EMAIL) {
+  constructor(
+    apiKey = env.RESEND_API_KEY,
+    from = env.RESEND_FROM_EMAIL,
+    replyTo = env.RESEND_REPLY_TO_EMAIL,
+  ) {
     if (apiKey === undefined || from === undefined) {
       throw new Error("Resend email delivery is not configured");
     }
     this.apiKey = apiKey;
     this.from = from;
+    this.replyTo = replyTo;
   }
 
   async send(message: TransactionalEmail): Promise<void> {
@@ -32,6 +38,7 @@ export class ResendEmailProvider implements EmailProvider {
           },
           body: JSON.stringify({
             from: this.from,
+            ...(this.replyTo === undefined ? {} : { reply_to: this.replyTo }),
             to: [message.to],
             subject: message.subject,
             text: message.text,

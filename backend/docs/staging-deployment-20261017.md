@@ -177,3 +177,41 @@ was rejected as invalid during a read-only domain API check, and the configured
 sender uses `resend.dev`. No email was sent, provider enabled, owner created,
 application record changed or database/schema operation performed. The previously
 verified backups and restore rehearsal were not repeated for this frontend change.
+
+## Mailbox decision and email preparation - 19 October 2026
+
+The owner selected Google Workspace for branded Gmail mailboxes and
+`alliedautotechltd@gmail.com` for the application's initial Super Admin. The
+Workspace administrator login is separate. No subscription was purchased, user
+created/verified, ownership granted or message sent in this preparation.
+
+A fresh DNS audit found no root MX/SPF/DMARC, no expected Resend sending records,
+and no staging CNAME. Vercel still reports that custom domain as misconfigured;
+its preferred CNAME target was rechecked. The backend remains ACTIVE at
+`4bd5e10f-a02d-4cab-ab43-8608dc2e34ed`, using the existing `vercel.app` origin,
+with email/SMS/payments disabled. No live settings or database operations were
+performed during this audit. The earlier Resend key check rejected the locally
+saved key as invalid; a valid sending-only key is still required.
+
+Source now supports optional, email-validated `RESEND_REPLY_TO_EMAIL`, mapped to
+Resend's `reply_to`. The example environment, both worker template entries and
+runtime matrix include it. This source change is prepared, not deployed in the
+current immutable backend images. Build/release it before activating email.
+The private preparation file selects `noreply@mail.alliedautotech.com`, reply
+address `support@alliedautotech.com`, and only `alliedautotechltd@gmail.com` as the
+initial test recipient, with sending disabled and a blank key placeholder.
+
+Validation: 54 focused adapter/transport/environment unit tests passed without
+external sends or database access; targeted lint/format checks passed. Prisma
+client generation used synthetic local configuration and made no database
+connection. TypeScript checking passed with declaration/declaration-map generation
+disabled, because the isolated checkout's dependency junction caused portable
+inferred-declaration errors in existing unrelated exports with default settings.
+No schema changed; no migration, database check or restore rehearsal was run for
+this preparation. A clean image build and release checks remain part of rollout.
+
+The detailed [Workspace and hosting setup guide](../../frontend/docs/vercel-deployment.md#owner-setup-google-workspace-cloudflare-resend-and-staging)
+supersedes the earlier Cloudflare-forwarding path. Google owns root mailbox MX;
+Resend uses its separate sending/bounce subdomain. Coordinate the frontend,
+backend links and WebAuthn origin only after DNS/TLS is ready. Public production,
+resource sizes, existing secrets and purchase approvals remain unchanged.

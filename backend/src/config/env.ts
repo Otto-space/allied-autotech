@@ -180,6 +180,7 @@ const environmentSchema = z.object({
 
   RESEND_API_KEY: optionalNonEmptyString,
   RESEND_FROM_EMAIL: optionalEmail,
+  RESEND_REPLY_TO_EMAIL: optionalEmail,
   EMAIL_DELIVERY_ENABLED: booleanValue(false),
   SMS_DELIVERY_ENABLED: booleanValue(false),
   STAGING_EMAIL_ALLOWLIST: optionalCommaSeparatedValues,

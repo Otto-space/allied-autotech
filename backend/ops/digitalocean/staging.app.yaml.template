@@ -644,6 +644,12 @@
           "type": "GENERAL"
         },
         {
+          "key": "RESEND_REPLY_TO_EMAIL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
           "key": "STAGING_EMAIL_ALLOWLIST",
           "value": "",
           "scope": "RUN_TIME",
@@ -805,6 +811,12 @@
         },
         {
           "key": "RESEND_FROM_EMAIL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_REPLY_TO_EMAIL",
           "value": "",
           "scope": "RUN_TIME",
           "type": "GENERAL"

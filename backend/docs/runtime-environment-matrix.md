@@ -67,6 +67,7 @@ Generated from `ops/digitalocean/staging.app.yaml.template`. `Secret` means the 
 | `REQUEST_BODY_LIMIT` | Set | - | - | - |
 | `RESEND_API_KEY` | - | Secret | Secret | - |
 | `RESEND_FROM_EMAIL` | - | Set | Set | - |
+| `RESEND_REPLY_TO_EMAIL` | - | Set | Set | - |
 | `SERVICE_NAME` | Set | Set | Set | Set |
 | `SMS_DELIVERY_ENABLED` | Set | - | Set | - |
 | `STAGING_EMAIL_ALLOWLIST` | Set | Set | Set | - |

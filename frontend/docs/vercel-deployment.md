@@ -148,47 +148,263 @@ Validation completed:
   assigned, and production deployment/protection remained unchanged. Temporary
   automation access was revoked and both verification browsers were closed.
 
-### Custom domain preparation and deferred email setup
+### Owner setup: Google Workspace, Cloudflare, Resend and staging
 
-`staging.alliedautotech.com` is now attached in Vercel to the private release
-branch. Vercel accepted ownership but reports missing DNS. Cloudflare is the
-current authoritative DNS provider. Add this record in its `alliedautotech.com`
-zone when ready:
+Updated 19 October 2026. This replaces the older pasted checklist's Hobby-plan,
+unpublished-branch and Cloudflare-forwarding instructions. The owner explicitly
+chose Google Workspace for branded Gmail mailboxes. The selected Allied AutoTech
+application Super Admin email is `alliedautotechltd@gmail.com`; selecting it does
+not create, verify or grant ownership to an account. Google Workspace's administrator
+account is separate from this application's Super Admin.
+
+| Checklist item                                    | Current status                                               | Next action                                                |
+| ------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| Vercel Pro and published private branch           | Complete                                                     | Preserve Preview-only configuration                        |
+| Private frontend and backend connection           | Complete on the `vercel.app` hostname                        | Continue using the current private URL                     |
+| DigitalOcean database, private Spaces and workers | Connected; app ACTIVE                                        | No new infrastructure purchase required                    |
+| Spaces CORS                                       | Allows current and planned staging origins                   | No CORS change needed for the custom-domain switch         |
+| Vercel custom staging domain                      | Attached to the release branch                               | Cloudflare CNAME and TLS still pending                     |
+| Google Workspace mailbox                          | Subscription/setup not confirmed; no published root MX found | Owner completes Google setup below                         |
+| Google verification, SPF, DKIM and DMARC          | No root SPF/DMARC found at this audit                        | Add account-specific records during setup                  |
+| Resend sending domain                             | Required DNS records not found                               | Verify `mail.alliedautotech.com`                           |
+| Resend credentials                                | Last local key check rejected it as invalid                  | Save a new sending-only key locally                        |
+| Reply-To support                                  | Implemented and tested in source                             | Build/release the updated backend before email activation  |
+| Initial application owner                         | Email selected; provisioning not performed                   | Normal registration/verification, then guarded bootstrap   |
+| Messaging/payments                                | Disabled                                                     | Keep disabled until the relevant setup/testing is complete |
+
+DNS is a point-in-time observation, not proof of the contents of a provider's
+private dashboard. No Cloudflare/Google/Resend account settings were changed.
+Vercel and DigitalOcean configuration were inspected read-only in this audit.
+
+#### 1. Create the branded Gmail mailbox
+
+1. Open [Google Workspace](https://workspace.google.com/). If you already have a
+   Workspace subscription, use [Google Admin](https://admin.google.com/) instead
+   of creating another subscription.
+2. For one owner initially handling mail, review Business Starter with one user.
+   Google shows the final local price, tax, billing interval, trial and renewal
+   terms at checkout. Any new subscription is the owner's purchase decision;
+   the deployment agent has not purchased or started a paid plan.
+3. Choose **use an existing domain** and enter `alliedautotech.com`.
+4. Use `alliedautotechltd@gmail.com` as an external contact/recovery address where
+   Google requests one. Create a separate Workspace login such as
+   `owner@alliedautotech.com`. This does not convert or replace the existing Gmail
+   account. Keep the owner login private and enable Google two-step verification.
+5. Google will provide a domain-verification TXT record. Copy its exact value.
+
+Starter supports custom business email; see [Google's plan comparison](https://workspace.google.com/pricing.html).
+Do not share one user's password with staff; separate staff access can be planned
+when needed, with any additional cost approved first.
+
+#### 2. Verify ownership and route incoming mail to Google
+
+1. Open Cloudflare, select `alliedautotech.com`, then **DNS > Records**.
+2. Add Google's verification TXT at the name Google specifies (usually `@`),
+   with its complete `google-site-verification=...` value and TTL Auto.
+3. Return to Google Admin and complete verification.
+4. Follow **Activate Gmail** in Google's setup flow. For a new setup, Google's
+   published MX configuration is:
+
+| Type | Name | Value             | Priority | TTL  |
+| ---- | ---- | ----------------- | -------- | ---- |
+| MX   | `@`  | `smtp.google.com` | `1`      | Auto |
+
+Use the exact instructions shown for your Google account. Existing working
+legacy Google `aspmx` records are supported and need not be changed merely to
+match this new-account example.
+
+The earlier `route1`, `route2`, `route3.mx.cloudflare.net` records are for
+Cloudflare forwarding. Do not add them for this Workspace plan. If forwarding
+has since been activated, disable that routing configuration during the planned
+Google cutover, then replace its root MX records with Google's. Preserve any
+unrecognized working mail provider until its use is checked. Root mailbox MX
+changes must not remove Resend's later `send.mail` bounce MX record.
+
+5. Return to Google Admin and finish **Activate Gmail**. DNS may take time to
+   propagate; wait for Google's verification before treating the mailbox as ready.
+6. Sign in to Gmail as the new Workspace user and test receiving and replying
+   using a separate external inbox.
+
+Source: [Google MX setup](https://knowledge.workspace.google.com/admin/domains/set-up-mx-records-for-google-workspace).
+
+#### 3. Authenticate Google mail and create business addresses
+
+In Cloudflare add one root SPF TXT for the planned Google-only root-domain sender:
+
+```text
+Type: TXT
+Name: @
+Content: v=spf1 include:_spf.google.com ~all
+TTL: Auto
+```
+
+Do not add a second SPF record at the same name. If a root SPF already exists,
+review and edit it to include the actual active senders. Resend will use its own
+sending subdomain and dashboard-supplied SPF; do not copy its subdomain record to
+`@`. The previously proposed Cloudflare-only SPF is not the Workspace setting.
+See [Google SPF setup](https://knowledge.workspace.google.com/admin/security/set-up-spf).
+
+In Google Admin go to **Apps > Google Workspace > Gmail > Authenticate email**,
+select the domain, and generate a 2048-bit DKIM record when available. Add the exact
+TXT name/value Google displays in Cloudflare (usually `google._domainkey`), then
+return and select **Start authentication**. Google may require a waiting period
+after Gmail activation before a key can be generated. Follow its displayed state.
+See [Google DKIM setup](https://knowledge.workspace.google.com/admin/security/set-up-dkim).
+
+If `_dmarc` has no existing TXT policy, add this non-enforcing starter policy:
+
+```text
+Type: TXT
+Name: _dmarc
+Content: v=DMARC1; p=none;
+TTL: Auto
+```
+
+This does not request aggregate reports and does not enforce quarantine/rejection.
+After Google and Resend authentication are tested, review reporting and a stronger
+policy. Do not overwrite a pre-existing stronger policy or add duplicate policies.
+See [DMARC guidance](https://resend.com/docs/dashboard/domains/dmarc).
+
+In Google Admin go to **Directory > Users > your Workspace user > Alternate emails**
+and create addresses that the owner will monitor:
+
+| Address                       | Purpose                                             | Initial destination            |
+| ----------------------------- | --------------------------------------------------- | ------------------------------ |
+| `support@alliedautotech.com`  | Customer care, complaints and replies to app emails | Owner's Workspace inbox        |
+| `hello@alliedautotech.com`    | General enquiries                                   | Same inbox                     |
+| `billing@alliedautotech.com`  | Invoices and payment/refund correspondence          | Owner-only inbox initially     |
+| `bookings@alliedautotech.com` | Service scheduling                                  | Optional alias                 |
+| `sales@alliedautotech.com`    | Products and vehicles                               | Optional alias                 |
+| `privacy@alliedautotech.com`  | Privacy requests                                    | Optional monitored alias       |
+| `security@alliedautotech.com` | Security reports                                    | Optional owner-monitored alias |
+
+These are aliases, not separate user logins. Google supports up to 30 aliases per
+user without an additional alias charge. If billing needs a different audience
+from support later, do not place both in a shared inbox. See [Google aliases](https://knowledge.workspace.google.com/admin/users/add-or-delete-an-alternate-email-address-email-alias).
+
+In the Workspace Gmail settings, configure the aliases under **Accounts > Send
+mail as** as prompted, then test that a reply from `support@` actually displays
+that address. Do not assume an alias's receiving setup alone selects the reply
+From address. See [Gmail send-as guidance](https://support.google.com/mail/answer/22370).
+
+#### 4. Configure Resend for automated sending
+
+1. In [Resend Domains](https://resend.com/domains), add `mail.alliedautotech.com`.
+   Keep Receiving disabled. Google handles staff mail on the root domain.
+2. Choose manual DNS setup and copy the exact records into Cloudflare's
+   `alliedautotech.com` zone. The usual names are below; the actual types, values,
+   region and priority must come from your Resend dashboard.
+
+| Purpose     | Typical Cloudflare name  | Value                               |
+| ----------- | ------------------------ | ----------------------------------- |
+| DKIM        | `resend._domainkey.mail` | Complete Resend-supplied key/target |
+| Sending SPF | `send.mail`              | Resend-supplied SPF TXT             |
+| Bounce MX   | `send.mail`              | Resend-supplied MX and priority     |
+
+These do not replace Google's root MX. Use DNS-only for any CNAME Resend supplies.
+The `mail` subdomain is a sending identity; no website A record or mailbox purchase
+is required for it. Return to Resend and wait for Verified. See
+[Resend's Cloudflare instructions](https://resend.com/docs/guides/dns/cloudflare). 3. Create a key named `allied-autotech-staging`, with Sending access restricted
+to the verified domain. Do not purchase a Resend upgrade without approving it. 4. Save the key locally in `backend/.env` as `RESEND_API_KEY`. Never paste it into
+chat, frontend variables, Git or screenshots. The old saved key was rejected. 5. Prepare these non-secret settings, retaining disabled delivery:
+
+```dotenv
+RESEND_FROM_EMAIL=noreply@mail.alliedautotech.com
+RESEND_REPLY_TO_EMAIL=support@alliedautotech.com
+STAGING_EMAIL_ALLOWLIST=alliedautotechltd@gmail.com
+EMAIL_DELIVERY_ENABLED=false
+SMS_DELIVERY_ENABLED=false
+```
+
+`noreply@mail.alliedautotech.com` is a Resend sender, not another paid Workspace
+user. The application validates plain email addresses in these settings; do not
+include a display name. The new `RESEND_REPLY_TO_EMAIL` setting is supported by
+the prepared source change but is not in the currently hosted backend image yet.
+Setting it on that old image will not activate Reply-To. The updated worker images
+must be released before email is enabled. Sources: [Resend API keys](https://resend.com/changelog/new-api-key-permissions)
+and [Reply-To API field](https://resend.com/docs/api-reference/emails/send-email).
+
+#### 5. Add the private website CNAME in Cloudflare
+
+The Vercel domain and branch assignment are already prepared. Add:
 
 | Type  | Name      | Target                                | Proxy    | TTL  |
 | ----- | --------- | ------------------------------------- | -------- | ---- |
 | CNAME | `staging` | `e59765530a95057a.vercel-dns-017.com` | DNS only | Auto |
 
-This target was returned by the Vercel domain-configuration API on 19 October.
-No Cloudflare records were changed. The existing `vercel.app` preview remains
-the configured application origin. DNS alone is not a completed cutover: confirm
-TLS and private access, then coordinate Preview `SITE_ORIGIN`, backend links and
-WebAuthn RP/origins before using the custom hostname for account registration or
-passkeys. Space CORS already includes this exact custom origin.
+This exact preferred target was rechecked through Vercel's API on 19 October.
+In Vercel open **allied-autotech > Settings > Domains** and wait for a valid
+configuration and HTTPS certificate. Do not change root or `www` website records.
+No nameserver transfer or additional domain purchase is needed.
 
-The user deferred Resend and Super Admin setup. A read-only check found that the
-locally configured Resend API key was rejected as invalid; its sender uses
-`resend.dev`, and no staging recipient allowlist is configured. Nothing was sent
-or enabled. Later setup needs a verified owned sender domain, valid sending key,
-an approved real test recipient and normal email verification before owner
-bootstrap. No account should be auto-verified.
+Keep using the current `vercel.app` preview until the coordinated configuration
+switch below is complete; DNS alone does not change login links or passkey scope.
 
-The supplied Cloudflare MX records (`route1`, `route2`, `route3.mx.cloudflare.net`),
-DKIM TXT and SPF TXT configure incoming Email Routing, independently of Resend
-sending. Public DNS checks on 19 October found no existing MX/SPF records and no
-published supplied DKIM record. Recheck before changing DNS because that snapshot
-can become stale. Preserve any existing mailbox provider if the dashboard shows
-conflicting records. Cloudflare's wizard should add its exact proposed values;
-do not invent or shorten the DKIM key. Verify the destination mailbox and create
-routing rules before expecting forwarded mail. Setting up forwarding does not
-configure this application's Resend provider or branded replies from a mailbox.
+#### 6. Vercel and DigitalOcean: coordinate the hostname switch
 
-References: [Cloudflare routing setup](https://developers.cloudflare.com/email-service/get-started/route-emails/),
-[Resend domain verification](https://resend.com/docs/dashboard/domains/introduction),
-and [Vercel custom domains](https://vercel.com/docs/domains/working-with-domains/add-a-domain).
+These are the operator steps I can complete after DNS/TLS is ready. The owner
+need not manually re-enter existing secrets or recreate infrastructure.
 
-Email/SMS/payment activation, business policy publication and public launch remain
-separate steps.
+In Vercel **Settings > Environment Variables**, retain Preview-only scope for
+branch `deploy/private-testing-20261017`. Change only `SITE_ORIGIN` to
+`https://staging.alliedautotech.com`. Preserve the other six settings in the table
+above. Rebuild/redeploy from the reviewed Git branch and verify the environment
+names at build and runtime. Do not promote to Production.
+
+In DigitalOcean **Apps > allied-autotech-staging > Settings**, the API will need:
+
+```dotenv
+FRONTEND_URL=https://staging.alliedautotech.com
+WEBAUTHN_RP_ID=staging.alliedautotech.com
+WEBAUTHN_ORIGINS=https://staging.alliedautotech.com
+FRONTEND_VERIFY_EMAIL_URL=https://staging.alliedautotech.com/verify-email
+FRONTEND_RESET_PASSWORD_URL=https://staging.alliedautotech.com/reset-password
+FRONTEND_PRIVILEGED_INVITATION_URL=https://staging.alliedautotech.com/staff/accept-invitation
+PAYSTACK_CALLBACK_URL=https://staging.alliedautotech.com/payments/complete
+```
+
+Match the general worker's `FRONTEND_URL` and configured callback. A callback URL
+change does not enable payments. Preserve existing encrypted secrets, database
+permissions, image/runtime safeguards, component sizes, private gate and disabled
+live payment/SMS flags. Spaces CORS already permits this exact custom origin.
+Use the final hostname before enrolling passkeys, because passkeys are RP-bound.
+
+Once the updated backend release is available, Resend is verified and the owner
+mailbox test succeeds, set the API and both workers' `STAGING_EMAIL_ALLOWLIST` to
+`alliedautotechltd@gmail.com`. Provider key/from/reply settings belong on the
+identity and general workers, not Vercel or the migrator. Enable email consistently
+on API/identity/general only for the reviewed recipient test. Review pending
+outbox work before enabling workers. Do not mark disabled jobs delivered or turn
+on SMS or payments as part of this step.
+
+The preparation file is locally available at
+`backend/ops/digitalocean/.private/staging-email-preparation.env`; it contains a
+blank key placeholder and disabled flags, and is not a live deployment.
+
+#### 7. Create and verify the application owner
+
+After private-domain and email checks pass:
+
+1. Open the private site and enter the private testing credentials if prompted.
+2. Register using `alliedautotechltd@gmail.com` and a password you choose privately.
+   If this account already exists, use the normal sign-in/verification flow.
+3. Open the verification message in that Gmail inbox and verify the address.
+4. Tell me verification succeeded. I will inspect this exact selected account,
+   confirm the staging host/port/database, then run the guarded initial-owner
+   bootstrap using its verified UUID. Existing ownership cannot be overwritten.
+5. Sign in again and complete the application's MFA setup. The private testing
+   cookie and Google two-step verification do not replace application MFA.
+6. Then test dashboard access, service/vehicle uploads and approved test catalogue
+   data. No local customer or admin data will be copied implicitly.
+
+No ownership or verification bypass has been performed. The selected email is
+recorded in the private deployment preparation, not hardcoded as an application
+privilege rule.
+
+Tell me which steps are complete using non-secret information: Workspace domain
+verified/Gmail active, support alias tested, Resend domain verified, key saved
+locally, and staging CNAME added. Do not send passwords, verification links,
+recovery codes or API keys. Purchases remain subject to the owner's approval.
 
 Private evidence is under `backend/ops/digitalocean/.private/*20261019*`.
 Earlier local Docker connection/secret-exposure checks remain documented in the
