@@ -3,6 +3,7 @@ import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { refundQueueSelect } from "../payments/refund-record.js";
 import { anomalySelect } from "./anomaly-record.js";
+import { outboxJobSelect, webhookJobSelect } from "./operational-job-record.js";
 import type {
   AnomalyListQuery,
   AuditListQuery,
@@ -52,7 +53,11 @@ export class AuditRepository {
     });
   }
 
-  async jobs(query: OperationalJobsQuery, after?: OperationalJobPosition) {
+  async jobs(
+    query: OperationalJobsQuery,
+    after?: OperationalJobPosition,
+    client: Prisma.TransactionClient | PrismaClient = this.database,
+  ) {
     const take = query.limit + 1;
     const boundary = (source: OperationalJobPosition["source"]) =>
       after
@@ -69,54 +74,35 @@ export class AuditRepository {
     const outbox =
       query.source === "PAYMENT_WEBHOOK"
         ? []
-        : await this.database.outboxEvent.findMany({
+        : await client.outboxEvent.findMany({
             where: {
               ...boundary("OUTBOX"),
               status: query.status ?? { in: ["FAILED", "DEAD_LETTER", "PROCESSING"] },
             },
-            select: {
-              id: true,
-              eventId: true,
-              aggregateType: true,
-              aggregateId: true,
-              eventType: true,
-              status: true,
-              attempts: true,
-              availableAt: true,
-              lockedAt: true,
-              lastError: true,
-              createdAt: true,
-              updatedAt: true,
-            },
+            select: outboxJobSelect,
             orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
             take,
           });
     const webhook =
       query.source === "OUTBOX"
         ? []
-        : await this.database.paymentWebhookEvent.findMany({
+        : await client.paymentWebhookEvent.findMany({
             where: {
               ...boundary("PAYMENT_WEBHOOK"),
               status: query.status ?? { in: ["FAILED", "DEAD_LETTER", "PROCESSING"] },
             },
-            select: {
-              id: true,
-              eventType: true,
-              status: true,
-              processingAttempts: true,
-              nextAttemptAt: true,
-              lockedAt: true,
-              lastErrorCode: true,
-              lastErrorMessage: true,
-              receivedAt: true,
-              updatedAt: true,
-            },
+            select: webhookJobSelect,
             orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
             take,
           });
     return [
-      ...outbox.map((item) => ({ source: "OUTBOX" as const, ...item })),
-      ...webhook.map((item) => ({ source: "PAYMENT_WEBHOOK" as const, ...item })),
+      ...outbox.map((item) => ({ source: "OUTBOX" as const, ...item, lastError: null })),
+      ...webhook.map((item) => ({
+        source: "PAYMENT_WEBHOOK" as const,
+        ...item,
+        lastErrorCode: null,
+        lastErrorMessage: null,
+      })),
     ]
       .sort(
         (left, right) =>
@@ -132,6 +118,21 @@ export class AuditRepository {
               : -1),
       )
       .slice(0, take);
+  }
+
+  async job(source: "outbox" | "webhook", id: string, client: Prisma.TransactionClient) {
+    if (source === "outbox") {
+      const record = await client.outboxEvent.findUnique({
+        where: { id },
+        select: { ...outboxJobSelect, publishedAt: true },
+      });
+      return record ? { ...record, source: "OUTBOX" as const } : null;
+    }
+    const record = await client.paymentWebhookEvent.findUnique({
+      where: { id },
+      select: { ...webhookJobSelect, processedAt: true, failedAt: true },
+    });
+    return record ? { ...record, source: "PAYMENT_WEBHOOK" as const } : null;
   }
 
   anomalies(query: AnomalyListQuery) {

@@ -1,11 +1,17 @@
 # Allied AutoTech — Backend Implementation Gaps
 
-Latest reviewed scope (19 October 2026): **91 locally accepted frontend milestones**, through
-[branch management](frontend/docs/page-quality/work-branches.md).
+Latest reviewed scope (19 October 2026): **92 locally accepted frontend milestones**, through
+[audit logs](frontend/docs/page-quality/work-audit.md).
 Application-wide and deployed acceptance remain open.
 
-Next workspace: audit logs. The full goal remains
+Next workspace: processing jobs. The full goal remains
 active for organisation, remaining policies, role regression and deployed verification.
+
+### ADM-59 - Atomic current-actor audit history reads (implemented locally)
+
+The existing audit-log service now rechecks the current actor/session under the organization access lock, collects the safe page and appends its minimal READ event in one transaction. Suspended actors and revoked sessions cannot reuse earlier authorization. Existing private/no-store responses, Admin/Super Admin/MFA boundaries, supported exact filters, date limits, descending time/UUID paging and safe DTOs remain authoritative. No endpoint, response contract, schema or migration change was needed; existing OpenAPI/generated declarations remain applicable.
+
+The [accepted milestone92](frontend/docs/page-quality/work-audit.md) records19 passing production browser cases, eight units, two isolated API scenarios, native comparisons, seven-width accessibility checks, build and eight matching source hashes. Connected production Edge/API/PostgreSQL verified five reads/five READ audits,25+3 tied-time paging, combined filters, request-free disclosures and mobile refresh. Original58 users and related business records plus305 audit rows stayed hash-unchanged; zero domain mutation requests and zero owned temporary sessions remained. See [contract, database safety evidence and rollout limits](backend/docs/audit-log-workspace.md). No additional endpoint/storage gap is required for this page; broader release/policy/provider and optional receipt gaps remain open.
 
 ### ADM-57 - Searchable, revision-checked private branch administration (implemented locally)
 

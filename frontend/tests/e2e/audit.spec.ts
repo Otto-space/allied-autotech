@@ -36,6 +36,13 @@ const reply = (route: Route, data: unknown) =>
       meta: { requestId: "audit-test" },
     },
   });
+async function openEventDetails(page: Page) {
+  await expect(page.locator(".wa-event").first()).toBeVisible();
+  for (const summary of await page.locator(".wa-event-details > summary").all()) {
+    if (!(await summary.evaluate((el) => (el.parentElement as HTMLDetailsElement).open)))
+      await summary.click();
+  }
+}
 async function fixture(
   page: Page,
   handler: (route: Route) => Promise<void>,
@@ -45,6 +52,20 @@ async function fixture(
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
     if (endpoint === "/admin/audit") return handler(route);
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(11),
+        email: "audit@example.test",
+        role,
+        status: "ACTIVE",
+        capabilities: [],
+        staffProfile: {
+          id: id(12),
+          firstName: "Synthetic",
+          lastName: "Auditor",
+          branchId: id(13),
+        },
+      });
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(10),
@@ -127,15 +148,17 @@ test("failed reads recover, cursor pages work and applied private filters reset 
   await expect(page.getByText("No audit events on this page")).toHaveCount(0);
   fail = false;
   await page.getByRole("button", { name: "Refresh audit log" }).click();
-  await expect(page.getByRole("heading", { name: "UPDATE · ORDER" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Update · Order" })).toBeVisible();
   await page
     .getByRole("navigation", { name: "Audit log pages" })
     .getByRole("button", { name: "Next", exact: true })
     .click();
+  await openEventDetails(page);
   await expect(page.getByText(id(4), { exact: true })).toBeVisible();
   expect(queries.at(-1)?.cursor).toBe(id(1));
   await page.getByLabel("Action", { exact: true }).selectOption("READ");
   await page.getByLabel("Record type", { exact: true }).selectOption("USER");
+  await page.getByText("Reference and date filters", { exact: true }).click();
   await page.getByLabel("User reference (optional)").fill(id(20));
   await page.getByLabel("Record reference (optional)").fill("private-record-reference");
   await page.getByLabel("Request reference (optional)").fill("private-request-reference");
@@ -152,7 +175,7 @@ test("failed reads recover, cursor pages work and applied private filters reset 
   expect(new URL(page.url()).search).toBe("");
   await expect(page.getByText("Page 1", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Clear audit filters" }).click();
-  await expect(page.getByRole("heading", { name: "UPDATE · ORDER" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Update · Order" })).toBeVisible();
   expect(queries.at(-1)).toEqual({ limit: "25" });
 });
 test("invalid references and long ranges focus their field without fetching; one-sided dates retain Lagos offset", async ({
@@ -166,6 +189,7 @@ test("invalid references and long ranges focus their field without fetching; one
   await page.goto("/admin/audit");
   await expect(page.getByText("No audit events on this page")).toBeVisible();
   const initialReads = queries.length;
+  await page.getByText("Reference and date filters", { exact: true }).click();
   await page.getByLabel("User reference (optional)").fill("invalid");
   await page.getByRole("button", { name: "Apply audit filters" }).click();
   await expect(page.getByLabel("User reference (optional)")).toBeFocused();
@@ -207,6 +231,7 @@ test("recorded JSON is lazy, literal, keyboard-scrollable and accessible on mobi
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/admin/audit");
   await expect(page.getByText("Actor’s current role", { exact: true })).toBeVisible();
+  await openEventDetails(page);
   await expect(page.getByRole("region", { name: "After", exact: true })).toHaveCount(0);
   await page.locator("summary").filter({ hasText: "Recorded values" }).focus();
   await page.keyboard.press("Enter");
@@ -272,12 +297,13 @@ test("nullable actors remain unknown and only supported internal current-record 
         },
         { ...eventFixture(), id: id(6), entityType: "PAYMENT" },
         { ...eventFixture(), id: id(7), entityId: "https://untrusted.invalid" },
-      ],
+      ].sort((a, b) => b.id.localeCompare(a.id)),
     });
   });
   await page.goto("/admin/audit");
-  await expect(page.getByRole("heading", { name: "UPDATE · USER" })).toBeVisible();
-  await expect(page.getByText("Not available", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Update · User" })).toBeVisible();
+  await expect(page.getByText("Not available", { exact: false })).toBeVisible();
+  await openEventDetails(page);
   await expect(page.getByRole("link", { name: "Open current record" })).toHaveCount(1);
   await expect(page.getByRole("link", { name: "Open current record" })).toHaveAttribute(
     "href",
@@ -293,8 +319,10 @@ test("session invalidation clears expanded history and private filter drafts bef
     await reply(route, { items: changed ? [] : [eventFixture()] });
   });
   await page.goto("/admin/audit");
+  await openEventDetails(page);
   await page.locator("summary").filter({ hasText: "Recorded values" }).click();
   await expect(page.getByRole("region", { name: "After", exact: true })).toBeVisible();
+  await page.getByText("Reference and date filters", { exact: true }).click();
   await page.getByLabel("Request reference (optional)").fill("previous-private-draft");
   changed = true;
   await page.evaluate(() => {
@@ -305,6 +333,7 @@ test("session invalidation clears expanded history and private filter drafts bef
   await expect(page.getByRole("region", { name: "After", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Verify session again" }).click();
   await expect(page.getByText("No audit events on this page")).toBeVisible();
+  await page.getByText("Reference and date filters", { exact: true }).click();
   await expect(page.getByLabel("Request reference (optional)")).toHaveValue("");
 });
 
@@ -340,16 +369,19 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
         const query = Object.fromEntries(new URL(route.request().url()).searchParams);
         queries.push(query);
         await reply(route, {
-          items: variants.filter(
-            (v) =>
-              (!query.action || v.action === query.action) &&
-              (!query.entityType || v.entityType === query.entityType),
-          ),
+          items: variants
+            .filter(
+              (v) =>
+                (!query.action || v.action === query.action) &&
+                (!query.entityType || v.entityType === query.entityType),
+            )
+            .sort((a, b) => b.id.localeCompare(a.id)),
         });
       },
       role,
     );
     await page.goto("/admin/audit");
+    await openEventDetails(page);
     for (const v of variants)
       await expect(page.getByText(v.id, { exact: true })).toBeVisible();
     for (const v of variants) {
@@ -358,6 +390,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
       await page.getByRole("button", { name: "Apply audit filters" }).click();
       await expect.poll(() => queries.at(-1)?.action).toBe(v.action);
       await expect.poll(() => queries.at(-1)?.entityType).toBe(v.entityType);
+      await openEventDetails(page);
       await expect(page.getByText(v.id, { exact: true })).toBeVisible();
       for (const other of variants.filter((o) => o.id !== v.id))
         await expect(page.getByText(other.id, { exact: true })).toHaveCount(0);

@@ -1,0 +1,7 @@
+# Fresh built-in image concepts
+
+Generated19 October2026 using the built-in image-generation tool before runtime edits. Desktop source `exec-17c91105-1e82-4d45-a6b8-aedbf1ed53d1.png`; mobile source `exec-15d6a363-ff0d-48a3-924b-ad34758c7e0a.png`, under the current thread's Codex generated-images directory. Both are copied here and were inspected natively.
+
+Desktop brief: full1440x1050 Allied Processing jobs workspace, actual-style ink sidebar with Settings/Processing jobs selected, white account/search bar, pale-gray canvas, Quicksand and restrained red actions. Compact breadcrumb/heading/refresh and source/status toolbar. Approximately40/60 ruled queue and selected current-job panel. Three synthetic jobs show Failed/Dead letter/Processing, counts3/0/1, full timestamps and Inspect job. Selected inspection shows grouped source/attempt/time/lock facts, secondary References and one reason textarea/review action. No invented totals, payloads, bulk actions, charts or delivery/payment success claims.
+
+Mobile brief: intentional430px selected inspection, real-style compact header/search,16px margins,24px heading, readable16px fields and44px controls. Queue hidden behind Back to job list. Full selected event/status and grouped facts, stacking long dates; collapsed References, one retry explanation/reason/review section. No horizontal scrolling, duplicate queue, unsupported search or invented identity. Native React supplies every real control/text element. See corrections.md for deviations.

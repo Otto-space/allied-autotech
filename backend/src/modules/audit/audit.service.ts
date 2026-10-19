@@ -92,34 +92,61 @@ export class AuditOperationsService {
   ) {
     assertAuditAdministrator(actor);
     const binding = jobCursorBinding(actor.userId, query);
-    const rows = await this.repository.jobs(
-      query,
-      query.cursor ? decodeJobCursor(binding, query.cursor) : undefined,
-    );
-    const items = rows.slice(0, query.limit),
-      last = items.at(-1);
-    const result = {
-      items,
-      ...(rows.length > query.limit && last
-        ? {
-            nextCursor: encodeJobCursor(binding, {
-              id: last.id,
-              source: last.source,
-              updatedAt: last.updatedAt.toISOString(),
-            }),
-          }
-        : {}),
-    };
-    if (context)
-      await this.auditRead(
-        actor,
-        "USER",
-        actor.userId,
-        "OPERATIONAL_JOBS",
-        result.items.length,
-        context,
+    return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const rows = await this.repository.jobs(
+        query,
+        query.cursor ? decodeJobCursor(binding, query.cursor) : undefined,
+        transaction,
       );
-    return result;
+      const items = rows.slice(0, query.limit),
+        last = items.at(-1);
+      const result = {
+        items,
+        ...(rows.length > query.limit && last
+          ? {
+              nextCursor: encodeJobCursor(binding, {
+                id: last.id,
+                source: last.source,
+                updatedAt: last.updatedAt.toISOString(),
+              }),
+            }
+          : {}),
+      };
+      if (context)
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "READ",
+          entityType: "USER",
+          entityId: actor.userId,
+          newValues: { resource: "OPERATIONAL_JOBS", resultCount: result.items.length },
+          context,
+        });
+      return result;
+    });
+  }
+
+  async job(
+    actor: AuthenticatedActor,
+    source: "outbox" | "webhook",
+    id: string,
+    context: RequestSecurityContext,
+  ) {
+    assertAuditAdministrator(actor);
+    return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const record = await this.repository.job(source, id, transaction);
+      if (!record) throw auditNotFound();
+      await appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: source === "outbox" ? "USER" : "PAYMENT",
+        entityId: id,
+        newValues: { resource: "OPERATIONAL_JOB", source, resultCount: 1 },
+        context,
+      });
+      return record;
+    });
   }
 
   async status(actor: AuthenticatedActor, context: RequestSecurityContext) {
@@ -221,12 +248,17 @@ export class AuditOperationsService {
   ) {
     assertAuditAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const revision = input.expectedUpdatedAt
+        ? { updatedAt: new Date(input.expectedUpdatedAt) }
+        : {};
       const changed =
         source === "outbox"
           ? await transaction.outboxEvent.updateMany({
               where: {
                 id,
                 attempts: input.expectedAttempts,
+                ...revision,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
               },
               data: {
@@ -240,6 +272,7 @@ export class AuditOperationsService {
               where: {
                 id,
                 processingAttempts: input.expectedAttempts,
+                ...revision,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
               },
               data: {

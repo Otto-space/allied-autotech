@@ -125,6 +125,9 @@
   border-radius: 6px;
   overflow: hidden;
 }
+.wa-events:empty {
+  display: none;
+}
 .wa-event {
   position: relative;
   padding: 18px;

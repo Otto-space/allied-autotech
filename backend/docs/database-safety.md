@@ -21,9 +21,10 @@ pre-hooks require it. Development startup and builds regenerate the client.
 The API and both worker entrypoints verify every generated model's scalar columns
 before accepting traffic or writing heartbeat/job state. Readiness repeats this
 check every minute, deduplicates concurrent probes and caches only successful checks.
-Prisma's `take: 0` skips database queries, so these probes use an impossible predicate
-and its negation instead: PostgreSQL validates actual mapped columns but returns no
-business rows. Concurrency is bounded. Missing tables/columns block startup/readiness.
+Prisma's `take: 0` skips database queries, so these probes use an empty `OR` filter
+that emits `WHERE 1=0`: PostgreSQL validates actual mapped columns but returns no
+business rows. This avoids inferring filter types from field references, which can
+omit list metadata. Concurrency is bounded. Missing tables/columns block startup/readiness.
 Additional columns remain compatible for rolling releases. This runtime probe does
 not certify triggers, every enum value or migration history; `db:check`, isolated
 migration replay and domain integration tests remain required.

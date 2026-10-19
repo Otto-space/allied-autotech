@@ -1,6 +1,6 @@
-# Audit log — preliminary audit
+# Audit log — complete local gate
 
-Next gate92 after [accepted branch management](work-branches.md). Route `/admin/audit` already has a dedicated page and `AuditLog`/`AuditValues` components. No runtime change, design generation or database write has started for this gate. Accepted total remains91.
+Gate92 follows [accepted branch management](work-branches.md). Route `/admin/audit` now has a compact filter surface and ruled event history with deliberate references/recorded-value disclosures. The [complete local acceptance report](work-audit.md) brings the accepted total to92. The overall goal remains active.
 
 Initial source inspection found a seven-field filter form, component-local applied filters/cursors, a generic breadcrumb/back link, and one large detail section per event. Event IDs and actor/request references dominate the records. Before/after JSON is already safely rendered as escaped text inside a lazy disclosure; preserve that behavior and its selected-field warning. There are existing contract, filter, authorization/MFA, escaping and accessibility tests to reuse.
 
@@ -8,4 +8,8 @@ The existing Admin/Super Admin GET `/admin/audit` supports action, entity type, 
 
 Existing tests explicitly keep private filter references out of the page URL. Preserve that privacy decision when improving filter state/history. Do not copy the branch workspace's URL strategy blindly. Current-record links must continue to use the validated record-type mapping. No invented actor names or historical-role claims.
 
-Next: inspect remaining safe-value/controller/private-cache/current-actor details and existing tests, capture and inspect the four baseline widths, then produce the required fresh desktop/mobile concepts/specification before runtime edits. Reuse `auditFilterSchema`, Lagos conversion, `AuditValues`, current record mapping and focused existing checks. The visual direction is a compact filter area and ruled event history with references/recorded values in deliberate disclosures; final design must follow the actual baseline inspection.
+The route/permission/DTO audit, four native baseline inspections and fresh desktop/mobile concepts/specification preceded runtime edits. Both concepts and four development layouts were inspected natively. Existing filters, Lagos conversion, `AuditValues`, current-record links and cursor controls are reused. Current own-profile checks and strict page validation guard the private workspace; invalid hidden fields expand and receive focus. Backend actor/session revalidation, safe collection read and minimal READ audit now share one transaction without a schema or contract change.
+
+Passing development evidence: ten new and nine existing browser cases, eight focused units, frontend/backend type checks and focused lint. The new browser cases include seven widths from320 through1920 and14 expanded-state Axe scans. Both isolated API scenarios passed, including tied-time25+3 paging, private DTOs, exact READ audit counts, validation and stale actor/session denial. Original business/audit rows stayed hash-unchanged; only new synthetic fixtures and owned temporary sessions were written. Temporary sessions were removed.
+
+Production build/standalone preparation and all19 production browser cases pass. Connected production Edge/Express/PostgreSQL verified five reads/five access audits,25+3 pages, all combined filters, Previous and mobile refresh with zero domain mutation requests. All original business rows and305 audit records stayed hash-unchanged, and zero owned temporary sessions remain. Final four-width native comparison and eight source hashes pass. Unchanged migration/OpenAPI checks were reused. Next separate gate: `/admin/processing-jobs`.

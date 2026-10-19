@@ -64,6 +64,22 @@ export class AuditController {
           await this.service.status(actor(req), context(req)),
         ),
       );
+  job = async (req: Request, res: Response) => {
+    const params = validated<{ source: "outbox" | "webhook"; jobId: string }>(
+      res,
+      "params",
+    );
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Current processing job retrieved",
+          req.id,
+          await this.service.job(actor(req), params.source, params.jobId, context(req)),
+        ),
+      );
+  };
   retry = async (req: Request, res: Response) => {
     const params = validated<{ source: "outbox" | "webhook"; jobId: string }>(
       res,
