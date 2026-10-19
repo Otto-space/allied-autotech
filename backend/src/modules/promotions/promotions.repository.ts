@@ -33,8 +33,20 @@ const money = (value: string | null | undefined) =>
 export class PromotionsRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
   list(query: PromotionListQuery, client: DatabaseClient = this.database) {
+    const search = query.search?.replace(/[\\%_]/g, "\\$&");
     return client.promotion.findMany({
-      where: query.isActive === undefined ? {} : { isActive: query.isActive },
+      where: {
+        ...(query.isActive === undefined ? {} : { isActive: query.isActive }),
+        ...(query.discountType === undefined ? {} : { discountType: query.discountType }),
+        ...(search === undefined
+          ? {}
+          : {
+              OR: [
+                { name: { contains: search, mode: "insensitive" } },
+                { code: { contains: search, mode: "insensitive" } },
+              ],
+            }),
+      },
       select: promotionSelect,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,

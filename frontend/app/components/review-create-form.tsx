@@ -113,7 +113,10 @@ export function ReviewCreateForm({
   return (
     <section className="cr-form" aria-labelledby="write-review-title">
       <h2 id="write-review-title">Write a review</h2>
-      <p className="cr-form-intro">Moderated before public display.</p>
+      <p className="cr-form-intro">
+        Moderated before public display. Approved reviews show your profile name and
+        photo.
+      </p>
       <Feedback message={error} toast="Please review the message on this page." />
       <Feedback message={message} tone="success" toast="Review submitted." />
       {guard.remaining > 0 && (

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { PromotionDetail } from "@/app/components/promotion-pages";
+import "../../services/services.css";
+import "../promotion-create.css";
+import "./promotion-detail.css";
 export const metadata: Metadata = { title: "Promotion details" };
 export default async function Page({
   params,

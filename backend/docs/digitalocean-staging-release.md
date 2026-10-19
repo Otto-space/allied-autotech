@@ -5,6 +5,9 @@ The frontend stays on Vercel. Backend Docker context is `backend`; no buildpack
 or repository-root npm workspace is involved. This procedure does not enable
 live payments, email, SMS, Monnify, marketing or destructive retention.
 
+For the current private-first sizing, purchase boundaries, access gate and migration
+sequence, read [hosting-approval-plan.md](hosting-approval-plan.md) first.
+
 ## Account access and inventory
 
 The verified portable Windows CLI location on this workstation is:
@@ -107,7 +110,15 @@ then pushes these repositories, each tagged with that full SHA:
 | `api` | `allied-autotech-api` | `node dist/server.js` |
 | `worker` | `allied-autotech-identity-worker` | `node dist/workers/outbox.worker.js` |
 | `general-worker` | `allied-autotech-general-worker` | `node dist/workers/worker-runtime.js` |
-| `migrate` | `allied-autotech-migrate` | `node node_modules/prisma/build/index.js migrate deploy` |
+| `migrate` | `allied-autotech-migrate` | `node --import tsx scripts/migrate-safely.ts` |
+
+The image's guarded default migration command requires a confirmed target and fresh
+verified durable backup evidence. Run it through the trusted external release runner
+before app promotion. App Platform overrides the command with the read-only
+`node --import tsx scripts/check-database-safety.ts`: it refuses pending migrations,
+history failures and schema drift. The job retains its `migrate` name for image
+provenance compatibility. See [database safety](database-safety.md) and the
+[exact release sequence](hosting-approval-plan.md#database-releases-preserve-the-backup-safeguards).
 
 The PostgreSQL test creates and removes its own isolated Docker container with
 no host ports or mounted application data. Image tests exercise the actual CA
@@ -137,8 +148,10 @@ Do not edit the checkout during a release build or push.
 This fills the existing JSON-as-YAML template, pins the four pushed digests,
 attaches the existing managed cluster and keeps the reviewed environment scopes.
 Only missing values can be supplied; generic security overrides are rejected.
-API and both workers start with one 1-GiB instance each
-(`apps-s-1vcpu-1gb-fixed`); the migration job uses the same size only while running.
+The API starts with one 1-GiB instance (`apps-s-1vcpu-1gb-fixed`); both workers use
+one 512-MiB instance each (`apps-s-1vcpu-0.5gb`). The read-only deployment check uses
+1 GiB only while running. Runtime pools are 4 + 1 + 2 connections. The API's private
+testing gate is enabled; configure the matching gate on the Vercel staging frontend.
 Check current regional availability and [App Platform pricing](https://docs.digitalocean.com/products/app-platform/details/pricing/)
 before submission. The database attachment's `production: true` means a managed
 database rather than a dev database; application `DEPLOYMENT_ENV` remains staging.
@@ -168,8 +181,9 @@ resource:
 
 The explicit source update retrieves the reviewed digest-pinned images. Preserve
 the existing app's encrypted secrets when editing in the control panel. Do not
-reset the database or run migrations manually alongside PRE_DEPLOY. A failed
-migration must block the release; inspect the migration deployment logs privately.
+reset the database or run migrations alongside PRE_DEPLOY. Complete the guarded
+external migration first; a failed migration or subsequent read-only check must block
+the release. Inspect logs privately.
 
 Keep the create/update process attached and inspect its exit status. If observation
 times out, inspect the same app/deployment rather than creating another app.
@@ -180,7 +194,10 @@ calling the app usable. Startup probes alone do not validate business workflows.
 
 Create/reuse a private bucket (suggested name `allied-autotech-staging-private`,
 subject to availability). Disable public listing/CDN exposure and issue bucket-
-scoped read/write credentials. API alone receives these credentials. Keep the
+scoped credentials for the required object operations. The API and general worker
+receive the same private storage configuration; the general worker needs delete
+access for managed-media cleanup. Identity workers and migration jobs receive no
+storage credentials. Keep the
 endpoint regional, `OBJECT_STORAGE_REGION=us-east-1`, path-style false.
 
 Apply [spaces-cors.json](../ops/digitalocean/spaces-cors.json) using the Spaces

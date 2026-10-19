@@ -156,11 +156,21 @@ export class CatalogRepository {
     client: DatabaseClient = this.database,
   ) {
     return client.category.findMany({
-      where: activeOnly
-        ? { isActive: true }
-        : "isActive" in query && query.isActive !== undefined
-          ? { isActive: query.isActive }
-          : {},
+      where: {
+        ...(activeOnly
+          ? { isActive: true }
+          : "isActive" in query && query.isActive !== undefined
+            ? { isActive: query.isActive }
+            : {}),
+        ...(!activeOnly && "search" in query && query.search
+          ? {
+              name: {
+                startsWith: query.search.replace(/[\\%_]/g, "\\$&"),
+                mode: "insensitive" as const,
+              },
+            }
+          : {}),
+      },
       select: categorySelect,
       orderBy: [{ name: "asc" }, { id: "asc" }],
       take: query.limit + 1,
@@ -187,8 +197,14 @@ export class CatalogRepository {
     });
   }
 
-  updateCategory(id: string, input: CategoryUpdateInput, client: DatabaseClient) {
+  updateCategory(
+    id: string,
+    input: CategoryUpdateInput,
+    updatedAt: Date,
+    client: DatabaseClient,
+  ) {
     const data: Prisma.CategoryUncheckedUpdateInput = {
+      updatedAt,
       ...(input.name === undefined ? {} : { name: input.name }),
       ...(input.slug === undefined ? {} : { slug: input.slug }),
       ...(input.description === undefined ? {} : { description: input.description }),
@@ -242,8 +258,14 @@ export class CatalogRepository {
     });
   }
 
-  updateProduct(id: string, input: ProductUpdateInput, client: DatabaseClient) {
+  updateProduct(
+    id: string,
+    input: ProductUpdateInput,
+    updatedAt: Date,
+    client: DatabaseClient,
+  ) {
     const data: Prisma.ProductUncheckedUpdateInput = {
+      updatedAt,
       ...(input.categoryId === undefined ? {} : { categoryId: input.categoryId }),
       ...(input.name === undefined ? {} : { name: input.name }),
       ...(input.slug === undefined ? {} : { slug: input.slug }),

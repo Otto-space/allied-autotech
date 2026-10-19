@@ -3,25 +3,31 @@ import { useState } from "react";
 import type { ProcessingRefund } from "@/lib/api/refund-processing";
 import { prepareRefundEvidence, refundActionSchema } from "@/lib/api/refund-processing";
 import { validatePaymentEvidence } from "@/lib/api/payment-evidence";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, ApiError } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import { lagosDateTime } from "@/lib/forms/vehicle-condition";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { FileUpload, type AssetSelection } from "./file-upload";
 import { Feedback } from "./feedback";
-import type { MutationProposal } from "./mutation-review";
+import type { RefundReview } from "@/lib/admin/work-refund-pending";
 export function RefundTransferForm({
   refund,
   actorId,
   disabled,
   onReview,
   onUncertain,
+  onReceipt,
+  requestSignal,
+  onDenied,
 }: {
   refund: ProcessingRefund;
   actorId: string;
   disabled: boolean;
-  onReview: (proposal: MutationProposal) => void;
+  onReview: (proposal: RefundReview) => void;
+  onReceipt?: (value: unknown) => void;
+  requestSignal?: () => AbortSignal | undefined;
+  onDenied?: () => void;
   onUncertain: () => void;
 }) {
   const [evidence, setEvidence] = useState<AssetSelection>(null);
@@ -75,6 +81,7 @@ export function RefundTransferForm({
       evidenceToken: evidence.prepared.token,
     };
     onReview({
+      refundChange: { action: "transfer", body },
       title: "Record this completed bank transfer?",
       description:
         "This records a transfer you have already made outside this application. It does not send money. A separate authorized checker must verify the evidence before the refund is recorded as completed.",
@@ -97,6 +104,7 @@ export function RefundTransferForm({
               method: "POST",
               csrf: true,
               body,
+              signal: requestSignal?.(),
             })
           ).data,
         );
@@ -110,6 +118,7 @@ export function RefundTransferForm({
           Date.parse(saved.transferredAt) !== at
         )
           throw new Error("Unexpected refund transfer record");
+        onReceipt?.(saved);
       },
     });
   }
@@ -122,6 +131,7 @@ export function RefundTransferForm({
       </p>
       <Feedback message={error} />
       <form
+        data-no-draft
         data-draft-key={JSON.stringify(["refund-transfer-form:1", refund?.id])}
         onSubmit={(event) => {
           event.preventDefault();
@@ -196,9 +206,15 @@ export function RefundTransferForm({
             disabled={disabled}
             onChange={setEvidence}
             validate={validatePaymentEvidence}
-            prepare={(options) =>
-              prepareRefundEvidence({ ...options, refundId: refund.id })
-            }
+            prepare={async (options) => {
+              try {
+                return await prepareRefundEvidence({ ...options, refundId: refund.id });
+              } catch (error) {
+                if (error instanceof ApiError && [401, 403, 404].includes(error.status))
+                  onDenied?.();
+                throw error;
+              }
+            }}
           />
           <button className="button secondary">Review transfer record</button>
         </fieldset>

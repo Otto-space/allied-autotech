@@ -1,0 +1,11 @@
+# Audit log — preliminary audit
+
+Next gate92 after [accepted branch management](work-branches.md). Route `/admin/audit` already has a dedicated page and `AuditLog`/`AuditValues` components. No runtime change, design generation or database write has started for this gate. Accepted total remains91.
+
+Initial source inspection found a seven-field filter form, component-local applied filters/cursors, a generic breadcrumb/back link, and one large detail section per event. Event IDs and actor/request references dominate the records. Before/after JSON is already safely rendered as escaped text inside a lazy disclosure; preserve that behavior and its selected-field warning. There are existing contract, filter, authorization/MFA, escaping and accessibility tests to reuse.
+
+The existing Admin/Super Admin GET `/admin/audit` supports action, entity type, user UUID, exact entity/request references, optional Lagos-converted date boundaries and UUID cursor paging. Both date bounds must be ordered and span at most90 days; one-sided bounds are supported. Records sort by createdAt then ID descending. Each successful audit read itself appends a READ event. Returned actor information is only user ID and current role; no actor name, email, historical role, IP or user agent is available. There is no dedicated audit-event GET, editing, deletion or export contract.
+
+Existing tests explicitly keep private filter references out of the page URL. Preserve that privacy decision when improving filter state/history. Do not copy the branch workspace's URL strategy blindly. Current-record links must continue to use the validated record-type mapping. No invented actor names or historical-role claims.
+
+Next: inspect remaining safe-value/controller/private-cache/current-actor details and existing tests, capture and inspect the four baseline widths, then produce the required fresh desktop/mobile concepts/specification before runtime edits. Reuse `auditFilterSchema`, Lagos conversion, `AuditValues`, current record mapping and focused existing checks. The visual direction is a compact filter area and ruled event history with references/recorded values in deliberate disclosures; final design must follow the actual baseline inspection.

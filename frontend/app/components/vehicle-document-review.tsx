@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import type { VehicleDocument } from "@/lib/api/vehicle-document-schemas";
 import type { MutationProposal } from "./mutation-review";
+import { forgetStockFormDraft } from "@/lib/admin/work-vehicle-detail";
 
 const schema = z
   .object({
@@ -59,6 +60,16 @@ export function VehicleDocumentReview({
         };
         onReview({
           title: "Record this document review?",
+          stockChange: {
+            kind: "document",
+            id: document.id,
+            expectedVersion: loadedVersion,
+            expected: {
+              verificationStatus: values.status,
+              rejectionReason: values.status === "REJECTED" ? values.reason : null,
+            },
+          },
+          onConfirmed: () => setLoadedVersion(loadedVersion + 1),
           description:
             "Confirm your assessment of the private document. Your account must have a staff profile. This does not change its contents or publish it.",
           facts: [
@@ -87,7 +98,8 @@ export function VehicleDocumentReview({
             type="button"
             className="button secondary"
             disabled={disabled}
-            onClick={() => {
+            onClick={(event) => {
+              forgetStockFormDraft(event.currentTarget);
               form.reset({ status: "VERIFIED", reason: "" });
               setLoadedVersion(document.version);
             }}

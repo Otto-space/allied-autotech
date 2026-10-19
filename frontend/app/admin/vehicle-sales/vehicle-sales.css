@@ -1,0 +1,132 @@
+.wvs-record {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr)
+    minmax(0, 1.3fr);
+  gap: 24px;
+}
+.wvs-record > div,
+.wvs-record > dl {
+  min-width: 0;
+}
+.wvs-link {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d00301;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.wvs-link svg {
+  flex-shrink: 0;
+}
+.wvs-vehicle {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  margin-top: 6px;
+  min-width: 0;
+}
+.wvs-vehicle > div {
+  min-width: 0;
+}
+.wvs-vehicle p,
+.wvs-version {
+  margin: 5px 0 0;
+  color: #405566;
+  font-size: 12px;
+}
+.wvs-image {
+  width: 80px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: #edf2f6;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.wvs-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wvs-facts {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  margin: 0;
+}
+.wvs-facts dt {
+  font-size: 12px;
+  color: #405566;
+  margin: 0 0 6px;
+}
+.wvs-facts dd {
+  margin: 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wvs-prices dd {
+  font-weight: 600;
+}
+.wvs-record .status {
+  display: inline-flex;
+}
+.work-vehicle-sales .wi-scope {
+  margin: 12px 0;
+}
+.work-vehicle-sales .wvs-record h3 {
+  font-size: 14px;
+}
+@media (max-width: 1350px) {
+  .wvs-record {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .wvs-identity {
+    grid-column: 1/-1;
+  }
+  .wvs-record > .wvs-facts:last-child {
+    grid-column: 1/-1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .wvs-record {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .wvs-record > .wvs-prices {
+    grid-column: 1/-1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wvs-record > .wvs-facts:last-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 450px) {
+  .wvs-record {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .wvs-record > .wvs-facts,
+  .wvs-record > .wvs-prices,
+  .wvs-record > .wvs-facts:last-child {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+  .wvs-record > .wvs-facts {
+    border-top: 1px solid #e2e8ee;
+    padding-top: 16px;
+  }
+}
+.wvs-image > .product-media {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+.wvs-image .media-placeholder {
+  font-size: 10px;
+  line-height: 1.2;
+}

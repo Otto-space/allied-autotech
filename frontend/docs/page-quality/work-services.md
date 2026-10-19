@@ -1,0 +1,47 @@
+# Workshop service catalogue
+
+Route: `/admin/services`. Roles: Admin and Super Admin. Accepted locally on 12 October 2026, the fifty-second expanded milestone. The separate `/admin/services/[serviceId]` page, application-wide goal and deployment remain outstanding.
+
+## Design and behavior
+
+Fresh [desktop, mobile and state concepts](work-services-oct-concepts/spec.md) preceded implementation. The page retains the existing dashboard shell and Quicksand typography, with ordered Overview/Services navigation, compact filters, an ink catalogue heading, a desktop creation/editing rail and labeled mobile records. Both row actions remain visible on phones. Missing photos use the existing service fallback; uploaded images use authorized backend metadata.
+
+Search, category, pricing and visibility now use the administrator API across the catalogue. Filters and UUID pagination survive reload and browser history, and changing filters resets pagination. The count explicitly describes the current page. Categories have their own paged reads; inactive assigned categories remain readable and unchanged unless deliberately reassigned.
+
+The dedicated editor reads the selected service directly. It validates canonical naira input before converting to integer kobo, validates duration, and reviews all changes before submission. A fresh direct read precedes each versioned edit; the backend still enforces the revision atomically. Recoverable background failures preserve drafts while blocking changes, malformed/mismatched records fail closed, and unauthorized roles never request administrator service data.
+
+Unconfirmed writes receive an owner-scoped session marker containing no form contents or credentials. Reload does not replay a write. Creation requires checking the catalogue and explicitly starting a blank draft. Editing offers an explicit fresh read that discards the unconfirmed draft, including when the saved revision is unchanged. Failed recovery keeps the draft blocked. These guards are not durable backend idempotency.
+
+Existing image preparation, upload, attachment, description and removal remain supported, with the actual 10 MiB / 32–8192 pixel limits. Image refresh errors block mutations. Catalogue permission loss removes the image workspace.
+
+## Local evidence
+
+- **45 distinct production browser scenarios passed:** 20 catalogue cases (19 in the combined run and one focused image-read/access-loss case), 23 shared navigation cases and two form-draft regressions. All six final production repeats passed after the row-button padding adjustment: creation/review, image-read/access-loss recovery and four responsive/accessibility cases. The unchanged-revision recovery case also passed on the development server before the production run.
+- Production build, full frontend lint, TypeScript and the final changed-file lint passed. Four service query/parser/form unit cases and 13 shared resource/draft cases passed.
+- Real Edge/browser/API/PostgreSQL checks passed against `allied_slots_20261012_test` on port 55439. They verified 27 records over 25+2 pages, reload/previous navigation, search beyond page one, cancelled review without writes, exact prices/durations, one creation audit and one edit audit, stale revision/CSRF denial, image upload/description/removal, and a committed response deliberately dropped before the browser received it. Reload made no duplicate POST. Both administrator roles read successfully; Staff, Customer and anonymous callers were denied. Synthetic sessions were cleaned up. External storage was injected through the real media service's in-memory test port; provider delivery/storage availability is not certified.
+- Thirteen widths (320, 360, 375, 390, 430, 768, 844, 1024, 1280, 1440, 1467, 1505 and 1920px) and ten state captures passed overflow checks, including a complete repeat against the final padding build at `http://localhost:3011`. The 844px capture uses 390px landscape height; 1467×1072 matches the desktop concept. Axe passed at 320, 390 and 1467px and in loading, empty, error, denied, stale, edit, validation, review, uncertain-save and image states. Width captures reported no console or page errors. Deliberately failed reads and a dropped response produced their expected resource errors; there were no JavaScript page errors or framework overlays.
+- Browser automation used Playwright with installed Edge because the Browser plugin was not available. Other engines and deployed acceptance remain unverified.
+
+Evidence under `C:/Users/PC/.codex/`: `work-services-production-tests.log`, `work-services-image-recovery.log`, `work-services-unit.log`, `work-services-resource-drafts.log`, `work-services-types-final.log`, `work-services-lint.log`, `work-services-final-lint.log`, `work-services-real-final.log`, `work-services-release-build.log` and `work-services-final-captures.json`. Images follow `work-services-final-*.png`. All nine changed production source hashes match the final isolated build input (`work-services-source-hashes.json`). These local files supplement the repository tests and are not deployment evidence.
+
+## Corrections and limits
+
+The first browser run found two genuine draft-reset failures: the shared restorer put old fields back after an explicit blank/latest reset. Explicit reset now clears the saved draft before resetting/remounting; both focused repeats passed. An additional unchanged-revision uncertain-edit case passed after adding explicit fresh-read recovery. Its initial attempt encountered a stopped development server; the retry used the running server successfully.
+
+Initial visual inspection found inherited filter-action borders/layout and a tinted row-header background; scoped CSS corrected both. The production comparison found unnecessary desktop action wrapping; final padding and visual verification address that separately. A real-data helper initially omitted required router options and assumed an UPDATE audit, although the preserved mutation body includes `isActive` and the backend records STATUS_CHANGE. The helper was corrected to the existing contract, then passed in full. No business rule was weakened.
+
+The new administrator search/category and direct-detail contracts required backend changes, covered by [41 distinct backend cases and rollout instructions](../../../backend/docs/admin-service-catalogue.md). No migration was added. Deploy the API before the dependent frontend. The separately addressable administrator detail page remains the next gate; this catalogue's inline editor does not claim that route exists.
+
+## Fidelity ledger
+
+| Point                | Reference, browser evidence and disposition                                                                                                                                                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell and hierarchy  | Retain the real shell, logo, account controls and breadcrumb rather than generated account details. Native 1467×1072 comparison uses the same compact 28px heading and ink catalogue strip; existing shell geometry accounts for the content offset. |
+| Desktop composition  | Preserve the approximately 3:2 catalogue/form composition and five table columns. Keep the table at its content height instead of extending empty space to match the form. The complete form remains in normal document flow.                        |
+| Filters and controls | Match bordered controls and grouped search/visibility/pricing/category filters. Remove inherited action separators and align filter buttons. Preserve 44px targets and reduce only row-action horizontal padding to avoid desktop wrapping.          |
+| Mobile content       | Actual 320–430px layouts stack form fields and put row actions below labeled facts. The generated mobile sheet is a scaled composition; its side-by-side field/action density is intentionally reduced for native phones.                            |
+| Data and images      | Use NGN currency formatting, truthful page-local counts, neutral text status labels, real metadata and a service fallback when no image exists. The concept's photography is not fabricated catalogue inventory.                                     |
+| Review and recovery  | Preserve existing review labels and explicit uncertainty warnings. The concept's Cancel label becomes the existing Go back action. Loading/error/empty states occupy the catalogue, while stale/uncertain drafts retain context and block writes.    |
+| Media                | Keep existing upload, refresh, close, description and removal controls and authoritative size/dimension limits. The generated state sheet's 5 MB hint is not implemented.                                                                            |
+
+All three concept sheets and final desktop/mobile, edit, image and review screenshots were inspected during the final QA pass. The final desktop capture confirms that both row-action labels fit; the native mobile review keeps the complete facts and both actions within its scrollable dialog. Final build packaging and six relevant browser repeats passed; all nine production hashes match. Next: the separate administrator service detail route.

@@ -60,6 +60,7 @@ export type BookingSlot = {
 
 export type SessionUser = { id: string; email: string; role: string };
 export type SessionState = {
+  workforceManaged?: boolean;
   user: SessionUser;
   id: string;
   mfaRequired: boolean;

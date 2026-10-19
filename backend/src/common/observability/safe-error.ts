@@ -61,6 +61,7 @@ const codes: ReadonlySet<string> = new Set([
   "AccessDenied",
   "NoSuchKey",
   "InvalidAccessKeyId",
+  "DATABASE_SCHEMA_MISMATCH",
   "SignatureDoesNotMatch",
 ]);
 function code(value: unknown): string | undefined {
@@ -96,7 +97,9 @@ export function safeErrorAttributes(error: unknown): {
       ...(errorName === "AppError" && typeof record.retryable === "boolean"
         ? { retryable: record.retryable }
         : {}),
-      ...(errorCode === "P2021" || errorCode === "P2022"
+      ...(errorCode === "P2021" ||
+      errorCode === "P2022" ||
+      errorCode === "DATABASE_SCHEMA_MISMATCH"
         ? {
             recoveryHint:
               "Database schema is out of date or the configured database is incorrect. Check the database target and apply pending migrations from backend with npm run db:migrate.",

@@ -20,11 +20,13 @@ export function ServiceImageEditor({
   name,
   onUpdated,
   onClose,
+  blocked = false,
 }: {
   serviceId: string;
   name: string;
   onUpdated: () => void;
   onClose: () => void;
+  blocked?: boolean;
 }) {
   const endpoint = `/admin/services/${serviceId}`;
   const resource = useResource(`${endpoint}/images`, parseServiceImages);
@@ -35,9 +37,12 @@ export function ServiceImageEditor({
   const [message, setMessage] = useState("");
   const image = resource.data?.images[0];
   const disabled =
+    blocked ||
     !!proposal ||
     resource.loading ||
+    resource.refreshing ||
     !!resource.error ||
+    !!resource.refreshError ||
     !resource.data ||
     savedVersion > resource.data.version;
   function propose(
@@ -67,12 +72,22 @@ export function ServiceImageEditor({
   }
   return (
     <section className="detail-section" aria-labelledby="service-image-title">
-      <h2 id="service-image-title">Image for {name}</h2>
+      <h2 id="service-image-title" tabIndex={-1}>
+        Image for {name}
+      </h2>
       <p>
         Choose one image for the service card and detail page. Services without a photo
         keep their existing presentation.
       </p>
       <Feedback message={resource.error} />
+      <Feedback
+        message={
+          resource.refreshError
+            ? "This image may be out of date. Refresh before making changes."
+            : undefined
+        }
+        tone="info"
+      />
       <Feedback message={message} tone="success" toast={message} />
       {resource.loading && <p role="status">Loading service image…</p>}
       <div className="actions">

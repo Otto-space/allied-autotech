@@ -6,9 +6,24 @@ export function vehicleSaleJson(value: unknown): unknown {
   if (value instanceof Date) return value;
   if (Array.isArray(value)) return value.map(vehicleSaleJson);
   if (value !== null && typeof value === "object")
-    return Object.fromEntries(
-      Object.entries(value).map(([key, child]) => [key, vehicleSaleJson(child)]),
-    );
+    return Object.fromEntries([
+      ...Object.entries(value)
+        .filter(
+          ([key]) => key !== "signedDocumentObjectKey" && key !== "signedDocumentSha256",
+        )
+        .map(([key, child]) => [key, vehicleSaleJson(child)]),
+      ...(Object.hasOwn(value, "signedDocumentObjectKey")
+        ? [
+            [
+              "hasSignedDocument",
+              typeof (value as { signedDocumentObjectKey: unknown })
+                .signedDocumentObjectKey === "string" &&
+                (value as { signedDocumentObjectKey: string }).signedDocumentObjectKey
+                  .length > 0,
+            ],
+          ]
+        : []),
+    ]);
   return value;
 }
 export function salesPage<T extends { id: string }>(rows: T[], limit: number) {

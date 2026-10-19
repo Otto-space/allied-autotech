@@ -77,6 +77,11 @@ export function renderSpec(template, input, manifest, keys) {
   );
   const values = input.values;
   requireValue(values && typeof values === "object", "Deployment values are missing.");
+  const paystackMode = input.paystackMode ?? "test";
+  requireValue(
+    ["disabled", "test"].includes(paystackMode),
+    "Staging payments must be disabled or test mode.",
+  );
   const requiredValues = new Set();
   for (const component of [...template.services, ...template.workers, ...template.jobs]) {
     for (const entry of component.envs) {
@@ -90,6 +95,13 @@ export function renderSpec(template, input, manifest, keys) {
     }
   }
   for (const name of requiredValues) {
+    if (name === "PAYSTACK_SECRET_KEY" && paystackMode === "disabled") {
+      requireValue(
+        values[name] === "",
+        "Disabled payments require an empty Paystack key.",
+      );
+      continue;
+    }
     requireValue(
       typeof values[name] === "string" &&
         values[name].trim().length > 0 &&
@@ -127,8 +139,12 @@ export function renderSpec(template, input, manifest, keys) {
     "Runtime and migration passwords must differ.",
   );
   requireValue(
-    values.PAYSTACK_SECRET_KEY.startsWith("sk_test_"),
+    paystackMode === "disabled" || values.PAYSTACK_SECRET_KEY.startsWith("sk_test_"),
     "Only a Paystack test key is allowed.",
+  );
+  requireValue(
+    /^[a-f0-9]{64}$/.test(values.PRIVATE_TESTING_PASSWORD),
+    "Use a generated 32-byte hexadecimal private-testing password.",
   );
   requireValue(
     /^https:\/\/[a-z0-9-]+\.digitaloceanspaces\.com$/.test(
@@ -189,9 +205,15 @@ export function renderSpec(template, input, manifest, keys) {
   spec.databases[0].db_user = values.DB_USER;
   for (const component of [...spec.services, ...spec.workers, ...spec.jobs]) {
     const released = manifest.images.find((entry) => entry.name === component.name);
-    component.image.registry = input.registry;
+    // The Basic tier has one DOCR registry. App Spec requires this field omitted
+    // for a single DOCR registry; provenance still verifies its actual name.
+    delete component.image.registry;
     component.image.digest = released.digest;
     for (const entry of component.envs) {
+      if (entry.key === "PAYSTACK_MODE") entry.value = paystackMode;
+      if (paystackMode === "disabled" && entry.key === "PAYMENT_RECONCILIATION_ENABLED") {
+        entry.value = "false";
+      }
       if (!entry.value.includes("REPLACE_")) continue;
       const name =
         component.name === "migrate" && ["DB_USER", "DB_PASSWORD"].includes(entry.key)

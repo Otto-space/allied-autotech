@@ -74,9 +74,13 @@ export const branchUpdateBodySchema = z
     country: z.literal("Nigeria").optional(),
     timezone: timezone.optional(),
     isActive: z.boolean().optional(),
+    expectedRevision: z.iso.datetime({ offset: true }).optional(),
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required");
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedRevision"),
+    "At least one field is required",
+  );
 export const branchParamsSchema = z.object({ branchId: z.uuid() }).strict();
 export const publicBranchListQuerySchema = z
   .object({
@@ -86,7 +90,12 @@ export const publicBranchListQuerySchema = z
   })
   .strict();
 export const adminBranchListQuerySchema = z
-  .object({ ...cursorPage, isActive: queryBoolean.optional() })
+  .object({
+    ...cursorPage,
+    isActive: queryBoolean.optional(),
+    q: cleanText(100).min(2).optional(),
+    code: branchFields.code.optional(),
+  })
   .strict();
 
 export const privilegedInvitationBodySchema = z
@@ -125,17 +134,28 @@ export const staffParamsSchema = z.object({ staffUserId: z.uuid() }).strict();
 export const staffListQuerySchema = z
   .object({
     ...cursorPage,
+    q: cleanText(100).min(2).optional(),
     branchId: z.uuid().optional(),
     role: z.enum(["STAFF", "ADMIN", "SUPER_ADMIN"]).optional(),
     status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]).optional(),
   })
   .strict();
+const expectedRevision = z
+  .string()
+  .min(1)
+  .max(300)
+  .optional()
+  .describe(
+    "Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it.",
+  );
 export const staffStatusBodySchema = z
-  .object({ status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]) })
+  .object({ status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]), expectedRevision })
   .strict();
-export const staffBranchBodySchema = z.object({ branchId: z.uuid() }).strict();
+export const staffBranchBodySchema = z
+  .object({ branchId: z.uuid(), expectedRevision })
+  .strict();
 export const staffRoleBodySchema = z
-  .object({ role: z.literal("STAFF"), branchId: z.uuid() })
+  .object({ role: z.literal("STAFF"), branchId: z.uuid(), expectedRevision })
   .strict();
 export const organizationEmptyQuerySchema = z.object({}).strict().default({});
 export const organizationEmptyBodySchema = z.object({}).strict().default({});

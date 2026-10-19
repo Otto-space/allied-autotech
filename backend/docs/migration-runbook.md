@@ -1,5 +1,10 @@
 # Migration runbook
 
+Follow the [mandatory database safety workflow](database-safety.md). Use
+`npm run db:migrate` for application databases; direct deployment now requires a
+fresh verified backup receipt. `npm run db:check` must pass before startup/release.
+The isolated empty test replay below remains the only backup-free exception.
+
 Production migrations are forward-only. Never edit a migration that has been applied, never use
 `migrate reset` against a shared database, and separate PostgreSQL enum additions from migrations
 that consume the new values.

@@ -69,5 +69,10 @@ export function createAuditOperationsRouter(): Router {
     }),
     controller.updateAnomaly,
   );
+  router.get(
+    "/operations/payment-anomalies/:anomalyId",
+    validate({ params: anomalyParamsSchema, query: operationsEmptyQuerySchema }),
+    controller.anomaly,
+  );
   return router;
 }

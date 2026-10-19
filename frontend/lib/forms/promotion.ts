@@ -101,6 +101,8 @@ export const promotionFormSchema = z
       });
   });
 export type PromotionValues = z.infer<typeof promotionFormSchema>;
+export const promotionFormDraftKey = (id?: string) =>
+  JSON.stringify(["promotion-form:1", id]);
 export function promotionDefaults(item?: Promotion): PromotionValues {
   const inputMoney = (value: string | null | undefined) =>
     value == null ? "" : koboToInput(value);

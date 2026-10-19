@@ -12,18 +12,24 @@ export class MediaCleanupWorker {
   async runOnce(batchSize = 25) {
     const limit = Math.max(1, Math.min(batchSize, 100));
     // Also handles cascaded resource deletion and recovery after an application crash.
-    const orphans = await this.db.storedMedia.findMany({
-      where: {
-        deletedAt: null,
-        createdAt: { lt: new Date(Date.now() - 60 * 60_000) },
-        images: { none: {} },
-        productImages: { none: {} },
-        vehicleImages: { none: {} },
-      },
-      select: { objectKey: true },
-      take: limit,
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-    });
+    // Pending jobs already own recovery, including delayed retries and leases.
+    // Exclude them before LIMIT so a failing oldest page cannot starve new orphans.
+    // Completed jobs remain eligible when a later resource deletion leaves an orphan.
+    const orphans = await this.db.$queryRaw<{ objectKey: string }[]>`
+      SELECT asset."objectKey" FROM "StoredMedia" AS asset
+      WHERE asset."deletedAt" IS NULL
+        AND asset."createdAt" < ${new Date(Date.now() - 60 * 60_000)}
+        AND NOT EXISTS (SELECT 1 FROM "ResourceImage" AS image
+          WHERE image."assetId" = asset."id")
+        AND NOT EXISTS (SELECT 1 FROM "ProductImage" AS image
+          WHERE image."mediaAssetId" = asset."id")
+        AND NOT EXISTS (SELECT 1 FROM "VehicleImage" AS image
+          WHERE image."mediaAssetId" = asset."id")
+        AND NOT EXISTS (SELECT 1 FROM "MediaCleanupJob" AS job
+          WHERE job."objectKey" = asset."objectKey" AND job."completedAt" IS NULL)
+      ORDER BY asset."createdAt", asset."id"
+      LIMIT ${limit}
+    `;
     await this.db.$transaction(async (tx) => {
       for (const orphan of orphans) {
         const existing = await tx.mediaCleanupJob.findUnique({

@@ -17,6 +17,7 @@ import {
 import { TeamAccessService } from "./team-access.service.js";
 import { lockAccessActor, revokeAccessInvitations } from "./team-access-security.js";
 import { OrganizationRepository } from "./organization.repository.js";
+import { assertStaffRevision, lockStaffAccount } from "./staff-account-revision.js";
 import type {
   AdminBranchListQuery,
   BranchCreateInput,
@@ -86,11 +87,12 @@ export class OrganizationService {
     context: RequestSecurityContext,
   ) {
     assertAdministrator(actor);
-    if (query.cursor !== undefined) {
-      const cursor = await this.repository.branch(query.cursor, false);
-      if (cursor === null) throw organizationResourceNotFound();
-    }
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      if (query.cursor !== undefined) {
+        const cursor = await this.repository.branch(query.cursor, false, transaction);
+        if (cursor === null) throw organizationResourceNotFound();
+      }
       const result = page(
         await this.repository.listBranches(query, transaction),
         query.limit,
@@ -114,6 +116,7 @@ export class OrganizationService {
   ) {
     assertAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
       const branch = await this.repository.branch(branchId, false, transaction);
       if (branch === null) throw organizationResourceNotFound();
       await appendAuditEvent(transaction, {
@@ -134,6 +137,7 @@ export class OrganizationService {
   ) {
     assertAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
       const branch = await this.repository.createBranch(input, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -155,9 +159,17 @@ export class OrganizationService {
   ) {
     assertAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`branch:${branchId}`}, 0))`;
       const existing = await this.repository.branch(branchId, false, transaction);
       if (existing === null) throw organizationResourceNotFound();
+      if (
+        input.expectedRevision !== undefined &&
+        input.expectedRevision !== existing.updatedAt.toISOString()
+      )
+        throw organizationConflict(
+          "The branch has changed. Reload it before reviewing another update.",
+        );
       if (input.isActive === false && existing.isActive) {
         const assigned = await this.repository.countActiveAssignedStaff(
           branchId,
@@ -169,7 +181,13 @@ export class OrganizationService {
           );
         }
       }
-      const branch = await this.repository.updateBranch(branchId, input, transaction);
+      const { expectedRevision: _revision, ...changes } = input;
+      const branch = await this.repository.updateBranch(
+        branchId,
+        changes,
+        transaction,
+        new Date(Math.max(Date.now(), existing.updatedAt.getTime() + 1)),
+      );
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: input.isActive === undefined ? "UPDATE" : "STATUS_CHANGE",
@@ -178,7 +196,7 @@ export class OrganizationService {
         oldValues: { active: existing.isActive },
         newValues: {
           active: branch.isActive,
-          changedFields: Object.keys(input).sort().join(","),
+          changedFields: Object.keys(changes).sort().join(","),
         },
         context,
       });
@@ -253,13 +271,16 @@ export class OrganizationService {
     staffUserId: string,
     status: UserStatus,
     context: RequestSecurityContext,
+    expectedRevision?: string,
   ) {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff:${staffUserId}`}, 0))`;
+      await lockStaffAccount(transaction, staffUserId);
       const existing = await this.repository.staff(staffUserId, transaction);
       if (existing === null) throw organizationResourceNotFound();
       assertCanManagePrivilegedUser(actor, staffUserId, existing.role);
+      assertStaffRevision(existing, expectedRevision);
       if (existing.status === status) throw organizationConflict();
       const updated = await transaction.user.update({
         where: { id: staffUserId },
@@ -294,16 +315,19 @@ export class OrganizationService {
     staffUserId: string,
     branchId: string,
     context: RequestSecurityContext,
+    expectedRevision?: string,
   ) {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff:${staffUserId}`}, 0))`;
+      await lockStaffAccount(transaction, staffUserId);
       const existing = await this.repository.staff(staffUserId, transaction);
       if (existing === null || existing.staffProfile === null) {
         throw organizationResourceNotFound();
       }
       assertCanManagePrivilegedUser(actor, staffUserId, existing.role);
       if (existing.role !== "STAFF") throw organizationConflict();
+      assertStaffRevision(existing, expectedRevision);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`branch:${branchId}`}, 0))`;
       const branch = await this.repository.branch(branchId, true, transaction);
       if (branch === null) throw organizationResourceNotFound();
@@ -340,11 +364,13 @@ export class OrganizationService {
     return this.database.$transaction(async (transaction) => {
       await lockAccessActor(transaction, actor);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`staff:${staffUserId}`}, 0))`;
+      await lockStaffAccount(transaction, staffUserId);
       const existing = await this.repository.staff(staffUserId, transaction);
       if (existing === null || existing.staffProfile === null) {
         throw organizationResourceNotFound();
       }
       assertCanChangeRole(actor, staffUserId, existing.role, input.role);
+      assertStaffRevision(existing, input.expectedRevision);
       if (existing.role === input.role) throw organizationConflict();
 
       const nextBranchId = input.role === "STAFF" ? input.branchId : null;

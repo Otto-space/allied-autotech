@@ -45,6 +45,20 @@ async function fixture(
         mfaVerifiedAt: "2026-09-13T09:00:00Z",
         user: { id: id(5), email: "stock@example.test", role },
       });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(5),
+        email: "stock@example.test",
+        role,
+        status: "ACTIVE",
+        capabilities: [],
+        staffProfile: {
+          id: id(50),
+          firstName: "Stock",
+          lastName: "QA",
+          branchId: branch.id,
+        },
+      });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-test-token-".repeat(3) });
     return route.fulfill({
@@ -66,7 +80,7 @@ const inventory = (): Inventory => ({
 });
 const balances = (page: Page, label: string) =>
   page
-    .locator(".totals dt")
+    .locator(".wid-summary .totals dt")
     .filter({ hasText: new RegExp(`^${label}$`) })
     .locator("+ dd");
 test("uncertain stock movement preserves body and idempotency key without optimistic balances", async ({
@@ -93,7 +107,26 @@ test("uncertain stock movement preserves body and idempotency key without optimi
         stock.available = 11;
         stock.version = 1;
         await route.abort("failed");
-      } else await reply(route, { inventory: stock, transaction: {}, replayed: true });
+      } else
+        await reply(route, {
+          inventory: stock,
+          transaction: {
+            id: id(25),
+            type: "STOCK_IN",
+            quantityDelta: 3,
+            reservedDelta: 0,
+            quantityBefore: 10,
+            quantityAfter: 13,
+            reservedBefore: 2,
+            reservedAfter: 2,
+            referenceType: null,
+            referenceId: null,
+            note: "Isolated receipt",
+            createdAt: new Date().toISOString(),
+            performedBy: { id: id(5), role: "STAFF" },
+          },
+          replayed: true,
+        });
       return true;
     }
   });
@@ -236,7 +269,14 @@ test("stock reservation, release and reserved sale use the actual quantity and s
         createdAt: new Date().toISOString(),
         performedBy: { id: id(5), role: "STAFF" },
       });
-      await reply(route, { inventory: stock, replayed: false });
+      await reply(route, {
+        inventory: stock,
+        replayed: false,
+        transaction: history.at(-1),
+        reservation: path.endsWith("/reservations")
+          ? reservations.at(-1)
+          : reservations[1],
+      });
       return true;
     }
   });
@@ -354,6 +394,7 @@ test("administrator creates an empty stock record and updates its versioned reor
     "ADMIN",
   );
   await page.goto("/admin/inventory", { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Add inventory record", exact: true }).click();
   await page.getByLabel("Inventory branch").selectOption(branch.id);
   await page.getByLabel("Inventory part").selectOption(product.id);
   await page.getByLabel("Initial reorder level").fill("7");
@@ -433,24 +474,18 @@ test("low-stock filtering, history failures and rejected movements preserve hone
     page.getByRole("heading", { name: "Add a branch inventory record" }),
   ).toHaveCount(0);
   await page.getByLabel("Show only low-stock records").check();
+  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "No low-stock records on this page" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Show all stock" }).click();
-  await page.getByRole("button", { name: "Filter by branch or part" }).click();
-  await page.getByLabel("Active branch filter").selectOption(branch.id);
-  await page.getByLabel("Active catalogue part filter").selectOption(product.id);
+  await page.getByLabel("Search part name or SKU").fill("STOCK-001");
+  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
   await expect
-    .poll(() =>
-      filters.some(
-        (query) =>
-          query.get("branchId") === branch.id && query.get("productId") === product.id,
-      ),
-    )
+    .poll(() => filters.some((query) => query.get("search") === "STOCK-001"))
     .toBe(true);
-  await page.getByRole("button", { name: "Clear inventory filters" }).click();
-  await expect(page.getByLabel("Active branch filter")).toHaveValue("");
-  await expect(page.getByLabel("Active catalogue part filter")).toHaveValue("");
+  await page.getByRole("button", { name: "Clear filters", exact: true }).first().click();
+  await expect(page.getByLabel("Search part name or SKU")).toHaveValue("");
   await page.getByRole("link", { name: product.name, exact: true }).click();
   await expect(page.getByText("No movements match this page and filter.")).toHaveCount(0);
   await page.getByLabel("Movement type", { exact: true }).selectOption("DAMAGE");

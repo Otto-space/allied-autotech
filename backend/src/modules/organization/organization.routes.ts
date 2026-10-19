@@ -126,6 +126,11 @@ export function createAdminOrganizationRouter(): Router {
     controller.revokeInvitation,
   );
   router.get(
+    "/staff/invitations/:invitationId",
+    validate({ params: invitationParamsSchema, query: organizationEmptyQuerySchema }),
+    controller.invitation,
+  );
+  router.get(
     "/staff/:staffUserId",
     validate({ params: staffParamsSchema, query: organizationEmptyQuerySchema }),
     controller.staffMember,

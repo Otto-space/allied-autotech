@@ -133,6 +133,19 @@ export class ServiceOperationsController {
           ),
         ),
       );
+  adminService = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Service retrieved",
+          req.id,
+          await this.service.adminService(
+            actor(req),
+            validated<{ serviceId: string }>(res, "params").serviceId,
+          ),
+        ),
+      );
   createService = async (req: Request, res: Response) =>
     res
       .status(201)

@@ -1,6 +1,18 @@
 import { z } from "zod";
 
 const uuid = z.uuid();
+export const promotionCreationKeySchema = z
+  .string()
+  .regex(
+    /^promotion-v1\.\d{13}\.[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+export const promotionCreationHeadersSchema = z.object({
+  "idempotency-key": promotionCreationKeySchema.optional(),
+});
+export const promotionReceiptParamsSchema = z
+  .object({ requestKey: promotionCreationKeySchema })
+  .strict();
+export const promotionEmptyQuerySchema = z.object({}).strict();
 const version = z.number().int().min(0).max(2_147_483_647);
 const cleanText = (maximum: number) => z.string().trim().min(1).max(maximum);
 const kobo = z.string().regex(/^(?:0|[1-9][0-9]{0,15})$/, "Use integer kobo");
@@ -73,6 +85,16 @@ export const promotionListQuerySchema = z
     cursor: uuid.optional(),
     limit: z.coerce.number().int().min(1).max(100).default(25),
     isActive: optionalBoolean,
+    search: cleanText(160)
+      .refine(
+        (value) =>
+          Array.from(value).every(
+            (char) => char.charCodeAt(0) > 31 && char.charCodeAt(0) !== 127,
+          ),
+        "Use printable search text",
+      )
+      .optional(),
+    discountType: z.enum(["PERCENTAGE", "FIXED_AMOUNT"]).optional(),
   })
   .strict();
 export const promotionPreviewBodySchema = z

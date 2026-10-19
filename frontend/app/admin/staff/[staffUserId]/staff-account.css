@@ -1,0 +1,324 @@
+.work-staff-account {
+  color: var(--ink, #01121a);
+  font-size: 14px;
+}
+.work-staff-account .button {
+  /* Keep disabled/enabled text and background colors in the same frame. */
+  transition-property: transform, box-shadow;
+}
+.wsad-breadcrumb ol,
+.wsad-breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.wsad-breadcrumb ol {
+  padding: 0;
+  margin: 0 0 22px;
+  list-style: none;
+  font-size: 12px;
+}
+.wsad-breadcrumb li:last-child {
+  flex: 1;
+}
+.wsad-breadcrumb span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wsad-breadcrumb svg {
+  flex: none;
+  color: #748494;
+}
+.wsad-breadcrumb a {
+  color: #ba0807;
+  white-space: nowrap;
+}
+.wsad-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.work-staff-account h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.3;
+}
+.work-staff-account h2 {
+  font-size: 20px;
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+.work-staff-account h3 {
+  font-size: 17px;
+  line-height: 1.4;
+}
+.work-staff-account .button {
+  min-height: 44px;
+}
+.wsad-identity {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 28px;
+  padding: 22px 24px;
+  background: #fff;
+  border: 1px solid #d5deea;
+  border-radius: 6px;
+  margin-bottom: 22px;
+}
+.wsad-identity h2 {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+.wsad-identity p {
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+.wsad-identity dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 18px;
+  margin: 0;
+  align-content: center;
+}
+.work-staff-account dt {
+  color: #536779;
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+.work-staff-account dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.wsad-identity small {
+  display: block;
+  color: #6b5c42;
+  margin-top: 5px;
+}
+.wsad-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.wsad-status-active {
+  background: #e6f4ee;
+  color: #086047;
+}
+.wsad-status-suspended {
+  background: #fff2da;
+  color: #805005;
+}
+.wsad-status-deactivated,
+.wsad-self {
+  background: #edf0f5;
+  color: #48596c;
+}
+.wsad-self {
+  display: inline-block;
+  padding: 3px 7px;
+  margin-top: 7px;
+  font-size: 12px;
+}
+.wsad-main {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 22px;
+  align-items: start;
+}
+.wsad-facts,
+.wsad-manage {
+  min-width: 0;
+  background: #fff;
+  padding: 22px 24px;
+  border: 1px solid #d5deea;
+  border-radius: 6px;
+}
+.wsad-facts dl {
+  margin: 0;
+}
+.wsad-facts dl > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid #dce3ec;
+}
+.work-staff-account details {
+  border-top: 1px solid #dce3ec;
+  margin-top: 16px;
+}
+.work-staff-account summary {
+  min-height: 44px;
+  padding: 12px 0;
+  cursor: pointer;
+  font-weight: 600;
+}
+.wsad-facts details p {
+  overflow-wrap: anywhere;
+}
+.wsad-access-note {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-left: 3px solid #e60301;
+  background: #fff5f4;
+  line-height: 1.7;
+}
+.wsad-manage form {
+  margin: 0;
+}
+.work-staff-account .handover-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.work-staff-account .field {
+  margin: 0;
+  min-width: 0;
+}
+.work-staff-account .field input:not([type="checkbox"]),
+.work-staff-account select {
+  min-height: 48px;
+  font-size: 16px;
+}
+.work-staff-account .handover-fields > button {
+  grid-column: 1/-1;
+  justify-self: start;
+  margin: 0;
+}
+.wsad-secondary > .detail-section {
+  margin-top: 22px;
+  padding: 22px 24px;
+  max-width: none;
+}
+.wsad-secondary .record-list {
+  gap: 0;
+  margin: 16px 0;
+  padding: 0;
+}
+.wsad-secondary .record-list > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  border: 0;
+  border-top: 1px solid #dce3ec;
+  padding: 14px 0;
+  background: transparent;
+}
+.wsad-secondary form {
+  margin-top: 20px;
+}
+.wsad-secondary form > .field {
+  margin-bottom: 16px;
+}
+.work-staff-account .notice {
+  overflow-wrap: anywhere;
+}
+.wsad-recovery {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #dbb981;
+  border-left: 3px solid #9c6300;
+  background: #fff9ee;
+}
+.wsad-recovery p {
+  line-height: 1.7;
+}
+.wsad-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  line-height: 1.6;
+}
+.wsad-ack input {
+  flex: none;
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: #e60301;
+}
+@media (max-width: 1250px) {
+  .wsad-identity {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .wsad-main {
+    grid-template-columns: 1fr;
+  }
+  .wsad-facts dl {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 24px;
+  }
+  .wsad-facts dl > div {
+    display: block;
+  }
+}
+@media (max-width: 600px) {
+  .wsad-breadcrumb ol {
+    gap: 7px;
+    margin-bottom: 18px;
+  }
+  .wsad-breadcrumb li {
+    gap: 7px;
+  }
+  .wsad-breadcrumb li:nth-child(2) {
+    display: none;
+  }
+  .wsad-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .work-staff-account h1 {
+    font-size: 24px;
+  }
+  .wsad-header .button {
+    font-size: 12px;
+    padding: 9px 12px;
+  }
+  .wsad-identity,
+  .wsad-facts,
+  .wsad-manage,
+  .wsad-secondary > .detail-section {
+    padding: 18px 16px;
+  }
+  .wsad-identity {
+    margin-bottom: 18px;
+  }
+  .wsad-identity h2 {
+    font-size: 22px;
+  }
+  .wsad-identity dl {
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .wsad-identity dl > div:last-child {
+    grid-column: 1/-1;
+  }
+  .wsad-main {
+    gap: 18px;
+  }
+  .work-staff-account .handover-fields {
+    grid-template-columns: 1fr;
+  }
+  .work-staff-account .handover-fields > button {
+    width: 100%;
+  }
+  .wsad-secondary .record-list > li {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .wsad-secondary .record-list button {
+    justify-self: start;
+  }
+}

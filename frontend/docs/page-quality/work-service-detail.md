@@ -1,0 +1,45 @@
+# Administrator service detail — verification in progress
+
+Route: `/admin/services/[serviceId]`. Roles: Admin and Super Admin. Gate 53 passed locally on 12 October 2026; the accepted milestone count is 53. The whole application and deployed verification remain separate scopes.
+
+## Implementation
+
+The previous direct URL returned HTTP 404. Three fresh [desktop, mobile and state concepts](work-service-detail-oct-concepts/spec.md) preceded page code. The new route validates its UUID before rendering the client surface and reads the record directly through the existing administrator detail endpoint. It does not depend on downloading a catalogue page. Catalogue service names now link to this page; existing inline editing and media actions remain available.
+
+The page uses named Overview/Services/entity breadcrumbs, a compact header, an ink pricing/duration/visibility band, ruled service facts, complete descriptions and authorized image preview. Created/updated timestamps use the Lagos formatter. Missing fields and images are explicit; no history, totals, public availability promise or delete operation is invented.
+
+The existing reviewed editor and image manager are reused. `?view=edit` and `?view=image` retain the chosen workflow on reload. Editing preserves the current revision check, canonical naira-to-kobo conversion, field validation, complete review, draft restoration and explicit uncertain-outcome recovery. Successful editing returns to refreshed details; closing without saving makes no write. The image manager retains distinct preparation and attachment steps, description editing and removal. A new optional parent `blocked` prop prevents media changes when the detail read is stale or unavailable; its default preserves catalogue behavior.
+
+Transient failures preserve readable context and drafts while blocking changes. Missing, denied and mismatched records remove the detail content and controls. Staff and Customer do not issue administrator service reads. The backend independently retains role/MFA, CSRF and revision enforcement. No backend endpoint or migration was added for this route.
+
+## Verification
+
+- TypeScript, full frontend lint and 17 existing parser/form/resource unit cases passed. The corrected production build and final changed-source lint also passed. All seven changed production source hashes match the isolated build input.
+- The initial 20-case development run passed 12 and failed eight. Two failures were overstrict test assumptions: exactly one GET despite supported revalidation, and HTTP 404 for a streamed Next.js not-found response. Tests now verify the intended read scope and rendered not-found state; both corrected cases passed.
+- Four accessibility cases exposed invalid nested definition-list groups in the summary. The markup was corrected without changing its visual grouping; the 320px repeat passed.
+- Customer redirect and Super Admin media-reload checks timed out in the shared development server. A separate probe logged repeated injected-tool WebSocket/CSP errors and a document-load timeout. The media input also correctly remained disabled because that server had no allowed storage host. Production verification supplies only the isolated test storage host and retains the original permission/media assertions; development instrumentation is not claimed to explain every timeout.
+- Real browser/API/PostgreSQL acceptance passed using `allied_slots_20261012_test` on port 55439: a record outside the first 25 category results was directly read and reloaded; review cancellation wrote nothing; one edit persisted exact `8765432` kobo and 60 minutes with one STATUS_CHANGE audit (the preserved mutation includes `isActive`); stale revision and missing CSRF were rejected. A committed response was dropped during a second edit, reload retained the uncertainty lock, and explicit fresh-read recovery restored 90 minutes without repeating the PATCH or audit. Image upload, description, detail preview/reload and removal passed through the real media service with its in-memory storage test port. Super Admin reads and Staff/Customer/anonymous denial passed. No browser page errors occurred; synthetic sessions were removed and external providers remained disabled.
+- All 65 distinct production-browser scenarios have passing evidence: 20 detail, 20 catalogue, 23 navigation and two draft cases. The combined run passed 63; two cases failed during trace-artifact teardown with missing temporary files. Both passed unchanged on a focused repeat with a dedicated output directory. Customer redirect and Super Admin media-reload assertions passed in production.
+- Final captures cover 13 widths (320, 360, 375, 390, 430, 768, 844, 1024, 1280, 1440, 1467, 1505 and 1920px), including 844x390 short landscape, and 14 states (loading, error, denied, missing, stale, edit, validation, review, uncertain, image, no-image, broken-image, null-fields and long-content). All reported no horizontal overflow or page errors. Axe scans at 320/390/1467px and all states reported zero violations. Width captures reported no console errors; failed-network console messages in deliberate error states were expected. Desktop/mobile and edit/review/image screenshots were inspected against the concepts.
+
+Local artifacts are under `C:/Users/PC/.codex/`: `work-service-detail-before.*`, `work-service-detail-first-*`, `work-service-detail-dev-tests.log`, `work-service-detail-dev-recovery.log`, `work-service-detail-customer-debug.log`, `work-service-detail-types.log`, `work-service-detail-lint.log` and `work-service-detail-unit.log`. Final evidence also includes `work-service-detail-production-tests.log`, `work-service-detail-repeat.log`, `work-service-detail-final-build.log`, `work-service-detail-final-lint.log`, `work-service-detail-real.log`, `work-service-detail-final-captures.json`, `work-service-detail-final-*.png` and `work-service-detail-source-hashes.json`. The corrected packaged production build, final browser repeat, API/database run and captures establish local acceptance. Browser plugin was not available, so verification uses installed Playwright and Edge.
+
+## Final fidelity ledger
+
+Compared the retained desktop/mobile/state references with the final production captures, including native 1467px desktop, 390px mobile and the full mobile review dialog.
+
+| Point | Concept evidence | Browser evidence and correction | Remaining blocker |
+| --- | --- | --- | --- |
+| Brand and shell | Ink navigation and compact administration heading; state sheet invents an alternate logo/tagline. | Retained the real Allied AutoTech wordmark and established role-aware shell; excluded generated brand claims. | None locally. |
+| Type and hierarchy | Compact Quicksand headings, muted labels and clear red actions. | Used the specified application type scale; named breadcrumbs and entity heading remain readable with long names. | None locally. |
+| Summary | Dark pricing/duration/visibility band. | Three desktop groups; mobile price row above duration/visibility. Corrected invalid definition-list nesting and reran accessibility checks. | None locally. |
+| Details and media | Paired white panels, ruled facts and broad image. | Approximately 1.1:1 desktop panels, stacked mobile panels, Lagos dates, full descriptions and a 4:3 authorized preview. Missing values remain explicit. | None locally. |
+| Editing | Bordered fields, grouped pricing/duration, active choice and red review action. | Reused the complete reviewed form with visible focus/validation; mobile fields stack and drafts survive reload. Existing compact application controls take precedence over generated proportions. | None locally. |
+| Review and recovery | Confirmation and interrupted-save notices. | Preserved every reviewed field and explicit Go back/Confirm save actions. Neutral stale notices replace generated orange; uncertain writes remain locked until explicit fresh-read recovery. | None locally. |
+| Image workflow | Existing image/description/removal and replacement control. | Preserved separate upload preparation and attachment actions, supported limits and authorization. The state sheet's combined upload/save action was intentionally rejected. | External storage deployment remains REL-01. |
+
+Screenshot fixture photography is a synthetic test projection served through an authorized media URL. It does not assert that a generated or editorial photo is attached to a production service.
+
+## Acceptance boundary
+
+The dedicated detail route is locally accepted. No new API endpoint, migration or backend gap was required for this gate. Existing ADM-01/ADM-02 contracts require API-first coordinated deployment and target-environment verification. Real media acceptance here used the actual media domain service with an in-memory storage port; external object-storage behavior and provider delivery are not established. Optional durable service-creation receipts remain ADM-03, outside this detail-page scope. Maps remains deferred, with the confirmed landmark beside Kilimanjaro. The whole-application goal remains active; service-category administration is the next page audit.

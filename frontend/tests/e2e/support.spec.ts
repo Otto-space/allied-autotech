@@ -116,7 +116,8 @@ async function fixture(page: Page, role = "CUSTOMER") {
       if (endpoint === "/public/branches" || endpoint === "/admin/branches")
         return ok(route, { items: [branch] });
       if (endpoint === "/admin/staff") return ok(route, { items: [profile] });
-      if (endpoint === "/staff/profile") return ok(route, profile);
+      if (endpoint === "/staff/profile")
+        return ok(route, { ...profile, id: id(21), role, capabilities: [] });
       if (match) {
         const record = state.records[match[2] as keyof typeof state.records];
         if (match[4] === "messages") {
@@ -211,13 +212,29 @@ async function fixture(page: Page, role = "CUSTOMER") {
         };
         if (state.contradictory) saved.visibility = "INTERNAL";
         state.messages.push(saved);
-        return ok(route, { ...saved, replayed: false });
+        return ok(route, {
+          ...saved,
+          replayed: false,
+          ...(match[1] === "staff"
+            ? { conversationId: record.id, conversationKind: match[2] }
+            : {}),
+        });
       }
       Object.assign(record, body, { version: record.version + 1 });
       if (match[4] === "assignment")
         record.assignedStaff = body.assignedStaffId ? staff : null;
       if (state.contradictory) record.version--;
-      return ok(route, record);
+      const text = body.response ?? body.resolution;
+      const receipt = text
+        ? {
+            ...message(13),
+            body: String(text),
+            conversationId: record.id,
+            conversationKind: match[2],
+          }
+        : null;
+      if (receipt) state.messages.push(receipt);
+      return ok(route, { ...record, messageReceipt: receipt });
     }
     return fail(route, 404, "NOT_FOUND");
   });
@@ -549,7 +566,9 @@ for (const visibility of ["INTERNAL", "CUSTOMER"]) {
     state.records.complaints.customerId = null;
     state.messages.push(message(14, "INTERNAL"));
     await page.goto(thread("complaints", true));
-    await expect(page.getByText(/submitted without an account/)).toBeVisible();
+    await expect(
+      page.getByText(/This record has no linked customer account/),
+    ).toBeVisible();
     await expect(page.getByText("Isolated reply 14", { exact: true })).toBeVisible();
     await page.getByLabel("Message visibility").selectOption(visibility);
     await page.getByLabel("Reply text").fill("Staff test message");
@@ -558,7 +577,7 @@ for (const visibility of ["INTERNAL", "CUSTOMER"]) {
       visibility === "INTERNAL" ? "Staff only" : "Customer-visible",
     );
     await confirm(page);
-    await expect(page.getByText("Staff test message", { exact: true })).toBeVisible();
+    await expect(page.locator(".wst-confirmed")).toContainText("Staff test message");
     expect(state.writes[0].body).toEqual({ message: "Staff test message", visibility });
     await expect(page.getByLabel("Message visibility")).toHaveValue("CUSTOMER");
   });
@@ -578,7 +597,12 @@ for (const kind of ["enquiries", "complaints"]) {
     await page.getByRole("button", { name: "Review support change" }).click();
     await expect(page.getByRole("dialog")).toContainText("Test resolution text");
     await confirm(page);
-    await expect(page.getByText("Support change saved.", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText(
+        "Conversation change recorded. Review the saved facts and messages.",
+        { exact: true },
+      ),
+    ).toBeVisible();
     expect(state.writes[0].body).toEqual({
       expectedVersion: 0,
       status: "RESOLVED",
@@ -604,7 +628,11 @@ test("staff assignment, removal and complaint priority use exact server versions
   await page.getByRole("button", { name: "Review support change" }).click();
   await expect(page.getByRole("dialog")).toContainText("Test Handler");
   await confirm(page);
-  await expect(page.getByText("Support change saved.", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Conversation change recorded. Review the saved facts and messages.", {
+      exact: true,
+    }),
+  ).toBeVisible();
   await expect(page.getByLabel("Action", { exact: true })).toHaveValue("status");
   await page.getByLabel("Action", { exact: true }).selectOption("assignment");
   await page.getByLabel("Remove the current assignment").check();
@@ -651,17 +679,23 @@ test("admin queue sends branch, assignment, type and priority filters", async ({
   page,
 }) => {
   const state = await fixture(page, "ADMIN");
+  state.records.enquiries.type = "PRODUCT";
+  state.records.enquiries.assignedStaffId = id(3);
+  state.records.enquiries.assignedStaff = staff;
   await page.goto("/admin/support");
   await page.getByLabel("Branch filter", { exact: true }).selectOption(id(2));
   await page.getByLabel("Assigned staff filter", { exact: true }).selectOption(id(3));
   await page.getByLabel("Enquiry type", { exact: true }).selectOption("PRODUCT");
+  await page.getByRole("button", { name: "Apply support filters", exact: true }).click();
   await expect
     .poll(() =>
       state.reads.filter((url) => url.startsWith("/staff/support/enquiries?")).at(-1),
     )
     .toContain(`type=PRODUCT&branchId=${id(2)}&assignedStaffId=${id(3)}`);
-  await page.getByLabel("Record category").selectOption("complaints");
+  await page.getByRole("button", { name: "Complaints", exact: true }).click();
+  state.records.complaints.priority = "HIGH";
   await page.getByLabel("Complaint priority").selectOption("HIGH");
+  await page.getByRole("button", { name: "Apply support filters", exact: true }).click();
   await expect
     .poll(() =>
       state.reads.filter((url) => url.startsWith("/staff/support/complaints?")).at(-1),

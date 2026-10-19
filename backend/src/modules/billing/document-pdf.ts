@@ -1,6 +1,10 @@
 import PDFDocument from "pdfkit";
 import { fileURLToPath } from "node:url";
-import type { InvoiceDocument, ReceiptDocument } from "./document.schemas.js";
+import type {
+  InvoiceDocument,
+  StaffInvoiceDocument,
+  ReceiptDocument,
+} from "./document.schemas.js";
 
 const font = fileURLToPath(
   new URL("../../../assets/fonts/Quicksand-Regular.ttf", import.meta.url),
@@ -37,7 +41,7 @@ export function documentFilename(kind: "invoice" | "receipt", reference: string)
 
 /** Deterministic local assets only. No HTML, remote URLs or user-supplied PDF commands. */
 export function renderFinancialPdf(
-  document: InvoiceDocument | ReceiptDocument,
+  document: InvoiceDocument | StaffInvoiceDocument | ReceiptDocument,
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const invoice = "invoiceNumber" in document;
@@ -47,7 +51,7 @@ export function renderFinancialPdf(
       margin: 42,
       bufferPages: true,
       info: {
-        Title: `${invoice ? "Invoice" : "Payment receipt"} ${reference}`,
+        Title: `${invoice ? (document.status === "DRAFT" ? "Draft invoice" : "Invoice") : "Payment receipt"} ${reference}`,
         Author: document.issuer.name,
         Creator: "Allied AutoTech",
       },
@@ -147,15 +151,23 @@ export function renderFinancialPdf(
       y += issuerHeight + 18;
       rule(y, red);
       y += 24;
-      paragraph(invoice ? "INVOICE" : "PAYMENT RECEIPT", 22, ink);
+      paragraph(
+        invoice
+          ? document.status === "DRAFT"
+            ? "DRAFT INVOICE - NOT ISSUED"
+            : "INVOICE"
+          : "PAYMENT RECEIPT",
+        22,
+        ink,
+      );
       if (invoice) {
         paragraph(
-          `${reference} | ${document.status === "PAID" ? "Paid" : document.status === "VOID" ? "Void" : "Issued"}`,
+          `${reference} | ${document.status === "DRAFT" ? "Draft - not issued" : document.status === "PAID" ? "Paid" : document.status === "VOID" ? "Void" : "Issued"}`,
           11,
           ink,
         );
         paragraph(
-          `Issued: ${date(document.issuedAt)}${document.dueAt ? `    Due: ${date(document.dueAt)}` : ""}`,
+          `${document.status === "DRAFT" ? "Not issued" : `Issued: ${date(document.issuedAt)}`}${document.dueAt ? `    Due: ${date(document.dueAt)}` : ""}`,
           10,
         );
         paragraph(`Bill to: ${document.billTo.name}`, 11, ink);
@@ -164,6 +176,12 @@ export function renderFinancialPdf(
         paragraph(`${document.source.description}: ${document.source.reference}`, 10);
         if (document.status === "VOID")
           paragraph("This invoice is void. Do not use it to make a payment.", 11, red);
+        if (document.status === "DRAFT")
+          paragraph(
+            "Draft preview only. This invoice has not been issued and is not available to the customer. Do not use this draft to request payment.",
+            11,
+            red,
+          );
         const tableHeader = () => {
           space(36);
           pdf.rect(left, y, width, 30).fill(grey);
@@ -245,11 +263,16 @@ export function renderFinancialPdf(
         pdf
           .fontSize(8)
           .fillColor(muted)
-          .text("Allied AutoTech | alliedautotech26@gmail.com", left, 798, {
-            width: 390,
-            height: 18,
-            lineBreak: false,
-          });
+          .text(
+            `${invoice && document.status === "DRAFT" ? "DRAFT - NOT ISSUED | " : ""}Allied AutoTech | alliedautotech26@gmail.com`,
+            left,
+            798,
+            {
+              width: 390,
+              height: 18,
+              lineBreak: false,
+            },
+          );
         pdf.text(`${index + 1} / ${pages.count}`, 495, 798, {
           width: 58,
           height: 18,

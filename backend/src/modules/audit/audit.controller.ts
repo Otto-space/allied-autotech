@@ -87,6 +87,7 @@ export class AuditController {
   };
   anomalies = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -101,6 +102,7 @@ export class AuditController {
       );
   disputes = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -115,6 +117,7 @@ export class AuditController {
       );
   refunds = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -127,8 +130,24 @@ export class AuditController {
           ),
         ),
       );
+  anomaly = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Payment anomaly retrieved",
+          req.id,
+          await this.service.anomaly(
+            actor(req),
+            validated<{ anomalyId: string }>(res, "params").anomalyId,
+            context(req),
+          ),
+        ),
+      );
   updateAnomaly = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(

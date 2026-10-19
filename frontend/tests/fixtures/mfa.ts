@@ -38,6 +38,15 @@ export async function fixture(page: Page) {
     delay: false,
     release: undefined as (() => void) | undefined,
     credentialId: "aXNvbGF0ZWQtY3JlZGVudGlhbA",
+    factors: [] as {
+      id: string;
+      name: string;
+      type: "TOTP";
+      status: "ACTIVE";
+      createdAt: string;
+      verifiedAt: string;
+      lastUsedAt: null;
+    }[],
     writes: [] as {
       endpoint: string;
       body: Record<string, unknown>;
@@ -64,7 +73,10 @@ export async function fixture(page: Page) {
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-mfa-csrf-".repeat(3) });
     if (endpoint === "/auth/sessions") return reply(route, { sessions: [] });
-    if (endpoint === "/auth/mfa/factors") return reply(route, { factors: [] });
+    if (endpoint === "/auth/mfa/factors")
+      return state.verified
+        ? reply(route, { factors: state.factors })
+        : fail(route, "MFA_REQUIRED", 403);
     const body = request.postDataJSON() as Record<string, unknown>;
     state.writes.push({ endpoint, body, csrf: request.headers()["x-csrf-token"] });
     if (endpoint === "/auth/mfa/challenge/options") {
@@ -139,6 +151,10 @@ export async function fixture(page: Page) {
         });
       if (state.unknown) return route.abort("connectionreset");
       if (state.rejectCode) return fail(route);
+      if (endpoint === "/auth/mfa/totp/verify" && body.replaceFactorId)
+        state.factors = state.factors.filter(
+          (factor) => factor.id !== body.replaceFactorId,
+        );
       state.verified = true;
       if (endpoint.includes("webauthn"))
         state.credentialId = (body.response as { id: string }).id;

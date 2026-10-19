@@ -94,6 +94,87 @@ describe.skipIf(!enabled)("MFA enrollment authorization and atomicity", () => {
   afterAll(async () => {
     await prisma.$disconnect();
   });
+  it("replaces one verified authenticator atomically and retains other factors", async () => {
+    const context = await fixture("STAFF", true);
+    const previous = await factor(context.user.id);
+    const backup = await factor(context.user.id);
+    const setup = await post("totp/setup", context);
+    expect(setup.status).toBe(201);
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: previous.id } })).status,
+    ).toBe("ACTIVE");
+    const response = await post("totp/verify", context, {
+      factorId: setup.body.data.factorId,
+      code: await generate({ secret: setup.body.data.secret }),
+      replaceFactorId: previous.id,
+    });
+    expect(response.status).toBe(200);
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: previous.id } })).status,
+    ).toBe("REVOKED");
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: backup.id } })).status,
+    ).toBe("ACTIVE");
+    expect(
+      (
+        await prisma.mfaFactor.findUniqueOrThrow({
+          where: { id: setup.body.data.factorId },
+        })
+      ).status,
+    ).toBe("ACTIVE");
+    expect(response.body.data.recoveryCodes).toHaveLength(10);
+    expect(
+      await prisma.auditLog.count({
+        where: { userId: context.user.id, entityId: previous.id, action: "MFA_DISABLED" },
+      }),
+    ).toBe(1);
+    await expect(
+      new IdentityService().verifyMfaChallenge(context.user.id, context.session.id, {
+        method: "totp",
+        factorId: previous.id,
+        code: await generate({ secret: previous.secret }),
+      }),
+    ).rejects.toMatchObject({ code: "TOKEN_INVALID" });
+  });
+  it("does not let a pending session replace a registered authenticator", async () => {
+    const context = await fixture();
+    const previous = await factor(context.user.id);
+    const pending = await factor(context.user.id, false);
+    const response = await post("totp/verify", context, {
+      factorId: pending.id,
+      code: await generate({ secret: pending.secret }),
+      replaceFactorId: previous.id,
+    });
+    expect([response.status, response.body.error.code]).toEqual([403, "MFA_REQUIRED"]);
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: previous.id } })).status,
+    ).toBe("ACTIVE");
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: pending.id } })).status,
+    ).toBe("PENDING");
+  });
+  it("rejects replacement of another account's authenticator without activating the new factor", async () => {
+    const context = await fixture("CUSTOMER", true);
+    const previous = await factor(context.user.id);
+    const other = await fixture("CUSTOMER", true);
+    const foreign = await factor(other.user.id);
+    const pending = await factor(context.user.id, false);
+    const response = await post("totp/verify", context, {
+      factorId: pending.id,
+      code: await generate({ secret: pending.secret }),
+      replaceFactorId: foreign.id,
+    });
+    expect([response.status, response.body.error.code]).toEqual([400, "TOKEN_INVALID"]);
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: previous.id } })).status,
+    ).toBe("ACTIVE");
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: foreign.id } })).status,
+    ).toBe("ACTIVE");
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: pending.id } })).status,
+    ).toBe("PENDING");
+  });
   it.each(["CUSTOMER", "STAFF", "ADMIN", "SUPER_ADMIN"] as const)(
     "rejects all enrollment endpoints for a pending %s account with an existing factor",
     async (role) => {
@@ -371,6 +452,7 @@ describe.skipIf(!enabled)("MFA enrollment authorization and atomicity", () => {
   });
   it("rolls back factor activation, code replacement and audit when session rotation fails", async () => {
     const context = await fixture("CUSTOMER", true);
+    const previous = await factor(context.user.id);
     const pending = await factor(context.user.id, false);
     const old = await prisma.mfaRecoveryCode.create({
       data: {
@@ -396,8 +478,17 @@ describe.skipIf(!enabled)("MFA enrollment authorization and atomicity", () => {
         { sessionId: context.session.id, csrfTokenHash: context.csrf.hash },
         pending.id,
         await generate({ secret: pending.secret }),
+        previous.id,
       ),
     ).rejects.toThrow("isolated rotation fault");
+    expect(
+      (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: previous.id } })).status,
+    ).toBe("ACTIVE");
+    expect(
+      await prisma.auditLog.count({
+        where: { userId: context.user.id, action: "MFA_DISABLED" },
+      }),
+    ).toBe(0);
     expect(
       (await prisma.mfaFactor.findUniqueOrThrow({ where: { id: pending.id } })).status,
     ).toBe("PENDING");

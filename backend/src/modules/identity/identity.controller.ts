@@ -162,19 +162,24 @@ export class IdentityController {
 
   verifyTotpSetup = async (req: Request, res: Response): Promise<void> => {
     const current = actor(req);
-    const input = body<{ factorId: string; code: string }>(res);
+    const input = body<{ factorId: string; code: string; replaceFactorId?: string }>(res);
     const result = await this.service.verifyTotpSetup(
       current.userId,
       enrollmentSession(req),
       input.factorId,
       input.code,
+      input.replaceFactorId,
     );
     issueCookie(res, result.session);
     res.status(200).json(
-      successResponse("TOTP enabled", req.id, {
-        recoveryCodes: result.recoveryCodes,
-        csrfToken: result.session.csrfToken,
-      }),
+      successResponse(
+        input.replaceFactorId ? "Authenticator replaced" : "TOTP enabled",
+        req.id,
+        {
+          recoveryCodes: result.recoveryCodes,
+          csrfToken: result.session.csrfToken,
+        },
+      ),
     );
   };
 

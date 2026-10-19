@@ -2,12 +2,14 @@ import { app } from "./app.js";
 import { safeErrorAttributes } from "./common/observability/safe-error.js";
 import { logger } from "./common/observability/logger.js";
 import { prisma } from "./config/database.js";
+import { assertDatabaseSchemaCompatible } from "./common/database/schema-safety.js";
 import { assertApiEnvironment, env } from "./config/env.js";
 
 async function startServer(): Promise<void> {
   try {
     assertApiEnvironment();
     await prisma.$connect();
+    await assertDatabaseSchemaCompatible(prisma);
 
     const server = app.listen(env.PORT, "0.0.0.0", (): void => {
       logger.info({ port: env.PORT }, "API started");

@@ -9,6 +9,9 @@ import { validate } from "../../common/middleware/validate.js";
 import { PromotionsController } from "./promotions.controller.js";
 import {
   promotionCreateBodySchema,
+  promotionCreationHeadersSchema,
+  promotionReceiptParamsSchema,
+  promotionEmptyQuerySchema,
   promotionListQuerySchema,
   promotionParamsSchema,
   promotionPreviewBodySchema,
@@ -30,8 +33,16 @@ export function createCustomerPromotionsRouter(): Router {
 export function createAdminPromotionsRouter(): Router {
   const router = Router();
   const controller = new PromotionsController();
-  router.use(authenticate(), requireAdministrator);
+  router.use(authenticate(), requireAdministrator, (_req, res, next) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    next();
+  });
   router.get("/", validate({ query: promotionListQuerySchema }), controller.list);
+  router.get(
+    "/creation-receipts/:requestKey",
+    validate({ params: promotionReceiptParamsSchema, query: promotionEmptyQuerySchema }),
+    controller.creationReceipt,
+  );
   router.get(
     "/:promotionId",
     validate({ params: promotionParamsSchema }),
@@ -40,7 +51,10 @@ export function createAdminPromotionsRouter(): Router {
   router.post(
     "/",
     requireCsrf,
-    validate({ body: promotionCreateBodySchema }),
+    validate({
+      body: promotionCreateBodySchema,
+      headers: promotionCreationHeadersSchema,
+    }),
     controller.create,
   );
   router.patch(

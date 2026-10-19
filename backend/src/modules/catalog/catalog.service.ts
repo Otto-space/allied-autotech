@@ -107,6 +107,12 @@ export class CatalogService {
     assertCatalogueAdministrator(actor);
     return page(await this.repository.listCategories(query, false), query.limit);
   }
+  async category(actor: AuthenticatedActor, id: string) {
+    assertCatalogueAdministrator(actor);
+    const category = await this.repository.category(id, false);
+    if (category === null) throw catalogResourceNotFound();
+    return category;
+  }
   async products(actor: AuthenticatedActor, query: AdminProductListQuery) {
     assertCatalogueAdministrator(actor);
     return productPage(
@@ -114,6 +120,13 @@ export class CatalogService {
       query.limit,
       true,
     );
+  }
+
+  async product(actor: AuthenticatedActor, id: string) {
+    assertCatalogueAdministrator(actor);
+    const product = await this.repository.product(id, false);
+    if (product === null) throw catalogResourceNotFound();
+    return productView(product, true);
   }
 
   async createCategory(
@@ -149,8 +162,15 @@ export class CatalogService {
     assertCatalogueAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`category:${id}`}, 0))`;
+      await transaction.$queryRaw`SELECT "id" FROM "Category" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const existing = await this.repository.category(id, false, transaction);
       if (existing === null) throw catalogResourceNotFound();
+      if (
+        input.expectedUpdatedAt !== undefined &&
+        new Date(input.expectedUpdatedAt).getTime() !== existing.updatedAt.getTime()
+      ) {
+        throw catalogConflict("This category has changed. Reload it before saving.");
+      }
       if (
         input.isActive === false &&
         existing.isActive &&
@@ -161,7 +181,12 @@ export class CatalogService {
           "Deactivate category products before deactivating the category",
         );
       }
-      const category = await this.repository.updateCategory(id, input, transaction);
+      const category = await this.repository.updateCategory(
+        id,
+        input,
+        new Date(Math.max(Date.now(), existing.updatedAt.getTime() + 1)),
+        transaction,
+      );
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: input.isActive === undefined ? "UPDATE" : "STATUS_CHANGE",
@@ -171,7 +196,10 @@ export class CatalogService {
         newValues: {
           resourceType: "CATEGORY",
           active: category.isActive,
-          changedFields: Object.keys(input).sort().join(","),
+          changedFields: Object.keys(input)
+            .filter((key) => key !== "expectedUpdatedAt")
+            .sort()
+            .join(","),
         },
         context,
       });
@@ -221,9 +249,19 @@ export class CatalogService {
     assertCatalogueAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`product:${id}`}, 0))`;
+      // Serialize the observed timestamp with every database writer, including media.
+      await transaction.$queryRaw`SELECT "id" FROM "Product" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const existing = await this.repository.product(id, false, transaction);
       if (existing === null) throw catalogResourceNotFound();
+      if (
+        input.expectedUpdatedAt !== undefined &&
+        new Date(input.expectedUpdatedAt).getTime() !== existing.updatedAt.getTime()
+      ) {
+        throw catalogConflict("This product has changed. Reload it before saving.");
+      }
       const categoryId = input.categoryId ?? existing.category.id;
+      // Use the same category lock as creation/deactivation before checking eligibility.
+      await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`category:${categoryId}`}, 0))`;
       const category = await this.repository.category(categoryId, false, transaction);
       if (category === null) throw catalogResourceNotFound();
       const nextActive = input.isActive ?? existing.isActive;
@@ -249,7 +287,14 @@ export class CatalogService {
           "Release or consume active reservations before deactivating this product",
         );
       }
-      const product = await this.repository.updateProduct(id, input, transaction);
+      // A second save in the same millisecond must still invalidate the first snapshot.
+      const updatedAt = new Date(Math.max(Date.now(), existing.updatedAt.getTime() + 1));
+      const product = await this.repository.updateProduct(
+        id,
+        input,
+        updatedAt,
+        transaction,
+      );
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: input.isActive === undefined ? "UPDATE" : "STATUS_CHANGE",
@@ -264,7 +309,10 @@ export class CatalogService {
           categoryId,
           active: product.isActive,
           priceKobo: product.priceKobo.toString(),
-          changedFields: Object.keys(input).sort().join(","),
+          changedFields: Object.keys(input)
+            .filter((key) => key !== "expectedUpdatedAt")
+            .sort()
+            .join(","),
         },
         context,
       });

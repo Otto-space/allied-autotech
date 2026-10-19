@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { forgetModerationForm } from "@/lib/admin/work-review-moderation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,6 +9,7 @@ import {
   moderationFormSchema,
   reviewSchema,
   type ReviewRecord,
+  reviewLabels,
 } from "@/lib/api/review-schemas";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 export function ReviewModerationForm({
@@ -15,70 +17,123 @@ export function ReviewModerationForm({
   disabled,
   onSaved,
   onUncertain,
+  onReview,
 }: {
   review: ReviewRecord;
   disabled: boolean;
   onSaved: () => void;
   onUncertain: () => void;
+  onReview?: (proposal: MutationProposal) => void;
 }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const pending = useRef<AbortController | null>(null);
+  const fields = useRef<HTMLFormElement>(null);
+  const [version, setVersion] = useState(review.version);
+  const changed = version !== review.version;
   useEffect(() => () => pending.current?.abort(), []);
   const form = useForm<z.infer<typeof moderationFormSchema>>({
     resolver: zodResolver(moderationFormSchema),
     defaultValues: { decision: "APPROVED", note: "" },
   });
+  function reviewDecision(values: z.infer<typeof moderationFormSchema>) {
+    if (disabled || proposal || changed) return;
+    const body = {
+      expectedVersion: version,
+      decision: values.decision,
+      ...(values.note ? { note: values.note } : {}),
+    };
+    let savedVersion: number | undefined;
+    (onReview ?? setProposal)({
+      moderationChange: { review, body },
+      onConfirmed: () => {
+        if (onReview && savedVersion !== undefined) {
+          if (fields.current) forgetModerationForm(fields.current, review.id);
+          form.reset({ decision: "APPROVED", note: "" });
+          setVersion(savedVersion);
+        }
+      },
+      title: `${values.decision === "APPROVED" ? "Publish" : "Reject"} this review?`,
+      description:
+        "Approval allows this review to appear publicly. The customer can see the moderation note in their account; the note is not public review text. An in-app update is recorded, while optional email depends on preferences and delivery configuration. This decision cannot be changed through this screen.",
+      facts: [
+        { label: "Review reference", value: review.id },
+        { label: "Review type", value: reviewLabels[review.targetType] },
+        { label: "Rating", value: `${review.rating} out of 5` },
+        { label: "Title", value: review.title || "No title recorded" },
+        { label: "Customer feedback", value: review.comment },
+        ...[
+          { label: "Product reference", value: review.productId },
+          { label: "Order item reference", value: review.orderItemId },
+          { label: "Service reference", value: review.serviceId },
+          { label: "Booking reference", value: review.bookingId },
+          { label: "Order reference", value: review.orderId },
+          { label: "Vehicle purchase reference", value: review.vehicleTransactionId },
+        ].flatMap((f) => (f.value ? [{ label: f.label, value: f.value }] : [])),
+        { label: "Current version", value: String(version) },
+        { label: "Decision", value: values.decision.toLowerCase() },
+        { label: "Customer-visible note", value: values.note || "No note" },
+      ],
+      retryAfterRejection: false,
+      onUncertain,
+      submit: async () => {
+        const controller = new AbortController();
+        pending.current = controller;
+        try {
+          const response = await apiRequest(
+            `/staff/support/reviews/${review.id}/moderation`,
+            {
+              method: "POST",
+              csrf: true,
+              signal: controller.signal,
+              body,
+            },
+          );
+          const saved = reviewSchema.parse(response.data);
+          if (
+            saved.id !== review.id ||
+            saved.status !== values.decision ||
+            saved.version !== version + 1 ||
+            saved.moderationNote !== (values.note || null)
+          )
+            throw new Error("Unconfirmed moderation");
+          savedVersion = saved.version;
+          return response;
+        } finally {
+          pending.current = null;
+        }
+      },
+    });
+  }
   return (
     <>
+      {changed && (
+        <div className="notice">
+          <p>
+            This review changed. Your moderation fields are kept; reload them before
+            reviewing another decision.
+          </p>
+          <button
+            className="button secondary"
+            type="button"
+            disabled={disabled}
+            onClick={() => {
+              if (fields.current) forgetModerationForm(fields.current, review.id);
+              form.reset({ decision: "APPROVED", note: "" });
+              setVersion(review.version);
+            }}
+          >
+            Reload moderation fields
+          </button>
+        </div>
+      )}
       <form
+        ref={fields}
         data-draft-key={JSON.stringify(["review-moderation-form:1", review?.id])}
+        className="wm-moderation-form"
         noValidate
-        onSubmit={form.handleSubmit((values) => {
-          if (disabled || proposal) return;
-          setProposal({
-            title: `${values.decision === "APPROVED" ? "Publish" : "Reject"} this review?`,
-            description:
-              "Approval makes this review public. The customer can see the moderation note and receives an in-app update; optional email delivery depends on their preferences. This decision cannot be changed through this screen.",
-            facts: [
-              { label: "Review", value: review.title || review.comment },
-              { label: "Decision", value: values.decision.toLowerCase() },
-              { label: "Customer-visible note", value: values.note || "No note" },
-            ],
-            retryAfterRejection: false,
-            onUncertain,
-            submit: async () => {
-              const controller = new AbortController();
-              pending.current = controller;
-              try {
-                const response = await apiRequest(
-                  `/staff/support/reviews/${review.id}/moderation`,
-                  {
-                    method: "POST",
-                    csrf: true,
-                    signal: controller.signal,
-                    body: {
-                      expectedVersion: review.version,
-                      decision: values.decision,
-                      ...(values.note ? { note: values.note } : {}),
-                    },
-                  },
-                );
-                const saved = reviewSchema.parse(response.data);
-                if (
-                  saved.id !== review.id ||
-                  saved.status !== values.decision ||
-                  saved.version !== review.version + 1 ||
-                  (values.note !== "" && saved.moderationNote !== values.note)
-                )
-                  throw new Error("Unconfirmed moderation");
-              } finally {
-                pending.current = null;
-              }
-            },
-          });
-        })}
+        onSubmit={(event) => void form.handleSubmit(reviewDecision)(event)}
       >
-        <fieldset disabled={disabled}>
+        <fieldset disabled={disabled || changed}>
           <div className="field">
             <label htmlFor={`decision-${review.id}`}>Decision</label>
             <select id={`decision-${review.id}`} {...form.register("decision")}>

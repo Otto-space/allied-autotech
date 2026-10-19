@@ -69,7 +69,7 @@ describe("Phase 9 support, delivery, and staging safeguards", () => {
     expect(rendered.html).toContain("&lt;script&gt;");
   });
 
-  it("requires test-mode Paystack independently of NODE_ENV in staging", () => {
+  it("permits disabled or test-mode Paystack and rejects live payments in staging", () => {
     expect(() =>
       assertPaystackMode({
         ...env,
@@ -77,7 +77,15 @@ describe("Phase 9 support, delivery, and staging safeguards", () => {
         PAYSTACK_MODE: "disabled",
         PAYSTACK_SECRET_KEY: undefined,
       }),
-    ).toThrow("Staging requires PAYSTACK_MODE=test");
+    ).not.toThrow();
+    expect(() =>
+      assertPaystackMode({
+        ...env,
+        DEPLOYMENT_ENV: "staging",
+        PAYSTACK_MODE: "disabled",
+        PAYSTACK_SECRET_KEY: "sk_test_synthetic_not_a_real_key",
+      }),
+    ).toThrow("PAYSTACK_SECRET_KEY must be unset");
     expect(() =>
       assertPaystackMode({
         ...env,

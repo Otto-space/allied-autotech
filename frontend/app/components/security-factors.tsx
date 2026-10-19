@@ -10,6 +10,7 @@ import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { FactorRemovalForm } from "./factor-removal-form";
 import { RecoveryCodes } from "./recovery-codes";
+import { AuthenticatorHelp } from "./authenticator-help";
 export function SecurityFactors({ compact = false }: { compact?: boolean }) {
   const session = useAccountSession();
   const records = useResource("/auth/mfa/factors", parseFactors);
@@ -80,10 +81,17 @@ export function SecurityFactors({ compact = false }: { compact?: boolean }) {
       <Link className="button secondary" href="/mfa?setup=1">
         Add MFA factor
       </Link>
+      {active.some((factor) => factor.type === "TOTP") && (
+        <Link className="text-link" href="/mfa?replace=1">
+          Set up authenticator again
+        </Link>
+      )}
       <p>
         Review the factors registered to your account. Pending setup is not an active
-        sign-in factor.
+        sign-in factor. Deleting an entry from your authenticator app does not remove it
+        here or turn off MFA.
       </p>
+      <AuthenticatorHelp />
       <Feedback message={records.error} />
       <Feedback message={message} tone="success" toast="Security change recorded." />
       <button

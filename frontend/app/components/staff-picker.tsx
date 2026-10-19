@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Ref } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseStaffProfile, parseStaffProfiles } from "@/lib/api/staff-booking-schemas";
@@ -14,6 +14,9 @@ export function StaffPicker({
   onSelect,
   inputRef,
   error,
+  onAvailabilityChange,
+  emptyLabel = "Choose a staff member",
+  required = true,
 }: {
   branchId: string | null;
   id: string;
@@ -22,6 +25,9 @@ export function StaffPicker({
   onSelect?: (value: string, label: string) => void;
   inputRef?: Ref<HTMLSelectElement>;
   error?: string;
+  onAvailabilityChange?: (blocked: boolean) => void;
+  emptyLabel?: string;
+  required?: boolean;
 }) {
   const session = useAccountSession();
   const [selected, setSelected] = useState({
@@ -38,6 +44,16 @@ export function StaffPicker({
     parseStaffProfiles,
   );
   const candidates = admin ? (staff.data?.items ?? []) : own.data ? [own.data] : [];
+  const resource = admin ? staff : own;
+  const unavailable =
+    resource.loading ||
+    resource.refreshing ||
+    !!resource.error ||
+    !!resource.refreshError ||
+    !resource.data;
+  useEffect(() => {
+    onAvailabilityChange?.(unavailable);
+  }, [unavailable, onAvailabilityChange]);
   const choices = candidates.flatMap((item) =>
     item.staffProfile &&
     item.status === "ACTIVE" &&
@@ -51,7 +67,8 @@ export function StaffPicker({
         ref={inputRef}
         id={id}
         name={name}
-        required
+        required={required}
+        disabled={!!onAvailabilityChange && unavailable}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
         value={selected.id}
@@ -67,7 +84,7 @@ export function StaffPicker({
           );
         }}
       >
-        <option value="">Choose a staff member</option>
+        <option value="">{emptyLabel}</option>
         {selected.id && !choices.some((choice) => choice.id === selected.id) && (
           <option value={selected.id}>{selected.label}</option>
         )}
@@ -89,8 +106,12 @@ export function StaffPicker({
         </p>
       )}
       {(own.loading || staff.loading) && <p role="status">Loading staff choices…</p>}
-      <Feedback message={own.error ?? staff.error} />
-      {(own.error || staff.error) && (
+      <Feedback
+        message={
+          resource.error || (onAvailabilityChange ? resource.refreshError : undefined)
+        }
+      />
+      {(resource.error || (onAvailabilityChange && resource.refreshError)) && (
         <button
           type="button"
           className="text-link"

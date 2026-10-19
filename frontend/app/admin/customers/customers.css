@@ -1,0 +1,148 @@
+.work-customers {
+  min-width: 0;
+}
+.work-customers .wc-filter-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.work-customers .wi-filters fieldset {
+  display: block;
+}
+.work-customers .wi-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.wc-search {
+  grid-column: span 2;
+}
+.dashboard .dashboard-content .work-customers .field-hint {
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+.wc-records {
+  border: 1px solid #d5dfe8;
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+}
+.wc-records:empty {
+  display: none;
+}
+.wc-record {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: 20px;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8ee;
+  min-width: 0;
+}
+.wc-record:last-child {
+  border-bottom: 0;
+}
+.wc-person {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+}
+.wc-person > div {
+  min-width: 0;
+}
+.wc-avatar {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f0f3f6;
+  color: #344f60;
+  font-size: 12px;
+  font-weight: 600;
+}
+.dashboard .dashboard-content .work-customers .wc-person h3 {
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+.wc-person .text-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  margin-top: -10px;
+}
+.dashboard .dashboard-content .work-customers .wc-reference {
+  font-size: 12px;
+  color: #405566;
+  line-height: 1.7;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.wc-record dl {
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.wc-record dl > div {
+  min-width: 0;
+}
+.wc-record dt {
+  font-size: 12px;
+  color: #405566;
+}
+.wc-record dd {
+  margin: 4px 0 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.work-customers .status {
+  display: inline-flex;
+}
+.work-customers .wi-header h1 {
+  overflow-wrap: anywhere;
+}
+.work-customers .wi-filters fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+@media (max-width: 1300px) {
+  .wc-record {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 850px) {
+  .work-customers .wc-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .wc-record {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 16px;
+  }
+  .wc-record dl > div {
+    display: grid;
+    grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr);
+    gap: 12px;
+  }
+  .wc-record dd {
+    margin: 0;
+  }
+  .work-customers .wc-filter-grid {
+    grid-template-columns: 1fr;
+  }
+  .wc-search {
+    grid-column: auto;
+  }
+  .wc-person .text-link {
+    margin-top: -6px;
+  }
+}

@@ -69,6 +69,13 @@ const publicServiceListResponseSchema = responseSchema.extend({
   }),
 });
 const publicServiceResponseSchema = responseSchema.extend({ data: publicServiceSchema });
+// The administrator projection has the same fields, with inactive records and
+// categories retained and image URLs routed through authorized private reads.
+export const adminServiceSchema = publicServiceSchema;
+export const adminServicePageSchema = z.object({
+  items: z.array(adminServiceSchema).max(100),
+  nextCursor: z.uuid().optional(),
+});
 const csrfHeaders = z.object({ "x-csrf-token": z.string().min(32) });
 const idempotentHeaders = csrfHeaders.extend({
   "idempotency-key": z.string().min(16).max(120),
@@ -79,6 +86,7 @@ interface Path {
   method: "get" | "post" | "put" | "patch";
   path: string;
   summary: string;
+  description?: string;
   body?: ZodType;
   params?: RouteParameter;
   query?: RouteParameter;
@@ -121,7 +129,21 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: "get",
       path: "/admin/services",
       summary: "List all services",
+      description:
+        "Admin and Super Admin only. Search is a trimmed, case-insensitive literal substring (2-100 characters) across name, shortDescription and description. Category, pricing and visibility filters combine with search; inactive categories remain usable. Results use ascending UUID order. A UUID cursor is an exclusive position and remains usable after its record is removed or no longer matches. Reset the cursor when filters change; refresh page one to see earlier changes. Existing cursor, limit, pricingType and isActive clients remain supported.",
       query: adminServiceListQuerySchema,
+      response: responseSchema.extend({ data: adminServicePageSchema }),
+      secured: true,
+    },
+    {
+      method: "get",
+      path: "/admin/services/{serviceId}",
+      summary: "Get a service for administrator management",
+      description:
+        "Admin and Super Admin only. Includes inactive services and assigned categories, the current revision, and authorized image metadata. Returns 404 for a missing service and 422 for invalid parameters. STAFF and customers are denied. Reads do not replace the expectedVersion requirement for PATCH.",
+      params: serviceParamsSchema,
+      query: z.object({}).strict(),
+      response: responseSchema.extend({ data: adminServiceSchema }),
       secured: true,
     },
     {
@@ -361,6 +383,7 @@ export function registerServiceOperationsOpenApi(registry: OpenAPIRegistry): voi
       method: route.method,
       path: route.path,
       summary: route.summary,
+      ...(route.description ? { description: route.description } : {}),
       ...(route.path.startsWith("/staff/bookings")
         ? {
             description:

@@ -75,6 +75,32 @@ async function fixture(
     }
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "finance-csrf-".repeat(5) });
+    if (endpoint === "/staff/finance-policy/current") {
+      state.reads++;
+      const evaluatedAt = new Date().toISOString(),
+        history = state.history;
+      return reply(route, {
+        evaluatedAt,
+        history,
+        latest: history[0] ?? null,
+        current:
+          [...history]
+            .filter((v) => Date.parse(v.effectiveAt) <= Date.parse(evaluatedAt))
+            .sort(
+              (a, b) =>
+                Date.parse(b.effectiveAt) - Date.parse(a.effectiveAt) ||
+                b.version - a.version,
+            )[0] ?? null,
+        nextScheduled:
+          [...history]
+            .filter((v) => Date.parse(v.effectiveAt) > Date.parse(evaluatedAt))
+            .sort(
+              (a, b) =>
+                Date.parse(a.effectiveAt) - Date.parse(b.effectiveAt) ||
+                b.version - a.version,
+            )[0] ?? null,
+      });
+    }
     if (endpoint === "/staff/finance-policy") {
       state.reads++;
       return reply(route, state.history);
@@ -193,6 +219,12 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"])
       .getByRole("button", { name: "Approve financial policy", exact: true })
       .click();
     await expect(page.getByText("Latest recorded version: 4.")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Financial policy recorded" }),
+    ).toBeFocused();
+    await expect(
+      page.getByRole("heading", { name: "Financial policy recorded" }),
+    ).toBeInViewport();
     expect(state.writes).toEqual([
       {
         kind: "FINANCE",
@@ -215,7 +247,7 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"])
     ]);
     await page.getByText("Financial policy history", { exact: true }).click();
     await expect(
-      page.getByRole("heading", { name: "Version 4 · APPROVED" }),
+      page.locator(".finance-version summary").filter({ hasText: "Version 4" }),
     ).toBeVisible();
     await expect(page.getByLabel("Written accounting approval or reference")).toHaveValue(
       "",
@@ -229,7 +261,8 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"])
       }
       await page.setViewportSize({ width: 390, height: 844 });
       await page
-        .getByRole("heading", { name: "Version 4 · APPROVED" })
+        .locator(".finance-version summary")
+        .filter({ hasText: "Version 4" })
         .scrollIntoViewIfNeeded();
       await page.screenshot({
         path: path.join(os.tmpdir(), "allied-finance-history-390.png"),
@@ -254,7 +287,9 @@ test("owner can read history but cannot publish without a grant", async ({ page 
   await page.goto("/admin/finance-policy");
   await expect(page.getByText(/including for Super Admin/)).toBeVisible();
   await page.getByText("Financial policy history", { exact: true }).click();
-  await expect(page.getByRole("heading", { name: /Version 3/ })).toBeVisible();
+  await expect(
+    page.locator(".finance-version summary").filter({ hasText: "Version 3" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Review financial approval" }),
   ).toHaveCount(0);
@@ -283,6 +318,13 @@ for (const outcome of ["stale", "interrupted", "mismatched", "revoked"] as const
       exact: true,
     });
     await confirm.click();
+    if (outcome === "revoked") {
+      await expect(
+        page.getByRole("button", { name: "Refresh permission" }),
+      ).toBeVisible();
+      expect(state.writes).toHaveLength(1);
+      return;
+    }
     await expect(confirm).toBeDisabled();
     await expect(
       page.getByText("Financial policy approved.", { exact: true }),
@@ -308,7 +350,9 @@ for (const outcome of ["stale", "interrupted", "mismatched", "revoked"] as const
       await expect(
         page.getByRole("button", { name: "Review financial approval" }),
       ).toBeDisabled();
-      await expect(page.getByText(/The approval outcome is uncertain/)).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Approval needs reconciliation" }),
+      ).toBeVisible();
     }
     expect(state.writes).toHaveLength(1);
     expect(new Date(String(state.writes[0].effectiveAt)).getTime()).toBeGreaterThan(

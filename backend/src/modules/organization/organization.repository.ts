@@ -80,8 +80,19 @@ export class OrganizationRepository {
   }
 
   listBranches(query: AdminBranchListQuery, client: DatabaseClient = this.database) {
+    const search = query.q?.replace(/[\\%_]/gu, "\\$&");
     return client.branch.findMany({
-      where: query.isActive === undefined ? {} : { isActive: query.isActive },
+      where: {
+        ...(query.isActive === undefined ? {} : { isActive: query.isActive }),
+        ...(query.code === undefined ? {} : { code: query.code }),
+        ...(search
+          ? {
+              OR: ["name", "code", "city", "state"].map((field) => ({
+                [field]: { contains: search, mode: "insensitive" },
+              })),
+            }
+          : {}),
+      },
       select: safeBranchSelect,
       orderBy: { id: "asc" },
       take: query.limit + 1,
@@ -105,8 +116,14 @@ export class OrganizationRepository {
     return client.branch.create({ data, select: safeBranchSelect });
   }
 
-  updateBranch(branchId: string, input: BranchUpdateInput, client: DatabaseClient) {
+  updateBranch(
+    branchId: string,
+    input: BranchUpdateInput,
+    client: DatabaseClient,
+    updatedAt?: Date,
+  ) {
     const data: Prisma.BranchUpdateInput = {
+      ...(updatedAt ? { updatedAt } : {}),
       ...(input.code === undefined ? {} : { code: input.code }),
       ...(input.name === undefined ? {} : { name: input.name }),
       ...(input.phone === undefined ? {} : { phone: input.phone }),
@@ -139,8 +156,39 @@ export class OrganizationRepository {
   }
 
   listStaff(query: StaffListQuery, client: DatabaseClient = this.database) {
+    const literal = (value: string) => value.replace(/[\\%_]/gu, "\\$&");
+    const search: Prisma.UserWhereInput = query.q
+      ? {
+          OR: [
+            { email: { contains: literal(query.q), mode: "insensitive" } },
+            {
+              staffProfile: {
+                is: {
+                  AND: query.q.split(/\s+/u).map((term) => ({
+                    OR: [
+                      {
+                        firstName: {
+                          contains: literal(term),
+                          mode: "insensitive" as const,
+                        },
+                      },
+                      {
+                        lastName: {
+                          contains: literal(term),
+                          mode: "insensitive" as const,
+                        },
+                      },
+                    ],
+                  })),
+                },
+              },
+            },
+          ],
+        }
+      : {};
     return client.user.findMany({
       where: {
+        ...search,
         role: query.role ?? { in: ["STAFF", "ADMIN", "SUPER_ADMIN"] },
         ...(query.status === undefined ? {} : { status: query.status }),
         ...(query.branchId === undefined

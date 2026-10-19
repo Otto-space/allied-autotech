@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import type { StaffMember } from "@/lib/api/staff-admin-schemas";
+import { staffRevision } from "@/lib/api/staff-admin-schemas";
 const id = (n: number) => `e0000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const time = "2026-09-17T10:00:00Z";
 const branch = (n = 20) => ({
@@ -59,7 +60,28 @@ async function fixture(
       });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-staff-csrf-".repeat(4) });
+    if (endpoint === "/staff/profile")
+      return reply(route, { ...memberFixture(), id: id(11), role, capabilities: [] });
     if (endpoint === "/admin/capabilities") return reply(route, []);
+    if (endpoint.startsWith("/admin/workforce/accounts/"))
+      return reply(route, {
+        userId: endpoint.split("/").at(-1),
+        accountLabel: "Test Member",
+        branches: [],
+        management: {
+          canEnroll: false,
+          canAssign: false,
+          canRevoke: false,
+          canDelegate: false,
+          templates: [],
+          branchIds: null,
+        },
+        access: null,
+        assignments: [],
+        activeAssignmentIds: [],
+        templates: {},
+      });
+    if (endpoint === "/public/branches") return reply(route, { items: [branch()] });
     if (endpoint === "/admin/branches") {
       const next = new URL(route.request().url()).searchParams.has("cursor");
       return reply(route, {
@@ -392,7 +414,7 @@ test("directory distinguishes failed reads, preserves filters and resets cursor 
   await expect
     .poll(() => queries.at(-1))
     .toEqual({ limit: "25", status: "SUSPENDED", role: "ADMIN", branchId: id(20) });
-  expect(new URL(page.url()).search).toBe("");
+  expect(new URL(page.url()).searchParams.get("status")).toBe("SUSPENDED");
   await page.getByRole("button", { name: "Clear staff filters" }).click();
   await expect(page.getByRole("heading", { name: "Test Member" })).toBeVisible();
 });
@@ -459,7 +481,16 @@ test("status change rechecks the record, blocks a stale review and submits only 
   await expect(
     page.getByText("Change recorded. The account’s existing sessions were revoked."),
   ).toBeVisible();
-  expect(writes).toEqual([{ status: "DEACTIVATED" }]);
+  expect(writes).toEqual([
+    {
+      status: "DEACTIVATED",
+      expectedRevision: staffRevision({
+        ...memberFixture(),
+        status: "SUSPENDED",
+        updatedAt: "2026-09-17T11:00:00Z",
+      }),
+    },
+  ]);
   await page.setViewportSize({ width: 320, height: 740 });
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -588,7 +619,9 @@ test("branch changes retain paged choices and unknown outcomes cannot be resent"
   await expect(
     page.getByRole("button", { name: "Review account change" }),
   ).toBeDisabled();
-  expect(writes).toEqual([{ branchId: id(21) }]);
+  expect(writes).toEqual([
+    { branchId: id(21), expectedRevision: staffRevision(memberFixture()) },
+  ]);
 });
 
 const invitationToken = "isolated-private-token-".repeat(3);
@@ -610,7 +643,10 @@ const candidate = (role: "STAFF" | "CUSTOMER") => ({
   role,
   profile: role === "CUSTOMER" ? { firstName: "Test", lastName: "Customer" } : null,
   staffProfile:
-    role === "STAFF" ? { firstName: "Test", lastName: "Member", branchId: id(20) } : null,
+    role === "STAFF"
+      ? { firstName: "Test", lastName: "Member", branchId: id(20), branch: branch() }
+      : null,
+  management: { canPromote: role === "CUSTOMER", canInvite: role === "STAFF" },
 });
 
 test("even the owner has no generic ADMIN promotion control", async ({ page }) => {
@@ -663,7 +699,13 @@ test("owner demotion requires an active branch and confirms the returned staff a
   expect(writes).toEqual([]);
   await confirm(page).click();
   await expect.poll(() => writes.length).toBe(1);
-  expect(writes).toEqual([{ role: "STAFF", branchId: id(20) }]);
+  expect(writes).toEqual([
+    {
+      role: "STAFF",
+      branchId: id(20),
+      expectedRevision: staffRevision({ ...memberFixture(), role: "ADMIN" }),
+    },
+  ]);
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
 
@@ -700,9 +742,9 @@ for (const role of ["STAFF", "CUSTOMER"] as const)
     });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/admin/staff/invite");
-    await expect(page).toHaveTitle("Invite a team member");
+    await expect(page).toHaveTitle("Promotions & invitations");
     await expect(
-      page.getByRole("heading", { name: "Team & access", exact: true }),
+      page.getByRole("heading", { name: "Promotions & invitations", exact: true }),
     ).toBeVisible();
     await page.getByLabel("Account email", { exact: true }).fill("member@example.test");
     await page.getByRole("button", { name: "Search account" }).click();
@@ -779,15 +821,27 @@ test("invitation status filtering and revocation use the selected record and pas
   let revoked = false;
   const writes: unknown[] = [];
   await fixture(page, async (route, endpoint) => {
+    if (endpoint === `/admin/staff/invitations/${id(40)}`) {
+      await reply(route, {
+        ...invitation(),
+        status: revoked ? "REVOKED" : "PENDING",
+        revokedAt: revoked ? time : null,
+      });
+      return true;
+    }
     if (endpoint === "/admin/staff/invitations") {
       await reply(route, {
-        items: [
-          {
-            ...invitation(),
-            status: revoked ? "REVOKED" : "PENDING",
-            revokedAt: revoked ? time : null,
-          },
-        ],
+        items:
+          revoked &&
+          new URL(route.request().url()).searchParams.get("status") === "PENDING"
+            ? []
+            : [
+                {
+                  ...invitation(),
+                  status: revoked ? "REVOKED" : "PENDING",
+                  revokedAt: revoked ? time : null,
+                },
+              ],
       });
       return true;
     }
@@ -800,6 +854,7 @@ test("invitation status filtering and revocation use the selected record and pas
   });
   await page.goto("/admin/staff/invite");
   await page.getByLabel("Invitation status filter").selectOption("PENDING");
+  await page.getByText("Revoke invitation", { exact: true }).click();
   await page
     .getByLabel("Your current password to revoke member@example.test")
     .fill("proof password");

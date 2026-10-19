@@ -1,5 +1,7 @@
 "use client";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { forgetPrivacyForm, parsePrivacyHolds } from "@/lib/admin/work-privacy";
+import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import {
@@ -10,6 +12,7 @@ import {
   releasedHoldSchema,
   retentionHoldSchema,
   type RetentionHold,
+  type PrivacyRequest,
 } from "@/lib/api/privacy-schemas";
 import { useResource } from "@/lib/api/use-resource";
 import { formatBusinessDate } from "@/lib/format/date";
@@ -19,31 +22,52 @@ export function RetentionHolds({
   userId,
   disabled,
   onUncertain,
+  onReview,
+  onDenied,
+  privacyRequest,
 }: {
   userId: string;
   disabled: boolean;
   onUncertain: () => void;
+  onReview?: (proposal: MutationProposal) => void;
+  onDenied?: () => void;
+  privacyRequest?: PrivacyRequest;
 }) {
+  const coordinated = !!onReview;
+  const date = coordinated ? formatStockInstant : formatBusinessDate;
   const parse = useCallback(
     (value: unknown) => {
-      const holds = parseHolds(value);
+      const holds = coordinated ? parsePrivacyHolds(value, userId) : parseHolds(value);
       if (holds.some((hold) => hold.userId !== userId))
         throw new Error("Unexpected hold account");
       return holds;
     },
-    [userId],
+    [userId, coordinated],
   );
   const record = useResource(`/staff/retention-holds?userId=${userId}`, parse);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [validation, setValidation] = useState<string>();
   const [message, setMessage] = useState<string>();
   const creation = useRef<HTMLFormElement>(null);
-  const locked = disabled || record.loading || !!record.error || !record.data;
+  const locked =
+    disabled ||
+    record.loading ||
+    record.refreshing ||
+    !!record.error ||
+    !!record.refreshError ||
+    !record.data;
+  useEffect(() => {
+    if (record.denied) onDenied?.();
+  }, [record.denied, onDenied]);
+  function publish(offer: MutationProposal) {
+    if (onReview && privacyRequest) onReview(offer);
+    else setProposal(offer);
+  }
   function invalid(message: string, field: string) {
     setValidation(message);
     document.getElementById(field)?.focus();
   }
-  function create(form: FormData) {
+  function create(form: FormData, element: HTMLFormElement) {
     if (locked || proposal) return;
     setValidation(undefined);
     setMessage(undefined);
@@ -62,7 +86,17 @@ export function RetentionHolds({
       return;
     }
     const body: RequestBody<"/staff/retention-holds", "post"> = parsed.data;
-    setProposal({
+    publish({
+      ...(privacyRequest
+        ? { privacyChange: { kind: "hold" as const, request: privacyRequest, body } }
+        : {}),
+      onConfirmed: () => {
+        if (onReview) {
+          forgetPrivacyForm(element);
+          element.reset();
+          record.refresh();
+        }
+      },
       title: "Record this retention hold?",
       description:
         "This protects the account from privacy approval while the hold is active. No customer records will be changed or deleted by adding the hold.",
@@ -76,15 +110,12 @@ export function RetentionHolds({
         { label: "Reason", value: body.reason },
       ],
       submit: async () => {
-        const saved = retentionHoldSchema.parse(
-          (
-            await apiRequest("/staff/retention-holds", {
-              method: "POST",
-              csrf: true,
-              body,
-            })
-          ).data,
-        );
+        const response = await apiRequest("/staff/retention-holds", {
+          method: "POST",
+          csrf: true,
+          body,
+        });
+        const saved = retentionHoldSchema.parse(response.data);
         if (
           saved.userId !== userId ||
           saved.recordType !== body.recordType ||
@@ -93,12 +124,13 @@ export function RetentionHolds({
           saved.releasedAt !== null
         )
           throw new Error("Unexpected retention hold");
+        return response;
       },
       onUncertain,
       retryAfterRejection: false,
     });
   }
-  function release(hold: RetentionHold, form: FormData) {
+  function release(hold: RetentionHold, form: FormData, element: HTMLFormElement) {
     if (locked || proposal || hold.releasedAt) return;
     setValidation(undefined);
     setMessage(undefined);
@@ -113,7 +145,24 @@ export function RetentionHolds({
     const body: RequestBody<"/staff/retention-holds/{id}/release", "post"> = {
       reason: reason.data,
     };
-    setProposal({
+    publish({
+      ...(privacyRequest
+        ? {
+            privacyChange: {
+              kind: "release" as const,
+              request: privacyRequest,
+              hold,
+              body,
+            },
+          }
+        : {}),
+      onConfirmed: () => {
+        if (onReview) {
+          forgetPrivacyForm(element);
+          element.reset();
+          record.refresh();
+        }
+      },
       title: "Release this retention hold?",
       description:
         "Only release a hold after its protection is no longer required. Releasing it does not approve a privacy request or schedule deletion. Other holds and disputes remain subject to review.",
@@ -124,16 +173,14 @@ export function RetentionHolds({
         { label: "Release justification", value: reason.data },
       ],
       submit: async () => {
-        const saved = releasedHoldSchema.parse(
-          (
-            await apiRequest(`/staff/retention-holds/${hold.id}/release`, {
-              method: "POST",
-              csrf: true,
-              body,
-            })
-          ).data,
-        );
+        const response = await apiRequest(`/staff/retention-holds/${hold.id}/release`, {
+          method: "POST",
+          csrf: true,
+          body,
+        });
+        const saved = releasedHoldSchema.parse(response.data);
         if (saved.id !== hold.id) throw new Error("Unexpected hold release");
+        return response;
       },
       onUncertain,
       retryAfterRejection: false,
@@ -141,7 +188,11 @@ export function RetentionHolds({
   }
   return (
     <section className="detail-section" aria-labelledby="retention-holds-title">
-      <h4 id="retention-holds-title">Retention holds</h4>
+      {coordinated ? (
+        <h3 id="retention-holds-title">Retention holds</h3>
+      ) : (
+        <h4 id="retention-holds-title">Retention holds</h4>
+      )}
       <p>
         Latest 100 holds for this account, including released holds. Approval checks all
         active holds and unresolved disputes on the server.
@@ -149,12 +200,18 @@ export function RetentionHolds({
       <button
         type="button"
         className="button secondary"
-        disabled={record.loading || !!proposal}
+        disabled={record.loading || record.refreshing || !!proposal || disabled}
         onClick={record.refresh}
       >
         Refresh retention holds
       </button>
-      <Feedback message={record.error} />
+      <Feedback message={record.error || record.refreshError} />
+      {record.refreshError && record.data && (
+        <p>
+          Previously loaded holds are shown. Changes remain disabled until a fresh read
+          succeeds.
+        </p>
+      )}
       <Feedback message={validation} />
       <Feedback
         message={message}
@@ -169,21 +226,22 @@ export function RetentionHolds({
           )}
           {record.data.map((hold) => (
             <article className="detail-section" key={hold.id}>
-              <h5>
+              <h4>
                 {holdTypes[hold.recordType]} ·{" "}
                 {hold.releasedAt ? "Released" : "Active hold"}
-              </h5>
-              <p>{hold.reason}</p>
-              <p>Recorded {formatBusinessDate(hold.createdAt)}</p>
+              </h4>
+              <p className="preserve-lines">{hold.reason}</p>
+              <p>Hold reference: {hold.id}</p>
+              <p>Recorded {date(hold.createdAt)}</p>
               {hold.recordId && <p>Record reference: {hold.recordId}</p>}
               {hold.releasedAt ? (
-                <p>Released {formatBusinessDate(hold.releasedAt)}</p>
+                <p>Released {date(hold.releasedAt)}</p>
               ) : (
                 <form
                   data-draft-key={JSON.stringify(["retention-holds:1", userId, hold.id])}
                   onSubmit={(event) => {
                     event.preventDefault();
-                    release(hold, new FormData(event.currentTarget));
+                    release(hold, new FormData(event.currentTarget), event.currentTarget);
                   }}
                 >
                   <fieldset disabled={locked}>
@@ -212,7 +270,7 @@ export function RetentionHolds({
             className="line-entry-form"
             onSubmit={(event) => {
               event.preventDefault();
-              create(new FormData(event.currentTarget));
+              create(new FormData(event.currentTarget), event.currentTarget);
             }}
           >
             <fieldset disabled={locked}>

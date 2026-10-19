@@ -9,6 +9,7 @@ type ResourceState<T> = {
   refreshError?: string;
   status: "loading" | "refreshing" | "ready" | "error";
   revision: number;
+  denied?: boolean;
 };
 export function useResource<T>(
   path: string | null,
@@ -85,6 +86,7 @@ export function useResource<T>(
               return {
                 path,
                 data: !denied && previous?.path === path ? previous.data : undefined,
+                denied,
                 status: "error",
                 revision,
                 error: message,
@@ -118,6 +120,7 @@ export function useResource<T>(
   }, [path, parse, revision, refresh, options?.refreshKey]);
   const current = state?.path === path ? state : null;
   return {
+    denied: current?.denied ?? false,
     data: current?.data,
     error: current?.error,
     refreshError: current?.refreshError,

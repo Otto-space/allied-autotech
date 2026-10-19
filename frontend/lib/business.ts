@@ -128,6 +128,17 @@ export const faqs = [
     action: "Open account security",
   },
   {
+    id: "lost-authenticator",
+    category: "Accounts and security",
+    question: "What if I delete my authenticator entry or lose my phone?",
+    answer:
+      "Deleting the Allied AutoTech entry from your authenticator app does not turn off MFA. The website cannot detect changes made in your app, so the authenticator remains linked to your account. Choose Set up authenticator again on the verification screen or in Security. Verify with a saved, unused recovery code or another linked method, then scan the new QR code and confirm a code from your app. Your selected old registration is removed only after the new one is confirmed. Save the new recovery codes before leaving. If you have no recovery code, other linked method or session already verified with MFA, the verification screen cannot reset your MFA. Contact customer care for guidance. Never share your password, setup key or recovery codes.",
+    keywords:
+      "mfa authenticator deleted disconnected lost phone recovery codes locked out reset",
+    href: "/mfa",
+    action: "Open sign-in verification",
+  },
+  {
     id: "follow-a-support-request",
     category: "Contact and location",
     question: "How do I follow up on a support request?",

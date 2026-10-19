@@ -31,6 +31,12 @@ test("rescheduled inspections send a complete interval and can close as no-show"
       writes.push(body);
       inspection.status = body.status;
       inspection.version++;
+      inspection.assignedStaffId = id(8);
+      inspection.assignedStaff = {
+        id: id(8),
+        firstName: "Isolated",
+        lastName: "Operator",
+      };
       if (body.scheduledStartAt) {
         inspection.scheduledStartAt = body.scheduledStartAt;
         inspection.scheduledEndAt = body.scheduledEndAt;
@@ -48,18 +54,17 @@ test("rescheduled inspections send a complete interval and can close as no-show"
   await page.getByLabel("Inspection ends (Lagos time)").fill("2026-10-21T13:00");
   await page.getByRole("button", { name: "Review inspection change" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("RESCHEDULED");
+  await expect(page.locator(".status")).toHaveText("Rescheduled");
   expect(writes[0]).toEqual({
     status: "RESCHEDULED",
     expectedVersion: 2,
     scheduledStartAt: "2026-10-21T12:00:00+01:00",
     scheduledEndAt: "2026-10-21T13:00:00+01:00",
   });
-  await page.getByRole("button", { name: "Reload inspection fields" }).click();
   await page.getByLabel("Next inspection status").selectOption("NO_SHOW");
   await page.getByRole("button", { name: "Review inspection change" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("NO SHOW");
+  await expect(page.locator(".status")).toHaveText("No show");
   expect(writes[1]).toEqual({ status: "NO_SHOW", expectedVersion: 3 });
   await expect(
     page.getByRole("button", { name: "Review inspection change" }),
@@ -119,6 +124,26 @@ async function fixture(
       });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-inspection-csrf-".repeat(4) });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(5),
+        email: "inspection@example.test",
+        role,
+        status: "ACTIVE",
+        capabilities: [],
+        staffProfile: {
+          id: id(8),
+          firstName: "Isolated",
+          lastName: "Operator",
+          branchId: id(3),
+        },
+      });
+    if (endpoint === "/admin/branches")
+      return reply(route, {
+        items: [{ id: id(3), name: "Isolated branch", isActive: true }],
+      });
+    if (endpoint === `/admin/branches/${id(3)}`)
+      return reply(route, { id: id(3), name: "Isolated branch", isActive: true });
     if (endpoint === "/public/branches")
       return reply(route, { items: [{ id: id(3), name: "Isolated branch" }] });
     if (endpoint === "/admin/staff")
@@ -180,7 +205,7 @@ test("staff confirms and completes inspections with Lagos schedules and separate
   await expect(
     page.getByRole("heading", { name: "Vehicle inspections", exact: true }),
   ).toBeVisible();
-  await expect(page.getByLabel("Active branch filter")).toHaveCount(0);
+  await expect(page.getByLabel("Branch filter")).toHaveCount(0);
   await page.getByText("Manage inspection progress", { exact: true }).click();
   await expect(page.getByLabel("Next inspection status").locator("option")).toHaveText([
     "CONFIRMED",
@@ -213,18 +238,17 @@ test("staff confirms and completes inspections with Lagos schedules and separate
     fullPage: false,
   });
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("CONFIRMED");
+  await expect(page.locator(".status")).toHaveText("Confirmed");
   expect(writes[0]).toEqual({
     status: "CONFIRMED",
     expectedVersion: 2,
     scheduledStartAt: "2026-10-20T10:00:00+01:00",
     scheduledEndAt: "2026-10-20T11:00:00+01:00",
   });
-  await page.getByRole("button", { name: "Reload inspection fields" }).click();
   await page.getByRole("button", { name: "Review inspection change" }).click();
   await expect(page.getByRole("dialog")).toContainText("does not reserve the vehicle");
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("COMPLETED");
+  await expect(page.locator(".status")).toHaveText("Completed");
   expect(writes[1]).toEqual({ status: "COMPLETED", expectedVersion: 3 });
   await expect(
     page.getByRole("button", { name: "Review inspection change" }),
@@ -257,6 +281,15 @@ test("administrator filters and schedules an active assignee, preserving drafts 
         writes.push(body);
         inspection.status = body.status;
         inspection.version++;
+        inspection.assignedStaffId = body.assignedStaffId ?? inspection.assignedStaffId;
+        inspection.assignedStaff = {
+          id: id(7),
+          firstName: "Isolated",
+          lastName: "Assignee",
+        };
+        inspection.scheduledStartAt =
+          body.scheduledStartAt ?? inspection.scheduledStartAt;
+        inspection.scheduledEndAt = body.scheduledEndAt ?? inspection.scheduledEndAt;
         await reply(route, inspection);
         return true;
       }
@@ -267,13 +300,14 @@ test("administrator filters and schedules an active assignee, preserving drafts 
   await expect(page.getByText("No inspection requests on this page")).toHaveCount(0);
   failed = false;
   await page.getByRole("button", { name: "Refresh inspection records" }).click();
-  await expect(page.locator(".status")).toHaveText("REQUESTED");
+  await expect(page.locator(".status")).toHaveText("Requested");
   await page
     .getByRole("navigation", { name: "Staff inspections pages" })
     .getByRole("button", { name: "Next" })
     .click();
   await expect.poll(() => queries.at(-1)).toContain(`cursor=${id(15)}`);
-  await page.getByLabel("Active branch filter").selectOption(id(3));
+  await page.getByLabel("Branch filter").selectOption(id(3));
+  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
   await expect.poll(() => queries.at(-1)).toContain(`branchId=${id(3)}`);
   expect(queries.at(-1)).not.toContain("cursor=");
   await page.getByText("Manage inspection progress", { exact: true }).click();
@@ -294,7 +328,7 @@ test("administrator filters and schedules an active assignee, preserving drafts 
   await page.getByLabel("Inspection assignee").selectOption(id(7));
   await page.getByRole("button", { name: "Review inspection change" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("CONFIRMED");
+  await expect(page.locator(".status")).toHaveText("Confirmed");
   expect(writes[0]).toEqual({
     status: "CONFIRMED",
     expectedVersion: 3,
@@ -342,7 +376,7 @@ test("inspection cancellation requires a reason and reconciles a lost status res
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
-  await expect(page.locator(".status")).toHaveText("CANCELLED");
+  await expect(page.locator(".status")).toHaveText("Cancelled");
   await expect(
     page.getByRole("button", { name: "Review inspection change" }),
   ).toHaveCount(0);

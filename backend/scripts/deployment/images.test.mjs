@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { images } from "./spec.mjs";
+import { images, parseTemplate } from "./spec.mjs";
 
 const backend = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const commit = execFileSync("git", ["rev-parse", "HEAD"], {
@@ -13,6 +13,10 @@ const commit = execFileSync("git", ["rev-parse", "HEAD"], {
   encoding: "utf8",
   windowsHide: true,
 }).trim();
+// Explicit local tags allow dirty preparation builds to be tested without
+// overwriting a commit-tagged release. The release helper still refuses dirty pushes.
+const imageTag = process.env.AAT_IMAGE_TEST_TAG || commit;
+const expectedRevision = process.env.AAT_IMAGE_TEST_REVISION || commit;
 const directory = mkdtempSync(path.join(tmpdir(), "aat-image-ca-test-"));
 after(() => rmSync(directory, { recursive: true, force: true }));
 const windowsOpenSsl = "C:/Program Files/Git/usr/bin/openssl.exe";
@@ -41,7 +45,7 @@ const ca = readFileSync(path.join(directory, "ca.pem")).toString("base64");
 
 for (const image of images) {
   test(`${image.name} image keeps its command, non-root user and secure CA entrypoint`, () => {
-    const reference = `${image.repository}:${commit}`;
+    const reference = `${image.repository}:${imageTag}`;
     const [metadata] = JSON.parse(
       execFileSync("docker", ["image", "inspect", reference], {
         encoding: "utf8",
@@ -49,13 +53,16 @@ for (const image of images) {
       }),
     );
     assert.equal(metadata.Config.User, "node");
-    assert.equal(metadata.Config.Labels["org.opencontainers.image.revision"], commit);
+    assert.equal(
+      metadata.Config.Labels["org.opencontainers.image.revision"],
+      expectedRevision,
+    );
     assert.deepEqual(metadata.Config.Entrypoint, ["aat-with-database-ca"]);
     const commands = {
       api: ["node", "dist/server.js"],
       "identity-worker": ["node", "dist/workers/outbox.worker.js"],
       "general-worker": ["node", "dist/workers/worker-runtime.js"],
-      migrate: ["node", "node_modules/prisma/build/index.js", "migrate", "deploy"],
+      migrate: ["node", "--import", "tsx", "scripts/migrate-safely.ts"],
     };
     assert.deepEqual(metadata.Config.Cmd, commands[image.name]);
     if (image.name !== "api")
@@ -68,7 +75,7 @@ for (const image of images) {
           ),
       ),
     );
-    const probe = `const fs = require('node:fs'); const file = process.env.DB_SSL_CA_FILE; const target = ${JSON.stringify(commands[image.name][1])}; fs.accessSync(target); if (fs.existsSync('/app/.env')) process.exit(8); console.log(JSON.stringify({uid:process.getuid(), mode:fs.statSync(file).mode & 511, ca:fs.readFileSync(file,'utf8').startsWith('-----BEGIN CERTIFICATE-----'), helperRemoved:process.env.DB_SSL_CA_BASE64 === undefined}));`;
+    const probe = `const fs = require('node:fs'); const file = process.env.DB_SSL_CA_FILE; const target = ${JSON.stringify(image.name === "migrate" ? "scripts/migrate-safely.ts" : commands[image.name][1])}; fs.accessSync(target); if (fs.existsSync('/app/.env')) process.exit(8); console.log(JSON.stringify({uid:process.getuid(), mode:fs.statSync(file).mode & 511, ca:fs.readFileSync(file,'utf8').startsWith('-----BEGIN CERTIFICATE-----'), helperRemoved:process.env.DB_SSL_CA_BASE64 === undefined}));`;
     const result = spawnSync(
       "docker",
       [
@@ -104,6 +111,59 @@ for (const image of images) {
   });
 }
 
+test("App Platform job command bootstraps TLS when the Docker entrypoint is replaced", () => {
+  const template = parseTemplate(
+    readFileSync(
+      path.join(backend, "ops/digitalocean/staging.app.yaml.template"),
+      "utf8",
+    ),
+  );
+  const [bootstrap, ...command] = template.jobs[0].run_command.split(" ");
+  assert.equal(bootstrap, "aat-with-database-ca");
+  assert.deepEqual(command, [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/check-database-safety.ts",
+  ]);
+  const result = spawnSync(
+    "docker",
+    [
+      "run",
+      "--rm",
+      "--network",
+      "none",
+      "--entrypoint",
+      "/bin/sh",
+      "-e",
+      "DB_SSL_MODE=verify-full",
+      "-e",
+      "DB_SSL_CA_FILE=/tmp/allied-autotech-secrets/database-ca.pem",
+      "-e",
+      "DB_SSL_CA_BASE64",
+      `allied-autotech-migrate:${imageTag}`,
+      "-c",
+      'exec "$@"',
+      "app-platform-job",
+      bootstrap,
+      "node",
+      "-e",
+      "const fs=require('node:fs');const assert=require('node:assert/strict');assert.match(fs.readFileSync(process.env.DB_SSL_CA_FILE,'utf8'),/BEGIN CERTIFICATE/);assert.equal(process.env.DB_SSL_CA_BASE64,undefined);assert.equal(fs.statSync(process.env.DB_SSL_CA_FILE).mode & 511,256);",
+    ],
+    {
+      encoding: "utf8",
+      windowsHide: true,
+      timeout: 60_000,
+      env: { ...process.env, DB_SSL_CA_BASE64: ca },
+    },
+  );
+  assert.equal(
+    result.status,
+    0,
+    "Overridden entrypoint must still materialize the TLS CA.",
+  );
+});
+
 test("CA entrypoint rejects private keys and unsafe paths before starting Node", () => {
   const privateKey = readFileSync(path.join(directory, "key.pem"), "utf8");
   for (const [material, file] of [
@@ -130,7 +190,7 @@ test("CA entrypoint rejects private keys and unsafe paths before starting Node",
         `DB_SSL_CA_FILE=${file}`,
         "-e",
         "DB_SSL_CA_BASE64",
-        `${images[0].repository}:${commit}`,
+        `${images[0].repository}:${imageTag}`,
         "node",
         "-e",
         "console.log('unexpected-start')",
@@ -185,7 +245,7 @@ for (const { name, description, file, expected } of runtimeProbes) {
         "DB_SSL_CA_FILE=/tmp/allied-autotech-secrets/database-ca.pem",
         "-e",
         "DB_SSL_CA_BASE64",
-        `${image.repository}:${commit}`,
+        `${image.repository}:${imageTag}`,
         "node",
         "--input-type=module",
         "-e",

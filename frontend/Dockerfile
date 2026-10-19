@@ -42,6 +42,6 @@ USER node
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-  CMD ["node", "-e", "fetch('http://127.0.0.1:' + (process.env.PORT || '3000') + '/').then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1));"]
+  CMD ["node", "-e", "const headers = process.env.PRIVATE_TESTING_ENABLED === 'true' ? {Authorization: 'Basic ' + Buffer.from('allied-test:' + process.env.PRIVATE_TESTING_PASSWORD).toString('base64')} : {}; fetch('http://127.0.0.1:' + (process.env.PORT || '3000') + '/', {headers}).then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1));"]
 
 CMD ["node", "server.js"]

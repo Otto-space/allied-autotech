@@ -143,15 +143,23 @@ for (const [status, code] of [
   [503, "DATABASE_UNAVAILABLE"],
 ] as const)
   test(`honest ${status} response`, async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 600 });
     const state = await loginFixture(page);
     state.status = status;
     state.code = code;
     await page.goto("/login");
+    await page.evaluate(() => document.fonts.ready);
+    const panel = page.locator(".login-editorial");
+    const before = await panel.boundingBox();
+    const headingTop = await page.locator("h1").evaluate((node) => node.offsetTop);
     await submitLogin(page);
     await expect(page.getByRole("main").getByRole("alert")).toBeVisible();
     await expect(page.getByText(/Prisma|confidential/)).toHaveCount(0);
     await expect(page.getByLabel("Password", { exact: true })).toHaveValue("");
     await expectNoSuccess(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    expect(await panel.boundingBox()).toEqual(before);
+    expect(await page.locator("h1").evaluate((node) => node.offsetTop)).toBe(headingTop);
   });
 for (const kind of ["empty", "role", "id", "mfa"])
   test(`invalid ${kind} response cannot navigate`, async ({ page }) => {

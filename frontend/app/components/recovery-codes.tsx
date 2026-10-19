@@ -25,6 +25,10 @@ export function RecoveryCodes({
         privately; these codes are only available in this view and disappear when you
         leave or your session changes.
       </p>
+      <p>
+        Use a recovery code to sign in if you lose your phone or delete the authenticator
+        entry. Deleting that entry does not turn off MFA on your account.
+      </p>
       <div className="field">
         <label htmlFor="new-recovery-codes">New recovery codes</label>
         <textarea

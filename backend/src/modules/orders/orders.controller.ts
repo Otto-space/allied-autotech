@@ -82,6 +82,7 @@ export class OrdersController {
       );
   staffList = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -95,6 +96,7 @@ export class OrdersController {
       );
   staffGet = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -105,6 +107,7 @@ export class OrdersController {
       );
   transition = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(

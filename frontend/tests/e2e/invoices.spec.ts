@@ -1,12 +1,41 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+﻿import { test, expect, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import { writeFile } from "node:fs/promises";
+import type { WorkInvoice, InvoiceSourceType } from "@/lib/admin/work-invoices";
+import { invoiceSourceOptions } from "@/lib/api/invoice-source-schemas";
+import { invoicePaper } from "../fixtures/work-invoice-detail";
 const id = (value: number) =>
   `50000000-0000-4000-8000-${String(value).padStart(12, "0")}`;
-const reply = (route: Route, data: unknown) =>
-  route.fulfill({
+const branch = { id: id(9), code: "QA", name: "Test branch" };
+const reply = (route: Route, original: unknown) => {
+  let data = original;
+  const u = new URL(route.request().url());
+  if (u.pathname.endsWith("/staff/invoices/sources")) {
+    const kind = u.searchParams.get("sourceType") as InvoiceSourceType;
+    const page = invoiceSourceOptions[kind].parse(original);
+    data = {
+      ...page,
+      items: page.items
+        .filter(
+          (v) =>
+            !u.searchParams.has("sourceId") || v.id === u.searchParams.get("sourceId"),
+        )
+        .map((v) => ({
+          ...v,
+          sourceType: kind,
+          reference: kind === "BOOKING" ? v.id : v.label.split(" · ")[0],
+          branch,
+          createdAt: "2026-09-17T09:00:00Z",
+          updatedAt: "2026-09-17T09:00:00Z",
+        })),
+      ...(u.searchParams.has("sourceId") ? { nextCursor: undefined } : {}),
+    };
+  }
+  if (/\/staff\/invoices\/[^/]+\/document$/.test(u.pathname))
+    data = invoicePaper(original as WorkInvoice);
+  return route.fulfill({
     json: {
       success: true,
       data,
@@ -14,7 +43,8 @@ const reply = (route: Route, data: unknown) =>
       meta: { requestId: "invoice-test" },
     },
   });
-const invoice = () => ({
+};
+const invoice = (): WorkInvoice => ({
   id: id(1),
   invoiceNumber: "ISOLATED-INVOICE-001",
   currency: "NGN",
@@ -27,17 +57,13 @@ const invoice = () => ({
   issuedAt: null as string | null,
   dueAt: null as string | null,
   paidAt: null,
+  voidedAt: null,
   createdAt: "2026-09-17T09:00:00Z",
+  updatedAt: "2026-09-17T09:00:00Z",
   order: null,
-  booking: { id: id(2) },
+  booking: { id: id(2), status: "CONFIRMED", branch },
   vehicleTransaction: null,
-  payments: [] as {
-    id: string;
-    paymentNumber: string;
-    status: string;
-    amountKobo: string;
-    succeededAt: string | null;
-  }[],
+  payments: [],
 });
 async function fixture(
   page: Page,
@@ -46,7 +72,20 @@ async function fixture(
 ) {
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
-    if (await handler(route, endpoint)) return;
+    const kind = new URL(route.request().url()).searchParams.get(
+      "sourceType",
+    ) as InvoiceSourceType;
+    if (
+      await handler(
+        route,
+        endpoint === "/staff/invoices/sources"
+          ? invoiceSourceOptions[kind].path
+          : /^\/staff\/invoices\/[^/]+\/document$/.test(endpoint)
+            ? endpoint.replace(/\/document$/, "")
+            : endpoint,
+      )
+    )
+      return;
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(3),
@@ -58,6 +97,22 @@ async function fixture(
       });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-token-".repeat(4) });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(4),
+        email: "invoices@example.test",
+        role,
+        status: "ACTIVE",
+        capabilities: [],
+        staffProfile: {
+          id: id(7),
+          firstName: "Invoice",
+          lastName: "Operator",
+          branchId: branch.id,
+        },
+      });
+    if (endpoint === "/admin/branches")
+      return reply(route, { items: [{ ...branch, isActive: true }] });
     if (endpoint === "/public/branches") return reply(route, { items: [] });
     return route.fulfill({
       status: 404,
@@ -198,7 +253,7 @@ test("invoice creation uses the selected source, server credit and versioned iss
       const body = route.request().postDataJSON();
       writes.push({ endpoint, body });
       created = true;
-      record.dueAt = body.dueAt;
+      record.dueAt = body.dueAt ? new Date(body.dueAt).toISOString() : null;
       await reply(route, record);
       return true;
     }
@@ -214,18 +269,19 @@ test("invoice creation uses the selected source, server credit and versioned iss
       writes.push({ endpoint, body: route.request().postDataJSON() });
       record.version++;
       record.status = endpoint.endsWith("/issue") ? "ISSUED" : "VOID";
-      if (record.status === "ISSUED") record.issuedAt = new Date().toISOString();
+      record.updatedAt = new Date().toISOString();
+      if (record.status === "ISSUED") record.issuedAt = record.updatedAt;
+      else record.voidedAt = record.updatedAt;
       await reply(route, record);
       return true;
     }
   });
   await page.goto("/admin/invoices");
   await page.getByRole("button", { name: "Create an invoice", exact: true }).click();
-  await page.getByRole("button", { name: "Review draft invoice" }).click();
-  await expect(page.getByLabel("Source record")).toBeFocused();
+  await expect(page.getByRole("button", { name: "Review draft invoice" })).toBeDisabled();
   await page.getByLabel("Invoice source type").selectOption("BOOKING");
   await expect(page.getByRole("option", { name: /Unaccepted service/ })).toHaveCount(0);
-  await page.getByLabel("Source record").selectOption(id(2));
+  await page.getByLabel("Source record", { exact: true }).selectOption(id(2));
   const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
   await page.getByLabel("Due date (optional, Lagos time)").fill(`${tomorrow}T12:30`);
   await page.getByRole("button", { name: "Review draft invoice" }).click();
@@ -233,7 +289,11 @@ test("invoice creation uses the selected source, server credit and versioned iss
     "does not record or collect a payment",
   );
   expect(writes).toHaveLength(0);
-  await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Create draft invoice" })
+    .click();
+  await page.getByRole("link", { name: "View draft invoice" }).click();
   await expect(page).toHaveURL(new RegExp(`/admin/invoices/${record.id}$`));
   await expect(page.getByRole("heading", { name: record.invoiceNumber })).toBeVisible();
   expect(writes[0].body).toEqual({
@@ -249,12 +309,12 @@ test("invoice creation uses the selected source, server credit and versioned iss
   ).toContainText("102.03");
   await page.getByRole("button", { name: "Review invoice issue" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("ISSUED");
+  await expect(page.locator(".wid-heading .wid-status")).toHaveText("Issued");
   expect(writes[1].body).toEqual({ expectedVersion: 0 });
   await page.getByRole("button", { name: "Review invoice void" }).click();
   await expect(page.getByRole("dialog")).toContainText("does not refund a payment");
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("VOID");
+  await expect(page.locator(".wid-heading .wid-status")).toHaveText("Void");
   expect(writes[2].body).toEqual({ expectedVersion: 1 });
   await expect(page.getByRole("button", { name: "Review invoice issue" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Review invoice void" })).toHaveCount(0);
@@ -281,6 +341,8 @@ test("lost invoice creation is not resubmitted and source paging preserves the s
   let writes = 0;
   let created = false;
   const record = invoice();
+  record.booking = null;
+  record.order = { id: id(6), orderNumber: "ISOLATED-ORDER", status: "PENDING", branch };
   await fixture(page, async (route, endpoint) => {
     if (endpoint === "/staff/orders") {
       const second = new URL(route.request().url()).searchParams.has("cursor");
@@ -312,23 +374,27 @@ test("lost invoice creation is not resubmitted and source paging preserves the s
   });
   await page.goto("/admin/invoices");
   await page.getByRole("button", { name: "Create an invoice", exact: true }).click();
-  await page.getByLabel("Source record").selectOption(id(6));
+  await page.getByLabel("Source record", { exact: true }).selectOption(id(6));
   await page
     .getByRole("navigation", { name: "Invoice sources pages" })
     .getByRole("button", { name: "Next" })
     .click();
-  await expect(page.getByLabel("Source record")).toHaveValue(id(6));
+  await expect(page.getByLabel("Source record", { exact: true })).toHaveValue(id(6));
   expect(writes).toBe(0);
   await page.getByRole("button", { name: "Review draft invoice" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Create draft invoice" })
+    .click();
   await expect(
-    page.getByRole("dialog").getByRole("button", { name: "Confirm change" }),
+    page.getByRole("dialog").getByRole("button", { name: "Create draft invoice" }),
   ).toBeDisabled();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
-  await expect(page.getByRole("link", { name: record.invoiceNumber })).toBeVisible();
+  await page.getByRole("button", { name: "Load current source invoice" }).click();
+  await expect(page.getByRole("link", { name: "View current invoice" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Review draft invoice" })).toBeDisabled();
   await page.getByRole("button", { name: "Close invoice form" }).click();
   await page.getByRole("button", { name: "Create an invoice", exact: true }).click();
@@ -346,6 +412,7 @@ test("invoice failures are not empty lists and a successful payment prevents voi
     paymentNumber: "ISOLATED-PAYMENT",
     status: "SUCCEEDED",
     amountKobo: record.totalKobo,
+    currency: "NGN",
     succeededAt: "2026-09-17T09:00:00Z",
   });
   let recovered = false;
@@ -379,11 +446,15 @@ test("invoice failures are not empty lists and a successful payment prevents voi
   recovered = true;
   await page.getByRole("button", { name: "Refresh invoices" }).click();
   await page.getByLabel("Invoice status").selectOption("VOID");
+  await page.getByRole("button", { name: "Apply invoice filters" }).click();
   await expect(
     page.getByRole("heading", { name: "No invoices match these filters" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Clear invoice filter" }).click();
-  await page.getByRole("link", { name: record.invoiceNumber }).click();
+  await page
+    .locator(".iv-filters")
+    .getByRole("button", { name: "Clear invoice filters", exact: true })
+    .click();
+  await page.getByRole("link", { name: record.invoiceNumber, exact: true }).click();
   await expect(page.getByRole("heading", { name: "ISOLATED-PAYMENT" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Review invoice void" })).toHaveCount(0);
 });
@@ -395,13 +466,26 @@ test("administrator invoice filters validate customer references and reset curso
   await fixture(
     page,
     async (route, endpoint) => {
-      if (endpoint === "/public/branches") {
-        await reply(route, { items: [{ id: id(20), name: "Invoice filter branch" }] });
+      if (endpoint === "/admin/branches") {
+        await reply(route, {
+          items: [{ id: id(20), name: "Invoice filter branch", isActive: false }],
+        });
         return true;
       }
       if (endpoint === "/staff/invoices") {
         queries.push(new URL(route.request().url()).searchParams);
-        await reply(route, { items: [invoice()], nextCursor: id(1) });
+        const p = new URL(route.request().url()).searchParams;
+        const record = invoice();
+        if (p.has("branchId"))
+          record.booking!.branch = {
+            id: id(20),
+            code: "OLD",
+            name: "Invoice filter branch",
+          };
+        await reply(
+          route,
+          p.has("cursor") ? { items: [] } : { items: [record], nextCursor: id(1) },
+        );
         return true;
       }
     },
@@ -409,27 +493,34 @@ test("administrator invoice filters validate customer references and reset curso
   );
   await page.goto("/admin/invoices");
   await page
-    .getByRole("navigation", { name: "Invoices pages" })
+    .getByRole("navigation", { name: "Invoices pagination" })
     .getByRole("button", { name: "Next" })
     .click();
   await expect.poll(() => queries.at(-1)?.get("cursor")).toBe(id(1));
-  await page.getByRole("button", { name: "Filter by branch or customer" }).click();
-  await page.getByLabel("Active branch (optional)").selectOption(id(20));
-  await page.getByLabel("Customer profile reference (optional)").fill("not-a-profile-id");
+  await page.getByRole("button", { name: "More filters", exact: true }).click();
+  await page.getByLabel("Branch", { exact: true }).selectOption(id(20));
+  await page
+    .getByLabel("Customer profile reference", { exact: true })
+    .fill("not-a-profile-id");
   await page.getByRole("button", { name: "Apply invoice filters" }).click();
-  await expect(page.getByLabel("Customer profile reference (optional)")).toBeFocused();
   await expect(
-    page.getByText("Enter an existing profile reference in UUID format."),
-  ).toBeVisible();
-  await page.getByLabel("Customer profile reference (optional)").fill(id(21));
+    page.getByLabel("Customer profile reference", { exact: true }),
+  ).toBeFocused();
+  await expect(page.getByText("Use an existing UUID reference.")).toBeVisible();
+  await page.getByLabel("Customer profile reference", { exact: true }).fill(id(21));
   await page.getByRole("button", { name: "Apply invoice filters" }).click();
   await expect.poll(() => queries.at(-1)?.get("customerId")).toBe(id(21));
   expect(queries.at(-1)?.get("branchId")).toBe(id(20));
   expect(queries.at(-1)?.has("cursor")).toBe(false);
-  expect(page.url()).not.toContain(id(21));
-  await page.getByRole("button", { name: "Clear invoice filters", exact: true }).click();
-  await expect(page.getByLabel("Customer profile reference (optional)")).toHaveValue("");
-  await expect(page.getByLabel("Active branch (optional)")).toHaveValue("");
+  expect(page.url()).toContain(id(21));
+  await page
+    .locator(".iv-filters")
+    .getByRole("button", { name: "Clear invoice filters", exact: true })
+    .click();
+  await expect(
+    page.getByLabel("Customer profile reference", { exact: true }),
+  ).toHaveValue("");
+  await expect(page.getByLabel("Branch", { exact: true })).toHaveValue("");
   await expect.poll(() => queries.at(-1)?.has("customerId")).toBe(false);
 });
 
@@ -439,7 +530,12 @@ test("vehicle invoice selection excludes ineligible sources and sends only the c
   const record = {
     ...invoice(),
     booking: null,
-    vehicleTransaction: { id: id(22), transactionNumber: "ISOLATED-VEHICLE-SALE" },
+    vehicleTransaction: {
+      id: id(22),
+      transactionNumber: "ISOLATED-VEHICLE-SALE",
+      status: "PAID",
+      vehicleListing: { branch },
+    },
   };
   const writes: unknown[] = [];
   await fixture(page, async (route, endpoint) => {
@@ -483,16 +579,20 @@ test("vehicle invoice selection excludes ineligible sources and sends only the c
     }
   });
   await page.goto("/admin/invoices");
-  await page.getByRole("button", { name: "Filter by branch or customer" }).click();
-  await expect(page.getByLabel("Active branch (optional)")).toBeVisible();
+  await page.getByRole("button", { name: "More filters", exact: true }).click();
+  await expect(page.getByLabel("Branch", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Create an invoice", exact: true }).click();
   await page.getByLabel("Invoice source type").selectOption("VEHICLE_TRANSACTION");
-  await page.getByLabel("Source record").selectOption(id(22));
+  await page.getByLabel("Source record", { exact: true }).selectOption(id(22));
   await expect(
     page.getByRole("option", { name: /ENQUIRY-ONLY|UNLINKED-CUSTOMER/ }),
   ).toHaveCount(0);
   await page.getByRole("button", { name: "Review draft invoice" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Create draft invoice" })
+    .click();
+  await page.getByRole("link", { name: "View draft invoice" }).click();
   await expect(page).toHaveURL(new RegExp(`/admin/invoices/${record.id}$`));
   expect(writes).toEqual([{ sourceType: "VEHICLE_TRANSACTION", sourceId: id(22) }]);
   await expect(

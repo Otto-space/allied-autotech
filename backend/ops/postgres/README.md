@@ -29,7 +29,7 @@ before using a populated database; do not transfer ownership indiscriminately.
 Prisma migrations must always run as the migration role. Existing objects owned
 by another role need a separately reviewed ownership correction.
 
-Run the script before the initial PRE_DEPLOY job and again after it, before
+Run the script before the initial guarded external migration and again after it, before
 opening business ingress. The second run removes runtime access to Prisma's
 newly created migration ledger. Future migrations retain the application DML
 defaults. Keep PUBLIC privileges and any unexpected inherited memberships under
@@ -51,7 +51,7 @@ ROLLBACK;
 ```
 
 Verify ordinary reads/writes through a disposable application fixture, migration
-success through PRE_DEPLOY, and failed migrations blocking release. A successful
+success through the guarded release runner, the read-only PRE_DEPLOY check, and failures blocking release. A successful
 local SQL test is not proof of Managed PostgreSQL permissions or connectivity.
 
 Use Trusted Sources restricted to the App Platform application and narrowly
@@ -60,8 +60,8 @@ the existing managed cluster; verify its resulting firewall explicitly. Prefer
 private networking when the selected region/account supports the app-to-database
 path; keep hostname validation and use the real private hostname if enabled.
 
-The pools are API 10 + identity 3 + general 5 = 18 steady connections and up to
-36 during overlapping deployments. Add measured Prisma migration connections
+The private-first pools are API 4 + identity 1 + general 2 = 7 steady connections and up to
+14 during one overlapping deployment. Add measured Prisma verification/migration connections
 and operator headroom. `DB_POOL_MAX=2` in the migrator does **not** configure the
 Prisma CLI's connection pool. Inspect `SHOW max_connections` and provider/user
 limits before selecting capacity; do not assume a small managed plan fits.

@@ -1,10 +1,15 @@
 "use client";
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
-import type { StaffVehicleSale } from "@/lib/api/staff-vehicle-sales-schemas";
+import {
+  staffVehicleSaleSchema,
+  type StaffVehicleSale,
+} from "@/lib/api/staff-vehicle-sales-schemas";
+import { forgetSaleFormDraft } from "@/lib/admin/work-vehicle-sale-detail";
 import { nairaToKobo, koboToInput } from "@/lib/format/currency-input";
 import { formatKobo } from "@/lib/format/money";
 import type { MutationProposal } from "./mutation-review";
@@ -43,6 +48,8 @@ type ReviewProps = {
   onReview: (proposal: MutationProposal) => void;
 };
 export function VehicleNegotiationForm({ sale, disabled, onReview }: ReviewProps) {
+  const [version, setVersion] = useState(sale.version),
+    changed = version !== sale.version;
   const form = useForm<z.infer<typeof negotiationSchema>>({
     resolver: zodResolver(negotiationSchema),
     defaultValues: {
@@ -56,19 +63,27 @@ export function VehicleNegotiationForm({ sale, disabled, onReview }: ReviewProps
   });
   const errors = form.formState.errors;
   function review(values: z.infer<typeof negotiationSchema>) {
-    if (disabled) return;
+    if (disabled || changed) return;
     const body: RequestBody<
       "/staff/vehicle-transactions/{transactionId}/negotiate",
       "post"
     > = {
-      expectedVersion: sale.version,
+      expectedVersion: version,
       agreedPriceKobo: nairaToKobo(values.agreedPrice),
       reservationRequiredKobo: values.reservation
         ? nairaToKobo(values.reservation)
         : null,
       ...(values.notes ? { notes: values.notes } : {}),
     };
+    let saved: StaffVehicleSale | undefined;
     onReview({
+      saleChange: { kind: "negotiation", expectedVersion: version, body },
+      onConfirmed: () => {
+        if (saved) {
+          setVersion(saved.version);
+          form.reset({ ...values, notes: "" });
+        }
+      },
       title: "Record this negotiated price?",
       description:
         "This records the agreed price and sets the purchase to negotiating. It does not reserve the vehicle, accept terms for the customer or confirm a payment. The server prevents price changes after payment activity.",
@@ -81,13 +96,20 @@ export function VehicleNegotiationForm({ sale, disabled, onReview }: ReviewProps
             ? formatKobo(body.reservationRequiredKobo)
             : "Not set",
         },
+        { label: "Negotiation notes", value: values.notes || "Not provided" },
       ],
-      submit: () =>
-        apiRequest(`/staff/vehicle-transactions/${sale.id}/negotiate`, {
-          method: "POST",
-          csrf: true,
-          body,
-        }),
+      submit: async () => {
+        const response = await apiRequest(
+          `/staff/vehicle-transactions/${sale.id}/negotiate`,
+          {
+            method: "POST",
+            csrf: true,
+            body,
+          },
+        );
+        saved = staffVehicleSaleSchema.parse(response.data);
+        return response;
+      },
     });
   }
   return (
@@ -98,7 +120,37 @@ export function VehicleNegotiationForm({ sale, disabled, onReview }: ReviewProps
         noValidate
         onSubmit={form.handleSubmit(review)}
       >
-        <fieldset disabled={disabled}>
+        {changed && (
+          <div className="notice">
+            <p>
+              This purchase changed. Your negotiation input is kept; reload the fields
+              before reviewing again.
+            </p>
+            <button
+              type="button"
+              className="button secondary"
+              disabled={disabled}
+              onClick={(event) => {
+                forgetSaleFormDraft(event.currentTarget);
+                form.reset({
+                  agreedPrice:
+                    sale.agreedPriceKobo === null
+                      ? ""
+                      : koboToInput(sale.agreedPriceKobo),
+                  reservation:
+                    sale.reservationRequiredKobo === null
+                      ? ""
+                      : koboToInput(sale.reservationRequiredKobo),
+                  notes: "",
+                });
+                setVersion(sale.version);
+              }}
+            >
+              Reload negotiation fields
+            </button>
+          </div>
+        )}
+        <fieldset disabled={disabled || changed}>
           <div className="field">
             <label htmlFor="sale-agreed-price">Agreed price (NGN)</label>
             <input
@@ -199,6 +251,8 @@ const statusSchema = z
     message: "Enter a cancellation reason.",
   });
 export function VehicleSaleStatusForm({ sale, disabled, onReview }: ReviewProps) {
+  const [version, setVersion] = useState(sale.version),
+    changed = version !== sale.version;
   const choices = saleTransitions[sale.status];
   const form = useForm<z.infer<typeof statusSchema>>({
     resolver: zodResolver(statusSchema),
@@ -206,16 +260,24 @@ export function VehicleSaleStatusForm({ sale, disabled, onReview }: ReviewProps)
   });
   if (!choices.length) return null;
   function review(values: z.infer<typeof statusSchema>) {
-    if (disabled || !choices.includes(values.status)) return;
+    if (disabled || changed || !choices.includes(values.status)) return;
     const body: RequestBody<
       "/staff/vehicle-transactions/{transactionId}/status",
       "post"
     > = {
       status: values.status,
-      expectedVersion: sale.version,
+      expectedVersion: version,
       ...(values.reason ? { reason: values.reason } : {}),
     };
+    let saved: StaffVehicleSale | undefined;
     onReview({
+      saleChange: { kind: "progress", expectedVersion: version, body },
+      onConfirmed: () => {
+        if (saved) {
+          setVersion(saved.version);
+          form.reset({ status: saleTransitions[saved.status][0], reason: "" });
+        }
+      },
       title: "Change this purchase status?",
       description:
         values.status === "CANCELLED"
@@ -227,12 +289,18 @@ export function VehicleSaleStatusForm({ sale, disabled, onReview }: ReviewProps)
         { label: "To", value: values.status.replaceAll("_", " ") },
         ...(values.reason ? [{ label: "Reason", value: values.reason }] : []),
       ],
-      submit: () =>
-        apiRequest(`/staff/vehicle-transactions/${sale.id}/status`, {
-          method: "POST",
-          csrf: true,
-          body,
-        }),
+      submit: async () => {
+        const response = await apiRequest(
+          `/staff/vehicle-transactions/${sale.id}/status`,
+          {
+            method: "POST",
+            csrf: true,
+            body,
+          },
+        );
+        saved = staffVehicleSaleSchema.parse(response.data);
+        return response;
+      },
     });
   }
   return (
@@ -243,7 +311,27 @@ export function VehicleSaleStatusForm({ sale, disabled, onReview }: ReviewProps)
         noValidate
         onSubmit={form.handleSubmit(review)}
       >
-        <fieldset disabled={disabled}>
+        {changed && (
+          <div className="notice">
+            <p>
+              This purchase changed. Your progress input is kept; reload the fields before
+              reviewing again.
+            </p>
+            <button
+              type="button"
+              className="button secondary"
+              disabled={disabled}
+              onClick={(event) => {
+                forgetSaleFormDraft(event.currentTarget);
+                form.reset({ status: choices[0], reason: "" });
+                setVersion(sale.version);
+              }}
+            >
+              Reload purchase progress fields
+            </button>
+          </div>
+        )}
+        <fieldset disabled={disabled || changed}>
           <div className="field">
             <label htmlFor="sale-next-status">Next purchase status</label>
             <select id="sale-next-status" {...form.register("status")}>

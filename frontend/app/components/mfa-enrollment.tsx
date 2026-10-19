@@ -18,10 +18,16 @@ export function MfaEnrollment({
   onComplete,
   onCheck,
   onReverify,
+  replaceFactorId,
+  onCancel,
+  onPendingChange,
 }: {
   onComplete: (token: string, codes: string[]) => void;
   onCheck: () => void;
   onReverify: () => void;
+  replaceFactorId?: string;
+  onCancel?: () => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const operation = useMfaOperation();
   const [totp, setTotp] = useState<TotpEnrollment>();
@@ -30,12 +36,21 @@ export function MfaEnrollment({
   const [accepted, setAccepted] = useState(false);
   const disabled =
     operation.busy || operation.uncertain || operation.requiresMfa || operation.waiting;
+  async function runTotp(work: Parameters<typeof operation.run>[0]) {
+    onPendingChange?.(true);
+    try {
+      return await operation.run(work);
+    } finally {
+      onPendingChange?.(false);
+    }
+  }
   return (
     <>
       {!totp && !key && (
         <p className="login-intro">
-          Add an authenticator app or a security key. Completing setup replaces your
-          recovery codes and renews this session. Save the new codes before leaving.
+          {replaceFactorId
+            ? "Scan a new QR code to reconnect your authenticator. Your old registration stays active until you confirm a code from the new setup. Completing replacement renews this session and issues new recovery codes."
+            : "Add an authenticator app or a security key. Completing setup replaces your recovery codes and renews this session. Save the new codes before leaving."}
         </p>
       )}
       {!totp && !key && (
@@ -46,7 +61,9 @@ export function MfaEnrollment({
             disabled={disabled || !!totp || !!key}
             onChange={(event) => setAccepted(event.target.checked)}
           />{" "}
-          I understand that completing setup replaces my recovery codes.
+          {replaceFactorId
+            ? "I understand that confirming the new authenticator replaces the selected old registration and my recovery codes."
+            : "I understand that completing setup replaces my recovery codes."}
         </label>
       )}
       <Feedback message={operation.error} />
@@ -65,13 +82,15 @@ export function MfaEnrollment({
       {!totp && !key && (
         <>
           <p className="mfa-hint">
-            Starting authenticator setup replaces any unfinished app setup.
+            Starting authenticator setup replaces any unfinished app setup. Keep your
+            recovery codes somewhere you can access if your phone is lost or the app entry
+            is deleted.
           </p>
           <button
             className="button login-submit"
             disabled={disabled || !accepted}
             onClick={() =>
-              void operation.run(async (signal, submitted) => {
+              void runTotp(async (signal, submitted) => {
                 submitted();
                 const result = totpEnrollmentSchema.parse(
                   (
@@ -87,42 +106,44 @@ export function MfaEnrollment({
               })
             }
           >
-            Set up authenticator app
+            {replaceFactorId ? "Scan a new QR code" : "Set up authenticator app"}
           </button>
-          <div className="detail-section">
-            <div className="field">
-              <label htmlFor="security-key-name">Security key name (optional)</label>
-              <input
-                id="security-key-name"
-                maxLength={100}
-                autoComplete="off"
-                value={name}
-                disabled={disabled}
-                onChange={(event) => setName(event.target.value)}
-              />
+          {!replaceFactorId && (
+            <div className="detail-section">
+              <div className="field">
+                <label htmlFor="security-key-name">Security key name (optional)</label>
+                <input
+                  id="security-key-name"
+                  maxLength={100}
+                  autoComplete="off"
+                  value={name}
+                  disabled={disabled}
+                  onChange={(event) => setName(event.target.value)}
+                />
+              </div>
+              <button
+                className="button secondary"
+                disabled={disabled || !accepted}
+                onClick={() =>
+                  void operation.run(async (signal) => {
+                    const result = registrationOptionsSchema.parse(
+                      (
+                        await apiRequest<unknown>("/auth/mfa/webauthn/options", {
+                          method: "POST",
+                          csrf: true,
+                          signal,
+                          body: {},
+                        })
+                      ).data,
+                    );
+                    setKey(result);
+                  })
+                }
+              >
+                Prepare new security key
+              </button>
             </div>
-            <button
-              className="button secondary"
-              disabled={disabled || !accepted}
-              onClick={() =>
-                void operation.run(async (signal) => {
-                  const result = registrationOptionsSchema.parse(
-                    (
-                      await apiRequest<unknown>("/auth/mfa/webauthn/options", {
-                        method: "POST",
-                        csrf: true,
-                        signal,
-                        body: {},
-                      })
-                    ).data,
-                  );
-                  setKey(result);
-                })
-              }
-            >
-              Prepare new security key
-            </button>
-          </div>
+          )}
         </>
       )}
       {totp && !operation.uncertain && !operation.requiresMfa && (
@@ -152,7 +173,7 @@ export function MfaEnrollment({
           <MfaCodeForm
             disabled={disabled}
             onSubmit={(code) =>
-              operation.run(async (signal, submitted) => {
+              runTotp(async (signal, submitted) => {
                 submitted();
                 const result = enrollmentResultSchema.parse(
                   (
@@ -160,7 +181,11 @@ export function MfaEnrollment({
                       method: "POST",
                       csrf: true,
                       signal,
-                      body: { factorId: totp.factorId, code },
+                      body: {
+                        factorId: totp.factorId,
+                        code,
+                        ...(replaceFactorId ? { replaceFactorId } : {}),
+                      },
                     })
                   ).data,
                 );
@@ -229,6 +254,11 @@ export function MfaEnrollment({
           Discarding hides these details; it does not remove a pending factor or a key
           created on your device.
         </p>
+      )}
+      {onCancel && !operation.uncertain && (
+        <button className="mfa-text-button" disabled={disabled} onClick={onCancel}>
+          Cancel replacement
+        </button>
       )}
     </>
   );

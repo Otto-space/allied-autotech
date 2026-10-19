@@ -1,0 +1,12 @@
+# Appointment slots concept specification
+
+Prepared before production implementation on 12 October 2026. Fresh ImageGen references: [desktop](desktop.png) and [mobile and states](mobile-states.png). Baseline captures are retained outside the repository as `work-slots-oct-before-1505.png` and `work-slots-oct-before-390.png`.
+
+- Preserve the existing dashboard shell and real logo, Quicksand interface typography, ink sidebar, white panels, cool-grey workspace and selective red actions. The concept's fictional account name, counts and logo are illustrative only.
+- One ordered breadcrumb: Overview, chevron, Appointment slots. H1 28px desktop/24px mobile; 18px section headings; 13px body and 12px secondary information; minimum 44px controls.
+- Header contains the existing appointment explanation, Refresh slots and a Publish slot anchor. Use an ink records heading, applied-filter summary and page-local count, not invented totals or booking occupancy.
+- Full-width status and inclusive Lagos-date filters; branch/service/staff disclosure below. URLs preserve applied filters and cursor traversal. Administrators can filter inactive historical scope; Staff are server-scoped to their branch, with an own-assignment filter and active-service choices.
+- Desktop at 1280px and above places records beside the publication form at approximately 2:1. Combine appointment start/end in one column to preserve readable five-column records. Below 1280px stack the form; below 768px render the semantic table as labeled rows without page overflow. Mobile publication fields stack, correcting the cramped two-column concept fragment.
+- Publication retains branch/service/staff/start labels, eligible fixed-price service choices, Lagos-time validation, server-calculated duration, review before saving and explicit uncertain-outcome handling. Staff publish only their own branch/profile. No calendar, invented occupancy, rescheduling, bulk actions or new API is introduced.
+- Loading skeletons reflect rows. Empty states offer appropriate filter recovery; errors offer read retry. Background failures retain records/drafts, identify stale data and disable mutations; access failures hide records and block edits. Dialogs preserve the existing authoritative operation descriptions.
+- Review final native desktop, mobile, tablet, expanded filters, empty/error/stale, validation and mutation states against these concepts. Record at least five concrete fidelity comparisons in the page report. Concepts are targets, not evidence that implementation or verification is complete.

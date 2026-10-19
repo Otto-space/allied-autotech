@@ -12,6 +12,7 @@ import { requireCsrf, requireTrustedOrigin } from "../../common/middleware/csrf.
 import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import { validate } from "../../common/middleware/validate.js";
 import { SupportController } from "./support.controller.js";
+import { PublicReviewProfiles } from "./public-review-profile.js";
 import {
   assignmentBodySchema,
   complaintPriorityBodySchema,
@@ -42,9 +43,25 @@ import {
   supportMessageListQuerySchema,
 } from "./support.schemas.js";
 
-export function createPublicSupportRouter(): Router {
+export function createPublicSupportRouter(profiles = new PublicReviewProfiles()): Router {
   const router = Router();
   const controller = new SupportController();
+  router.get(
+    "/reviews/:reviewId/photo",
+    validate({
+      params: reviewIdParamsSchema,
+      query: z
+        .object({ v: z.coerce.number().int().min(0).max(2147483647).optional() })
+        .strict(),
+    }),
+    async (_req, res) => {
+      const { reviewId } = reviewIdParamsSchema.parse(res.locals.validated?.["params"]);
+      const image = await profiles.read(reviewId);
+      res.setHeader("Cache-Control", "private, no-store");
+      res.setHeader("X-Content-Type-Options", "nosniff");
+      res.type(image.mimeType).send(image.bytes);
+    },
+  );
   router.get(
     "/reviews",
     validate({ query: publicReviewListQuerySchema }),
@@ -280,6 +297,12 @@ export function createStaffSupportRouter(): Router {
     requireAdministrator,
     validate({ query: staffReviewListQuerySchema }),
     controller.staffReviews,
+  );
+  router.get(
+    "/reviews/:reviewId",
+    requireAdministrator,
+    validate({ params: reviewIdParamsSchema, query: supportEmptyQuerySchema }),
+    controller.staffGetReview,
   );
   router.post(
     "/reviews/:reviewId/moderation",

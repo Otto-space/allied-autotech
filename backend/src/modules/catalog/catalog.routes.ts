@@ -145,6 +145,11 @@ export function createAdminCatalogRouter(): Router {
     validate({ query: catalogEmptyQuerySchema, body: categoryCreateBodySchema }),
     controller.createCategory,
   );
+  router.get(
+    "/categories/:categoryId",
+    validate({ params: categoryParamsSchema, query: catalogEmptyQuerySchema }),
+    controller.category,
+  );
   router.patch(
     "/categories/:categoryId",
     requireCsrf,
@@ -159,6 +164,11 @@ export function createAdminCatalogRouter(): Router {
     "/products",
     validate({ query: adminProductListQuerySchema }),
     controller.products,
+  );
+  router.get(
+    "/products/:productId",
+    validate({ params: productParamsSchema, query: catalogEmptyQuerySchema }),
+    controller.product,
   );
   router.post(
     "/products",

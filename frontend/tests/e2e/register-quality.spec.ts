@@ -72,8 +72,13 @@ test("visible password never submits or persists and is masked on request", asyn
 test("accepted request resets all fields and offers an explicit new form", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 600 });
   const state = await registrationFixture(page);
   await page.goto("/register");
+  await page.evaluate(() => document.fonts.ready);
+  const panel = page.locator(".login-editorial");
+  const before = await panel.boundingBox();
+  const headingTop = await page.locator("h1").evaluate((node) => node.offsetTop);
   await fillRegistration(page);
   await page.getByRole("button", { name: "Create account", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Check your email" })).toBeFocused();
@@ -84,6 +89,9 @@ test("accepted request resets all fields and offers an explicit new form", async
     page.getByRole("button", { name: "Create account", exact: true }),
   ).toHaveCount(0);
   await expect(page.getByText("Never render arbitrary server response")).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  expect(await panel.boundingBox()).toEqual(before);
+  expect(await page.locator("h1").evaluate((node) => node.offsetTop)).toBe(headingTop);
   expect(state.writes).toEqual([registrationData]);
   expect(
     (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
@@ -91,6 +99,8 @@ test("accepted request resets all fields and offers an explicit new form", async
   ).toEqual([]);
   await page.getByRole("button", { name: "Use another email" }).click();
   await expect(page.getByLabel("First name")).toBeFocused();
+  expect(await panel.boundingBox()).toEqual(before);
+  expect(await page.locator("h1").evaluate((node) => node.offsetTop)).toBe(headingTop);
   for (const label of [
     "First name",
     "Last name",

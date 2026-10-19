@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import {
   inspectionTransitions,
+  staffInspectionSchema,
   type StaffInspection,
 } from "@/lib/api/staff-inspection-schemas";
 import { lagosDateTime, toLagosInput } from "@/lib/forms/vehicle-condition";
@@ -14,6 +15,7 @@ import { formatBusinessDate } from "@/lib/format/date";
 import { StaffPicker } from "./staff-picker";
 import { useAccountSession } from "./dashboard-shell";
 import type { MutationProposal } from "./mutation-review";
+import { forgetInspectionFormDraft } from "@/lib/admin/work-inspections";
 const schema = z
   .object({
     status: z.enum(["CONFIRMED", "COMPLETED", "RESCHEDULED", "CANCELLED", "NO_SHOW"]),
@@ -66,6 +68,7 @@ export function InspectionStatusForm({
   const session = useAccountSession();
   const admin = session?.user.role !== "STAFF";
   const [version, setVersion] = useState(inspection.version);
+  const [assigneeBlocked, setAssigneeBlocked] = useState(true);
   const changed = version !== inspection.version;
   const form = useForm<Values>({
     resolver: zodResolver(schema),
@@ -113,7 +116,15 @@ export function InspectionStatusForm({
           ...(admin && schedule ? { assignedStaffId: values.assignedStaffId } : {}),
           ...(values.status === "CANCELLED" ? { reason: values.reason } : {}),
         };
+        let saved: StaffInspection | undefined;
         onReview({
+          inspectionChange: { id: inspection.id, expectedVersion: version, body },
+          onConfirmed: () => {
+            if (saved) {
+              setVersion(saved.version);
+              form.reset(defaults(saved));
+            }
+          },
           title: "Update this inspection?",
           description: `This records inspection progress. It does not reserve the vehicle, record payment or create a condition report. ${admin ? "Your account must have a staff profile. The selected or existing assignee must remain active at the listing branch." : "This action assigns the inspection to your own staff profile."}`,
           facts: [
@@ -142,12 +153,18 @@ export function InspectionStatusForm({
               ? [{ label: "Reason", value: values.reason }]
               : []),
           ],
-          submit: () =>
-            apiRequest(`/staff/vehicle-inspections/${inspection.id}/status`, {
-              method: "POST",
-              csrf: true,
-              body,
-            }),
+          submit: async () => {
+            const response = await apiRequest(
+              `/staff/vehicle-inspections/${inspection.id}/status`,
+              {
+                method: "POST",
+                csrf: true,
+                body,
+              },
+            );
+            saved = staffInspectionSchema.parse(response.data);
+            return response;
+          },
         });
       })}
     >
@@ -161,7 +178,8 @@ export function InspectionStatusForm({
             className="button secondary"
             type="button"
             disabled={disabled}
-            onClick={() => {
+            onClick={(event) => {
+              forgetInspectionFormDraft(event.currentTarget);
               form.reset(defaults(inspection));
               setVersion(inspection.version);
             }}
@@ -226,6 +244,7 @@ export function InspectionStatusForm({
                     form.clearErrors("assignedStaffId");
                   }}
                   error={form.formState.errors.assignedStaffId?.message}
+                  onAvailabilityChange={setAssigneeBlocked}
                 />
               </div>
             )}
@@ -253,7 +272,12 @@ export function InspectionStatusForm({
         <p className="field-hint">
           Confirm scheduling and staff availability before recording changes.
         </p>
-        <button className="button secondary">Review inspection change</button>
+        <button
+          className="button secondary"
+          disabled={admin && schedule && assigneeBlocked}
+        >
+          Review inspection change
+        </button>
       </fieldset>
     </form>
   );

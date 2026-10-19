@@ -12,6 +12,7 @@ import {
 } from "./product-media.schemas.js";
 import {
   adminCategoryListQuerySchema,
+  catalogEmptyQuerySchema,
   adminProductListQuerySchema,
   cartItemBodySchema,
   categoryCreateBodySchema,
@@ -159,6 +160,29 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       path: "/admin/catalog/categories",
       summary: "List all categories",
       query: adminCategoryListQuerySchema,
+      description:
+        "Admin/Super Admin with verified MFA. Private, no-store. Optional literal case-insensitive name-prefix search (1–120 characters) and isActive filter. Name/ID ascending; UUID cursor and limit 1–100 (default 25) remain supported. Reset cursor when filters change. Live pagination can move records after renames and does not promise a total or snapshot.",
+      secured: true,
+    },
+    {
+      method: "get",
+      path: "/admin/catalog/categories/{categoryId}",
+      summary: "Read a product category for administrator management",
+      description:
+        "Admin/Super Admin with verified MFA. Private, no-store. Includes inactive and empty categories independently of catalogue filters/pagination. No products, stock or customer data. Missing category returns 404; invalid UUID or nonempty query returns 422. Does not create an audit or change visibility.",
+      params: categoryParamsSchema,
+      query: catalogEmptyQuerySchema.removeDefault(),
+      response: responseSchema.extend({
+        data: z.object({
+          id: z.uuid(),
+          name: z.string(),
+          slug: z.string(),
+          description: z.string().nullable(),
+          isActive: z.boolean(),
+          createdAt: z.iso.datetime({ offset: true }),
+          updatedAt: z.iso.datetime({ offset: true }),
+        }),
+      }),
       secured: true,
     },
     {
@@ -174,6 +198,8 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "patch",
       path: "/admin/catalog/categories/{categoryId}",
       summary: "Update a category",
+      description:
+        "Admin/Super Admin with verified MFA and CSRF. Optional expectedUpdatedAt is a millisecond-precision ISO timestamp, checked under a category row lock in the audited transaction; stale input returns 409 without changes. New editors should always send it. Legacy requests without it remain supported without stale-snapshot protection. Every successful category edit advances updatedAt. Active products must be deactivated before their category; concurrent product creation/activation shares the category lock. No original-request receipt is provided.",
       params: categoryParamsSchema,
       body: categoryUpdateBodySchema,
       secured: true,
@@ -193,6 +219,16 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       secured: true,
     },
     {
+      method: "get",
+      path: "/admin/catalog/products/{productId}",
+      summary: "Get an administrator product independently of catalogue paging",
+      description:
+        "Admin or Super Admin with the existing staff MFA assurance. Includes inactive products and inactive categories, safe administrator media metadata, compatibility and branch availability booleans; no raw inventory quantities or storage keys. Private no-store. Strict UUID and empty query. Missing records return 404. The returned updatedAt can be supplied as expectedUpdatedAt on product updates.",
+      response: responseSchema.extend({ data: productResponseSchema }),
+      params: productParamsSchema,
+      secured: true,
+    },
+    {
       method: "post",
       path: "/admin/catalog/products",
       summary: "Create a product",
@@ -206,6 +242,8 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "patch",
       path: "/admin/catalog/products/{productId}",
       summary: "Update a product",
+      description:
+        "Admin or Super Admin with CSRF and existing MFA assurance. New editors supply expectedUpdatedAt from the direct administrator read. A mismatched timestamp returns 409 without changing the product or appending an audit. The comparison and update hold a product row lock; successful catalogue edits advance updatedAt by at least one millisecond. The precondition is optional for compatibility with existing clients; clients omitting it retain the existing update behavior and do not receive stale-snapshot protection. This is not an original-request receipt. Existing active-category, comparison-price and inventory-reservation rules remain authoritative.",
       response: responseSchema.extend({ data: productResponseSchema }),
       params: productParamsSchema,
       body: productUpdateBodySchema,

@@ -1,6 +1,6 @@
 # Media runtime deployment correction
 
-Reviewed 12 October 2026. Local checks passed; Linux container and deployed Spaces verification remain pending.
+Reviewed 12 October 2026. Local checks and Linux container verification passed; deployed Spaces verification remains pending.
 
 ## Changes
 
@@ -21,7 +21,13 @@ A further runtime probe imports the compiled API and both workers from the share
 - Backend type checking, lint and secret guard passed. The container test file passed Node syntax checking.
 - The compiled application/worker import, password and font probe passed in the isolated Windows production install with synthetic TLS configuration. An initial exploratory run timed out at 45 seconds; a diagnostic run revealed a probe assertion incorrectly expected an exported identity-worker entrypoint. The final probe checks the actual exported worker class and passed. No application change was needed for these checks.
 
-This Windows result does not establish Linux container success. Docker Desktop's Linux engine was unavailable, so the new container cases have not run. No images were pushed, no app was deployed, and no real storage credentials or application database records were changed.
+The Windows result alone did not establish Linux container success. An initial Linux/amd64 API build on 12 October was cancelled when C: free space fell from about 2.57 GiB to about 52 MiB. Buildx records that attempt as an error; its log remains `allied-container-api-build.log` in the OS temporary directory. A later connection attempt encountered Docker Desktop still starting; it did not build an image.
+
+After free disk space and the Linux engine became available, all four images (API, identity worker, general worker and migration job) built successfully for revision `5ea8822eae9b53f286dc6b854febea78d5e74440`, using matching full-SHA tags and revision labels. Backend runtime sources remained unchanged throughout the builds. `node --test scripts/deployment/images.test.mjs` then passed all eight cases with zero failures or skips, exit code zero. This verifies the commands, non-root user and certificate bootstrap in all four images, rejection of unsafe certificate inputs, Sharp PNG-to-WebP processing in API/general-worker images, and the application/worker import, password and font probe. Runtime probes used no network or database access.
+
+Successful logs are `allied-container-api-rebuild-ready.log`, `allied-container-identity-worker-rebuild.log`, `allied-container-general-worker-rebuild.log`, `allied-container-migrate-rebuild.log` and `allied-container-image-tests.log` in the OS temporary directory. No images were pushed, no app was deployed, and no real storage credentials or application database records were changed. Real Spaces behavior remains a separate release gate.
+
+The companion `node --test scripts/deployment/postgres.test.mjs` check also passed (one case, zero failures or skips, exit code zero). It exercised the staging SQL in an isolated PostgreSQL container, verifying runtime DML/default privileges and denial of runtime DDL. It used synthetic roles, no host ports or volumes, and removed its own container. Its report is `allied-container-postgres-tests.log` in the OS temporary directory; this does not certify privileges on a deployed database.
 
 ## Release requirements
 

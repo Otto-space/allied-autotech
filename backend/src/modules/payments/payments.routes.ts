@@ -21,6 +21,7 @@ import {
   paymentParamsSchema,
   paymentsEmptySchema,
   refundCreateBodySchema,
+  refundRecoveryQuerySchema,
   refundDecisionBodySchema,
   refundParamsSchema,
   staffPaymentListQuerySchema,
@@ -124,6 +125,19 @@ export function createStaffPaymentsRouter(): Router {
   const controller = new PaymentsController();
   router.use(authenticate(), requireAdministrator);
   router.get("/", validate({ query: staffPaymentListQuerySchema }), controller.staffList);
+  router.get(
+    "/refunds/original-request",
+    validate({
+      query: refundRecoveryQuerySchema,
+      headers: paymentIdempotencyHeadersSchema,
+    }),
+    controller.recoverRefund,
+  );
+  router.get(
+    "/:paymentId",
+    validate({ params: paymentParamsSchema, query: paymentsEmptySchema }),
+    controller.staffGet,
+  );
   router.post(
     "/manual-attempts/:attemptId/review",
     requireAdministrator,

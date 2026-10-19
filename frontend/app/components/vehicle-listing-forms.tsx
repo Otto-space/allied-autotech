@@ -10,6 +10,7 @@ import { positiveNaira } from "@/lib/forms/vehicle-record";
 import { nairaToKobo, koboToInput } from "@/lib/format/currency-input";
 import { formatKobo } from "@/lib/format/money";
 import { Feedback } from "./feedback";
+import { forgetStockFormDraft } from "@/lib/admin/work-vehicle-detail";
 import type { MutationProposal } from "./mutation-review";
 type ReviewProps = { disabled: boolean; onReview: (proposal: MutationProposal) => void };
 const listingFormSchema = z.object({
@@ -59,6 +60,14 @@ export function VehicleListingForm({
       ? { ...content, expectedVersion: listing.version }
       : { ...content, vehicleId, priceKobo: nairaToKobo(values.price) };
     onReview({
+      stockChange: {
+        kind: listing ? "listing" : "listing-create",
+        id: listing?.id,
+        expectedVersion: listing?.version,
+        expected: listing
+          ? content
+          : { ...content, vehicleId, priceKobo: nairaToKobo(values.price) },
+      },
       title: listing ? "Save listing details?" : "Create this draft listing?",
       description: listing
         ? "This updates customer-facing listing content. Asking-price and publication changes are reviewed separately."
@@ -67,11 +76,15 @@ export function VehicleListingForm({
         { label: "Title", value: content.title },
         { label: "Slug", value: content.slug },
         { label: "Featured", value: content.featured ? "Yes" : "No" },
+        { label: "Public description", value: content.description ?? "Not recorded" },
         ...(!listing
           ? [{ label: "Asking price", value: formatKobo(nairaToKobo(values.price)) }]
           : []),
       ],
       onUncertain: listing ? undefined : () => setUncertain(true),
+      onConfirmed: () => {
+        if (listing) setLoadedVersion(listing.version + 1);
+      },
       submit: () =>
         apiRequest(
           listing ? `/staff/vehicles/listings/${listing.id}` : "/staff/vehicles/listings",
@@ -98,7 +111,8 @@ export function VehicleListingForm({
             type="button"
             className="button secondary"
             disabled={disabled}
-            onClick={() => {
+            onClick={(event) => {
+              forgetStockFormDraft(event.currentTarget);
               form.reset({
                 title: listing.title,
                 slug: listing.slug,
@@ -211,6 +225,16 @@ export function VehicleListingPrice({
     };
     onReview({
       title: "Change the asking price?",
+      stockChange: {
+        kind: "listing",
+        id: listing.id,
+        expectedVersion: listing.version,
+        expected: { priceKobo },
+      },
+      onConfirmed: () => {
+        setLoadedVersion(listing.version + 1);
+        form.reset({ price: koboToInput(priceKobo), reason: "" });
+      },
       description:
         "This changes the listing price and records the reason in its history. It does not change negotiated purchase prices or confirm payment. Your account must have a staff profile.",
       facts: [
@@ -241,7 +265,8 @@ export function VehicleListingPrice({
             type="button"
             className="button secondary"
             disabled={disabled}
-            onClick={() => {
+            onClick={(event) => {
+              forgetStockFormDraft(event.currentTarget);
               form.reset({ price: koboToInput(listing.priceKobo), reason: "" });
               setLoadedVersion(listing.version);
               setError(undefined);
@@ -335,6 +360,12 @@ export function VehicleListingStatus({
         };
         onReview({
           title: "Change listing publication?",
+          stockChange: {
+            kind: "publication",
+            id: listing.id,
+            expectedVersion: listing.version,
+            expected: { status: target },
+          },
           description:
             target === "AVAILABLE"
               ? "This makes the listing available to customers while its branch is active. Check the description, price and vehicle details before publishing."

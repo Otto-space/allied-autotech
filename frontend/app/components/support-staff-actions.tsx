@@ -13,20 +13,25 @@ import {
 } from "@/lib/api/support-schemas";
 import { StaffPicker } from "./staff-picker";
 import { MutationReview, type MutationProposal } from "./mutation-review";
+import { forgetThreadFormDraft } from "@/lib/admin/work-support-detail";
 export function SupportStaffActions({
   record,
   base,
   disabled,
   onSaved,
   onUncertain,
+  onReview,
 }: {
   record: SupportRecord;
   base: string;
   disabled: boolean;
   onSaved: () => void;
   onUncertain: () => void;
+  onReview?: (proposal: MutationProposal) => void;
 }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
+  const [version, setVersion] = useState(record.version);
+  const changed = version !== record.version;
   const [assigneeLabel, setAssigneeLabel] = useState("");
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
@@ -50,87 +55,129 @@ export function SupportStaffActions({
         );
   if (record.status === "CLOSED")
     return <p>Closed records cannot be reassigned, reprioritized or reopened here.</p>;
+  function review(values: z.infer<typeof supportActionSchema>) {
+    if (disabled || proposal || changed) return;
+    const body = {
+      expectedVersion: version,
+      ...(values.action === "assignment"
+        ? { assignedStaffId: values.unassign ? null : values.staffId }
+        : values.action === "priority"
+          ? { priority: values.selection }
+          : {
+              status: values.selection,
+              ...(values.note
+                ? record.kind === "enquiries"
+                  ? { response: values.note }
+                  : { resolution: values.note }
+                : {}),
+            }),
+    };
+    let savedVersion: number | undefined;
+    (onReview ?? setProposal)({
+      supportChange: { kind: values.action, expectedVersion: version, body },
+      onConfirmed: () => {
+        if (savedVersion !== undefined) {
+          setVersion(savedVersion);
+          form.reset({
+            action: "status",
+            selection: "",
+            note: "",
+            staffId: "",
+            unassign: false,
+          });
+        }
+      },
+      title: "Apply this support change?",
+      description:
+        values.action === "status"
+          ? "Status changes and any resolution text are visible to the customer and can trigger notifications. Closing prevents further replies from both customers and staff; no reopening action is available here."
+          : "This updates the handling of the record. Branch and staff eligibility remain subject to the server's checks.",
+      facts: [
+        { label: "Subject", value: record.subject },
+        { label: "Change", value: values.action },
+        {
+          label: "New value",
+          value:
+            values.action === "assignment"
+              ? values.unassign
+                ? "Unassigned"
+                : assigneeLabel
+              : values.selection.toLowerCase().replaceAll("_", " "),
+        },
+        ...(values.action === "status" && values.note
+          ? [{ label: "Customer-visible response", value: values.note }]
+          : []),
+      ],
+      onUncertain,
+      retryAfterRejection: false,
+      submit: async () => {
+        const controller = new AbortController();
+        pending.current = controller;
+        try {
+          const response = await apiRequest(`${base}/${values.action}`, {
+            method: "POST",
+            csrf: true,
+            signal: controller.signal,
+            body,
+          });
+          const saved = parseSupportRecord(record.kind, true, response.data);
+          if (
+            saved.id !== record.id ||
+            saved.version !== version + 1 ||
+            (values.action === "status" && saved.status !== values.selection) ||
+            (values.action === "status" &&
+              values.selection === "RESOLVED" &&
+              saved.kind === "complaints" &&
+              saved.resolution !== values.note) ||
+            (values.action === "priority" &&
+              (saved.kind !== "complaints" || saved.priority !== values.selection)) ||
+            (values.action === "assignment" &&
+              saved.assignedStaffId !== (values.unassign ? null : values.staffId))
+          )
+            throw new Error("Unconfirmed support change");
+          savedVersion = saved.version;
+          return response;
+        } finally {
+          pending.current = null;
+        }
+      },
+    });
+  }
   return (
     <section className="detail-section" aria-labelledby="support-action-title">
       <h2 id="support-action-title">Manage this record</h2>
       <form
         data-draft-key={JSON.stringify(["support-staff-actions:1", record?.id, base])}
         noValidate
-        onSubmit={form.handleSubmit((values) => {
-          if (disabled || proposal) return;
-          const body = {
-            expectedVersion: record.version,
-            ...(values.action === "assignment"
-              ? { assignedStaffId: values.unassign ? null : values.staffId }
-              : values.action === "priority"
-                ? { priority: values.selection }
-                : {
-                    status: values.selection,
-                    ...(values.note
-                      ? record.kind === "enquiries"
-                        ? { response: values.note }
-                        : { resolution: values.note }
-                      : {}),
-                  }),
-          };
-          setProposal({
-            title: "Apply this support change?",
-            description:
-              values.action === "status"
-                ? "Status changes and any resolution text are visible to the customer and can trigger notifications. Closing prevents further replies from both customers and staff; no reopening action is available here."
-                : "This updates the handling of the record. Branch and staff eligibility remain subject to the server's checks.",
-            facts: [
-              { label: "Subject", value: record.subject },
-              { label: "Change", value: values.action },
-              {
-                label: "New value",
-                value:
-                  values.action === "assignment"
-                    ? values.unassign
-                      ? "Unassigned"
-                      : assigneeLabel
-                    : values.selection.toLowerCase().replaceAll("_", " "),
-              },
-              ...(values.action === "status" && values.note
-                ? [{ label: "Customer-visible response", value: values.note }]
-                : []),
-            ],
-            onUncertain,
-            retryAfterRejection: false,
-            submit: async () => {
-              const controller = new AbortController();
-              pending.current = controller;
-              try {
-                const response = await apiRequest(`${base}/${values.action}`, {
-                  method: "POST",
-                  csrf: true,
-                  signal: controller.signal,
-                  body,
-                });
-                const saved = parseSupportRecord(record.kind, true, response.data);
-                if (
-                  saved.id !== record.id ||
-                  saved.version !== record.version + 1 ||
-                  (values.action === "status" && saved.status !== values.selection) ||
-                  (values.action === "status" &&
-                    values.selection === "RESOLVED" &&
-                    saved.kind === "complaints" &&
-                    saved.resolution !== values.note) ||
-                  (values.action === "priority" &&
-                    (saved.kind !== "complaints" ||
-                      saved.priority !== values.selection)) ||
-                  (values.action === "assignment" &&
-                    saved.assignedStaffId !== (values.unassign ? null : values.staffId))
-                )
-                  throw new Error("Unconfirmed support change");
-              } finally {
-                pending.current = null;
-              }
-            },
-          });
-        })}
+        onSubmit={(event) => void form.handleSubmit(review)(event)}
       >
-        <fieldset disabled={disabled}>
+        {changed && (
+          <div className="notice">
+            <p>
+              This conversation changed. Your unsaved management fields are kept; reload
+              them before reviewing another change.
+            </p>
+            <button
+              type="button"
+              className="button secondary"
+              disabled={disabled}
+              onClick={(event) => {
+                forgetThreadFormDraft(event.currentTarget);
+                setVersion(record.version);
+                form.reset({
+                  action: "status",
+                  selection: "",
+                  note: "",
+                  staffId: "",
+                  unassign: false,
+                });
+              }}
+            >
+              Reload management fields
+            </button>
+          </div>
+        )}
+        <fieldset disabled={disabled || changed}>
           <div className="field">
             <label htmlFor="support-action">Action</label>
             <select

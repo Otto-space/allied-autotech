@@ -1,0 +1,199 @@
+.work-support-detail {
+  min-width: 0;
+}
+.wst-actions,
+.wst-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.wst-badges {
+  font-size: 12px;
+  margin-top: 12px;
+}
+.work-support-detail .wi-header > div {
+  min-width: 0;
+}
+.work-support-detail .wi-header h1,
+.work-support-detail .wi-breadcrumb span {
+  overflow-wrap: anywhere;
+}
+.wst-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  border-bottom: 1px solid #d5dfe8;
+  padding-bottom: 12px;
+  margin-bottom: 22px;
+}
+.wst-sections a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.wst-overview {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+}
+.wst-facts {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+.wst-facts > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.7fr) minmax(0, 1.3fr);
+  gap: 14px;
+  min-width: 0;
+}
+.wst-facts dt {
+  font-size: 12px;
+  color: #405566;
+}
+.wst-facts dd {
+  margin: 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wst-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.wst-workspace > div,
+.wst-workspace > aside {
+  min-width: 0;
+}
+.dashboard .dashboard-content .work-support-detail .detail-section {
+  background: white;
+  border: 1px solid #d5dfe8;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: none;
+  width: 100%;
+  margin: 0 0 20px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .work-support-detail :is(.wi-card, .detail-section) > h2 {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+.work-support-detail :is(input, select, textarea, label) {
+  font-family: inherit;
+  font-size: 13px;
+}
+.work-support-detail fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.wst-message-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.dashboard .dashboard-content .work-support-detail .wst-message-header h2 {
+  font-size: 16px;
+  margin: 0;
+}
+.dashboard .dashboard-content .work-support-detail .wst-meta {
+  font-size: 12px;
+  color: #405566;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wst-messages {
+  display: grid;
+  gap: 14px;
+  margin: 16px 0;
+}
+.wst-message {
+  border: 1px solid #dbe3eb;
+  border-radius: 10px;
+  padding: 16px;
+  background: #f8fafc;
+  overflow-wrap: anywhere;
+}
+.wst-message header {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: start;
+  flex-wrap: wrap;
+}
+.dashboard .dashboard-content .work-support-detail .wst-message h3 {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.6;
+}
+.dashboard .dashboard-content .work-support-detail .wst-message p {
+  margin: 10px 0 0;
+}
+.work-support-detail .wst-internal {
+  background: #fff9ec;
+  border-color: #d9c590;
+}
+.work-support-detail .preserve-lines {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.work-support-detail .notice {
+  margin: 16px 0;
+}
+.work-support-detail .totals {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.work-support-detail .totals .spec-row {
+  display: block;
+}
+.work-support-detail .totals dd {
+  margin: 6px 0 18px;
+}
+.work-support-detail .mutation-review .totals .spec-row {
+  display: flex;
+}
+.work-support-detail .mutation-review .totals .spec-row dd {
+  margin: 0;
+}
+.wst-confirmed {
+  margin-top: 20px;
+}
+@media (max-width: 1180px) {
+  .wst-workspace,
+  .wst-overview {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 650px) {
+  .wst-actions {
+    width: 100%;
+  }
+  .wst-actions .button {
+    flex: 1 1 160px;
+  }
+  .wst-facts > div {
+    grid-template-columns: minmax(85px, 0.7fr) minmax(0, 1.3fr);
+    gap: 10px;
+  }
+  .dashboard .dashboard-content .work-support-detail .detail-section {
+    padding: 16px;
+  }
+  .wst-message {
+    padding: 14px;
+  }
+  .work-support-detail .mutation-review .totals .spec-row {
+    display: block;
+  }
+  .work-support-detail .mutation-review .totals .spec-row dd {
+    margin-top: 8px;
+  }
+}

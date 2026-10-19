@@ -92,6 +92,7 @@ import {
 } from "../modules/notifications/notifications.index.js";
 import { createAuditOperationsRouter } from "../modules/audit/audit.index.js";
 import { createOverviewRouter } from "../modules/overview/overview.routes.js";
+import { createWorkforceRouter } from "../modules/organization/workforce.routes.js";
 
 export interface ApiRouterOptions {
   checkReadiness: ReadinessCheck;
@@ -101,6 +102,7 @@ import { createDisputesRouter } from "../modules/payments/disputes.routes.js";
 
 export function createApiRouter(options: ApiRouterOptions): Router {
   const apiRouter = Router();
+  apiRouter.use(createWorkforceRouter());
   apiRouter.use(createPoliciesRouter());
   apiRouter.use(createPrivacyRouter());
   apiRouter.use(createOrderAftercareRouter());

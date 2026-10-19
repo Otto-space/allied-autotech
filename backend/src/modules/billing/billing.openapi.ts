@@ -7,6 +7,7 @@ import {
   invoiceParamsSchema,
   invoiceTransitionBodySchema,
   staffInvoiceListQuerySchema,
+  invoiceSourceListQuerySchema,
 } from "./billing.schemas.js";
 const response = z.object({
   success: z.boolean(),
@@ -17,6 +18,21 @@ const response = z.object({
 const headers = z.object({ "x-csrf-token": z.string().min(32) });
 export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
   registerFinancialDocumentsOpenApi(registry);
+  registry.registerPath({
+    method: "get",
+    path: "/staff/invoices/sources",
+    summary: "List minimal eligible invoice sources",
+    description:
+      "Admin/Super Admin with verified MFA only. Private no-store and minimally audited. Search matches literal case-insensitive order-number, service-name or transaction-number/listing-title prefixes, or an exact source UUID. Exact sourceId resolves a restored selection independently of paging. Responses omit customer contacts and prices; creation independently checks policy, eligibility and server pricing.",
+    security: [{ sessionCookie: [] }],
+    request: { query: invoiceSourceListQuerySchema },
+    responses: {
+      200: {
+        description: "Minimal source choices",
+        content: { "application/json": { schema: response } },
+      },
+    },
+  });
   for (const [path, query] of [
     ["/customers/invoices", customerInvoiceListQuerySchema],
     ["/staff/invoices", staffInvoiceListQuerySchema],
@@ -26,7 +42,7 @@ export function registerBillingOpenApi(registry: OpenAPIRegistry): void {
       path,
       summary: "List authorized invoices",
       description: path.startsWith("/staff/")
-        ? "ADMIN or SUPER_ADMIN with verified MFA only; STAFF is denied."
+        ? "ADMIN or SUPER_ADMIN with verified MFA only; STAFF is denied. Private no-store, with minimal read audits. Supports exact invoiceNumber, customerId, branchId, source type and source UUID, status and newest-first cursor paging. A source UUID requires its type."
         : "Customer-owned issued invoices only.",
       security: [{ sessionCookie: [] }],
       request: { query },

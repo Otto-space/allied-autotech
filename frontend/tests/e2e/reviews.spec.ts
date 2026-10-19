@@ -108,6 +108,22 @@ async function fixture(page: Page, role = "CUSTOMER") {
       });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-review-csrf-".repeat(3) });
+    if (endpoint === "/staff/profile") {
+      state.reads.push(endpoint);
+      return reply(route, {
+        id: id(11),
+        email: "review@example.test",
+        role,
+        status: "ACTIVE",
+        capabilities: [],
+        staffProfile: {
+          id: id(50),
+          firstName: "Test",
+          lastName: "Moderator",
+          branchId: null,
+        },
+      });
+    }
     if (request.method() === "GET") {
       state.reads.push(endpoint + url.search);
       if (endpoint.includes("/support/reviews")) {
@@ -124,9 +140,18 @@ async function fixture(page: Page, role = "CUSTOMER") {
           )
           .map((row) => ({
             ...row,
+            orderItem: null,
+            order: null,
+            booking: null,
+            vehicleTransaction: null,
             customer: { firstName: "Test", lastName: "Customer" },
             moderationNote: row.moderationNote ?? "Private moderation detail",
           }));
+        if (/^\/staff\/support\/reviews\/[^/]+$/.test(endpoint))
+          return reply(
+            route,
+            items.find((item) => item.id === endpoint.split("/").at(-1)),
+          );
         return reply(route, {
           items: url.searchParams.has("cursor") ? [] : items,
           ...(state.pagination && !url.searchParams.has("cursor")
@@ -168,6 +193,8 @@ async function fixture(page: Page, role = "CUSTOMER") {
         ...row,
         status: body.decision,
         moderationNote: body.note ?? null,
+        moderatedAt: "2026-09-18T10:00:37.123Z",
+        updatedAt: "2026-09-18T10:00:37.123Z",
         version: row.version + 1,
       }));
       return reply(route, state.contradictory ? row() : state.rows[0]);
@@ -305,11 +332,19 @@ test("submission list filters paginate and recover failed reads without false em
   await expect(page.getByText("No reviews match this page and status.")).toBeVisible();
   expect(state.reads.at(-1)).toContain("cursor=");
 });
+async function openModeration(page: Page) {
+  await page
+    .getByRole("button", { name: "Review decision", exact: true })
+    .first()
+    .click();
+  await expect(page.getByLabel("Decision", { exact: true })).toBeVisible();
+}
 test("administrator rejects with a required customer-visible reason and exact version", async ({
   page,
 }) => {
   const state = await fixture(page, "ADMIN");
   await page.goto("/admin/reviews");
+  await openModeration(page);
   await page.getByLabel("Decision", { exact: true }).selectOption("REJECTED");
   await page.getByRole("button", { name: "Review moderation decision" }).click();
   await expect(
@@ -328,6 +363,11 @@ test("administrator rejects with a required customer-visible reason and exact ve
     note: "Please remove personal contact details.",
   });
   await page.getByLabel("Review status", { exact: true }).selectOption("REJECTED");
+  await page
+    .getByRole("button", { name: "Apply moderation filters", exact: true })
+    .click();
+  await expect(page).toHaveURL(/status=REJECTED/);
+  await expect(page.locator(".wm-reviews>.wm-review")).toHaveCount(1);
   await expect(
     page.getByRole("button", { name: "Review moderation decision" }),
   ).toHaveCount(0);
@@ -339,6 +379,7 @@ for (const mode of ["stale", "unknown", "contradictory"] as const)
     const state = await fixture(page, "SUPER_ADMIN");
     state[mode] = true;
     await page.goto("/admin/reviews");
+    await openModeration(page);
     await page.getByRole("button", { name: "Review moderation decision" }).click();
     await page.getByRole("button", { name: "Confirm change", exact: true }).click();
     await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
@@ -467,6 +508,7 @@ test("approval publishes feedback and keeps private moderation details off the p
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/admin/reviews");
   await expect(page.getByRole("heading", { name: "Isolated review" })).toBeVisible();
+  await openModeration(page);
   expect(
     (
       await new AxeBuilder({ page })
@@ -489,7 +531,10 @@ test("approval publishes feedback and keeps private moderation details off the p
   await page.getByRole("button", { name: "Review moderation decision" }).click();
   await page.getByRole("button", { name: "Confirm change", exact: true }).click();
   await expect(
-    page.getByText("Moderation decision saved.", { exact: true }),
+    page.getByText(
+      "Moderation decision saved. Review the exact saved decision and customer-visible note below.",
+      { exact: true },
+    ),
   ).toBeVisible();
   expect(state.writes[0].body).toEqual({ expectedVersion: 0, decision: "APPROVED" });
   await page.goto("/reviews");

@@ -56,6 +56,11 @@ export const helpArticleGuidance: Record<string, readonly string[]> = {
     "The supported authenticator app or security key you want to use",
     "A private place to keep newly issued recovery codes",
   ],
+  "lost-authenticator": [
+    "Check privately whether you have an unused recovery code or another linked security key",
+    "Keep access to any browser session that has already passed MFA verification",
+    "If you contact customer care, explain what happened without sending passwords, setup keys or recovery codes",
+  ],
   "follow-a-support-request": [
     "Your existing request reference",
     "The request status currently shown in your account",

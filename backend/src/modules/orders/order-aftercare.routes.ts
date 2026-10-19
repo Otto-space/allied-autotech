@@ -31,13 +31,33 @@ export function createOrderAftercareRouter() {
     validate({ params: aftercareParams }),
     async (req, res) => {
       const { id } = res.locals.validated!["params"] as z.infer<typeof aftercareParams>;
-      res.json(
-        successResponse(
-          "Order review requests",
-          req.id,
-          jsonSafe(await service.staffList(req.actor!, id)),
-        ),
-      );
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Order review requests",
+            req.id,
+            jsonSafe(await service.staffList(req.actor!, id)),
+          ),
+        );
+    },
+  );
+  router.get(
+    "/staff/order-requests/:id",
+    authenticate(),
+    requireStaff,
+    validate({ params: aftercareParams }),
+    async (req, res) => {
+      const { id } = res.locals.validated!["params"] as z.infer<typeof aftercareParams>;
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Order review request",
+            req.id,
+            jsonSafe(await service.staffRequest(req.actor!, id)),
+          ),
+        );
     },
   );
   router.get(
@@ -47,13 +67,15 @@ export function createOrderAftercareRouter() {
     validate({ params: aftercareParams }),
     async (req, res) => {
       const { id } = res.locals.validated!["params"] as z.infer<typeof aftercareParams>;
-      res.json(
-        successResponse(
-          "Order requests",
-          req.id,
-          jsonSafe(await service.list(req.actor!, id)),
-        ),
-      );
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Order requests",
+            req.id,
+            jsonSafe(await service.list(req.actor!, id)),
+          ),
+        );
     },
   );
   router.post(
@@ -127,19 +149,21 @@ export function createOrderAftercareRouter() {
     async (req, res) => {
       const { id } = res.locals.validated!["params"] as z.infer<typeof aftercareParams>,
         input = res.locals.validated!["body"] as z.infer<typeof fulfillmentEvidenceBody>;
-      res.json(
-        successResponse(
-          "Fulfillment evidence recorded",
-          req.id,
-          await service.fulfillmentEvidence(
-            req.actor!,
-            id,
-            input.at,
-            input.reference,
-            context(req),
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Fulfillment evidence recorded",
+            req.id,
+            await service.fulfillmentEvidence(
+              req.actor!,
+              id,
+              input.at,
+              input.reference,
+              context(req),
+            ),
           ),
-        ),
-      );
+        );
     },
   );
   router.post(
@@ -151,13 +175,15 @@ export function createOrderAftercareRouter() {
     async (req, res) => {
       const { id } = res.locals.validated!["params"] as z.infer<typeof aftercareParams>,
         input = res.locals.validated!["body"] as z.infer<typeof aftercareReviewBody>;
-      res.json(
-        successResponse(
-          "Order request reviewed",
-          req.id,
-          jsonSafe(await service.process(req.actor!, id, input, context(req))),
-        ),
-      );
+      res
+        .set("Cache-Control", "private, no-store")
+        .json(
+          successResponse(
+            "Order request reviewed",
+            req.id,
+            jsonSafe(await service.process(req.actor!, id, input, context(req))),
+          ),
+        );
     },
   );
   return router;

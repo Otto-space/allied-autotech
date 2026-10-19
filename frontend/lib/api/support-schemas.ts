@@ -59,8 +59,16 @@ const contact = z.object({
   phone: z.string().nullable(),
   customerId: ref,
 });
+const complaintContact = contact.extend({
+  name: z.string().nullable(),
+  email: z.string().nullable(),
+});
 export function parseSupportRecord(kind: SupportKind, staff: boolean, value: unknown) {
-  const common = { contact: staff ? contact.parse(value) : null };
+  const common = {
+    contact: staff
+      ? (kind === "complaints" ? complaintContact : contact).parse(value)
+      : null,
+  };
   if (kind === "enquiries") {
     const record = enquiry.parse(value);
     return { ...record, ...common, kind, text: record.message };

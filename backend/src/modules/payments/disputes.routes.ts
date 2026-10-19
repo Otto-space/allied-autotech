@@ -10,6 +10,11 @@ import {
   disputeActionBodies,
   disputeRecordSelect,
   disputeRecord,
+  disputeIdParams,
+  disputeEmptyQuery,
+  disputeOperatorQuery,
+  operatorSelect,
+  operatorLabel,
 } from "./disputes.schemas.js";
 import { z } from "zod";
 import { authenticate } from "../../common/middleware/authenticate.js";
@@ -48,26 +53,51 @@ async function authorized(
 export function createDisputesRouter() {
   const router = Router();
   router.use(authenticate(), requireStaff);
+  router.use((_req, res, next) => {
+    res.set("Cache-Control", "private, no-store");
+    next();
+  });
   router.get("/", validate({ query: disputeListSchema }), async (req, res) => {
-    await assertCapability(prisma, req.actor!, "DISPUTE_MANAGE");
     const query = res.locals.validated!["query"] as z.infer<typeof disputeListSchema>;
-    const items = await prisma.paymentDispute.findMany({
-      where: {
-        ...(query.openOnly === "true" ? { resolvedAt: null } : {}),
-        ...(req.actor!.role === "STAFF"
-          ? {
-              OR: [
-                { primaryUserId: req.actor!.userId },
-                { backupUserId: req.actor!.userId },
-              ],
-            }
-          : {}),
+    const items = await prisma.$transaction(
+      async (tx) => {
+        await assertCapability(tx, req.actor!, "DISPUTE_MANAGE");
+        const rows = await tx.paymentDispute.findMany({
+          where: {
+            ...(query.openOnly === "true" ? { resolvedAt: null } : {}),
+            ...(req.actor!.role === "STAFF"
+              ? {
+                  OR: [
+                    { primaryUserId: req.actor!.userId },
+                    { backupUserId: req.actor!.userId },
+                  ],
+                }
+              : {}),
+          },
+          select: disputeRecordSelect,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          take: query.limit + 1,
+          ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+        });
+        await appendAuditEvent(tx, {
+          actorUserId: req.actor!.userId,
+          action: "READ",
+          entityType: "DISPUTE",
+          entityId: null,
+          newValues: {
+            resource: "DISPUTE_WORK_QUEUE",
+            returnedCount: Math.min(rows.length, query.limit),
+          },
+          context: {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          },
+        });
+        return rows;
       },
-      select: disputeRecordSelect,
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      take: query.limit + 1,
-      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
-    });
+      { isolationLevel: "RepeatableRead" },
+    );
     res.json(
       successResponse("Assigned disputes", req.id, {
         items: items.slice(0, query.limit).map(disputeRecord),
@@ -75,6 +105,111 @@ export function createDisputesRouter() {
       }),
     );
   });
+  router.get(
+    "/operators",
+    validate({ query: disputeOperatorQuery }),
+    async (req, res) => {
+      const actor = req.actor!,
+        query = res.locals.validated!["query"] as z.infer<typeof disputeOperatorQuery>;
+      if (actor.role === "STAFF") throw paymentForbidden();
+      const result = await prisma.$transaction(
+        async (tx) => {
+          await assertCapability(tx, actor, "DISPUTE_MANAGE");
+          const rows = await tx.user.findMany({
+            where: {
+              role: { not: "CUSTOMER" },
+              status: "ACTIVE",
+              emailVerifiedAt: { not: null },
+              owner_UserCapability_userId: {
+                some: { capability: "DISPUTE_MANAGE", revokedAt: null },
+              },
+              ...(query.q
+                ? {
+                    OR: [
+                      { email: { contains: query.q, mode: "insensitive" as const } },
+                      {
+                        staffProfile: {
+                          firstName: { contains: query.q, mode: "insensitive" as const },
+                        },
+                      },
+                      {
+                        staffProfile: {
+                          lastName: { contains: query.q, mode: "insensitive" as const },
+                        },
+                      },
+                    ],
+                  }
+                : {}),
+            },
+            select: operatorSelect,
+            orderBy: { id: "asc" },
+            take: query.limit + 1,
+            ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+          });
+          const items = rows.slice(0, query.limit).map((row) => operatorLabel(row)!);
+          await appendAuditEvent(tx, {
+            actorUserId: actor.userId,
+            action: "READ",
+            entityType: "DISPUTE",
+            entityId: null,
+            newValues: {
+              resource: "DISPUTE_ELIGIBLE_OPERATORS",
+              returnedCount: items.length,
+            },
+            context: {
+              requestId: String(req.id),
+              ipAddress: req.ip ?? null,
+              userAgent: req.get("user-agent") ?? null,
+            },
+          });
+          return {
+            items,
+            nextCursor: rows.length > query.limit ? items.at(-1)!.id : null,
+          };
+        },
+        { isolationLevel: "RepeatableRead" },
+      );
+      res.json(successResponse("Eligible dispute operators", req.id, result));
+    },
+  );
+  router.get(
+    "/:id",
+    validate({ params: disputeIdParams, query: disputeEmptyQuery }),
+    async (req, res) => {
+      const actor = req.actor!,
+        { id } = res.locals.validated!["params"] as z.infer<typeof disputeIdParams>;
+      const record = await prisma.$transaction(
+        async (tx) => {
+          await assertCapability(tx, actor, "DISPUTE_MANAGE");
+          const row = await tx.paymentDispute.findUnique({
+            where: { id },
+            select: disputeRecordSelect,
+          });
+          if (!row) throw paymentNotFound();
+          if (
+            actor.role === "STAFF" &&
+            ![row.primaryUserId, row.backupUserId].includes(actor.userId)
+          )
+            throw paymentForbidden();
+          await appendAuditEvent(tx, {
+            actorUserId: actor.userId,
+            action: "READ",
+            entityType: "DISPUTE",
+            entityId: id,
+            newValues: { resource: "DISPUTE_CURRENT" },
+            context: {
+              requestId: String(req.id),
+              ipAddress: req.ip ?? null,
+              userAgent: req.get("user-agent") ?? null,
+            },
+          });
+          return disputeRecord(row);
+        },
+        { isolationLevel: "RepeatableRead" },
+      );
+      res.json(successResponse("Current dispute", req.id, record));
+    },
+  );
   router.post(
     "/:id/:action",
     requireCsrf,
@@ -82,6 +217,7 @@ export function createDisputesRouter() {
       const params = disputeActionParams.safeParse(req.params);
       validate({
         params: disputeActionParams,
+        query: disputeEmptyQuery,
         ...(params.success ? { body: disputeActionBodies[params.data.action] } : {}),
       })(req, res, next);
     },

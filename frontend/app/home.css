@@ -120,39 +120,6 @@
 .home-page .home-services__all {
   margin-top: 12px;
 }
-.home-page .service-journey {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 22px;
-  margin-block: 28px;
-}
-.home-page .service-journey li {
-  border: 0;
-  padding: 0;
-}
-.home-page .service-journey li::before {
-  content: "";
-  position: absolute;
-  left: 44px;
-  right: 0;
-  top: 17px;
-  border-top: 1px solid var(--line);
-}
-.home-page .journey-number {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--brand-red);
-  color: white;
-  margin-bottom: 16px;
-}
-.home-page .service-journey h3 {
-  font-size: 15px;
-}
-.home-page .service-journey p {
-  font-size: 13px;
-}
 .home-page .trust-layout {
   grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
   gap: var(--home-gap);
@@ -392,33 +359,6 @@
 .home-page .home-feedback__empty p {
   margin: 0;
 }
-.home-page .home-feedback__refresh {
-  margin-top: 18px;
-  font-size: 13px;
-  min-height: 40px;
-}
-.home-page .review-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-.home-page .review-card {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 4px 16px #01121a05;
-  min-width: 0;
-}
-.home-page .review-card:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-}
-.home-page .review-card h3 {
-  font-size: 16px;
-}
-.home-page .review-card .review-comment {
-  overflow-wrap: anywhere;
-}
 .home-page .home-faq {
   gap: var(--home-gap);
 }
@@ -468,9 +408,6 @@
   .home-page .home-vehicle-card .product-media {
     aspect-ratio: 16 / 9;
     min-height: 0;
-  }
-  .home-page .service-journey {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .home-page .home-services__layout {
     grid-template-columns: minmax(0, 0.65fr) minmax(0, 1.35fr);
@@ -551,33 +488,8 @@
 @media (max-width: 540px) {
   .home-page .home-vehicle-grid,
   .home-page .home-product-grid,
-  .home-page .principles-list,
-  .home-page .review-grid {
+  .home-page .principles-list {
     grid-template-columns: 1fr;
-  }
-  .home-page .service-journey {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .home-page .service-journey li {
-    padding: 0 0 24px 52px;
-    min-height: 76px;
-  }
-  .home-page .service-journey li::before {
-    top: 40px;
-    bottom: 7px;
-    left: 16px;
-    right: auto;
-    border-top: 0;
-    border-left: 1px solid var(--line);
-  }
-  .home-page .service-journey li:last-child::before {
-    display: none;
-  }
-  .home-page .journey-number {
-    position: absolute;
-    left: 0;
-    top: 0;
   }
   .home-page .home-product-card {
     display: grid;

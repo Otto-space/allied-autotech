@@ -73,6 +73,20 @@ async function fixture(page: Page, role = "ADMIN") {
         expiresAt: "2027-01-01T00:00:00Z",
         idleExpiresAt: "2027-01-01T00:00:00Z",
       });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(11),
+        email: "test@example.test",
+        role,
+        status: "ACTIVE",
+        capabilities: [],
+        staffProfile: {
+          id: id(12),
+          firstName: "Synthetic",
+          lastName: "Promotion",
+          branchId: id(20),
+        },
+      });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-promotion-csrf".repeat(3) });
     if (endpoint === "/public/branches") return reply(route, { items: [branch] });
@@ -167,14 +181,18 @@ async function fixture(page: Page, role = "ADMIN") {
     };
     return reply(
       route,
-      state.contradictory ? { ...state.item, code: "WRONG-CODE" } : state.item,
+      state.contradictory
+        ? { ...state.item, code: "WRONG-CODE", replayed: false }
+        : { ...state.item, ...(request.method() === "POST" ? { replayed: false } : {}) },
       request.method() === "POST" ? 201 : 200,
     );
   });
   return state;
 }
 const confirm = (page: Page) =>
-  page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
+  page
+    .getByRole("dialog")
+    .getByRole("button", { name: /^(Confirm change|Create promotion)$/ });
 async function fillCreate(page: Page) {
   await page.goto("/admin/promotions/new");
   await page.getByLabel("Promotion name", { exact: true }).fill("New isolated promotion");
@@ -192,7 +210,9 @@ for (const destination of [
     const state = await fixture(page, "STAFF");
     await page.goto(destination);
     await expect(page.getByText(/Administrator access is required/)).toBeVisible();
-    expect(state.reads).toEqual([]);
+    expect(
+      state.reads.filter((value) => value.startsWith("/api/v1/admin/promotions")),
+    ).toEqual([]);
     expect(state.writes).toEqual([]);
   });
 test("promotion list separates errors, filters and cursor pages without inventing usage totals", async ({
@@ -205,12 +225,15 @@ test("promotion list separates errors, filters and cursor pages without inventin
   await expect(page.getByRole("heading", { name: "No promotions yet" })).toHaveCount(0);
   state.failList = false;
   await page.getByRole("button", { name: "Refresh promotions" }).click();
-  await expect(page.getByRole("heading", { name: "Isolated promotion" })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Manage Isolated promotion" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect
     .poll(() => state.reads.some((value) => value.includes("cursor=")))
     .toBe(true);
   await page.getByLabel("Configuration filter").selectOption("true");
+  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "No matching promotions" }),
   ).toBeVisible();
@@ -327,7 +350,7 @@ test("stale versions preserve the draft until explicit reload", async ({ page })
   );
 });
 for (const outcome of ["unknown", "contradictory"] as const)
-  test(`${outcome} promotion creation cannot be acknowledged or resent`, async ({
+  test(`${outcome} promotion creation requires its original recovery reference`, async ({
     page,
   }) => {
     const state = await fixture(page);
@@ -335,7 +358,9 @@ for (const outcome of ["unknown", "contradictory"] as const)
     state[outcome] = true;
     await page.getByRole("button", { name: "Review promotion", exact: true }).click();
     await confirm(page).click();
-    await expect(confirm(page)).toBeDisabled();
+    await expect(
+      page.getByRole("button", { name: "Retry same request", exact: true }),
+    ).toBeEnabled();
     await page.getByRole("button", { name: "Close & review record" }).click();
     await expect(
       page.getByRole("heading", { name: "Promotion created", exact: true }),

@@ -14,6 +14,9 @@ export function OperationActionForm({
   uncertain,
   onReview,
   proposal,
+  reviewLabel,
+  reasonLabel,
+  optionLabel,
 }: {
   id: string;
   revision: string;
@@ -24,6 +27,9 @@ export function OperationActionForm({
   uncertain: boolean;
   onReview: (proposal: MutationProposal) => void;
   proposal: (values: { status: string; reason: string }) => MutationProposal;
+  reviewLabel?: string;
+  reasonLabel?: string;
+  optionLabel?: (value: string) => string;
 }) {
   const [draftRevision, setDraftRevision] = useState(revision);
   const form = useForm({
@@ -80,14 +86,14 @@ export function OperationActionForm({
             <select id={`${id}-status`} {...form.register("status")}>
               {options.map((value) => (
                 <option key={value} value={value}>
-                  {value.replaceAll("_", " ")}
+                  {optionLabel?.(value) ?? value.replaceAll("_", " ")}
                 </option>
               ))}
             </select>
           </div>
         )}
         <div className="field">
-          <label htmlFor={`${id}-reason`}>{label} reason</label>
+          <label htmlFor={`${id}-reason`}>{reasonLabel ?? `${label} reason`}</label>
           <textarea
             id={`${id}-reason`}
             {...form.register("reason")}
@@ -102,7 +108,9 @@ export function OperationActionForm({
             </p>
           )}
         </div>
-        <button className="button secondary">Review {label.toLowerCase()}</button>
+        <button className="button secondary">
+          {reviewLabel ?? `Review ${label.toLowerCase()}`}
+        </button>
       </fieldset>
     </form>
   );

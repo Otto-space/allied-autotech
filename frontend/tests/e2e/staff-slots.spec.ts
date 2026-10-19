@@ -45,6 +45,7 @@ test("staff without a profile cannot publish appointment slots", async ({ page }
         email: "staff@example.test",
         role: "STAFF",
         status: "ACTIVE",
+        capabilities: [],
         staffProfile: null,
       });
     return reply(route, { items: [] });
@@ -53,7 +54,7 @@ test("staff without a profile cannot publish appointment slots", async ({ page }
   await expect(
     page.getByText("A staff profile is required", { exact: false }),
   ).toBeVisible();
-  await expect(page.getByRole("button", { name: "Review new slot" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Review new slot" })).toHaveCount(0);
 });
 for (const { role, loseResponse } of [
   { role: "STAFF", loseResponse: false },
@@ -101,6 +102,7 @@ for (const { role, loseResponse } of [
             email: "staff@example.test",
             role,
             status: "ACTIVE",
+            capabilities: [],
             staffProfile: role === "STAFF" ? { ...staff, branchId: branch.id } : null,
           });
         if (endpoint === "/admin/staff")
@@ -111,11 +113,13 @@ for (const { role, loseResponse } of [
                 email: "technician@example.test",
                 role: "STAFF",
                 status: "ACTIVE",
+                capabilities: [],
                 staffProfile: { ...staff, branchId: branch.id },
               },
             ],
           });
         if (endpoint === "/staff/bookings") return reply(route, { items: [] });
+        if (endpoint === `/public/branches/${branch.id}`) return reply(route, branch);
         if (endpoint === "/public/branches") return reply(route, { items: [branch] });
         if (endpoint === "/public/services")
           return reply(route, {
@@ -187,7 +191,9 @@ for (const { role, loseResponse } of [
         page.getByRole("button", { name: "Close slot", exact: true }),
       ).toHaveCount(0);
       await page.getByRole("button", { name: "Review new slot" }).click();
-      await expect(page.getByLabel("Appointment branch")).toBeFocused();
+      await expect(
+        page.getByLabel(role === "STAFF" ? "Appointment service" : "Appointment branch"),
+      ).toBeFocused();
       await page.getByLabel("Appointment branch").selectOption(branch.id);
       await expect(
         page.getByLabel("Appointment service").locator(`option[value='${id(9)}']`),
@@ -238,6 +244,7 @@ for (const { role, loseResponse } of [
       expect(creates).toBe(1);
       expect(updates).toBe(1);
       await page.getByLabel("Slot status").selectOption("CLOSED");
+      await page.getByRole("button", { name: "Apply filters", exact: true }).click();
       await expect(page.getByRole("row")).toHaveCount(2);
       await page.setViewportSize({ width: 320, height: 740 });
       expect(

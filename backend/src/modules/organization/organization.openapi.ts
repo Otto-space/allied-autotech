@@ -3,6 +3,10 @@ import { z, type ZodType } from "zod";
 
 import { publicApiPaths } from "../../common/contracts/public-api.js";
 import {
+  teamCandidateResponseSchema,
+  teamInvitationResponseSchema,
+} from "./team-access.schemas.js";
+import {
   adminBranchListQuerySchema,
   branchCreateBodySchema,
   branchParamsSchema,
@@ -132,6 +136,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       summary: "List branches",
       secured: true,
       query: adminBranchListQuerySchema,
+      response: publicBranchListResponseSchema,
     },
     {
       method: "post",
@@ -141,6 +146,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       secured: true,
       csrf: true,
       body: branchCreateBodySchema,
+      response: publicBranchResponseSchema,
     },
     {
       method: "get",
@@ -148,6 +154,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       summary: "Get a branch",
       secured: true,
       params: branchParamsSchema,
+      response: publicBranchResponseSchema,
     },
     {
       method: "patch",
@@ -157,6 +164,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       csrf: true,
       params: branchParamsSchema,
       body: branchUpdateBodySchema,
+      response: publicBranchResponseSchema,
     },
     {
       method: "get",
@@ -164,6 +172,12 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       summary: "List privileged users",
       secured: true,
       query: staffListQuerySchema,
+      response: responseSchema.extend({
+        data: z.object({
+          items: z.array(ownStaffResponseSchema.shape.data.omit({ capabilities: true })),
+          nextCursor: z.uuid().optional(),
+        }),
+      }),
     },
     {
       method: "get",
@@ -171,6 +185,9 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       summary: "Get a privileged user",
       secured: true,
       params: staffParamsSchema,
+      response: responseSchema.extend({
+        data: ownStaffResponseSchema.shape.data.omit({ capabilities: true }),
+      }),
     },
     {
       method: "post",
@@ -180,6 +197,12 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       secured: true,
       csrf: true,
       body: privilegedInvitationBodySchema,
+      response: responseSchema.extend({
+        data: z.object({
+          invitation: teamInvitationResponseSchema,
+          delivery: z.literal("QUEUED"),
+        }),
+      }),
     },
     {
       method: "post",
@@ -198,6 +221,12 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       csrf: true,
       params: staffParamsSchema,
       body: staffStatusBodySchema,
+      response: responseSchema.extend({
+        data: z.object({
+          id: z.uuid(),
+          status: z.enum(["ACTIVE", "SUSPENDED", "DEACTIVATED"]),
+        }),
+      }),
     },
     {
       method: "patch",
@@ -207,6 +236,9 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       csrf: true,
       params: staffParamsSchema,
       body: staffBranchBodySchema,
+      response: responseSchema.extend({
+        data: z.object({ id: z.uuid(), branchId: z.uuid() }),
+      }),
     },
     {
       method: "patch",
@@ -216,6 +248,9 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       csrf: true,
       params: staffParamsSchema,
       body: staffRoleBodySchema,
+      response: responseSchema.extend({
+        data: ownStaffResponseSchema.shape.data.omit({ capabilities: true }),
+      }),
     },
     {
       method: "get",
@@ -223,6 +258,9 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       summary: "Search active verified customers and staff by exact email",
       secured: true,
       query: accountSearchQuerySchema,
+      response: responseSchema.extend({
+        data: z.object({ items: z.array(teamCandidateResponseSchema).max(1) }),
+      }),
     },
     {
       method: "post",
@@ -231,6 +269,9 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       secured: true,
       csrf: true,
       body: staffPromotionBodySchema,
+      response: responseSchema.extend({
+        data: ownStaffResponseSchema.shape.data.omit({ capabilities: true }),
+      }),
     },
     {
       method: "get",
@@ -238,6 +279,20 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       summary: "List own invitations or all invitations for the owner",
       secured: true,
       query: invitationListQuerySchema,
+      response: responseSchema.extend({
+        data: z.object({
+          items: z.array(teamInvitationResponseSchema),
+          nextCursor: z.uuid().optional(),
+        }),
+      }),
+    },
+    {
+      method: "get",
+      path: "/admin/staff/invitations/{invitationId}",
+      summary: "Inspect an own invitation or any invitation for the owner",
+      secured: true,
+      params: invitationParamsSchema,
+      response: responseSchema.extend({ data: teamInvitationResponseSchema }),
     },
     {
       method: "post",
@@ -247,6 +302,7 @@ export function registerOrganizationOpenApi(registry: OpenAPIRegistry): void {
       csrf: true,
       params: invitationParamsSchema,
       body: invitationRevokeBodySchema,
+      response: responseSchema.extend({ data: teamInvitationResponseSchema }),
     },
   ];
 
