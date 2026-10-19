@@ -1,9 +1,9 @@
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 
 interface ProbeDelegate {
-  fields: Record<string, { typeName: string; isList: boolean }>;
+  fields: Record<string, unknown>;
   findMany(options: {
-    where: { AND: Record<string, unknown>[] };
+    where: { OR: never[] };
     select: Record<string, true>;
     take: number;
   }): Promise<unknown[]>;
@@ -30,16 +30,12 @@ export async function verifyDatabaseSchema(database: PrismaClient): Promise<void
       models.slice(offset, offset + 4).map(async (model) => {
         const delegate = delegates[model.charAt(0).toLowerCase() + model.slice(1)];
         if (!delegate) throw new DatabaseSchemaSafetyError();
-        const field = Object.entries(delegate.fields).find(
-          ([, reference]) => reference.typeName === "String" && !reference.isList,
-        )?.[0];
-        if (!field) throw new DatabaseSchemaSafetyError();
-        const predicate = { [field]: "00000000-0000-0000-0000-000000000000" };
         try {
           // take: 0 is optimized away by Prisma and would NOT check PostgreSQL.
-          // A predicate AND its negation forces SQL validation with zero results.
+          // An empty OR emits WHERE 1=0, validating columns without reading rows.
+          // Field references can omit isList, so do not infer scalar filter types.
           const rows = await delegate.findMany({
-            where: { AND: [predicate, { NOT: predicate }] },
+            where: { OR: [] },
             select: Object.fromEntries(
               Object.keys(delegate.fields).map((key) => [key, true]),
             ),

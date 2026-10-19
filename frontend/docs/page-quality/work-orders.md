@@ -51,15 +51,15 @@ Both concepts and final desktop, 390px, 320px and Staff renders were inspected w
 971px-wide mobile concept is an enlarged design illustration; actual mobile widths
 320–430px were tested instead of treating that raster width as a device breakpoint.
 
-| Comparison | Result |
-| --- | --- |
-| Shell and orientation | Real Allied logo, authorised navigation and a single named breadcrumb preserved. |
-| Heading and type | Controlled Quicksand 28/24px heading, 18px sections, 13px rows and 12px captions/labels match the extracted system. |
-| Filters and actions | White bordered strip, neutral refresh/clear and red Apply; administrator branch filter only. |
-| Palette and containers | Cool pale canvas, ink desktop band, white records; mobile heading opens onto the canvas. No added decorative media. |
-| Records and density | All five column meanings, linked reference, method, date and payment time retained; mobile uses labelled two-column metadata. |
-| Controls and icons | Lucide refresh, chevron and arrows; visible borders/focus; 44px controls and wrapping long content. |
-| Copy | Primary copy matches the extracted specification. Data and counts vary with the response; required recovery states use the same visual system. |
+| Comparison             | Result                                                                                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell and orientation  | Real Allied logo, authorised navigation and a single named breadcrumb preserved.                                                               |
+| Heading and type       | Controlled Quicksand 28/24px heading, 18px sections, 13px rows and 12px captions/labels match the extracted system.                            |
+| Filters and actions    | White bordered strip, neutral refresh/clear and red Apply; administrator branch filter only.                                                   |
+| Palette and containers | Cool pale canvas, ink desktop band, white records; mobile heading opens onto the canvas. No added decorative media.                            |
+| Records and density    | All five column meanings, linked reference, method, date and payment time retained; mobile uses labelled two-column metadata.                  |
+| Controls and icons     | Lucide refresh, chevron and arrows; visible borders/focus; 44px controls and wrapping long content.                                            |
+| Copy                   | Primary copy matches the extracted specification. Data and counts vary with the response; required recovery states use the same visual system. |
 
 The implementation was faithfully verified against the extracted design. No
 material visual mismatches remain. The intentional differences above preserve real

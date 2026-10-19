@@ -17028,6 +17028,51 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/admin/operations/jobs/{source}/{jobId}`
+
+- Operation ID: `getAdminOperationsJobsBySourceByJobId`
+- Purpose: Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404; query parameters are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `source` | path | outbox / webhook | Yes | Identifier selecting the source resource. |
+| `jobId` | path | string (uuid) | Yes | Identifier selecting the job resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Inspect a current processing job",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "eventType": "synthetic-eventtype",
+    "status": "PENDING",
+    "lockedAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "source": "OUTBOX",
+    "eventId": "00000000-0000-4000-8000-000000000001",
+    "aggregateType": "synthetic-aggregatetype",
+    "aggregateId": "synthetic-aggregateid",
+    "attempts": 0,
+    "availableAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "publishedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required; 403 Current administrator/MFA access required; 404 Job not found; 422 Invalid source, reference or query; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/admin/audit`
 
 - Operation ID: `getAdminAudit`
@@ -17149,7 +17194,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/admin/operations/jobs`
 
 - Operation ID: `getAdminOperationsJobs`
-- Purpose: Admin/Super Admin only with verified privileged session. Private, no-store. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures and provider credentials are excluded. Every successful read is audited. List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Admin/Super Admin only with verified privileged session. Private, no-store. Current actor/session validation, collection and READ audit share one transaction. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures, provider credentials and raw diagnostics are excluded. Legacy nullable error keys are always null. Every successful read is audited. List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -17351,7 +17396,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/admin/operations/jobs/{source}/{jobId}/retry`
 
 - Operation ID: `postAdminOperationsJobsBySourceByJobIdRetry`
-- Purpose: Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. A webhook retry queues one further attempt even after its automatic eight-attempt budget is exhausted; failure after that budget returns to DEAD_LETTER, and a further retry requires another audited request. RETRY_REQUESTED means queued, not delivered or settled; workers still enforce consent, message eligibility, provider verification and financial authorization. Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Requires Admin or Super Admin, verified MFA and CSRF; current actor/session is rechecked within the mutation transaction. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Optional expectedUpdatedAt must match the inspected revision or the request returns409 without a change. Legacy callers may omit it. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. A webhook retry queues one further attempt even after its automatic eight-attempt budget is exhausted; failure after that budget returns to DEAD_LETTER, and a further retry requires another audited request. RETRY_REQUESTED means queued, not delivered or settled; workers still enforce consent, message eligibility, provider verification and financial authorization. Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -17370,6 +17415,7 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `expectedAttempts` | integer | Yes | Expected Attempts validated by this operation's strict request contract. |
+| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `reason` | string | Yes | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
 
 Synthetic request example:
@@ -17377,6 +17423,7 @@ Synthetic request example:
 ```json
 {
   "expectedAttempts": 0,
+  "expectedUpdatedAt": "2030-01-15T10:00:00.000Z",
   "reason": "synthetic-reason"
 }
 ```

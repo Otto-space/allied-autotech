@@ -4892,6 +4892,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/operations/jobs/{source}/{jobId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Inspect a current processing job
+         * @description Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404; query parameters are rejected. Inspect a current processing job. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getAdminOperationsJobsBySourceByJobId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/audit": {
         parameters: {
             query?: never;
@@ -4941,7 +4961,7 @@ export interface paths {
         };
         /**
          * List failed or leased operational jobs
-         * @description Admin/Super Admin only with verified privileged session. Private, no-store. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures and provider credentials are excluded. Every successful read is audited. List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Admin/Super Admin only with verified privileged session. Private, no-store. Current actor/session validation, collection and READ audit share one transaction. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures, provider credentials and raw diagnostics are excluded. Legacy nullable error keys are always null. Every successful read is audited. List failed or leased operational jobs. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getAdminOperationsJobs"];
         put?: never;
@@ -5023,7 +5043,7 @@ export interface paths {
         put?: never;
         /**
          * Retry a failed job using optimistic attempt matching
-         * @description Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. A webhook retry queues one further attempt even after its automatic eight-attempt budget is exhausted; failure after that budget returns to DEAD_LETTER, and a further retry requires another audited request. RETRY_REQUESTED means queued, not delivered or settled; workers still enforce consent, message eligibility, provider verification and financial authorization. Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Requires Admin or Super Admin, verified MFA and CSRF; current actor/session is rechecked within the mutation transaction. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Optional expectedUpdatedAt must match the inspected revision or the request returns409 without a change. Legacy callers may omit it. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. A webhook retry queues one further attempt even after its automatic eight-attempt budget is exhausted; failure after that budget returns to DEAD_LETTER, and a further retry requires another audited request. RETRY_REQUESTED means queued, not delivered or settled; workers still enforce consent, message eligibility, provider verification and financial authorization. Retry a failed job using optimistic attempt matching. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postAdminOperationsJobsBySourceByJobIdRetry"];
         delete?: never;
@@ -80647,6 +80667,289 @@ export interface operations {
             };
         };
     };
+    getAdminOperationsJobsBySourceByJobId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the source resource.
+                 * @example outbox
+                 */
+                source: "outbox" | "webhook";
+                /**
+                 * @description Identifier selecting the job resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Inspect a current processing job. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Inspect a current processing job",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "eventType": "synthetic-eventtype",
+                     *         "status": "PENDING",
+                     *         "lockedAt": "2030-01-15T10:00:00.000Z",
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "source": "OUTBOX",
+                     *         "eventId": "00000000-0000-4000-8000-000000000001",
+                     *         "aggregateType": "synthetic-aggregatetype",
+                     *         "aggregateId": "synthetic-aggregateid",
+                     *         "attempts": 0,
+                     *         "availableAt": "2030-01-15T10:00:00.000Z",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z",
+                     *         "publishedAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Event Type validated by this operation's strict request contract. */
+                            eventType: string;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "PENDING" | "PROCESSING" | "PUBLISHED" | "FAILED" | "DEAD_LETTER";
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            lockedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * @description Source validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            source: "OUTBOX";
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the event resource; ownership is resolved server-side.
+                             */
+                            eventId: string;
+                            /** @description Aggregate Type validated by this operation's strict request contract. */
+                            aggregateType: string;
+                            /** @description Identifier of the aggregate resource; ownership is resolved server-side. */
+                            aggregateId: string;
+                            /** @description Attempts validated by this operation's strict request contract. */
+                            attempts: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            availableAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            publishedAt: string | null;
+                        } | {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Event Type validated by this operation's strict request contract. */
+                            eventType: string;
+                            /**
+                             * @description Requested or filtered lifecycle state from the documented enum.
+                             * @enum {string}
+                             */
+                            status: "RECEIVED" | "PROCESSING" | "PROCESSED" | "FAILED" | "DEAD_LETTER";
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            lockedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * @description Source validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            source: "PAYMENT_WEBHOOK";
+                            /** @description Processing Attempts validated by this operation's strict request contract. */
+                            processingAttempts: number;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            nextAttemptAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            receivedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            processedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            failedAt: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current administrator/MFA access required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Job not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid source, reference or query */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getAdminAudit: {
         parameters: {
             query?: {
@@ -82541,12 +82844,18 @@ export interface operations {
                 /**
                  * @example {
                  *       "expectedAttempts": 0,
+                 *       "expectedUpdatedAt": "2030-01-15T10:00:00.000Z",
                  *       "reason": "synthetic-reason"
                  *     }
                  */
                 "application/json": {
                     /** @description Expected Attempts validated by this operation's strict request contract. */
                     expectedAttempts: number;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    expectedUpdatedAt?: string;
                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                     reason: string;
                 };

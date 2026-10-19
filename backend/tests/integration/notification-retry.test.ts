@@ -26,6 +26,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "operational notification retries",
   () => {
     const jobs: string[] = [];
+    const sessions: string[] = [];
     let administrator: AuthenticatedActor;
     let owner: AuthenticatedActor;
     beforeAll(async () => {
@@ -52,6 +53,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         email: root.email,
         role: "SUPER_ADMIN",
       };
+      await headers(administrator);
+      await headers(owner);
     });
     afterEach(async () => {
       // Leave no eligible synthetic job for a later test's worker batch.
@@ -61,7 +64,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       jobs.length = 0;
     });
-    afterAll(async () => prisma.$disconnect());
+    afterAll(async () => {
+      await prisma.session.deleteMany({ where: { id: { in: sessions } } });
+      await prisma.$disconnect();
+    });
 
     async function fixture(
       channel: "EMAIL" | "SMS" = "EMAIL",
@@ -116,7 +122,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         csrf = generateOpaqueToken();
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 3_600_000);
-      await prisma.session.create({
+      const session = await prisma.session.create({
         data: {
           userId: actor.userId,
           tokenHash: hashToken("session", token),
@@ -129,6 +135,8 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           mfaVerifiedAt: actor.mfaVerifiedAt === null ? null : now,
         },
       });
+      sessions.push(session.id);
+      actor.sessionId = session.id;
       return {
         Origin: "http://localhost:3000",
         Cookie: `${sessionCookieName}=${token}`,

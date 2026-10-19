@@ -13,8 +13,10 @@ function fixture() {
       name.charAt(0).toLowerCase() + name.slice(1),
       {
         fields: {
-          id: { typeName: "String", isList: false },
-          revision: { typeName: "Int", isList: false },
+          // Generated field references can omit isList, including for array fields.
+          workedByUserIds: { typeName: "String" },
+          id: { typeName: "String" },
+          revision: { typeName: "Int" },
         },
         findMany: vi.fn(async () => []),
       },
@@ -31,13 +33,8 @@ describe("schema safety before startup and worker writes", () => {
     await verifyDatabaseSchema(database);
     for (const delegate of Object.values(delegates)) {
       expect(delegate.findMany).toHaveBeenCalledExactlyOnceWith({
-        where: {
-          AND: [
-            { id: "00000000-0000-0000-0000-000000000000" },
-            { NOT: { id: "00000000-0000-0000-0000-000000000000" } },
-          ],
-        },
-        select: { id: true, revision: true },
+        where: { OR: [] },
+        select: { workedByUserIds: true, id: true, revision: true },
         take: 1,
       });
     }
@@ -96,5 +93,14 @@ describe("schema safety before startup and worker writes", () => {
     });
     delegates["user"]!.findMany.mockRejectedValueOnce(outage);
     await expect(verifyDatabaseSchema(database)).rejects.toBe(outage);
+  });
+
+  it("preserves client validation errors instead of misclassifying invalid probes as schema drift", async () => {
+    const { database, delegates } = fixture();
+    const validation = new Prisma.PrismaClientValidationError("invalid probe", {
+      clientVersion: "7.10.0",
+    });
+    delegates["service"]!.findMany.mockRejectedValueOnce(validation);
+    await expect(verifyDatabaseSchema(database)).rejects.toBe(validation);
   });
 });

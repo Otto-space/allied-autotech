@@ -2,6 +2,7 @@ import { auditPageResponseSchema } from "./audit-response.schemas.js";
 import { anomalyRecordSchema } from "./anomaly-record.js";
 import {
   operationalJobsResponseSchema,
+  currentOperationalJobResponseSchema,
   operationalRetryResponseSchema,
   operationsStatusResponseSchema,
 } from "./operations-response.schemas.js";
@@ -50,6 +51,30 @@ const disputeOverviewSchema = disputeRecordSchema.pick({
 });
 
 export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
+  registry.registerPath({
+    method: "get",
+    path: "/admin/operations/jobs/{source}/{jobId}",
+    tags: ["Audit and operations"],
+    summary: "Inspect a current processing job",
+    description:
+      "Admin/Super Admin with verified MFA. Rechecks current actor/session and atomically records a minimal READ audit. Private, no-store. Source and UUID identify the physical queue independently of its filtered list. Includes pending/completed states and safe lifecycle timestamps, never payloads, provider hashes or raw diagnostics. Current state does not prove an earlier retry request outcome. Missing jobs return404; query parameters are rejected.",
+    security: [{ sessionCookie: [] }],
+    request: { params: operationalJobParamsSchema as never },
+    responses: {
+      "200": {
+        description: "Current job",
+        content: {
+          "application/json": {
+            schema: envelope.extend({ data: currentOperationalJobResponseSchema }),
+          },
+        },
+      },
+      "401": { description: "Authentication required" },
+      "403": { description: "Current administrator/MFA access required" },
+      "404": { description: "Job not found" },
+      "422": { description: "Invalid source, reference or query" },
+    },
+  });
   const reads = [
     {
       path: "/admin/audit",
@@ -97,7 +122,7 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
           : route.path === "/admin/operations/jobs"
             ? {
                 description:
-                  "Admin/Super Admin only with verified privileged session. Private, no-store. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures and provider credentials are excluded. Every successful read is audited.",
+                  "Admin/Super Admin only with verified privileged session. Private, no-store. Current actor/session validation, collection and READ audit share one transaction. Bounded 1 to 100 records (default 25), ordered by updatedAt, ID and source descending across outbox/webhook queues. Copy the returned opaque nextCursor unchanged. It is signed and bound to the current actor and source/status filters; changing filters or actor, tampering, legacy UUID cursors or key rotation requires restarting from the first page (422). Limit may change. Cursor contains its original boundary so retrying or deleting its job does not restart or repeat the first page. This is live keyset paging, not a snapshot: updated jobs may move to newer pages. Refresh page one for recent changes. Payloads, signatures, provider credentials and raw diagnostics are excluded. Legacy nullable error keys are always null. Every successful read is audited.",
               }
             : {}),
       security: [{ sessionCookie: [] }],
@@ -142,7 +167,7 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     tags: ["Audit and operations"],
     summary: "Retry a failed job using optimistic attempt matching",
     description:
-      "Requires Admin or Super Admin, verified MFA and CSRF. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. A webhook retry queues one further attempt even after its automatic eight-attempt budget is exhausted; failure after that budget returns to DEAD_LETTER, and a further retry requires another audited request. RETRY_REQUESTED means queued, not delivered or settled; workers still enforce consent, message eligibility, provider verification and financial authorization.",
+      "Requires Admin or Super Admin, verified MFA and CSRF; current actor/session is rechecked within the mutation transaction. expectedAttempts must match the current job, including zero for notifications queued while delivery was disabled. Optional expectedUpdatedAt must match the inspected revision or the request returns409 without a change. Legacy callers may omit it. Only FAILED or DEAD_LETTER jobs are retryable. Notification outbox retries atomically reset their matching failed delivery and append an audit event; missing, active, completed or mismatched delivery records return 409 without changing the job. Attempts and provider idempotency keys are preserved. A webhook retry queues one further attempt even after its automatic eight-attempt budget is exhausted; failure after that budget returns to DEAD_LETTER, and a further retry requires another audited request. RETRY_REQUESTED means queued, not delivered or settled; workers still enforce consent, message eligibility, provider verification and financial authorization.",
     security: [{ sessionCookie: [] }],
     request: {
       params: operationalJobParamsSchema as never,

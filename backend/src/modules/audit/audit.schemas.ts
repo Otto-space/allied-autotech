@@ -38,6 +38,7 @@ export const operationalJobParamsSchema = z
 export const operationalRetryBodySchema = z
   .object({
     expectedAttempts: z.number().int().min(0).max(1_000),
+    expectedUpdatedAt: isoDate.optional(),
     reason: z.string().trim().min(3).max(500),
   })
   .strict();

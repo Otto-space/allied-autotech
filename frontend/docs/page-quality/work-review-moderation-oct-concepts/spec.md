@@ -37,10 +37,11 @@ labelled facts read-only; denial clears private content and forms.
 
 Quicksand 13px body/labels, 16px sections, 30/24px title, restrained red actions, ink
 dashboard/sidebar, white Find a page/account strip, cool canvas, subtle rules and
->=44px bordered controls. Narrow layout uses paired wrapping labels and full-width
-review controls, no horizontal page scrolling; dialogs remain readable at 320px.
-Respect reduced motion. No charts, global totals, fake moderation/publication actions,
-bulk operations, deletion/reopening or permission administration.
+
+> =44px bordered controls. Narrow layout uses paired wrapping labels and full-width
+> review controls, no horizontal page scrolling; dialogs remain readable at 320px.
+> Respect reduced motion. No charts, global totals, fake moderation/publication actions,
+> bulk operations, deletion/reopening or permission administration.
 
 Audit actual mobile/tablet/laptop/desktop before UI edits; fresh desktop/mobile Image
 Gen, inspected concept corrections, production interactions, API/database concurrency,

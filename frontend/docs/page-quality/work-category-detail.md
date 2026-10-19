@@ -30,15 +30,15 @@ A separate restricted runtime role performed application tests. Verification fou
 
 All three local concepts and final desktop, phone, long-content and review screenshots were inspected with the image viewer after the final build.
 
-| Fidelity point | Final result and documented correction |
-| --- | --- |
-| Brand and shell | Actual Allied wordmark, existing permitted navigation and Quicksand preserved. Generated alternate brand lettering/header styling was excluded as specified. |
-| Composition | Named breadcrumb and restrained title/actions precede the ink summary and approximately 1.8:1 record/guidance grid. Panels stack on narrower screens. |
-| Summary | Equal desktop visibility/URL groups with dividing rule become two readable phone rows. Long slugs wrap without overflow. |
-| Facts and description | Ruled name/created/updated rows, explicit Lagos labels and complete description. Phone labels stack to keep dates readable. Empty descriptions say Not provided. |
-| Type and controls | Established compact 28/24px title, 18px section and 13px body scale, 44px controls and restrained corners replace oversized lettering and pill buttons from the generated state sheet. |
-| Guidance and action | All three conditional grouping paragraphs appear with the real filtered-services link. No count, media or public-visibility claim is invented. |
-| Editor and recovery | Existing bordered fields, complete four-field review, focus handling, cancellation, stale blocking and explicit interrupted-save actions remain intact. Review buttons stack cleanly on phones. |
+| Fidelity point        | Final result and documented correction                                                                                                                                                          |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Brand and shell       | Actual Allied wordmark, existing permitted navigation and Quicksand preserved. Generated alternate brand lettering/header styling was excluded as specified.                                    |
+| Composition           | Named breadcrumb and restrained title/actions precede the ink summary and approximately 1.8:1 record/guidance grid. Panels stack on narrower screens.                                           |
+| Summary               | Equal desktop visibility/URL groups with dividing rule become two readable phone rows. Long slugs wrap without overflow.                                                                        |
+| Facts and description | Ruled name/created/updated rows, explicit Lagos labels and complete description. Phone labels stack to keep dates readable. Empty descriptions say Not provided.                                |
+| Type and controls     | Established compact 28/24px title, 18px section and 13px body scale, 44px controls and restrained corners replace oversized lettering and pill buttons from the generated state sheet.          |
+| Guidance and action   | All three conditional grouping paragraphs appear with the real filtered-services link. No count, media or public-visibility claim is invented.                                                  |
+| Editor and recovery   | Existing bordered fields, complete four-field review, focus handling, cancellation, stale blocking and explicit interrupted-save actions remain intact. Review buttons stack cleanly on phones. |
 
 Above-the-fold wording matches the specification. Synthetic QA names and dates illustrate actual API fields. No photography was introduced. No local visual blocker remains.
 
