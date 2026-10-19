@@ -446,6 +446,7 @@ export function DashboardShell({
             !/^\/admin\/staff\/[0-9a-f-]{36}$/i.test(pathname) &&
             pathname !== "/admin/staff/invite" &&
             pathname !== "/admin/branches" &&
+            pathname !== "/admin/audit" &&
             !/^\/admin\/vehicle-sales\/[^/]+$/.test(pathname) &&
             pathname !== "/admin/vehicles/new" &&
             !/^\/admin\/vehicles\/[^/]+$/.test(pathname) &&

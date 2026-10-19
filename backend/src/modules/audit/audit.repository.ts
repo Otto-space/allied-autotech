@@ -14,7 +14,10 @@ import type {
 export class AuditRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
-  list(query: AuditListQuery, client: Prisma.TransactionClient | PrismaClient = this.database) {
+  list(
+    query: AuditListQuery,
+    client: Prisma.TransactionClient | PrismaClient = this.database,
+  ) {
     return client.auditLog.findMany({
       where: {
         ...(query.userId ? { userId: query.userId } : {}),
