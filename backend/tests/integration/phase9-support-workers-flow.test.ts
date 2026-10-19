@@ -648,11 +648,17 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
       select: { id: true, email: true },
     });
     const expiresAt = new Date(Date.now() + 3600000);
-    const operationsSession = await prisma.session.create({ data: {
-      userId: administrator.id, tokenHash: hashToken("session", randomUUID()),
-      csrfTokenHash: hashToken("csrf", randomUUID()), expiresAt, idleExpiresAt: expiresAt,
-      mfaRequired: true, mfaVerifiedAt: new Date(),
-    } });
+    const operationsSession = await prisma.session.create({
+      data: {
+        userId: administrator.id,
+        tokenHash: hashToken("session", randomUUID()),
+        csrfTokenHash: hashToken("csrf", randomUUID()),
+        expiresAt,
+        idleExpiresAt: expiresAt,
+        mfaRequired: true,
+        mfaVerifiedAt: new Date(),
+      },
+    });
     operationsSessions.push(operationsSession.id);
     const administratorActor: AuthenticatedActor = {
       ...actor(administrator),

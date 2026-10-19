@@ -118,6 +118,30 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).toEqual([{ elevated: false }]);
       if (existsSync(process.env.WORK_JOBS_FIXTURES!))
         throw Error("Retained job fixtures exist; use an explicit focused continuation");
+      const resumeSetup = process.env.WORK_JOBS_RESUME_SETUP === "true";
+      const retainedJobs = resumeSetup
+        ? await prisma.outboxEvent.findMany({
+            where: { eventType: "synthetic.work.jobs", aggregateType: "SyntheticJobs" },
+            select: { id: true, updatedAt: true },
+            orderBy: { id: "desc" },
+          })
+        : [];
+      const retainedUsers = resumeSetup
+        ? await prisma.user.findMany({
+            where: { email: { startsWith: "work-jobs-", endsWith: "@example.test" } },
+            select: { id: true },
+          })
+        : [];
+      if (resumeSetup) {
+        expect(retainedJobs).toHaveLength(28);
+        expect(retainedUsers).toHaveLength(1);
+        expect(
+          await prisma.paymentWebhookEvent.count({
+            where: { id: { in: retainedJobs.map((v) => v.id) } },
+          }),
+        ).toBe(0);
+        ids.splice(0, ids.length, ...retainedJobs.map((v) => v.id));
+      }
       const base = JSON.parse(
         readFileSync(process.env.WORK_STAFF_WORKFORCE_FIXTURES!, "utf8"),
       );
@@ -139,36 +163,45 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       originals.deliveries = (
         await prisma.notificationDelivery.findMany({ select: { id: true } })
       ).map((v) => v.id);
+      if (resumeSetup) {
+        originals.users = originals.users.filter((id) => id !== retainedUsers[0]!.id);
+        originals.outbox = originals.outbox.filter((id) => !ids.includes(id));
+      }
       const initial = await snapshot();
       before = hash(initial);
       counts = initial.map((v) => v.length);
-      const user = await prisma.user.create({
-        data: {
-          email: `work-jobs-${randomUUID()}@example.test`,
-          role: "ADMIN",
-          passwordHash: "unusable-isolated",
-          emailVerifiedAt: new Date(),
-        },
-      });
+      const user = resumeSetup
+        ? retainedUsers[0]!
+        : await prisma.user.create({
+            data: {
+              email: `work-jobs-${randomUUID()}@example.test`,
+              role: "ADMIN",
+              passwordHash: "unusable-isolated",
+              emailVerifiedAt: new Date(),
+            },
+          });
       admin = await auth(user.id);
       owner = await auth(base.owner);
       staff = await auth(base.staffId);
-      const at = new Date(Date.now() + 3600000);
-      await prisma.outboxEvent.createMany({
-        data: ids.map((id) => ({
-          id,
-          eventId: randomUUID(),
-          aggregateType: "SyntheticJobs",
-          aggregateId: id,
-          eventType: "synthetic.work.jobs",
-          payload: { private: "PRIVATE-JOB-CANARY" },
-          status: "FAILED",
-          attempts: 0,
-          availableAt: at,
-          updatedAt: at,
-          lastError: "PRIVATE-JOB-CANARY",
-        })),
-      });
+      const at = resumeSetup
+        ? retainedJobs[0]!.updatedAt
+        : new Date(Date.now() + 3600000);
+      if (!resumeSetup)
+        await prisma.outboxEvent.createMany({
+          data: ids.map((id) => ({
+            id,
+            eventId: randomUUID(),
+            aggregateType: "SyntheticJobs",
+            aggregateId: id,
+            eventType: "synthetic.work.jobs",
+            payload: { private: "PRIVATE-JOB-CANARY" },
+            status: "FAILED",
+            attempts: 0,
+            availableAt: at,
+            updatedAt: at,
+            lastError: "PRIVATE-JOB-CANARY",
+          })),
+        });
       await prisma.paymentWebhookEvent.createMany({
         data: ids.map((id) => ({
           id,
@@ -179,6 +212,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           eventType: "synthetic.work.jobs",
           status: "FAILED",
           processingAttempts: 0,
+          failedAt: at,
           updatedAt: at,
           lastErrorMessage: "PRIVATE-JOB-CANARY",
           lastErrorCode: "PRIVATE-JOB-CANARY",
@@ -429,7 +463,14 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         "FAILED",
         "DEAD_LETTER",
       ] as const) {
-        await prisma.outboxEvent.update({ where: { id: ids[2]! }, data: { status } });
+        await prisma.outboxEvent.update({
+          where: { id: ids[2]! },
+          data: {
+            status,
+            lockedAt: status === "PROCESSING" ? new Date() : null,
+            publishedAt: status === "PUBLISHED" ? new Date() : null,
+          },
+        });
         const response = await read("outbox", ids[2]!, owner);
         expect(response.status).toBe(200);
         expect(currentOperationalJobResponseSchema.parse(response.body.data).status).toBe(
@@ -454,7 +495,12 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ] as const) {
         await prisma.paymentWebhookEvent.update({
           where: { id: ids[2]! },
-          data: { status },
+          data: {
+            status,
+            lockedAt: status === "PROCESSING" ? new Date() : null,
+            processedAt: status === "PROCESSED" ? new Date() : null,
+            failedAt: ["FAILED", "DEAD_LETTER"].includes(status) ? new Date() : null,
+          },
         });
         const response = await read("webhook", ids[2]!);
         expect(response.status).toBe(200);
