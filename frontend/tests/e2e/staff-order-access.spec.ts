@@ -17,9 +17,10 @@ test("STAFF can read and update fulfilment without receiving an invoice", async 
     deliveryFeeKobo: "0",
     totalKobo: "10000",
     version: writes,
+    allowedTransitions: writes ? ["READY"] : ["PROCESSING"],
     createdAt: "2026-09-17T10:00:00Z",
     paymentDueAt: null,
-    paidAt: null,
+    paidAt: "2026-09-17T10:00:00Z",
     branch: { id, code: "TEST", name: "Isolated branch" },
     items: [],
     customerName: "Synthetic Customer",
@@ -73,7 +74,7 @@ test("STAFF can read and update fulfilment without receiving an invoice", async 
   await page.getByRole("button", { name: "Review fulfilment change" }).click();
   expect(writes).toBe(0);
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("PROCESSING");
+  await expect(page.locator(".work-order-summary .status")).toHaveText("Processing");
   expect(writes).toBe(1);
   expect(financialReads).toEqual([]);
 });

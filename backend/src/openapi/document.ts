@@ -24,6 +24,7 @@ import { registerAuditOpenApi } from "../modules/audit/audit.openapi.js";
 import { hardenOpenApiDocument } from "./harden-document.js";
 import { registerOverviewOpenApi } from "../modules/overview/overview.openapi.js";
 import { registerOwnerPolicyOpenApi } from "../modules/policies/policies.openapi.js";
+import { registerWorkforceOpenApi } from "../modules/organization/workforce.openapi.js";
 
 export interface OpenApiDocumentOptions {
   sessionCookieName: string;
@@ -54,6 +55,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerAuditOpenApi(registry);
   registerOverviewOpenApi(registry);
   registerOwnerPolicyOpenApi(registry);
+  registerWorkforceOpenApi(registry);
   const generator = new OpenApiGeneratorV31(registry.definitions);
 
   return hardenOpenApiDocument(

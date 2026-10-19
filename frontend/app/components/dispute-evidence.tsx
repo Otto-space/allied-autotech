@@ -17,10 +17,12 @@ export function DisputeEvidence({
   record,
   disabled,
   onReview,
+  onDenied,
 }: {
   record: DisputeWork;
   disabled: boolean;
   onReview: (proposal: MutationProposal) => void;
+  onDenied?: () => void;
 }) {
   const [evidence, setEvidence] = useState<AssetSelection>(null),
     [url, setUrl] = useState<string>(),
@@ -51,6 +53,11 @@ export function DisputeEvidence({
       const safe = trustedAssetUrl(saved.url, hosts, window.location.origin);
       if (!controller.signal.aborted) setUrl(safe);
     } catch (value) {
+      if (value instanceof ApiError && [401, 403, 404].includes(value.status)) {
+        setUrl(undefined);
+        setEvidence(null);
+        onDenied?.();
+      }
       if (!controller.signal.aborted)
         setError(
           value instanceof ApiError
@@ -169,9 +176,24 @@ export function DisputeEvidence({
               disabled={disabled}
               onChange={setEvidence}
               validate={validatePaymentEvidence}
-              prepare={(options) =>
-                prepareDisputeEvidence({ ...options, disputeId: record.id })
-              }
+              prepare={async (options) => {
+                try {
+                  return await prepareDisputeEvidence({
+                    ...options,
+                    disputeId: record.id,
+                  });
+                } catch (value) {
+                  if (
+                    value instanceof ApiError &&
+                    [401, 403, 404].includes(value.status)
+                  ) {
+                    setUrl(undefined);
+                    setEvidence(null);
+                    onDenied?.();
+                  }
+                  throw value;
+                }
+              }}
             />
             {[
               ["invoice", "The invoice is included."],

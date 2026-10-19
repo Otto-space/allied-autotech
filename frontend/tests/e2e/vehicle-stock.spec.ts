@@ -28,8 +28,6 @@ const stock = (): StaffVehicle => ({
   vin: null,
   chassisNumber: null,
   registrationNumber: null,
-  acquisitionCostKobo: null,
-  acquisitionCurrency: "NGN",
   acquiredAt: null,
   version: 0,
   branch: { id: id(2), code: "ISOLATED", name: "Isolated branch", isActive: true },
@@ -38,7 +36,9 @@ const stock = (): StaffVehicle => ({
   documents: [],
   conditionReports: [],
 });
-const listing = (): StaffListing => ({
+const listing = (): StaffListing & { vehicleId: string; branchId: string } => ({
+  vehicleId: id(1),
+  branchId: id(2),
   id: id(3),
   title: "Isolated listing",
   slug: "isolated-listing",
@@ -87,6 +87,7 @@ async function fixture(
         email: "stock@example.test",
         role,
         status: "ACTIVE",
+        capabilities: [],
         staffProfile: {
           id: id(6),
           firstName: "Isolated",
@@ -96,6 +97,12 @@ async function fixture(
       });
     if (endpoint === "/public/branches")
       return reply(route, { items: [{ id: id(2), name: "Isolated branch" }] });
+    if (endpoint === "/admin/branches")
+      return reply(route, {
+        items: [{ id: id(2), name: "Isolated branch", isActive: true }],
+      });
+    if (endpoint === `/admin/branches/${id(2)}`)
+      return reply(route, { id: id(2), name: "Isolated branch", isActive: true });
     return route.fulfill({
       status: 404,
       json: { success: false, error: { code: "NOT_FOUND" } },
@@ -146,7 +153,11 @@ test("condition report creation reviews public findings and links a paged eligib
           findings: { Tyres: "Inspected", Warning: false, Measurement: 0, Unknown: null },
         },
       ];
-      await reply(route, { id: id(82) });
+      await reply(route, {
+        ...vehicle.conditionReports[0],
+        vehicleId: vehicle.id,
+        inspectionId: written.inspectionId,
+      });
       return true;
     }
   });
@@ -348,6 +359,12 @@ test("lost document attachment responses reconcile saved records and lock unreso
       .click();
     await expect(section.locator(".status")).toHaveText("PENDING");
     expect(writes).toBe(attempt);
+    if (attempt === 1) {
+      await page
+        .getByRole("button", { name: "Load current vehicle", exact: true })
+        .click();
+      await section.getByText("Add a private document", { exact: true }).click();
+    }
   }
   await expect(
     section.getByRole("button", { name: "Review document attachment" }),
@@ -430,7 +447,7 @@ test("vehicle documents use their own review version and preserve concurrent ass
     status: "REJECTED",
     rejectionReason: "Isolated unreadable details",
   });
-  await section.getByRole("button", { name: "Reload document review" }).click();
+  await section.getByLabel("Document assessment").selectOption("VERIFIED");
   await section
     .getByLabel("Rejection reason", { exact: false })
     .fill("Not sent when verified");
@@ -631,6 +648,7 @@ test("private document upload uses Lagos dates, pending review and authorized te
       vehicle.documents = [
         {
           ...vehicleDocument(),
+          version: 0,
           issuedAt: "2026-09-17T11:15:00+01:00",
           expiresAt: "2027-09-17T11:15:00+01:00",
         },
@@ -652,7 +670,9 @@ test("private document upload uses Lagos dates, pending review and authorized te
   });
   await page.goto(`/admin/vehicles/${vehicle.id}`);
   await expect(page).toHaveTitle(/vehicle/i);
-  await expect(page.getByRole("heading", { name: "Manage vehicle stock" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "2024 Isolated Vehicle", exact: true }),
+  ).toBeVisible();
   const section = page.getByRole("region", {
     name: "Private vehicle documents",
     exact: true,
@@ -724,11 +744,18 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"] as const)
     if (role === "STAFF") {
       delete vehicle.acquisitionCostKobo;
       delete vehicle.acquisitionCurrency;
+    } else {
+      vehicle.acquisitionCostKobo = null;
+      vehicle.acquisitionCurrency = "NGN";
     }
     const writes: { method: string; body: Record<string, unknown> }[] = [];
     await fixture(
       page,
       async (route, endpoint) => {
+        if (endpoint === "/staff/vehicles" && route.request().method() === "GET") {
+          await reply(route, { items: [] });
+          return true;
+        }
         if (endpoint === "/staff/vehicles" && route.request().method() === "POST") {
           const body = route.request().postDataJSON();
           writes.push({ method: "POST", body });
@@ -754,7 +781,7 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"] as const)
     await expect(page.getByRole("heading", { name: "Add vehicle record" })).toBeVisible();
     if (role === "STAFF") {
       await expect(
-        page.getByText("Your assigned branch will be used", { exact: false }),
+        page.getByText("assigned active branch will be used", { exact: false }),
       ).toBeVisible();
       await expect(page.getByLabel("Workshop branch")).toHaveCount(0);
     } else await page.getByLabel("Workshop branch").selectOption(id(2));
@@ -841,6 +868,7 @@ test("draft listing creation, content, exact asking price and publication use in
   page,
 }) => {
   const vehicle = stock();
+  vehicle.version = 4;
   const writes: { endpoint: string; body: Record<string, unknown> }[] = [];
   await fixture(page, async (route, endpoint) => {
     if (endpoint === `/staff/vehicles/${vehicle.id}`) {
@@ -851,7 +879,7 @@ test("draft listing creation, content, exact asking price and publication use in
       const body = route.request().postDataJSON();
       writes.push({ endpoint, body });
       if (endpoint === "/staff/vehicles/listings")
-        vehicle.listings.push({ ...listing(), ...body });
+        vehicle.listings.push({ ...listing(), ...body, version: 0 });
       else {
         Object.assign(vehicle.listings[0], body);
         vehicle.listings[0].version++;
@@ -877,7 +905,7 @@ test("draft listing creation, content, exact asking price and publication use in
   );
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
   const region = page.getByRole("region", { name: "Isolated listing", exact: true });
-  await expect(region.locator(".status")).toHaveText("DRAFT");
+  await expect(region.locator(".status")).toHaveText("Draft");
   expect(writes[0].body).toMatchObject({
     vehicleId: vehicle.id,
     priceKobo: "1234567891",
@@ -893,7 +921,7 @@ test("draft listing creation, content, exact asking price and publication use in
     region.getByText("Isolated factual description", { exact: true }),
   ).toBeVisible();
   expect(writes[1].body).toMatchObject({
-    expectedVersion: 7,
+    expectedVersion: 0,
     description: "Isolated factual description",
   });
   expect(writes[1].body).not.toHaveProperty("priceKobo");
@@ -907,7 +935,7 @@ test("draft listing creation, content, exact asking price and publication use in
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
   await expect(region.getByText("₦12,345,678.92", { exact: true })).toBeVisible();
   expect(writes[2].body).toEqual({
-    expectedVersion: 8,
+    expectedVersion: 1,
     priceKobo: "1234567892",
     reason: "Isolated correction",
   });
@@ -916,8 +944,8 @@ test("draft listing creation, content, exact asking price and publication use in
     "available to customers while its branch is active",
   );
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(region.locator(".status")).toHaveText("AVAILABLE");
-  expect(writes[3].body).toEqual({ expectedVersion: 9, status: "AVAILABLE" });
+  await expect(region.locator(".status")).toHaveText("Available");
+  expect(writes[3].body).toEqual({ expectedVersion: 2, status: "AVAILABLE" });
   await expect(region.getByRole("link", { name: "View public listing" })).toHaveAttribute(
     "href",
     `/vehicles/${id(3)}`,
@@ -933,7 +961,7 @@ test("draft listing creation, content, exact asking price and publication use in
   vehicle.listings[0].status = "RESERVED";
   vehicle.listings[0].version++;
   await page.getByRole("button", { name: "Refresh stock record" }).click();
-  await expect(region.locator(".status")).toHaveText("RESERVED");
+  await expect(region.locator(".status")).toHaveText("Reserved");
   if (
     !(await region
       .getByText("Asking-price changes are unavailable", { exact: false })
@@ -1012,9 +1040,23 @@ test("stock filter errors, branch selection and cursor resets preserve honest re
           });
         else
           await reply(route, {
-            items: query.get("search") ? [] : [vehicle],
-            ...(!query.has("cursor") ? { nextCursor: id(10) } : {}),
+            items: query.get("search")
+              ? []
+              : [
+                  query.has("cursor")
+                    ? { ...vehicle, id: id(10), stockNumber: "ISOLATED-STOCK-010" }
+                    : vehicle,
+                ],
+            ...(!query.has("cursor") && !query.get("search")
+              ? { nextCursor: vehicle.id }
+              : {}),
           });
+        return true;
+      }
+      if (endpoint === "/admin/branches") {
+        await reply(route, {
+          items: [{ id: id(2), name: "Isolated branch", isActive: true }],
+        });
         return true;
       }
     },
@@ -1033,8 +1075,8 @@ test("stock filter errors, branch selection and cursor resets preserve honest re
     .getByRole("navigation", { name: "Vehicle stock pages" })
     .getByRole("button", { name: "Next" })
     .click();
-  await expect.poll(() => queries.at(-1)?.get("cursor")).toBe(id(10));
-  await page.getByLabel("Active branch filter").selectOption(id(2));
+  await expect.poll(() => queries.at(-1)?.get("cursor")).toBe(vehicle.id);
+  await page.getByLabel("Branch filter", { exact: true }).selectOption(id(2));
   await page.getByLabel("Search stock records").fill("no-match");
   await page.getByRole("button", { name: "Apply stock filters" }).click();
   await expect(
@@ -1042,8 +1084,13 @@ test("stock filter errors, branch selection and cursor resets preserve honest re
   ).toBeVisible();
   expect(queries.at(-1)?.get("branchId")).toBe(id(2));
   expect(queries.at(-1)?.has("cursor")).toBe(false);
-  await page.getByRole("button", { name: "Clear stock filters" }).click();
-  await expect(page.getByRole("link", { name: vehicle.stockNumber })).toBeVisible();
+  await page.getByRole("button", { name: "Clear stock filters" }).first().click();
+  await expect(
+    page.getByRole("link", {
+      name: `Manage ${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.stockNumber})`,
+      exact: true,
+    }),
+  ).toBeVisible();
   expect(queries.at(-1)?.has("search")).toBe(false);
 });
 
@@ -1051,6 +1098,8 @@ test("lost stock creation cannot be replayed and a saved draft listing reconcile
   page,
 }) => {
   const vehicle = stock();
+  delete vehicle.acquisitionCostKobo;
+  delete vehicle.acquisitionCurrency;
   let stockWrites = 0;
   let listingWrites = 0;
   await fixture(page, async (route, endpoint) => {
@@ -1083,9 +1132,14 @@ test("lost stock creation cannot be replayed and a saved draft listing reconcile
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
-  await expect(page.getByRole("button", { name: "Review new vehicle" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Review new vehicle" })).toHaveCount(0);
   await page.getByRole("link", { name: "Back to vehicle stock" }).click();
-  await page.getByRole("link", { name: vehicle.stockNumber }).click();
+  await page
+    .getByRole("link", {
+      name: `Manage ${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.stockNumber})`,
+      exact: true,
+    })
+    .click();
   await page.getByText("Create a draft listing", { exact: true }).click();
   await page.getByLabel("Listing title").fill("Isolated listing");
   await page.getByLabel("Listing slug").fill("isolated-listing");
@@ -1103,7 +1157,7 @@ test("lost stock creation cannot be replayed and a saved draft listing reconcile
     page
       .getByRole("region", { name: "Isolated listing", exact: true })
       .locator(".status"),
-  ).toHaveText("DRAFT");
+  ).toHaveText("Draft");
   expect(stockWrites).toBe(1);
   expect(listingWrites).toBe(1);
 });

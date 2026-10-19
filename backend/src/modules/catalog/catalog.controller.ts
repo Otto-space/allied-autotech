@@ -128,6 +128,7 @@ export class CatalogController {
       );
   };
   categories = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
     res
       .status(200)
       .json(
@@ -138,6 +139,18 @@ export class CatalogController {
             actor(req),
             validated(res, "query") as AdminCategoryListQuery,
           ),
+        ),
+      );
+  };
+  category = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Category retrieved",
+          req.id,
+          await this.service.category(actor(req), params(res).categoryId),
         ),
       );
   };
@@ -152,6 +165,18 @@ export class CatalogController {
             actor(req),
             validated(res, "query") as AdminProductListQuery,
           ),
+        ),
+      );
+  };
+  product = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Product retrieved",
+          req.id,
+          await this.service.product(actor(req), params(res).productId),
         ),
       );
   };

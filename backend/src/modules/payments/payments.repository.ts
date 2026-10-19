@@ -48,6 +48,44 @@ export const paymentSelect = {
   },
 } satisfies Prisma.PaymentSelect;
 
+// Staff-only fields must not expand the shared customer payment projection.
+export const staffPaymentSelect = {
+  ...paymentSelect,
+  updatedAt: true,
+  attempts: {
+    ...paymentSelect.attempts,
+    select: {
+      ...paymentSelect.attempts.select,
+      manualReview: {
+        select: {
+          ...paymentSelect.attempts.select.manualReview.select,
+          reviewerNote: true,
+          submittedByUserId: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.PaymentSelect;
+export function staffPaymentView(
+  record: Prisma.PaymentGetPayload<{ select: typeof staffPaymentSelect }>,
+  actorId: string,
+) {
+  return {
+    ...record,
+    attempts: record.attempts.map((attempt) => {
+      if (!attempt.manualReview) return attempt;
+      const { submittedByUserId, ...review } = attempt.manualReview;
+      return {
+        ...attempt,
+        manualReview: {
+          ...review,
+          canReview: review.status === "PENDING" && submittedByUserId !== actorId,
+        },
+      };
+    }),
+  };
+}
+
 export class PaymentsRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
   customerProfile(userId: string, client: DatabaseClient = this.database) {
@@ -133,6 +171,9 @@ export class PaymentsRepository {
   owned(id: string, customerId: string, client: DatabaseClient = this.database) {
     return client.payment.findFirst({ where: { id, customerId }, select: paymentSelect });
   }
+  staffGet(id: string, client: DatabaseClient = this.database) {
+    return client.payment.findUnique({ where: { id }, select: staffPaymentSelect });
+  }
   listCustomer(customerId: string, query: PaymentListQuery) {
     return this.database.payment.findMany({
       where: { customerId, ...(query.status ? { status: query.status } : {}) },
@@ -167,7 +208,7 @@ export class PaymentsRepository {
             }
           : {}),
       },
-      select: paymentSelect,
+      select: staffPaymentSelect,
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,
       ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),

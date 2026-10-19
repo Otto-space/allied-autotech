@@ -83,6 +83,11 @@ export class InventoryRepository {
       FROM "Inventory"
       WHERE (${branchId ?? null}::uuid IS NULL OR "branchId" = ${branchId ?? null}::uuid)
         AND (${query.productId ?? null}::uuid IS NULL OR "productId" = ${query.productId ?? null}::uuid)
+        AND (${query.search ?? null}::text IS NULL OR EXISTS (
+          SELECT 1 FROM "Product" AS p WHERE p."id" = "Inventory"."productId"
+            AND (strpos(lower(p."name"), lower(${query.search ?? ""}::text)) > 0
+              OR strpos(lower(p."sku"), lower(${query.search ?? ""}::text)) > 0)
+        ))
         AND (${query.lowStock ?? null}::boolean IS NULL OR ${query.lowStock ?? null}::boolean = false OR ("quantity" - "reserved") <= "reorderLevel")
         AND (${query.cursor ?? null}::uuid IS NULL OR "id" > ${query.cursor ?? null}::uuid)
       ORDER BY "id" ASC

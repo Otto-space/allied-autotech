@@ -9,6 +9,11 @@ import {
 } from "../orders/order-aftercare.schemas.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import {
+  financeEmptyQuery,
+  policyVersionResponse,
+  financeWorkspaceResponse,
+} from "./finance-policy-workspace.js";
+import {
   bookingActionQuery,
   bookingActionBody,
 } from "../service-operations/booking-actions.routes.js";
@@ -24,12 +29,14 @@ import {
   review,
   hold,
   privacyPageQuery,
+  staffPrivacyPageQuery,
   holdQuery,
   releaseHold,
 } from "./privacy.routes.js";
 import { transfer, check } from "../payments/manual-refunds.routes.js";
 import {
   refundQueueRecordSchema,
+  refundCurrentRecordSchema,
   refundActionResponseSchema,
   refundEvidenceResponseSchema,
 } from "../payments/refund-record.js";
@@ -46,8 +53,20 @@ import {
   disputeListSchema,
   disputeRecordSchema,
   privateEvidenceUploadSchema,
+  disputeIdParams,
+  disputeEmptyQuery,
+  disputeOperatorQuery,
+  disputeOperatorPage,
 } from "../payments/disputes.schemas.js";
 
+const capabilityGrant = z.object({
+  id: z.uuid(),
+  userId: z.uuid(),
+  capability: z.string(),
+  grantedByUserId: z.uuid(),
+  grantedAt: z.iso.datetime({ offset: true }),
+  revokedAt: z.iso.datetime({ offset: true }).nullable(),
+});
 const id = z.object({ id: z.uuid() });
 const refundId = z.object({ refundId: z.uuid() });
 const privacyRecord = z.object({
@@ -130,8 +149,22 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       method: "get",
       path: "/staff/finance-policy",
       summary: "Read the latest 100 financial policy versions for approval review",
+      query: financeEmptyQuery,
+      data: z.array(policyVersionResponse).max(100),
       roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
       capability: "FINANCE_POLICY_APPROVE; SUPER_ADMIN may read without a grant",
+    },
+    {
+      method: "get",
+      path: "/staff/finance-policy/current",
+      summary:
+        "Read effective, next scheduled and latest financial policy with bounded history",
+      query: financeEmptyQuery,
+      data: financeWorkspaceResponse,
+      roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      capability: "FINANCE_POLICY_APPROVE; SUPER_ADMIN may read without a grant",
+      description:
+        "Private, no-store and atomically audited. Current and next scheduled policy are selected from all versions using effective time then descending version; history contains at most 100 latest recorded versions. evaluatedAt is the server selection time. Existing finance gate rules determine operational availability.",
     },
     {
       method: "get",
@@ -147,6 +180,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       method: "post",
       path: "/admin/policies",
       summary: "Publish an approved policy version with written provenance",
+      data: policyVersionResponse,
       body: publishPolicyBodySchema,
       created: true,
       roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
@@ -159,6 +193,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary:
         "Read the latest 100 grants and revocations, or all active grants with activeOnly=true",
       query: capabilityListQuerySchema,
+      data: z.array(capabilityGrant),
       roles: ["SUPER_ADMIN"],
     },
     {
@@ -166,6 +201,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       path: "/admin/capabilities",
       summary: "Grant a narrow duty to a verified existing account",
       body: z.object({ userId: z.uuid(), capability: capabilities }).strict(),
+      data: capabilityGrant,
       created: true,
       roles: ["SUPER_ADMIN"],
     },
@@ -175,6 +211,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary: "Revoke a duty immediately with an audit reason",
       params: id,
       body: z.object({ reason: z.string().min(10).max(1000) }).strict(),
+      data: z.object({ id: z.uuid(), revoked: z.literal(true) }),
       roles: ["SUPER_ADMIN"],
     },
     {
@@ -197,7 +234,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       method: "get",
       path: "/staff/privacy-requests",
       summary: "List privacy review queue",
-      query: privacyPageQuery,
+      query: staffPrivacyPageQuery,
       data: z.object({
         items: z.array(staffPrivacyRecord),
         nextCursor: z.uuid().nullable(),
@@ -237,7 +274,12 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary: "Release a hold with written justification; destruction stays disabled",
       body: releaseHold,
       params: id,
-      data: z.object({ id: z.uuid() }),
+      data: z.object({
+        id: z.uuid(),
+        userId: z.uuid(),
+        releasedAt: z.iso.datetime(),
+        releaseReason: z.string(),
+      }),
       capability: "PRIVACY_REVIEW",
     },
     {
@@ -254,6 +296,15 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary: "Read latest 100 branch-authorized order review requests",
       params: id,
       data: z.array(staffAftercareResponse),
+    },
+    {
+      method: "get",
+      path: "/staff/order-requests/{id}",
+      summary: "Read one branch-authorized aftercare request for explicit recovery",
+      description:
+        "Private no-store direct read, independent of the latest-100 history window. Requires staff MFA and an active assigned branch for STAFF. Does not replay a review or change order, stock or refunds.",
+      params: id,
+      data: staffAftercareResponse,
     },
     {
       method: "post",
@@ -316,7 +367,18 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       params: refundId,
       body: refundDecisionBodySchema,
       capability: "REFUND_APPROVE",
-      data: refundQueueRecordSchema,
+      data: refundCurrentRecordSchema,
+    },
+    {
+      method: "get",
+      path: "/staff/refunds/{refundId}",
+      summary:
+        "Read a current refund independently of paging, with private audit and safe cancellation facts",
+      params: refundId.strict(),
+      query: z.object({}).strict(),
+      capability:
+        "Verified active ADMIN/SUPER_ADMIN may inspect; STAFF requires a live refund capability and matching delegated queue scope",
+      data: refundCurrentRecordSchema,
     },
     {
       method: "get",
@@ -386,6 +448,23 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       }),
       capability: "DISPUTE_MANAGE",
     },
+    {
+      method: "get",
+      path: "/staff/disputes/operators",
+      summary: "Find verified active operators eligible for dispute assignment",
+      query: disputeOperatorQuery,
+      data: disputeOperatorPage,
+      capability: "DISPUTE_MANAGE; ADMIN or SUPER_ADMIN only",
+    },
+    {
+      method: "get",
+      path: "/staff/disputes/{id}",
+      summary: "Read an audited current dispute within the actor's assignment scope",
+      params: disputeIdParams,
+      query: disputeEmptyQuery,
+      data: disputeRecordSchema,
+      capability: "DISPUTE_MANAGE; STAFF must be a primary or backup assignee",
+    },
   ];
   for (const [action, body, summary] of [
     [
@@ -422,6 +501,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     routes.push({
       method: "post",
       path: `/staff/disputes/{id}/${action}`,
+      query: disputeEmptyQuery,
       data:
         action === "evidence-upload"
           ? privateEvidenceUploadSchema

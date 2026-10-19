@@ -137,7 +137,11 @@ const operationalGroups: DashboardGroup[] = [
       { href: "/admin/vehicles", label: "Vehicle stock" },
       { href: "/admin/inspections", label: "Vehicle inspections" },
       { href: "/admin/vehicle-sales", label: "Vehicle sales" },
-      { href: "/admin/reservation-terms", label: "Reservation agreements", roles: ["SUPER_ADMIN"] },
+      {
+        href: "/admin/reservation-terms",
+        label: "Reservation agreements",
+        roles: ["SUPER_ADMIN"],
+      },
     ],
   },
   {
@@ -184,6 +188,11 @@ const operationalGroups: DashboardGroup[] = [
     icon: Users,
     links: [
       adminOnly("/admin/staff", "Staff directory"),
+      {
+        href: "/admin/workforce/access",
+        label: "Responsibilities",
+        roles: ["SUPER_ADMIN"],
+      },
       adminOnly("/admin/staff/invite", "Promotions & invitations"),
       adminOnly("/admin/audit", "Audit log"),
     ],

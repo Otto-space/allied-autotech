@@ -2,6 +2,21 @@ import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
 import { paymentEvidenceUploadBodySchema } from "./payments.schemas.js";
 const expected = { expectedUpdatedAt: z.iso.datetime({ offset: true }).optional() };
+export const disputeIdParams = z.object({ id: z.uuid() }).strict();
+export const disputeEmptyQuery = z.object({}).strict();
+export const disputeOperatorQuery = z
+  .object({
+    cursor: z.uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(50).default(25),
+    q: z.string().trim().min(1).max(100).optional(),
+  })
+  .strict();
+export const disputeOperatorPage = z
+  .object({
+    items: z.array(z.object({ id: z.uuid(), label: z.string() }).strict()),
+    nextCursor: z.uuid().nullable(),
+  })
+  .strict();
 export const disputeListSchema = z
   .object({
     cursor: z.uuid().optional(),
@@ -53,12 +68,12 @@ export const disputeActionBodies = {
   "evidence-access": z.object({}).strict(),
   submission: disputeSubmissionSchema,
 };
-const operatorSelect = {
+export const operatorSelect = {
   id: true,
   email: true,
   staffProfile: { select: { firstName: true, lastName: true } },
 } satisfies Prisma.UserSelect;
-function operatorLabel(
+export function operatorLabel(
   user: Prisma.UserGetPayload<{ select: typeof operatorSelect }> | null,
 ) {
   return user

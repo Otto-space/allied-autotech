@@ -238,11 +238,25 @@ export class ServiceOperationsRepository {
             ? {}
             : { isActive: query.isActive }),
         ...(query.pricingType === undefined ? {} : { pricingType: query.pricingType }),
+        ...(!activeOnly && query.categoryId ? { categoryId: query.categoryId } : {}),
+        ...(!activeOnly && query.search
+          ? {
+              OR: ["name", "shortDescription", "description"].map((field) => ({
+                [field]: {
+                  contains: query.search!.replace(/[\\%_]/g, "\\$&"),
+                  mode: "insensitive",
+                },
+              })),
+            }
+          : {}),
+        // Administrator cursors are UUID positions, independent of the anchor's
+        // continued existence or membership in the current filter.
+        ...(!activeOnly && query.cursor ? { id: { gt: query.cursor } } : {}),
       },
       select: serviceCatalogueSelect,
       orderBy: { id: "asc" },
       take: query.limit + 1,
-      ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
+      ...(activeOnly && query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
     });
     return rows.map((row) => projectCatalogueService(row, activeOnly));
   }

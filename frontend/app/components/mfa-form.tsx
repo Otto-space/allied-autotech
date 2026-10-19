@@ -17,16 +17,24 @@ import { Feedback } from "./feedback";
 import { MfaChallenge } from "./mfa-challenge";
 import { MfaEnrollment } from "./mfa-enrollment";
 import { RecoveryCodes } from "./recovery-codes";
+import { AuthenticatorReplacement } from "./authenticator-replacement";
 const subscribe = () => () => {};
 const clientReady = () => true;
 const serverReady = () => false;
-export function MfaForm({ enroll = false }: { enroll?: boolean }) {
+export function MfaForm({
+  enroll = false,
+  replace = false,
+}: {
+  enroll?: boolean;
+  replace?: boolean;
+}) {
   const ready = useSyncExternalStore(subscribe, clientReady, serverReady);
   const router = useRouter();
   const [session, setSession] = useState<MfaSession>();
   const [error, setError] = useState<string>();
   const [revision, setRevision] = useState(0);
   const [setup, setSetup] = useState(false);
+  const [replacement, setReplacement] = useState(replace);
   const [challengeRequired, setChallengeRequired] = useState(false);
   const [complete, setComplete] = useState(false);
   const [codes, setCodes] = useState<string[]>();
@@ -65,6 +73,7 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
       setCodes(undefined);
       setComplete(false);
       setSetup(false);
+      setReplacement(false);
       setChallengeRequired(false);
       setChecking(false);
       checkBusy.current = false;
@@ -101,6 +110,11 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
     }
     setSetup(false);
     setChallengeRequired(false);
+    if (replacement && !newCodes) {
+      setSetup(true);
+      setComplete(false);
+      return;
+    }
     setComplete(true);
     setCodes(newCodes);
   }
@@ -151,8 +165,10 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
         <h1 ref={heading} tabIndex={-1}>
           {complete
             ? "Verification complete"
-            : session && ((verified && enroll) || setup)
-              ? "Set up MFA"
+            : session && ((verified && (enroll || replacement)) || setup)
+              ? replacement
+                ? "Replace authenticator"
+                : "Set up MFA"
               : "Verify it's you"}
           <span>.</span>
         </h1>
@@ -187,7 +203,16 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
         </>
       ) : complete ? (
         <>
-          {!codes && <Feedback tone="success" message="MFA verification confirmed." />}
+          {!codes && (
+            <Feedback
+              tone="success"
+              message={
+                replacement
+                  ? "Authenticator replaced. Your previous registration can no longer verify sign-ins."
+                  : "MFA verification confirmed."
+              }
+            />
+          )}
           {codes ? (
             <RecoveryCodes
               headingLevel="h1"
@@ -205,15 +230,32 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
             </button>
           )}
         </>
-      ) : (verified && enroll) || setup ? (
-        <MfaEnrollment
-          onComplete={finished}
-          onCheck={() => void checkAndContinue()}
-          onReverify={() => {
-            setSetup(false);
-            setChallengeRequired(true);
-          }}
-        />
+      ) : (verified && (enroll || replacement)) || setup ? (
+        replacement ? (
+          <AuthenticatorReplacement
+            onComplete={finished}
+            onCheck={() => void checkAndContinue()}
+            onReverify={() => {
+              setSetup(false);
+              setChallengeRequired(true);
+            }}
+            onCancel={() => {
+              setSetup(false);
+              setReplacement(false);
+              setSession(undefined);
+              setRevision((value) => value + 1);
+            }}
+          />
+        ) : (
+          <MfaEnrollment
+            onComplete={finished}
+            onCheck={() => void checkAndContinue()}
+            onReverify={() => {
+              setSetup(false);
+              setChallengeRequired(true);
+            }}
+          />
+        )
       ) : verified ? (
         <>
           <p>Your current session has already passed its required security checks.</p>
@@ -227,6 +269,8 @@ export function MfaForm({ enroll = false }: { enroll?: boolean }) {
         </>
       ) : (
         <MfaChallenge
+          replacement={replacement}
+          onReplaceAuthenticator={() => setReplacement(true)}
           onComplete={finished}
           onSetup={() => setSetup(true)}
           onCheck={() => void checkAndContinue()}

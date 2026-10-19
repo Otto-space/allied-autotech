@@ -5,6 +5,7 @@ import type { RequestBody } from "@/lib/api/contracts";
 import { parseSupportRecord, type SupportRecord } from "@/lib/api/support-schemas";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
+import { forgetThreadFormDraft } from "@/lib/admin/work-support-detail";
 
 export function ComplaintAcknowledgement({
   record,
@@ -12,20 +13,28 @@ export function ComplaintAcknowledgement({
   disabled,
   onSaved,
   onUncertain,
+  onReview,
 }: {
   record: SupportRecord;
   base: string;
   disabled: boolean;
   onSaved: () => void;
   onUncertain: () => void;
+  onReview?: (proposal: MutationProposal) => void;
 }) {
   const [message, setMessage] = useState("");
   const [validation, setValidation] = useState<string>();
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const pending = useRef<AbortController | null>(null);
   const field = useRef<HTMLTextAreaElement>(null);
+  const formElement = useRef<HTMLFormElement>(null);
   useEffect(() => () => pending.current?.abort(), []);
-  if (record.kind !== "complaints" || record.acknowledgedAt !== null) return null;
+  if (
+    record.kind !== "complaints" ||
+    record.acknowledgedAt !== null ||
+    record.status === "CLOSED"
+  )
+    return null;
   return (
     <section className="detail-section" aria-labelledby="complaint-acknowledgement-title">
       <h2 id="complaint-acknowledgement-title">Acknowledge this complaint</h2>
@@ -35,6 +44,7 @@ export function ComplaintAcknowledgement({
       </p>
       <Feedback message={validation} />
       <form
+        ref={formElement}
         data-draft-key={JSON.stringify(["complaint-acknowledgement:1", record?.id, base])}
         onSubmit={(event) => {
           event.preventDefault();
@@ -46,7 +56,18 @@ export function ComplaintAcknowledgement({
             return;
           }
           setValidation(undefined);
-          setProposal({
+          const body: RequestBody<
+            "/staff/support/complaints/{supportId}/acknowledge",
+            "post"
+          > = { message: response };
+          (onReview ?? setProposal)({
+            supportChange: { kind: "acknowledgement", body },
+            onConfirmed: () => {
+              if (onReview) {
+                if (formElement.current) forgetThreadFormDraft(formElement.current);
+                setMessage("");
+              }
+            },
             title: "Acknowledge this complaint?",
             description:
               "This records the first acknowledgement and adds your response to the conversation. If another team member has already acknowledged it, the existing acknowledgement is retained and this response is not added. Review the saved messages afterward.",
@@ -64,6 +85,13 @@ export function ComplaintAcknowledgement({
               const controller = new AbortController();
               pending.current = controller;
               try {
+                if (onReview)
+                  return await apiRequest(`${base}/acknowledge`, {
+                    method: "POST",
+                    csrf: true,
+                    body,
+                    signal: controller.signal,
+                  });
                 let current: SupportRecord;
                 try {
                   current = parseSupportRecord(
@@ -83,10 +111,8 @@ export function ComplaintAcknowledgement({
                   });
                 }
                 if (current.acknowledgedAt) return;
-                const body: RequestBody<
-                  "/staff/support/complaints/{supportId}/acknowledge",
-                  "post"
-                > = { message: response };
+                if (current.status === "CLOSED")
+                  throw new ApiError(409, { error: { code: "CONFLICT" } });
                 const saved = parseSupportRecord(
                   "complaints",
                   true,

@@ -87,6 +87,8 @@ const optionalEmail = z.preprocess(
 const environmentSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DEPLOYMENT_ENV: z.enum(["local", "staging", "production"]).default("local"),
+  PRIVATE_TESTING_ENABLED: booleanValue(false),
+  PRIVATE_TESTING_PASSWORD: optionalNonEmptyString,
 
   PORT: z.coerce.number().int().min(1).max(65_535).default(5000),
 
@@ -523,8 +525,8 @@ export function assertGeneralWorkerEnvironment(
 
 export function assertPaystackMode(runtime: typeof env = env): void {
   const key = runtime.PAYSTACK_SECRET_KEY;
-  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.PAYSTACK_MODE !== "test")
-    throw new Error("Staging requires PAYSTACK_MODE=test");
+  if (runtime.DEPLOYMENT_ENV === "staging" && runtime.PAYSTACK_MODE === "live")
+    throw new Error("Staging permits only disabled or test-mode Paystack");
   if (runtime.PAYSTACK_MODE === "disabled") {
     if (key !== undefined)
       throw new Error("PAYSTACK_SECRET_KEY must be unset when PAYSTACK_MODE is disabled");

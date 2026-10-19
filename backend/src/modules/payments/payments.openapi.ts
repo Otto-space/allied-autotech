@@ -9,6 +9,7 @@ import {
   refundCreateBodySchema,
   refundDecisionBodySchema,
   staffPaymentListQuerySchema,
+  refundRecoveryQuerySchema,
 } from "./payments.schemas.js";
 
 const response = z.object({
@@ -110,6 +111,20 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
       query: staffPaymentListQuerySchema,
     },
     {
+      method: "get",
+      path: "/staff/payments/{paymentId}",
+      summary: "Read a current private payment for administrator review",
+      params: z.object({ paymentId: uuid }),
+      query: z.object({}).strict(),
+    },
+    {
+      method: "get",
+      path: "/staff/payments/refunds/original-request",
+      summary: "Read the original actor-bound refund request without resubmitting",
+      query: refundRecoveryQuerySchema,
+      headers: idempotent.omit({ "x-csrf-token": true }),
+    },
+    {
       method: "post",
       path: "/staff/payments/manual-attempts/{attemptId}/review",
       summary: "Review a manual payment with separation of duties",
@@ -153,6 +168,15 @@ export function registerPaymentsOpenApi(registry: OpenAPIRegistry): void {
           : "Requires the customer account that owns the payment; server verification remains authoritative.") +
         (route.method === "get" && route.path === "/customers/payments/{paymentId}"
           ? " The private no-store detail response includes checkoutProviders, containing only currently enabled online provider names. An empty array means online checkout is unavailable. This is configuration availability, not authorization to charge; initialization independently validates the current payable and competing attempts. No provider credentials or internal configuration are exposed."
+          : "") +
+        (route.path === "/staff/payments" || route.path === "/staff/payments/{paymentId}"
+          ? " Staff-only private no-store reads are audited and include updatedAt plus manualReview.reviewerNote and actor-specific canReview. Submitter/reviewer identities, customer IDs and storage object keys are excluded. Customer projections are unchanged. Provider filtering matches any attempt and retains all attempts on each matching payment."
+          : "") +
+        (route.path === "/staff/payments/refunds/original-request"
+          ? " This private no-store read uses the original Idempotency-Key header and paymentAttemptId query. A found record belongs to the current requester and returns the safe current refund projection; another requester receives404. No domain mutation or submission occurs. A missing record returns found:false,refund:null and does not prove an in-flight request failed. READ audits never retain the raw key or financial reason."
+          : "") +
+        (route.path === "/staff/payments/refunds"
+          ? " Original-key replay requires the same requester and exact attempt, amount and reason. Creation/replay return safe queue fields without idempotency hashes, beneficiary encryption, object keys or reconciliation tokens. Concurrent same-key requests create one refund and one request audit."
           : "") +
         (route.attemptCreation
           ? " Only one unresolved attempt is permitted per payment across manual, Paystack and Monnify methods. A different key while an attempt is unresolved returns 409 PAYMENT_ATTEMPT_PENDING; original-key replay retains an unresolved checkout or the committed manual submission. A terminal checkout URL is never replayed. An initialization timeout or expired checkout URL does not prove failure. Verify or review the existing attempt before starting another. A shared payable lock also blocks competing attempts across legacy payment records with 409 PAYMENT_TARGET_PENDING. New charges recheck the source status, expiry and amount due."

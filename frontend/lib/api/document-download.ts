@@ -1,15 +1,30 @@
 "use client";
 import { ApiError, invalidateSession } from "./client";
+export type StaffInvoicePdf = {
+  version: number;
+  status: "DRAFT" | "ISSUED" | "PAID" | "VOID";
+};
 
 export async function fetchDocumentPdf(
   kind: "invoice" | "receipt",
   id: string,
   signal: AbortSignal,
+  staff?: StaffInvoicePdf,
 ): Promise<File> {
   if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(id))
     throw new Error("Invalid document identifier");
-  const path =
-    kind === "invoice"
+  if (
+    staff &&
+    (kind !== "invoice" ||
+      !Number.isSafeInteger(staff.version) ||
+      staff.version < 0 ||
+      staff.version > 2_147_483_647 ||
+      !["DRAFT", "ISSUED", "PAID", "VOID"].includes(staff.status))
+  )
+    throw Error("Invalid invoice export scope");
+  const path = staff
+    ? `/staff/invoices/${id}/download?${new URLSearchParams({ expectedVersion: String(staff.version), expectedStatus: staff.status })}`
+    : kind === "invoice"
       ? `/customers/invoices/${id}/download`
       : `/customers/payments/${id}/receipt`;
   const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(30_000)]);
@@ -30,6 +45,9 @@ export async function fetchDocumentPdf(
     response.headers.get("content-type")?.split(";")[0].trim() !== "application/pdf" ||
     response.headers.get("x-document-id") !== id ||
     response.headers.get("x-document-type") !== kind ||
+    (staff &&
+      (response.headers.get("x-document-version") !== String(staff.version) ||
+        response.headers.get("x-document-status") !== staff.status)) ||
     !response.body
   )
     throw new Error("Invalid document response");

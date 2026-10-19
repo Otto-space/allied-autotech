@@ -6,6 +6,7 @@ import { clearSessionCookie, sessionCookieName } from "../security/cookies.js";
 import { hashToken } from "../security/session-tokens.js";
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
+import { enforceWorkforceBoundary } from "../../modules/organization/workforce.policy.js";
 
 interface AuthenticateOptions {
   allowMfaPending?: boolean;
@@ -101,6 +102,7 @@ export function authenticate(options: AuthenticateOptions = {}) {
         expiresAt: session.expiresAt,
         idleExpiresAt: nextIdleExpiry,
       };
+      await enforceWorkforceBoundary(prisma, req.actor, req.originalUrl);
       next();
     } catch (error: unknown) {
       next(error);

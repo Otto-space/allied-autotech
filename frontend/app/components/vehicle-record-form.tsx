@@ -5,8 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
-import { useResource } from "@/lib/api/use-resource";
-import { parseStaffProfile } from "@/lib/api/staff-booking-schemas";
+
 import { vehicleEnums, type StaffVehicle } from "@/lib/api/staff-vehicle-schemas";
 import {
   recordSchema,
@@ -16,45 +15,16 @@ import {
 } from "@/lib/forms/vehicle-record";
 import type { RequestBody } from "@/lib/api/contracts";
 import { formatKobo } from "@/lib/format/money";
-import { formatBusinessDate } from "@/lib/format/date";
+import {
+  formatStockInstant,
+  forgetStockFormDraft,
+} from "@/lib/admin/work-vehicle-detail";
 import { SlotCatalogPicker } from "./slot-catalog-picker";
 import { useAccountSession } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 
-export function NewVehicleRecord() {
-  const session = useAccountSession();
-  const ownBranch = session?.user.role === "STAFF";
-  const profile = useResource(ownBranch ? "/staff/profile" : null, parseStaffProfile);
-  if (
-    ownBranch &&
-    (profile.loading || profile.error || !profile.data?.staffProfile?.branchId)
-  )
-    return (
-      <>
-        <Feedback message={profile.error} />
-        <p>
-          {profile.loading
-            ? "Checking your assigned branch…"
-            : "An assigned staff branch is required to create a stock record."}
-        </p>
-        <button
-          className="button secondary"
-          disabled={profile.loading}
-          onClick={profile.refresh}
-        >
-          Refresh staff profile
-        </button>
-      </>
-    );
-  return (
-    <VehicleRecordForm
-      branchId={
-        ownBranch ? (profile.data?.staffProfile?.branchId ?? undefined) : undefined
-      }
-    />
-  );
-}
+export { WorkVehicleCreate as NewVehicleRecord } from "./work-vehicle-create";
 
 const fields = [
   ["stockNumber", "Stock number", 40],
@@ -78,11 +48,13 @@ export function VehicleRecordForm({
   branchId,
   disabled = false,
   onSaved,
+  onReview,
 }: {
   vehicle?: StaffVehicle;
   branchId?: string;
   disabled?: boolean;
   onSaved?: () => void;
+  onReview?: (proposal: MutationProposal) => void;
 }) {
   const router = useRouter();
   const session = useAccountSession();
@@ -100,7 +72,7 @@ export function VehicleRecordForm({
   });
   function review(values: VehicleRecordValues) {
     if (disabled || proposal || uncertain || changed) return;
-    const fields = vehicleRecordBody(values, includeAcquisition);
+    const fields = vehicleRecordBody(values, includeAcquisition, vehicle);
     const body:
       | RequestBody<"/staff/vehicles", "post">
       | RequestBody<"/staff/vehicles/{vehicleId}", "patch"> = vehicle
@@ -111,31 +83,61 @@ export function VehicleRecordForm({
           stockNumber: values.stockNumber.toUpperCase(),
         };
     setMessage(undefined);
-    setProposal({
+    const offer: MutationProposal = {
+      stockChange: vehicle
+        ? {
+            kind: "record",
+            id: vehicle.id,
+            expectedVersion: vehicle.version,
+            expected: fields,
+          }
+        : undefined,
       title: vehicle ? "Save this vehicle record?" : "Create this stock record?",
       description:
         "This saves the permitted vehicle details. It does not create or publish a sale listing. Empty optional fields are recorded as not set.",
       facts: [
         { label: "Stock number", value: values.stockNumber.toUpperCase() },
-        { label: "Vehicle", value: `${values.year} ${values.make} ${values.model}` },
-        { label: "Condition", value: values.condition },
-        ...(includeAcquisition
-          ? [
+        ...(vehicle ? [{ label: "Workshop branch", value: vehicle.branch.name }] : []),
+        ...Object.entries(fields).map(([key, value]) => ({
+          label:
+            (
               {
-                label: "Acquisition cost",
-                value: fields.acquisitionCostKobo
-                  ? formatKobo(fields.acquisitionCostKobo)
-                  : "Not recorded",
-              },
-            ]
-          : []),
-        {
-          label: "Acquired at",
-          value: fields.acquiredAt
-            ? formatBusinessDate(fields.acquiredAt)
-            : "Not recorded",
-        },
+                make: "Make",
+                model: "Model",
+                trim: "Trim",
+                year: "Model year",
+                mileageKm: "Mileage",
+                condition: "Condition",
+                transmission: "Transmission",
+                fuelType: "Fuel type",
+                bodyType: "Body type",
+                driveType: "Drive type",
+                engineSize: "Engine size",
+                color: "Colour",
+                doors: "Doors",
+                seats: "Seats",
+                vin: "VIN",
+                chassisNumber: "Chassis number",
+                registrationNumber: "Registration number",
+                acquisitionCostKobo: "Acquisition cost",
+                acquiredAt: "Acquired at",
+              } as Record<string, string>
+            )[key] ?? key,
+          value:
+            value == null
+              ? "Not recorded"
+              : key === "acquisitionCostKobo"
+                ? formatKobo(String(value))
+                : key === "acquiredAt"
+                  ? formatStockInstant(String(value))
+                  : key === "mileageKm"
+                    ? `${Number(value).toLocaleString("en-NG")} km`
+                    : String(value).replaceAll("_", " "),
+        })),
       ],
+      onConfirmed: () => {
+        if (vehicle) setLoadedVersion(vehicle.version + 1);
+      },
       onUncertain: vehicle ? undefined : () => setUncertain(true),
       submit: async () => {
         const response = await apiRequest(
@@ -144,8 +146,11 @@ export function VehicleRecordForm({
         );
         if (!vehicle)
           createdId.current = z.object({ id: z.string().uuid() }).parse(response.data).id;
+        return response;
       },
-    });
+    };
+    if (onReview) onReview(offer);
+    else setProposal(offer);
   }
   return (
     <>
@@ -161,6 +166,13 @@ export function VehicleRecordForm({
             className="button secondary"
             disabled={disabled}
             onClick={() => {
+              forgetStockFormDraft(
+                (
+                  document.getElementById(
+                    "vehicle-record-make",
+                  ) as HTMLInputElement | null
+                )?.form ?? null,
+              );
               form.reset(vehicleDefaults(vehicle));
               setLoadedVersion(vehicle.version);
             }}
@@ -178,7 +190,7 @@ export function VehicleRecordForm({
       <form
         data-draft-key={JSON.stringify(["vehicle-record-form:1", vehicle?.id, branchId])}
         noValidate
-        onSubmit={form.handleSubmit(review)}
+        onSubmit={(event) => void form.handleSubmit(review)(event)}
       >
         <fieldset
           className="handover-fields"

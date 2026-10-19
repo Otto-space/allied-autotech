@@ -1,0 +1,391 @@
+.work-payments {
+  min-width: 0;
+}
+.work-payments :is(.wp-confirmed h2, .wp-recovery h2, .wp-record-header h2) {
+  scroll-margin-top: 24px;
+}
+.dashboard .dashboard-content .work-payments h1 {
+  font-size: 30px;
+  line-height: 1.25;
+}
+.work-payments .wi-breadcrumb ol,
+.work-payments .wi-breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.work-payments .wi-header {
+  align-items: flex-start;
+}
+.wp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.wp-filters fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.35fr auto;
+  align-items: end;
+  gap: 16px;
+}
+.wp-filters .field {
+  min-width: 0;
+}
+.wp-filters :is(input, select) {
+  width: 100%;
+}
+.wp-filters .field-hint {
+  margin: 12px 0 0;
+  color: #405566;
+}
+.wp-page,
+.wp-record-header,
+.wp-attempt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.wp-page {
+  margin: 24px 0 16px;
+  align-items: center;
+}
+.work-payments .wp-page h2 {
+  font-size: 20px;
+  margin: 0;
+}
+.wp-page p {
+  margin: 0;
+}
+.wp-records,
+.wp-attempts {
+  display: grid;
+  gap: 18px;
+}
+.wp-payment,
+.wp-confirmed {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .work-payments .wp-payment h2 {
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+.wp-record-header {
+  padding-bottom: 18px;
+  border-bottom: 1px solid #d5dfe8;
+}
+.wp-record-header > div:first-child {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.dashboard .dashboard-content .work-payments .wp-record-header h2 {
+  margin: 0;
+}
+.dashboard .dashboard-content .work-payments .field {
+  margin: 0;
+}
+.wp-amount {
+  display: grid;
+  gap: 5px;
+  text-align: right;
+  max-width: 100%;
+}
+.wp-amount strong {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.wp-amount span {
+  color: #405566;
+}
+.wp-status {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #c3d0dd;
+  background: #f0f4f8;
+  border-radius: 5px;
+  padding: 4px 8px;
+  line-height: 1.4;
+}
+.wp-status.requires_review {
+  background: #fff6df;
+  color: #6e4500;
+  border-color: #dfc387;
+}
+.wp-status.succeeded {
+  background: #edf8f0;
+  color: #19532e;
+  border-color: #a3c7af;
+}
+.wp-status.cancelled,
+.wp-status.expired {
+  background: #f7f1f0;
+  color: #6f3a32;
+  border-color: #d9bbb6;
+}
+.wp-facts {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+}
+.wp-facts > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.7fr) minmax(0, 1.3fr);
+  align-items: baseline;
+  gap: 12px;
+  min-width: 0;
+}
+.wp-facts dt {
+  font-size: 12px;
+  color: #405566;
+  font-weight: 500;
+}
+.wp-facts dd {
+  font-size: 13px;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.wp-payment-facts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 28px;
+  margin: 18px 0;
+}
+.wp-payment-facts > div {
+  display: block;
+}
+.wp-payment-facts dt {
+  margin-bottom: 5px;
+}
+.wp-attempt {
+  padding: 18px;
+  background: #f6f8fb;
+  border: 1px solid #d5dfe8;
+  border-radius: 9px;
+  min-width: 0;
+}
+.wp-attempt-header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d5dfe8;
+}
+.work-payments .wp-attempt h3 {
+  font-size: 16px;
+  line-height: 1.55;
+  margin: 0;
+}
+.wp-attempt-header p {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 9px;
+  margin: 8px 0 0;
+}
+.wp-attempt-body {
+  min-width: 0;
+}
+.wp-attempt-body.expanded {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 24px;
+  margin-top: 16px;
+}
+.wp-evidence {
+  min-width: 0;
+}
+.wp-evidence > .detail-section {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #d5dfe8;
+  border-radius: 0;
+  padding: 14px 0 0;
+  margin: 16px 0 0;
+}
+.wp-editor {
+  padding-left: 24px;
+  border-left: 1px solid #c7d5e1;
+  min-width: 0;
+}
+.wp-editor form {
+  padding: 0;
+  margin: 0;
+}
+.wp-fields {
+  display: grid;
+  gap: 16px;
+  border: 0;
+  padding: 0;
+  margin: 16px 0 0;
+  min-width: 0;
+}
+.wp-fields .field {
+  min-width: 0;
+}
+.wp-fields :is(input, select, textarea) {
+  width: 100%;
+  max-width: 100%;
+}
+.wp-fields textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+.wp-fields .field-hint {
+  margin: 7px 0 0;
+}
+.wp-fields .button {
+  justify-self: start;
+}
+.wp-help {
+  color: #405566;
+  margin: 10px 0;
+}
+.wp-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 24px 0;
+}
+.wp-confirmed {
+  margin: 0 0 20px;
+}
+.wp-confirmed > .button {
+  margin: 12px 0 0 12px;
+}
+.wp-recovery {
+  overflow-wrap: anywhere;
+}
+.wp-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.7;
+  margin: 16px 0;
+  cursor: pointer;
+}
+.wp-ack input {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  flex: none;
+  margin-top: 2px;
+  accent-color: #c90000;
+}
+.work-payments .mutation-review .totals dd {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.work-payments .preserve-lines {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.work-payments .wp-current > h2 {
+  font-size: 18px;
+}
+@media (min-width: 1280px) {
+  .wp-payment-facts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1250px) {
+  .wp-filters fieldset {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wp-filters .wp-actions {
+    align-self: end;
+  }
+}
+@media (max-width: 1100px) {
+  .wp-attempt-body.expanded {
+    grid-template-columns: 1fr;
+  }
+  .wp-editor {
+    padding: 18px 0 0;
+    border-left: 0;
+    border-top: 1px solid #c7d5e1;
+  }
+  .work-payments .wi-header {
+    align-items: flex-start;
+  }
+}
+@media (max-width: 650px) {
+  .dashboard .dashboard-content .work-payments h1 {
+    font-size: 24px;
+  }
+  .work-payments .wi-header {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .wp-filters fieldset {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .wp-filters .wp-actions,
+  .work-payments .wi-header > .wp-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .wp-actions > .button {
+    width: 100%;
+  }
+  .wp-page {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .wp-payment-facts {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .wp-payment-facts > div {
+    display: grid;
+  }
+  .wp-payment-facts dt {
+    margin: 0;
+  }
+  .wp-record-header {
+    gap: 12px;
+  }
+  .wp-amount {
+    text-align: left;
+  }
+  .wp-record-header > div {
+    width: 100%;
+  }
+  .wp-attempt {
+    padding: 14px;
+  }
+  .wp-attempt-header > .button {
+    width: 100%;
+  }
+  .wp-fields .button {
+    width: 100%;
+  }
+  .wp-confirmed > .button {
+    margin-left: 0;
+    width: 100%;
+  }
+  .wp-confirmed > .text-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-payments * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

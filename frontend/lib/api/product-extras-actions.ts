@@ -1,7 +1,7 @@
 import { apiRequest, ApiError } from "./client";
 import type { RequestBody } from "./contracts";
 import {
-  parseProductExtrasPage,
+  parseProductExtrasSource,
   productExtrasRevision,
   parseCompatibilityChange,
   parseImageChange,
@@ -16,7 +16,7 @@ import {
 export async function checkProductExtras(sourcePath: string, expected: ProductExtras) {
   let current: ProductExtras | undefined;
   try {
-    current = parseProductExtrasPage(
+    current = parseProductExtrasSource(
       (await apiRequest<unknown>(sourcePath)).data,
     ).items.find((product) => product.id === expected.id);
   } catch (error) {

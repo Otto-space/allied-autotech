@@ -251,7 +251,7 @@ function CustomerAftercareScreen({
             </div>
             <div>
               <span>Workshop</span>
-              <strong>{current.branch.name}</strong>
+              <strong>{current.branch?.name ?? "Branch not recorded."}</strong>
             </div>
             <div>
               <span>Fulfillment</span>

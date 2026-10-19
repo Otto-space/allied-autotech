@@ -8,6 +8,7 @@ import { PublicMedia } from "./public-media";
 import { VehicleAttachmentForm } from "./vehicle-attachment-form";
 import { Feedback } from "./feedback";
 import type { MutationProposal } from "./mutation-review";
+import { CarFront } from "lucide-react";
 type Photo = StaffVehicle["images"][number];
 const receipt = z.object({ version: z.number().int() });
 export function StockImageGallery({
@@ -54,7 +55,12 @@ export function StockImageGallery({
     const body: RequestBody<"/staff/vehicles/{vehicleId}/images/{imageId}", "delete"> = {
       expectedVersion: vehicle.version,
     };
+    let savedVersion: number | undefined;
     onReview({
+      stockChange: { kind: "photo", id: photo.id, expectedVersion: vehicle.version },
+      onConfirmed: () => {
+        if (savedVersion !== undefined) saved(savedVersion);
+      },
       title: "Remove this vehicle photo?",
       description:
         "The photo will disappear from every listing for this vehicle. Removing the primary photo selects the first remaining photo. Owned files are queued for cleanup; external files stay with their host.",
@@ -65,7 +71,8 @@ export function StockImageGallery({
           `/staff/vehicles/${vehicle.id}/images/${photo.id}`,
           { method: "DELETE", csrf: true, body },
         );
-        saved(receipt.parse(result.data).version);
+        savedVersion = receipt.parse(result.data).version;
+        return result;
       },
     });
   }
@@ -105,6 +112,7 @@ export function StockImageGallery({
               src={photo.url}
               alt={photo.altText ?? `${vehicle.make} ${vehicle.model}`}
               stockPreview
+              fallbackIcon={<CarFront size={32} strokeWidth={1.5} />}
             />
             <p>{photo.altText ?? "No photo description recorded"}</p>
             <p className="muted">Display order: {photo.sortOrder}</p>
@@ -253,7 +261,12 @@ function PhotoEditor({
             sortOrder: Number(order),
             isPrimary: primary,
           };
+        let savedVersion: number | undefined;
         onReview({
+          stockChange: { kind: "photo", id: photo.id, expectedVersion: version },
+          onConfirmed: () => {
+            if (savedVersion !== undefined) onVersion(savedVersion);
+          },
           title: "Update this vehicle photo?",
           description:
             "Description, ordering and primary selection apply to all listings for this vehicle.",
@@ -268,7 +281,8 @@ function PhotoEditor({
               `/staff/vehicles/${vehicleId}/images/${photo.id}`,
               { method: "PATCH", csrf: true, body },
             );
-            onVersion(receipt.parse(result.data).version);
+            savedVersion = receipt.parse(result.data).version;
+            return result;
           },
         });
       }}

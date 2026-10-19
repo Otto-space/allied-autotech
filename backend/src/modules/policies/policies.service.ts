@@ -7,6 +7,7 @@ import { prisma } from "../../config/database.js";
 import type { BusinessPolicyVersion, Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { paymentConflict, paymentForbidden } from "../payments/payments.errors.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 
 type PolicyDatabase = Pick<
   Prisma.TransactionClient,
@@ -183,6 +184,8 @@ export async function grantCapability(
   if (actor.role !== "SUPER_ADMIN" || actor.mfaVerifiedAt === null)
     throw paymentForbidden();
   return prisma.$transaction(async (tx) => {
+    await lockAccessActor(tx, actor);
+    await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${userId}::uuid FOR UPDATE`;
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (
       !user ||

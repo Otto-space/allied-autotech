@@ -100,7 +100,25 @@ export function VehicleAttachmentForm({
             issuedAt: values.issuedAt ? `${values.issuedAt}:00+01:00` : null,
             expiresAt: values.expiresAt ? `${values.expiresAt}:00+01:00` : null,
           };
+    let savedVersion: number | undefined;
     onReview({
+      stockChange: {
+        kind: kind === "IMAGE" ? "photo" : "document-create",
+        expectedVersion,
+        expected:
+          kind === "DOCUMENT"
+            ? {
+                type: values.type,
+                issuedAt: values.issuedAt ? `${values.issuedAt}:00+01:00` : null,
+                expiresAt: values.expiresAt ? `${values.expiresAt}:00+01:00` : null,
+              }
+            : undefined,
+      },
+      onConfirmed: () => {
+        if (kind === "IMAGE" && onVersion && savedVersion !== undefined)
+          onVersion(savedVersion);
+        setLocked(true);
+      },
       title:
         kind === "IMAGE"
           ? replacement
@@ -145,8 +163,10 @@ export function VehicleAttachmentForm({
           { method: "POST", csrf: true, body },
         );
         if (kind === "IMAGE" && onVersion)
-          onVersion(z.object({ version: z.number().int() }).parse(result.data).version);
-        setLocked(true);
+          savedVersion = z
+            .object({ version: z.number().int() })
+            .parse(result.data).version;
+        return result;
       },
     });
   }

@@ -93,3 +93,25 @@ export const refundQueueRecordSchema = z.object({
   failedAt: date,
   updatedAt: z.iso.datetime({ offset: true }),
 });
+
+// Direct staff inspection and decision receipts add the stored cancellation facts.
+// Never spread the underlying failureMessage into a queue or customer projection.
+export const refundCurrentSelect = {
+  ...refundQueueSelect,
+  cancelledAt: true,
+} satisfies Prisma.RefundSelect;
+type CurrentRefund = Prisma.RefundGetPayload<{ select: typeof refundCurrentSelect }>;
+export function refundCurrentRecord(
+  row: CurrentRefund,
+  cancellationNote: string | null = null,
+) {
+  return {
+    ...row,
+    amountKobo: row.amountKobo.toString(),
+    cancellationNote: row.status === "CANCELLED" ? cancellationNote : null,
+  };
+}
+export const refundCurrentRecordSchema = refundQueueRecordSchema.extend({
+  cancelledAt: date,
+  cancellationNote: z.string().nullable(),
+});

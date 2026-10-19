@@ -19,13 +19,114 @@ import { assertCapability } from "../policies/policies.service.js";
 import { paymentConflict, paymentNotFound, paymentForbidden } from "./payments.errors.js";
 import type { PaymentEvidenceUploadInput } from "./payments.schemas.js";
 import type { RefundListQuery } from "../audit/audit.schemas.js";
-import { refundQueueSelect, refundBeneficiarySchema } from "./refund-record.js";
+import {
+  refundQueueSelect,
+  refundBeneficiarySchema,
+  refundCurrentSelect,
+  refundCurrentRecord,
+} from "./refund-record.js";
 
 export class ManualRefundsService {
   constructor(
     private readonly database: PrismaClient = prisma,
     private readonly storage: ObjectStoragePort = objectStorage,
   ) {}
+
+  private async scope(
+    tx: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    administratorInspection = false,
+  ): Promise<Prisma.RefundWhereInput> {
+    if (actor.role === "CUSTOMER" || actor.mfaVerifiedAt === null)
+      throw paymentForbidden();
+    const user = await tx.user.findUnique({
+      where: { id: actor.userId },
+      select: {
+        role: true,
+        status: true,
+        emailVerifiedAt: true,
+        owner_UserCapability_userId: {
+          where: {
+            revokedAt: null,
+            capability: { in: ["REFUND_APPROVE", "REFUND_TRANSFER", "REFUND_CHECK"] },
+          },
+          select: { capability: true },
+        },
+      },
+    });
+    if (
+      !user ||
+      user.role !== actor.role ||
+      user.status !== "ACTIVE" ||
+      !user.emailVerifiedAt
+    )
+      throw paymentForbidden();
+    if (administratorInspection && ["ADMIN", "SUPER_ADMIN"].includes(actor.role))
+      return {};
+    const grants = new Set(
+      user.owner_UserCapability_userId.map((grant) => grant.capability),
+    );
+    if (!grants.size) throw paymentForbidden();
+    const scopes: Prisma.RefundWhereInput[] = [];
+    if (grants.has("REFUND_APPROVE"))
+      scopes.push({ OR: [{ status: "REQUESTED" }, { approvedByUserId: actor.userId }] });
+    if (grants.has("REFUND_TRANSFER"))
+      scopes.push({
+        paymentAttempt: { provider: "MANUAL" },
+        authorizationKind: "HUMAN",
+        approvedAt: { not: null },
+      });
+    if (grants.has("REFUND_CHECK"))
+      scopes.push({
+        paymentAttempt: { provider: "MANUAL" },
+        transferredByUserId: { not: null },
+      });
+    return { OR: scopes };
+  }
+
+  async current(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
+    return this.database.$transaction(
+      async (tx) => {
+        const scope = await this.scope(tx, actor, true);
+        const row = await tx.refund.findFirst({
+          where: { AND: [scope, { id }] },
+          select: refundCurrentSelect,
+        });
+        if (!row) throw paymentNotFound();
+        const cancellation =
+          row.status === "CANCELLED"
+            ? await tx.auditLog.findFirst({
+                where: {
+                  entityType: "REFUND",
+                  entityId: id,
+                  action: "STATUS_CHANGE",
+                  newValues: { path: ["decision"], equals: "CANCELLED" },
+                },
+                orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+                select: { newValues: true },
+              })
+            : null;
+        const values = cancellation?.newValues;
+        const note =
+          values &&
+          typeof values === "object" &&
+          !Array.isArray(values) &&
+          typeof values["note"] === "string"
+            ? values["note"]
+            : null;
+        await appendAuditEvent(tx, {
+          actorUserId: actor.userId,
+          action: "READ",
+          entityType: "REFUND",
+          entityId: id,
+          newValues: { view: "CURRENT_REFUND", status: row.status },
+          context,
+        });
+        return refundCurrentRecord(row, note);
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
 
   async list(
     actor: AuthenticatedActor,
@@ -35,50 +136,9 @@ export class ManualRefundsService {
     if (actor.role === "CUSTOMER" || actor.mfaVerifiedAt === null)
       throw paymentForbidden();
     return this.database.$transaction(async (tx) => {
-      const user = await tx.user.findUnique({
-        where: { id: actor.userId },
-        select: {
-          role: true,
-          status: true,
-          emailVerifiedAt: true,
-          owner_UserCapability_userId: {
-            where: {
-              revokedAt: null,
-              capability: { in: ["REFUND_APPROVE", "REFUND_TRANSFER", "REFUND_CHECK"] },
-            },
-            select: { capability: true },
-          },
-        },
-      });
-      if (
-        !user ||
-        user.role !== actor.role ||
-        user.status !== "ACTIVE" ||
-        !user.emailVerifiedAt ||
-        !user.owner_UserCapability_userId.length
-      )
-        throw paymentForbidden();
-      const grants = new Set(
-        user.owner_UserCapability_userId.map((grant) => grant.capability),
-      );
-      const scopes: Prisma.RefundWhereInput[] = [];
-      if (grants.has("REFUND_APPROVE"))
-        scopes.push({
-          OR: [{ status: "REQUESTED" }, { approvedByUserId: actor.userId }],
-        });
-      if (grants.has("REFUND_TRANSFER"))
-        scopes.push({
-          paymentAttempt: { provider: "MANUAL" },
-          authorizationKind: "HUMAN",
-          approvedAt: { not: null },
-        });
-      if (grants.has("REFUND_CHECK"))
-        scopes.push({
-          paymentAttempt: { provider: "MANUAL" },
-          transferredByUserId: { not: null },
-        });
+      const scope = await this.scope(tx, actor);
       const rows = await tx.refund.findMany({
-        where: { OR: scopes, ...(query.status ? { status: query.status } : {}) },
+        where: { AND: [scope, ...(query.status ? [{ status: query.status }] : [])] },
         select: refundQueueSelect,
         orderBy: [{ requestedAt: "desc" }, { id: "desc" }],
         take: query.limit + 1,

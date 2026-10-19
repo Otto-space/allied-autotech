@@ -13,6 +13,10 @@ const choice = z.object({
 });
 const parseChoices = (value: unknown) =>
   z.object({ items: z.array(choice), nextCursor: z.string().optional() }).parse(value);
+const parseBranchChoice = (value: unknown) => ({
+  items: [choice.parse(value)],
+  nextCursor: undefined,
+});
 export function SlotCatalogPicker({
   kind,
   id,
@@ -22,6 +26,7 @@ export function SlotCatalogPicker({
   error,
   onAvailabilityChange,
   draftContext = false,
+  branchId,
 }: {
   kind: "branch" | "service";
   id: string;
@@ -31,12 +36,15 @@ export function SlotCatalogPicker({
   error?: string;
   onAvailabilityChange?: (blocked: boolean) => void;
   draftContext?: boolean;
+  branchId?: string;
 }) {
   const pagination = useCursorPage();
   const [selectedLabel, setSelectedLabel] = useState("Selected record");
   const choices = useResource(
-    `${kind === "branch" ? "/public/branches?" : "/public/services?pricingType=FIXED&"}limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
-    parseChoices,
+    kind === "branch" && branchId
+      ? `/public/branches/${branchId}`
+      : `${kind === "branch" ? "/public/branches?" : "/public/services?pricingType=FIXED&"}limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
+    kind === "branch" && branchId ? parseBranchChoice : parseChoices,
   );
   const unavailable =
     choices.loading ||
@@ -76,7 +84,7 @@ export function SlotCatalogPicker({
           );
         }}
       >
-        <option value="">Choose a {kind}</option>
+        {!branchId && <option value="">Choose a {kind}</option>}
         {value && !visible.some((item) => item.id === value) && (
           <option value={value}>{selectedLabel}</option>
         )}

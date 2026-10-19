@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
-import { DisputeWorkQueue } from "@/app/components/dispute-work-queue";
+import { Suspense } from "react";
+import { WorkDisputeHandling } from "@/app/components/work-dispute-handling";
+import "./dispute-handling.css";
 export const metadata: Metadata = { title: "Dispute work queue" };
 export default function Page() {
-  return <DisputeWorkQueue />;
+  return (
+    <Suspense fallback={<p role="status">Loading dispute workspace…</p>}>
+      <WorkDisputeHandling />
+    </Suspense>
+  );
 }

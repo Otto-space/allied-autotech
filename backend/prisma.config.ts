@@ -3,6 +3,9 @@ import { defineConfig, env } from "prisma/config";
 
 import { parseDatabaseTlsEnvironment } from "./src/config/database-tls.js";
 import { createPrismaDatabaseUrl } from "./src/config/database-url.js";
+import { assertSafePrismaCommand } from "./src/config/prisma-command-safety.js";
+
+assertSafePrismaCommand(process.argv.slice(2), process.env);
 
 const databaseHostValue = env("DB_HOST");
 const databasePort = env("DB_PORT");

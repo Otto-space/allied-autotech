@@ -142,6 +142,7 @@ export function StaffAccessForm({
             if (action === "status" && value.status) {
               const body: RequestBody<"/admin/staff/{staffUserId}/status", "patch"> = {
                 status: value.status,
+                expectedRevision: expected,
               };
               const result = parseStaffStatus(
                 (
@@ -157,6 +158,7 @@ export function StaffAccessForm({
             } else if (action === "branch") {
               const body: RequestBody<"/admin/staff/{staffUserId}/branch", "patch"> = {
                 branchId: value.branchId,
+                expectedRevision: expected,
               };
               const result = parseStaffBranch(
                 (
@@ -176,6 +178,7 @@ export function StaffAccessForm({
               const body: RequestBody<"/admin/staff/{staffUserId}/role", "patch"> = {
                 role: "STAFF",
                 branchId: value.branchId,
+                expectedRevision: expected,
               };
               const result = parseStaffMember(
                 (
@@ -293,7 +296,7 @@ export function StaffAccessForm({
             />
           </div>
         )}
-        <button className="button secondary">Review account change</button>
+        <button className="button">Review account change</button>
       </fieldset>
     </form>
   );

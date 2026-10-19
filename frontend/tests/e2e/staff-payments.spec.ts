@@ -2,11 +2,13 @@ import { test, expect, type Page, type Route } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
-import type { StaffPayment } from "@/lib/api/staff-payment-schemas";
+import type { WorkPayment } from "@/lib/admin/work-payments";
+import { decidePayment } from "../fixtures/work-payments";
 import type { ProcessingRefund } from "@/lib/api/refund-processing";
+import { refundFixtureDto } from "../fixtures/work-refunds";
 const id = (value: number) =>
   `a0000000-0000-4000-8000-${String(value).padStart(12, "0")}`;
-const paymentFixture = (): StaffPayment => ({
+const paymentFixture = (): WorkPayment => ({
   id: id(1),
   paymentNumber: "ISOLATED-PAYMENT-001",
   amountKobo: "1234567890123456",
@@ -19,6 +21,9 @@ const paymentFixture = (): StaffPayment => ({
   bookingId: null,
   vehicleTransactionId: null,
   createdAt: "2026-09-17T09:00:00Z",
+  updatedAt: "2026-09-17T09:00:00Z",
+  cancelledAt: null,
+  expiredAt: null,
   succeededAt: null,
   attempts: [
     {
@@ -41,6 +46,8 @@ const paymentFixture = (): StaffPayment => ({
         evidenceSha256: "a".repeat(64),
         submittedAt: "2026-09-17T09:00:00Z",
         reviewedAt: null,
+        reviewerNote: null,
+        canReview: true,
       },
     },
   ],
@@ -72,8 +79,37 @@ const refundFixture = (): ProcessingRefund => ({
   failedAt: null,
   updatedAt: "2026-09-17T09:30:00Z",
 });
-const reply = (route: Route, data: unknown) =>
-  route.fulfill({
+const reply = (route: Route, original: unknown) => {
+  const url = new URL(route.request().url()),
+    endpoint = url.pathname.replace("/api/v1", "");
+  let data = original;
+  if (
+    endpoint === "/admin/operations/payment-refunds" &&
+    original &&
+    typeof original === "object" &&
+    "items" in original &&
+    Array.isArray(original.items)
+  ) {
+    const items = original.items
+      .map((v) => refundFixtureDto(v))
+      .filter(
+        (v) =>
+          !url.searchParams.has("status") ||
+          (v as { status: string }).status === url.searchParams.get("status"),
+      );
+    data = { ...original, items, ...(!items.length ? { nextCursor: undefined } : {}) };
+  } else if (/^\/staff\/refunds\/[^/]+(?:\/decision)?$/.test(endpoint)) {
+    const wanted = endpoint.split("/")[3];
+    const record =
+      original &&
+      typeof original === "object" &&
+      "items" in original &&
+      Array.isArray(original.items)
+        ? original.items.find((v) => v.id === wanted)
+        : original;
+    data = refundFixtureDto(record, true);
+  }
+  return route.fulfill({
     json: {
       success: true,
       message: "Isolated response",
@@ -81,6 +117,7 @@ const reply = (route: Route, data: unknown) =>
       data,
     },
   });
+};
 async function fixture(
   page: Page,
   handler: (route: Route, endpoint: string) => Promise<boolean | void>,
@@ -88,7 +125,12 @@ async function fixture(
 ) {
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
-    if (await handler(route, endpoint)) return;
+    const currentRefund =
+      route.request().method() === "GET" && /^\/staff\/refunds\/[^/]+$/.test(endpoint);
+    if (
+      await handler(route, currentRefund ? "/admin/operations/payment-refunds" : endpoint)
+    )
+      return;
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(10),
@@ -130,12 +172,23 @@ test("refund cancellation preserves its note and failed queue loading is not an 
           status: 503,
           json: { success: false, error: { code: "UNAVAILABLE" } },
         });
-      else await reply(route, { items: [refund], nextCursor: id(30) });
+      else
+        await reply(
+          route,
+          new URL(route.request().url()).searchParams.has("cursor")
+            ? { items: [] }
+            : { items: [refund], nextCursor: refund.id },
+        );
       return true;
     }
     if (endpoint.endsWith("/decision")) {
       writes.push(route.request().postDataJSON());
-      refund.status = "CANCELLED";
+      Object.assign(refund, {
+        status: "CANCELLED",
+        updatedAt: new Date().toISOString(),
+        cancelledAt: new Date().toISOString(),
+        cancellationNote: route.request().postDataJSON().note ?? null,
+      });
       await reply(route, refund);
       return true;
     }
@@ -153,9 +206,12 @@ test("refund cancellation preserves its note and failed queue loading is not an 
     .getByRole("navigation", { name: "Refund requests pages" })
     .getByRole("button", { name: "Next" })
     .click();
-  await expect.poll(() => queries.at(-1)).toContain(`cursor=${id(30)}`);
+  await expect.poll(() => queries.at(-1)).toContain(`cursor=${refund.id}`);
   await page.getByLabel("Refund status filter").selectOption("REQUESTED");
-  await expect.poll(() => queries.at(-1)).toBe("?limit=25&status=REQUESTED");
+  await expect
+    .poll(() => new URLSearchParams(queries.at(-1)).get("status"))
+    .toBe("REQUESTED");
+  expect(new URLSearchParams(queries.at(-1)).has("cursor")).toBe(false);
   await page.getByRole("button", { name: "Review refund actions" }).click();
   await page
     .getByLabel("Refund cancellation note (optional)")
@@ -166,7 +222,7 @@ test("refund cancellation preserves its note and failed queue loading is not an 
     "Isolated duplicate request cancelled",
   );
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("CANCELLED");
+  await expect(page.locator(".wr-handling .wr-value")).toContainText("Cancelled");
   expect(writes).toEqual([
     { decision: "CANCELLED", note: "Isolated duplicate request cancelled" },
   ]);
@@ -209,15 +265,17 @@ test("an interrupted refund approval stays locked across queue filters until rec
   ).toBeDisabled();
   expect(writes).toBe(1);
   refund.status = "PENDING";
-  await page.getByRole("button", { name: "Refresh refund records" }).click();
-  await expect(page.locator(".status")).toHaveText("PENDING");
+  refund.approvedAt = "2026-09-17T10:00:00Z";
+  refund.approvedByUserId = id(11);
+  await page.getByRole("button", { name: "Load current refund" }).click();
+  await expect(page.locator(".wr-handling .wr-value")).toContainText("Pending");
   await expect(page.getByRole("button", { name: "Review refund decision" })).toHaveCount(
     0,
   );
   refund.status = "SUCCEEDED";
   refund.processedAt = "2026-09-17T10:00:00Z";
-  await page.getByRole("button", { name: "Refresh refund records" }).click();
-  await expect(page.locator(".status")).toHaveText("SUCCEEDED");
+  await page.getByRole("button", { name: "Load current refund" }).click();
+  await expect(page.locator(".wr-handling .wr-value")).toContainText("Succeeded");
   expect(writes).toBe(1);
 });
 
@@ -268,7 +326,13 @@ test("administrator payment filters validate references and reset paging", async
           status: 503,
           json: { success: false, error: { code: "UNAVAILABLE" } },
         });
-      else await reply(route, { items: [payment], nextCursor: id(30) });
+      else
+        await reply(
+          route,
+          new URL(route.request().url()).searchParams.has("cursor")
+            ? { items: [] }
+            : { items: [payment], nextCursor: payment.id },
+        );
       return true;
     },
     "ADMIN",
@@ -278,6 +342,7 @@ test("administrator payment filters validate references and reset paging", async
   failed = false;
   await page.getByRole("button", { name: "Refresh payment records" }).click();
   await expect(page.getByRole("heading", { name: payment.paymentNumber })).toBeVisible();
+  await page.getByRole("button", { name: "Review manual payment", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Review manual payment decision" }),
   ).toHaveCount(1);
@@ -288,7 +353,7 @@ test("administrator payment filters validate references and reset paging", async
     .getByRole("navigation", { name: "Staff payments pages" })
     .getByRole("button", { name: "Next" })
     .click();
-  await expect.poll(() => queries.at(-1)).toContain(`cursor=${id(30)}`);
+  await expect.poll(() => queries.at(-1)).toContain(`cursor=${payment.id}`);
   await page.getByLabel("Customer profile reference (optional)").fill("invalid");
   await page.getByRole("button", { name: "Apply payment filters" }).click();
   await expect(page.getByLabel("Customer profile reference (optional)")).toBeFocused();
@@ -298,7 +363,7 @@ test("administrator payment filters validate references and reset paging", async
   await expect.poll(() => queries.at(-1)).toContain(`customerId=${id(40)}`);
   expect(queries.at(-1)).toContain("provider=MANUAL");
   expect(queries.at(-1)).not.toContain("cursor=");
-  expect(page.url()).not.toContain(id(40));
+  expect(page.url()).toContain(id(40));
   await page.getByRole("button", { name: "Clear payment filters" }).click();
   await expect.poll(() => queries.at(-1)).toBe("?limit=25");
 });
@@ -308,21 +373,23 @@ test("administrator manual approval requires a note and shows only server-confir
   const payment = paymentFixture();
   const writes: unknown[] = [];
   await fixture(page, async (route, endpoint) => {
+    if (endpoint === `/staff/payments/${payment.id}`) {
+      await reply(route, payment);
+      return true;
+    }
     if (endpoint === "/staff/payments") {
       await reply(route, { items: [payment] });
       return true;
     }
     if (endpoint.endsWith("/review")) {
       writes.push(route.request().postDataJSON());
-      payment.status = "SUCCEEDED";
-      payment.attempts[0].status = "SUCCESSFUL";
-      payment.attempts[0].verificationStatus = "VERIFIED";
-      payment.attempts[0].manualReview!.status = "APPROVED";
+      decidePayment(payment, "APPROVED", route.request().postDataJSON().reviewerNote);
       await reply(route, payment);
       return true;
     }
   });
   await page.goto("/admin/payments");
+  await page.getByRole("button", { name: "Review manual payment", exact: true }).click();
   await page.getByLabel("Manual payment decision").selectOption("APPROVED");
   await page.getByRole("button", { name: "Review manual payment decision" }).click();
   await expect(page.getByLabel("Manual payment reviewer note")).toBeFocused();
@@ -330,10 +397,10 @@ test("administrator manual approval requires a note and shows only server-confir
     .getByLabel("Manual payment reviewer note")
     .fill("Isolated bank reconciliation completed");
   await page.getByRole("button", { name: "Review manual payment decision" }).click();
-  await expect(page.getByRole("dialog")).toContainText("independently verified");
+  await expect(page.getByRole("dialog")).toContainText("independently matching");
   expect(writes).toHaveLength(0);
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status")).toHaveText("SUCCEEDED");
+  await expect(page.locator(".wp-confirmed")).toContainText("Succeeded");
   expect(writes[0]).toEqual({
     decision: "APPROVED",
     reviewerNote: "Isolated bank reconciliation completed",
@@ -341,9 +408,7 @@ test("administrator manual approval requires a note and shows only server-confir
   await expect(
     page.getByRole("button", { name: "Review manual payment decision" }),
   ).toHaveCount(0);
-  await expect(
-    page.getByText("Request a refund for this attempt", { exact: true }),
-  ).toBeVisible();
+  await expect(page.getByLabel("Refund amount (NGN)", { exact: true })).toBeVisible();
 });
 test("an unconfirmed manual rejection cannot be resent after filtering or reopening the record", async ({
   page,
@@ -351,6 +416,10 @@ test("an unconfirmed manual rejection cannot be resent after filtering or reopen
   const payment = paymentFixture();
   let writes = 0;
   await fixture(page, async (route, endpoint) => {
+    if (endpoint === `/staff/payments/${payment.id}`) {
+      await reply(route, payment);
+      return true;
+    }
     if (endpoint === "/staff/payments") {
       await reply(route, { items: [payment] });
       return true;
@@ -366,6 +435,7 @@ test("an unconfirmed manual rejection cannot be resent after filtering or reopen
     }
   });
   await page.goto("/admin/payments");
+  await page.getByRole("button", { name: "Review manual payment", exact: true }).click();
   await page
     .getByLabel("Manual payment reviewer note")
     .fill("Isolated evidence mismatch");
@@ -383,15 +453,16 @@ test("an unconfirmed manual rejection cannot be resent after filtering or reopen
     page.getByRole("button", { name: "Review manual payment decision" }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Clear payment filters" }).click();
+  await page.getByRole("button", { name: "Review manual payment", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Review manual payment decision" }),
   ).toBeDisabled();
   expect(writes).toBe(1);
-  payment.attempts[0].manualReview!.status = "REJECTED";
-  payment.attempts[0].status = "FAILED";
-  payment.status = "REQUIRES_PAYMENT";
+  decidePayment(payment, "REJECTED", "Isolated evidence mismatch");
   await page.getByRole("button", { name: "Refresh payment records" }).click();
-  await expect(page.locator(".status")).toHaveText("REQUIRES PAYMENT");
+  await expect(page.locator(".wp-records .wp-status").first()).toHaveText(
+    "Awaiting payment",
+  );
   await expect(
     page.getByRole("button", { name: "Review manual payment decision" }),
   ).toHaveCount(0);
@@ -405,12 +476,17 @@ test("refund request preserves exact kobo and its idempotency key across a lost 
   payment.attempts[0].verificationStatus = "VERIFIED";
   payment.attempts[0].manualReview = null;
   const refund = refundFixture();
+  refund.requestedByUserId = id(11);
   const writes: { key: string | undefined; body: unknown }[] = [];
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await fixture(
     page,
     async (route, endpoint) => {
+      if (endpoint === `/staff/payments/${payment.id}`) {
+        await reply(route, payment);
+        return true;
+      }
       if (endpoint === "/staff/payments") {
         await reply(route, { items: [payment] });
         return true;
@@ -459,20 +535,21 @@ test("refund request preserves exact kobo and its idempotency key across a lost 
   });
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
   await expect(
-    page.getByRole("dialog").getByRole("button", { name: "Retry same request" }),
-  ).toBeVisible();
+    page.getByRole("dialog").getByRole("button", { name: "Confirm change" }),
+  ).toBeDisabled();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
-  await expect(
-    page.getByRole("button", { name: "Clear payment filters" }),
-  ).toBeDisabled();
-  await expect(page.getByLabel("Refund amount (NGN)")).toBeDisabled();
-  await page.getByRole("button", { name: "Review same refund request" }).click();
+  await expect(page.getByRole("button", { name: "Clear payment filters" })).toBeEnabled();
+  await expect(page.getByLabel("Refund amount (NGN)")).toBeEnabled();
+  await page.getByRole("button", { name: "Review original refund request" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
   await expect(
-    page.getByText(`Refund ${refund.refundNumber}:`, { exact: false }),
+    page.getByRole("heading", {
+      name: `Refund request ${refund.refundNumber}`,
+      exact: true,
+    }),
   ).toBeVisible();
   expect(writes).toHaveLength(2);
   expect(writes[0]).toEqual(writes[1]);
@@ -514,14 +591,21 @@ test("refund queue enforces different-operator decisions and separates attention
     }
   });
   await page.goto("/admin/refunds");
-  const self = page.getByRole("region", { name: own.refundNumber, exact: true });
-  await self.getByRole("button", { name: "Review refund actions" }).click();
-  await expect(self).toContainText("An authorized operator other than the requester");
+  const self = page
+    .locator(".wr-record")
+    .filter({ has: page.getByRole("heading", { name: own.refundNumber, exact: true }) });
+  await self.getByRole("button", { name: "View refund record" }).click();
+  await expect(page.locator(".wr-handling")).toContainText(
+    "An authorized operator other than the requester",
+  );
   await expect(self.getByRole("button", { name: "Review refund decision" })).toHaveCount(
     0,
   );
-  const section = page.getByRole("region", { name: refund.refundNumber, exact: true });
-  await section.getByRole("button", { name: "Review refund actions" }).click();
+  const record = page.locator(".wr-record").filter({
+    has: page.getByRole("heading", { name: refund.refundNumber, exact: true }),
+  });
+  await record.getByRole("button", { name: "Review refund actions" }).click();
+  const section = page.locator(".wr-handling");
   await section
     .getByLabel("Refund cancellation note (optional)")
     .fill("Not sent on approval");
@@ -532,7 +616,7 @@ test("refund queue enforces different-operator decisions and separates attention
   );
   expect(writes).toHaveLength(0);
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(section.locator(".status")).toHaveText("NEEDS ATTENTION");
+  await expect(section.locator(".wr-value")).toContainText("Needs attention");
   await expect(section).toContainText("Do not assume funds were returned");
   expect(writes[0]).toEqual({ decision: "APPROVED" });
   await expect(

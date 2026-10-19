@@ -1,4 +1,7 @@
-import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import {
+  extendZodWithOpenApi,
+  type OpenAPIRegistry,
+} from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
 import {
   assignmentBodySchema,
@@ -30,6 +33,8 @@ import {
   supportMessageListQuerySchema,
 } from "./support.schemas.js";
 
+extendZodWithOpenApi(z);
+
 const response = z.object({
   success: z.boolean(),
   message: z.string(),
@@ -40,6 +45,17 @@ const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 const namedReviewTarget = z
   .object({ id: z.uuid(), name: z.string(), slug: z.string() })
   .nullable();
+const publicReview = z.object({
+  id: z.uuid(),
+  targetType: z.enum(["BUSINESS", "PRODUCT", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"]),
+  rating: z.number().int().min(1).max(5),
+  title: z.string().nullable(),
+  comment: z.string(),
+  createdAt: z.iso.datetime(),
+  product: namedReviewTarget,
+  service: namedReviewTarget,
+  reviewer: z.object({ displayName: z.string(), photoUrl: z.string().nullable() }),
+});
 const reviewSubmission = z.object({
   id: z.uuid(),
   targetType: z.enum(["BUSINESS", "PRODUCT", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"]),
@@ -130,6 +146,41 @@ type Route = {
 };
 
 export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
+  registry.registerPath({
+    method: "get",
+    path: "/public/support/reviews/{reviewId}/photo",
+    tags: ["Support"],
+    summary: "Read the profile portrait for a currently approved review",
+    description:
+      "Returns only the current reviewer profile image for an APPROVED review. Missing, pending or rejected reviews and profiles without an attached portrait return 404. Customer contact details, profile IDs, object keys and private garage images are never exposed. Responses are private/no-store so removal, replacement and moderation are rechecked on the next request.",
+    security: [],
+    request: {
+      params: reviewIdParamsSchema,
+      query: z
+        .object({
+          v: z
+            .number()
+            .int()
+            .min(0)
+            .max(2147483647)
+            .optional()
+            .openapi({
+              param: { name: "v", in: "query" },
+              description:
+                "Current profile media version, used to reload a replaced portrait.",
+            }),
+        })
+        .strict(),
+    },
+    responses: {
+      200: {
+        description: "Reviewer portrait, private/no-store",
+        content: { "image/webp": { schema: { type: "string", format: "binary" } } },
+      },
+      404: { description: "No published review portrait is available" },
+      503: { description: "Image storage is temporarily unavailable" },
+    },
+  });
   const routes: Route[] = [
     {
       method: "get",
@@ -144,8 +195,11 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
     {
       method: "get",
       path: "/public/support/reviews",
-      summary: "List approved reviews without customer identity",
+      summary: "List approved reviews with reviewer display names and profile portraits",
+      description:
+        "Only approved reviews are published. Reviewer metadata contains a display name and a review-scoped photo URL or null. Contact information, customer/user IDs, moderation records and storage keys are excluded.",
       query: publicReviewListQuerySchema,
+      data: z.object({ items: z.array(publicReview), nextCursor: z.uuid().optional() }),
     },
     {
       method: "get",
@@ -382,6 +436,14 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       path: "/staff/support/reviews",
       summary: "List reviews awaiting administrative moderation",
       query: staffReviewListQuerySchema,
+      security: true,
+    },
+    {
+      method: "get",
+      path: "/staff/support/reviews/{reviewId}",
+      summary:
+        "Read one review for administrative moderation or current-state reconciliation",
+      params: reviewIdParamsSchema,
       security: true,
     },
     {

@@ -2,14 +2,33 @@
 import { useEffect, useRef, useState } from "react";
 import { ApiError } from "@/lib/api/client";
 import { Feedback } from "./feedback";
+import type { StockChange } from "@/lib/admin/work-vehicle-detail";
+import type { InspectionChange } from "@/lib/admin/work-inspections";
+import type { SaleChange } from "@/lib/admin/work-vehicle-sale-detail";
+import type { SupportChange } from "@/lib/admin/work-support-detail";
+import type { PrivacyChange } from "@/lib/admin/work-privacy";
+import type { ModerationChange } from "@/lib/admin/work-review-moderation";
+import type { PaymentChange } from "@/lib/admin/work-payments";
+import type { ExceptionChange } from "@/lib/admin/work-payment-exceptions";
+import type { HandlingChange } from "@/lib/admin/work-dispute-handling";
 
 export type MutationProposal = {
+  stockChange?: StockChange;
+  inspectionChange?: InspectionChange;
+  saleChange?: SaleChange;
+  supportChange?: SupportChange;
+  privacyChange?: PrivacyChange;
+  moderationChange?: ModerationChange;
+  paymentChange?: PaymentChange;
+  exceptionChange?: ExceptionChange;
+  disputeChange?: HandlingChange;
   presentation?: "quotation" | "agreement";
   title: string;
   description: string;
   facts: { label: string; value: string }[];
   submit: () => Promise<unknown>;
   onUncertain?: () => void;
+  onConfirmed?: () => void;
   retrySafely?: boolean;
   retryAfterRejection?: boolean;
 };
@@ -65,6 +84,7 @@ export function MutationReview({
     try {
       await proposal.submit();
       if (!active.current) return;
+      proposal.onConfirmed?.();
       onSuccess();
       onClose();
     } catch (error_) {

@@ -156,7 +156,7 @@ const action = process.argv[2];
 try {
   if (process.argv.length !== 3)
     throw new Error(
-      "Provide one action: preflight, init, keys, build, push, spec, validate.",
+      "Provide one action: preflight, init, keys, private-access, build, push, spec, validate.",
     );
   switch (action) {
     case "preflight": {
@@ -219,6 +219,12 @@ try {
           keyNames.map((name) => [name, randomBytes(32).toString("base64")]),
         ),
       );
+      break;
+    case "private-access":
+      writePrivate(path.join(privateDirectory, "private-access.json"), {
+        username: "allied-test",
+        PRIVATE_TESTING_PASSWORD: randomBytes(32).toString("hex"),
+      });
       break;
     case "build": {
       assertNew(buildPath);
@@ -354,7 +360,7 @@ try {
       break;
     default:
       throw new Error(
-        "Unknown action. Use preflight, init, keys, build, push, spec, or validate.",
+        "Unknown action. Use preflight, init, keys, private-access, build, push, spec, or validate.",
       );
   }
 } catch (error) {

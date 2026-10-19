@@ -481,6 +481,18 @@ export class SupportService {
     return page;
   }
 
+  async staffReview(
+    actor: AuthenticatedActor,
+    id: string,
+    context: RequestSecurityContext,
+  ) {
+    assertReviewModerator(actor);
+    const record = await this.repository.staffReview(id);
+    if (record === null) throw supportNotFound();
+    await this.auditPrivilegedRead(actor, "REVIEW", id, context);
+    return record;
+  }
+
   async staffRecord(
     actor: AuthenticatedActor,
     kind: "enquiry" | "complaint",
@@ -597,15 +609,16 @@ export class SupportService {
         transaction,
       );
       if (changed.count !== 1) throw supportStale();
-      if (input.response)
-        await this.repository.createMessage(
-          { enquiryId: id },
-          actor.userId,
-          "STAFF",
-          "CUSTOMER",
-          input.response,
-          transaction,
-        );
+      const messageReceipt = input.response
+        ? await this.repository.createMessage(
+            { enquiryId: id },
+            actor.userId,
+            "STAFF",
+            "CUSTOMER",
+            input.response,
+            transaction,
+          )
+        : null;
       if (current.customer?.userId)
         await enqueueNotification(transaction, {
           userId: current.customer.userId,
@@ -630,7 +643,12 @@ export class SupportService {
       );
       const updated = await this.repository.staffEnquiry(id, transaction);
       if (updated === null) throw supportNotFound();
-      return updated;
+      return {
+        ...updated,
+        messageReceipt: messageReceipt
+          ? { ...messageReceipt, conversationId: id, conversationKind: "enquiries" }
+          : null,
+      };
     });
   }
 
@@ -667,15 +685,16 @@ export class SupportService {
         transaction,
       );
       if (changed.count !== 1) throw supportStale();
-      if (input.resolution)
-        await this.repository.createMessage(
-          { complaintId: id },
-          actor.userId,
-          "STAFF",
-          "CUSTOMER",
-          input.resolution,
-          transaction,
-        );
+      const messageReceipt = input.resolution
+        ? await this.repository.createMessage(
+            { complaintId: id },
+            actor.userId,
+            "STAFF",
+            "CUSTOMER",
+            input.resolution,
+            transaction,
+          )
+        : null;
       if (current.customer?.userId)
         await enqueueNotification(transaction, {
           userId: current.customer.userId,
@@ -700,7 +719,12 @@ export class SupportService {
       );
       const updated = await this.repository.staffComplaint(id, transaction);
       if (updated === null) throw supportNotFound();
-      return updated;
+      return {
+        ...updated,
+        messageReceipt: messageReceipt
+          ? { ...messageReceipt, conversationId: id, conversationKind: "complaints" }
+          : null,
+      };
     });
   }
 
@@ -716,12 +740,15 @@ export class SupportService {
       const current = await this.repository.staffComplaint(id, tx);
       if (!current) throw supportNotFound();
       await this.assertStaffBranch(actor, current.branchId, tx);
-      if (current.acknowledgedAt) return current;
+      if (current.acknowledgedAt)
+        return { ...current, acknowledgedNow: false, messageReceipt: null };
+      if (current.status === "CLOSED")
+        throw supportConflict("Closed complaints cannot receive a new acknowledgement");
       await tx.complaint.update({
         where: { id },
         data: { acknowledgedAt: new Date(), acknowledgedByUserId: actor.userId },
       });
-      await this.repository.createMessage(
+      const messageReceipt = await this.repository.createMessage(
         { complaintId: id },
         actor.userId,
         "STAFF",
@@ -737,7 +764,17 @@ export class SupportService {
         newValues: { acknowledged: true },
         context,
       });
-      return this.repository.staffComplaint(id, tx);
+      const updated = await this.repository.staffComplaint(id, tx);
+      if (!updated) throw supportNotFound();
+      return {
+        ...updated,
+        acknowledgedNow: true,
+        messageReceipt: {
+          ...messageReceipt,
+          conversationId: id,
+          conversationKind: "complaints",
+        },
+      };
     });
   }
 
@@ -785,6 +822,10 @@ export class SupportService {
   ) {
     assertSupportOperator(actor);
     return this.database.$transaction(async (transaction) => {
+      if (kind === "enquiry")
+        await transaction.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR UPDATE`;
+      else
+        await transaction.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const record =
         kind === "enquiry"
           ? await this.repository.staffEnquiry(id, transaction)
@@ -820,7 +861,11 @@ export class SupportService {
         newValues: { messageId: created.id, visibility: input.visibility },
         context,
       });
-      return created;
+      return {
+        ...created,
+        conversationId: id,
+        conversationKind: kind === "enquiry" ? "enquiries" : "complaints",
+      };
     });
   }
 
@@ -831,7 +876,7 @@ export class SupportService {
     context: RequestSecurityContext,
   ) {
     assertReviewModerator(actor);
-    await this.database.$transaction(async (transaction) => {
+    return this.database.$transaction(async (transaction) => {
       const current = await this.repository.reviewForModeration(id, transaction);
       if (current === null) throw supportNotFound();
       if (current.status !== "PENDING")
@@ -868,11 +913,11 @@ export class SupportService {
         resourceId: id,
         channels: ["EMAIL"],
       });
+      const updated = await this.repository.review(id, transaction);
+      if (updated === null) throw supportNotFound();
+      const { customer: _customer, customerId: _customerId, ...safe } = updated;
+      return safe;
     });
-    const updated = await this.repository.review(id);
-    if (updated === null) throw supportNotFound();
-    const { customer: _customer, customerId: _customerId, ...safe } = updated;
-    return safe;
   }
 
   private async customer(actor: AuthenticatedActor) {

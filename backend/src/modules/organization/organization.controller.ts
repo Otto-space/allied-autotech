@@ -80,6 +80,7 @@ export class OrganizationController {
   };
 
   branches = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.service.branches(
       actor(request),
       validated<AdminBranchListQuery>(response, "query"),
@@ -91,6 +92,7 @@ export class OrganizationController {
   };
 
   branch = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const branch = await this.service.branch(
       actor(request),
       validated<{ branchId: string }>(response, "params").branchId,
@@ -100,6 +102,7 @@ export class OrganizationController {
   };
 
   createBranch = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const branch = await this.service.createBranch(
       actor(request),
       validated<BranchCreateInput>(response, "body"),
@@ -109,6 +112,7 @@ export class OrganizationController {
   };
 
   updateBranch = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const branch = await this.service.updateBranch(
       actor(request),
       validated<{ branchId: string }>(response, "params").branchId,
@@ -119,6 +123,7 @@ export class OrganizationController {
   };
 
   invite = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.service.invite(
       actor(request),
       validated<PrivilegedInvitationInput>(response, "body"),
@@ -153,6 +158,7 @@ export class OrganizationController {
   };
 
   candidates = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.team.search(
       actor(request),
       validated<{ email: string }>(response, "query").email,
@@ -163,6 +169,7 @@ export class OrganizationController {
       .json(successResponse("Eligible account search completed", request.id, result));
   };
   promote = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.team.promote(
       actor(request),
       validated<StaffPromotionInput>(response, "body"),
@@ -179,6 +186,7 @@ export class OrganizationController {
       );
   };
   invitations = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.team.list(
       actor(request),
       validated<InvitationListQuery>(response, "query"),
@@ -189,6 +197,7 @@ export class OrganizationController {
       .json(successResponse("Invitations retrieved", request.id, result));
   };
   revokeInvitation = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.team.revoke(
       actor(request),
       validated<{ invitationId: string }>(response, "params").invitationId,
@@ -197,8 +206,20 @@ export class OrganizationController {
     );
     response.status(200).json(successResponse("Invitation revoked", request.id, result));
   };
+  invitation = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
+    const result = await this.team.invitation(
+      actor(request),
+      validated<{ invitationId: string }>(response, "params").invitationId,
+      context(request),
+    );
+    response
+      .status(200)
+      .json(successResponse("Invitation retrieved", request.id, result));
+  };
 
   staffMembers = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.service.staffMembers(
       actor(request),
       validated<StaffListQuery>(response, "query"),
@@ -210,6 +231,7 @@ export class OrganizationController {
   };
 
   staffMember = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const staff = await this.service.staffMember(
       actor(request),
       validated<{ staffUserId: string }>(response, "params").staffUserId,
@@ -221,11 +243,13 @@ export class OrganizationController {
   };
 
   changeStatus = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.service.changeStatus(
       actor(request),
       validated<{ staffUserId: string }>(response, "params").staffUserId,
       validated<{ status: UserStatus }>(response, "body").status,
       context(request),
+      validated<{ expectedRevision?: string }>(response, "body").expectedRevision,
     );
     response
       .status(200)
@@ -233,11 +257,13 @@ export class OrganizationController {
   };
 
   assignBranch = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.service.assignBranch(
       actor(request),
       validated<{ staffUserId: string }>(response, "params").staffUserId,
       validated<{ branchId: string }>(response, "body").branchId,
       context(request),
+      validated<{ expectedRevision?: string }>(response, "body").expectedRevision,
     );
     response
       .status(200)
@@ -245,6 +271,7 @@ export class OrganizationController {
   };
 
   changeRole = async (request: Request, response: Response): Promise<void> => {
+    response.set("Cache-Control", "private, no-store");
     const result = await this.service.changeRole(
       actor(request),
       validated<{ staffUserId: string }>(response, "params").staffUserId,

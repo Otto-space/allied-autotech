@@ -2,6 +2,7 @@ import type { OperationalJobPosition } from "./operational-job-cursor.js";
 import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import { refundQueueSelect } from "../payments/refund-record.js";
+import { anomalySelect } from "./anomaly-record.js";
 import type {
   AnomalyListQuery,
   AuditListQuery,
@@ -13,8 +14,11 @@ import type {
 export class AuditRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
-  list(query: AuditListQuery) {
-    return this.database.auditLog.findMany({
+  list(
+    query: AuditListQuery,
+    client: Prisma.TransactionClient | PrismaClient = this.database,
+  ) {
+    return client.auditLog.findMany({
       where: {
         ...(query.userId ? { userId: query.userId } : {}),
         ...(query.action ? { action: query.action } : {}),
@@ -136,21 +140,7 @@ export class AuditRepository {
         ...(query.status ? { status: query.status } : {}),
         ...(query.type ? { type: query.type } : {}),
       },
-      select: {
-        id: true,
-        paymentId: true,
-        paymentAttemptId: true,
-        refundId: true,
-        disputeId: true,
-        type: true,
-        status: true,
-        summary: true,
-        detectedAt: true,
-        resolvedAt: true,
-        resolutionNote: true,
-        resolvedByUserId: true,
-        updatedAt: true,
-      },
+      select: anomalySelect,
       orderBy: [{ detectedAt: "desc" }, { id: "desc" }],
       take: query.limit + 1,
       ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),

@@ -12,6 +12,7 @@ import { csrfResultSchema } from "@/lib/api/security-schemas";
 import { useMfaOperation } from "@/lib/api/use-mfa-operation";
 import { Feedback } from "./feedback";
 import { MfaCodeForm } from "./mfa-code-form";
+import { AuthenticatorHelp } from "./authenticator-help";
 import type { z } from "zod";
 type Method = "totp" | "webauthn" | "recovery-code";
 type Options =
@@ -22,10 +23,14 @@ export function MfaChallenge({
   onComplete,
   onSetup,
   onCheck,
+  replacement = false,
+  onReplaceAuthenticator,
 }: {
   onComplete: (token: string) => void;
   onSetup: () => void;
   onCheck: () => void;
+  replacement?: boolean;
+  onReplaceAuthenticator: () => void;
 }) {
   const operation = useMfaOperation();
   const firstMethod = useRef<HTMLButtonElement>(null);
@@ -107,7 +112,7 @@ export function MfaChallenge({
       setCanSetup(results.every((value) => !value));
       setUnavailable(
         results.some(Boolean)
-          ? "An existing MFA method is available. Verify with that method before adding a new factor."
+          ? "An MFA method is already linked to your account. Verify with that method or a saved recovery code before adding a new one."
           : "No existing MFA method is available. You can set up your first factor.",
       );
     });
@@ -123,7 +128,9 @@ export function MfaChallenge({
             ? "Enter one of your saved recovery codes."
             : options?.method === "webauthn"
               ? "Your security key is ready. Continue to your browser?s prompt to verify."
-              : "Choose a method already linked to your account."}
+              : replacement
+                ? "Verify with a saved recovery code or another linked method. Then scan a new QR code to replace your old authenticator registration."
+                : "Choose a method already linked to your account."}
       </p>
       {!options && (
         <div className="mfa-methods" role="group" aria-label="MFA method">
@@ -249,7 +256,7 @@ export function MfaChallenge({
         <button className="button secondary" onClick={onCheck}>
           Check session status
         </button>
-      ) : !options ? (
+      ) : !options && !replacement ? (
         <div className="mfa-first-factor">
           <button
             className="mfa-text-button"
@@ -265,6 +272,24 @@ export function MfaChallenge({
           )}
         </div>
       ) : null}
+      {!replacement && (
+        <button
+          type="button"
+          className="mfa-text-button"
+          disabled={disabled}
+          onClick={() => {
+            setOptions(undefined);
+            setUnavailable(undefined);
+            setCanSetup(false);
+            operation.clearError();
+            onReplaceAuthenticator();
+            requestAnimationFrame(() => firstMethod.current?.focus());
+          }}
+        >
+          Set up authenticator again
+        </button>
+      )}
+      <AuthenticatorHelp />
     </>
   );
 }

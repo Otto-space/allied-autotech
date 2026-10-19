@@ -15,6 +15,7 @@ import { serviceCategoryUpdateSchema } from "../../src/modules/service-operation
 import { testOwner } from "../helpers/owner.js";
 import type { PrismaClient } from "../../src/generated/prisma/client.js";
 import { ServiceDiscoveryRepository } from "../../src/modules/service-operations/service-discovery.repository.js";
+import { maintainTestServiceSearch } from "../helpers/service-search-maintenance.js";
 
 const app = createApp({ checkReadiness: async () => undefined });
 const path = "/api/v1/public/services/discovery",
@@ -405,7 +406,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ]);
       // Exercise the maintained GIN index after bulk insertion; pending entries
       // otherwise make plan selection depend on whether autovacuum has run yet.
-      await prisma.$executeRaw`VACUUM (ANALYZE) "Service"`;
+      await maintainTestServiceSearch();
       const pattern = `%${prefix} 9999%`;
       const plan =
         await prisma.$queryRaw`EXPLAIN (FORMAT JSON) SELECT id FROM "Service" WHERE "isActive" = true AND (name ILIKE ${pattern} OR description ILIKE ${pattern} OR "shortDescription" ILIKE ${pattern})`;

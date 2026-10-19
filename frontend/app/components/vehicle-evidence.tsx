@@ -1,6 +1,6 @@
 "use client";
 import type { StaffVehicle } from "@/lib/api/staff-vehicle-schemas";
-import { formatBusinessDate } from "@/lib/format/date";
+import { formatStockInstant as formatBusinessDate } from "@/lib/admin/work-vehicle-detail";
 import { StockImageGallery } from "./stock-image-gallery";
 import { PrivateDocumentAccess } from "./private-document-access";
 import { VehicleAttachmentForm } from "./vehicle-attachment-form";
@@ -13,11 +13,13 @@ export function VehicleEvidence({
   disabled,
   onReview,
   onVersion,
+  accessDisabled,
 }: {
   vehicle: StaffVehicle;
   disabled: boolean;
   onReview: (proposal: MutationProposal) => void;
   onVersion: (version: number) => void;
+  accessDisabled?: boolean;
 }) {
   return (
     <>
@@ -80,7 +82,7 @@ export function VehicleEvidence({
             <PrivateDocumentAccess
               path={`/staff/vehicles/${vehicle.id}/documents/${document.id}/access`}
               label="vehicle document"
-              disabled={disabled}
+              disabled={accessDisabled ?? disabled}
             />
             <details>
               <summary>Assess this document</summary>

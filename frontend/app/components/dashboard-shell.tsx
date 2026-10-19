@@ -26,6 +26,9 @@ import { dashboardNavigation } from "@/lib/dashboard-navigation";
 import { DashboardNavigation, DashboardPageSearch } from "./dashboard-navigation";
 import { useResource } from "@/lib/api/use-resource";
 import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
+import { parseWorkforceAccess } from "@/lib/api/workforce-schemas";
+import { workforceNavigation } from "@/lib/workforce-navigation";
+import { WorkforceWorkspace, useWorkforceRefresh } from "./workforce-workspace";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
   typeof useResource<ReturnType<typeof parseOwnStaffProfile>>
@@ -58,8 +61,20 @@ export function DashboardShell({
   const collapseButton = useRef<HTMLButtonElement>(null);
   const mobileDialog = useRef<HTMLDialogElement>(null);
   const menuOpen = menuPath === pathname;
+  const workforce = useResource(
+    session?.workforceManaged ? "/staff/workforce/access" : null,
+    parseWorkforceAccess,
+  );
+  useWorkforceRefresh(workforce.refresh, workforce.data);
+  const verifiedWorkforce =
+    session?.workforceManaged &&
+    !workforce.error &&
+    workforce.data?.managed &&
+    workforce.data.userId === session.user.id
+      ? workforce.data
+      : undefined;
   const grants = useResource(
-    session?.user.role === "STAFF" ? "/staff/profile" : null,
+    session?.user.role === "STAFF" && !session.workforceManaged ? "/staff/profile" : null,
     parseOwnStaffProfile,
   );
   const navigationCapabilities =
@@ -70,9 +85,13 @@ export function DashboardShell({
     grants.data?.status === "ACTIVE"
       ? grants.data.capabilities
       : [];
-  const navigation = session
-    ? dashboardNavigation(session.user.role, navigationCapabilities)
-    : [];
+  const navigation = session?.workforceManaged
+    ? verifiedWorkforce
+      ? workforceNavigation(verifiedWorkforce)
+      : []
+    : session
+      ? dashboardNavigation(session.user.role, navigationCapabilities)
+      : [];
   const currentDestination = navigation
     .flatMap((group) => group.links.map((link) => ({ ...link, group: group.label })))
     .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
@@ -350,16 +369,20 @@ export function DashboardShell({
         <header className="dashboard-top">
           <DashboardPageSearch groups={navigation} />
           <div className="dashboard-account-controls">
-            <Link
-              className="dashboard-icon-link"
-              aria-label="Open notifications"
-              href={
-                audience === "staff" ? "/admin/notifications" : "/dashboard/notifications"
-              }
-              prefetch={false}
-            >
-              <Bell size={19} />
-            </Link>
+            {!session.workforceManaged && (
+              <Link
+                className="dashboard-icon-link"
+                aria-label="Open notifications"
+                href={
+                  audience === "staff"
+                    ? "/admin/notifications"
+                    : "/dashboard/notifications"
+                }
+                prefetch={false}
+              >
+                <Bell size={19} />
+              </Link>
+            )}
             <Link
               className="dashboard-account-link"
               aria-label="Open your account"
@@ -386,6 +409,9 @@ export function DashboardShell({
             pathname !== "/dashboard/bookings" &&
             pathname !== "/dashboard/orders" &&
             pathname !== "/dashboard/payments" &&
+            pathname !== "/admin/payments" &&
+            pathname !== "/admin/invoices" &&
+            !/^\/admin\/invoices\/[^/]+$/.test(pathname) &&
             pathname !== "/dashboard/invoices" &&
             pathname !== "/dashboard/vehicles" &&
             pathname !== "/dashboard/inspections" &&
@@ -397,6 +423,42 @@ export function DashboardShell({
             !/^\/dashboard\/support\/(enquiries|complaints)\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/orders\/[^/]+\/aftercare$/.test(pathname) &&
             pathname !== "/admin/bookings" &&
+            pathname !== "/admin/booking-slots" &&
+            pathname !== "/admin/services" &&
+            pathname !== "/admin/products" &&
+            pathname !== "/admin/categories" &&
+            pathname !== "/admin/orders" &&
+            pathname !== "/admin/inventory" &&
+            pathname !== "/admin/promotions" &&
+            pathname !== "/admin/vehicles" &&
+            pathname !== "/admin/inspections" &&
+            pathname !== "/admin/vehicle-sales" &&
+            pathname !== "/admin/customers" &&
+            pathname !== "/admin/support" &&
+            pathname !== "/admin/privacy" &&
+            pathname !== "/admin/reviews" &&
+            pathname !== "/admin/refunds" &&
+            pathname !== "/admin/payment-exceptions" &&
+            pathname !== "/admin/payment-disputes" &&
+            pathname !== "/admin/payment-disputes/work" &&
+            !/^\/admin\/support\/(enquiries|complaints)\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/customers\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/staff\/[0-9a-f-]{36}$/i.test(pathname) &&
+            pathname !== "/admin/staff/invite" &&
+            pathname !== "/admin/branches" &&
+            pathname !== "/admin/audit" &&
+            !/^\/admin\/vehicle-sales\/[^/]+$/.test(pathname) &&
+            pathname !== "/admin/vehicles/new" &&
+            !/^\/admin\/vehicles\/[^/]+$/.test(pathname) &&
+            pathname !== "/admin/promotions/new" &&
+            !/^\/admin\/promotions\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/inventory\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/orders\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/orders\/[^/]+\/aftercare$/.test(pathname) &&
+            !/^\/admin\/categories\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/products\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/services\/[^/]+$/.test(pathname) &&
+            !/^\/admin\/service-categories\/[^/]+$/.test(pathname) &&
             !/^\/admin\/bookings\/[^/]+$/.test(pathname) &&
             pathname !== (audience === "staff" ? "/admin" : "/dashboard") && (
               <nav className="breadcrumbs dashboard-breadcrumbs" aria-label="Breadcrumb">
@@ -420,7 +482,31 @@ export function DashboardShell({
             <StaffPermissionContext.Provider
               value={session.user.role === "STAFF" ? grants : null}
             >
-              {children}
+              {session.workforceManaged ? (
+                verifiedWorkforce ? (
+                  pathname === "/admin/security" ? (
+                    children
+                  ) : (
+                    <WorkforceWorkspace
+                      key={JSON.stringify([
+                        verifiedWorkforce.version,
+                        verifiedWorkforce.assignments.map((a) => a.id),
+                      ])}
+                      access={verifiedWorkforce}
+                    />
+                  )
+                ) : (
+                  <>
+                    <Feedback message={workforce.error} />
+                    <p role="status">Checking current responsibility access…</p>
+                    <button className="button secondary" onClick={workforce.refresh}>
+                      Retry access check
+                    </button>
+                  </>
+                )
+              ) : (
+                children
+              )}
             </StaffPermissionContext.Provider>
           </SessionContext.Provider>
         </main>

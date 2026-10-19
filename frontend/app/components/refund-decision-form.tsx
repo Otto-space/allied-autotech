@@ -10,7 +10,7 @@ import {
 } from "@/lib/api/refund-processing";
 import { paymentNote } from "@/lib/forms/payment-review";
 import { formatKobo } from "@/lib/format/money";
-import type { MutationProposal } from "./mutation-review";
+import type { RefundReview } from "@/lib/admin/work-refund-pending";
 const schema = z
   .object({ decision: z.enum(["APPROVED", "CANCELLED"]), note: z.string() })
   .superRefine((values, context) => {
@@ -30,13 +30,17 @@ export function RefundDecisionForm({
   onUncertain,
   onReview,
   actorId,
+  onReceipt,
+  requestSignal,
 }: {
   refund: ProcessingRefund;
   actorId: string;
   disabled: boolean;
   uncertain: boolean;
   onUncertain: () => void;
-  onReview: (proposal: MutationProposal) => void;
+  onReview: (proposal: RefundReview) => void;
+  onReceipt?: (value: unknown) => void;
+  requestSignal?: () => AbortSignal | undefined;
 }) {
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -57,6 +61,7 @@ export function RefundDecisionForm({
             : {}),
         };
         onReview({
+          refundChange: { action: "decision", body },
           title:
             values.decision === "APPROVED"
               ? "Approve this refund?"
@@ -75,15 +80,15 @@ export function RefundDecisionForm({
           onUncertain,
           retryAfterRejection: false,
           submit: async () => {
-            const saved = refundProcessingSchema.parse(
-              (
-                await apiRequest(`/staff/refunds/${refund.id}/decision`, {
-                  method: "POST",
-                  csrf: true,
-                  body,
-                })
-              ).data,
-            );
+            const value = (
+              await apiRequest(`/staff/refunds/${refund.id}/decision`, {
+                method: "POST",
+                csrf: true,
+                body,
+                signal: requestSignal?.(),
+              })
+            ).data;
+            const saved = refundProcessingSchema.parse(value);
             if (
               saved.id !== refund.id ||
               saved.amountKobo !== refund.amountKobo ||
@@ -95,6 +100,7 @@ export function RefundDecisionForm({
                   ["REQUESTED", "CANCELLED"].includes(saved.status))
             )
               throw new Error("Unexpected refund decision");
+            onReceipt?.(value);
           },
         });
       })}
@@ -116,10 +122,11 @@ export function RefundDecisionForm({
         {decision === "CANCELLED" && (
           <div className="field">
             <label htmlFor={`${prefix}-note`}>Refund cancellation note (optional)</label>
-            <input
+            <textarea
               className="input"
               id={`${prefix}-note`}
               {...form.register("note")}
+              rows={3}
               maxLength={1000}
               aria-invalid={!!form.formState.errors.note}
               aria-describedby={

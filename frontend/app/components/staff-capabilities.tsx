@@ -14,6 +14,7 @@ import { useResource } from "@/lib/api/use-resource";
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
+import { useStaffChangeCoordinator } from "./staff-change-coordinator";
 
 function label(value: string) {
   const parsed = capabilitySchema.safeParse(value);
@@ -27,6 +28,7 @@ export function StaffCapabilities({
   member: StaffMember;
   disabled: boolean;
 }) {
+  const coordinator = useStaffChangeCoordinator();
   const parse = useCallback(
     (value: unknown) => {
       const grants = parseCapabilityGrants(value);
@@ -56,8 +58,11 @@ export function StaffCapabilities({
   const [validation, setValidation] = useState<string>();
   const [uncertain, setUncertain] = useState(false);
   const locked =
+    !!coordinator?.locked ||
     disabled ||
     active.loading ||
+    active.refreshing ||
+    !!active.refreshError ||
     !!active.error ||
     !active.data ||
     !!proposal ||
@@ -71,6 +76,21 @@ export function StaffCapabilities({
     active.refresh();
     history.refresh();
   }
+  function propose(value: MutationProposal) {
+    if (coordinator)
+      coordinator.review(
+        value,
+        "capability",
+        () => {
+          setMessage(
+            "Permission change recorded. Current permissions are being refreshed.",
+          );
+          setRevokeId("");
+        },
+        refresh,
+      );
+    else setProposal(value);
+  }
   function reviewGrant(form: FormData) {
     if (locked || !eligible) return;
     const capability = capabilitySchema.safeParse(form.get("capability"));
@@ -80,7 +100,7 @@ export function StaffCapabilities({
       capability: capability.data,
     };
     setMessage(undefined);
-    setProposal({
+    propose({
       title: "Grant this permission?",
       description:
         "This permits the selected duty within the account’s existing role and branch access. MFA and independent refund checks still apply.",
@@ -116,7 +136,7 @@ export function StaffCapabilities({
     }
     const body: RequestBody<"/admin/capabilities/{id}/revoke", "post"> = { reason };
     setMessage(undefined);
-    setProposal({
+    propose({
       title: "Revoke this permission?",
       description:
         "The server will reject future actions requiring this grant. The account’s other permissions remain available.",
@@ -146,7 +166,13 @@ export function StaffCapabilities({
         role or branch assignment. Refund approval, transfer and checking require
         different people.
       </p>
-      <Feedback message={active.error} />
+      <Feedback message={active.error || active.refreshError} />
+      {(active.error || active.refreshError) && active.data && (
+        <p className="notice">
+          Previously loaded permissions are shown. Refresh successfully before changing
+          permissions.
+        </p>
+      )}
       <Feedback message={validation} />
       <Feedback message={message} tone="success" toast="Permission change recorded." />
       {uncertain && (
@@ -157,7 +183,9 @@ export function StaffCapabilities({
       )}
       <button
         className="button secondary"
-        disabled={active.loading || history.loading || !!proposal}
+        disabled={
+          active.loading || history.loading || !!proposal || coordinator?.reviewing
+        }
         onClick={refresh}
       >
         Refresh permissions

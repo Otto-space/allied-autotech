@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
-import { CustomerDirectoryDetail } from "@/app/components/customer-directory-detail";
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { z } from "zod";
+import { WorkCustomerDetail } from "@/app/components/work-customer-detail";
+import "../../inspections/inspections.css";
+import "../customers.css";
+import "./customer-detail.css";
 export const metadata: Metadata = { title: "Customer details" };
 export default async function Page({
   params,
@@ -7,5 +13,10 @@ export default async function Page({
   params: Promise<{ customerId: string }>;
 }) {
   const { customerId } = await params;
-  return <CustomerDirectoryDetail customerId={customerId} />;
+  if (!z.uuid().safeParse(customerId).success) notFound();
+  return (
+    <Suspense fallback={<p role="status">Loading customer details…</p>}>
+      <WorkCustomerDetail customerId={customerId.toLowerCase()} />
+    </Suspense>
+  );
 }

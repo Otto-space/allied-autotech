@@ -1,26 +1,42 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest, newIdempotencyKey } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
-import {
-  parseInventoryHistory,
-  parseInventoryReservations,
-  type InventoryReservation,
-} from "@/lib/api/inventory-schemas";
+import { type InventoryReservation } from "@/lib/api/inventory-schemas";
 import type { RequestBody } from "@/lib/api/contracts";
 import { formatBusinessDate } from "@/lib/format/date";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
-import type { MutationProposal } from "./mutation-review";
-export function InventoryHistory({ inventoryId }: { inventoryId: string }) {
+import {
+  parseWorkInventoryHistory,
+  parseWorkInventoryReservations,
+  type InventoryProposal,
+} from "@/lib/admin/work-inventory-detail";
+export function InventoryHistory({
+  inventoryId,
+  revision = 0,
+}: {
+  inventoryId: string;
+  revision?: number;
+}) {
   const pagination = useCursorPage();
   const [type, setType] = useState("");
   const history = useResource(
     `/staff/inventory/${inventoryId}/history?limit=25${type ? `&type=${type}` : ""}${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
-    parseInventoryHistory,
+    useCallback(
+      (value: unknown) => {
+        const page = parseWorkInventoryHistory(value);
+        if (type && page.items.some((row) => row.type !== type))
+          throw Error("History does not match the selected movement type");
+        return page;
+      },
+      [type],
+    ),
+    undefined,
+    { refreshKey: revision },
   );
   return (
     <section className="detail-section" id="inventory-history">
@@ -52,10 +68,16 @@ export function InventoryHistory({ inventoryId }: { inventoryId: string }) {
           ))}
         </select>
       </div>
-      <Feedback message={history.error} />
+      <Feedback message={history.error || history.refreshError} />
+      {(history.error || history.refreshError) && history.data && (
+        <p>
+          Previously loaded history may be out of date. Refresh before relying on these
+          records.
+        </p>
+      )}
       <button
         className="button secondary"
-        disabled={history.loading}
+        disabled={history.loading || history.refreshing}
         onClick={history.refresh}
       >
         Refresh stock history
@@ -70,34 +92,34 @@ export function InventoryHistory({ inventoryId }: { inventoryId: string }) {
         <table>
           <thead>
             <tr>
-              <th>Movement & time</th>
-              <th>On hand before → after</th>
-              <th>Reserved before → after</th>
-              <th>Reference & note</th>
+              <th scope="col">Movement & time</th>
+              <th scope="col">On hand before → after</th>
+              <th scope="col">Reserved before → after</th>
+              <th scope="col">Reference & note</th>
             </tr>
           </thead>
           <tbody>
             {history.data?.items.map((item) => (
               <tr key={item.id}>
-                <td>
+                <td data-label="Movement & time">
                   {item.type.replaceAll("_", " ")}
                   <p className="muted">{formatBusinessDate(item.createdAt)}</p>
                 </td>
-                <td>
+                <td data-label="On hand before and after">
                   {item.quantityBefore} → {item.quantityAfter}
                   <p className="muted">
                     Change: {item.quantityDelta > 0 ? "+" : ""}
                     {item.quantityDelta}
                   </p>
                 </td>
-                <td>
+                <td data-label="Reserved before and after">
                   {item.reservedBefore} → {item.reservedAfter}
                   <p className="muted">
                     Change: {item.reservedDelta > 0 ? "+" : ""}
                     {item.reservedDelta}
                   </p>
                 </td>
-                <td>
+                <td data-label="Reference & note">
                   {item.referenceId
                     ? `${item.referenceType ?? "Reference"}: ${item.referenceId}`
                     : "No reference"}
@@ -114,7 +136,12 @@ export function InventoryHistory({ inventoryId }: { inventoryId: string }) {
       <CursorPagination
         pagination={pagination}
         nextCursor={history.data?.nextCursor}
-        disabled={history.loading || !!history.error}
+        disabled={
+          history.loading ||
+          history.refreshing ||
+          !!history.error ||
+          !!history.refreshError
+        }
         label="Stock history"
       />
     </section>
@@ -122,12 +149,14 @@ export function InventoryHistory({ inventoryId }: { inventoryId: string }) {
 }
 type ReservationProps = {
   inventoryId: string;
+  revision?: number;
   disabled: boolean;
-  onReview: (proposal: MutationProposal) => void;
+  onReview: (proposal: InventoryProposal) => void;
   onConsume: (reservation: InventoryReservation) => void;
 };
 export function InventoryReservations({
   inventoryId,
+  revision = 0,
   disabled,
   onReview,
   onConsume,
@@ -136,10 +165,20 @@ export function InventoryReservations({
   const [status, setStatus] = useState("");
   const records = useResource(
     `/staff/inventory/${inventoryId}/reservations?limit=25${status ? `&status=${status}` : ""}${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
-    parseInventoryReservations,
+    useCallback(
+      (value: unknown) => {
+        const page = parseWorkInventoryReservations(value);
+        if (status && page.items.some((row) => row.status !== status))
+          throw Error("Reservations do not match the selected status");
+        return page;
+      },
+      [status],
+    ),
+    undefined,
+    { refreshKey: revision },
   );
   return (
-    <section className="detail-section">
+    <section className="detail-section" id="inventory-reservations">
       <h2>Stock reservations</h2>
       <div className="field">
         <label htmlFor="reservation-status">Reservation status</label>
@@ -159,17 +198,23 @@ export function InventoryReservations({
           ))}
         </select>
       </div>
-      <Feedback message={records.error} />
+      <Feedback message={records.error || records.refreshError} />
+      {(records.error || records.refreshError) && records.data && (
+        <p>
+          Previously loaded reservations may be out of date. Changes remain blocked until
+          refreshed.
+        </p>
+      )}
       <button
         className="button secondary"
-        disabled={records.loading}
+        disabled={records.loading || records.refreshing}
         onClick={records.refresh}
       >
         Refresh reservations
       </button>
       {records.loading && <p role="status">Checking stock reservations…</p>}
       {records.data?.items.map((reservation) => (
-        <article className="detail-section" key={reservation.id}>
+        <article className="wid-reservation" key={reservation.id}>
           <h3>Reservation {reservation.id.slice(-8)}</h3>
           <p>
             {reservation.status} · {reservation.quantity} units
@@ -187,7 +232,13 @@ export function InventoryReservations({
             <ReservationActions
               inventoryId={inventoryId}
               reservation={reservation}
-              disabled={disabled || records.loading || !!records.error}
+              disabled={
+                disabled ||
+                records.loading ||
+                records.refreshing ||
+                !!records.error ||
+                !!records.refreshError
+              }
               onReview={onReview}
               onConsume={onConsume}
             />
@@ -200,7 +251,12 @@ export function InventoryReservations({
       <CursorPagination
         pagination={pagination}
         nextCursor={records.data?.nextCursor}
-        disabled={records.loading || !!records.error}
+        disabled={
+          records.loading ||
+          records.refreshing ||
+          !!records.error ||
+          !!records.refreshError
+        }
         label="Stock reservations"
       />
     </section>
@@ -213,6 +269,11 @@ function ReservationActions({
   onReview,
   onConsume,
 }: ReservationProps & { reservation: InventoryReservation }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   const form = useForm<{ note: string }>({
     resolver: zodResolver(
       z.object({ note: z.string().trim().max(1000, "Use at most 1,000 characters.") }),
@@ -228,6 +289,9 @@ function ReservationActions({
     const key = newIdempotencyKey();
     onReview({
       title: "Release this stock reservation?",
+      operation: "release",
+      input: body,
+      reservationId: reservation.id,
       description:
         "This returns reserved units to available stock. It does not cancel an order or issue a refund. The server determines whether the reservation has already expired.",
       facts: [
@@ -274,15 +338,22 @@ function ReservationActions({
         <button className="button secondary" disabled={disabled}>
           Review release
         </button>
-        <button
-          className="button secondary"
-          disabled={disabled}
-          type="button"
-          onClick={() => onConsume(reservation)}
-        >
-          Record reserved sale
-        </button>
+        {Date.parse(reservation.expiresAt) > now && (
+          <button
+            className="button secondary"
+            disabled={disabled}
+            type="button"
+            onClick={() => onConsume(reservation)}
+          >
+            Record reserved sale
+          </button>
+        )}
       </div>
+      {Date.parse(reservation.expiresAt) <= now && (
+        <p className="field-hint">
+          The recorded expiry has passed. Release checks the server?s expired status.
+        </p>
+      )}
       <p className="field-hint">
         A reserved sale consumes all {reservation.quantity} units and must pass the server
         expiry check.

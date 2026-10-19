@@ -6,7 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import { business } from "@/lib/business";
-import { operatingPrinciples, serviceJourney } from "@/lib/brand-content";
+import { operatingPrinciples } from "@/lib/brand-content";
+import { ServiceJourney } from "../components/brand-editorial";
 import { serviceApiPath } from "@/lib/service-discovery";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
@@ -126,23 +127,7 @@ export default async function ServicesPage({
             </div>
           </div>
         </section>
-        <section className="services-journey" aria-labelledby="services-journey-title">
-          <div className="public-wrap">
-            <div className="services-journey-heading">
-              <h2 id="services-journey-title">A clear path to better vehicle care.</h2>
-              <p>From the first conversation to collection, know what comes next.</p>
-            </div>
-            <ol>
-              {serviceJourney.map(([title, copy], index) => (
-                <li key={title}>
-                  <span aria-hidden="true">0{index + 1}</span>
-                  <h3>{title}</h3>
-                  <p>{copy}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
+        <ServiceJourney showStartLink={false} />
         <section className="services-faq" aria-labelledby="services-faq-title">
           <div className="public-wrap services-faq-inner">
             <div>

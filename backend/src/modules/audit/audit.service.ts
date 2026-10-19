@@ -9,9 +9,11 @@ import type { RequestSecurityContext } from "../../common/contracts/request-secu
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
 import { notificationEventTypes } from "../notifications/notifications.events.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import { auditBadRequest, auditConflict, auditNotFound } from "./audit.errors.js";
 import { assertAuditAdministrator } from "./audit.policy.js";
 import { AuditRepository } from "./audit.repository.js";
+import { anomalySelect } from "./anomaly-record.js";
 import type {
   AnomalyListQuery,
   AnomalyUpdateInput,
@@ -68,16 +70,19 @@ export class AuditOperationsService {
           "Audit date range must be ordered and no longer than 90 days",
         );
     }
-    const result = page(await this.repository.list(query), query.limit);
-    await this.auditRead(
-      actor,
-      "USER",
-      actor.userId,
-      "AUDIT_LOG",
-      result.items.length,
-      context,
-    );
-    return result;
+    return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const result = page(await this.repository.list(query, transaction), query.limit);
+      await appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "USER",
+        entityId: actor.userId,
+        newValues: { resource: "AUDIT_LOG", resultCount: result.items.length },
+        context,
+      });
+      return result;
+    });
   }
 
   async jobs(
@@ -350,6 +355,29 @@ export class AuditOperationsService {
     return result;
   }
 
+  async anomaly(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
+    assertAuditAdministrator(actor);
+    return this.database.$transaction(
+      async (transaction) => {
+        const record = await transaction.paymentAnomaly.findUnique({
+          where: { id },
+          select: anomalySelect,
+        });
+        if (!record) throw auditNotFound();
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "READ",
+          entityType: "PAYMENT",
+          entityId: id,
+          newValues: { resource: "PAYMENT_ANOMALY", resultCount: 1 },
+          context,
+        });
+        return record;
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
+
   async updateAnomaly(
     actor: AuthenticatedActor,
     id: string,
@@ -389,15 +417,7 @@ export class AuditOperationsService {
       });
       return transaction.paymentAnomaly.findUniqueOrThrow({
         where: { id },
-        select: {
-          id: true,
-          type: true,
-          status: true,
-          summary: true,
-          resolutionNote: true,
-          resolvedAt: true,
-          resolvedByUserId: true,
-        },
+        select: anomalySelect,
       });
     });
   }

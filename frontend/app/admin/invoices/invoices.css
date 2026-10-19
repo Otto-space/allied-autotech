@@ -1,0 +1,654 @@
+.work-invoices {
+  min-width: 0;
+}
+.work-invoices .wi-breadcrumb ol,
+.work-invoices .wi-breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dashboard .dashboard-content .work-invoices h1 {
+  font-size: 30px;
+  line-height: 1.25;
+}
+.work-invoices .wi-header {
+  align-items: flex-start;
+  gap: 28px;
+}
+.work-invoices .wi-header p {
+  max-width: 590px;
+}
+.work-invoices .iv-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #536574;
+  margin: 0 0 9px;
+}
+.iv-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  max-width: 390px;
+}
+.iv-header-actions .text-link {
+  flex-basis: 100%;
+  text-align: right;
+  font-size: 12px;
+}
+.work-invoices .iv-filters {
+  margin: 24px 0;
+  padding: 22px;
+}
+.work-invoices .field {
+  min-width: 0;
+  margin: 0;
+}
+.dashboard .dashboard-content .work-invoices .field {
+  margin: 0;
+}
+.work-invoices .iv-filters > fieldset {
+  display: block;
+}
+.dashboard .dashboard-content .work-invoices .iv-filters .actions {
+  margin: 0;
+}
+.work-invoices :is(input, select) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+}
+.work-invoices fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.iv-filter-primary {
+  display: grid;
+  grid-template-columns: minmax(200px, 1.2fr) minmax(145px, 0.7fr) auto;
+  align-items: end;
+  gap: 16px;
+}
+.iv-filter-primary .actions {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.iv-filter-advanced:not([hidden]) {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid #d7e0e8;
+}
+.iv-clear {
+  margin: 0;
+  min-height: 44px;
+  font-size: 12px;
+}
+.iv-list-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 15px;
+  margin: 28px 0 16px;
+}
+.dashboard .dashboard-content .work-invoices .iv-list-heading h2 {
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+.iv-list-heading p,
+.iv-currency {
+  font-size: 12px;
+  color: #405566;
+  margin: 0;
+}
+.iv-records {
+  border: 1px solid #d7e0e8;
+  border-radius: 9px;
+  background: #fff;
+  overflow: hidden;
+}
+.iv-columns,
+.iv-record-primary {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.55fr) minmax(0, 1.25fr) 0.65fr minmax(210px, 1.1fr)
+    minmax(0, 0.8fr) minmax(0, 0.65fr);
+  gap: 18px;
+  align-items: center;
+}
+.iv-columns {
+  background: #eaf0f5;
+  padding: 14px 22px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #405566;
+}
+.iv-record + .iv-record {
+  border-top: 1px solid #dce4eb;
+}
+.iv-record-primary {
+  padding: 21px 22px;
+}
+.iv-record-primary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.iv-record-primary span {
+  font-size: 12px;
+  color: #405566;
+}
+.dashboard .dashboard-content .work-invoices .iv-invoice h3 {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.iv-invoice h3 a {
+  color: #01121a;
+  text-decoration: none;
+}
+.iv-invoice h3 a:hover {
+  text-decoration: underline;
+}
+.iv-source {
+  overflow-wrap: anywhere;
+}
+.iv-source strong {
+  font-weight: 600;
+  font-size: 13px;
+}
+.iv-detail-toggle {
+  font-size: 12px;
+  align-self: flex-start;
+  min-height: 32px;
+}
+.iv-value {
+  text-align: right;
+}
+.iv-value strong {
+  font-size: 14px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.iv-columns > span:nth-child(4) {
+  text-align: right;
+}
+.iv-view {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+}
+.iv-record-primary .iv-status {
+  align-self: flex-start;
+  border: 1px solid #c9d4df;
+  background: #edf2f6;
+  border-radius: 5px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #324a5f;
+}
+.iv-record-primary .iv-status-issued {
+  background: #edf3fc;
+  border-color: #c1d4f0;
+  color: #234e86;
+}
+.iv-record-primary .iv-status-paid {
+  background: #e7f5ee;
+  border-color: #b7d9c8;
+  color: #1f6347;
+}
+.iv-record-primary .iv-status-void {
+  background: #f5f0f0;
+  border-color: #dfd0d0;
+  color: #66494b;
+}
+.iv-record-primary .iv-mobile-label {
+  display: none;
+}
+.iv-details {
+  padding: 20px 24px 25px;
+  background: #f5f8fa;
+  border-top: 1px solid #d7e0e8;
+  overflow-wrap: anywhere;
+}
+.iv-details h4 {
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+.iv-details h4:not(:first-child) {
+  margin-top: 25px;
+}
+.iv-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 26px;
+  margin: 0 0 20px;
+}
+.iv-facts > div {
+  display: grid;
+  gap: 4px;
+}
+.iv-facts dt {
+  color: #536574;
+  font-size: 11px;
+}
+.iv-facts dd {
+  font-size: 12px;
+  margin: 0;
+}
+.iv-linked-payments {
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+.iv-linked-payments li {
+  display: grid;
+  gap: 5px;
+  border-left: 2px solid #bbcbd8;
+  padding-left: 12px;
+  font-size: 12px;
+}
+.iv-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 20px;
+}
+.iv-pagination > span {
+  font-size: 12px;
+  color: #536574;
+}
+.iv-empty,
+.iv-loading {
+  padding: 34px;
+  text-align: center;
+}
+.iv-empty svg,
+.iv-loading svg {
+  margin: auto;
+  color: #536574;
+}
+.iv-empty h3 {
+  font-size: 18px;
+}
+.iv-empty p {
+  max-width: 540px;
+  margin: 12px auto 22px;
+}
+.iv-skeleton {
+  height: 38px;
+  background: #eaf0f5;
+  border-radius: 5px;
+  margin: 12px 0;
+}
+.iv-notice {
+  padding: 14px 18px;
+  background: #fff6e7;
+  border: 1px solid #e4d3b7;
+  border-radius: 6px;
+}
+.work-invoices .iv-create {
+  display: grid;
+  grid-template-columns: minmax(0, 0.65fr) minmax(0, 1.35fr);
+  padding: 0;
+  overflow: hidden;
+  margin: 24px 0;
+  border: 1px solid #d5dfe8;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 3px 12px #17324d05;
+}
+.iv-create-intro {
+  padding: 28px;
+  background: #eaf0f5;
+  border-right: 1px solid #d3dfe8;
+}
+.iv-create-intro h2 {
+  font-size: 21px;
+  margin: 0 0 15px;
+}
+.iv-create-intro p,
+.iv-create-intro li {
+  font-size: 13px;
+  line-height: 1.75;
+}
+.iv-create-intro ul {
+  padding-left: 18px;
+  margin: 20px 0;
+}
+.iv-create-workspace {
+  padding: 28px;
+  min-width: 0;
+}
+.iv-create-workspace fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 20px;
+}
+.iv-create-workspace fieldset > .iv-eyebrow {
+  grid-column: 1/-1;
+  margin: 0;
+}
+.iv-create-workspace .iv-source-field {
+  display: contents !important;
+}
+.iv-source-search {
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  gap: 8px;
+}
+.iv-source-choice {
+  grid-column: 1/-1;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.iv-create-workspace fieldset > :is(.notice, p, button.text-link) {
+  grid-column: 1/-1;
+}
+.iv-create-workspace fieldset > .button {
+  align-self: end;
+}
+.iv-create-workspace fieldset > .button {
+  justify-self: start;
+  width: auto;
+}
+.iv-create-workspace .field {
+  display: grid;
+  gap: 8px;
+}
+.iv-create-workspace .field-hint {
+  margin: 0;
+  line-height: 1.65;
+}
+.iv-source-search-label {
+  font-size: 12px !important;
+  color: #536574;
+}
+.wi-source-current {
+  overflow-wrap: anywhere;
+}
+.iv-source-current {
+  display: grid;
+  gap: 5px;
+  overflow-wrap: anywhere;
+  background: #f0f4f7;
+  border-left: 2px solid #a5b9c9;
+  padding: 12px;
+  font-size: 12px;
+  margin: 8px 0;
+}
+.iv-source-current strong {
+  font-weight: 600;
+}
+.iv-result,
+.iv-recovery {
+  padding: 20px;
+  background: #eef6f2;
+  border: 1px solid #b7d6c7;
+  border-radius: 7px;
+  margin-bottom: 22px;
+  overflow-wrap: anywhere;
+}
+.iv-recovery {
+  background: #fff7ea;
+  border-color: #dcc8a4;
+}
+.iv-result h3,
+.iv-recovery h3 {
+  font-size: 17px;
+  margin-top: 0;
+  scroll-margin-top: 24px;
+}
+.iv-result .text-link {
+  display: inline-flex;
+  margin: 12px 12px 12px 0;
+}
+.iv-reference {
+  overflow-wrap: anywhere;
+}
+.iv-ack {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 16px 0 !important;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.work-invoices .iv-ack input {
+  min-height: 20px;
+  width: 20px;
+  flex: 0 0 20px;
+  margin-top: 2px;
+}
+.iv-existing {
+  padding: 12px;
+  background: #f0f4f7;
+}
+@media (max-width: 1279px) {
+  .iv-filter-primary {
+    grid-template-columns: 1.2fr 1fr;
+  }
+  .iv-filter-primary .actions {
+    grid-column: 1/-1;
+  }
+  .iv-columns,
+  .iv-record-primary {
+    grid-template-columns:
+      minmax(0, 1.5fr) minmax(0, 1.2fr) 0.6fr minmax(200px, 1.1fr)
+      0.8fr;
+    gap: 14px;
+  }
+  .iv-columns > span:last-child {
+    display: none;
+  }
+  .iv-view {
+    grid-column: 1/-1;
+    justify-self: start;
+    min-height: 30px;
+  }
+  .iv-value strong {
+    font-size: 13px;
+  }
+}
+@media (max-width: 900px) {
+  .iv-header-actions {
+    justify-content: flex-start;
+    max-width: none;
+  }
+  .iv-header-actions .text-link {
+    flex-basis: auto;
+    text-align: left;
+  }
+  .work-invoices .iv-create {
+    grid-template-columns: 1fr;
+  }
+  .iv-create-intro {
+    border-right: 0;
+    border-bottom: 1px solid #d3dfe8;
+  }
+  .iv-create-intro ul {
+    margin: 12px 0;
+  }
+  .iv-create-workspace fieldset {
+    grid-template-columns: 1fr;
+  }
+  .iv-source-search {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .iv-columns {
+    display: none;
+  }
+  .iv-record-primary {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 22px;
+    grid-template-areas: "invoice status" "amount amount" "source due";
+    position: relative;
+    padding-bottom: 80px;
+  }
+  .iv-invoice {
+    grid-area: invoice;
+  }
+  .iv-source {
+    grid-area: source;
+  }
+  .iv-status-cell {
+    grid-area: status;
+    align-items: flex-end;
+  }
+  .iv-record-primary .iv-status {
+    align-self: flex-end;
+  }
+  .iv-record-primary .iv-mobile-label {
+    display: block;
+    color: #536574;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .iv-value {
+    grid-area: amount;
+    text-align: left;
+  }
+  .iv-value strong {
+    font-size: 17px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .iv-record-primary .iv-due {
+    grid-area: due;
+  }
+  .iv-view {
+    position: absolute;
+    right: 22px;
+    bottom: 16px;
+    min-height: 44px;
+    border: 1px solid #c2cfdb;
+    border-radius: 6px;
+    padding: 0 12px;
+  }
+  .iv-detail-toggle {
+    position: absolute;
+    left: 22px;
+    bottom: 16px;
+    min-height: 44px;
+  }
+  .iv-list-heading {
+    align-items: flex-start;
+  }
+  .iv-currency {
+    display: none;
+  }
+}
+@media (max-width: 540px) {
+  .dashboard .dashboard-content .work-invoices h1 {
+    font-size: 24px;
+  }
+  .work-invoices .wi-header {
+    gap: 20px;
+  }
+  .iv-desktop-break {
+    display: none;
+  }
+  .iv-header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .iv-header-actions .button {
+    width: 100%;
+  }
+  .iv-header-actions .text-link {
+    justify-self: start;
+  }
+  .work-invoices .iv-filters {
+    padding: 18px;
+    margin-top: 22px;
+  }
+  .iv-filter-primary,
+  .iv-filter-advanced:not([hidden]) {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .iv-filter-primary .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .iv-filter-primary .button {
+    width: 100%;
+  }
+  .iv-record-primary {
+    padding: 20px 18px 80px;
+    gap: 18px;
+  }
+  .iv-invoice h3 a {
+    font-size: 14px;
+  }
+  .iv-source {
+    gap: 4px !important;
+  }
+  .iv-view {
+    right: 18px;
+  }
+  .iv-detail-toggle {
+    left: 18px;
+  }
+  .iv-details {
+    padding: 20px 18px;
+  }
+  .iv-facts {
+    grid-template-columns: 1fr;
+  }
+  .iv-pagination .actions {
+    gap: 8px;
+  }
+  .iv-pagination .button {
+    font-size: 12px;
+    padding-inline: 12px;
+  }
+  .iv-create-intro,
+  .iv-create-workspace {
+    padding: 20px;
+  }
+  .iv-create-intro h2 {
+    font-size: 19px;
+  }
+  .iv-create-workspace form .button {
+    width: 100%;
+  }
+  .iv-result,
+  .iv-recovery {
+    padding: 16px;
+  }
+  .iv-empty,
+  .iv-loading {
+    padding: 26px 18px;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .iv-invoice h3 a,
+  .iv-view {
+    transition: color 0.16s ease;
+  }
+  .iv-invoice h3 a:hover,
+  .iv-view:hover {
+    color: #b40201;
+  }
+}

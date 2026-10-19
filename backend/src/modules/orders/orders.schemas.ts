@@ -83,6 +83,11 @@ export const customerOrderListQuerySchema = z
 export const staffOrderListQuerySchema = z
   .object({
     ...pageFields,
+    orderNumber: cleanText(120)
+      .describe(
+        "Exact, case-sensitive full order number; restricted to authorized branches",
+      )
+      .optional(),
     branchId: uuid.optional(),
     customerId: uuid.optional(),
     status: orderStatus.optional(),

@@ -2,18 +2,25 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Download, Share2, X } from "lucide-react";
 import { ApiError, SESSION_CHANGED } from "@/lib/api/client";
-import { fetchDocumentPdf } from "@/lib/api/document-download";
+import { fetchDocumentPdf, type StaffInvoicePdf } from "@/lib/api/document-download";
 import { CopyControl } from "./copy-control";
 import { Feedback } from "./feedback";
+import "./document-actions.css";
 
 export function DocumentActions({
   kind,
   id,
   disabled = false,
+  staff,
 }: {
   kind: "invoice" | "receipt";
   id: string;
   disabled?: boolean;
+  staff?: StaffInvoicePdf & {
+    verify: (signal: AbortSignal) => Promise<void>;
+    onDenied: () => void;
+    onBusyChange: (busy: boolean) => void;
+  };
 }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState<string>(),
@@ -24,6 +31,7 @@ export function DocumentActions({
     lock = useRef(false);
   const links = useRef(new Set<string>());
   const shareButton = useRef<HTMLButtonElement>(null);
+  const exportBusyChange = staff?.onBusyChange;
   useEffect(() => {
     active.current = true;
     function clear() {
@@ -34,13 +42,14 @@ export function DocumentActions({
       setMessage(undefined);
       for (const url of links.current) URL.revokeObjectURL(url);
       links.current.clear();
+      exportBusyChange?.(false);
     }
     window.addEventListener(SESSION_CHANGED, clear);
     return () => {
       clear();
       window.removeEventListener(SESSION_CHANGED, clear);
     };
-  }, [id, kind]);
+  }, [id, kind, staff?.version, staff?.status, exportBusyChange]);
   function save(file: File) {
     const url = URL.createObjectURL(file);
     links.current.add(url);
@@ -60,20 +69,25 @@ export function DocumentActions({
     if (lock.current || disabled || !active.current) return;
     lock.current = true;
     setBusy(true);
+    staff?.onBusyChange(true);
     setError(undefined);
     setMessage(undefined);
     const controller = new AbortController();
     pending.current = controller;
     try {
-      const file = await fetchDocumentPdf(kind, id, controller.signal);
+      await staff?.verify(controller.signal);
+      const file = await fetchDocumentPdf(kind, id, controller.signal, staff);
+      await staff?.verify(controller.signal);
       if (!active.current || controller.signal.aborted) return;
       if (mode === "download") save(file);
       else
         setShare({
           file,
-          url: `${window.location.origin}/dashboard/${kind === "invoice" ? "invoices" : "payments"}/${encodeURIComponent(id)}`,
+          url: `${window.location.origin}${staff ? "/admin/invoices" : `/dashboard/${kind === "invoice" ? "invoices" : "payments"}`}/${encodeURIComponent(id)}`,
         });
     } catch (value) {
+      if (staff && value instanceof ApiError && [401, 403].includes(value.status))
+        staff.onDenied();
       if (active.current && !controller.signal.aborted)
         setError(
           value instanceof ApiError
@@ -82,7 +96,10 @@ export function DocumentActions({
         );
     } finally {
       lock.current = false;
-      if (active.current) setBusy(false);
+      if (active.current) {
+        setBusy(false);
+        staff?.onBusyChange(false);
+      }
     }
   }
   return (
@@ -114,6 +131,7 @@ export function DocumentActions({
           kind={kind}
           file={share.file}
           url={share.url}
+          staff={!!staff}
           onClose={() => {
             setShare(null);
             requestAnimationFrame(() => {
@@ -133,12 +151,14 @@ function DocumentShare({
   url,
   onClose,
   onDownload,
+  staff = false,
 }: {
   kind: "invoice" | "receipt";
   file: File;
   url: string;
   onClose: () => void;
   onDownload: () => void;
+  staff?: boolean;
 }) {
   const modal = useRef<HTMLDialogElement>(null),
     close = useRef<HTMLButtonElement>(null),
@@ -155,8 +175,14 @@ function DocumentShare({
     close.current?.focus();
     return () => {
       active.current = false;
-      dialog?.close();
-      if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+      // Strict Mode replays connected effects. Closing that live modal would
+      // enqueue onClose and immediately remove the reopened share dialog.
+      queueMicrotask(() => {
+        if (!dialog?.isConnected) {
+          dialog?.close();
+          if (opener instanceof HTMLElement && opener.isConnected) opener.focus();
+        }
+      });
     };
   }, []);
   let native = false;
@@ -218,7 +244,9 @@ function DocumentShare({
         <Download size={16} aria-hidden="true" />
         Download PDF
       </button>
-      <label htmlFor={`${id}-link`}>Account link</label>
+      <label htmlFor={`${id}-link`}>
+        {staff ? "Private invoice link" : "Account link"}
+      </label>
       <input id={`${id}-link`} readOnly value={url} />
       <CopyControl
         value={url}
@@ -226,7 +254,9 @@ function DocumentShare({
         fieldId={`${id}-link`}
       />
       <p className="document-share-note">
-        The link requires sign-in to the account that owns this record.
+        {staff
+          ? "This private link requires current administrator access. It does not grant access to its recipient."
+          : "The link requires sign-in to the account that owns this record."}
       </p>
       <Feedback message={message} tone="info" />
     </dialog>

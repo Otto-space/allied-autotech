@@ -231,6 +231,7 @@ export class OrdersRepository {
     return this.database.order.findMany({
       where: {
         ...branchFilter,
+        ...(query.orderNumber === undefined ? {} : { orderNumber: query.orderNumber }),
         ...(query.customerId === undefined ? {} : { customerId: query.customerId }),
         ...(query.status === undefined ? {} : { status: query.status }),
       },

@@ -296,6 +296,7 @@ export class SupportController {
       );
   staffReviews = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -308,6 +309,22 @@ export class SupportController {
           ),
         ),
       );
+  staffGetReview = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    return res
+      .status(200)
+      .json(
+        successResponse(
+          "Review retrieved",
+          req.id,
+          await this.service.staffReview(
+            actor(req),
+            validated<{ reviewId: string }>(res, "params").reviewId,
+            context(req),
+          ),
+        ),
+      );
+  };
   staffGetEnquiry = async (req: Request, res: Response) =>
     res
       .status(200)

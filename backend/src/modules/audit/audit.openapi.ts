@@ -1,4 +1,5 @@
 import { auditPageResponseSchema } from "./audit-response.schemas.js";
+import { anomalyRecordSchema } from "./anomaly-record.js";
 import {
   operationalJobsResponseSchema,
   operationalRetryResponseSchema,
@@ -109,18 +110,27 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
               schema:
                 route.path === "/admin/audit"
                   ? envelope.extend({ data: auditPageResponseSchema })
-                  : route.path === "/admin/operations/payment-disputes"
+                  : route.path === "/admin/operations/payment-anomalies"
                     ? envelope.extend({
-                        data: z.object({
-                          items: z.array(disputeOverviewSchema),
-                          nextCursor: z.uuid().optional(),
-                        }),
+                        data: z
+                          .object({
+                            items: z.array(anomalyRecordSchema),
+                            nextCursor: z.uuid().optional(),
+                          })
+                          .strict(),
                       })
-                    : route.path === "/admin/operations/jobs"
-                      ? envelope.extend({ data: operationalJobsResponseSchema })
-                      : route.path === "/admin/operations/status"
-                        ? envelope.extend({ data: operationsStatusResponseSchema })
-                        : envelope,
+                    : route.path === "/admin/operations/payment-disputes"
+                      ? envelope.extend({
+                          data: z.object({
+                            items: z.array(disputeOverviewSchema),
+                            nextCursor: z.uuid().optional(),
+                          }),
+                        })
+                      : route.path === "/admin/operations/jobs"
+                        ? envelope.extend({ data: operationalJobsResponseSchema })
+                        : route.path === "/admin/operations/status"
+                          ? envelope.extend({ data: operationsStatusResponseSchema })
+                          : envelope,
             },
           },
         },
@@ -155,10 +165,31 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
     },
   });
   registry.registerPath({
+    method: "get",
+    path: "/admin/operations/payment-anomalies/{anomalyId}",
+    tags: ["Audit and operations"],
+    summary: "Read a current payment exception without provider payloads",
+    description:
+      "Admin/Super Admin with verified privileged session. Private, no-store; strict UUID and no query parameters. A successful read atomically appends a minimal READ audit. Returns the same safe fields as the queue; no raw provider details. Missing records return 404.",
+    security: [{ sessionCookie: [] }],
+    request: { params: anomalyParamsSchema as never },
+    responses: {
+      "200": {
+        description: "Current exception",
+        content: {
+          "application/json": { schema: envelope.extend({ data: anomalyRecordSchema }) },
+        },
+      },
+      "404": { description: "Exception not found" },
+    },
+  });
+  registry.registerPath({
     method: "post",
     path: "/admin/operations/payment-anomalies/{anomalyId}/status",
     tags: ["Audit and operations"],
     summary: "Transition a payment anomaly investigation",
+    description:
+      "Private, no-store. Requires Admin/Super Admin, verified privileged session and CSRF. OPEN must enter INVESTIGATING before RESOLVED or IGNORED. Conditional expectedStatus and the investigation audit commit atomically. Closed exceptions cannot reopen. The response contains the safe current exception fields. This operation never verifies or changes a payment, refund, invoice, dispute or financial ledger.",
     security: [{ sessionCookie: [] }],
     request: {
       params: anomalyParamsSchema as never,
@@ -169,7 +200,12 @@ export function registerAuditOpenApi(registry: OpenAPIRegistry): void {
       },
     },
     responses: {
-      "200": { description: "Anomaly updated" },
+      "200": {
+        description: "Anomaly updated",
+        content: {
+          "application/json": { schema: envelope.extend({ data: anomalyRecordSchema }) },
+        },
+      },
       "409": { description: "Invalid or stale transition" },
     },
   });

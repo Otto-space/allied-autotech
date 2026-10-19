@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import type { ReactNode } from "react";
@@ -54,14 +53,6 @@ export function AccessShell({
         <Link className="login-brand" href="/" aria-label="Allied AutoTech home">
           <Brand inverse />
         </Link>
-        <div className="login-image">
-          <Image
-            src="/images/allied-autotech/workshop-editorial.webp"
-            alt=""
-            fill
-            sizes="(min-width: 900px) max(46vw, 130vh), 1px"
-          />
-        </div>
         <div className="login-story">
           <h2>
             Built on Trust,

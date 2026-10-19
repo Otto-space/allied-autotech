@@ -1,0 +1,137 @@
+.work-customer-detail {
+  min-width: 0;
+}
+.wcd-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.wcd-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.wcd-overview .wi-card {
+  margin: 0;
+}
+.dashboard .dashboard-content .work-customer-detail .wi-card h2 {
+  font-size: 16px;
+  margin: 0 0 18px;
+}
+.wcd-facts {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+.wcd-facts > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.7fr) minmax(0, 1.3fr);
+  gap: 14px;
+  min-width: 0;
+}
+.wcd-facts dt {
+  color: #405566;
+  font-size: 12px;
+}
+.wcd-facts dd {
+  margin: 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wcd-collections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+.wcd-collections button[aria-pressed="true"] {
+  background: #fff1ef;
+  border-color: #c50704;
+  color: #9d0302;
+}
+.wcd-records {
+  background: #fff;
+  border: 1px solid #d5dfe8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.wcd-records:empty {
+  display: none;
+}
+.wcd-record {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8ee;
+  min-width: 0;
+}
+.wcd-record:last-child {
+  border-bottom: 0;
+}
+.wcd-record > div,
+.wcd-record dl {
+  min-width: 0;
+  margin: 0;
+}
+.dashboard .dashboard-content .work-customer-detail .wcd-record h3 {
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.wcd-record h3 .text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: -10px;
+}
+.wcd-record dt {
+  color: #405566;
+  font-size: 12px;
+}
+.wcd-record dd {
+  margin: 4px 0 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.work-customer-detail .wi-header h1,
+.work-customer-detail .wi-breadcrumb span {
+  overflow-wrap: anywhere;
+}
+.work-customer-detail .wi-header > div {
+  min-width: 0;
+}
+@media (max-width: 1180px) {
+  .wcd-overview {
+    grid-template-columns: 1fr;
+  }
+  .wcd-record {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .wcd-actions {
+    width: 100%;
+  }
+  .wcd-actions .button {
+    flex: 1 1 150px;
+  }
+  .wcd-facts > div {
+    grid-template-columns: minmax(85px, 0.7fr) minmax(0, 1.3fr);
+    gap: 10px;
+  }
+  .wcd-record {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 14px;
+  }
+  .wcd-record dl > div {
+    display: grid;
+    grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr);
+    gap: 10px;
+  }
+  .wcd-record dd {
+    margin: 0;
+  }
+}

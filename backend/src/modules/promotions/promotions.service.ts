@@ -13,6 +13,10 @@ import {
   assertPromotionCustomer,
 } from "./promotions.policy.js";
 import { PromotionsRepository } from "./promotions.repository.js";
+import {
+  promotionCreationReceipt,
+  readPromotionCreationReceipt,
+} from "./promotion-creation-receipt.js";
 import type {
   PromotionCreateInput,
   PromotionListQuery,
@@ -133,24 +137,58 @@ export class PromotionsService {
     actor: AuthenticatedActor,
     input: PromotionCreateInput,
     context: RequestSecurityContext,
+    requestKey?: string,
   ) {
     assertPromotionAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
-      const item = await this.repository.create(input, transaction);
-      await appendAuditEvent(transaction, {
-        actorUserId: actor.userId,
-        action: "CREATE",
-        entityType: "PROMOTION",
-        entityId: item.id,
-        newValues: {
-          code: item.code,
-          discountType: item.discountType,
-          active: item.isActive,
-        },
-        context,
-      });
-      return safe(item);
+      const create = async () => {
+        const item = await this.repository.create(input, transaction);
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "CREATE",
+          entityType: "PROMOTION",
+          entityId: item.id,
+          newValues: {
+            code: item.code,
+            discountType: item.discountType,
+            active: item.isActive,
+          },
+          context,
+        });
+        return item;
+      };
+      if (!requestKey) return safe(await create());
+      const normalized = {
+        ...input,
+        code: input.code ?? null,
+        description: input.description ?? null,
+        percentageBasisPoints: input.percentageBasisPoints ?? null,
+        fixedAmountKobo: input.fixedAmountKobo ?? null,
+        minimumOrderAmountKobo: input.minimumOrderAmountKobo ?? null,
+        maximumDiscountAmountKobo: input.maximumDiscountAmountKobo ?? null,
+        usageLimit: input.usageLimit ?? null,
+        perCustomerLimit: input.perCustomerLimit ?? null,
+        startsAt: new Date(input.startsAt).toISOString(),
+        endsAt: new Date(input.endsAt).toISOString(),
+      };
+      return safe(
+        await promotionCreationReceipt(
+          transaction,
+          actor.userId,
+          `promotion-create:${actor.userId}`,
+          requestKey,
+          normalized,
+          create,
+          (id) => this.repository.get(id, transaction),
+        ),
+      );
     });
+  }
+  async creationReceipt(actor: AuthenticatedActor, requestKey: string) {
+    assertPromotionAdministrator(actor);
+    return this.database.$transaction((transaction) =>
+      readPromotionCreationReceipt(transaction, actor.userId, requestKey),
+    );
   }
   async update(
     actor: AuthenticatedActor,

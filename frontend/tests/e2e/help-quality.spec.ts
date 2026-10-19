@@ -64,7 +64,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
         .getByRole("navigation", { name: "Breadcrumb" })
         .locator('[aria-current="page"]'),
     ).toHaveText("Help centre");
-    await expect(page.locator(".help-answers details")).toHaveCount(12);
+    await expect(page.locator(".help-answers details")).toHaveCount(faqs.length);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);
@@ -130,7 +130,7 @@ test("every category and multiword search uses the complete article collection",
   await topic(page, "Payments");
   await expect(page.getByRole("heading", { name: "No matching topics" })).toBeVisible();
   await page.getByRole("button", { name: "Clear search", exact: true }).click();
-  await expect(page.locator(".help-answers details")).toHaveCount(12);
+  await expect(page.locator(".help-answers details")).toHaveCount(faqs.length);
   await expect(page.getByLabel("Search help topics")).toBeFocused();
 });
 test("search and category survive reload, article return and history traversal", async ({
@@ -142,13 +142,13 @@ test("search and category survive reload, article return and history traversal",
   await page.getByLabel("Search help topics").fill("MFA");
   await page.reload();
   await expect(page.getByLabel("Search help topics")).toHaveValue("MFA");
-  await expect(page.locator(".help-answers details")).toHaveCount(1);
-  await page.locator(".help-answers summary").click();
+  await expect(page.locator(".help-answers details")).toHaveCount(2);
+  await page.locator(".help-answers summary").first().click();
   await page.getByRole("link", { name: "Read article", exact: false }).click();
   await expect(page).toHaveURL(/\/help\/account-security$/);
   await page.goBack();
   await expect(page.getByLabel("Search help topics")).toHaveValue("MFA");
-  await expect(page.locator(".help-answers details")).toHaveCount(1);
+  await expect(page.locator(".help-answers details")).toHaveCount(2);
   await page.getByRole("button", { name: "Clear search", exact: true }).click();
   await topic(page, "Payments");
   await topic(page, "Quotations");
@@ -293,7 +293,7 @@ test("server-rendered search and topic selection work without JavaScript", async
       "My payment is not confirmed. What should I do?",
     );
     await page.getByRole("button", { name: "Clear search", exact: true }).click();
-    await expect(page.locator(".help-answers details")).toHaveCount(12);
+    await expect(page.locator(".help-answers details")).toHaveCount(faqs.length);
   } finally {
     await context.close();
   }
@@ -311,7 +311,7 @@ test("all articles and approved external contacts are reachable", async ({
     .evaluateAll((elements) => elements.forEach((e) => e.setAttribute("open", "")));
   await expect(
     page.locator(".help-answers a").filter({ hasText: "Read article" }),
-  ).toHaveCount(12);
+  ).toHaveCount(faqs.length);
   const external = page.getByRole("main").locator('a[target="_blank"]');
   for (const link of await external.all()) {
     await expect(link).toHaveAttribute("rel", /noopener/);
@@ -338,5 +338,5 @@ test("untrusted and invalid URL filters remain literal and bounded", async ({ pa
   await open(page, `/help?q=${"x".repeat(500)}&topic=invalid`);
   expect((await page.getByLabel("Search help topics").inputValue()).length).toBe(200);
   await page.getByRole("button", { name: "Clear search", exact: true }).click();
-  await expect(page.locator(".help-answers details")).toHaveCount(12);
+  await expect(page.locator(".help-answers details")).toHaveCount(faqs.length);
 });

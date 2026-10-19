@@ -1,5 +1,8 @@
 # Continuous integration gates
 
+`.github/workflows/backend-database-safety.yml` enforces an empty PostgreSQL migration
+replay, schema/history verification and database safeguard regressions for backend changes.
+
 CI must run a clean locked dependency install, `npm run check`, `npm run build`,
 and `npm run test:coverage`. Migration replay must run through
 `npm run test:migrations` only against an ephemeral PostgreSQL database whose

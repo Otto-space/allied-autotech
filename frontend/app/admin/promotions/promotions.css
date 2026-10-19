@@ -1,0 +1,294 @@
+﻿.work-promotions {
+  min-width: 0;
+}
+.wp-filters {
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #dce4ec;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+.wp-filter-form {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 1.4fr) minmax(140px, 0.9fr) minmax(140px, 0.9fr)
+    auto;
+  gap: 16px;
+  align-items: end;
+}
+.dashboard .dashboard-content .work-promotions .wp-filter-form .field {
+  margin: 0;
+  min-width: 0;
+}
+.dashboard .dashboard-content .work-promotions .wp-filter-form > .actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.dashboard .dashboard-content .work-promotions .wp-filter-form > .actions > .button {
+  width: auto;
+}
+.wp-filter-toggle {
+  display: none;
+}
+.wp-guidance {
+  margin: 20px 0 0;
+  padding: 14px 16px;
+  color: #314d69;
+  background: #edf5ff;
+  border: 1px solid #ccdfef;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.wp-records {
+  border: 1px solid #dce4ec;
+  border-radius: 8px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+.wp-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  border-bottom: 1px solid #dce4ec;
+}
+.dashboard .work-promotions .wp-band h2 {
+  font-size: 18px;
+  margin: 0;
+}
+.wp-band > span {
+  font-size: 12px;
+  color: #53677a;
+}
+.dashboard .work-promotions .wp-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 0;
+  font-size: 13px;
+}
+.dashboard .work-promotions .wp-table thead th {
+  background: #edf2f6;
+  color: #314758;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 14px 16px;
+  border-bottom: 1px solid #dce4ec;
+  text-align: left;
+}
+.wp-table th:first-child {
+  width: 24%;
+}
+.wp-table th:nth-child(2) {
+  width: 21%;
+}
+.wp-table th:nth-child(3) {
+  width: 25%;
+}
+.wp-table th:nth-child(4) {
+  width: 12%;
+}
+.wp-table th:nth-child(5) {
+  width: 18%;
+}
+.dashboard .work-promotions .wp-table tbody th,
+.dashboard .work-promotions .wp-table tbody td {
+  padding: 18px 16px;
+  border-bottom: 1px solid #dce4ec;
+  vertical-align: top;
+  background: #fff;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.dashboard .work-promotions .wp-table tbody th {
+  font-weight: 500;
+}
+.wp-table tbody tr:hover > :is(th, td) {
+  background: #f8fafb;
+}
+.wp-code {
+  display: block;
+  font-size: 12px;
+  color: #53677a;
+  margin-top: 8px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wp-discount {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.wp-table dl {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.wp-table dl > div + div {
+  margin-top: 12px;
+}
+.wp-table dt {
+  color: #53677a;
+  font-size: 11px;
+  font-weight: 500;
+}
+.wp-table dd {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+}
+.wp-configuration {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #f0f3f5;
+  color: #354b5b;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.wp-skeleton {
+  height: 140px;
+  margin-top: 18px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #edf2f6, #f9fbfc, #edf2f6);
+  background-size: 200% 100%;
+  animation: wp-loading 1.5s ease infinite;
+}
+@keyframes wp-loading {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .wp-filter-form {
+    grid-template-columns: 1fr 1fr;
+  }
+  .wp-filter-form > .field:first-child {
+    grid-column: 1/-1;
+  }
+  .wp-filter-form > .actions {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 767px) {
+  .work-promotions .work-service-heading .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 10px;
+  }
+  .work-promotions .work-service-heading .actions .button {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+  }
+  .wp-filters {
+    padding: 14px;
+    margin-bottom: 24px;
+  }
+  .wp-filter-toggle {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+  .wp-filter-form {
+    display: none;
+    grid-template-columns: 1fr;
+    margin-top: 18px;
+    gap: 18px;
+  }
+  .wp-filters-open .wp-filter-form {
+    display: grid;
+  }
+  .dashboard .dashboard-content .work-promotions .wp-filter-form > .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .dashboard .dashboard-content .work-promotions .wp-filter-form > .actions > .button {
+    width: 100%;
+    padding: 10px;
+  }
+  .wp-guidance {
+    margin-top: 16px;
+    padding: 12px;
+  }
+  .wp-records {
+    background: transparent;
+    border: 0;
+  }
+  .wp-band {
+    padding: 0 0 16px;
+    border: 0;
+    align-items: start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .dashboard .work-promotions .wp-table,
+  .wp-table tbody {
+    display: block;
+  }
+  .wp-table thead {
+    position: absolute;
+    clip-path: inset(50%);
+    height: 1px;
+    width: 1px;
+    overflow: hidden;
+  }
+  .dashboard .work-promotions .wp-table tbody tr {
+    display: block;
+    padding: 18px 16px;
+    margin: 0 0 14px;
+    border: 1px solid #dce4ec;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .dashboard .work-promotions .wp-table tbody th,
+  .dashboard .work-promotions .wp-table tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    width: auto;
+  }
+  .dashboard .work-promotions .wp-table tbody td {
+    margin-top: 18px;
+  }
+  .wp-table tbody td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #314758;
+    margin-bottom: 8px;
+  }
+  .wp-table dl > div + div {
+    margin-top: 10px;
+  }
+  .wp-discount {
+    margin-bottom: 10px;
+  }
+  .wp-table tbody tr:hover > :is(th, td) {
+    background: #fff;
+  }
+  .wp-records > .work-service-pagination {
+    padding: 12px 0;
+  }
+  .wp-records > .work-service-state {
+    background: #fff;
+    border: 1px solid #dce4ec;
+    border-radius: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wp-skeleton {
+    animation: none;
+  }
+}

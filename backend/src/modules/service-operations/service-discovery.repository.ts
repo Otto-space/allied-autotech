@@ -163,6 +163,11 @@ export class ServiceDiscoveryRepository {
         : {}),
     };
   }
+  async adminCategory(id: string) {
+    const row = await this.db.serviceCategory.findUnique({ where: { id } });
+    if (!row) throw serviceOperationNotFound();
+    return row;
+  }
   async publicCategory(id: string) {
     const row = await this.db.serviceCategory.findFirst({
       where: { id, isActive: true, services: { some: { isActive: true } } },

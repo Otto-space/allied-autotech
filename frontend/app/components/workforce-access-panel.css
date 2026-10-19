@@ -1,0 +1,164 @@
+.workforce-panel {
+  min-width: 0;
+}
+.wf-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.wf-heading h2 {
+  margin: 0;
+}
+.workforce-panel h3 {
+  margin: 22px 0 12px;
+}
+.workforce-panel h4 {
+  font-size: 16px;
+  margin: 0;
+}
+.workforce-panel details {
+  border-top: 1px solid #d5deea;
+  margin-top: 14px;
+}
+.workforce-panel summary {
+  min-height: 44px;
+  padding: 12px 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+.workforce-panel .wf-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  border: 0;
+  padding: 0;
+  margin: 16px 0;
+  min-width: 0;
+}
+.wf-wide,
+.wf-fields > button {
+  grid-column: 1/-1;
+}
+.wf-fields > button {
+  justify-self: start;
+  min-height: 44px;
+}
+.workforce-panel .field {
+  min-width: 0;
+  margin: 0;
+}
+.workforce-panel input:not([type="checkbox"]),
+.workforce-panel select {
+  min-height: 48px;
+  font-size: 16px;
+}
+.wf-password {
+  position: relative;
+}
+.wf-password input {
+  padding-right: 58px;
+  width: 100%;
+}
+.wf-password button {
+  position: absolute;
+  right: 5px;
+  top: 2px;
+  height: 44px;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #31485b;
+}
+.wf-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 0;
+  line-height: 1.6;
+}
+.wf-check input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 3px;
+  accent-color: #e60301;
+}
+.wf-checks {
+  border: 0;
+  border-top: 1px solid #d5deea;
+  padding: 12px 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+}
+.wf-checks legend {
+  font-weight: 600;
+  padding: 0 8px 0 0;
+}
+.wf-assignments,
+.wf-selected-branches {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.wf-assignments > li {
+  padding: 16px 0;
+  border-top: 1px solid #d5deea;
+}
+.wf-assignment-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.wf-assignment-heading span {
+  color: #42596b;
+  font-size: 12px;
+}
+.wf-assignments dl > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.6fr) minmax(0, 1.4fr);
+  gap: 16px;
+  padding: 8px 0;
+}
+.wf-assignments dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.wf-selected-branches li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid #d5deea;
+  padding: 8px 0;
+}
+.wf-selected-branches button {
+  min-height: 44px;
+  flex: none;
+}
+.wf-selected-branches span {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .workforce-panel .wf-fields,
+  .wf-checks {
+    grid-template-columns: 1fr;
+  }
+  .wf-fields > button {
+    width: 100%;
+  }
+  .wf-assignments dl > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .wf-heading .button {
+    width: 100%;
+  }
+}

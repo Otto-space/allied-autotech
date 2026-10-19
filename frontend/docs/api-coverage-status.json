@@ -162,10 +162,10 @@
     "verification": "Configured production Edge fixture passed explicit POST with CSRF, empty body, no automatic access and approved temporary link; shared expiry/session/unsafe-link handling verified for handovers; real document authorization pending"
   },
   "GET /staff/vehicles": {
-    "screen": "/admin/vehicles",
-    "source": "app/components/staff-vehicles.tsx; lib/api/staff-vehicle-schemas.ts",
-    "implementation": "Implemented with stock search, exact make/model/year, listing status, administrator branch and cursor filters; includes unlisted records Acquisition cost/currency are administrator-only projections. STAFF creation/edits omit cost in the UI and reject direct cost/null writes on the server; operational specification edits preserve the stored internal cost.",
-    "verification": "Production Edge fixtures passed error versus empty recovery, branch/search requests, pagination and filter cursor reset; real staff API verification pending. Other accepted query fields are ignored by the backend staff repository and are not exposed. Disposable finance API test verifies staff list/detail/create/edit omission, write denial, stored-cost preservation, admin/owner access and customer/other-staff denial. Vehicle-flow regression passed after aligning its old STAFF-cost fixture with the approved scope. Updated production browser role cases are pending. Production STAFF/ADMIN vehicle create/edit browser cases passed: STAFF cost field/payload/detail omission, ADMIN exact-kobo preservation, branch selection, version checks, 320px axe/overflow and no page errors."
+    "screen": "/admin/vehicles; /admin/vehicles/new (Staff branch eligibility)",
+    "source": "app/components/work-vehicle-stock.tsx; lib/admin/work-vehicle-stock.ts; app/components/admin-branch-picker.tsx",
+    "implementation": "Integrated: current own profile/identity gate, assigned active Staff branch, URL-persistent applied literal search/exact make/model/year/status/listed/branch filters and cursor history. Complete thumbnail/branch/listing records; acquisition fields omitted for Staff and not displayed by the index. Strict projection validation; stale facts block paging, denial clears facts. Unsupported URL keys are rejected; inherited backend query semantics remain ADM-23.",
+    "verification": "Gate 68: 31 distinct browser scenarios, six unit and three isolated API/database cases, 17 Axe scans, native fidelity and real production Edge/Express/PostgreSQL checks pass. Admin 25+3 and Staff 25+2 paging, unlisted/history/literal filters, branch scope and acquisition privacy verified; read fixtures unchanged with zero domain audits. See docs/page-quality/work-vehicle-stock.md. ADM-22 must deploy before this UI; ADM-23 remains an explicit implementation follow-up. Gate 69 also verifies active assigned scope before creation review/confirmation, including reassignment and real Staff privacy checks."
   },
   "GET /staff/vehicles/{vehicleId}": {
     "screen": "/admin/vehicles/[vehicleId]",
@@ -175,15 +175,15 @@
   },
   "POST /staff/vehicles": {
     "screen": "/admin/vehicles/new",
-    "source": "app/components/vehicle-record-form.tsx; lib/forms/vehicle-record.ts",
-    "implementation": "Implemented required/optional specifications, internal acquisition cost/date, own staff branch or administrator branch picker, explicit review and uncertain-creation lock Acquisition cost/currency are administrator-only projections. STAFF creation/edits omit cost in the UI and reject direct cost/null writes on the server; operational specification edits preserve the stored internal cost.",
-    "verification": "Production Edge fixtures passed required/VIN error focus, assigned branch, uppercase stock/VIN, exact large kobo, Lagos acquisition time, nullable fields, 320px overflow/axe and lost-response no-replay; administrator creation and real staff API pending Disposable finance API test verifies staff list/detail/create/edit omission, write denial, stored-cost preservation, admin/owner access and customer/other-staff denial. Vehicle-flow regression passed after aligning its old STAFF-cost fixture with the approved scope. Updated production browser role cases are pending. Production STAFF/ADMIN vehicle create/edit browser cases passed: STAFF cost field/payload/detail omission, ADMIN exact-kobo preservation, branch selection, version checks, 320px axe/overflow and no page errors."
+    "source": "app/components/work-vehicle-create.tsx; lib/admin/vehicle-stock-creation.ts; lib/forms/vehicle-record.ts",
+    "implementation": "Integrated: four grouped sections preserve all fields; active own identity and current eligible branch are checked before full review and again before POST. Staff omit acquisition cost; exact optional/null/zero values and Lagos instant are retained. Full returned record/version/branch/projection must match the reviewed request before photo navigation. Actor-scoped pending markers survive uncertainty/reload; explicit stock reconciliation/new-draft acknowledgement does not resend or prove the old outcome. Stock/VIN normalization, canonical bound and impossible-date checks are enforced.",
+    "verification": "Gate 69 records 26 distinct browser, six unit and three isolated API/database cases; 20 final Axe scans, native fidelity, static/build/contract checks and 18 exact source hashes pass. Real production Edge/Express/PostgreSQL verifies three creates/three records/three CREATE audits, exact values, photo navigation, committed-response loss with locked reload/manual recovery, Staff cost omission and reassignment denial. No photos/listings are created. Original-request receipt recovery remains optional ADM-24; target verification remains open."
   },
   "PATCH /staff/vehicles/{vehicleId}": {
     "screen": "/admin/vehicles/[vehicleId]",
     "source": "app/components/vehicle-record-form.tsx; lib/forms/vehicle-record.ts",
     "implementation": "Implemented versioned specification/acquisition editing; branch and stock number remain immutable. Newer server versions preserve draft input and require explicit field reload. Acquisition cost/currency are administrator-only projections. STAFF creation/edits omit cost in the UI and reject direct cost/null writes on the server; operational specification edits preserve the stored internal cost.",
-    "verification": "Production Edge fixtures passed expectedVersion, colour update, omitted immutable fields and preservation of concurrent drafts until explicit reload; real staff API verification pending Disposable finance API test verifies staff list/detail/create/edit omission, write denial, stored-cost preservation, admin/owner access and customer/other-staff denial. Vehicle-flow regression passed after aligning its old STAFF-cost fixture with the approved scope. Updated production browser role cases are pending. Production STAFF/ADMIN vehicle create/edit browser cases passed: STAFF cost field/payload/detail omission, ADMIN exact-kobo preservation, branch selection, version checks, 320px axe/overflow and no page errors."
+    "verification": "Production Edge fixtures passed expectedVersion, colour update, omitted immutable fields and preservation of concurrent drafts until explicit reload; real staff API verification pending Disposable finance API test verifies staff list/detail/create/edit omission, write denial, stored-cost preservation, admin/owner access and customer/other-staff denial. Vehicle-flow regression passed after aligning its old STAFF-cost fixture with the approved scope. Updated production browser role cases are pending. Production STAFF/ADMIN vehicle create/edit browser cases passed: STAFF cost field/payload/detail omission, ADMIN exact-kobo preservation, branch selection, version checks, 320px axe/overflow and no page errors. Gate 69 preserves the existing edit form and passes the three role create/edit regressions after shared calendar/canonical-bound validation improvements; full vehicle-detail redesign remains separate."
   },
   "POST /staff/vehicles/listings": {
     "screen": "/admin/vehicles/[vehicleId]",
@@ -733,9 +733,9 @@
   },
   "GET /admin/branches": {
     "screen": "Administrator catalogue and branches; support source/branch/assignment selection",
-    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts; app/components/support-panel.tsx; app/components/support-create-form.tsx; app/components/support-staff-actions.tsx",
-    "implementation": "Implemented",
-    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending"
+    "source": "app/components/admin-resource.tsx; lib/admin/resources.ts; app/components/support-panel.tsx; app/components/support-create-form.tsx; app/components/support-staff-actions.tsx; app/components/admin-branch-picker.tsx",
+    "implementation": "Implemented; vehicle stock supports historical/inactive branch choices and independent branch-choice pagination.",
+    "verification": "Category create/review fixture passed. Other resources and real backend authorization/mutations pending Gate 68 verifies stock branch choices/filters in fixture and real API/browser flows; broader branch administration remains a separate page gate."
   },
   "POST /admin/branches": {
     "screen": "Administrator catalogue and branches",
@@ -855,9 +855,10 @@
     "verification": "Backend endpoint/projection inspected; browser call deliberately omitted."
   },
   "GET /admin/branches/{branchId}": {
-    "screen": "See reason",
-    "implementation": "Not used: branch list records supply the complete edit form; an individual fetch may be added for concurrent-edit handling.",
-    "verification": "Backend endpoint/projection inspected; browser call deliberately omitted."
+    "screen": "Shared administrator branch picker, including /admin/vehicles; /admin/vehicles/new",
+    "source": "app/components/admin-branch-picker.tsx",
+    "implementation": "Integrated: when the selected branch is not on the loaded choice page, read and validate that exact branch identity/name/active state. Preserve its authoritative label after reload. Existing branch edit administration remains separate.",
+    "verification": "Gate 68 fixture covers off-page selection/reload and inactive branches; real browser/API verifies the actual historic selected branch name without downloading all choices. Broader branch detail/edit acceptance remains open. Gate 69 checks active selected branch before review/confirmation and off-page draft label restoration after reload."
   },
   "POST /customers/vehicle-transactions/{transactionId}/reserve": {
     "screen": "/dashboard/vehicle-transactions/[transactionId]",
@@ -1006,21 +1007,21 @@
   },
   "GET /admin/promotions/{promotionId}": {
     "screen": "/admin/promotions/[promotionId]",
-    "source": "app/components/promotion-pages.tsx; app/components/promotion-editor.tsx; app/components/promotion-form.tsx; app/components/promotion-preview.tsx; app/components/cart-panel.tsx; lib/api/promotion-schemas.ts; lib/forms/promotion.ts",
-    "implementation": "ID-validated detail projection, current rules and preserved draft across refresh, permission/error/loading states.",
-    "verification": "Backend route/schema/selector/row-lock and expectedVersion contracts inspected. Unit tests cover exact percentage/kobo boundaries and date/limit invariants; intercepted Edge scenarios cover role restrictions, filters, creation/edit review, stale and unknown writes, preview invalidation and responsive accessibility. Real MFA, database usage-limit concurrency and checkout redemption remain unverified."
+    "source": "app/components/work-promotion-detail.tsx; app/components/promotion-editor.tsx; lib/admin/promotion-detail.ts",
+    "implementation": "Integrated: direct requested-ID configuration read, strict identity/settings validation, named breadcrumb, exact values/dates and version metadata. Temporary refresh failures retain labelled prior facts with editing blocked; denied/not-found reads remove facts. Explicit pending recovery reads current settings without PATCH or a claim about the earlier outcome.",
+    "verification": "Gate 67 records focused detail/creation regressions, responsive/Axe/native comparisons and real browser/API/PostgreSQL acceptance. Read-only reload recovery, private headers and Staff/Customer/anonymous denial were checked. See docs/page-quality/work-promotion-detail.md for counts and release boundaries."
   },
   "POST /admin/promotions": {
     "screen": "/admin/promotions/new",
-    "source": "app/components/promotion-pages.tsx; app/components/promotion-editor.tsx; app/components/promotion-form.tsx; app/components/promotion-preview.tsx; app/components/cart-panel.tsx; lib/api/promotion-schemas.ts; lib/forms/promotion.ts",
-    "implementation": "Reviewed percentage or fixed discount creation, exact kobo/basis points, Lagos timestamps, nullable code/amounts/limits, explicit activation and unknown-result lock.",
-    "verification": "Backend route/schema/selector/row-lock and expectedVersion contracts inspected. Unit tests cover exact percentage/kobo boundaries and date/limit invariants; intercepted Edge scenarios cover role restrictions, filters, creation/edit review, stale and unknown writes, preview invalidation and responsive accessibility. Real MFA, database usage-limit concurrency and checkout redemption remain unverified."
+    "source": "app/components/work-promotion-create.tsx; app/components/promotion-form.tsx; lib/admin/promotion-creation.ts; lib/forms/promotion.ts",
+    "implementation": "Integrated: grouped exact-value form, disabled default, explicit review, fresh access check, CSRF, persisted actor-bound original request, safe same-key replay, read-only receipt recovery and minimal confirmed receipt. Definite first rejection differs from a rejected retry; malformed/408/429 outcomes retain uncertainty.",
+    "verification": "Focused creation unit/browser/API and real isolated PostgreSQL checks recorded in docs/page-quality/work-promotion-create.md. Additive receipt API must precede the frontend rollout. No schema change; deployed acceptance remains open. Gate 67 also verifies zero fixed/cap persistence after migration 20261017153000, continued checkout ineligibility and negative-value rejection."
   },
   "PATCH /admin/promotions/{promotionId}": {
     "screen": "/admin/promotions/[promotionId]",
-    "source": "app/components/promotion-pages.tsx; app/components/promotion-editor.tsx; app/components/promotion-form.tsx; app/components/promotion-preview.tsx; app/components/cart-panel.tsx; lib/api/promotion-schemas.ts; lib/forms/promotion.ts",
-    "implementation": "Complete reviewed settings with expectedVersion, inactive discount field cleared, unchanged timestamp precision preserved, stale draft reload and contradictory/unknown response lock.",
-    "verification": "Backend route/schema/selector/row-lock and expectedVersion contracts inspected. Unit tests cover exact percentage/kobo boundaries and date/limit invariants; intercepted Edge scenarios cover role restrictions, filters, creation/edit review, stale and unknown writes, preview invalidation and responsive accessibility. Real MFA, database usage-limit concurrency and checkout redemption remain unverified."
+    "source": "app/components/promotion-editor.tsx; app/components/promotion-form.tsx; lib/admin/promotion-detail.ts",
+    "implementation": "Integrated: reviewed complete settings, fresh active identity and snapshot comparison, existing expectedVersion/CSRF boundary, strict response validation and direct observed-version overview update. Minimal pending flags survive uncertain responses/reload. Explicit reconciliation replaces the old draft without resending. Later old reads cannot replace a newer confirmed version.",
+    "verification": "Focused API concurrency/boundary/zero tests, real reviewed edits/lost response/read recovery/stale-race rejection, and detail/browser regressions passed. Forward migration 20261017153000 aligns database zero configuration with the existing API; checkout still rejects a zero payable discount. Committed with schema note and regression test as dd995b8. Deploy through the guarded migration workflow before target acceptance."
   },
   "POST /customers/promotions/preview": {
     "screen": "/dashboard/cart",
@@ -1603,5 +1604,11 @@
     "source": "app/components/vehicle-reservation-agreement.tsx; lib/api/reservation-actions.ts; lib/api/reservation-terms.ts",
     "implementation": "Integrated: owned current and historically accepted plain-text agreements, explicit non-persisted consent, fresh identity/purchase/document validation, CSRF and original-key recovery retained across reload. Missing approved content keeps new acceptance unavailable. Payment requests remain separate.",
     "verification": "12 October: 18 new focused unit cases, 8 browser scenarios with final targeted reruns, 17 purchase-detail regressions, and real Edge/API/PostgreSQL publication, cancel, lost-response commit and replay after withdrawal passed. One receipt/audit, unchanged accepted evidence on replay and zero payments verified. Synthetic wording only; business approval and deployment remain open."
+  },
+  "GET /admin/promotions/creation-receipts/{requestKey}": {
+    "screen": "/admin/promotions/new",
+    "source": "app/components/work-promotion-create.tsx; lib/admin/promotion-creation.ts",
+    "implementation": "Integrated: explicit actor-bound read-only recovery after an uncertain creation. A null receipt retains the lock; original-key retries remain reviewed and bounded to 24 hours. No automatic replay on reload.",
+    "verification": "Focused real browser/API/PostgreSQL receipt and preserved-edit replay checks plus API permission/MFA/CSRF, concurrent replay and expiry coverage. See docs/page-quality/work-promotion-create.md for exact local evidence and release boundaries; deployed acceptance remains open."
   }
 }

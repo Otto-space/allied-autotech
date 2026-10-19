@@ -1,5 +1,6 @@
 import "server-only";
 import { backendOrigin } from "../backend-origin";
+import { privateTestingAuthorization } from "../private-testing";
 import { isRecord } from "./errors";
 export class PublicApiError extends Error {
   constructor(readonly status: number) {
@@ -15,6 +16,7 @@ export async function publicData<T>(
     throw new PublicApiError(400);
   const origin = backendOrigin();
   if (!origin) throw new PublicApiError(503);
+  const authorization = privateTestingAuthorization();
   const response = await fetch(`${origin}/api/v1${path}`, {
     cache: "no-store",
     credentials: "omit",
@@ -22,7 +24,10 @@ export async function publicData<T>(
     signal: signal
       ? AbortSignal.any([signal, AbortSignal.timeout(6000)])
       : AbortSignal.timeout(6000),
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      ...(authorization ? { Authorization: authorization } : {}),
+    },
   });
   if (!response.ok) throw new PublicApiError(response.status);
   const body: unknown = await response.json();

@@ -9,7 +9,7 @@ import type {
 
 // All records and writes are isolated in browser interception.
 const id = (n: number) => `f0000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-const time = "2026-09-17T10:00:00Z";
+const time = "2026-09-17T10:00:00.000Z";
 const category = {
   id: id(2),
   name: "Isolated category",
@@ -32,6 +32,7 @@ const productFixture = () => ({
   currency: "NGN",
   isActive: true,
   featured: false,
+  mediaVersion: 0,
   createdAt: time,
   updatedAt: time,
   category,
@@ -115,6 +116,12 @@ async function fixture(
         return state.failRead
           ? fail(route)
           : reply(route, { items: state.absent ? [] : [state.product] });
+      if (endpoint === `/admin/catalog/products/${id(1)}`)
+        return state.failRead
+          ? fail(route)
+          : state.absent
+            ? fail(route, 404)
+            : reply(route, state.product);
       if (endpoint === "/admin/catalog/categories")
         return reply(route, { items: [category] });
       return fail(route, 404);
@@ -132,6 +139,7 @@ async function fixture(
         ? "images"
         : null;
     if (!kind) return reply(route, { id: id(1) });
+    if (kind === "images") state.product.mediaVersion += 1;
     const itemId = endpoint.split("/")[6];
     if (request.method() === "DELETE") {
       if (kind === "compatibilities")
@@ -250,7 +258,7 @@ test("compatibility create, complete range update and removal follow actual chil
     notes: null,
   });
   expect(state.writes[2].body).toEqual({});
-  expect(state.reads).not.toContain(`/admin/catalog/products/${id(1)}`);
+  expect(state.reads).toContain(`/admin/catalog/products/${id(1)}`);
 });
 
 test("image validation, primary replacement and deletion never fetch unapproved hosts", async ({
@@ -312,6 +320,7 @@ test("image validation, primary replacement and deletion never fetch unapproved 
     altText: null,
     sortOrder: 0,
     isPrimary: true,
+    expectedVersion: 0,
   });
   expect(state.writes[1].body.sortOrder).toBe(10000);
   expect(state.product.images.some((item) => item.isPrimary)).toBe(false);
@@ -399,7 +408,9 @@ test("a disappeared product is an unavailable record, not an empty child list", 
   await page
     .getByRole("button", { name: "Refresh compatibility & images", exact: true })
     .click();
-  await expect(page.getByText(/no longer on the selected catalogue page/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Add compatibility", exact: true }),
+  ).toHaveCount(0);
   await expect(
     page.getByText("No compatibility records are saved for this part."),
   ).toHaveCount(0);
@@ -426,6 +437,7 @@ test("basic product edits reject stale prices and preserve the draft for review"
   ).toBeFocused();
   await page.getByRole("button", { name: "Review changes", exact: true }).click();
   state.product.priceKobo = "12346";
+  state.product.updatedAt = "2026-09-17T10:00:01.000Z";
   await page.getByRole("button", { name: "Confirm save", exact: true }).click();
   await expect(
     page.getByRole("dialog").getByText(/This record has changed/),
@@ -450,6 +462,7 @@ test("basic catalogue saves with unknown outcomes cannot be resent after reselec
     page.getByRole("button", { name: "Confirm save", exact: true }),
   ).toBeDisabled();
   await page.getByRole("button", { name: "Close & review record", exact: true }).click();
+  await page.getByRole("button", { name: "Back to products", exact: true }).click();
   await page.getByRole("button", { name: "View & edit", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Review changes", exact: true }),

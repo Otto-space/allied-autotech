@@ -1,8 +1,10 @@
 import { backendOrigin } from "./backend-origin";
 import { siteOrigin } from "./seo";
+import { privateTestingAuthorization } from "./private-testing";
 
 /** Validate supplied origins; an omitted site origin keeps search indexing disabled. */
 export function validateDeploymentConfig() {
+  privateTestingAuthorization();
   const apiOrigin = backendOrigin();
   if (process.env.VERCEL !== "1" || process.env.VERCEL_ENV !== "production") return;
 

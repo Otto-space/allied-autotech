@@ -10,8 +10,10 @@ import type {
 } from "./promotions.schemas.js";
 import { promotionsService, type PromotionsService } from "./promotions.service.js";
 
-const validated = <T>(response: Response, location: "body" | "params" | "query") =>
-  response.locals.validated?.[location] as T;
+const validated = <T>(
+  response: Response,
+  location: "body" | "params" | "query" | "headers",
+) => response.locals.validated?.[location] as T;
 const actor = (request: Request) => request.actor as AuthenticatedActor;
 const context = (request: Request): RequestSecurityContext => ({
   requestId: String(request.id),
@@ -70,6 +72,20 @@ export class PromotionsController {
             actor(req),
             validated<PromotionCreateInput>(res, "body"),
             context(req),
+            validated<{ "idempotency-key"?: string }>(res, "headers")["idempotency-key"],
+          ),
+        ),
+      );
+  creationReceipt = async (req: Request, res: Response) =>
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Promotion creation checked",
+          req.id,
+          await this.service.creationReceipt(
+            actor(req),
+            validated<{ requestKey: string }>(res, "params").requestKey,
           ),
         ),
       );

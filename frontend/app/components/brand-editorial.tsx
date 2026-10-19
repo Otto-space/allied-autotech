@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { operatingPrinciples, serviceJourney } from "@/lib/brand-content";
 import { business } from "@/lib/business";
+import "./service-journey.css";
 
 export function EditorialBanner({
   title,
@@ -36,28 +37,31 @@ export function EditorialBanner({
   );
 }
 
-export function ServiceJourney() {
+export function ServiceJourney({ showStartLink = true }: { showStartLink?: boolean }) {
   return (
-    <section className="public-section journey-section">
+    <section
+      className="services-journey journey-section"
+      aria-labelledby="services-journey-title"
+    >
       <div className="public-wrap">
-        <div className="section-heading">
-          <h2>A clear path to better vehicle care.</h2>
+        <div className="services-journey-heading">
+          <h2 id="services-journey-title">A clear path to better vehicle care.</h2>
           <p>From the first conversation to collection, know what comes next.</p>
         </div>
-        <ol className="service-journey">
+        <ol>
           {serviceJourney.map(([title, copy], index) => (
             <li key={title}>
-              <span className="journey-number" aria-hidden="true">
-                0{index + 1}
-              </span>
+              <span aria-hidden="true">0{index + 1}</span>
               <h3>{title}</h3>
               <p>{copy}</p>
             </li>
           ))}
         </ol>
-        <Link className="text-link" href="/services">
-          Start with a service <ArrowUpRight size={17} aria-hidden="true" />
-        </Link>
+        {showStartLink && (
+          <Link className="text-link journey-start" href="/services">
+            Start with a service <ArrowUpRight size={17} aria-hidden="true" />
+          </Link>
+        )}
       </div>
     </section>
   );

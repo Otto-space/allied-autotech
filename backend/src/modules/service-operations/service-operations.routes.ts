@@ -321,6 +321,11 @@ export function createAdminServicesRouter(): Router {
     validate({ query: adminServiceListQuerySchema }),
     controller.adminServices,
   );
+  router.get(
+    "/:serviceId",
+    validate({ params: serviceParamsSchema, query: serviceOperationsEmptyQuerySchema }),
+    controller.adminService,
+  );
   router.post(
     "/",
     requireCsrf,

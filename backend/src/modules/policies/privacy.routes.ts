@@ -37,6 +37,13 @@ export const privacyPageQuery = z
     limit: z.coerce.number().int().min(1).max(100).default(25),
   })
   .strict();
+export const staffPrivacyPageQuery = privacyPageQuery.extend({
+  kind: z.enum(["ANONYMIZATION", "DELETION"]).optional(),
+  status: z
+    .enum(["REQUESTED", "UNDER_REVIEW", "ON_HOLD", "APPROVED_PENDING_POLICY", "REJECTED"])
+    .optional(),
+  userId: z.uuid().optional(),
+});
 export const holdQuery = z.object({ userId: z.uuid() }).strict();
 export const releaseHold = z
   .object({ reason: z.string().trim().min(20).max(2000) })
@@ -58,15 +65,41 @@ export function createPrivacyRouter() {
     "/staff/privacy-requests",
     authenticate(),
     requireStaff,
-    validate({ query: privacyPageQuery }),
+    validate({ query: staffPrivacyPageQuery }),
     async (req, res) => {
-      await assertCapability(prisma, req.actor!, "PRIVACY_REVIEW");
-      const query = res.locals.validated!["query"] as z.infer<typeof privacyPageQuery>;
-      const items = await prisma.privacyRequest.findMany({
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        take: query.limit + 1,
-        ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+      const query = res.locals.validated!["query"] as z.infer<
+        typeof staffPrivacyPageQuery
+      >;
+      const items = await prisma.$transaction(async (tx) => {
+        await assertCapability(tx, req.actor!, "PRIVACY_REVIEW");
+        const rows = await tx.privacyRequest.findMany({
+          where: {
+            ...(query.kind ? { kind: query.kind } : {}),
+            ...(query.status ? { status: query.status } : {}),
+            ...(query.userId ? { userId: query.userId } : {}),
+          },
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          take: query.limit + 1,
+          ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+        });
+        await appendAuditEvent(tx, {
+          actorUserId: req.actor!.userId,
+          action: "READ",
+          entityType: "USER",
+          entityId: query.userId ?? null,
+          newValues: {
+            collection: "PRIVACY_REQUEST",
+            resultCount: Math.min(rows.length, query.limit),
+          },
+          context: {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          },
+        });
+        return rows;
       });
+      res.set("Cache-Control", "private, no-store");
       res.json(
         successResponse("Privacy review queue", req.id, {
           items: items.slice(0, query.limit),
@@ -81,19 +114,30 @@ export function createPrivacyRouter() {
     requireStaff,
     validate({ query: holdQuery }),
     async (req, res) => {
-      await assertCapability(prisma, req.actor!, "PRIVACY_REVIEW");
       const { userId } = res.locals.validated!["query"] as z.infer<typeof holdQuery>;
-      res.json(
-        successResponse(
-          "Retention holds",
-          req.id,
-          await prisma.retentionHold.findMany({
-            where: { userId },
-            take: 100,
-            orderBy: { createdAt: "desc" },
-          }),
-        ),
-      );
+      const rows = await prisma.$transaction(async (tx) => {
+        await assertCapability(tx, req.actor!, "PRIVACY_REVIEW");
+        const items = await tx.retentionHold.findMany({
+          where: { userId },
+          take: 100,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        });
+        await appendAuditEvent(tx, {
+          actorUserId: req.actor!.userId,
+          action: "READ",
+          entityType: "USER",
+          entityId: userId,
+          newValues: { collection: "RETENTION_HOLD", resultCount: items.length },
+          context: {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          },
+        });
+        return items;
+      });
+      res.set("Cache-Control", "private, no-store");
+      res.json(successResponse("Retention holds", req.id, rows));
     },
   );
   router.post(
@@ -105,14 +149,20 @@ export function createPrivacyRouter() {
     async (req, res) => {
       const { id } = res.locals.validated!["params"] as { id: string };
       const { reason } = res.locals.validated!["body"] as z.infer<typeof releaseHold>;
-      await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx) => {
         await assertCapability(tx, req.actor!, "PRIVACY_REVIEW");
         const record = await tx.retentionHold.findUnique({ where: { id } });
         if (!record) throw paymentNotFound();
-        await tx.retentionHold.updateMany({
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`privacy:${record.userId}`}, 0))`;
+        const releasedAt = new Date();
+        const changed = await tx.retentionHold.updateMany({
           where: { id, releasedAt: null },
-          data: { releasedAt: new Date(), releasedByUserId: req.actor!.userId },
+          data: { releasedAt, releasedByUserId: req.actor!.userId },
         });
+        if (changed.count !== 1)
+          throw paymentConflict(
+            "This hold was already released; refresh before reviewing another change",
+          );
         await appendAuditEvent(tx, {
           actorUserId: req.actor!.userId,
           action: "UPDATE",
@@ -125,9 +175,10 @@ export function createPrivacyRouter() {
             userAgent: req.get("user-agent") ?? null,
           },
         });
+        return { id, userId: record.userId, releasedAt, releaseReason: reason };
       });
       res.json(
-        successResponse("Hold released; no destructive action scheduled", req.id, { id }),
+        successResponse("Hold released; no destructive action scheduled", req.id, result),
       );
     },
   );
@@ -215,6 +266,7 @@ export function createPrivacyRouter() {
         await tx.$queryRaw`SELECT "id" FROM "PrivacyRequest" WHERE "id" = ${id}::uuid FOR UPDATE`;
         const current = await tx.privacyRequest.findUnique({ where: { id } });
         if (!current) throw paymentNotFound();
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`privacy:${current.userId}`}, 0))`;
         if (
           input.expectedReviewedAt !== undefined &&
           (current.reviewedAt?.getTime() ?? null) !==
@@ -282,6 +334,7 @@ export function createPrivacyRouter() {
       const input = res.locals.validated!["body"] as z.infer<typeof hold>;
       const result = await prisma.$transaction(async (tx) => {
         await assertCapability(tx, req.actor!, "PRIVACY_REVIEW");
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`privacy:${input.userId}`}, 0))`;
         const record = await tx.retentionHold.create({
           data: {
             ...input,

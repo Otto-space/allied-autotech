@@ -51,7 +51,7 @@ test("Super Admin service draft survives reload and rejection, then clears after
   await page
     .getByLabel("Full description (optional)", { exact: true })
     .fill("Diagnostic notes kept after reloading.");
-  await page.getByLabel("Pricing", { exact: true }).selectOption("QUOTE_REQUIRED");
+  await page.getByLabel("Pricing", { exact: true }).last().selectOption("QUOTE_REQUIRED");
   await page.getByLabel("Duration in minutes", { exact: true }).fill("60");
   await page.getByLabel("Active", { exact: true }).uncheck();
   await page.reload();
@@ -59,7 +59,9 @@ test("Super Admin service draft survives reload and rejection, then clears after
   await expect(
     page.getByLabel("Full description (optional)", { exact: true }),
   ).toHaveValue("Diagnostic notes kept after reloading.");
-  await expect(page.getByLabel("Pricing", { exact: true })).toHaveValue("QUOTE_REQUIRED");
+  await expect(page.getByLabel("Pricing", { exact: true }).last()).toHaveValue(
+    "QUOTE_REQUIRED",
+  );
   await expect(page.getByLabel("Active", { exact: true })).not.toBeChecked();
   await page.getByRole("button", { name: "Review changes", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();

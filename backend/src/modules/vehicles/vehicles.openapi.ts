@@ -135,6 +135,8 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
       method: "get",
       path: "/staff/vehicles",
       summary: "List branch vehicle inventory; acquisition costs are administrator-only",
+      description:
+        "Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with status. Listing status matches any stored listing on a record, including history. Existing createdAt/ID descending cursor paging is retained. The stock UI uses search, exact make/model, year, branch and listing filters only; inherited public-discovery price/specification/sort parameters require a separate stock-query contract audit.",
       query: staffVehicleListQuerySchema,
       secured: true,
     },
@@ -328,7 +330,7 @@ export function registerVehiclesOpenApi(registry: OpenAPIRegistry): void {
             },
           }
         : {
-            ...(route.description ? mediaErrorResponses : {}),
+            ...(route.mutation && route.description ? mediaErrorResponses : {}),
             [route.created ? "201" : "200"]: {
               description: "Request completed",
               content: {

@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { forgetPrivacyForm } from "@/lib/admin/work-privacy";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import {
@@ -18,16 +19,23 @@ export function PrivacyRequestReview({
   disabled,
   onSaved,
   onUncertain,
+  onReview,
+  onDenied,
 }: {
   record: PrivacyRequest;
   disabled: boolean;
   onSaved: () => void;
   onUncertain: () => void;
+  onReview?: (proposal: MutationProposal) => void;
+  onDenied?: () => void;
 }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [validation, setValidation] = useState<string>();
+  const [reviewedAt, setReviewedAt] = useState(record.reviewedAt);
+  const fields = useRef<HTMLFormElement>(null);
+  const changed = reviewedAt !== record.reviewedAt;
   function review(form: FormData) {
-    if (disabled || proposal) return;
+    if (disabled || proposal || changed) return;
     setValidation(undefined);
     const parsed = privacyReviewSchema.safeParse(Object.fromEntries(form));
     if (!parsed.success) {
@@ -43,9 +51,20 @@ export function PrivacyRequestReview({
     }
     const body: RequestBody<"/staff/privacy-requests/{id}/review", "post"> = {
       ...parsed.data,
-      expectedReviewedAt: record.reviewedAt,
+      expectedReviewedAt: reviewedAt,
     };
-    setProposal({
+    let savedAt: string | undefined;
+    (onReview ?? setProposal)({
+      privacyChange: { kind: "review", request: record, body },
+      onConfirmed: () => {
+        if (onReview && savedAt) {
+          if (fields.current) {
+            forgetPrivacyForm(fields.current);
+            fields.current.reset();
+          }
+          setReviewedAt(savedAt);
+        }
+      },
       title: "Record this privacy review?",
       description:
         "The response is visible to the customer. Active holds or unresolved disputes prevent approval. Approval does not schedule deletion or anonymization. A newer review will require you to refresh before submitting.",
@@ -57,15 +76,12 @@ export function PrivacyRequestReview({
         { label: "Customer-visible response", value: body.note },
       ],
       submit: async () => {
-        const saved = privacyRequestSchema.parse(
-          (
-            await apiRequest(`/staff/privacy-requests/${record.id}/review`, {
-              method: "POST",
-              csrf: true,
-              body,
-            })
-          ).data,
-        );
+        const response = await apiRequest(`/staff/privacy-requests/${record.id}/review`, {
+          method: "POST",
+          csrf: true,
+          body,
+        });
+        const saved = privacyRequestSchema.parse(response.data);
         if (
           saved.id !== record.id ||
           saved.userId !== record.userId ||
@@ -75,6 +91,8 @@ export function PrivacyRequestReview({
           !saved.reviewedAt
         )
           throw new Error("Unexpected privacy review");
+        savedAt = saved.reviewedAt;
+        return response;
       },
       onUncertain,
       retryAfterRejection: false,
@@ -82,47 +100,76 @@ export function PrivacyRequestReview({
   }
   return (
     <section className="detail-section" aria-label="Review selected privacy request">
+      <div className="wpr-response">
+        <h3>Customer response</h3>
+        <Feedback message={validation} />
+        {changed && (
+          <div className="notice">
+            <p>
+              This request changed. Your response fields are kept; reload them before
+              reviewing again.
+            </p>
+            <button
+              className="button secondary"
+              disabled={disabled}
+              onClick={() => {
+                if (fields.current) {
+                  forgetPrivacyForm(fields.current);
+                  fields.current.reset();
+                }
+                setReviewedAt(record.reviewedAt);
+              }}
+            >
+              Reload response fields
+            </button>
+          </div>
+        )}
+        <form
+          ref={fields}
+          data-draft-key={JSON.stringify(["privacy-request-review:1", record?.id])}
+          className="line-entry-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            review(new FormData(event.currentTarget));
+          }}
+        >
+          <fieldset disabled={disabled || changed}>
+            <legend>Review outcome</legend>
+            <div className="field">
+              <label htmlFor={`${record.id}-status`}>New request status</label>
+              <select id={`${record.id}-status`} name="status" required defaultValue="">
+                <option value="">Choose the reviewed outcome</option>
+                {reviewStatuses.map((status) => (
+                  <option key={status} value={status}>
+                    {privacyStatuses[status]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor={`${record.id}-note`}>
+                Response visible to the customer
+              </label>
+              <textarea
+                id={`${record.id}-note`}
+                name="note"
+                required
+                minLength={10}
+                maxLength={2000}
+              />
+            </div>
+            <button className="button">Review response</button>
+          </fieldset>
+        </form>
+      </div>
       <RetentionHolds
         userId={record.userId}
         disabled={disabled || !!proposal}
         onUncertain={onUncertain}
+        onReview={onReview}
+        onDenied={onDenied}
+        privacyRequest={record}
       />
-      <h4>Customer response</h4>
-      <Feedback message={validation} />
-      <form
-        data-draft-key={JSON.stringify(["privacy-request-review:1", record?.id])}
-        className="line-entry-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          review(new FormData(event.currentTarget));
-        }}
-      >
-        <fieldset disabled={disabled}>
-          <legend>Review outcome</legend>
-          <div className="field">
-            <label htmlFor={`${record.id}-status`}>New request status</label>
-            <select id={`${record.id}-status`} name="status" required defaultValue="">
-              <option value="">Choose the reviewed outcome</option>
-              {reviewStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {privacyStatuses[status]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor={`${record.id}-note`}>Response visible to the customer</label>
-            <textarea
-              id={`${record.id}-note`}
-              name="note"
-              required
-              minLength={10}
-              maxLength={2000}
-            />
-          </div>
-          <button className="button">Review response</button>
-        </fieldset>
-      </form>
       {proposal && (
         <MutationReview
           proposal={proposal}

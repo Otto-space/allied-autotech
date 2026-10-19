@@ -6,10 +6,12 @@ import { pinoHttp } from "pino-http";
 
 import { AppError } from "./common/errors/app-error.js";
 import { withTimeout } from "./common/database/health.js";
+import { assertDatabaseSchemaCompatible } from "./common/database/schema-safety.js";
 import { errorCodes } from "./common/errors/error-codes.js";
 import { errorHandler } from "./common/middleware/error-handler.js";
 import { notFound } from "./common/middleware/not-found.js";
 import { privateNoStore } from "./common/middleware/private-no-store.js";
+import { privateTesting } from "./common/middleware/private-testing.js";
 import { createGlobalRateLimit } from "./common/middleware/rate-limits.js";
 import { rawWebhookBody } from "./common/middleware/raw-webhook-body.js";
 import { requestContext } from "./common/middleware/request-context.js";
@@ -32,6 +34,7 @@ export interface CreateAppOptions {
 async function defaultReadinessCheck(): Promise<void> {
   await withTimeout(async () => {
     await prisma.$queryRaw`SELECT 1`;
+    await assertDatabaseSchemaCompatible(prisma);
   }, env.READINESS_TIMEOUT_MS);
 }
 
@@ -87,6 +90,7 @@ export function createApp(options: CreateAppOptions = {}): Express {
       env.NODE_ENV === "production" ? undefined : { strictTransportSecurity: false },
     ),
   );
+  app.use(privateTesting(env.PRIVATE_TESTING_ENABLED, env.PRIVATE_TESTING_PASSWORD));
   app.use(
     cors({
       origin(origin, callback) {

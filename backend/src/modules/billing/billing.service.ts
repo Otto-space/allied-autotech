@@ -13,12 +13,13 @@ import {
   invoiceStale,
 } from "./billing.errors.js";
 import { assertInvoiceCustomer, assertInvoiceOperator } from "./billing.policy.js";
-import { BillingRepository } from "./billing.repository.js";
+import { BillingRepository, invoiceableVehicleStatuses } from "./billing.repository.js";
 import type {
   CustomerInvoiceListQuery,
   InvoiceCreateInput,
   InvoiceTransitionInput,
   StaffInvoiceListQuery,
+  InvoiceSourceListQuery,
 } from "./billing.schemas.js";
 import { invoiceJsonSafe, invoicePage } from "./billing.types.js";
 import { buildInvoiceSnapshot } from "./document-snapshot.js";
@@ -46,12 +47,51 @@ export class BillingService {
     if (invoice === null) throw invoiceNotFound();
     return invoiceJsonSafe(invoice);
   }
-  async staffList(actor: AuthenticatedActor, query: StaffInvoiceListQuery) {
+  async staffList(
+    actor: AuthenticatedActor,
+    query: StaffInvoiceListQuery,
+    context: RequestSecurityContext,
+  ) {
     assertInvoiceOperator(actor);
     const branchId = await this.allowedBranch(actor);
-    return invoiceJsonSafe(
-      invoicePage(await this.repository.listStaff(query, branchId), query.limit),
+    const page = invoicePage(
+      await this.repository.listStaff(query, branchId),
+      query.limit,
     );
+    await this.database.$transaction((tx) =>
+      appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "INVOICE",
+        entityId: null,
+        newValues: { collection: "staff-invoices", resultCount: page.items.length },
+        context,
+      }),
+    );
+    return invoiceJsonSafe(page);
+  }
+  async invoiceSources(
+    actor: AuthenticatedActor,
+    query: InvoiceSourceListQuery,
+    context: RequestSecurityContext,
+  ) {
+    assertInvoiceOperator(actor);
+    const page = invoicePage(await this.repository.invoiceSources(query), query.limit);
+    await this.database.$transaction((tx) =>
+      appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "INVOICE",
+        entityId: null,
+        newValues: {
+          collection: "invoice-sources",
+          sourceType: query.sourceType,
+          resultCount: page.items.length,
+        },
+        context,
+      }),
+    );
+    return invoiceJsonSafe(page);
   }
   async staffGet(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
     assertInvoiceOperator(actor);
@@ -148,20 +188,12 @@ export class BillingService {
         };
       } else {
         const source = await this.repository.vehicleSource(input.sourceId, transaction);
-        const invoiceableStatuses = [
-          "PAYMENT_PENDING",
-          "RESERVED",
-          "PARTIALLY_PAID",
-          "PAID",
-          "HANDOVER_PENDING",
-          "COMPLETED",
-        ] as const;
         if (
           source === null ||
           source.customerId === null ||
           source.agreedPriceKobo === null ||
-          !invoiceableStatuses.includes(
-            source.status as (typeof invoiceableStatuses)[number],
+          !invoiceableVehicleStatuses.includes(
+            source.status as (typeof invoiceableVehicleStatuses)[number],
           )
         )
           throw invoiceNotFound();

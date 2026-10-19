@@ -10,6 +10,27 @@ function isObject(value: unknown): value is JsonObject {
 }
 
 describe("private API handover contract", () => {
+  it("generates the public review portrait parameters without blocking startup", () => {
+    const document = createOpenApiDocument({ sessionCookieName: "__Host-aat_session" });
+    const operation = document.paths?.["/public/support/reviews/{reviewId}/photo"]?.get;
+    expect(operation?.parameters).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "reviewId", in: "path", required: true }),
+        expect.objectContaining({
+          name: "v",
+          in: "query",
+          required: false,
+          schema: expect.objectContaining({
+            type: "integer",
+            minimum: 0,
+            maximum: 2147483647,
+          }),
+        }),
+      ]),
+    );
+    expect(operation?.security).toEqual([]);
+  });
+
   it("fully describes every operation and generates one handbook entry per operation", () => {
     const document = createOpenApiDocument({
       sessionCookieName: "__Host-aat_session",
@@ -60,7 +81,12 @@ describe("private API handover contract", () => {
           expect(content["application/pdf"]).toMatchObject({
             schema: { type: "string", format: "binary" },
           });
-          expect(operation["description"]).toContain("Ownership is checked");
+          if (path.startsWith("/customers/"))
+            expect(operation["description"]).toContain("Ownership is checked");
+          else {
+            expect(operation["x-required-roles"]).toEqual(["ADMIN", "SUPER_ADMIN"]);
+            expect(operation["description"]).toContain("verified MFA");
+          }
           continue;
         }
         if (content["image/webp"]) {
@@ -93,7 +119,9 @@ describe("private API handover contract", () => {
     ]) {
       expect(paths[path], path).toBeDefined();
     }
-    expect(operationCount).toBe(316);
+    // Mounted-route coverage checks exact completeness. New documented modules
+    // must not require rewriting a historical operation-count constant.
+    expect(operationCount).toBeGreaterThanOrEqual(323);
     expect(handbookOperations).toHaveLength(operationCount);
     expect(handbook).toContain("Never do this client-side");
     expect(handbook).toContain("Provider signature plus authoritative verification");

@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
+import { ApiError } from "@/lib/api/client";
 import {
-  parseProductExtrasPage,
+  parseProductExtrasSource,
   productExtrasRevision,
   type ProductCompatibility,
   type ProductImage,
@@ -33,6 +34,7 @@ export function ProductExtrasEditor({
   onUncertain,
   onUpdated,
   onClose,
+  onPendingChange,
 }: {
   productId: string;
   sourcePath: string;
@@ -40,8 +42,9 @@ export function ProductExtrasEditor({
   onUncertain: () => void;
   onUpdated: () => void;
   onClose: () => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
-  const records = useResource(sourcePath, parseProductExtrasPage);
+  const records = useResource(sourcePath, parseProductExtrasSource);
   const product = records.data?.items.find((item) => item.id === productId);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [epoch, setEpoch] = useState(0);
@@ -54,7 +57,9 @@ export function ProductExtrasEditor({
   }, []);
   const disabled =
     records.loading ||
+    records.refreshing ||
     !!records.error ||
+    !!records.refreshError ||
     !product ||
     uncertain ||
     minimumVersion > (product.mediaVersion ?? 0);
@@ -74,9 +79,15 @@ export function ProductExtrasEditor({
       submit: async () => {
         try {
           await checkProductExtras(sourcePath, expected);
+          onPendingChange?.(true);
           await next.submit();
+          onPendingChange?.(false);
           if (imageWrite && expected.mediaVersion !== undefined)
             setMinimumVersion(expected.mediaVersion + 1);
+        } catch (error) {
+          if (error instanceof ApiError && error.status >= 400 && error.status < 500)
+            onPendingChange?.(false);
+          throw error;
         } finally {
           records.refresh();
           onUpdated();
@@ -132,6 +143,12 @@ export function ProductExtrasEditor({
         and category are active.
       </p>
       <Feedback message={records.error} />
+      {records.refreshError && (
+        <Feedback
+          message="Product information may be out of date. Refresh before making changes."
+          tone="info"
+        />
+      )}
       <Feedback
         message={message}
         tone="info"
@@ -162,8 +179,8 @@ export function ProductExtrasEditor({
       {records.loading && <p role="status">Checking the selected part…</p>}
       {!records.loading && !records.error && !product && (
         <p className="notice">
-          This part is no longer on the selected catalogue page. Refresh the catalogue,
-          find the part and open its records again.
+          This product could not be found in the returned records. Refresh before opening
+          its compatibility and images again.
         </p>
       )}
       {product && (
@@ -317,6 +334,7 @@ export function ProductExtrasEditor({
       )}
       {editor?.kind === "upload" && product?.mediaVersion !== undefined && (
         <ProductFileUpload
+          onPendingChange={onPendingChange}
           key={epoch}
           productId={productId}
           version={product.mediaVersion}

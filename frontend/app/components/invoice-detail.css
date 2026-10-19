@@ -28,8 +28,7 @@
 .invoice-detail .button.secondary {
   border-color: #82939f;
 }
-.invoice-detail .button:focus-visible,
-.document-share .button:focus-visible {
+.invoice-detail .button:focus-visible {
   outline: 3px solid #e60301;
   outline-offset: 3px;
 }
@@ -384,62 +383,6 @@
 }
 .invoice-receipts .document-actions > .actions {
   margin-bottom: 0;
-}
-.document-share {
-  width: min(460px, calc(100vw - 32px));
-  padding: 24px;
-  border: 1px solid #82939f;
-  border-radius: 14px;
-  max-height: calc(100dvh - 32px);
-  overflow-y: auto;
-  color: #01121a;
-}
-.document-share-heading {
-  display: flex;
-  gap: 16px;
-  justify-content: space-between;
-  align-items: center;
-}
-.document-share h2 {
-  margin: 0;
-  font-size: 21px;
-}
-.document-share > .button {
-  width: 100%;
-  margin-top: 12px;
-  min-height: 44px;
-}
-.document-share .icon-button {
-  min-width: 44px;
-  min-height: 44px;
-  padding: 8px;
-}
-.document-share p {
-  font-size: 14px;
-  line-height: 1.65;
-  color: #435563;
-}
-.document-share label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  margin-top: 20px;
-}
-.document-share input {
-  margin: 8px 0;
-  width: 100%;
-  border: 1px solid #82939f;
-  padding: 11px;
-  border-radius: 6px;
-  font-size: 16px;
-  color: #01121a;
-  background: #fff;
-}
-.document-share .copy-control .button {
-  min-height: 44px;
-}
-.document-share .document-share-note {
-  font-size: 12px;
 }
 @media (min-width: 1200px) {
   .invoice-meta {
