@@ -1,0 +1,70 @@
+.workforce-finance .wfc-results thead th:nth-child(1) {
+  width: 22%;
+}
+.workforce-finance .wfc-results thead th:nth-child(2) {
+  width: 18%;
+}
+.workforce-finance .wfc-results thead th:nth-child(3) {
+  width: 14%;
+}
+.workforce-finance .wfc-results thead th:nth-child(4) {
+  width: 17%;
+}
+.workforce-finance .wfc-results thead th:nth-child(5) {
+  width: 14%;
+}
+.workforce-finance .wfc-results thead th:nth-child(6) {
+  width: 15%;
+}
+.workforce-finance .wfc-facts {
+  grid-template-columns: 1.2fr 1fr 0.7fr;
+}
+.workforce-finance .wfc-columns {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  align-items: start;
+}
+.workforce-finance .wff-source {
+  display: block;
+}
+.workforce-finance .wff-source + .wff-source {
+  margin-top: 8px;
+}
+.workforce-finance .wff-source-branch {
+  display: block;
+  margin-top: 4px;
+  color: var(--wfc-muted);
+}
+.workforce-finance .wff-amount {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .workforce-finance .wff-note {
+  margin: 0 20px 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--wfc-line);
+  color: var(--wfc-muted);
+}
+.workforce-finance .wfc-status.is-succeeded {
+  background: #e9f4ec;
+  color: #205a37;
+}
+.workforce-finance .wfc-status:is(.is-processing, .is-requires_review) {
+  background: #fff0d8;
+  color: #614015;
+}
+.workforce-finance .wfc-tracking > div:last-child {
+  border-bottom: 0;
+}
+@media (max-width: 760px) {
+  .dashboard .dashboard-content .workforce-finance .wff-note {
+    margin: 0 16px 16px;
+  }
+  .workforce-finance .wfc-facts,
+  .workforce-finance .wfc-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-finance .wfc-panel + .wfc-panel {
+    border-top: 1px solid var(--wfc-line);
+    padding-top: 18px;
+  }
+}

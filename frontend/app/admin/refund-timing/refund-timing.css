@@ -1,0 +1,452 @@
+.work-refund-timing {
+  max-width: 1360px;
+  color: #01121a;
+  font-size: 14px;
+}
+.work-refund-timing .breadcrumbs a {
+  color: #b42318;
+}
+.work-refund-timing .breadcrumbs {
+  margin-bottom: 8px;
+}
+.refund-timing-breadcrumb-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.refund-timing-breadcrumb-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.refund-timing-breadcrumb-list svg {
+  flex: 0 0 14px;
+}
+.refund-timing-breadcrumb-list a,
+.refund-timing-breadcrumb-list [aria-current] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.work-refund-timing h1 {
+  font-size: 30px;
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+.work-refund-timing h2,
+.work-refund-timing legend {
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+.work-refund-timing h2 {
+  margin: 0 0 12px;
+}
+.refund-timing-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 18px 0;
+}
+.refund-timing-toolbar p {
+  margin: 0;
+  color: #536479;
+}
+.refund-timing-toolbar > .button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.refund-timing-impact {
+  background: #eaf0f5;
+  border-left: 3px solid #74879a;
+  padding: 12px 16px;
+  margin: 0 0 24px;
+}
+.refund-timing-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
+  align-items: start;
+  gap: 24px;
+}
+.refund-timing-state,
+.refund-timing-form {
+  min-width: 0;
+}
+.refund-timing-current,
+.refund-timing-form {
+  background: #fff;
+  padding: 22px;
+  border: 1px solid #d8e1eb;
+  border-radius: 6px;
+}
+.refund-timing-form {
+  box-shadow: 0 4px 14px #01121a08;
+}
+.refund-timing-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.refund-timing-section-heading h2 {
+  margin: 0;
+}
+.refund-timing-approved,
+.refund-timing-draft {
+  border-radius: 4px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.refund-timing-approved {
+  background: #e7f5ed;
+  color: #146139;
+}
+.refund-timing-draft {
+  background: #fff2db;
+  color: #77470a;
+}
+.refund-timing-meta {
+  border-bottom: 1px solid #dde4ec;
+  padding-bottom: 14px;
+  font-size: 13px;
+}
+.refund-timing-facts {
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+.refund-timing-facts dt,
+.refund-timing-schedule dt {
+  color: #536479;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+.refund-timing-facts dd,
+.refund-timing-schedule dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.refund-timing-contact-email,
+.refund-timing-facts small {
+  display: block;
+}
+.refund-timing-facts small,
+.refund-timing-checked {
+  font-size: 12px;
+  color: #536479;
+}
+.refund-timing-checked {
+  margin: 18px 0 0;
+}
+.refund-timing-schedule {
+  background: #eaf0f5;
+  padding: 16px;
+  border-radius: 6px;
+  display: grid;
+  gap: 14px;
+  margin: 14px 0;
+}
+.refund-timing-next {
+  margin-top: 14px;
+}
+.refund-timing-next > summary,
+.refund-timing-history > summary {
+  padding: 14px 0;
+  font-weight: 700;
+}
+.refund-timing-history {
+  border-top: 1px solid #ccd7e4;
+}
+.refund-timing-history p {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.work-refund-timing summary {
+  cursor: pointer;
+  min-height: 44px;
+}
+.work-refund-timing summary:focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 4px;
+}
+.refund-timing-version {
+  background: #fff;
+  border-bottom: 1px solid #d8e1eb;
+  padding: 0 14px;
+}
+.refund-timing-version > summary {
+  padding: 12px 0;
+  font-size: 13px;
+}
+.refund-timing-version > summary span {
+  display: block;
+  margin: 5px 0 0 16px;
+}
+.refund-timing-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.refund-timing-form legend {
+  padding: 0;
+  margin-bottom: 8px;
+}
+.refund-timing-form .refund-timing-edit-fields > fieldset + fieldset {
+  border-top: 1px solid #dde4ec;
+  margin-top: 24px;
+  padding-top: 20px;
+}
+.refund-timing-form fieldset > p,
+.refund-timing-draft-source {
+  color: #536479;
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+.refund-timing-draft-source {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dde4ec;
+}
+.refund-timing-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.dashboard .dashboard-content .refund-timing-form .field {
+  margin: 0 0 16px;
+  min-width: 0;
+}
+.refund-timing-evidence {
+  grid-column: 1 / -1;
+}
+.refund-timing-form input:not([type="checkbox"]):not([type="hidden"]),
+.refund-timing-form select,
+.refund-timing-form textarea {
+  font-size: 16px;
+  width: 100%;
+  min-width: 0;
+}
+.refund-timing-form input:not([type="checkbox"]):not([type="hidden"]),
+.refund-timing-form select {
+  min-height: 48px;
+}
+.dashboard .dashboard-content .refund-timing-form textarea {
+  height: 112px;
+  min-height: 96px;
+  resize: vertical;
+}
+.refund-timing-form .check-label {
+  align-items: flex-start;
+  min-height: 44px;
+  gap: 12px;
+}
+.refund-timing-form .check-label input {
+  flex: 0 0 20px;
+  margin-top: 3px;
+}
+.work-refund-timing .policy-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.work-refund-timing .button {
+  min-height: 44px;
+}
+.work-refund-timing .policy-selected-contact {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  background: #f1f5f8;
+  border-radius: 4px;
+  padding: 10px 12px;
+}
+.refund-timing-form .text-link {
+  color: #24364b;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-align: left;
+}
+.refund-timing-recovery,
+.refund-timing-stale {
+  border-left: 3px solid #ae6c15;
+  background: #fff7e9;
+  padding: 16px;
+  margin: 16px 0;
+}
+.refund-timing-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 16px 0;
+}
+.refund-timing-ack input {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+}
+@media (max-width: 1100px) {
+  .refund-timing-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .work-refund-timing h1 {
+    font-size: 24px;
+  }
+  .refund-timing-toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .refund-timing-current,
+  .refund-timing-form {
+    padding: 16px;
+  }
+  .refund-timing-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .refund-timing-impact {
+    padding: 12px;
+  }
+  .refund-timing-recovery {
+    padding: 14px;
+  }
+}
+
+.work-refund-timing h3 {
+  font-size: 16px;
+  margin: 16px 0 10px;
+  overflow-wrap: anywhere;
+}
+.refund-timing-document > summary {
+  padding: 12px 0;
+  font-weight: 600;
+}
+.refund-timing-reason {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.refund-timing-form textarea.refund-timing-body {
+  height: 240px;
+  min-height: 180px;
+  font-family: inherit;
+}
+.refund-timing-form .check-label {
+  display: flex;
+  margin: 12px 0 18px;
+}
+.dashboard .dashboard-content .refund-timing-form input[type="checkbox"],
+.refund-timing-ack input {
+  accent-color: #e60301;
+}
+.dashboard .dashboard-content .refund-timing-form input[type="checkbox"]:checked {
+  background-color: #e60301;
+  border-color: #e60301;
+}
+.refund-timing-draft {
+  background: #eaf0f5;
+  color: #33485c;
+}
+.refund-timing-recovery,
+.refund-timing-stale {
+  background: #eaf0f5;
+  border-left-color: #74879a;
+}
+.refund-timing-form [hidden] {
+  display: none;
+}
+.refund-timing-schedule-summary {
+  display: block;
+  margin: 6px 0 0 16px;
+  color: #536479;
+  font-size: 13px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.dashboard .dashboard-content .refund-timing-form input:focus-visible,
+.dashboard .dashboard-content .refund-timing-form select:focus-visible,
+.dashboard .dashboard-content .refund-timing-form textarea:focus-visible {
+  border-color: #e60301;
+  outline: 2px solid #e60301;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px #ffffff;
+}
+
+.refund-timing-approved {
+  background: #eaf0f5;
+  color: #33485c;
+}
+.refund-timing-next {
+  background: #fff;
+  border: 1px solid #d8e1eb;
+  border-radius: 6px;
+  padding: 0 14px;
+}
+.refund-timing-history {
+  margin-top: 24px;
+  padding: 0 18px;
+  background: #fff;
+  border: 1px solid #d8e1eb;
+  border-radius: 6px;
+}
+.refund-timing-step {
+  color: #c00000;
+  margin-right: 8px;
+  font-size: 14px;
+}
+.refund-timing-day-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 12px;
+  margin-bottom: 16px;
+}
+.refund-timing-form .refund-timing-weekdays legend {
+  font-size: 14px;
+  font-weight: 600;
+}
+.refund-timing-form .refund-timing-day-grid .check-label {
+  margin: 0;
+  align-items: center;
+  font-size: 13px;
+  gap: 8px;
+}
+.refund-timing-form .refund-timing-day-grid input {
+  margin-top: 0;
+}
+.refund-timing-form .refund-timing-edit-fields > .button {
+  width: 100%;
+}
+.refund-timing-holiday-list {
+  overflow-wrap: anywhere;
+}
+.refund-timing-facts summary {
+  padding: 10px 0;
+}
+.dashboard .dashboard-content .refund-timing-form input:not([type="checkbox"]),
+.dashboard .dashboard-content .refund-timing-form textarea,
+.dashboard .dashboard-content .refund-timing-form select {
+  border: 1px solid #8799ac;
+}
+.dashboard .dashboard-content .refund-timing-form input:focus-visible,
+.dashboard .dashboard-content .refund-timing-form select:focus-visible,
+.dashboard .dashboard-content .refund-timing-form textarea:focus-visible {
+  border-color: #e60301;
+  outline: 2px solid #e60301;
+  outline-offset: 2px;
+}
+@media (max-width: 600px) {
+  .refund-timing-day-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

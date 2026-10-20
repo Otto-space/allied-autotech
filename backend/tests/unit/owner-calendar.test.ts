@@ -41,4 +41,19 @@ describe("Signed support calendar and independently approved banking clock", () 
       ).toISOString(),
     ).toBe("2026-10-12T09:00:00.000Z");
   });
+  it("honors a valid sparse calendar even when excluded banking dates span more than 1,000 days", () => {
+    const start = new Date("2026-01-05T09:00:00Z"); // Monday, 10:00 Lagos.
+    const week = 7 * 86_400_000;
+    const holidays = Array.from({ length: 150 }, (_, index) =>
+      new Date(start.getTime() + (index + 1) * week).toISOString().slice(0, 10),
+    );
+    // The first 150 Mondays are excluded; the following ten Mondays count.
+    expect(bankRefundDueAt(start, [1], holidays).getTime()).toBe(
+      start.getTime() + 160 * week,
+    );
+    // Duplicate excluded dates cannot change the deadline or inflate counting.
+    expect(bankRefundDueAt(start, [1], [...holidays, ...holidays])).toEqual(
+      bankRefundDueAt(start, [1], holidays),
+    );
+  });
 });

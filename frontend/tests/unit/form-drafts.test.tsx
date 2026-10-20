@@ -208,14 +208,22 @@ it("recovers repeatable line items and preserves their order after adding and re
   const initial = render(<Rows />);
   fireEvent.change(screen.getByLabelText("Line 1"), { target: { value: "First" } });
   fireEvent.click(screen.getByRole("button", { name: "Add item" }));
-  await act(async () => {});
+  await waitFor(() =>
+    expect(
+      readDraft(draftKey("admin-one", "/admin/example", "rows"))["@rows:items"],
+    ).toBe("2"),
+  );
   fireEvent.change(screen.getByLabelText("Line 2"), { target: { value: "Second" } });
   initial.unmount();
   const restored = render(<Rows />);
   await waitFor(() => expect(screen.getByLabelText("Line 2")).toHaveValue("Second"));
   expect(screen.getByLabelText("Line 1")).toHaveValue("First");
   fireEvent.click(screen.getByRole("button", { name: "Remove 1" }));
-  await act(async () => {});
+  await waitFor(() =>
+    expect(
+      readDraft(draftKey("admin-one", "/admin/example", "rows"))["@rows:items"],
+    ).toBe("1"),
+  );
   restored.unmount();
   render(<Rows />);
   await waitFor(() => expect(screen.getByLabelText("Line 1")).toHaveValue("Second"));

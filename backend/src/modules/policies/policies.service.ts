@@ -226,6 +226,27 @@ export async function publishPolicy(
       ? `booking-capacity:${input.branchId}`
       : input.kind.toLowerCase();
   return prisma.$transaction(async (tx) => {
+    if (
+      input.kind === "RETENTION" ||
+      input.kind === "BANK_REFUND_CLOCK" ||
+      input.kind === "DELIVERY" ||
+      input.kind === "VEHICLE_RESERVATION_TERMS"
+    )
+      await lockAccessActor(tx, actor);
+    if (input.kind === "BRANCH_CAPACITY") {
+      await lockAccessActor(tx, actor);
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`branch:${input.branchId}`}, 0))`;
+      await tx.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${input.branchId}::uuid FOR UPDATE`;
+    }
+    if (input.kind === "COMPLAINTS" || input.kind === "DISPUTES") {
+      await lockAccessActor(tx, actor);
+      const selected =
+        input.kind === "COMPLAINTS"
+          ? [input.settings.escalationUserId]
+          : [input.settings.primaryUserId, input.settings.backupUserId];
+      for (const id of selected.sort())
+        await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${id}::uuid FOR UPDATE`;
+    }
     if (input.kind === "FINANCE")
       await assertCapability(tx, actor, "FINANCE_POLICY_APPROVE");
     const contactIds =

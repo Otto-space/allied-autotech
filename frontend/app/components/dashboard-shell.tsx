@@ -369,7 +369,7 @@ export function DashboardShell({
         <header className="dashboard-top">
           <DashboardPageSearch groups={navigation} />
           <div className="dashboard-account-controls">
-            {!session.workforceManaged && (
+            {(!session.workforceManaged || verifiedWorkforce) && (
               <Link
                 className="dashboard-icon-link"
                 aria-label="Open notifications"
@@ -406,6 +406,10 @@ export function DashboardShell({
         </header>
         <main id="main" className="dashboard-content" key={session.user.id}>
           {currentDestination &&
+            !(
+              session.workforceManaged &&
+              (pathname === "/admin" || pathname === "/admin/workforce")
+            ) &&
             pathname !== "/dashboard/bookings" &&
             pathname !== "/dashboard/orders" &&
             pathname !== "/dashboard/payments" &&
@@ -423,6 +427,13 @@ export function DashboardShell({
             !/^\/dashboard\/support\/(enquiries|complaints)\/[^/]+$/.test(pathname) &&
             !/^\/dashboard\/orders\/[^/]+\/aftercare$/.test(pathname) &&
             pathname !== "/admin/bookings" &&
+            pathname !== "/admin/workforce/jobs" &&
+            pathname !== "/admin/workforce/bookings" &&
+            pathname !== "/admin/workforce/enquiries" &&
+            pathname !== "/admin/workforce/complaints" &&
+            pathname !== "/admin/workforce/orders" &&
+            pathname !== "/admin/workforce/finance" &&
+            !/^\/admin\/workforce\/jobs\/[^/]+$/.test(pathname) &&
             pathname !== "/admin/booking-slots" &&
             pathname !== "/admin/services" &&
             pathname !== "/admin/products" &&
@@ -447,6 +458,15 @@ export function DashboardShell({
             pathname !== "/admin/staff/invite" &&
             pathname !== "/admin/branches" &&
             pathname !== "/admin/audit" &&
+            pathname !== "/admin/processing-jobs" &&
+            pathname !== "/admin/complaint-policy" &&
+            pathname !== "/admin/dispute-policy" &&
+            pathname !== "/admin/retention-policy" &&
+            pathname !== "/admin/booking-capacity" &&
+            pathname !== "/admin/delivery-policy" &&
+            pathname !== "/admin/reservation-terms" &&
+            pathname !== "/admin/refund-timing" &&
+            pathname !== "/admin/notifications" &&
             !/^\/admin\/vehicle-sales\/[^/]+$/.test(pathname) &&
             pathname !== "/admin/vehicles/new" &&
             !/^\/admin\/vehicles\/[^/]+$/.test(pathname) &&
@@ -484,7 +504,8 @@ export function DashboardShell({
             >
               {session.workforceManaged ? (
                 verifiedWorkforce ? (
-                  pathname === "/admin/security" ? (
+                  pathname === "/admin/security" ||
+                  pathname === "/admin/notifications" ? (
                     children
                   ) : (
                     <WorkforceWorkspace
@@ -493,6 +514,7 @@ export function DashboardShell({
                         verifiedWorkforce.assignments.map((a) => a.id),
                       ])}
                       access={verifiedWorkforce}
+                      refreshAccess={workforce.refresh}
                     />
                   )
                 ) : (

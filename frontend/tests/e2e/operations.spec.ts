@@ -104,6 +104,19 @@ async function fixture(
 }
 const confirm = (page: Page) =>
   page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
+const inspectJob = (page: Page) =>
+  page
+    .locator(".wj-row")
+    .first()
+    .getByRole("button", { name: /Inspect job/ })
+    .click();
+const currentJob = (job: OperationalJob, retried = false) => ({
+  ...job,
+  status: retried ? (job.source === "OUTBOX" ? "PENDING" : "RECEIVED") : job.status,
+  ...(job.source === "OUTBOX"
+    ? { publishedAt: null }
+    : { processedAt: null, failedAt: time }),
+});
 
 test("operations overview uses real zero counts and links to the exception and job screens", async ({
   page,
@@ -183,9 +196,13 @@ test("job retry validates its reason and guards changed attempts while paging is
         });
       else
         await reply(route, {
-          items: retried ? [] : [{ ...job, lastError: "PRIVATE_BACKEND_DETAIL" }],
+          items: retried ? [] : [{ ...job, lastError: null }],
           ...(retried ? {} : { nextCursor: "A".repeat(100) }),
         });
+      return true;
+    }
+    if (endpoint === `/admin/operations/jobs/outbox/${job.id}`) {
+      await reply(route, currentJob(job, retried));
       return true;
     }
     if (endpoint.endsWith("/retry")) {
@@ -210,6 +227,7 @@ test("job retry validates its reason and guards changed attempts while paging is
   await expect(page.getByRole("heading", { name: job.eventType })).toBeVisible();
   await expect(page.getByRole("button", { name: "Next", exact: true })).toBeEnabled();
   await expect(page.getByText("PRIVATE_BACKEND_DETAIL", { exact: false })).toHaveCount(0);
+  await inspectJob(page);
   await page.getByRole("button", { name: "Review job retry" }).click();
   await expect(page.getByLabel("Job retry reason")).toBeFocused();
   await page.getByLabel("Job retry reason").fill("Isolated previous delivery reconciled");
@@ -226,9 +244,13 @@ test("job retry validates its reason and guards changed attempts while paging is
   await expect(page.getByRole("dialog")).toContainText("can send a notification");
   expect(writes).toHaveLength(0);
   await confirm(page).click();
-  await expect(page.getByRole("heading", { name: "No matching records" })).toBeVisible();
+  await expect(page.getByText("Retry queued.", { exact: false })).toBeVisible();
   expect(writes).toEqual([
-    { expectedAttempts: 4, reason: "Isolated fourth attempt reconciled" },
+    {
+      expectedAttempts: 4,
+      expectedUpdatedAt: time,
+      reason: "Isolated fourth attempt reconciled",
+    },
   ]);
   expect(queries.every((query) => !query.includes("cursor="))).toBe(true);
 });
@@ -237,7 +259,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
   test(`${role} can review and retry a dead-letter notification with zero attempts`, async ({
     page,
   }) => {
-    const job = { ...jobFixture(), status: "DEAD_LETTER", attempts: 0 };
+    const job: OperationalJob = { ...jobFixture(), status: "DEAD_LETTER", attempts: 0 };
     await page.setViewportSize(
       role === "SUPER_ADMIN" ? { width: 390, height: 844 } : { width: 1280, height: 720 },
     );
@@ -253,6 +275,10 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
       async (route, endpoint) => {
         if (endpoint === "/admin/operations/jobs") {
           await reply(route, { items: retried ? [] : [job] });
+          return true;
+        }
+        if (endpoint === `/admin/operations/jobs/outbox/${job.id}`) {
+          await reply(route, currentJob(job, retried));
           return true;
         }
         if (endpoint.endsWith("/retry")) {
@@ -275,6 +301,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
     await expect(page).toHaveURL(/\/admin\/processing-jobs$/);
     await expect(page).toHaveTitle(/Processing jobs/);
     await expect(page.getByRole("heading", { name: job.eventType })).toBeVisible();
+    await inspectJob(page);
     await expect(
       page.getByText("outside the supported manual retry range", { exact: false }),
     ).toHaveCount(0);
@@ -290,11 +317,13 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
       path: path.join(os.tmpdir(), `allied-notification-retry-${role.toLowerCase()}.png`),
     });
     await confirm(page).click();
-    await expect(
-      page.getByRole("heading", { name: "No matching records" }),
-    ).toBeVisible();
+    await expect(page.getByText("Retry queued.", { exact: false })).toBeVisible();
     expect(writes).toEqual([
-      { expectedAttempts: 0, reason: "Disabled delivery configuration repaired" },
+      {
+        expectedAttempts: 0,
+        expectedUpdatedAt: time,
+        reason: "Disabled delivery configuration repaired",
+      },
     ]);
     expect(errors).toEqual([]);
   });
@@ -325,10 +354,15 @@ test("unknown webhook retry is locked across filters and processing jobs never o
       });
       return true;
     }
+    if (endpoint === `/admin/operations/jobs/webhook/${job.id}`) {
+      await reply(route, currentJob(job));
+      return true;
+    }
     if (endpoint.endsWith("/retry")) {
       writes++;
       expect(route.request().postDataJSON()).toEqual({
         expectedAttempts: 5,
+        expectedUpdatedAt: time,
         reason: "Isolated webhook reconciliation",
       });
       await route.abort("failed");
@@ -337,6 +371,7 @@ test("unknown webhook retry is locked across filters and processing jobs never o
   });
   await page.goto("/admin/processing-jobs");
   await page.getByLabel("Job source").selectOption("PAYMENT_WEBHOOK");
+  await inspectJob(page);
   await page.getByLabel("Job retry reason").fill("Isolated webhook reconciliation");
   await page.getByRole("button", { name: "Review job retry" }).click();
   await expect(page.getByRole("dialog")).toContainText(
@@ -577,7 +612,12 @@ test("processing jobs pages older records, resets filters and performs no mutati
         route,
         url.searchParams.has("cursor")
           ? { items: [second] }
-          : { items: [first], nextCursor: "A".repeat(100) },
+          : {
+              items: [
+                { ...first, status: url.searchParams.get("status") ?? first.status },
+              ],
+              nextCursor: "A".repeat(100),
+            },
       );
       return true;
     }

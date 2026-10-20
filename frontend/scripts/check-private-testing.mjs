@@ -75,9 +75,23 @@ try {
   const page = await fetch(base+'/login', {headers:{authorization}});
   assert.equal(page.status,200,'The real login page should render behind private access');
   const html = await page.text();
+  const cookie = page.headers.getSetCookie().find(value=>value.startsWith('__Host-aat_private_access='));
+  assert.ok(cookie, 'Successful private entry must issue a remembered-access cookie');
+  for (const flag of ['HttpOnly', 'Secure', 'SameSite=lax', 'Path=/', 'Max-Age=28800'])
+    assert.ok(cookie.includes(flag), 'Private cookie flag: '+flag);
+  const cookieHeader = cookie.split(';')[0];
+  const remembered = await fetch(base+'/api/v1/public/private-probe', {headers:{cookie:cookieHeader}});
+  assert.equal(remembered.status,200,'Cookie-only API access must reach the backend');
+  assert.deepEqual(await remembered.json(), {success:true,data:{authorized:true}});
+  const rememberedPage = await fetch(base+'/login', {headers:{cookie:cookieHeader}});
+  assert.equal(rememberedPage.status,200,'Cookie-only page access must work');
+  assert.equal(rememberedPage.headers.has('set-cookie'),false,'Navigation must not renew private expiry');
+  const rememberedHtml = await rememberedPage.text();
   for (const secret of [password, authorization, authorization.slice(6)]) {
     assert.ok(!html.includes(secret), 'No private credential in HTML');
     assert.ok(!JSON.stringify([...page.headers]).includes(secret), 'No private credential in response headers');
+    assert.ok(!JSON.stringify([...remembered.headers]).includes(secret), 'No upstream credential leaks from cookie-authenticated rewrite');
+    assert.ok(!rememberedHtml.includes(secret), 'No private credential in remembered page HTML');
   }
   assert.match(page.headers.get('x-robots-tag'), /noindex/);
   const imagePath = '/_next/image?url=%2Fimages%2Fallied-autotech%2Fworkshop-editorial.webp&w=640&q=75';
@@ -88,7 +102,7 @@ try {
   await detail.text();
   assert.ok([200,404].includes(detail.status), 'Next may stream its not-found page with a 200 status');
   assert.equal(serverReadAuthorized,true,'Server-rendered API reads must carry the server-side credential');
-  console.log(JSON.stringify({privatePaths:5,prefetchDenied:true,wrongCredentialDenied:true,authenticatedRewrite:true,serverReadAuthorized:true,optimizedImage:true,warmCacheDenied:true,realLoginRendered:true,secretsAbsent:true}));
+  console.log(JSON.stringify({privatePaths:5,prefetchDenied:true,wrongCredentialDenied:true,authenticatedRewrite:true,cookieOnlyRewrite:true,cookieOnlyPage:true,serverReadAuthorized:true,optimizedImage:true,warmCacheDenied:true,realLoginRendered:true,secretsAbsent:true}));
 } finally { await new Promise(resolve=>api.close(resolve)); }
 `;
   const result = docker(["exec", "-i", id, "node", "--input-type=module"], probe);

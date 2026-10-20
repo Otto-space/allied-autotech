@@ -332,13 +332,13 @@
           "key": "MONNIFY_API_KEY",
           "value": "",
           "scope": "RUN_TIME",
-          "type": "GENERAL"
+          "type": "SECRET"
         },
         {
           "key": "MONNIFY_SECRET_KEY",
           "value": "",
           "scope": "RUN_TIME",
-          "type": "GENERAL"
+          "type": "SECRET"
         },
         {
           "key": "MONNIFY_CONTRACT_CODE",
@@ -507,6 +507,21 @@
           "value": "REPLACE_PRIVATE_TESTING_PASSWORD",
           "scope": "RUN_TIME",
           "type": "SECRET"
+        },
+        {
+          "key": "DEPARTMENT_INFO_EMAIL",
+          "scope": "RUN_TIME",
+          "value": ""
+        },
+        {
+          "key": "DEPARTMENT_SALES_EMAIL",
+          "scope": "RUN_TIME",
+          "value": ""
+        },
+        {
+          "key": "DEPARTMENT_SUPPORT_EMAIL",
+          "scope": "RUN_TIME",
+          "value": ""
         }
       ]
     }
@@ -639,6 +654,12 @@
         },
         {
           "key": "RESEND_FROM_EMAIL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_REPLY_TO_EMAIL",
           "value": "",
           "scope": "RUN_TIME",
           "type": "GENERAL"
@@ -810,6 +831,12 @@
           "type": "GENERAL"
         },
         {
+          "key": "RESEND_REPLY_TO_EMAIL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
           "key": "STAGING_EMAIL_ALLOWLIST",
           "value": "",
           "scope": "RUN_TIME",
@@ -891,13 +918,13 @@
           "key": "MONNIFY_API_KEY",
           "value": "",
           "scope": "RUN_TIME",
-          "type": "GENERAL"
+          "type": "SECRET"
         },
         {
           "key": "MONNIFY_SECRET_KEY",
           "value": "",
           "scope": "RUN_TIME",
-          "type": "GENERAL"
+          "type": "SECRET"
         },
         {
           "key": "MONNIFY_CONTRACT_CODE",

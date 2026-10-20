@@ -1,0 +1,11 @@
+# Booking capacity design specification
+
+Generated full desktop, mobile/review and form-detail concepts were inspected before runtime edits. Existing Allied shell, Quicksand dashboard typography, pale cool canvas, white state/editor surfaces, neutral secondary controls and restrained red remain authoritative. Page heading 30px desktop/24px mobile, section 20px, body 14px, inputs 16px/48px, actions minimum 44px, corners 6px, desktop gaps 24px.
+
+Exact title Booking capacity. Subtitle Manage each workshop's approved calendar and daily booking limit. Ordered breadcrumb Overview / Booking capacity uses real `/admin` link, Lucide ChevronRight, aria-current and narrow-safe 44px target. Compact Workshop branch picker precedes independent current/editor panels; branch selection persists in URL so reload returns to the same branch.
+
+Desktop 38/62 current/editor columns; mobile stacks. Current capacity shows full daily limit, opening days, fixed appointment hours and closed dates. Effective, next scheduled and latest recorded facts remain distinct; history uses compact version disclosures with complete approval provenance. An inactive branch has explicit read-only status and no approval.
+
+Form heading Approve branch capacity. Retained base-version explanation. Capacity and calendar groups daily limit with fixed-hours text, seven full weekday checkbox labels in wrapping 44px rows, and full-width optional closed dates. Written approval groups optional future Lagos datetime with required source text; required evidence spans full width. Preserve existing exact labels and Review capacity approval / Approve capacity actions. Neutral impact copy: Existing confirmed bookings are not rescheduled. Staff still review people and equipment before confirmation.
+
+Contract corrections: source is required text, not generated dropdown. Appointment hours are fixed facts, not editable controls. Actual versions/dates/status replace contradictory generated next/latest samples. Preserve Sunday-first DOM order, red checkboxes, existing logo/navigation and shared review/focus controls. The readable form-detail governs field sizing; omit its invented extra brand heading and uppercase REQUIRED decoration. Empty branches have no invented approved limits or days. No utilization charts, auto-confirmation or new schedule rules.

@@ -55,13 +55,64 @@ export const workforceAccessSchema = z.object({
 export type WorkforceAccess = z.infer<typeof workforceAccessSchema>;
 export const parseWorkforceAccess = (value: unknown) =>
   workforceAccessSchema.parse(value);
+export const workforceCounterPermissions = {
+  jobs: ["JOBS_READ"],
+  bookings: ["BOOKINGS_READ"],
+  enquiries: ["CUSTOMER_ENQUIRIES", "SALES_ENQUIRIES"],
+  complaints: ["COMPLAINTS"],
+  orders: ["ORDERS_READ"],
+} as const;
+const counter = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).optional();
+const workforceOverviewSchema = z
+  .object({
+    counts: z
+      .object({
+        jobs: counter,
+        bookings: counter,
+        enquiries: counter,
+        complaints: counter,
+        orders: counter,
+      })
+      .strict(),
+    generatedAt: z.iso.datetime(),
+    access: workforceAccessSchema.extend({ managed: z.literal(true) }),
+    branches: z.array(z.object({ id: z.uuid(), name: z.string().trim().min(1) })),
+  })
+  .superRefine((value, context) => {
+    for (const key of Object.keys(workforceCounterPermissions) as Array<
+      keyof typeof workforceCounterPermissions
+    >) {
+      const permitted = workforceCounterPermissions[key].some((permission) =>
+        value.access.permissions.includes(permission),
+      );
+      if (permitted !== (value.counts[key] !== undefined))
+        context.addIssue({
+          code: "custom",
+          message: "Counter does not match current access",
+          path: ["counts", key],
+        });
+    }
+    const branches = new Set(value.branches.map((branch) => branch.id));
+    const assigned = new Set(
+      value.access.assignments.map((assignment) => assignment.branchId),
+    );
+    if (
+      branches.size !== value.branches.length ||
+      branches.size !== assigned.size ||
+      [...assigned].some((id) => !branches.has(id)) ||
+      value.access.assignments.some(
+        (assignment) => assignment.userId !== value.access.userId,
+      )
+    )
+      context.addIssue({
+        code: "custom",
+        message: "Responsibility projection does not match this account",
+        path: ["access"],
+      });
+  });
+export type WorkforceOverview = z.infer<typeof workforceOverviewSchema>;
 export const parseWorkforceOverview = (value: unknown) =>
-  z
-    .object({
-      counts: z.record(z.string(), z.number().int().min(0)),
-      generatedAt: z.iso.datetime(),
-    })
-    .parse(value);
+  workforceOverviewSchema.parse(value);
 const work = z.object({
   id: z.uuid(),
   workOrderNumber: z.string(),

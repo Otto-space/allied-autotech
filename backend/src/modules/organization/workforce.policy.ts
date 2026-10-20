@@ -186,6 +186,19 @@ export function bookingScope(
   };
 }
 
+// Personal inbox endpoints remain account-owned and do not grant operational access.
+// Keep this list exact: future notification administration routes are not included.
+function isPersonalNotificationPath(path: string): boolean {
+  return (
+    path === "/api/v1/staff/notifications" ||
+    path === "/api/v1/staff/notifications/read-all" ||
+    path === "/api/v1/staff/notifications/preferences/current" ||
+    /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/read$/.test(
+      path,
+    )
+  );
+}
+
 // Enrolled accounts cannot reach broad legacy APIs, even if their identity is ADMIN.
 // New operational endpoints enforce actions, scopes and fields inside their transaction.
 export async function enforceWorkforceBoundary(
@@ -210,6 +223,7 @@ export async function enforceWorkforceBoundary(
   if (
     path.startsWith("/api/v1/auth/") ||
     path === "/api/v1/staff/profile" ||
+    isPersonalNotificationPath(path) ||
     path.startsWith("/api/v1/staff/workforce/") ||
     path === "/api/v1/staff/workforce" ||
     path.startsWith("/api/v1/admin/workforce/")

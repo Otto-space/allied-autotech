@@ -1,11 +1,9 @@
-# Processing jobs — design gate complete, implementation pending
+﻿# Processing jobs - local gate complete
 
-Gate93 follows [accepted audit logs](work-audit.md). Accepted total remains92. The full goal remains active.
+Milestone 93 passed local acceptance on 19 October 2026. See the [complete report](work-processing-jobs.md) for design comparison, implementation, test findings, production verification, connected continuations and safety limits. The accepted total is now 93; the full application goal remains active.
 
-The route/components, actual query/DTO/retry/cursor rules, current authorization, navigation and reusable tests have been audited. Four baseline viewport captures430/768/1280/1440 were inspected natively. They show no overflow/page errors but excessive filter spacing, long raw-reference sections and repeated retry forms. A verified stopped preview was restarted; only1440 was resumed after a browser network suspension.
+Completed evidence: 22 production browser scenarios, seven frontend units, five isolated API scenarios, two signed-cursor units, static/generated-contract checks, final build/standalone, seven-width/14-state accessibility scans, four native production comparisons and 14 matching runtime source hashes. Connected verification confirms two owned retries with exactly two mutation audits, lost-response reconciliation without replay, ten settled reads/ten READ audits, four request-correlated read confirmations, original-row hashes and zero remaining temporary sessions.
 
-Fresh built-in ImageGen [desktop](work-processing-jobs-oct-concepts/desktop.png)/[mobile](work-processing-jobs-oct-concepts/mobile.png) concepts were generated, copied and inspected before runtime edits. The [audit](work-processing-jobs-oct-concepts/audit.md), [specification](work-processing-jobs-oct-concepts/spec.md) and [corrections](work-processing-jobs-oct-concepts/corrections.md) define a compact queue plus direct current inspection, one reviewed retry form, URL history and persistent uncertain-outcome reconciliation.
+The report retains the actual refresh/form-remount fix and distinguishes it from fixture, selector, CSRF-counting and audit-settling corrections. Successful tests and mutations were reused rather than replayed. No schema/migration, application/shared database, existing grant, external provider, backup/restore, push or deployment operation ran.
 
-Required backend work: safe current-job read across all statuses; transaction-bound current actor/session checks; compatible null raw diagnostics; optional expectedUpdatedAt guard on retry. Preserve matching-attempt/status conditions, atomic notification-delivery reset/audit, provider idempotency and truthful queued-only outcomes. No schema change is anticipated. Do not run the old globally retargeting pagination suite on the retained fixture database; use focused owned fixtures and original-row hashes.
-
-Next: implement the audited backend contract and generated types, then the specified frontend workspace; perform focused isolated/browser/connected checks and final native comparison. No gate93 runtime change or database write has occurred yet.
+Next separate gate: complaint policy /admin/complaint-policy. Optional durable original-request retry receipts remain ADM-61; remaining policies, role regression and deployed verification remain open.

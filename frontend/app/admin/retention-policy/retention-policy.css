@@ -1,0 +1,384 @@
+.work-retention-policy {
+  max-width: 1360px;
+  color: #01121a;
+  font-size: 14px;
+}
+.work-retention-policy .breadcrumbs a {
+  color: #b42318;
+}
+.retention-breadcrumb-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.retention-breadcrumb-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.retention-breadcrumb-list svg {
+  flex: 0 0 14px;
+}
+.retention-breadcrumb-list a,
+.retention-breadcrumb-list [aria-current] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.work-retention-policy h1 {
+  font-size: 30px;
+  line-height: 1.25;
+  margin: 0 0 8px;
+}
+.work-retention-policy h2,
+.work-retention-policy legend {
+  font-size: 20px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+.work-retention-policy h2 {
+  margin: 0 0 12px;
+}
+.retention-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 18px 0;
+}
+.retention-toolbar p {
+  margin: 0;
+  color: #536479;
+}
+.retention-impact {
+  background: #eaf0f5;
+  border-left: 3px solid #74879a;
+  padding: 12px 16px;
+  margin: 0 0 24px;
+}
+.retention-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
+  align-items: start;
+  gap: 24px;
+}
+.retention-state,
+.retention-form {
+  min-width: 0;
+}
+.retention-current,
+.retention-form {
+  background: #fff;
+  padding: 22px;
+  border: 1px solid #d8e1eb;
+  border-radius: 6px;
+}
+.retention-form {
+  box-shadow: 0 4px 14px #01121a08;
+}
+.retention-section-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.retention-section-heading h2 {
+  margin: 0;
+}
+.retention-approved,
+.retention-draft {
+  border-radius: 4px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.retention-approved {
+  background: #e7f5ed;
+  color: #146139;
+}
+.retention-draft {
+  background: #fff2db;
+  color: #77470a;
+}
+.retention-meta {
+  border-bottom: 1px solid #dde4ec;
+  padding-bottom: 14px;
+  font-size: 13px;
+}
+.retention-facts {
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+.retention-facts dt,
+.retention-schedule dt {
+  color: #536479;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+.retention-facts dd,
+.retention-schedule dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.retention-contact-email,
+.retention-facts small {
+  display: block;
+}
+.retention-facts small,
+.retention-checked {
+  font-size: 12px;
+  color: #536479;
+}
+.retention-checked {
+  margin: 18px 0 0;
+}
+.retention-schedule {
+  background: #eaf0f5;
+  padding: 16px;
+  border-radius: 6px;
+  display: grid;
+  gap: 14px;
+  margin: 14px 0;
+}
+.retention-next {
+  margin-top: 14px;
+}
+.retention-next > summary,
+.retention-history > summary {
+  padding: 14px 0;
+  font-weight: 700;
+}
+.retention-history {
+  border-top: 1px solid #ccd7e4;
+}
+.retention-history p {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.work-retention-policy summary {
+  cursor: pointer;
+  min-height: 44px;
+}
+.work-retention-policy summary:focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 4px;
+}
+.retention-version {
+  background: #fff;
+  border-bottom: 1px solid #d8e1eb;
+  padding: 0 14px;
+}
+.retention-version > summary {
+  padding: 12px 0;
+  font-size: 13px;
+}
+.retention-version > summary span {
+  display: block;
+  margin: 5px 0 0 16px;
+}
+.retention-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.retention-form legend {
+  padding: 0;
+  margin-bottom: 8px;
+}
+.retention-form .retention-edit-fields > fieldset + fieldset {
+  border-top: 1px solid #dde4ec;
+  margin-top: 24px;
+  padding-top: 20px;
+}
+.retention-form fieldset > p,
+.retention-draft-source {
+  color: #536479;
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+.retention-draft-source {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dde4ec;
+}
+.retention-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.dashboard .dashboard-content .retention-form .field {
+  margin: 0 0 16px;
+  min-width: 0;
+}
+.retention-evidence {
+  grid-column: 1 / -1;
+}
+.retention-form input:not([type="checkbox"]):not([type="hidden"]),
+.retention-form select,
+.retention-form textarea {
+  font-size: 16px;
+  width: 100%;
+  min-width: 0;
+}
+.retention-form input:not([type="checkbox"]):not([type="hidden"]),
+.retention-form select {
+  min-height: 48px;
+}
+.retention-form textarea {
+  height: 112px;
+  min-height: 96px;
+  resize: vertical;
+}
+.retention-form .check-label {
+  align-items: flex-start;
+  min-height: 44px;
+  gap: 12px;
+}
+.retention-form .check-label input {
+  flex: 0 0 20px;
+  margin-top: 3px;
+}
+.work-retention-policy .policy-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.work-retention-policy .button {
+  min-height: 44px;
+}
+.work-retention-policy .policy-selected-contact {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  background: #f1f5f8;
+  border-radius: 4px;
+  padding: 10px 12px;
+}
+.retention-form .text-link {
+  color: #24364b;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-align: left;
+}
+.retention-recovery,
+.retention-stale {
+  border-left: 3px solid #ae6c15;
+  background: #fff7e9;
+  padding: 16px;
+  margin: 16px 0;
+}
+.retention-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 16px 0;
+}
+.retention-ack input {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  margin-top: 3px;
+}
+@media (max-width: 1100px) {
+  .retention-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .work-retention-policy h1 {
+    font-size: 24px;
+  }
+  .retention-toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .retention-current,
+  .retention-form {
+    padding: 16px;
+  }
+  .retention-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .retention-impact {
+    padding: 12px;
+  }
+  .retention-recovery {
+    padding: 14px;
+  }
+}
+
+.retention-form .policy-contact-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.retention-weekdays {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 4px 12px;
+  margin-bottom: 16px;
+}
+.retention-calendar > fieldset > legend {
+  font-size: 14px;
+}
+.retention-weekdays .check-label {
+  align-items: center;
+  margin: 0;
+}
+.retention-weekdays .check-label input {
+  margin-top: 0;
+}
+@media (max-width: 600px) {
+  .retention-form .policy-contact-pair {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+.retention-form .retention-rule {
+  border: 1px solid #cbd6e2;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+  background: #fbfcfd;
+}
+.retention-form .retention-rule > legend {
+  font-size: 16px;
+  padding: 0 6px;
+}
+.retention-recorded-rule {
+  border: 1px solid #d8e1eb;
+  border-radius: 6px;
+  padding: 0 12px;
+  margin-top: 12px;
+}
+.retention-recorded-rule > summary {
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+.retention-recorded-rule > summary span {
+  display: block;
+  font-size: 13px;
+  margin-top: 5px;
+  color: #536479;
+}
+.retention-recorded-rule .retention-facts {
+  padding-bottom: 14px;
+}
+.retention-recorded-rules > p {
+  font-size: 13px;
+  color: #536479;
+}
+.retention-form .retention-rule-limit {
+  margin-top: 12px;
+}

@@ -19,6 +19,7 @@ export function useNotificationWrite(
   userId: string,
   scope: "inbox" | "preferences",
   records: ReadState,
+  role: "CUSTOMER" | "STAFF" | "ADMIN" | "SUPER_ADMIN" = "CUSTOMER",
 ) {
   const marker = `aat:notification-write:v1:${userId}:${scope}`;
   const [recovery, setRecovery] = useState<{
@@ -109,7 +110,7 @@ export function useNotificationWrite(
       const session = z
         .object({ user: z.object({ id: z.string(), role: z.string() }) })
         .parse((await apiRequest("/auth/session", { signal: controller.signal })).data);
-      if (session.user.id !== userId || session.user.role !== "CUSTOMER")
+      if (session.user.id !== userId || session.user.role !== role)
         throw new ApiError(403, { error: { code: "FORBIDDEN" } });
       if (controller.signal.aborted || latestUnavailable.current)
         throw new ApiError(409, { error: { code: "CONFLICT" } });

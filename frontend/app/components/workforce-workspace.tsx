@@ -6,30 +6,88 @@ import { apiRequest } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
 import {
   parseWorkforceAssignees,
-  parseWorkforceJob,
-  parseWorkforceJobs,
-  parseWorkforceOverview,
   parseWorkforceQueue,
-  workforceTemplateLabels,
   type WorkforceAccess,
 } from "@/lib/api/workforce-schemas";
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { WorkforceAccessPanel } from "./workforce-access-panel";
+import { WorkforceOverview } from "./workforce-overview";
+import { WorkforceBookings } from "./workforce-bookings";
+import { WorkforceEnquiries } from "./workforce-enquiries";
+import { WorkforceComplaints } from "./workforce-complaints";
+import { WorkforceFinance } from "./workforce-finance";
+import { WorkforceOrders } from "./workforce-orders";
+import { WorkforceJobs } from "./workforce-jobs";
+import { WorkforceJobDetail } from "./workforce-job-detail";
 
-export function WorkforceWorkspace({ access }: { access: WorkforceAccess }) {
+export function WorkforceWorkspace({
+  access,
+  refreshAccess,
+}: {
+  access: WorkforceAccess;
+  refreshAccess: () => void;
+}) {
   const path = usePathname();
   if (path === "/admin" || path === "/admin/workforce")
-    return <WorkforceHome access={access} />;
+    return <WorkforceOverview access={access} refreshAccess={refreshAccess} />;
   if (path === "/admin/workforce/access" && access.canManageAssignments)
     return <WorkforceAccessLookup canInvite={access.canInviteAdmins} />;
   const id = /^\/admin\/workforce\/jobs\/([0-9a-f-]+)$/.exec(path)?.[1];
   if (id && access.permissions.includes("JOBS_READ"))
-    return <WorkforceJobDetail id={id} access={access} />;
+    return (
+      <WorkforceJobDetail
+        key={`${access.userId}:${id}`}
+        id={id}
+        access={access}
+        refreshAccess={refreshAccess}
+      />
+    );
   if (path === "/admin/workforce/jobs" && access.permissions.includes("JOBS_READ"))
-    return <WorkforceJobs />;
+    return <WorkforceJobs access={access} refreshAccess={refreshAccess} />;
+  if (
+    path === "/admin/workforce/bookings" &&
+    access.permissions.includes("BOOKINGS_READ")
+  )
+    return <WorkforceBookings access={access} refreshAccess={refreshAccess} />;
+  if (path === "/admin/workforce/finance" && access.permissions.includes("FINANCE_READ"))
+    return (
+      <WorkforceFinance
+        key={access.userId}
+        access={access}
+        refreshAccess={refreshAccess}
+      />
+    );
   const queue = path.split("/")[3];
+  if (path === "/admin/workforce/orders" && access.permissions.includes("ORDERS_READ"))
+    return (
+      <WorkforceOrders
+        key={access.userId}
+        access={access}
+        refreshAccess={refreshAccess}
+      />
+    );
+  if (
+    path === "/admin/workforce/enquiries" &&
+    (access.permissions.includes("CUSTOMER_ENQUIRIES") ||
+      access.permissions.includes("SALES_ENQUIRIES"))
+  )
+    return (
+      <WorkforceEnquiries
+        key={access.userId}
+        access={access}
+        refreshAccess={refreshAccess}
+      />
+    );
+  if (path === "/admin/workforce/complaints" && access.permissions.includes("COMPLAINTS"))
+    return (
+      <WorkforceComplaints
+        key={access.userId}
+        access={access}
+        refreshAccess={refreshAccess}
+      />
+    );
   const allowed =
     path === `/admin/workforce/${queue}` &&
     (
@@ -52,362 +110,6 @@ export function WorkforceWorkspace({ access }: { access: WorkforceAccess }) {
       <Link className="button secondary" href="/admin">
         Return to overview
       </Link>
-    </>
-  );
-}
-function WorkforceHome({ access }: { access: WorkforceAccess }) {
-  const record = useResource("/staff/workforce/overview", parseWorkforceOverview);
-  const destinations: Record<string, string> = {
-    jobs: "jobs",
-    bookings: "bookings",
-    enquiries: "enquiries",
-    complaints: "complaints",
-    orders: "orders",
-  };
-  return (
-    <>
-      <div className="page-heading">
-        <div>
-          <p className="eyebrow">Your workspace</p>
-          <h1>Operational overview</h1>
-          <p>Current work across your active responsibilities.</p>
-        </div>
-        <button className="button secondary" onClick={record.refresh}>
-          Refresh overview
-        </button>
-      </div>
-      <Feedback message={record.error} />
-      {record.loading ? (
-        <p role="status">Checking permitted queues…</p>
-      ) : (
-        record.data && (
-          <div className="overview-metrics">
-            {Object.entries(record.data.counts).map(([name, count]) => (
-              <Link
-                prefetch={false}
-                className="overview-metric"
-                href={`/admin/workforce/${destinations[name]}`}
-                key={name}
-              >
-                <span>
-                  {name === "jobs"
-                    ? "Workshop jobs"
-                    : name[0].toUpperCase() + name.slice(1)}
-                </span>
-                <strong>{count.toLocaleString("en-NG")}</strong>
-                <span>Open permitted queue</span>
-              </Link>
-            ))}
-          </div>
-        )
-      )}
-      <section className="detail-section">
-        <h2>Active responsibilities</h2>
-        {!access.assignments.length ? (
-          <p>
-            No active responsibilities. Ask an authorized access operator to review your
-            assignments.
-          </p>
-        ) : (
-          <ul className="support-record-list">
-            {access.assignments.map((a) => (
-              <li className="card" key={a.id}>
-                <strong>{workforceTemplateLabels[a.template]}</strong>
-                <p>
-                  {a.temporary ? "Temporary cover" : "Primary responsibility"} ·{" "}
-                  {a.scope === "ASSIGNED" ? "Assigned records only" : "Branch records"}
-                </p>
-                <p>{a.reason}</p>
-                {a.expiresAt && <p>Expires {formatBusinessDate(a.expiresAt)}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="muted">
-          Permissions remain available while at least one active assignment grants them.
-          Financial approvals and collection release require separate approved authority.
-        </p>
-      </section>
-    </>
-  );
-}
-function WorkforceJobs() {
-  const [cursor, setCursor] = useState<string>();
-  const record = useResource(
-    `/staff/workforce/jobs${cursor ? `?cursor=${cursor}` : ""}`,
-    parseWorkforceJobs,
-  );
-  return (
-    <>
-      <h1>Workshop jobs</h1>
-      <p>Only jobs permitted by your current assignments appear here.</p>
-      <Feedback message={record.error} />
-      <button className="button secondary" onClick={record.refresh}>
-        Refresh jobs
-      </button>
-      {record.loading ? (
-        <p role="status">Loading jobs…</p>
-      ) : (
-        record.data && (
-          <>
-            <ul className="support-record-list">
-              {record.data.items.map((job) => (
-                <li className="card" key={job.id}>
-                  <Link className="text-link" href={`/admin/workforce/jobs/${job.id}`}>
-                    {job.workOrder?.workOrderNumber ?? job.service.name}
-                  </Link>
-                  <p>
-                    {job.service.name} ·{" "}
-                    {job.workOrder?.status.replaceAll("_", " ") ??
-                      job.status.replaceAll("_", " ")}
-                  </p>
-                  <p>{formatBusinessDate(job.scheduledAt)}</p>
-                </li>
-              ))}
-            </ul>
-            {!record.data.items.length && <p>No jobs in your current scope.</p>}
-            {record.data.nextCursor && (
-              <button
-                className="button secondary"
-                onClick={() => setCursor(record.data!.nextCursor)}
-              >
-                Next jobs
-              </button>
-            )}
-            {cursor && (
-              <button className="button secondary" onClick={() => setCursor(undefined)}>
-                First page
-              </button>
-            )}
-          </>
-        )
-      )}
-    </>
-  );
-}
-function WorkforceJobDetail({ id, access }: { id: string; access: WorkforceAccess }) {
-  const record = useResource(`/staff/workforce/jobs/${id}`, parseWorkforceJob);
-  const [proposal, setProposal] = useState<MutationProposal | null>(null);
-  const [message, setMessage] = useState<string>();
-  const [uncertain, setUncertain] = useState(false);
-  const job =
-    record.data?.id === id && !record.error && !record.loading ? record.data : undefined;
-  function review(title: string, suffix: string, body: unknown) {
-    if (!job || proposal || uncertain) return;
-    setProposal({
-      title,
-      description:
-        "The server will recheck your current responsibilities, record scope and workflow state.",
-      facts: [
-        { label: "Job", value: job.workOrder?.workOrderNumber ?? job.service.name },
-      ],
-      submit: async () => {
-        const result = await apiRequest(`/staff/workforce/jobs/${id}/${suffix}`, {
-          method: suffix === "quality" ? "POST" : "PATCH",
-          csrf: true,
-          body,
-        });
-        const changed = parseWorkforceJob(result.data);
-        if (changed.id !== id) throw Error("Unexpected job result");
-      },
-      onUncertain: () => setUncertain(true),
-    });
-  }
-  const work = job?.workOrder;
-  const mutable =
-    job &&
-    work &&
-    ["CONFIRMED", "IN_PROGRESS"].includes(job.status) &&
-    ["APPROVED", "IN_PROGRESS", "AWAITING_PARTS"].includes(work.status);
-  return (
-    <>
-      <Link className="text-link" href="/admin/workforce/jobs">
-        Back to jobs
-      </Link>
-      <h1>{work?.workOrderNumber ?? "Job details"}</h1>
-      <Feedback message={record.error} />
-      <Feedback message={message} tone="success" />
-      {uncertain && (
-        <Feedback
-          message="The result could not be confirmed. Refresh and review the current job before making another change."
-          tone="warning"
-        />
-      )}
-      <button
-        className="button secondary"
-        onClick={() => {
-          setUncertain(false);
-          record.refresh();
-        }}
-      >
-        Refresh job
-      </button>
-      {record.loading && <p role="status">Checking job access…</p>}
-      {job && (
-        <>
-          <section className="detail-section">
-            <h2>{job.service.name}</h2>
-            <dl className="totals">
-              <dt>Scheduled</dt>
-              <dd>{formatBusinessDate(job.scheduledAt)}</dd>
-              <dt>Vehicle</dt>
-              <dd>
-                {job.vehicle
-                  ? `${job.vehicle.make} ${job.vehicle.model} ${job.vehicle.registrationNumber ?? ""}`
-                  : "Not linked"}
-              </dd>
-              <dt>Work state</dt>
-              <dd>{work?.status.replaceAll("_", " ") ?? "Work order not prepared"}</dd>
-              <dt>Reported symptoms</dt>
-              <dd>{job.customerNotes ?? "Not recorded"}</dd>
-              <dt>Diagnosis</dt>
-              <dd>{work?.diagnosis ?? "Not recorded"}</dd>
-              <dt>Work notes</dt>
-              <dd>{work?.internalNotes ?? "Not recorded"}</dd>
-            </dl>
-          </section>
-          {mutable && access.permissions.includes("JOBS_UPDATE") && (
-            <form
-              className="detail-section"
-              key={work.version}
-              onSubmit={(event) => {
-                event.preventDefault();
-                const form = new FormData(event.currentTarget);
-                const diagnosis = String(form.get("diagnosis") ?? "").trim(),
-                  internalNotes = String(form.get("internalNotes") ?? "").trim(),
-                  status = String(form.get("status") ?? "");
-                review("Save this technical update?", "work", {
-                  expectedVersion: work.version,
-                  ...(diagnosis ? { diagnosis } : {}),
-                  ...(internalNotes ? { internalNotes } : {}),
-                  ...(status ? { status } : {}),
-                });
-              }}
-            >
-              <h2>Technical work</h2>
-              <div className="field">
-                <label htmlFor="job-diagnosis">Diagnosis</label>
-                <textarea
-                  id="job-diagnosis"
-                  name="diagnosis"
-                  maxLength={5000}
-                  defaultValue={work.diagnosis ?? ""}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="job-notes">Work notes / parts needed</label>
-                <textarea
-                  id="job-notes"
-                  name="internalNotes"
-                  maxLength={5000}
-                  defaultValue={work.internalNotes ?? ""}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="job-status">Progress</label>
-                <select id="job-status" name="status" defaultValue="">
-                  <option value="">Keep current state</option>
-                  {work.status !== "IN_PROGRESS" ? (
-                    <option value="IN_PROGRESS">Start / resume work</option>
-                  ) : (
-                    <>
-                      <option value="AWAITING_PARTS">Awaiting parts</option>
-                      <option value="QUALITY_CHECK">
-                        Ready for independent quality review
-                      </option>
-                    </>
-                  )}
-                </select>
-              </div>
-              <button className="button" disabled={!!proposal || uncertain}>
-                Review technical update
-              </button>
-            </form>
-          )}
-          {work?.status === "QUALITY_CHECK" &&
-            access.permissions.includes("QUALITY_APPROVE") && (
-              <section className="detail-section">
-                <h2>Independent quality review</h2>
-                {!work.workedByUserIds.length ||
-                work.workedByUserIds.includes(access.userId) ||
-                job.assignedStaffId === access.staffId ? (
-                  <p>
-                    An independent authorized reviewer is required. You cannot approve
-                    work you performed or are assigned to.
-                  </p>
-                ) : (
-                  <form
-                    onSubmit={(event) => {
-                      event.preventDefault();
-                      review("Approve independent quality review?", "quality", {
-                        expectedVersion: work.version,
-                        reason: String(new FormData(event.currentTarget).get("reason")),
-                      });
-                    }}
-                  >
-                    <div className="field">
-                      <label htmlFor="quality-reason">Review findings</label>
-                      <textarea
-                        id="quality-reason"
-                        name="reason"
-                        minLength={10}
-                        maxLength={1000}
-                        required
-                      />
-                    </div>
-                    <button className="button" disabled={!!proposal || uncertain}>
-                      Review quality approval
-                    </button>
-                  </form>
-                )}
-              </section>
-            )}
-          {access.permissions.includes("JOBS_ASSIGN") && (
-            <form
-              className="detail-section"
-              onSubmit={(event) => {
-                event.preventDefault();
-                const form = new FormData(event.currentTarget);
-                review("Assign this workshop job?", "assignment", {
-                  expectedVersion: job.version,
-                  staffId: String(form.get("staffId")),
-                  reason: String(form.get("reason")),
-                });
-              }}
-            >
-              <h2>Assign technician</h2>
-              <p>
-                Select an active technician authorized in this branch. Reassignment
-                removes the former technician’s access.
-              </p>
-              <WorkforceAssigneeSelect kind="jobs" id={id} label="Technician" />
-              <div className="field">
-                <label htmlFor="assignment-reason">Assignment reason</label>
-                <textarea
-                  id="assignment-reason"
-                  name="reason"
-                  required
-                  minLength={10}
-                  maxLength={1000}
-                />
-              </div>
-              <button className="button" disabled={!!proposal || uncertain}>
-                Review job assignment
-              </button>
-            </form>
-          )}
-        </>
-      )}
-      {proposal && (
-        <MutationReview
-          proposal={proposal}
-          onClose={() => {
-            setProposal(null);
-            record.refresh();
-          }}
-          onSuccess={() => setMessage("Job change recorded.")}
-        />
-      )}
     </>
   );
 }

@@ -1,83 +1,418 @@
 # Deploy the frontend to Vercel
 
-## Prepared private connection — 17 October 2026
+## Connected private preview - 19 October 2026
 
-The DigitalOcean backend is active at
-`https://allied-autotech-staging-825no.ondigitalocean.app`. A local production
-frontend build has passed read-only checks against this real API. This does not
-mean a connected Vercel preview has been deployed.
+The owner upgraded the existing team to Pro. The plan was verified through the
+Vercel API, and the private frontend is now deployed and connected to DigitalOcean:
 
-The existing Vercel project is `allied-autotech` in
-`michael-enochs-projects-3da06943`, with root `frontend`, Next.js, Node 24.x and
-production branch `master`. The team was rechecked and remains on Hobby. A paid
-upgrade has not been authorized; do not purchase one or deploy this commercial
-project on Hobby. The existing hosted site and environment variables were preserved.
+- Frontend: https://allied-autotech-staging-5ae8fa4d.vercel.app
+- Backend: https://allied-autotech-staging-825no.ondigitalocean.app
+- Vercel deployment: `dpl_A9v1J2s4pN2USSHUxZHhGgBjGbxE`, `READY`.
+- Source: `deploy/private-testing-20261017`, commit
+  `8ace6e62d647d7f6253b335b1c47205cadf0147e`.
+- Backend configuration deployment: `4bd5e10f-a02d-4cab-ab43-8608dc2e34ed`, `ACTIVE`.
 
-Prepared values are stored locally in the ignored, ACL-restricted
-`backend/ops/digitalocean/.private/frontend-private-testing.env`, alongside
-`vercel-preview-env-payload.json`. These files contain the private testing
-password: never commit them, print them, or upload them as frontend assets.
+The existing project is `allied-autotech` in
+`michael-enochs-projects-3da06943`, with root `frontend`, Next.js and Node 24.x.
+Production branch `master`, production variables and production deployment
+`dpl_HGgU9YQ28xdj8VTzdHTkPrJQsppf` were preserved. No new subscription or
+additional DigitalOcean resource was purchased for this connection.
 
-| Variable                   | Prepared value / handling                                                                                            |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `BACKEND_ORIGIN`           | `https://allied-autotech-staging-825no.ondigitalocean.app`                                                           |
-| `PRIVATE_TESTING_ENABLED`  | `true`                                                                                                               |
-| `PRIVATE_TESTING_PASSWORD` | Same existing secret as the API; Vercel sensitive variable, server-only                                              |
-| `SITE_INDEXING`            | `disabled`                                                                                                           |
-| `SITE_ORIGIN`              | Empty until the actual private frontend HTTPS address is confirmed                                                   |
-| `ASSET_STORAGE_HOSTS`      | `allied-autotech-staging-5ae8fa4d.lon1.digitaloceanspaces.com`                                                       |
-| `NEXT_PUBLIC_MEDIA_HOSTS`  | Empty: managed images use the authenticated same-origin API proxy; add only separately approved external image hosts |
+### Open the private site
 
-The prepared Vercel payload targets only Preview and branch
-`deploy/private-testing-20261017`. Vercel rejected saving it because that branch
-does not yet exist in the connected remote repository; all seven values remain
-prepared locally, not saved in Vercel. A subsequent API read confirmed the existing
-Vercel variables were unchanged. Do not widen these secrets to Production to work
-around this restriction.
+1. Open the frontend link above. Vercel may first require the project owner's
+   Vercel sign-in; its existing deployment protection remains enabled.
+2. At the browser's private-testing prompt, enter username `allied-test` and the
+   existing password from the local, ignored, ACL-restricted
+   `backend/ops/digitalocean/.private/private-access.json`. Never paste that file
+   or password into chat, source control, screenshots or public documentation.
+3. After successful private entry, a signed, host-only, Secure/HttpOnly cookie
+   remembers access for eight hours across tabs and reloads in that browser.
+   A different browser/profile, cleared cookies or expired access requires the
+   password again. Rotating the shared password invalidates existing cookies.
+   This cookie grants no application account permissions.
+4. The application's own Sign in page is a separate account login. No hosted
+   owner account or local customer/catalogue data has been imported. Empty
+   services/products/vehicles therefore do not indicate a failed connection.
+5. Staff who cannot pass Vercel protection need an intentionally shared preview
+   through Vercel's sharing controls, or the later custom staging domain. Do not
+   disable protection project-wide or purchase extra seats as a workaround.
 
-`vercel.json` disables automatic Git deployments for this one preparation branch.
-Other branches retain their existing behavior. After an appropriate Vercel plan
-is available, publish the reviewed branch with that configuration, save and verify
-the branch-scoped Preview variables, and create a manual Preview deployment.
-Never push an unprotected preparation branch and rely on adding the password later.
+A verified staging account is still needed before the first Super Admin can be
+bootstrapped through the reviewed bootstrap script. Email delivery remains
+disabled; registration verification and password-reset delivery are not ready.
+Do not mark accounts verified manually or bypass normal authentication to test.
 
-Then confirm an actual stable frontend hostname and finish these exact settings:
+### Saved Preview settings
 
-1. Set Preview `SITE_ORIGIN` to that HTTPS origin. Do not reuse the public production
-   hostname for private testing or assume `staging.alliedautotech.com` has DNS.
-2. Update API `FRONTEND_URL`, WebAuthn RP hostname/origins, verification/reset/staff
-   invitation links, and configured callback URLs to that same origin. Preserve
-   private access, stable encryption keys, disabled payments and component sizes.
-3. Update Spaces CORS to permit the exact frontend origin for required upload
-   methods/headers. The runtime bucket key correctly denies bucket-CORS inspection
-   (403); use a temporary administrative provisioning key for this operation and
-   revoke it afterwards. Do not broaden runtime permissions or use wildcard CORS.
-4. Redeploy the frontend because API rewrites are build-time configuration. Apply
-   the reviewed backend settings without migrations, then verify hosted sessions,
-   CSRF-protected saves, MFA and real image uploads with designated test accounts.
-5. Keep live payments, email and SMS disabled until their configuration and any
-   associated expenditure are approved. Local provider entries were not activated
-   or copied blindly; no emails, texts, payments or application writes were made.
+All seven values are saved only for Preview and Git branch
+`deploy/private-testing-20261017`. Both build and runtime variable-name lists
+were checked on the final deployment. The password is a sensitive server-only
+Vercel variable, matching the existing backend gate.
 
-Read-only connection verification is reproducible with Docker running:
+| Variable                   | Value / handling                                               |
+| -------------------------- | -------------------------------------------------------------- |
+| `BACKEND_ORIGIN`           | `https://allied-autotech-staging-825no.ondigitalocean.app`     |
+| `PRIVATE_TESTING_ENABLED`  | `true`                                                         |
+| `PRIVATE_TESTING_PASSWORD` | Existing secret; never expose through `NEXT_PUBLIC_*`          |
+| `SITE_INDEXING`            | `disabled`                                                     |
+| `SITE_ORIGIN`              | `https://allied-autotech-staging-5ae8fa4d.vercel.app`          |
+| `ASSET_STORAGE_HOSTS`      | `allied-autotech-staging-5ae8fa4d.lon1.digitaloceanspaces.com` |
+| `NEXT_PUBLIC_MEDIA_HOSTS`  | Empty; managed image reads use the same-origin API proxy       |
 
-```powershell
-$env:AAT_FRONTEND_TEST_IMAGE = 'allied-autotech-frontend:connected-private-20261017'
-$env:AAT_FRONTEND_TEST_ENV = 'C:\Users\PC\Desktop\allied-autotech\backend\ops\digitalocean\.private\frontend-private-testing.env'
-node frontend/scripts/check-hosted-backend.mjs
+API/worker frontend links, WebAuthn RP hostname/origins and configured callback
+URLs now use this stable frontend origin. Payments, email and SMS remain disabled.
+Spaces CORS permits this exact origin and the planned
+`https://staging.alliedautotech.com`; it does not use wildcard origins. A temporary
+administrative Spaces key was revoked after the CORS update and read-back check.
+Runtime bucket permissions were not broadened.
+
+### Repeat a deployment safely
+
+`frontend/vercel.json` disables automatic Git deployments for this release branch.
+The branch is now published. Use an explicit Preview deployment sourced from the
+GitHub branch so Vercel resolves its branch-scoped environment variables. The
+successful management API request was `POST /v13/deployments` for the existing
+team, with this non-secret body and authenticated CLI/API access:
+
+```json
+{
+  "name": "allied-autotech",
+  "project": "prj_LbuHFZ0EY8fBQL2pcOP1L3YHK2cb",
+  "gitSource": {
+    "type": "github",
+    "repoId": "1361226429",
+    "ref": "deploy/private-testing-20261017",
+    "sha": "8ace6e62d647d7f6253b335b1c47205cadf0147e"
+  }
+}
 ```
 
-The image was built from the isolated release frontend using a BuildKit secret
-mount for the private env file, not a secret build argument or copied `.env`.
-The test publishes no local ports and removes its temporary container. It passed
-anonymous/wrong-password denial, hosted readiness, real API rewrites, application
-session enforcement, login rendering, server-rendered services, storage CSP, and
-absence of the testing secret from returned HTML/headers and 250 public build
-assets. This is not a browser mutation, upload, load or hosted Vercel test.
+For a future release, use its reviewed commit SHA. Do not set `target` to
+`production`. Wait for `READY`, verify all seven required names in both `env` and
+`build.env`, then confirm the stable alias points to that deployment. A local CLI
+upload produced a build without the branch-specific variables in this session;
+it was superseded, and must not be used as the connected testing preview.
+Root `.vercelignore` excludes backend/private files and bulky design evidence
+from any future frontend CLI upload.
 
-References: [Vercel branch-specific environment variables](https://vercel.com/docs/environment-variables),
+### Verification and remaining work
+
+A real Chrome browser verified the final stable alias:
+
+- Private-gate access: `/login` and `/api/v1/public/services` returned 401 for both
+  missing and incorrect credentials, with the private-testing Basic challenge.
+- With correct private access: catalogue API 200, services page 200 and login 200.
+- `/api/v1/auth/session` returned 401 without an application session, confirming
+  private access does not grant a customer/staff login.
+- Checked responses retained `noindex, nofollow` and private/no-store caching.
+- Services rendered the real empty staging catalogue and checked-in images;
+  the page CSP included the exact Spaces upload hostname.
+- The temporary Vercel automation bypass used for these checks was revoked.
+  Browser sessions were closed. No application records were created or changed.
+
+The browser's origin allowlist intentionally blocked the optional Vercel feedback
+script. Expected unauthenticated session requests returned 401. These checks do
+not establish successful authenticated saves, MFA, image uploads or checkout.
+Those workflows need designated verified staging accounts and approved test data.
+
+### Remembered private access verification - 19 October
+
+The private-access fix is live in commit `8ace6e62d647d7f6253b335b1c47205cadf0147e`
+and deployment `dpl_A9v1J2s4pN2USSHUxZHhGgBjGbxE`. The cookie contains a random,
+HMAC-signed, host-bound proof with an eight-hour expiry, not the shared password.
+The backend keeps its existing Basic gate; the frontend supplies that credential
+only as an internal request override for its fixed `/api/v1` rewrite after
+validating the private cookie. Account cookies, origin and CSRF headers remain
+intact. No database or backend change was required.
+
+Validation completed:
+
+- 20 targeted unit tests passed, including expiry, tampering, host binding,
+  password rotation, cookie attributes and application-header preservation.
+- Targeted ESLint, formatting, full production build and TypeScript passed.
+- The built Next server passed the existing synthetic-API probe extended for
+  cookie-only page/API access and response-secret checks. Docker was unavailable,
+  so this probe ran against a temporary local production server and fake API on
+  loopback, with generated test credentials and no database connection. Both
+  processes were stopped afterwards; this was not a Docker-image test.
+- Hosted Chrome received the Secure/HttpOnly/SameSite=Lax cookie, invisible to
+  page JavaScript. A separate context using only the stored cookie, with no Basic
+  credentials configured, passed reload, new tab, tab switching, catalogue API
+  and a page reload after the expected unauthenticated application-session 401.
+- Every checked browser request lacked an Authorization header; returned headers
+  contained no shared testing password or upstream Basic credential. API session
+  still required application authentication. Missing and altered private cookies
+  returned 401 with the private gate challenge.
+- All seven build/runtime environment names were verified, the stable alias was
+  assigned, and production deployment/protection remained unchanged. Temporary
+  automation access was revoked and both verification browsers were closed.
+
+### Owner setup: Google Workspace, Cloudflare, Resend and staging
+
+Updated 19 October 2026. This replaces the older pasted checklist's Hobby-plan,
+unpublished-branch and Cloudflare-forwarding instructions. The owner explicitly
+chose Google Workspace for branded Gmail mailboxes. The selected Allied AutoTech
+application Super Admin email is `alliedautotechltd@gmail.com`; selecting it does
+not create, verify or grant ownership to an account. Google Workspace's administrator
+account is separate from this application's Super Admin.
+
+| Checklist item                                    | Current status                                               | Next action                                                |
+| ------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| Vercel Pro and published private branch           | Complete                                                     | Preserve Preview-only configuration                        |
+| Private frontend and backend connection           | Complete on the `vercel.app` hostname                        | Continue using the current private URL                     |
+| DigitalOcean database, private Spaces and workers | Connected; app ACTIVE                                        | No new infrastructure purchase required                    |
+| Spaces CORS                                       | Allows current and planned staging origins                   | No CORS change needed for the custom-domain switch         |
+| Vercel custom staging domain                      | Attached to the release branch                               | Cloudflare CNAME and TLS still pending                     |
+| Google Workspace mailbox                          | Subscription/setup not confirmed; no published root MX found | Owner completes Google setup below                         |
+| Google verification, SPF, DKIM and DMARC          | No root SPF/DMARC found at this audit                        | Add account-specific records during setup                  |
+| Resend sending domain                             | Required DNS records not found                               | Verify `mail.alliedautotech.com`                           |
+| Resend credentials                                | Last local key check rejected it as invalid                  | Save a new sending-only key locally                        |
+| Reply-To support                                  | Implemented and tested in source                             | Build/release the updated backend before email activation  |
+| Initial application owner                         | Email selected; provisioning not performed                   | Normal registration/verification, then guarded bootstrap   |
+| Messaging/payments                                | Disabled                                                     | Keep disabled until the relevant setup/testing is complete |
+
+DNS is a point-in-time observation, not proof of the contents of a provider's
+private dashboard. No Cloudflare/Google/Resend account settings were changed.
+Vercel and DigitalOcean configuration were inspected read-only in this audit.
+
+#### 1. Create the branded Gmail mailbox
+
+1. Open [Google Workspace](https://workspace.google.com/). If you already have a
+   Workspace subscription, use [Google Admin](https://admin.google.com/) instead
+   of creating another subscription.
+2. For one owner initially handling mail, review Business Starter with one user.
+   Google shows the final local price, tax, billing interval, trial and renewal
+   terms at checkout. Any new subscription is the owner's purchase decision;
+   the deployment agent has not purchased or started a paid plan.
+3. Choose **use an existing domain** and enter `alliedautotech.com`.
+4. Use `alliedautotechltd@gmail.com` as an external contact/recovery address where
+   Google requests one. Create a separate Workspace login such as
+   `owner@alliedautotech.com`. This does not convert or replace the existing Gmail
+   account. Keep the owner login private and enable Google two-step verification.
+5. Google will provide a domain-verification TXT record. Copy its exact value.
+
+Starter supports custom business email; see [Google's plan comparison](https://workspace.google.com/pricing.html).
+Do not share one user's password with staff; separate staff access can be planned
+when needed, with any additional cost approved first.
+
+#### 2. Verify ownership and route incoming mail to Google
+
+1. Open Cloudflare, select `alliedautotech.com`, then **DNS > Records**.
+2. Add Google's verification TXT at the name Google specifies (usually `@`),
+   with its complete `google-site-verification=...` value and TTL Auto.
+3. Return to Google Admin and complete verification.
+4. Follow **Activate Gmail** in Google's setup flow. For a new setup, Google's
+   published MX configuration is:
+
+| Type | Name | Value             | Priority | TTL  |
+| ---- | ---- | ----------------- | -------- | ---- |
+| MX   | `@`  | `smtp.google.com` | `1`      | Auto |
+
+Use the exact instructions shown for your Google account. Existing working
+legacy Google `aspmx` records are supported and need not be changed merely to
+match this new-account example.
+
+The earlier `route1`, `route2`, `route3.mx.cloudflare.net` records are for
+Cloudflare forwarding. Do not add them for this Workspace plan. If forwarding
+has since been activated, disable that routing configuration during the planned
+Google cutover, then replace its root MX records with Google's. Preserve any
+unrecognized working mail provider until its use is checked. Root mailbox MX
+changes must not remove Resend's later `send.mail` bounce MX record.
+
+5. Return to Google Admin and finish **Activate Gmail**. DNS may take time to
+   propagate; wait for Google's verification before treating the mailbox as ready.
+6. Sign in to Gmail as the new Workspace user and test receiving and replying
+   using a separate external inbox.
+
+Source: [Google MX setup](https://knowledge.workspace.google.com/admin/domains/set-up-mx-records-for-google-workspace).
+
+#### 3. Authenticate Google mail and create business addresses
+
+In Cloudflare add one root SPF TXT for the planned Google-only root-domain sender:
+
+```text
+Type: TXT
+Name: @
+Content: v=spf1 include:_spf.google.com ~all
+TTL: Auto
+```
+
+Do not add a second SPF record at the same name. If a root SPF already exists,
+review and edit it to include the actual active senders. Resend will use its own
+sending subdomain and dashboard-supplied SPF; do not copy its subdomain record to
+`@`. The previously proposed Cloudflare-only SPF is not the Workspace setting.
+See [Google SPF setup](https://knowledge.workspace.google.com/admin/security/set-up-spf).
+
+In Google Admin go to **Apps > Google Workspace > Gmail > Authenticate email**,
+select the domain, and generate a 2048-bit DKIM record when available. Add the exact
+TXT name/value Google displays in Cloudflare (usually `google._domainkey`), then
+return and select **Start authentication**. Google may require a waiting period
+after Gmail activation before a key can be generated. Follow its displayed state.
+See [Google DKIM setup](https://knowledge.workspace.google.com/admin/security/set-up-dkim).
+
+If `_dmarc` has no existing TXT policy, add this non-enforcing starter policy:
+
+```text
+Type: TXT
+Name: _dmarc
+Content: v=DMARC1; p=none;
+TTL: Auto
+```
+
+This does not request aggregate reports and does not enforce quarantine/rejection.
+After Google and Resend authentication are tested, review reporting and a stronger
+policy. Do not overwrite a pre-existing stronger policy or add duplicate policies.
+See [DMARC guidance](https://resend.com/docs/dashboard/domains/dmarc).
+
+In Google Admin go to **Directory > Users > your Workspace user > Alternate emails**
+and create addresses that the owner will monitor:
+
+| Address                       | Purpose                                             | Initial destination            |
+| ----------------------------- | --------------------------------------------------- | ------------------------------ |
+| `support@alliedautotech.com`  | Customer care, complaints and replies to app emails | Owner's Workspace inbox        |
+| `hello@alliedautotech.com`    | General enquiries                                   | Same inbox                     |
+| `billing@alliedautotech.com`  | Invoices and payment/refund correspondence          | Owner-only inbox initially     |
+| `bookings@alliedautotech.com` | Service scheduling                                  | Optional alias                 |
+| `sales@alliedautotech.com`    | Products and vehicles                               | Optional alias                 |
+| `privacy@alliedautotech.com`  | Privacy requests                                    | Optional monitored alias       |
+| `security@alliedautotech.com` | Security reports                                    | Optional owner-monitored alias |
+
+These are aliases, not separate user logins. Google supports up to 30 aliases per
+user without an additional alias charge. If billing needs a different audience
+from support later, do not place both in a shared inbox. See [Google aliases](https://knowledge.workspace.google.com/admin/users/add-or-delete-an-alternate-email-address-email-alias).
+
+In the Workspace Gmail settings, configure the aliases under **Accounts > Send
+mail as** as prompted, then test that a reply from `support@` actually displays
+that address. Do not assume an alias's receiving setup alone selects the reply
+From address. See [Gmail send-as guidance](https://support.google.com/mail/answer/22370).
+
+#### 4. Configure Resend for automated sending
+
+1. In [Resend Domains](https://resend.com/domains), add `mail.alliedautotech.com`.
+   Keep Receiving disabled. Google handles staff mail on the root domain.
+2. Choose manual DNS setup and copy the exact records into Cloudflare's
+   `alliedautotech.com` zone. The usual names are below; the actual types, values,
+   region and priority must come from your Resend dashboard.
+
+| Purpose     | Typical Cloudflare name  | Value                               |
+| ----------- | ------------------------ | ----------------------------------- |
+| DKIM        | `resend._domainkey.mail` | Complete Resend-supplied key/target |
+| Sending SPF | `send.mail`              | Resend-supplied SPF TXT             |
+| Bounce MX   | `send.mail`              | Resend-supplied MX and priority     |
+
+These do not replace Google's root MX. Use DNS-only for any CNAME Resend supplies.
+The `mail` subdomain is a sending identity; no website A record or mailbox purchase
+is required for it. Return to Resend and wait for Verified. See
+[Resend's Cloudflare instructions](https://resend.com/docs/guides/dns/cloudflare). 3. Create a key named `allied-autotech-staging`, with Sending access restricted
+to the verified domain. Do not purchase a Resend upgrade without approving it. 4. Save the key locally in `backend/.env` as `RESEND_API_KEY`. Never paste it into
+chat, frontend variables, Git or screenshots. The old saved key was rejected. 5. Prepare these non-secret settings, retaining disabled delivery:
+
+```dotenv
+RESEND_FROM_EMAIL=noreply@mail.alliedautotech.com
+RESEND_REPLY_TO_EMAIL=support@alliedautotech.com
+STAGING_EMAIL_ALLOWLIST=alliedautotechltd@gmail.com
+EMAIL_DELIVERY_ENABLED=false
+SMS_DELIVERY_ENABLED=false
+```
+
+`noreply@mail.alliedautotech.com` is a Resend sender, not another paid Workspace
+user. The application validates plain email addresses in these settings; do not
+include a display name. The new `RESEND_REPLY_TO_EMAIL` setting is supported by
+the prepared source change but is not in the currently hosted backend image yet.
+Setting it on that old image will not activate Reply-To. The updated worker images
+must be released before email is enabled. Sources: [Resend API keys](https://resend.com/changelog/new-api-key-permissions)
+and [Reply-To API field](https://resend.com/docs/api-reference/emails/send-email).
+
+#### 5. Add the private website CNAME in Cloudflare
+
+The Vercel domain and branch assignment are already prepared. Add:
+
+| Type  | Name      | Target                                | Proxy    | TTL  |
+| ----- | --------- | ------------------------------------- | -------- | ---- |
+| CNAME | `staging` | `e59765530a95057a.vercel-dns-017.com` | DNS only | Auto |
+
+This exact preferred target was rechecked through Vercel's API on 19 October.
+In Vercel open **allied-autotech > Settings > Domains** and wait for a valid
+configuration and HTTPS certificate. Do not change root or `www` website records.
+No nameserver transfer or additional domain purchase is needed.
+
+Keep using the current `vercel.app` preview until the coordinated configuration
+switch below is complete; DNS alone does not change login links or passkey scope.
+
+#### 6. Vercel and DigitalOcean: coordinate the hostname switch
+
+These are the operator steps I can complete after DNS/TLS is ready. The owner
+need not manually re-enter existing secrets or recreate infrastructure.
+
+In Vercel **Settings > Environment Variables**, retain Preview-only scope for
+branch `deploy/private-testing-20261017`. Change only `SITE_ORIGIN` to
+`https://staging.alliedautotech.com`. Preserve the other six settings in the table
+above. Rebuild/redeploy from the reviewed Git branch and verify the environment
+names at build and runtime. Do not promote to Production.
+
+In DigitalOcean **Apps > allied-autotech-staging > Settings**, the API will need:
+
+```dotenv
+FRONTEND_URL=https://staging.alliedautotech.com
+WEBAUTHN_RP_ID=staging.alliedautotech.com
+WEBAUTHN_ORIGINS=https://staging.alliedautotech.com
+FRONTEND_VERIFY_EMAIL_URL=https://staging.alliedautotech.com/verify-email
+FRONTEND_RESET_PASSWORD_URL=https://staging.alliedautotech.com/reset-password
+FRONTEND_PRIVILEGED_INVITATION_URL=https://staging.alliedautotech.com/staff/accept-invitation
+PAYSTACK_CALLBACK_URL=https://staging.alliedautotech.com/payments/complete
+```
+
+Match the general worker's `FRONTEND_URL` and configured callback. A callback URL
+change does not enable payments. Preserve existing encrypted secrets, database
+permissions, image/runtime safeguards, component sizes, private gate and disabled
+live payment/SMS flags. Spaces CORS already permits this exact custom origin.
+Use the final hostname before enrolling passkeys, because passkeys are RP-bound.
+
+Once the updated backend release is available, Resend is verified and the owner
+mailbox test succeeds, set the API and both workers' `STAGING_EMAIL_ALLOWLIST` to
+`alliedautotechltd@gmail.com`. Provider key/from/reply settings belong on the
+identity and general workers, not Vercel or the migrator. Enable email consistently
+on API/identity/general only for the reviewed recipient test. Review pending
+outbox work before enabling workers. Do not mark disabled jobs delivered or turn
+on SMS or payments as part of this step.
+
+The preparation file is locally available at
+`backend/ops/digitalocean/.private/staging-email-preparation.env`; it contains a
+blank key placeholder and disabled flags, and is not a live deployment.
+
+#### 7. Create and verify the application owner
+
+After private-domain and email checks pass:
+
+1. Open the private site and enter the private testing credentials if prompted.
+2. Register using `alliedautotechltd@gmail.com` and a password you choose privately.
+   If this account already exists, use the normal sign-in/verification flow.
+3. Open the verification message in that Gmail inbox and verify the address.
+4. Tell me verification succeeded. I will inspect this exact selected account,
+   confirm the staging host/port/database, then run the guarded initial-owner
+   bootstrap using its verified UUID. Existing ownership cannot be overwritten.
+5. Sign in again and complete the application's MFA setup. The private testing
+   cookie and Google two-step verification do not replace application MFA.
+6. Then test dashboard access, service/vehicle uploads and approved test catalogue
+   data. No local customer or admin data will be copied implicitly.
+
+No ownership or verification bypass has been performed. The selected email is
+recorded in the private deployment preparation, not hardcoded as an application
+privilege rule.
+
+Tell me which steps are complete using non-secret information: Workspace domain
+verified/Gmail active, support alias tested, Resend domain verified, key saved
+locally, and staging CNAME added. Do not send passwords, verification links,
+recovery codes or API keys. Purchases remain subject to the owner's approval.
+
+Private evidence is under `backend/ops/digitalocean/.private/*20261019*`.
+Earlier local Docker connection/secret-exposure checks remain documented in the
+[backend deployment record](../../backend/docs/staging-deployment-20261017.md).
+References: [branch-specific environment variables](https://vercel.com/docs/environment-variables),
 [sensitive variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables),
-and [Git deployment controls](https://vercel.com/docs/project-configuration/git-configuration).
+[Git deployment controls](https://vercel.com/docs/project-configuration/git-configuration),
+and [temporary automation bypass management](https://vercel.com/docs/rest-api/projects/update-protection-bypass-for-automation).
 
 ## Production deployment
 

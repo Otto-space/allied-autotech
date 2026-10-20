@@ -12593,6 +12593,9 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -12607,7 +12610,44 @@ Success: HTTP 200.
         "firstName": "synthetic-firstname",
         "lastName": "synthetic-lastname"
       }
-    ]
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "jobId": "00000000-0000-4000-8000-000000000001",
+    "jobVersion": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12631,6 +12671,9 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -12645,7 +12688,44 @@ Success: HTTP 200.
         "firstName": "synthetic-firstname",
         "lastName": "synthetic-lastname"
       }
-    ]
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "enquiryId": "00000000-0000-4000-8000-000000000001",
+    "enquiryVersion": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12677,13 +12757,15 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `body` | string | Yes | Body validated by this operation's strict request contract. |
+| `expectedLatestMessageId` | string / null | No | Identifier of the expected latest message resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
 ```json
 {
   "expectedVersion": 0,
-  "body": "synthetic-body"
+  "body": "synthetic-body",
+  "expectedLatestMessageId": "00000000-0000-4000-8000-000000000001"
 }
 ```
 
@@ -12695,7 +12777,51 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: complaintReply",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "version": 0
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "actorUserId": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "action": "reply",
+    "messageReceipt": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "authorType": "CUSTOMER",
+      "visibility": "CUSTOMER",
+      "body": "synthetic-body",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "complaintId": "00000000-0000-4000-8000-000000000001"
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12747,7 +12873,48 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: enquiryAssignment",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "version": 0
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "actorUserId": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "action": "assignment",
+    "assignmentReceipt": {
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "previousStaffId": "00000000-0000-4000-8000-000000000001",
+      "reason": "synthetic-reason"
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12829,7 +12996,45 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: overview",
   "data": {
     "counts": {},
-    "generatedAt": "2030-01-15T10:00:00.000Z"
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "branches": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12854,6 +13059,8 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `workStatus` | query | DRAFT / APPROVED / IN_PROGRESS / AWAITING_PARTS / QUALITY_CHECK / COMPLETED / CANCELLED / NOT_CREATED | No | Work Status used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -12895,7 +13102,40 @@ Success: HTTP 200.
         }
       }
     ],
-    "nextCursor": "00000000-0000-4000-8000-000000000001"
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12920,6 +13160,8 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `status` | query | REQUESTED / AWAITING_DEPOSIT / CONFIRMED / IN_PROGRESS / COMPLETED / CANCELLED / NO_SHOW / EXPIRED | No | Status used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -12931,6 +13173,17 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "vehicle": {
+          "make": "synthetic-make",
+          "model": "synthetic-model",
+          "year": "synthetic-year",
+          "registrationNumber": "synthetic-registrationnumber"
+        },
         "scheduledAt": "2030-01-15T10:00:00.000Z",
         "status": "synthetic-status",
         "version": 0,
@@ -12944,7 +13197,40 @@ Success: HTTP 200.
         }
       }
     ],
-    "nextCursor": "00000000-0000-4000-8000-000000000001"
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13004,6 +13290,147 @@ Success: HTTP 200.
       ],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "assignedStaff": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/enquiries/{id}`
+
+- Operation ID: `getStaffWorkforceEnquiriesById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: enquiry. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: enquiry",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status",
+    "version": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "assignedStaff": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname"
+    },
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "subject": "synthetic-subject",
+    "message": "synthetic-message",
+    "type": "synthetic-type",
+    "assignedStaffId": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "latestMessageId": "00000000-0000-4000-8000-000000000001",
+    "messages": {
+      "items": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "authorType": "CUSTOMER",
+          "visibility": "CUSTOMER",
+          "body": "synthetic-body",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "isOwn": true
+        }
+      ],
+      "nextCursor": "00000000-0000-4000-8000-000000000001"
     }
   },
   "meta": {
@@ -13085,6 +13512,48 @@ Success: HTTP 200.
       ],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "assignedStaff": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname"
     }
   },
   "meta": {
@@ -13162,6 +13631,48 @@ Success: HTTP 200.
       ],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "assignedStaff": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname"
     }
   },
   "meta": {
@@ -13241,6 +13752,48 @@ Success: HTTP 200.
       ],
       "qualityApprovedByUserId": "00000000-0000-4000-8000-000000000001",
       "qualityApprovedAt": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "assignedStaff": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname"
     }
   },
   "meta": {
@@ -13266,6 +13819,9 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `type` | query | GENERAL / PRODUCT / VEHICLE / SERVICE / BOOKING / QUOTATION | No | Type used to constrain this request. |
+| `status` | query | OPEN / IN_PROGRESS / RESOLVED / CLOSED | No | Status used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -13280,13 +13836,57 @@ Success: HTTP 200.
         "status": "synthetic-status",
         "version": 0,
         "createdAt": "2030-01-15T10:00:00.000Z",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "assignedStaff": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "firstName": "synthetic-firstname",
+          "lastName": "synthetic-lastname"
+        },
+        "updatedAt": "2030-01-15T10:00:00.000Z",
         "subject": "synthetic-subject",
         "message": "synthetic-message",
         "type": "synthetic-type",
         "assignedStaffId": "00000000-0000-4000-8000-000000000001"
       }
     ],
-    "nextCursor": "00000000-0000-4000-8000-000000000001"
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13318,13 +13918,15 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `expectedVersion` | integer | Yes | Last server version observed by the client; stale writes are rejected. |
 | `body` | string | Yes | Body validated by this operation's strict request contract. |
+| `expectedLatestMessageId` | string / null | No | Identifier of the expected latest message resource; ownership is resolved server-side. |
 
 Synthetic request example:
 
 ```json
 {
   "expectedVersion": 0,
-  "body": "synthetic-body"
+  "body": "synthetic-body",
+  "expectedLatestMessageId": "00000000-0000-4000-8000-000000000001"
 }
 ```
 
@@ -13336,7 +13938,51 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: reply",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "version": 0
+    "version": 0,
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "actorUserId": "00000000-0000-4000-8000-000000000001",
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "action": "reply",
+    "messageReceipt": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "authorType": "CUSTOMER",
+      "visibility": "CUSTOMER",
+      "body": "synthetic-body",
+      "createdAt": "2030-01-15T10:00:00.000Z",
+      "enquiryId": "00000000-0000-4000-8000-000000000001"
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13361,6 +14007,9 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `priority` | query | LOW / MEDIUM / HIGH / URGENT | No | Priority used to constrain this request. |
+| `status` | query | OPEN / INVESTIGATING / RESOLVED / CLOSED | No | Status used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -13375,12 +14024,150 @@ Success: HTTP 200.
         "status": "synthetic-status",
         "version": 0,
         "createdAt": "2030-01-15T10:00:00.000Z",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "updatedAt": "2030-01-15T10:00:00.000Z",
         "subject": "synthetic-subject",
         "description": "synthetic-description",
         "priority": "synthetic-priority"
       }
     ],
-    "nextCursor": "00000000-0000-4000-8000-000000000001"
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/complaints/{id}`
+
+- Operation ID: `getStaffWorkforceComplaintsById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: complaint. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: complaint",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status",
+    "version": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "subject": "synthetic-subject",
+    "description": "synthetic-description",
+    "priority": "synthetic-priority",
+    "acknowledgedAt": "2030-01-15T10:00:00.000Z",
+    "acknowledgementDueAt": "2030-01-15T10:00:00.000Z",
+    "escalatedAt": "2030-01-15T10:00:00.000Z",
+    "resolution": "synthetic-resolution",
+    "resolvedAt": "2030-01-15T10:00:00.000Z",
+    "closedAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "latestMessageId": "00000000-0000-4000-8000-000000000001",
+    "messages": {
+      "items": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "authorType": "CUSTOMER",
+          "visibility": "CUSTOMER",
+          "body": "synthetic-body",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "isOwn": true
+        }
+      ],
+      "nextCursor": "00000000-0000-4000-8000-000000000001"
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13405,6 +14192,9 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `status` | query | PENDING / CONFIRMED / PROCESSING / READY / COMPLETED / CANCELLED | No | Status used to constrain this request. |
+| `fulfillmentMethod` | query | COLLECTION / DELIVERY | No | Fulfillment Method used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -13416,12 +14206,21 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status",
+        "status": "PENDING",
         "version": 0,
         "createdAt": "2030-01-15T10:00:00.000Z",
         "orderNumber": "synthetic-ordernumber",
-        "fulfillmentMethod": "synthetic-fulfillmentmethod",
+        "fulfillmentMethod": "COLLECTION",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        },
+        "updatedAt": "2030-01-15T10:00:00.000Z",
         "paidAt": "2030-01-15T10:00:00.000Z",
+        "availableNextStates": [
+          "PROCESSING"
+        ],
         "items": [
           {
             "productName": "synthetic-productname",
@@ -13430,7 +14229,131 @@ Success: HTTP 200.
         ]
       }
     ],
-    "nextCursor": "00000000-0000-4000-8000-000000000001"
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/orders/{id}`
+
+- Operation ID: `getStaffWorkforceOrdersById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: order. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: order",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "PENDING",
+    "version": 0,
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "orderNumber": "synthetic-ordernumber",
+    "fulfillmentMethod": "COLLECTION",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "paidAt": "2030-01-15T10:00:00.000Z",
+    "availableNextStates": [
+      "PROCESSING"
+    ],
+    "items": [
+      {
+        "productName": "synthetic-productname",
+        "quantity": 1
+      }
+    ],
+    "confirmedAt": "2030-01-15T10:00:00.000Z",
+    "processingAt": "2030-01-15T10:00:00.000Z",
+    "readyAt": "2030-01-15T10:00:00.000Z",
+    "completedAt": "2030-01-15T10:00:00.000Z",
+    "cancelledAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13482,18 +14405,70 @@ Success: HTTP 200.
   "message": "Responsibility-based workspace: prepare",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status",
+    "status": "PENDING",
     "version": 0,
     "createdAt": "2030-01-15T10:00:00.000Z",
     "orderNumber": "synthetic-ordernumber",
-    "fulfillmentMethod": "synthetic-fulfillmentmethod",
+    "fulfillmentMethod": "COLLECTION",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "updatedAt": "2030-01-15T10:00:00.000Z",
     "paidAt": "2030-01-15T10:00:00.000Z",
+    "availableNextStates": [
+      "PROCESSING"
+    ],
     "items": [
       {
         "productName": "synthetic-productname",
         "quantity": 1
       }
-    ]
+    ],
+    "confirmedAt": "2030-01-15T10:00:00.000Z",
+    "processingAt": "2030-01-15T10:00:00.000Z",
+    "readyAt": "2030-01-15T10:00:00.000Z",
+    "completedAt": "2030-01-15T10:00:00.000Z",
+    "cancelledAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z",
+    "action": "prepare",
+    "actorUserId": "00000000-0000-4000-8000-000000000001",
+    "previousVersion": 0,
+    "previousStatus": "CONFIRMED",
+    "reason": "synthetic-reason"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -13518,6 +14493,9 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `q` | query | string | No | Q used to constrain this request. |
+| `status` | query | REQUIRES_PAYMENT / PROCESSING / REQUIRES_REVIEW / SUCCEEDED / CANCELLED / EXPIRED | No | Status used to constrain this request. |
+| `purpose` | query | ORDER_PAYMENT / SERVICE_INVOICE / BOOKING_DEPOSIT / VEHICLE_RESERVATION / VEHICLE_PARTIAL_PAYMENT / VEHICLE_BALANCE_PAYMENT / VEHICLE_FULL_PAYMENT | No | Purpose used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -13532,12 +14510,142 @@ Success: HTTP 200.
         "paymentNumber": "synthetic-paymentnumber",
         "amountKobo": "300000",
         "currency": "NGN",
-        "status": "synthetic-status",
+        "status": "REQUIRES_PAYMENT",
+        "purpose": "ORDER_PAYMENT",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "succeededAt": "2030-01-15T10:00:00.000Z"
+        "succeededAt": "2030-01-15T10:00:00.000Z",
+        "sources": [
+          {
+            "kind": "ORDER",
+            "reference": "synthetic-reference",
+            "branch": {
+              "id": "00000000-0000-4000-8000-000000000001",
+              "name": "synthetic-name"
+            }
+          }
+        ]
       }
     ],
-    "nextCursor": "00000000-0000-4000-8000-000000000001"
+    "nextCursor": "00000000-0000-4000-8000-000000000001",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/workforce/finance/{id}`
+
+- Operation ID: `getStaffWorkforceFinanceById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: financePayment. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: financePayment",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "paymentNumber": "synthetic-paymentnumber",
+    "amountKobo": "300000",
+    "currency": "NGN",
+    "status": "REQUIRES_PAYMENT",
+    "purpose": "ORDER_PAYMENT",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "succeededAt": "2030-01-15T10:00:00.000Z",
+    "sources": [
+      {
+        "kind": "ORDER",
+        "reference": "synthetic-reference",
+        "branch": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name"
+        }
+      }
+    ],
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "cancelledAt": "2030-01-15T10:00:00.000Z",
+    "expiredAt": "2030-01-15T10:00:00.000Z",
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -17554,6 +18662,582 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 Invalid or stale transition; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/policies/complaints/current`
+
+- Operation ID: `getAdminPoliciesComplaintsCurrent`
+- Purpose: Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all complaint policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Publication does not replace existing complaint deadline snapshots. Read effective, next scheduled and latest complaint policy with bounded history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read effective, next scheduled and latest complaint policy with bounded history",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/policies/disputes/current`
+
+- Operation ID: `getAdminPoliciesDisputesCurrent`
+- Purpose: Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all dispute policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Publication itself does not modify individual disputes; operational processing uses the effective defaults where acknowledgement deadlines are missing. Provider response deadlines remain authoritative. Read effective, next scheduled and latest dispute policy with bounded history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read effective, next scheduled and latest dispute policy with bounded history",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/policies/retention/current`
+
+- Operation ID: `getAdminPoliciesRetentionCurrent`
+- Purpose: Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all retention policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Deletion and anonymization remain disabled. Publication does not remove records, release holds or approve privacy requests. Read effective, next scheduled and latest retention policy with bounded history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read effective, next scheduled and latest retention policy with bounded history",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/policies/reservation-terms/current`
+
+- Operation ID: `getAdminPoliciesReservationTermsCurrent`
+- Purpose: Private/no-store and atomically audited after current actor/session validation in a repeatable snapshot. Effective and next scheduled revisions are selected independently from the latest 100 recorded revisions. Withdrawals remain visible as effective policies; they do not remove prior acceptance. Later scheduled revisions still take effect. Publication rechecks the actor before immutable Q3 policy/audit creation and preserves the shared customer acceptance lock. Payment readiness is separate. Read effective reservation agreement, scheduled revision and bounded history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read effective reservation agreement, scheduled revision and bounded history",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/policies/refund-timing/current`
+
+- Operation ID: `getAdminPoliciesRefundTimingCurrent`
+- Purpose: Private/no-store and atomically audited after current actor/session validation in a repeatable snapshot. Current is the highest APPROVED version effective at evaluatedAt, matching refund-request-time selection. Next scheduled is the earliest future approved revision with a higher version than current; equal effective times select the highest version. History contains the latest 100 revisions of all approval statuses, independently of current selection. Publication rechecks the actor before immutable Q6 policy/audit creation. Existing deadlines are never recalculated; publication does not transfer money or confirm receipt. Read current bank refund calendar, next applicable revision and bounded history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read current bank refund calendar, next applicable revision and bounded history",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ]
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/policies/delivery/current`
+
+- Operation ID: `getAdminPoliciesDeliveryCurrent`
+- Purpose: Private/no-store, current actor/session checked and atomically audited in a repeatable snapshot. Effective and next scheduled policies are selected independently from the latest 100 history entries. Availability uses the existing finance/delivery fulfillment rules at the same evaluation time. Publication rechecks the actor before immutable Q1 policy/audit creation; existing orders retain their saved delivery fees and addresses. Read effective delivery policy, scheduled version and checkout availability. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read effective delivery policy, scheduled version and checkout availability",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ],
+    "availability": {
+      "checkoutEnabled": true,
+      "deliveryEnabled": true
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/admin/policies/booking-capacity/{branchId}/current`
+
+- Operation ID: `getAdminPoliciesBookingCapacityByBranchIdCurrent`
+- Purpose: Private/no-store, current actor/session checked, repeatable snapshot and atomic minimal branch READ audit. Current and next are selected across all versions independently of the latest 100 recorded entries. Minimal branch metadata includes active state and revision; inactive branches remain inspectable but cannot be approved. Publication rechecks and locks actor and branch before immutable Q5 version/audit creation. Existing bookings are neither confirmed nor rescheduled by publication. Read current branch capacity, scheduled version and bounded history. Access boundary: mfa-verified-admin. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `branchId` | path | string (uuid) | Yes | Identifier selecting the branch resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read current branch capacity, scheduled version and bounded history",
+  "data": {
+    "evaluatedAt": "2030-01-15T10:00:00.000Z",
+    "current": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "latest": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "nextScheduled": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "key": "synthetic-key",
+      "version": 1,
+      "approvalStatus": "synthetic-approvalstatus",
+      "source": "synthetic-source",
+      "sourceQuestion": "synthetic-sourcequestion",
+      "sourceSignatory": "synthetic-sourcesignatory",
+      "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+      "effectiveAt": "2030-01-15T10:00:00.000Z",
+      "recordedAt": "2030-01-15T10:00:00.000Z",
+      "approvalEvidence": "synthetic-approvalevidence"
+    },
+    "history": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "key": "synthetic-key",
+        "version": 1,
+        "approvalStatus": "synthetic-approvalstatus",
+        "source": "synthetic-source",
+        "sourceQuestion": "synthetic-sourcequestion",
+        "sourceSignatory": "synthetic-sourcesignatory",
+        "approvedByUserId": "00000000-0000-4000-8000-000000000001",
+        "effectiveAt": "2030-01-15T10:00:00.000Z",
+        "recordedAt": "2030-01-15T10:00:00.000Z",
+        "approvalEvidence": "synthetic-approvalevidence"
+      }
+    ],
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "isActive": true,
+      "updatedAt": "2030-01-15T10:00:00.000Z"
+    }
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/admin/policies`
 

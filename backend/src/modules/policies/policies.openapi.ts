@@ -8,6 +8,16 @@ import {
   staffAftercareResponse,
 } from "../orders/order-aftercare.schemas.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { retentionWorkspaceResponse } from "./retention-policy-workspace.js";
+import { reservationWorkspaceResponse } from "./reservation-policy-workspace.js";
+import { refundTimingWorkspaceResponse } from "./refund-timing-workspace.js";
+import { deliveryWorkspaceResponse } from "./delivery-policy-workspace.js";
+import {
+  capacityBranchParams,
+  capacityWorkspaceResponse,
+} from "./capacity-policy-workspace.js";
+import { disputeWorkspaceResponse } from "./dispute-policy-workspace.js";
+import { complaintWorkspaceResponse } from "./complaint-policy-workspace.js";
 import {
   financeEmptyQuery,
   policyVersionResponse,
@@ -168,6 +178,83 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     },
     {
       method: "get",
+      path: "/admin/policies/complaints/current",
+      summary:
+        "Read effective, next scheduled and latest complaint policy with bounded history",
+      query: financeEmptyQuery,
+      data: complaintWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all complaint policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Publication does not replace existing complaint deadline snapshots.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/disputes/current",
+      summary:
+        "Read effective, next scheduled and latest dispute policy with bounded history",
+      query: financeEmptyQuery,
+      data: disputeWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all dispute policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Publication itself does not modify individual disputes; operational processing uses the effective defaults where acknowledgement deadlines are missing. Provider response deadlines remain authoritative.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/retention/current",
+      summary:
+        "Read effective, next scheduled and latest retention policy with bounded history",
+      query: financeEmptyQuery,
+      data: retentionWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all retention policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Deletion and anonymization remain disabled. Publication does not remove records, release holds or approve privacy requests.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/reservation-terms/current",
+      summary:
+        "Read effective reservation agreement, scheduled revision and bounded history",
+      query: financeEmptyQuery,
+      data: reservationWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store and atomically audited after current actor/session validation in a repeatable snapshot. Effective and next scheduled revisions are selected independently from the latest 100 recorded revisions. Withdrawals remain visible as effective policies; they do not remove prior acceptance. Later scheduled revisions still take effect. Publication rechecks the actor before immutable Q3 policy/audit creation and preserves the shared customer acceptance lock. Payment readiness is separate.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/refund-timing/current",
+      summary:
+        "Read current bank refund calendar, next applicable revision and bounded history",
+      query: financeEmptyQuery,
+      data: refundTimingWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store and atomically audited after current actor/session validation in a repeatable snapshot. Current is the highest APPROVED version effective at evaluatedAt, matching refund-request-time selection. Next scheduled is the earliest future approved revision with a higher version than current; equal effective times select the highest version. History contains the latest 100 revisions of all approval statuses, independently of current selection. Publication rechecks the actor before immutable Q6 policy/audit creation. Existing deadlines are never recalculated; publication does not transfer money or confirm receipt.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/delivery/current",
+      summary:
+        "Read effective delivery policy, scheduled version and checkout availability",
+      query: financeEmptyQuery,
+      data: deliveryWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store, current actor/session checked and atomically audited in a repeatable snapshot. Effective and next scheduled policies are selected independently from the latest 100 history entries. Availability uses the existing finance/delivery fulfillment rules at the same evaluation time. Publication rechecks the actor before immutable Q1 policy/audit creation; existing orders retain their saved delivery fees and addresses.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/booking-capacity/{branchId}/current",
+      summary: "Read current branch capacity, scheduled version and bounded history",
+      params: capacityBranchParams,
+      query: financeEmptyQuery,
+      data: capacityWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store, current actor/session checked, repeatable snapshot and atomic minimal branch READ audit. Current and next are selected across all versions independently of the latest 100 recorded entries. Minimal branch metadata includes active state and revision; inactive branches remain inspectable but cannot be approved. Publication rechecks and locks actor and branch before immutable Q5 version/audit creation. Existing bookings are neither confirmed nor rescheduled by publication.",
+    },
+    {
+      method: "get",
       path: "/admin/policies",
       summary: "Read immutable policy history",
       query: z.object({
@@ -186,6 +273,8 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
       capability:
         "FINANCE_POLICY_APPROVE for FINANCE; SUPER_ADMIN for other policy kinds",
+      description:
+        "RETENTION rechecks the current actor/session under the organization access lock. COMPLAINTS and DISPUTES additionally recheck the current actor/session under the organization access lock and lock selected contact accounts in stable order before eligibility validation. Expected-version checking, immutable version creation and the audit are atomic. Other policy kinds retain their existing authorization and publication rules.",
     },
     {
       method: "get",

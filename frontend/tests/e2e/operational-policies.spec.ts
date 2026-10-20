@@ -49,7 +49,7 @@ const initial = (kind: Kind) => ({
   version: 4,
   approvalStatus: "APPROVED",
   source: "Synthetic approved source",
-  sourceQuestion: "TEST",
+  sourceQuestion: kind === "COMPLAINTS" ? "Q11" : kind === "DISPUTES" ? "Q9" : "Q13",
   sourceSignatory: null,
   approvedByUserId: id(2),
   effectiveAt: "2026-01-01T00:00:00Z",
@@ -118,6 +118,43 @@ async function fixture(
         mfaRequired: true,
         mfaVerifiedAt: "2026-09-24T09:00:00Z",
       });
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        ...person(2, options.role ?? "SUPER_ADMIN"),
+        capabilities: [],
+      });
+    if (
+      endpoint === "/admin/policies/complaints/current" ||
+      endpoint === "/admin/policies/disputes/current" ||
+      endpoint === "/admin/policies/retention/current"
+    ) {
+      state.reads++;
+      if (state.failRead) return fail(route, 503);
+      const evaluatedAt = new Date().toISOString();
+      const current =
+        state.history
+          .filter((v) => Date.parse(v.effectiveAt) <= Date.parse(evaluatedAt))
+          .sort(
+            (a, b) =>
+              Date.parse(b.effectiveAt) - Date.parse(a.effectiveAt) ||
+              b.version - a.version,
+          )[0] ?? null;
+      const nextScheduled =
+        state.history
+          .filter((v) => Date.parse(v.effectiveAt) > Date.parse(evaluatedAt))
+          .sort(
+            (a, b) =>
+              Date.parse(a.effectiveAt) - Date.parse(b.effectiveAt) ||
+              b.version - a.version,
+          )[0] ?? null;
+      return reply(route, {
+        evaluatedAt,
+        current,
+        nextScheduled,
+        latest: state.history[0] ?? null,
+        history: state.history,
+      });
+    }
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "operational-policy-csrf-".repeat(3) });
     if (endpoint === "/admin/policies" && route.request().method() === "GET") {
@@ -278,7 +315,12 @@ for (const kind of ["COMPLAINTS", "DISPUTES", "RETENTION"] as const) {
     await page.screenshot({
       path: path.join(os.tmpdir(), `allied-${routes[kind]}-review-390.png`),
     });
-    await page.getByRole("button", { name: "Approve policy", exact: true }).click();
+    await page
+      .getByRole("button", {
+        name: `Approve ${titles[kind].toLowerCase()}`,
+        exact: true,
+      })
+      .click();
     await expect(page.getByText("Latest recorded version: 5.")).toBeVisible();
     expect(state.writes).toEqual([
       {
@@ -291,8 +333,14 @@ for (const kind of ["COMPLAINTS", "DISPUTES", "RETENTION"] as const) {
       },
     ]);
     await expect(page.getByLabel("Written approval or reference")).toHaveValue("");
-    await page.getByText("Policy history", { exact: true }).click();
-    await expect(page.getByRole("heading", { name: /Version 5/ })).toBeVisible();
+    await page
+      .getByText(`${titles[kind]} history`, {
+        exact: true,
+      })
+      .click();
+    await expect(
+      page.locator(`.${routes[kind].replace("-policy", "")}-version > summary`).first(),
+    ).toContainText("Version 5");
     expect(errors).toEqual([]);
   });
   for (const role of ["ADMIN", "STAFF"])
@@ -300,7 +348,9 @@ for (const kind of ["COMPLAINTS", "DISPUTES", "RETENTION"] as const) {
       const state = await fixture(page, kind, { role });
       await page.goto(`/admin/${routes[kind]}`);
       await expect(
-        page.getByText("Super Admin access is required to configure this policy."),
+        page.getByText(
+          `${titles[kind]} requires an active, verified Super Admin account with MFA.`,
+        ),
       ).toBeVisible();
       expect(state.reads).toBe(0);
       expect(state.directoryReads).toEqual([]);
@@ -313,7 +363,9 @@ for (const kind of ["COMPLAINTS", "DISPUTES", "RETENTION"] as const) {
     const state = await fixture(page, kind);
     state.history = [];
     await page.goto(`/admin/${routes[kind]}`);
-    await expect(page.getByText("No policy version has been recorded.")).toBeVisible();
+    await expect(
+      page.getByText(`No ${titles[kind].toLowerCase()} is effective at this check.`),
+    ).toBeVisible();
     await expect(page.getByRole("checkbox", { checked: true })).toHaveCount(0);
     if (kind === "RETENTION")
       await expect(page.getByLabel("Retention period (months)")).toHaveValue("");
@@ -333,9 +385,11 @@ for (const outcome of ["stale", "interrupted", "mismatched"] as const)
     await page.goto("/admin/retention-policy");
     await ready(page, kind);
     await page.getByRole("button", { name: "Review policy", exact: true }).click();
-    await page.getByRole("button", { name: "Approve policy", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Approve retention policy", exact: true })
+      .click();
     await expect(
-      page.getByRole("button", { name: "Approve policy", exact: true }),
+      page.getByRole("button", { name: "Approve retention policy", exact: true }),
     ).toBeDisabled();
     await page
       .getByRole("button", {
@@ -345,14 +399,12 @@ for (const outcome of ["stale", "interrupted", "mismatched"] as const)
       .click();
     if (outcome !== "stale") {
       state.failRead = true;
-      await page
-        .getByRole("button", { name: "Refresh policy history", exact: true })
-        .click();
-      await expect(page.getByText(/The approval outcome is uncertain/)).toBeVisible();
+      await page.getByRole("button", { name: "Refresh", exact: true }).click();
+      await expect(
+        page.getByRole("heading", { name: "Approval needs reconciliation" }),
+      ).toBeVisible();
       state.failRead = false;
-      await page
-        .getByRole("button", { name: "Refresh policy history", exact: true })
-        .click();
+      await page.getByRole("button", { name: "Refresh", exact: true }).click();
       await expect(
         page.getByRole("button", { name: "Review policy", exact: true }),
       ).toBeDisabled();
@@ -380,7 +432,9 @@ test("contact pagination preserves selection and publishes account IDs, not prof
   await expect(
     page.getByRole("dialog").getByText(new RegExp("synthetic-5@example.test")),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Approve policy", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Approve complaint policy", exact: true })
+    .click();
   await expect(page.getByText("Latest recorded version: 5.")).toBeVisible();
   expect(state.writes[0]?.settings).toMatchObject({ escalationUserId: id(5) });
   expect(state.directoryReads).toContain(id(4));
@@ -525,7 +579,9 @@ test("retention publishes multiple reviewed rules and wraps long history at 320p
   expect(
     await page.getByRole("dialog").evaluate((e) => e.scrollWidth <= e.clientWidth),
   ).toBe(true);
-  await page.getByRole("button", { name: "Approve policy", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Approve retention policy", exact: true })
+    .click();
   await expect(page.getByText("Latest recorded version: 5.")).toBeVisible();
   expect(state.writes[0]?.settings).toEqual({
     destructiveExecutionEnabled: false,
@@ -540,7 +596,7 @@ test("retention publishes multiple reviewed rules and wraps long history at 320p
       },
     ],
   });
-  await page.getByText("Policy history", { exact: true }).click();
+  await page.getByText("Retention policy history", { exact: true }).click();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);

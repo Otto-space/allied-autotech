@@ -1,0 +1,409 @@
+.dashboard .dashboard-content .workforce-overview {
+  --wfo-line: #ccd6df;
+  --wfo-muted: #465866;
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+  padding-bottom: 32px;
+}
+.workforce-overview * {
+  min-width: 0;
+}
+.workforce-overview :is(a, button):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.workforce-overview .wfo-breadcrumb {
+  margin-bottom: 12px;
+  color: var(--wfo-muted);
+  font-size: 14px;
+}
+.workforce-overview .wfo-breadcrumb ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.workforce-overview .wfo-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+}
+.dashboard .dashboard-content .workforce-overview h1 {
+  font-size: 28px;
+  line-height: 1.3;
+  margin: 0 0 6px;
+}
+.dashboard .dashboard-content .workforce-overview h2 {
+  font-size: 19px;
+  line-height: 1.4;
+  margin: 0;
+}
+.dashboard .dashboard-content .workforce-overview h3 {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 6px;
+}
+.dashboard .dashboard-content .workforce-overview p {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 6px 0 0;
+  color: var(--wfo-muted);
+  overflow-wrap: anywhere;
+}
+.workforce-overview .wfo-refresh {
+  display: grid;
+  justify-items: end;
+  flex-shrink: 0;
+  max-width: 330px;
+}
+.workforce-overview .button {
+  min-height: 44px;
+  border-radius: 6px;
+  font-size: 13px;
+  gap: 8px;
+  border: 1px solid #aebecb;
+}
+.dashboard .dashboard-content .workforce-overview .wfo-refresh p {
+  font-size: 12px;
+  text-align: right;
+}
+.workforce-overview .wfo-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.workforce-overview .wfo-panel {
+  border: 1px solid var(--wfo-line);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 3px 12px #01121a03;
+}
+.workforce-overview .wfo-panel > header {
+  padding: 20px 20px 14px;
+}
+.dashboard .dashboard-content .workforce-overview .wfo-panel > header p {
+  font-size: 13px;
+}
+.workforce-overview .wfo-queues,
+.workforce-overview .wfo-access ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.workforce-overview .wfo-queues {
+  padding: 0 20px 8px;
+}
+.workforce-overview .wfo-queues li {
+  border-top: 1px solid var(--wfo-line);
+}
+.workforce-overview .wfo-queues a {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 17px 4px;
+  min-height: 80px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 3px;
+  transition: background-color 160ms ease;
+}
+.workforce-overview .wfo-queues a:hover {
+  background: #f3f6f8;
+}
+.workforce-overview .wfo-queues svg {
+  flex-shrink: 0;
+}
+.workforce-overview .wfo-queue-copy {
+  display: grid;
+  gap: 4px;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.workforce-overview .wfo-queue-copy strong {
+  font-size: 15px;
+  font-weight: 650;
+}
+.workforce-overview .wfo-queue-copy > span {
+  font-size: 13px;
+  color: var(--wfo-muted);
+  line-height: 1.5;
+}
+.workforce-overview .wfo-count {
+  font-size: 19px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  max-width: 35%;
+}
+.workforce-overview .wfo-open {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  max-width: 25%;
+}
+.workforce-overview .wfo-side {
+  display: grid;
+  gap: 16px;
+}
+.workforce-overview .wfo-access {
+  background: #01121a;
+  color: white;
+  border-radius: 6px;
+  padding: 20px;
+}
+.dashboard .dashboard-content .workforce-overview .wfo-access h2 {
+  margin-bottom: 16px;
+  color: white;
+}
+.workforce-overview .wfo-access li {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.workforce-overview .wfo-access svg {
+  flex-shrink: 0;
+}
+.dashboard .dashboard-content .workforce-overview .wfo-access p {
+  border-top: 1px solid #64737c;
+  padding-top: 12px;
+  margin-top: 18px;
+  color: #d4dfe5;
+  font-size: 13px;
+}
+.workforce-overview .wfo-personal {
+  padding: 0 18px;
+}
+.workforce-overview .wfo-personal a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 0;
+  min-height: 56px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 14px;
+}
+.workforce-overview .wfo-personal a + a {
+  border-top: 1px solid var(--wfo-line);
+}
+.workforce-overview .wfo-personal a:hover span {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.workforce-overview .wfo-personal span {
+  flex: 1;
+}
+.workforce-overview .wfo-personal svg {
+  flex-shrink: 0;
+}
+.workforce-overview .wfo-responsibilities {
+  margin-top: 24px;
+  padding: 0 20px 16px;
+}
+.workforce-overview .wfo-responsibilities > header {
+  padding-left: 0;
+  padding-right: 0;
+}
+.workforce-overview .wfo-responsibilities table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.workforce-overview .wfo-responsibilities thead {
+  background: #f3f5f7;
+  color: #405260;
+}
+.workforce-overview .wfo-responsibilities :is(th, td) {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  vertical-align: top;
+  padding: 14px 10px;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.workforce-overview .wfo-responsibilities th:nth-child(1) {
+  width: 24%;
+}
+.workforce-overview .wfo-responsibilities th:nth-child(2) {
+  width: 23%;
+}
+.workforce-overview .wfo-responsibilities th:nth-child(3) {
+  width: 20%;
+}
+.workforce-overview .wfo-responsibilities th:nth-child(4) {
+  width: 33%;
+}
+.workforce-overview .wfo-responsibilities tbody tr {
+  border-bottom: 1px solid var(--wfo-line);
+}
+.workforce-overview .wfo-responsibilities td > span {
+  display: block;
+}
+.workforce-overview .wfo-responsibilities small {
+  display: block;
+  font-size: 12px;
+  color: var(--wfo-muted);
+}
+.dashboard .dashboard-content .workforce-overview .wfo-responsibilities td p {
+  font-size: 13px;
+  margin-top: 3px;
+  white-space: pre-line;
+}
+.workforce-overview .wfo-responsibilities .wfo-coverage {
+  display: inline-block;
+  background: #eef2f4;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+.workforce-overview .wfo-responsibilities .wfo-coverage.is-temporary {
+  background: #fff0d8;
+  color: #614015;
+}
+.workforce-overview .wfo-authority {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding-top: 10px;
+  font-size: 13px;
+}
+.workforce-overview .wfo-authority svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.workforce-overview :is(.wfo-empty, .wfo-unavailable, .wfo-loading) {
+  padding: 18px 20px 24px;
+}
+.workforce-overview .wfo-loading {
+  color: var(--wfo-muted);
+  font-size: 14px;
+}
+.workforce-overview .wfo-loading span {
+  display: block;
+  height: 54px;
+  margin-top: 16px;
+  background: #f1f4f6;
+  border-radius: 4px;
+}
+.workforce-overview .wfo-feedback {
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  background: #fff;
+  border: 1px solid #bfcbd4;
+  border-left: 3px solid #e60301;
+  border-radius: 4px;
+}
+.workforce-overview .wfo-feedback strong {
+  font-size: 15px;
+}
+@media (max-width: 1100px) {
+  .workforce-overview .wfo-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-overview .wfo-side {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+@media (max-width: 760px) {
+  .workforce-overview .wfo-heading {
+    display: block;
+  }
+  .workforce-overview .wfo-refresh {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: none;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .workforce-overview .wfo-refresh p {
+    max-width: 45%;
+    margin: 0;
+  }
+  .workforce-overview .wfo-refresh button {
+    flex-shrink: 0;
+  }
+  .workforce-overview .wfo-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-overview .wfo-responsibilities thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .workforce-overview .wfo-responsibilities :is(table, tbody, tr, th, td) {
+    display: block;
+    width: 100%;
+  }
+  .workforce-overview .wfo-responsibilities tr {
+    padding: 14px 0;
+  }
+  .workforce-overview .wfo-responsibilities th {
+    width: 100%;
+    padding: 0 0 10px;
+    font-size: 15px;
+  }
+  .workforce-overview .wfo-responsibilities th:nth-child(n) {
+    width: 100%;
+  }
+  .workforce-overview .wfo-responsibilities td {
+    padding: 4px 0;
+  }
+  .workforce-overview .wfo-responsibilities td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 12px;
+    color: var(--wfo-muted);
+    margin-bottom: 2px;
+  }
+}
+@media (max-width: 600px) {
+  .dashboard .dashboard-content .workforce-overview h1 {
+    font-size: 24px;
+  }
+  .workforce-overview .wfo-breadcrumb {
+    margin-bottom: 10px;
+  }
+  .workforce-overview .wfo-main {
+    gap: 16px;
+  }
+  .workforce-overview .wfo-panel > header {
+    padding: 16px;
+  }
+  .workforce-overview .wfo-queues {
+    padding: 0 16px 4px;
+  }
+  .workforce-overview .wfo-queues a {
+    gap: 10px;
+  }
+  .workforce-overview .wfo-count {
+    font-size: 17px;
+  }
+  .workforce-overview .wfo-access {
+    padding: 18px;
+  }
+  .workforce-overview .wfo-responsibilities {
+    padding: 0 16px 16px;
+    margin-top: 16px;
+  }
+  .workforce-overview .wfo-responsibilities > header {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workforce-overview .wfo-queues a {
+    transition: none;
+  }
+}

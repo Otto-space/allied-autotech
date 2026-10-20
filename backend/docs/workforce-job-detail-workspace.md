@@ -1,0 +1,40 @@
+# Managed workforce job detail — implementation progress
+
+19 October 2026. Milestone 105 passed its [local acceptance gate](../../frontend/docs/page-quality/workforce-job-detail.md). Deployment and application-wide acceptance remain separate.
+
+## Additive contracts implemented
+
+The existing `GET /staff/workforce/jobs/:id` and the work/quality/assignment mutation responses now include `generatedAt`, the authorized `access` snapshot, `branch: {id,name} | null` and `assignedStaff: {id,firstName,lastName} | null`. Existing job/work-order fields remain. The queue projection is unchanged. Detail selection and post-mutation rereads use minimal relation selections in the existing transaction. These names do not expose staff account/contact or customer financial fields.
+
+The existing job-assignees endpoint accepts optional `limit` (1–50), UUID `cursor` and trimmed `q` (at most 120 characters, no control characters). With any explicit query field, it returns a bounded page in UUID ascending order with an optional last-returned `nextCursor`, current `access`, `generatedAt`, `jobId`, `jobVersion` and `branchId`. Defaults for this explicit mode are limit25 and no filter. Name search splits whitespace into terms, matches every term against first or last name case-insensitively, and escapes backslash/percent/underscore literally. Search and cursor remain inside the existing eligible-branch/account/responsibility conditions. Search text is not added to audit payloads.
+
+No-query requests preserve the existing `{items}` response, alphabetical order and cap100. New clients must request explicit pagination to discover all candidates. Enquiry assignees retain their original query, response and ordering. No permission, role, workflow, mutation payload, schema or migration changed. Mutation authorization, row locks, expected versions, independent-review restrictions and atomic audits remain authoritative.
+
+## Verification completed
+
+Four isolated API scenarios in `tests/integration/workforce-job-detail-read.test.ts` passed:
+
+1. Exact current actor, branch and assigned-technician references, minimal field projection and private response.
+2. Foreign branch, other assignee, revoked/nontechnical/customer and unauthorized candidate-discovery denials.
+3. Complete traversal of the two existing eligible candidates at limit1, metadata/ordering, no-query compatibility, case-insensitive full-name search and literal wildcard/empty results.
+4. Rejection of branch overrides, invalid cursors, limit bounds, overlong search and controls.
+
+Actual target and restricted credentials were verified before session writes: `127.0.0.1:55480 / allied_work_staff_workforce_20261019_test`, test environment, no elevated role privileges, database/table ownership or TRUNCATE. Existing retained milestone104 fixtures were reused. No domain records were created or modified. Eight successful GETs produced eight READ audits. Original hashes across 14 domain tables were unchanged: users78, staff69, branches40, workforce access25, assignments26, bookings33, work orders32, services3, customer vehicles1, orders/payments/refunds/invoices0, policies652. All five temporary sessions were removed. Financial tables were empty; this does not verify populated financial behavior.
+
+Backend typecheck, focused lint, OpenAPI export/validation and route coverage passed:313 paths,367 operations,4 infrastructure routes. Generated frontend types/inventory were refreshed. Evidence remains under `C:/Users/PC/.codex/workforce-job-detail-read-api-{tests.log,evidence.json}` and the guarded external runner. The API run emitted existing Node crypto experimental and pg concurrency-deprecation warnings; assertions passed. These are not rendered browser checks.
+
+## Mutation verification added
+
+Four scenarios in `tests/integration/workforce-job-detail-actions.test.ts` now pass on the same verified isolated target with restricted runtime credentials. Seven successful changes produced exactly seven audits: start, awaiting parts, resume, quality handoff, two assignments and independent completion. Returned scope, branch/technician references, exact diagnosis/notes, booking/work versions, attribution and reviewer timestamp were checked. Rejected CSRF, wrong/revoked/customer roles, foreign/unassigned jobs, invalid input, stale revisions, invalid progression, self/unattributed review and closed-job changes produced no successful mutation. Original rows across 15 domain tables (including reminders) were unchanged; all temporary sessions were removed. Three dedicated synthetic bookings/work orders remain.
+
+An initial fixture setup omitted a required startedAt for an IN_PROGRESS booking. Its failure evidence records zero business changes and unchanged originals. Setup was resumed using the already-created synthetic booking after verifying version/state, without replaying completed actions. Evidence is retained in `workforce-job-detail-actions-api-{tests.log,evidence.json}` and separate setup-failure artifacts outside the repository. Backend typecheck and focused oxlint pass; the earlier ESLint invocation was inapplicable to the backend's oxlint configuration and is not counted as validation.
+
+## Frontend and connected verification
+
+The frontend implements the [locked design and interaction specification](../../frontend/docs/page-quality/workforce-job-detail-oct-concepts/spec.md), exact receipts, fresh preflight, draft/conflict handling, paginated candidate selection and persistent reconciliation. All 33 distinct page browser cases, nine affected-route regressions and nine helper/storage units have passing evidence. The final production build passed 13 focused validation/accessibility checks. Six final native captures were compared with the three concepts, and all 13 tracked runtime/contract source hashes match the running snapshot. Staff references distinguish duplicate names and custom validation errors identify/focus their fields.
+
+Connected production Edge/Express/PostgreSQL verification has completed four real changes/four mutation audits on one additional dedicated synthetic job: assignment, work start, quality handoff and independent completion. The handoff response was deliberately withheld after commit; refresh/reload retained the pending lock, read-only inspection plus independent database/audit reconciliation cleared it, and no mutation was resent. Original hashes across 19 domain tables stayed unchanged (including the three API-test jobs). All temporary sessions were removed and a subsequent read confirmed zero owned sessions and both records completed. Financial tables were empty.
+
+Connected verification resumed twice without repeating successful changes: first after duplicate synthetic staff names exposed the need for visible staff references, then after a browser route-teardown race occurred following the third completed change/reconciliation. The runner now waits for pending route callbacks before closing a context and sanitizes routing errors. Three precisely identified temporary sessions left by the interrupted process were removed from the verified isolated target before resuming only quality approval. The final resumed segment recorded four READ audits and one mutation audit; the prior mutation segment recorded seventeen READ audits and three mutation audits. The initial name-selection segment recorded three further READ audits. Evidence/checkpoints are in `workforce-job-detail-real*.json` with recovered/completed screenshots. These are resumed runs, not an uninterrupted pass.
+
+Read tests exercise two candidate records and browser fixtures exercise 27; this does not establish large-directory performance or real traversal beyond100 records. Durable original-request receipts remain unimplemented: a local browser marker cannot supply cross-device idempotency or prove an original request outcome. No shared/application database, schema migration, existing grant, backup/restore, provider activation, push or deployment operation ran. The prior schema-free migration evidence is unchanged, and rollout checks remain separate.

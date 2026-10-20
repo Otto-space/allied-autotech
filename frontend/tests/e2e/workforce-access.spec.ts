@@ -133,12 +133,24 @@ async function fixture(page: Page, technician = false) {
     if (endpoint === "/staff/workforce/overview")
       return ok({
         generatedAt: stamp,
+        access: state.access,
+        branches: state.access.assignments.length
+          ? [{ id: id(2), name: "Synthetic workforce branch" }]
+          : [],
         counts: technician
           ? { jobs: 1 }
           : { bookings: 3, enquiries: 2, complaints: 1, orders: 4 },
       });
-    if (endpoint === "/staff/workforce/jobs") return ok({ items: [state.job] });
-    if (endpoint === `/staff/workforce/jobs/${id(20)}`) return ok(state.job);
+    if (endpoint === "/staff/workforce/jobs")
+      return ok({ items: [state.job], access: state.access, generatedAt: stamp });
+    const jobDetail = () => ({
+      ...state.job,
+      access: state.access,
+      generatedAt: stamp,
+      branch: { id: id(2), name: "Synthetic workforce branch" },
+      assignedStaff: { id: id(5), firstName: "Ada", lastName: "Okoro" },
+    });
+    if (endpoint === `/staff/workforce/jobs/${id(20)}`) return ok(jobDetail());
     if (endpoint === `/staff/workforce/jobs/${id(20)}/work` && req.method() === "PATCH") {
       const body = req.postDataJSON();
       state.writes.push({ path: endpoint, body });
@@ -146,10 +158,16 @@ async function fixture(page: Page, technician = false) {
       state.job.workOrder.diagnosis = body.diagnosis ?? null;
       state.job.workOrder.status = body.status ?? state.job.workOrder.status;
       state.job.workOrder.workedByUserIds = [id(1)];
-      return ok(state.job);
+      if (body.status === "IN_PROGRESS" && state.job.status === "CONFIRMED") {
+        state.job.status = "IN_PROGRESS";
+        state.job.version++;
+      }
+      return ok(jobDetail());
     }
     if (endpoint === "/staff/workforce/enquiries")
       return ok({
+        access: state.access,
+        generatedAt: stamp,
         items: [
           {
             id: id(40),
@@ -157,6 +175,12 @@ async function fixture(page: Page, technician = false) {
             version: 0,
             subject: "Synthetic parts enquiry",
             message: "Are brake pads available?",
+            type: "PRODUCT",
+            branchId: id(2),
+            branch: { id: id(2), name: "Synthetic workforce branch" },
+            assignedStaffId: null,
+            assignedStaff: null,
+            updatedAt: stamp,
             createdAt: stamp,
           },
         ],
@@ -192,9 +216,11 @@ test("combined Operations home stays compact and never fetches finance or broad 
     .getByRole("link", { name: /^Enquiries Customers/ })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Enquiries", exact: true }),
+    page.getByRole("heading", { name: "Enquiries", exact: true, level: 1 }),
   ).toBeVisible();
-  await expect(page.getByText("Synthetic parts enquiry", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("rowheader", { name: /^Synthetic parts enquiry/ }),
+  ).toBeVisible();
   expect(
     state.reads.every((p) => p.startsWith("/auth/") || p.startsWith("/staff/workforce/")),
   ).toBe(true);
