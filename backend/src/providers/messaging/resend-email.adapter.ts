@@ -1,4 +1,6 @@
 import { AppError } from "../../common/errors/app-error.js";
+import { z } from "zod";
+import { emailSenderSchema } from "../../config/email-settings.js";
 import {
   providerRejected,
   providerUnavailable,
@@ -21,11 +23,14 @@ export class ResendEmailProvider implements EmailProvider {
       throw new Error("Resend email delivery is not configured");
     }
     this.apiKey = apiKey;
-    this.from = from;
-    this.replyTo = replyTo;
+    this.from = emailSenderSchema.parse(from);
+    this.replyTo = replyTo === undefined ? undefined : z.email().parse(replyTo);
   }
 
   async send(message: TransactionalEmail): Promise<void> {
+    const replyTo = message.replyTo ?? this.replyTo;
+    if (replyTo !== undefined && !z.email().safeParse(replyTo).success)
+      throw providerRejected();
     try {
       await withProviderResponse(
         "https://api.resend.com/emails",
@@ -38,7 +43,7 @@ export class ResendEmailProvider implements EmailProvider {
           },
           body: JSON.stringify({
             from: this.from,
-            ...(this.replyTo === undefined ? {} : { reply_to: this.replyTo }),
+            ...(replyTo === undefined ? {} : { reply_to: replyTo }),
             to: [message.to],
             subject: message.subject,
             text: message.text,

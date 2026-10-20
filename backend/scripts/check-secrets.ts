@@ -1,8 +1,9 @@
 // cspell:words AKIA baprs bxox PAYSTACK
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createInterface } from "node:readline";
 
 interface CredentialPattern {
   category: string;
@@ -86,6 +87,7 @@ const credentialPatterns: readonly CredentialPattern[] = [
     category: "private key",
     pattern: /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/u,
   },
+  { category: "DigitalOcean token", pattern: /\bdop_v1_[a-f0-9]{64}\b/u },
   { category: "AWS access key", pattern: /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/u },
   {
     category: "GitHub token",
@@ -109,6 +111,10 @@ const credentialPatterns: readonly CredentialPattern[] = [
 ];
 
 const sensitiveExampleVariables = new Set([
+  "PRIVATE_TESTING_PASSWORD",
+  "DIGITALOCEAN_ACCESS_TOKEN",
+  "VERCEL_TOKEN",
+  "CLOUDFLARE_API_TOKEN",
   "DB_PASSWORD",
   "TOKEN_HASH_KEY",
   "MFA_ENCRYPTION_KEY",
@@ -193,56 +199,49 @@ for (const relativePath of paths) {
 }
 
 if (process.argv.includes("--history")) {
-  const history = spawnSync(
+  // Stream patches: available history exceeds spawnSync's buffer limit.
+  const history = spawn(
     gitBinary,
     ["log", "--all", "-p", "--no-color", "--no-ext-diff", "--format=commit:%H"],
-    {
-      cwd: repositoryRoot,
-      encoding: "buffer",
-      maxBuffer: 100 * 1024 * 1024,
-      shell: false,
-      windowsHide: true,
-    },
+    { cwd: repositoryRoot, stdio: ["ignore", "pipe", "ignore"], windowsHide: true },
   );
-  if (
-    history.error !== undefined ||
-    history.status !== 0 ||
-    !Buffer.isBuffer(history.stdout)
-  ) {
-    throw new Error("Git history secret enumeration failed", { cause: history.error });
-  }
-  const historyText = history.stdout.toString("utf8");
-  for (const { category, pattern } of credentialPatterns) {
-    if (pattern.test(historyText)) findings.push(`historical ${category}`);
-  }
-
-  const historicalPaths = spawnSync(
-    gitBinary,
-    ["log", "--all", "--name-only", "--pretty=format:"],
-    {
-      cwd: repositoryRoot,
-      encoding: "utf8",
-      maxBuffer: 20 * 1024 * 1024,
-      shell: false,
-      windowsHide: true,
-    },
-  );
-  if (historicalPaths.error !== undefined || historicalPaths.status !== 0) {
-    throw new Error("Git history path enumeration failed", {
-      cause: historicalPaths.error,
-    });
-  }
-  for (const relativePath of historicalPaths.stdout.split(/\r?\n/u).filter(Boolean)) {
-    const fileName = basename(relativePath);
-    const isEnvironmentExample = [
-      ".env.example",
-      ".env.staging.example",
-      ".env.production.example",
-    ].includes(fileName);
-    if (/^\.env(?:\..+)?$/u.test(fileName) && !isEnvironmentExample) {
-      findings.push(`historical environment file: ${relativePath}`);
+  const completed = new Promise<void>((resolveHistory, reject) => {
+    history.once("error", () => reject(new Error("Unable to start history scan")));
+    history.once("close", (code) =>
+      code === 0 ? resolveHistory() : reject(new Error("Git history scan failed")),
+    );
+  });
+  let commit = "unknown";
+  let path = "unknown";
+  for await (const line of createInterface({
+    input: history.stdout,
+    crlfDelay: Infinity,
+  })) {
+    if (line.startsWith("commit:")) commit = line.slice(7);
+    if (line.startsWith("diff --git ")) path = line.slice(line.lastIndexOf(" b/") + 3);
+    if (
+      (line.startsWith("+") && !line.startsWith("+++")) ||
+      (line.startsWith("-") && !line.startsWith("---"))
+    ) {
+      for (const { category, pattern } of credentialPatterns) {
+        if (pattern.test(line))
+          findings.push("historical " + category + ": " + commit + " " + path);
+      }
+    }
+    if (line.startsWith("+++ b/") || line.startsWith("--- a/")) {
+      const historicalPath = line.slice(6);
+      const name = basename(historicalPath);
+      if (
+        /^\.env(?:\..+)?$/u.test(name) &&
+        ![".env.example", ".env.staging.example", ".env.production.example"].includes(
+          name,
+        )
+      ) {
+        findings.push("historical environment file: " + commit + " " + historicalPath);
+      }
     }
   }
+  await completed;
 }
 
 if (findings.length > 0) {

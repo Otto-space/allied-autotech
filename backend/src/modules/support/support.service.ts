@@ -8,6 +8,7 @@ import {
   customerComplaintCreateBodySchema,
 } from "./support.schemas.js";
 import { assignComplaintDeadline } from "./complaint-sla.js";
+import { enqueueDepartmentEmail } from "./department-email.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { reviewCreationReceipt } from "./review-idempotency.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
@@ -85,6 +86,7 @@ export class SupportService {
         newValues: { type: input.type, branchId },
         context,
       });
+      await enqueueDepartmentEmail(transaction, { ...input, id: enquiry.id });
       return enquiry;
     });
   }
@@ -129,6 +131,11 @@ export class SupportService {
               newValues: { type: input.type, branchId },
               context,
             });
+            await enqueueDepartmentEmail(transaction, {
+              ...input,
+              id: enquiry.id,
+              email: customer.user.email,
+            });
             return enquiry;
           },
           (id) => this.repository.ownedEnquirySummary(customer.id, id, transaction),
@@ -160,6 +167,13 @@ export class SupportService {
         entityId: complaint.id,
         newValues: { branchId, priority: complaint.priority },
         context,
+      });
+      await enqueueDepartmentEmail(transaction, {
+        id: complaint.id,
+        type: "COMPLAINT",
+        email: input.email,
+        subject: input.subject,
+        message: input.description,
       });
       return {
         ...complaint,
@@ -214,6 +228,13 @@ export class SupportService {
               context,
             });
             await assignComplaintDeadline(transaction, complaint.id);
+            await enqueueDepartmentEmail(transaction, {
+              id: complaint.id,
+              type: "COMPLAINT",
+              email: customer.user.email,
+              subject: input.subject,
+              message: input.description,
+            });
             const record = await this.repository.ownedComplaintSummary(
               customer.id,
               complaint.id,

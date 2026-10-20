@@ -4,6 +4,7 @@ import { config } from "dotenv";
 import { z } from "zod";
 
 import { parseDatabaseTlsEnvironment } from "./database-tls.js";
+import { emailSenderSchema } from "./email-settings.js";
 
 const envFilePath = fileURLToPath(new URL("../../.env", import.meta.url));
 
@@ -179,8 +180,14 @@ const environmentSchema = z.object({
   WEBAUTHN_ORIGINS: optionalCommaSeparatedHttpUrls,
 
   RESEND_API_KEY: optionalNonEmptyString,
-  RESEND_FROM_EMAIL: optionalEmail,
+  RESEND_FROM_EMAIL: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    emailSenderSchema.optional(),
+  ),
   RESEND_REPLY_TO_EMAIL: optionalEmail,
+  DEPARTMENT_INFO_EMAIL: optionalEmail,
+  DEPARTMENT_SALES_EMAIL: optionalEmail,
+  DEPARTMENT_SUPPORT_EMAIL: optionalEmail,
   EMAIL_DELIVERY_ENABLED: booleanValue(false),
   SMS_DELIVERY_ENABLED: booleanValue(false),
   STAGING_EMAIL_ALLOWLIST: optionalCommaSeparatedValues,

@@ -1,2 +1,11 @@
 .vercel
 .env*
+
+# Track placeholder inventories; populated files remain ignored.
+!.env.example
+!.env.staging.example
+!.env.production.example
+
+# Local browser captures may contain session data.
+.playwright-cli/
+output/playwright/
