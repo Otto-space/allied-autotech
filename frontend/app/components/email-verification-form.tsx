@@ -250,12 +250,12 @@ export function EmailVerificationForm() {
         </>
       )}
       <Feedback message={error} />
-      {!ready && (
+      <noscript>
         <p>
           Enable JavaScript to verify your email or request a new link. You can still sign
           in or browse our Help Centre.
         </p>
-      )}
+      </noscript>
       <form
         hidden={!ready || mode !== "verify"}
         method="post"
