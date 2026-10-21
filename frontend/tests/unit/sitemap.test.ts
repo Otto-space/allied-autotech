@@ -11,6 +11,7 @@ afterEach(() => {
 function configured() {
   vi.stubEnv("SITE_ORIGIN", "https://allied.example");
   vi.stubEnv("SITE_INDEXING", "enabled");
+  vi.stubEnv("BACKEND_ORIGIN", "https://api.allied.example");
 }
 function result(data: unknown) {
   return new Response(JSON.stringify({ success: true, data }), {
@@ -75,6 +76,7 @@ it.each(["outage", "malformed", "duplicate", "repeatedCursor"])(
   },
 );
 it("honours cancellation during catalogue scanning", async () => {
+  configured();
   vi.useFakeTimers();
   try {
     vi.stubGlobal(
