@@ -28,6 +28,7 @@ function fixture() {
     );
   });
   input.values = {
+    FRONTEND_PROXY_SECRET: randomBytes(32).toString("base64"),
     DB_HOST: "synthetic.db.ondigitalocean.com",
     DB_PORT: "25060",
     DB_USER: "allied_production_runtime",

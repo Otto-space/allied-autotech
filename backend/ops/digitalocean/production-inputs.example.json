@@ -9,6 +9,7 @@
   "bucket": "allied-autotech-production-5ae8fa4d",
   "launchMode": "browse_enquiries",
   "values": {
+    "FRONTEND_PROXY_SECRET": "",
     "DB_HOST": "",
     "DB_PORT": "",
     "DB_PASSWORD": "",

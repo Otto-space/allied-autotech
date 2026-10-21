@@ -528,6 +528,18 @@
           "value": "browse_enquiries",
           "scope": "RUN_TIME",
           "type": "GENERAL"
+        },
+        {
+          "key": "CLIENT_IP_SOURCE",
+          "value": "digitalocean",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_PROXY_SECRET",
+          "value": "REPLACE_PRODUCTION_FRONTEND_PROXY_SECRET",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
         }
       ]
     }

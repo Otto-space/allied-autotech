@@ -68,6 +68,7 @@ export function renderProductionSpec(template, input, manifest, keys) {
     if (component.name === "api") {
       requireValue(
         env.PRIVATE_TESTING_ENABLED === "true" &&
+          env.CLIENT_IP_SOURCE === "digitalocean" &&
           env.FRONTEND_URL === "https://alliedautotech.com",
         "Private prelaunch access and exact production origin are required.",
       );
@@ -95,6 +96,12 @@ export function renderProductionSpec(template, input, manifest, keys) {
       }
     }
   }
+  requireValue(
+    /^[A-Za-z0-9+/]{43}=$/.test(input.values.FRONTEND_PROXY_SECRET ?? "") &&
+      Buffer.from(input.values.FRONTEND_PROXY_SECRET, "base64").length === 32 &&
+      !Object.values(keys).includes(input.values.FRONTEND_PROXY_SECRET),
+    "Use an independent 32-byte frontend proxy secret.",
+  );
   requireValue(
     input.values.DB_USER === "allied_production_runtime" &&
       input.values.MIGRATION_DB_USER === "allied_production_migrator" &&

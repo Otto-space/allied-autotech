@@ -2,6 +2,7 @@ import { test, expect } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createHmac } from "node:crypto";
 import {
   product,
   listing,
@@ -16,9 +17,29 @@ test.skip(
 );
 let server: Server;
 const calls: string[] = [];
+const signedProxy = process.env.RUN_SIGNED_PROXY_TESTS === "true";
+test.use({
+  extraHTTPHeaders: signedProxy ? { "x-vercel-forwarded-for": "198.51.100.23" } : {},
+});
 test.beforeAll(async () => {
   server = createServer((req, res) => {
     const url = new URL(req.url ?? "/", "http://127.0.0.1:5021");
+    if (signedProxy) {
+      const ip = req.headers["x-allied-client-ip"],
+        time = req.headers["x-allied-client-time"];
+      const expected = createHmac("sha256", Buffer.alloc(32, 31))
+        .update(`allied-client-v1\n${req.method}\n${url.pathname}\n${ip}\n${time}`)
+        .digest("hex");
+      if (
+        ip !== "198.51.100.23" ||
+        Math.abs(Date.now() / 1000 - Number(time)) > 60 ||
+        req.headers["x-allied-client-proof"] !== expected
+      ) {
+        res.writeHead(403, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: { code: "FORBIDDEN" } }));
+        return;
+      }
+    }
     const path = url.pathname.replace(/^\/api\/v1/, "");
     calls.push(path);
     if (path === "/auth/session") {
@@ -62,6 +83,19 @@ test("public homepage offers services without a cart shortcut", async ({ page })
   await page.screenshot({
     path: join(tmpdir(), "allied-public-launch-home-desktop.png"),
   });
+  if (signedProxy) {
+    const response = await page.request.get("/api/v1/public/services");
+    expect(response.status()).toBe(200);
+    expect(
+      Object.keys(response.headers()).some(
+        (name) =>
+          name.startsWith("x-allied-client") || name.startsWith("x-middleware-request"),
+      ),
+    ).toBe(false);
+    expect(JSON.stringify(response.headers())).not.toContain(
+      Buffer.alloc(32, 31).toString("base64"),
+    );
+  }
 });
 test("product details offer enquiries and explain collection without checkout", async ({
   page,

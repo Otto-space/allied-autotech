@@ -61,6 +61,25 @@ The owner already specified prices excluding VAT, 7.5% added after discounts to 
 
 ### Verification status
 
+Client-address follow-up: the initial hosted probe confirmed that socket-based
+rate-limit partitions did not match the actual caller. DigitalOcean documents
+`do-connecting-ip` as client identity; XFF is its ingress address. The production
+profile now selects that provider header for direct requests and verifies a
+separate, short-lived HMAC proof from Vercel for proxied requests. Vercel signs
+only its overwritten `x-vercel-forwarded-for`, for both browser API rewrites and
+server-rendered catalogue reads. Caller proof headers are discarded by the
+frontend. Ordinary Express proxy trust remains disabled; missing/invalid proof
+fails closed. The independent server-only key is not one of the four application
+keys. Health probes retain their existing behavior. Verify real client matching
+and forged-header resistance on hosted default/custom domains before public
+cutover; this is not certified by local fixtures alone.
+
+Local forwarding checks passed: backend unit/API suite 466 tests, all frontend
+units 649 tests, focused startup guards, production frontend build, deployment
+spec tests and six signed-proxy Edge flows including SSR and response-header
+secrecy. Sources: [DigitalOcean client IP](https://docs.digitalocean.com/support/where-can-i-find-the-client-ip-address-of-a-request-connecting-to-my-app/),
+[Vercel request headers](https://vercel.com/docs/headers/request-headers).
+
 The release is based on staging source c2b0548 plus the browsing/enquiry controls;
 the newer workforce branch is excluded. No cloud database was used for test writes.
 
