@@ -61,6 +61,11 @@ The owner already specified prices excluding VAT, 7.5% added after discounts to 
 
 ### Verification status
 
+Production deployed successfully on 22 October 2026 (Nigeria time), with private
+access and disabled transactions preserved. Actual deployment IDs, hosted
+forwarding checks, backup/recovery limits, unchanged resource costs and remaining
+cutover gates are recorded in [the production release record](digitalocean-production-release.md).
+
 Client-address follow-up: the initial hosted probe confirmed that socket-based
 rate-limit partitions did not match the actual caller. DigitalOcean documents
 `do-connecting-ip` as client identity; XFF is its ingress address. The production
