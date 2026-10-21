@@ -1,6 +1,16 @@
 # Initial owner provisioning
 
-The business owner selected `alliedautotechltd@gmail.com`. This identifies the intended account; it does not establish that the account exists or has verified its email. A read-only check on September 17, 2026 found no matching user in the configured local development database. No real account was provisioned.
+## Staging provisioning completed - 21 October 2026
+
+`alliedautotechltd@gmail.com` is now the sole staging `SUPER_ADMIN`. The selected account was already active and email-verified through the normal application workflow before the operator ran the existing guarded provisioning function with its inspected UUID. No account, password or verification timestamp was created by the operator.
+
+The target was confirmed as managed PostgreSQL host `allied-autotech-staging-db-do-user-44970995-0.k.db.ondigitalocean.com`, port `25060`, database `allied_autotech_staging`, environment `staging`. Strict CA/hostname verification remained enabled. The latest managed backup was dated `2026-10-21T05:22:09Z`; the separate-cluster restore rehearsal from 17 October remains the recovery evidence.
+
+The release checkout's read-only database history/schema check passed using the separate migration account. The role change itself used the restricted runtime account and the existing transaction, advisory lock, exact-account checks and installed owner protections. Verification confirmed one owner, zero unrevoked sessions for the selected account and a role-change audit record. Temporary operator-IP database access was removed and the original app-only firewall verified restored. No schema, grants, migration history or other user account was changed.
+
+The user must sign in again at https://staging.alliedautotech.com/login with the password chosen at registration and complete the existing MFA enrollment. The operator did not handle the password, enrol an authenticator or test a logged-in owner session. Do not rerun initial provisioning: it deliberately rejects replacement of an existing owner.
+
+The business owner selected `alliedautotechltd@gmail.com`. This identifies the intended account; it does not establish that the account exists or has verified its email. A read-only check on September 17, 2026 found no matching user in the configured local development database. No real account was provisioned by that September local check; the separate staging outcome is recorded above.
 
 Use the existing registration and email-verification flow to establish an active account in the intended environment. Do not create a password through this script or set verification timestamps manually. The public business contact email remains unchanged.
 
