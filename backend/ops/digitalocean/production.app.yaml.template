@@ -1,0 +1,1225 @@
+# Review-only production plan. Missing real production credentials/digests deliberately prevent deployment.
+{
+  "name": "allied-autotech-production",
+  "region": "lon",
+  "databases": [
+    {
+      "name": "production-postgres",
+      "engine": "PG",
+      "production": true,
+      "cluster_name": "allied-autotech-staging-db",
+      "db_name": "allied_autotech_production",
+      "db_user": "allied_production_runtime"
+    }
+  ],
+  "alerts": [
+    {
+      "rule": "DEPLOYMENT_FAILED"
+    },
+    {
+      "rule": "DOMAIN_FAILED"
+    }
+  ],
+  "services": [
+    {
+      "name": "api",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-api",
+        "digest": "sha256:REPLACE_API_DIGEST"
+      },
+      "http_port": 5000,
+      "instance_count": 1,
+      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
+      "health_check": {
+        "http_path": "/api/v1/health/ready",
+        "initial_delay_seconds": 15,
+        "period_seconds": 10,
+        "timeout_seconds": 5,
+        "success_threshold": 1,
+        "failure_threshold": 6
+      },
+      "liveness_health_check": {
+        "http_path": "/api/v1/health/live",
+        "initial_delay_seconds": 20,
+        "period_seconds": 30,
+        "timeout_seconds": 5,
+        "failure_threshold": 3
+      },
+      "termination": {
+        "drain_seconds": 15,
+        "grace_period_seconds": 30
+      },
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-production-api",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PORT",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_URL",
+          "value": "https://alliedautotech.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TRUST_PROXY_HOPS",
+          "value": "0",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "LOG_LEVEL",
+          "value": "info",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "REQUEST_BODY_LIMIT",
+          "value": "100kb",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "READINESS_TIMEOUT_MS",
+          "value": "2000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "GLOBAL_RATE_LIMIT",
+          "value": "300",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "GLOBAL_RATE_WINDOW_MS",
+          "value": "60000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "API_DOCS_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_PRODUCTION_DATABASE_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "REPLACE_ACTUAL_DB_PORT",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "allied_production_runtime",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_PRODUCTION_RUNTIME_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "4",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TOKEN_HASH_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_TOKEN_HASH_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "TOKEN_HASH_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MFA_ENCRYPTION_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_MFA_ENCRYPTION_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "MFA_ENCRYPTION_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_OUTBOX_ENCRYPTION_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WEBAUTHN_RP_ID",
+          "value": "alliedautotech.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WEBAUTHN_RP_NAME",
+          "value": "Allied AutoTech",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WEBAUTHN_ORIGINS",
+          "value": "https://alliedautotech.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EMAIL_DELIVERY_ENABLED",
+          "value": "true",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SMS_DELIVERY_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_EMAIL_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_SMS_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MESSAGING_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_SECRET_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "PAYSTACK_MODE",
+          "value": "disabled",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_CALLBACK_URL",
+          "value": "https://alliedautotech.com/payments/complete",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MODE",
+          "value": "disabled",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "MONNIFY_SECRET_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "MONNIFY_CONTRACT_CODE",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_CALLBACK_URL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYMENT_INTENT_TTL_SECONDS",
+          "value": "1800",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_VERIFY_EMAIL_URL",
+          "value": "https://alliedautotech.com/verify-email",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_RESET_PASSWORD_URL",
+          "value": "https://alliedautotech.com/reset-password",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_PRIVILEGED_INVITATION_URL",
+          "value": "https://alliedautotech.com/staff/accept-invitation",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRIVILEGED_INVITATION_TTL_SECONDS",
+          "value": "86400",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_POLL_INTERVAL_MS",
+          "value": "2000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_BATCH_SIZE",
+          "value": "25",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EXPIRATION_INTERVAL_MS",
+          "value": "60000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYMENT_RECONCILIATION_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RECONCILIATION_INTERVAL_MS",
+          "value": "3600000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ENDPOINT",
+          "value": "https://lon1.digitaloceanspaces.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_REGION",
+          "value": "lon1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_BUCKET",
+          "value": "allied-autotech-production-5ae8fa4d",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ACCESS_KEY_ID",
+          "value": "REPLACE_PRODUCTION_OBJECT_STORAGE_ACCESS_KEY_ID",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "value": "REPLACE_PRODUCTION_OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_FORCE_PATH_STYLE",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_TICKET_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_ASSET_TICKET_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "ASSET_TICKET_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_UPLOAD_TTL_SECONDS",
+          "value": "300",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_DOWNLOAD_TTL_SECONDS",
+          "value": "120",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TRUST_PROXY_CIDRS",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_PRODUCTION_DATABASE_CA_BASE64",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "PRIVATE_TESTING_ENABLED",
+          "value": "true",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PRIVATE_TESTING_PASSWORD",
+          "value": "REPLACE_NEW_PRODUCTION_PRIVATE_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DEPARTMENT_INFO_EMAIL",
+          "scope": "RUN_TIME",
+          "value": "info@alliedautotech.com"
+        },
+        {
+          "key": "DEPARTMENT_SALES_EMAIL",
+          "scope": "RUN_TIME",
+          "value": "sales@alliedautotech.com"
+        },
+        {
+          "key": "DEPARTMENT_SUPPORT_EMAIL",
+          "scope": "RUN_TIME",
+          "value": "support@alliedautotech.com"
+        },
+        {
+          "key": "PUBLIC_LAUNCH_MODE",
+          "value": "browse_enquiries",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        }
+      ]
+    }
+  ],
+  "workers": [
+    {
+      "name": "identity-worker",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-identity-worker",
+        "digest": "sha256:REPLACE_IDENTITY_WORKER_DIGEST"
+      },
+      "instance_count": 1,
+      "instance_size_slug": "apps-s-1vcpu-0.5gb",
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_PRODUCTION_DATABASE_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "REPLACE_ACTUAL_DB_PORT",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "allied_production_runtime",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_PRODUCTION_RUNTIME_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_PRODUCTION_DATABASE_CA_BASE64",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_OUTBOX_ENCRYPTION_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EMAIL_DELIVERY_ENABLED",
+          "value": "true",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_API_KEY",
+          "value": "REPLACE_PRODUCTION_RESEND_SENDING_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "RESEND_FROM_EMAIL",
+          "value": "Allied AutoTech <notifications@notify.alliedautotech.com>",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_REPLY_TO_EMAIL",
+          "value": "support@alliedautotech.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_EMAIL_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MESSAGING_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_BATCH_SIZE",
+          "value": "25",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-production-identity-worker",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PUBLIC_LAUNCH_MODE",
+          "value": "browse_enquiries",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        }
+      ],
+      "termination": {
+        "grace_period_seconds": 60
+      }
+    },
+    {
+      "name": "general-worker",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-general-worker",
+        "digest": "sha256:REPLACE_GENERAL_WORKER_DIGEST"
+      },
+      "instance_count": 1,
+      "instance_size_slug": "apps-s-1vcpu-0.5gb",
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_PRODUCTION_DATABASE_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "REPLACE_ACTUAL_DB_PORT",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "allied_production_runtime",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_PRODUCTION_RUNTIME_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_PRODUCTION_DATABASE_CA_BASE64",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "2",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TOKEN_HASH_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_TOKEN_HASH_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "TOKEN_HASH_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_OUTBOX_ENCRYPTION_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OUTBOX_ENCRYPTION_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_API_KEY",
+          "value": "REPLACE_PRODUCTION_RESEND_SENDING_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "RESEND_FROM_EMAIL",
+          "value": "Allied AutoTech <notifications@notify.alliedautotech.com>",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RESEND_REPLY_TO_EMAIL",
+          "value": "support@alliedautotech.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_EMAIL_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "STAGING_SMS_ALLOWLIST",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TERMII_BASE_URL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "TERMII_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "TERMII_SENDER_ID",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_SECRET_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "PAYSTACK_MODE",
+          "value": "disabled",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_CALLBACK_URL",
+          "value": "https://alliedautotech.com/payments/complete",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYSTACK_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MODE",
+          "value": "disabled",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_LIVE_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_API_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "MONNIFY_SECRET_KEY",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "MONNIFY_CONTRACT_CODE",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_CALLBACK_URL",
+          "value": "",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MONNIFY_MAX_RESPONSE_BYTES",
+          "value": "262144",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_POLL_INTERVAL_MS",
+          "value": "2000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "WORKER_BATCH_SIZE",
+          "value": "25",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "RECONCILIATION_INTERVAL_MS",
+          "value": "3600000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "ASSET_TICKET_KEY",
+          "value": "REPLACE_NEW_PRODUCTION_ASSET_TICKET_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "ASSET_TICKET_KEY_ID",
+          "value": "production-v1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "FRONTEND_URL",
+          "value": "https://alliedautotech.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EMAIL_DELIVERY_ENABLED",
+          "value": "true",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SMS_DELIVERY_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "MESSAGING_REQUEST_TIMEOUT_MS",
+          "value": "8000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "EXPIRATION_INTERVAL_MS",
+          "value": "60000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PAYMENT_RECONCILIATION_ENABLED",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-production-general-worker",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ENDPOINT",
+          "value": "https://lon1.digitaloceanspaces.com",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_REGION",
+          "value": "lon1",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_BUCKET",
+          "value": "allied-autotech-production-5ae8fa4d",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "OBJECT_STORAGE_ACCESS_KEY_ID",
+          "value": "REPLACE_PRODUCTION_OBJECT_STORAGE_ACCESS_KEY_ID",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "value": "REPLACE_PRODUCTION_OBJECT_STORAGE_SECRET_ACCESS_KEY",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "OBJECT_STORAGE_FORCE_PATH_STYLE",
+          "value": "false",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PUBLIC_LAUNCH_MODE",
+          "value": "browse_enquiries",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        }
+      ],
+      "termination": {
+        "grace_period_seconds": 60
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "name": "migrate",
+      "kind": "PRE_DEPLOY",
+      "image": {
+        "registry_type": "DOCR",
+        "registry": "REPLACE_DOCR_REGISTRY",
+        "repository": "allied-autotech-migrate",
+        "digest": "sha256:REPLACE_MIGRATE_DIGEST"
+      },
+      "instance_count": 1,
+      "instance_size_slug": "apps-s-1vcpu-1gb-fixed",
+      "envs": [
+        {
+          "key": "NODE_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DEPLOYMENT_ENV",
+          "value": "production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_HOST",
+          "value": "REPLACE_PRODUCTION_DATABASE_HOST",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PORT",
+          "value": "REPLACE_ACTUAL_DB_PORT",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_NAME",
+          "value": "allied_autotech_production",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_USER",
+          "value": "allied_production_migrator",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_PASSWORD",
+          "value": "REPLACE_PRODUCTION_MIGRATOR_PASSWORD",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_SSL_MODE",
+          "value": "verify-full",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_FILE",
+          "value": "/tmp/allied-autotech-secrets/database-ca.pem",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_SSL_CA_BASE64",
+          "value": "REPLACE_PRODUCTION_DATABASE_CA_BASE64",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
+          "key": "DB_POOL_MAX",
+          "value": "2",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_CONNECTION_TIMEOUT_MS",
+          "value": "5000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_STATEMENT_TIMEOUT_MS",
+          "value": "30000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "DB_IDLE_TRANSACTION_TIMEOUT_MS",
+          "value": "15000",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "SERVICE_NAME",
+          "value": "allied-autotech-staging-migrate",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        },
+        {
+          "key": "PUBLIC_LAUNCH_MODE",
+          "value": "browse_enquiries",
+          "scope": "RUN_TIME",
+          "type": "GENERAL"
+        }
+      ],
+      "run_command": "aat-with-database-ca node --import tsx scripts/check-database-safety.ts"
+    }
+  ],
+  "ingress": {
+    "rules": [
+      {
+        "match": {
+          "path": {
+            "prefix": "/api/v1"
+          }
+        },
+        "component": {
+          "name": "api",
+          "preserve_path_prefix": true
+        }
+      }
+    ]
+  },
+  "domains": [
+    {
+      "domain": "api.alliedautotech.com",
+      "type": "PRIMARY"
+    }
+  ]
+}

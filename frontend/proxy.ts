@@ -1,3 +1,4 @@
+import { browseEnquiriesOnly, restrictedLaunchPage } from "./lib/public-launch";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { publicMediaHosts } from "./lib/media";
@@ -96,6 +97,12 @@ export function proxy(request: NextRequest) {
       );
     }
     return response;
+  }
+  if (browseEnquiriesOnly() && restrictedLaunchPage(request.nextUrl.pathname)) {
+    const response = NextResponse.redirect(new URL("/contact#enquiry", request.url));
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return rememberAccess(response);
   }
   // Gate API rewrites, prefetches and assets too, but keep the established CSP
   // handling limited to page responses. Authorization passes through the rewrite.

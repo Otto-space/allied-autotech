@@ -1,3 +1,4 @@
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { indexingEnabled } from "@/lib/seo";
 import type { Metadata } from "next";
 import { connection } from "next/server";
@@ -34,8 +35,9 @@ export function generateMetadata(): Metadata {
       template: "%s · Allied AutoTech",
     },
     robots: { index: indexingEnabled(), follow: indexingEnabled() },
-    description:
-      "Book trusted vehicle care, track service, and manage your Allied AutoTech account.",
+    description: browseEnquiriesOnly()
+      ? "Explore vehicle care, automotive parts and vehicles, and contact the Allied AutoTech team."
+      : "Book trusted vehicle care, track service, and manage your Allied AutoTech account.",
   };
 }
 

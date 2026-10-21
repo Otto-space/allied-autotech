@@ -5,6 +5,7 @@ import { createBookingActionsRouter } from "../modules/service-operations/bookin
 import { createPoliciesRouter } from "../modules/policies/policies.routes.js";
 import { createManualRefundsRouter } from "../modules/payments/manual-refunds.routes.js";
 import { Router } from "express";
+import { publicLaunch } from "../common/middleware/public-launch.js";
 
 import { publicApiPaths } from "../common/contracts/public-api.js";
 import { sessionCookieName } from "../common/security/cookies.js";
@@ -101,6 +102,7 @@ import { createDisputesRouter } from "../modules/payments/disputes.routes.js";
 
 export function createApiRouter(options: ApiRouterOptions): Router {
   const apiRouter = Router();
+  apiRouter.use(publicLaunch(env.PUBLIC_LAUNCH_MODE));
   apiRouter.use(createPoliciesRouter());
   apiRouter.use(createPrivacyRouter());
   apiRouter.use(createOrderAftercareRouter());

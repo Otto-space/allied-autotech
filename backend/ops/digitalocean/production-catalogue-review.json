@@ -1,0 +1,98 @@
+{
+  "source": "Business services named in the original Allied AutoTech requirements supplied by the user",
+  "status": "Prepared for review; not imported or published",
+  "services": [
+    {
+      "name": "Tyre Change",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Wheel Alignment",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Wheel Balancing",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Advanced Vehicle Diagnostics",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Vehicle Maintenance",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Engine Diagnostics",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Brake Inspection and Service",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Suspension Inspection and Repair",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Air Conditioning Service",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Battery Testing and Replacement",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Oil and Filter Service",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Electrical Diagnostics",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "Preventive Maintenance",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    },
+    {
+      "name": "General Mechanical Repairs",
+      "pricingType": "QUOTE_REQUIRED",
+      "priceKobo": null,
+      "durationMinutes": null
+    }
+  ],
+  "products": [],
+  "vehicleListings": [],
+  "exclusions": [
+    "All staging/test records",
+    "Customer accounts and credentials",
+    "Orders, payments and reservations",
+    "Unapproved prices, stock and delivery promises"
+  ]
+}

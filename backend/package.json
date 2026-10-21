@@ -37,6 +37,7 @@
     "db:check": "tsx scripts/check-database-safety.ts",
     "db:backup": "tsx scripts/backup-database.ts",
     "db:migrate": "tsx scripts/migrate-safely.ts",
+    "db:recover:initial": "tsx scripts/recover-initial-migration.ts",
     "prisma:format": "prisma format",
     "prisma:generate": "prisma generate",
     "phase7:preflight": "tsx scripts/verify-phase7-preflight.ts",

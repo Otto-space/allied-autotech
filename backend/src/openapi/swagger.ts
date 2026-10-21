@@ -13,8 +13,8 @@ export const swaggerSecurityHeaders: RequestHandler = (_request, response, next)
   next();
 };
 
-export const swaggerServe = swaggerUi.serve;
-export const swaggerSetup = swaggerUi.setup(
+export const swaggerServe: RequestHandler[] = swaggerUi.serve;
+export const swaggerSetup: RequestHandler = swaggerUi.setup(
   createOpenApiDocument({ sessionCookieName }),
   {
     customSiteTitle: "Allied AutoTech API Documentation",

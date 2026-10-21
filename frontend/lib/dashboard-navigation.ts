@@ -10,6 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { SessionState } from "./api/types";
+import { browseEnquiriesOnly, restrictedLaunchPage } from "./public-launch";
 
 type Role = SessionState["user"]["role"];
 export type DashboardDestination = {
@@ -137,7 +138,11 @@ const operationalGroups: DashboardGroup[] = [
       { href: "/admin/vehicles", label: "Vehicle stock" },
       { href: "/admin/inspections", label: "Vehicle inspections" },
       { href: "/admin/vehicle-sales", label: "Vehicle sales" },
-      { href: "/admin/reservation-terms", label: "Reservation agreements", roles: ["SUPER_ADMIN"] },
+      {
+        href: "/admin/reservation-terms",
+        label: "Reservation agreements",
+        roles: ["SUPER_ADMIN"],
+      },
     ],
   },
   {
@@ -222,10 +227,15 @@ export function dashboardNavigation(
       ...group,
       links: group.links.filter(
         (link) =>
-          !link.roles ||
-          link.roles.includes(role) ||
-          (role === "STAFF" &&
-            link.capabilitiesAny?.some((grant) => capabilities.includes(grant))),
+          !(
+            role === "CUSTOMER" &&
+            browseEnquiriesOnly() &&
+            restrictedLaunchPage(link.href)
+          ) &&
+          (!link.roles ||
+            link.roles.includes(role) ||
+            (role === "STAFF" &&
+              link.capabilitiesAny?.some((grant) => capabilities.includes(grant)))),
       ),
     }))
     .filter((group) => group.links.length > 0);

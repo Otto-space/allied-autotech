@@ -1,4 +1,5 @@
 "use client";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import Link from "next/link";
 import Image from "next/image";
 import { ServicePhoto } from "./service-photo";
@@ -79,7 +80,8 @@ export function ServiceDetail({
     { revalidateOnMount: false },
   );
   const current = service.data;
-  const fixed = current?.pricingType === "FIXED";
+  const listedFixed = current?.pricingType === "FIXED";
+  const fixed = listedFixed && !browseEnquiriesOnly();
   const bookable =
     fixed && current.priceKobo !== null && current.durationMinutes !== null;
   const [access, setAccess] = useState<
@@ -447,13 +449,13 @@ export function ServiceDetail({
                   <div className="sd-facts">
                     <div>
                       <p className="sd-price">
-                        {fixed && current.priceKobo !== null
+                        {listedFixed && current.priceKobo !== null
                           ? formatKobo(current.priceKobo)
-                          : fixed
+                          : listedFixed
                             ? "Contact us for pricing"
                             : "Quotation required"}
                       </p>
-                      {fixed && current.priceKobo !== null && (
+                      {listedFixed && current.priceKobo !== null && (
                         <p className="sd-price-label">Fixed price</p>
                       )}
                     </div>

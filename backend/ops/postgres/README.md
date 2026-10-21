@@ -1,5 +1,32 @@
 # Staging database roles
 
+## Production within the existing server budget
+
+The production counterparts, `production-privileges.sql` and
+`production-backup-privileges.sql`, are restricted to the separate database
+`allied_autotech_production`. They do not change staging grants or data. Review
+them before use and confirm the actual server, port, database and production
+environment. Create ordinary `allied_production_runtime`,
+`allied_production_migrator` and `allied_production_backup` users with distinct
+credentials. Use the existing managed server; do not purchase another cluster.
+
+Run the production privilege script as the database operator, supplying the
+production runtime and migration role names. Run the backup script as the
+operator. Authenticate as the migration role to grant future table/sequence
+SELECT defaults to the production backup role. Run `npm run db:migrate` with a
+confirmed production target and a fresh verified backup, then repeat both grant
+scripts before deployment to remove runtime access to the new migration ledger.
+Verify runtime has no ownership, CREATE, TRUNCATE, role membership or privileged
+role attributes; verify backup is read-only. Never run tests on either database.
+
+Sharing a managed server shares capacity, administrative access and recovery
+boundaries. Archive the staging app before deploying production within the
+existing compute allocation. Restoring staging compute later needs renewed cost
+approval and connection-capacity review. See the current
+[release plan](../../docs/hosting-approval-plan.md).
+
+## Existing staging procedure
+
 Use an existing **Managed PostgreSQL** cluster and the dedicated database
 `allied_autotech_staging`. Do not use an App Platform development database.
 Create two ordinary login users through the DigitalOcean control panel: one

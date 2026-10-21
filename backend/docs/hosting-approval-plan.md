@@ -1,6 +1,110 @@
 # Private hosting preparation and public launch path
 
-Prepared 13 October 2026. On 17 October 2026, Mike approved the $45.15/month DigitalOcean baseline for private owner/staff testing, keeping the frontend on Vercel and public access/live payments disabled. Additional costs require approval. A separate restore-test cluster was subsequently approved up to $1, with removal after verification. Business-policy publication and public launch remain unapproved.
+## Public release preparation - 21 October 2026
+
+The user approved a first public release for **browsing and enquiries**. Checkout, paid reservations and live payments remain unavailable. The user declined an additional recurring production baseline and requested that staging be taken offline so its existing budget can fund production. The separately capped USD1 restore rehearsal was approved. Keep staging data preserved and production database credentials, keys and media separate.
+
+### Revised allocation: staging offline, production within the existing budget
+
+| Resource                   | Configuration                                                                                                    | Monthly baseline                         |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Production API             | allied-autotech-production; one apps-s-1vcpu-1gb-fixed                                                           | USD10.00                                 |
+| Production identity worker | Same app; one apps-s-1vcpu-0.5gb                                                                                 | USD5.00                                  |
+| Production general worker  | Same app; one apps-s-1vcpu-0.5gb                                                                                 | USD5.00                                  |
+| PostgreSQL server          | Existing allied-autotech-staging-db; separate allied_autotech_production database and restricted roles           | Existing USD15.15                        |
+| Registry                   | Existing Basic registry; observed usage approximately 391 MB                                                     | Existing USD5.00                         |
+| Media                      | New private bucket allied-autotech-production-5ae8fa4d within existing Spaces subscription; separate limited key | Existing USD5.00 within shared allowance |
+| Frontend                   | Existing Vercel Pro project, Production environment                                                              | No additional subscription               |
+
+**DigitalOcean baseline remains approximately USD45.15/month**, or USD65.15/month including the already-purchased one-seat Vercel Pro baseline. Archive the existing staging app before creating the production app, so two paid app stacks do not run together. DigitalOcean currently charges nothing for an archived app; its database continues billing. Preserve the complete staging spec, pinned image digests, private gate and existing database. Do not rename paid components or buy another database server. These estimates exclude tax, deployment-job runtime and usage overages. Stop before any higher recurring allocation or other purchase.
+
+Staging and production have separate databases on one managed server, not separate infrastructure: capacity, administrator access, backup and server incidents are shared. Only production runs normally. Restoring hosted staging later restarts its app charges and needs a fresh cost approval; review connection capacity and resource isolation first. Local isolated testing remains available without additional cloud subscriptions. [Archive/restore behavior and billing](https://docs.digitalocean.com/products/app-platform/how-to/archive-restore/)
+
+A separate temporary managed restore-rehearsal cluster, **up to USD1 total**, was explicitly approved: allied-autotech-production-restore-20261021, removed after verification. Do not exceed that cap. Verify production backup encryption, retention and available PITR, then restore into the separate target and compare migration history, counts, constraints, permissions and critical reads. Never restore over an existing environment.
+
+Pricing checked on 21 October: [App Platform](https://docs.digitalocean.com/products/app-platform/details/pricing/), [PostgreSQL](https://www.digitalocean.com/pricing/managed-databases), [Spaces](https://docs.digitalocean.com/products/spaces/details/pricing/). Storage allowances are shared; alerts do not cap spending.
+
+### Prepared implementation
+
+- [Production App Platform template](../ops/digitalocean/production.app.yaml.template): existing image targets/sizes, strict database TLS, separate runtime/migration roles and read-only PRE_DEPLOY check. Missing real production credentials and digests deliberately prevent deployment. Do not run the staging renderer against production.
+- [Production input example](../ops/digitalocean/production-inputs.example.json): blanks only for credentials. Fresh cryptographic keys and private prelaunch access were prepared separately under the ignored ops/digitalocean/.private/production directory; existing staging keys were preserved.
+- Backend PUBLIC_LAUNCH_MODE=browse_enquiries blocks customer writes to carts, orders, bookings, payments, vehicle transactions and inspections, including direct API requests. Staff/admin authentication and customer-care checks remain intact. Startup rejects enabled payment providers/reconciliation in this mode.
+- Frontend NEXT_PUBLIC_PUBLIC_LAUNCH_MODE=browse_enquiries replaces purchase/inspection actions with enquiries/WhatsApp, changes fixed-service booking forms to enquiries while retaining prices, removes cart links and redirects transactional dashboard pages to contact. Rebuild when changing this public build setting. Default full mode preserves staging behavior.
+- [Catalogue review](../ops/digitalocean/production-catalogue-review.json): the 14 service names explicitly supplied in the original business brief, quotation-required, with no invented price/duration. This is a proposal, not an import. No products/vehicles are invented. Current staging public lists were observed empty; never copy staging seed data, customers, passwords, policy approvals or financial history into production. Publish real owner-reviewed records only.
+
+### Domains and held DNS changes
+
+alliedautotech.com and www.alliedautotech.com are registered and ownership-verified on the existing Vercel project. Web DNS remains unconfigured. Staging and all Google Workspace/Resend records are preserved.
+
+Only after the correct new production deployment is ready, configure these DNS-only Cloudflare records. The current Vercel project-domain API supplied these rank-1 targets; recheck at cutover.
+
+| Type  | Name | Target                                              | Status                                    |
+| ----- | ---- | --------------------------------------------------- | ----------------------------------------- |
+| A     | @    | 216.150.1.1                                         | Hold until cutover                        |
+| A     | @    | 216.150.16.1                                        | Hold until cutover                        |
+| CNAME | www  | e59765530a95057a.vercel-dns-017.com                 | Hold; redirect www to canonical apex      |
+| CNAME | api  | Actual new production App Platform ingress hostname | Retrieve after app creation; do not guess |
+
+Canonical frontend: https://alliedautotech.com. Intended backend: https://api.alliedautotech.com. Register the API domain with its production app and verify TLS before setting Vercel BACKEND_ORIGIN. Keep browser requests same-origin through rewrites, cookies host-only/Secure/HttpOnly, exact CORS origins and production bucket CORS/host allowlists. Keep Google MX/SPF/DKIM/domain verification and Resend/DMARC records unchanged.
+
+### Dependency order
+
+1. Follow the revised budget allocation: no second recurring PostgreSQL server and no simultaneous paid staging/production app stacks. The user approved up to USD1 for the temporary restore rehearsal. No production paid resource was created during preparation.
+2. Recheck the existing cluster and fresh backup evidence; create a separate empty production database with dedicated runtime/migration/backup roles. Preserve all staging databases, data and grants. Initialise production using the guarded migration workflow with actual target confirmation and db:check. Archive staging only when the production release is ready to deploy, then create the production app within its released USD20/month allocation. Stop on a provider quote above the approved budget.
+3. Obtain a separate production Resend sending key restricted to notify.alliedautotech.com and a bucket-limited production Spaces key. Save directly in the ignored production directory. The existing sending-only Resend credential cannot create another key; no new mail subscription is needed.
+4. Deploy reviewed immutable images with fresh private prelaunch access and disabled indexing. Populate/review real catalogue content. Register and verify the selected owner normally in production, then guarded bootstrap/MFA; do not copy the staging account/password. Verify staff receiving/replying through department Groups. Live probes use only the designated tester.
+5. Verify actual managed backup/restore, TLS/firewall/least privilege, private media/upload/cleanup, staff/MFA, enquiry receipt and representative load. Compilation and health checks alone do not certify external services.
+6. Obtain owner acceptance of content and the customer-care/privacy notice. Apply only the approved browsing launch: remove the gate from production frontend/API, enable canonical indexing and cut over the held DNS. Keep staging private and payments/SMS/marketing/destructive retention disabled.
+7. Record deployed commits/digests, costs, checks, operating contacts and compatible application rollback/recovery steps. Do not declare launch complete before the public hostname and enquiry-response path work.
+
+The owner already specified prices excluding VAT, 7.5% added after discounts to products/services and both delivery types. Do not ask them to repeat that instruction. Remaining invoice/accounting details, reservation agreement/hold rules, delivery areas/fees, cancellation/returns, refund timing, workshop capacity and staff/policy mappings still block their associated transactional workflows. Browsing approval does not approve those policies.
+
+### Verification status
+
+The release is based on staging source c2b0548 plus the browsing/enquiry controls;
+the newer workforce branch is excluded. No cloud database was used for test writes.
+
+- Fresh PostgreSQL 18 `_ci` migration replay, db:check and guarded-owner suite
+  passed. The broad backend run passed 1,201 tests; seven suites encountered
+  Docker forwarded-port target checks. Without changing those guards, all seven
+  passed on a new isolated database through its internal loopback connection
+  (35 tests). One intermediate rerun encountered retained synthetic promotion
+  fixtures; the final new-database run passed. No test data was deleted to pass.
+- Frontend: all 643 unit tests passed; the browse/enquiry production build passed;
+  six real Edge browser checks passed at desktop/mobile sizes, including approved
+  customer-care hours/response wording and no cart/booking/reservation actions.
+  Browser plugin unavailable; installed Playwright was used. Screenshots are
+  outside the repository under the local temporary directory.
+- Backend typecheck, script checks, lint, secret scanning, OpenAPI validation
+  (270 paths), mounted route coverage (323 operations), and 31 deployment-spec
+  tests passed. Recovery and existing migration-guard unit tests passed (30).
+- A new isolated initial-failure recovery rehearsal passed normal guarded
+  migration of all 59 migrations and an actual restore into a second `_ci`
+  database, followed by db:check. See the separately approved
+  [production recovery](production-initial-migration-recovery.md).
+- The actual production bucket is private; its scoped key passed owned-object
+  upload/read/removal. Anonymous listing returned 403; CORS preflight returned
+  only https://alliedautotech.com. The temporary provisioning key was revoked.
+- Managed PITR restore into the approved temporary cluster matched staging's
+  83 tables/59 migration records and production's preserved failed-initial
+  state over strict TLS. The temporary cluster was deleted and deletion verified.
+  The source firewall was restored. Production recovery and final deployment
+  evidence must be recorded separately; this check preceded recovery.
+- Staging credentials exposed accidentally during inspection of an old restore
+  record were rotated, including the operator credential; operator login with
+  the replacement was verified. No production credential was exposed in that
+  record. Staging's saved spec was updated with replacement secrets and archived;
+  its active archived deployment was verified. Its database/data were preserved.
+
+Production recovery then completed all 59 migrations through the guarded runner,
+passed final db:check and runtime/backup least-privilege checks, verified a fresh
+post-migration backup and restored the original firewall. No staging data was
+changed. Production image/deployment, owner provisioning,
+public DNS/TLS, catalogue acceptance, enquiry email delivery, privacy text and
+representative hosted load checks remain release gates. Do not call the public
+launch complete from local checks alone.
+
+Historical private-testing plan, prepared 13 October 2026: on 17 October, Mike approved the $45.15/month DigitalOcean baseline for private owner/staff testing, keeping the frontend on Vercel and public access/live payments disabled. A separate staging restore-test cluster was approved up to $1, with removal after verification. The 21 October browsing/enquiry launch approval and proposed additional production purchases are recorded above; transactional policy publication remains unapproved.
 
 The release input accepts `paystackMode: "disabled"` with an empty `PAYSTACK_SECRET_KEY` when a test key is unavailable. This disables payment reconciliation and never enables live payments. The default remains `test`, which requires a real test key. Do not invent placeholder provider credentials to satisfy startup checks.
 
