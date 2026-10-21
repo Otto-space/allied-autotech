@@ -1,0 +1,23 @@
+{
+  "goal_id": "mandatory-release-and-db-gates",
+  "status": "failed",
+  "iteration": 1,
+  "builder_model": "GPT:5.6-Luna",
+  "inspector_model": "GPT:5.6-Sol",
+  "inspector_verdict": "FAIL",
+  "inspector_summary": "Frontend production check has two sitemap failures; backend generation and database-backed gates remain blocked or unrun. Trigger coverage is improved and the builder commit preserved scope, but acceptance is unmet.",
+  "initial_sha": "ab5d603b3add117bf5043f04b748d989d7e70885",
+  "created_at": "2026-10-21T14:37:37+01:00",
+  "history": [
+    {
+      "iteration": 1,
+      "verdict": "BLOCKED",
+      "summary": "Builder service failed before returning results due to a DNS connection failure. No implementation, validation, commit, or push was completed."
+    },
+    {
+      "iteration": 1,
+      "verdict": "FAIL",
+      "summary": "Frontend production check has two sitemap failures; backend Prisma generation was blocked and migration replay, db:check, and integration tests were not run. The goal's acceptance criteria remain unmet."
+    }
+  ]
+}
