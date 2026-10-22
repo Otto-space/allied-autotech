@@ -66,10 +66,12 @@ privacy wording or enable public access automatically.
 The owner subsequently confirmed that the website enquiry alert reached Support
 at approximately 08:20 Nigeria time on the same day. Google Groups' reply-to-author
 action selected the notification sender rather than the customer's address.
-Website alert receipt is accepted; customer reply routing remains under
-investigation. Do not mark that reply as delivered or ask for another submission
-merely to reconfirm alert receipt. Check the received Reply-To header and the
-group's reply destination setting first.
+Website alert receipt is accepted. The owner then inspected the received header
+and confirmed that Reply-To matches the customer's submitted email; no option
+appeared selected under the group's Post replies to setting. The application
+reply address has therefore been confirmed in the received message. Group reply
+configuration and customer receipt remain outstanding. Do not mark that reply
+as delivered or ask for another submission merely to reconfirm alert receipt.
 
 ## Previously confirmed VAT and quotations
 

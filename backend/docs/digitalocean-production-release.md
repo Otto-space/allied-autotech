@@ -126,9 +126,13 @@ the provider's invoice and the approved USD1 cap.
   approximately 08:20 Nigeria time on 22 October 2026. Google Groups selected
   `notifications@notify.alliedautotech.com` as the recipient when replying to
   the author. The customer reply is therefore not yet accepted. The source
-  passes the customer's validated address as Resend `reply_to`; the received
-  Reply-To header and Groups reply setting need inspection before attributing
-  the behaviour to either the sender or Google Groups.
+  passes the customer's validated address as Resend `reply_to`. The owner
+  subsequently inspected the received message and confirmed that Reply-To
+  matches the email entered on the website. No option appeared selected in
+  Groups' Post replies to setting. Received customer Reply-To is accepted;
+  configuring and verifying the Groups reply workflow remains outstanding.
+  The existing department-email and Resend reply-routing suites passed all
+  23 tests. No sender code change or deployment was required for this finding.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
   The hosted install reported development dependency findings; these were not
   represented as production runtime vulnerabilities or silently auto-fixed.
@@ -176,8 +180,10 @@ confirmation; startup logs and earlier staging tests do not certify them.
    email alert, and a branded reply addressed to the submitted customer email.
    The standalone Support receiving/replying check and receipt of a website
    enquiry alert have passed by owner confirmation. Automatic customer reply
-   selection failed in Google Groups; verify the received header and group
-   setting, then confirm receipt of the branded reply at the customer address.
+   selection failed in Google Groups; the owner confirmed the received Reply-To
+   is correct. Configure the group reply destination and confirm receipt of the
+   branded reply at the customer address. Google Groups' Reply to author action
+   may still select the notification author; check the actual To address.
 6. Complete the exact public privacy notice, retention rules and international
    processing safeguards. The approved data-handling instructions alone do not
    complete that review. Ordinary closed enquiries have an approved 12-month
