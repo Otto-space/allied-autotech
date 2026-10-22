@@ -28,6 +28,7 @@ const statusLabel = (value: string) => value.toLowerCase().replaceAll("_", " ");
 function Status({ value }: { readonly value: string }) {
   return (
     <span
+      data-status={value}
       className={`overview-status ${["COMPLETED", "CONFIRMED", "PAID"].includes(value) ? "positive" : ["CANCELLED", "EXPIRED", "NO_SHOW"].includes(value) ? "closed" : "pending"}`}
     >
       {statusLabel(value)}

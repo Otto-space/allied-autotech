@@ -1,4 +1,8 @@
 import {
+  enqueueSupportCustomerUpdate,
+  supportEmailDeliveries,
+} from "./customer-email.js";
+import {
   supportCreationReceipt,
   supportReplyReceipt,
 } from "./support-creation-receipt.js";
@@ -536,6 +540,17 @@ export class SupportService {
     return record;
   }
 
+  async emailDeliveries(
+    actor: AuthenticatedActor,
+    kind: "enquiry" | "complaint",
+    id: string,
+    context: RequestSecurityContext,
+  ) {
+    // Authorize the conversation before reading any delivery metadata.
+    await this.staffRecord(actor, kind, id, context);
+    return supportEmailDeliveries(this.database, id);
+  }
+
   async assign(
     actor: AuthenticatedActor,
     kind: "enquiry" | "complaint",
@@ -640,18 +655,14 @@ export class SupportService {
             transaction,
           )
         : null;
-      if (current.customer?.userId)
-        await enqueueNotification(transaction, {
-          userId: current.customer.userId,
-          type: "ENQUIRY",
-          category: "OPERATIONAL",
-          title: "Your enquiry was updated",
-          message: `Your enquiry is now ${input.status.toLowerCase().replaceAll("_", " ")}.`,
-          deduplicationKey: `enquiry:${id}:status:${input.status}:${current.version + 1}`,
-          resourceType: "ENQUIRY",
-          resourceId: id,
-          channels: ["EMAIL"],
-        });
+      await enqueueSupportCustomerUpdate(transaction, {
+        kind: "enquiry",
+        record: current,
+        messageId: messageReceipt?.id ?? null,
+        status: input.status,
+        response: input.response,
+        version: current.version + 1,
+      });
       await this.auditTransition(
         transaction,
         actor,
@@ -716,18 +727,14 @@ export class SupportService {
             transaction,
           )
         : null;
-      if (current.customer?.userId)
-        await enqueueNotification(transaction, {
-          userId: current.customer.userId,
-          type: "COMPLAINT",
-          category: "OPERATIONAL",
-          title: "Your complaint was updated",
-          message: `Your complaint is now ${input.status.toLowerCase()}.`,
-          deduplicationKey: `complaint:${id}:status:${input.status}:${current.version + 1}`,
-          resourceType: "COMPLAINT",
-          resourceId: id,
-          channels: ["EMAIL"],
-        });
+      await enqueueSupportCustomerUpdate(transaction, {
+        kind: "complaint",
+        record: current,
+        messageId: messageReceipt?.id ?? null,
+        status: input.status,
+        response: input.resolution,
+        version: current.version + 1,
+      });
       await this.auditTransition(
         transaction,
         actor,
@@ -777,6 +784,12 @@ export class SupportService {
         message,
         tx,
       );
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "complaint",
+        record: current,
+        messageId: messageReceipt.id,
+        response: message,
+      });
       await appendAuditEvent(tx, {
         actorUserId: actor.userId,
         action: "UPDATE",
@@ -862,17 +875,12 @@ export class SupportService {
         input.message,
         transaction,
       );
-      if (input.visibility === "CUSTOMER" && record.customer?.userId)
-        await enqueueNotification(transaction, {
-          userId: record.customer.userId,
-          type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-          category: "OPERATIONAL",
-          title: kind === "enquiry" ? "New enquiry response" : "New complaint response",
-          message: "A new response is available in your Allied AutoTech account.",
-          deduplicationKey: `${kind}:${id}:message:${created.id}`,
-          resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-          resourceId: id,
-          channels: ["EMAIL"],
+      if (input.visibility === "CUSTOMER")
+        await enqueueSupportCustomerUpdate(transaction, {
+          kind,
+          record,
+          messageId: created.id,
+          response: input.message,
         });
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,

@@ -126,7 +126,9 @@ export function ReviewCard({
       <time dateTime={review.createdAt}>{formatBusinessDate(review.createdAt)}</time>
       {"status" in review && (
         <>
-          <p className="status">{review.status.toLowerCase()}</p>
+          <p className="status" data-status={review.status}>
+            {review.status.toLowerCase()}
+          </p>
           {review.moderationNote && <p>Moderation note: {review.moderationNote}</p>}
         </>
       )}

@@ -970,7 +970,7 @@ function PaymentCard({
           <h2 id={`payment-${p.id}`} tabIndex={-1}>
             {p.paymentNumber}
           </h2>
-          <span className={`wp-status ${p.status.toLowerCase()}`}>
+          <span className={`wp-status ${p.status.toLowerCase()}`} data-status={p.status}>
             {paymentStatusLabels[p.status]}
           </span>
         </div>
@@ -1044,8 +1044,10 @@ function PaymentCard({
                   </h3>
                   <p>
                     {formatKobo(a.amountKobo)}{" "}
-                    <span className="wp-status">{a.status.replaceAll("_", " ")}</span>{" "}
-                    <span className="wp-status">
+                    <span className="wp-status" data-status={a.status}>
+                      {a.status.replaceAll("_", " ")}
+                    </span>{" "}
+                    <span className="wp-status" data-status={a.verificationStatus}>
                       {a.verificationStatus.replaceAll("_", " ")}
                     </span>
                   </p>

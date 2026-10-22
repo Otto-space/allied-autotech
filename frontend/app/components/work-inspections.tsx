@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -607,8 +608,11 @@ function InspectionCard({
             Stock {row.vehicleListing.vehicle.stockNumber} · Customer: {row.customerName}
           </p>
         </div>
-        <span className="status">{inspectionLabels[row.status]}</span>
+        <span className="status" data-status={row.status}>
+          {inspectionLabels[row.status]}
+        </span>
       </header>
+      <WorkflowProgress workflow="inspection" status={row.status} />
       <dl className="wi-reference">
         <div>
           <dt>Reference</dt>

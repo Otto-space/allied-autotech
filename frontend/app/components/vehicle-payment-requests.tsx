@@ -210,7 +210,9 @@ export function VehiclePaymentRequests({
                       {vehiclePaymentPurposes[item.purpose as VehiclePaymentPurpose] ??
                         item.purpose.replaceAll("_", " ")}
                     </p>
-                    <span className="status">{item.status.replaceAll("_", " ")}</span>
+                    <span className="status" data-status={item.status}>
+                      {item.status.replaceAll("_", " ")}
+                    </span>
                   </div>
                   <strong>{formatKobo(item.amountKobo)}</strong>
                 </article>

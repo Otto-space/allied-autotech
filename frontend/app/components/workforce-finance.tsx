@@ -245,7 +245,10 @@ export function WorkforceFinance({
                     {workforcePaymentAmount(row.amountKobo, row.currency)}
                   </td>
                   <td data-label="Status">
-                    <span className={`wfc-status is-${row.status.toLowerCase()}`}>
+                    <span
+                      className={`wfc-status is-${row.status.toLowerCase()}`}
+                      data-status={row.status}
+                    >
                       {paymentStatusLabels[row.status]}
                     </span>
                   </td>

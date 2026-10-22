@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import { useEffect, useRef } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import type { WorkforceAccess } from "@/lib/api/workforce-schemas";
@@ -81,7 +82,10 @@ export function WorkforcePaymentDetail({
                 {row.paymentNumber}
               </h2>
               <p>
-                <span className={`wfc-status is-${row.status.toLowerCase()}`}>
+                <span
+                  className={`wfc-status is-${row.status.toLowerCase()}`}
+                  data-status={row.status}
+                >
                   {paymentStatusLabels[row.status]}
                 </span>
               </p>
@@ -90,6 +94,7 @@ export function WorkforcePaymentDetail({
               Close selection
             </button>
           </header>
+          <WorkflowProgress workflow="payment" status={row.status} />
           <dl className="wfc-facts">
             <div>
               <dt>Amount</dt>

@@ -1,3 +1,7 @@
+import {
+  enqueueSupportCustomerUpdate,
+  supportEmailDeliveries,
+} from "../support/customer-email.js";
 import type { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -709,7 +713,7 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return result;
+      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
     });
   }
   complaints(
@@ -779,7 +783,7 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return result;
+      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
     });
   }
   reply(
@@ -792,7 +796,14 @@ export class WorkforceWorkService {
       await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const row = await tx.enquiry.findFirst({
         where: { AND: [{ id }, enquiryScope(access)] },
-        select: { id: true, branchId: true, version: true, status: true },
+        select: {
+          id: true,
+          branchId: true,
+          version: true,
+          status: true,
+          email: true,
+          customer: { select: { userId: true } },
+        },
       });
       if (!row?.branchId) workforceNotFound();
       if (
@@ -821,6 +832,12 @@ export class WorkforceWorkService {
           visibility: "CUSTOMER",
           body: input.body,
         },
+      });
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "enquiry",
+        record: row,
+        messageId: created.id,
+        response: input.body,
       });
       await audit(tx, actor, context, "ENQUIRY", id, {
         workforceAction: "REPLY",
@@ -856,7 +873,14 @@ export class WorkforceWorkService {
       await tx.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const row = await tx.complaint.findFirst({
         where: { id, branchId: { in: branchesFor(access, "COMPLAINTS") } },
-        select: { id: true, branchId: true, version: true, status: true },
+        select: {
+          id: true,
+          branchId: true,
+          version: true,
+          status: true,
+          email: true,
+          customer: { select: { userId: true } },
+        },
       });
       if (!row?.branchId) workforceNotFound();
       if (
@@ -885,6 +909,12 @@ export class WorkforceWorkService {
           visibility: "CUSTOMER",
           body: input.body,
         },
+      });
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "complaint",
+        record: row,
+        messageId: created.id,
+        response: input.body,
       });
       await audit(tx, actor, context, "COMPLAINT", id, {
         workforceAction: "REPLY",

@@ -233,6 +233,11 @@ export function createStaffSupportRouter(): Router {
     controller.staffMessageEnquiry,
   );
   router.get(
+    "/enquiries/:supportId/email-deliveries",
+    validate({ params: supportIdParamsSchema, query: supportEmptyQuerySchema }),
+    controller.enquiryEmailDeliveries,
+  );
+  router.get(
     "/enquiries/:supportId/messages",
     validate({ params: supportIdParamsSchema, query: supportMessageListQuerySchema }),
     controller.staffEnquiryMessages,
@@ -286,6 +291,11 @@ export function createStaffSupportRouter(): Router {
       query: supportEmptyQuerySchema,
     }),
     controller.staffMessageComplaint,
+  );
+  router.get(
+    "/complaints/:supportId/email-deliveries",
+    validate({ params: supportIdParamsSchema, query: supportEmptyQuerySchema }),
+    controller.complaintEmailDeliveries,
   );
   router.get(
     "/complaints/:supportId/messages",

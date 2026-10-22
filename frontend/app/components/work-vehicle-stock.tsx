@@ -491,7 +491,7 @@ function StockTable({ rows }: { rows: WorkStockVehicle[] }) {
                     <div className="ws-listing" key={listing.id}>
                       <div>
                         <span className="ws-listing-title">{listing.title}</span>
-                        <span className="ws-listing-status">
+                        <span className="ws-listing-status" data-status={listing.status}>
                           {stockStatusLabels[listing.status]}
                         </span>
                       </div>

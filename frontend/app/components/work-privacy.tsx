@@ -458,7 +458,9 @@ function PrivacyWorkspace({
                     <div className="wpr-record-head">
                       <div>
                         <h2>{privacyKinds[row.kind]}</h2>
-                        <strong className="status">{privacyStatuses[row.status]}</strong>
+                        <strong className="status" data-status={row.status}>
+                          {privacyStatuses[row.status]}
+                        </strong>
                       </div>
                       <button
                         className="button secondary"

@@ -238,7 +238,10 @@ export function WorkforceJobs({
                       </time>
                     </td>
                     <td data-label="Status">
-                      <span className={`wfj-status is-${status.toLowerCase()}`}>
+                      <span
+                        data-status={status}
+                        className={`wfj-status is-${status.toLowerCase()}`}
+                      >
                         {label}
                       </span>
                       <small>

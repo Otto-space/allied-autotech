@@ -1,5 +1,6 @@
 "use client";
 
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
@@ -33,8 +34,11 @@ function RequestRecord({ item, order }: { item: Aftercare; order: AftercareOrder
     <article className="ca-record">
       <header>
         <h3>{aftercareKinds[item.kind]}</h3>
-        <span className="ca-status">{aftercareLabels[item.status]}</span>
+        <span className="ca-status" data-status={item.status}>
+          {aftercareLabels[item.status]}
+        </span>
       </header>
+      <WorkflowProgress workflow="aftercare" status={item.status} />
       <p className="ca-date">Requested {formatBusinessDate(item.requestedAt)}</p>
       <p className="preserve-lines">{item.reason}</p>
       <ul className="ca-products" aria-label="Requested products">

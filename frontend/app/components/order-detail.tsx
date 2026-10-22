@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -395,6 +396,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
       )}
       {current && (
         <>
+          <WorkflowProgress workflow="order" status={current.status} />
           <section className="order-identity" aria-label="Order reference and status">
             <div className="order-reference">
               <h2>{current.orderNumber}</h2>
@@ -414,6 +416,7 @@ export function OrderDetail({ orderId }: { orderId: string }) {
                 <dd>
                   <span
                     className={`order-status order-status-${current.status.toLowerCase()}`}
+                    data-status={current.status}
                   >
                     {statusLabels[current.status]}
                   </span>

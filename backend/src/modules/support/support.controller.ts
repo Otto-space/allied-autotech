@@ -325,6 +325,38 @@ export class SupportController {
         ),
       );
   };
+  enquiryEmailDeliveries = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Customer email delivery retrieved",
+          req.id,
+          await this.service.emailDeliveries(
+            actor(req),
+            "enquiry",
+            id(res),
+            context(req),
+          ),
+        ),
+      );
+  complaintEmailDeliveries = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Customer email delivery retrieved",
+          req.id,
+          await this.service.emailDeliveries(
+            actor(req),
+            "complaint",
+            id(res),
+            context(req),
+          ),
+        ),
+      );
   staffGetEnquiry = async (req: Request, res: Response) =>
     res
       .status(200)

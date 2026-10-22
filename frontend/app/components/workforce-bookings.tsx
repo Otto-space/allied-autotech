@@ -236,7 +236,10 @@ export function WorkforceBookings({
                     </time>
                   </td>
                   <td data-label="Status">
-                    <span className={`wfb-status is-${booking.status.toLowerCase()}`}>
+                    <span
+                      className={`wfb-status is-${booking.status.toLowerCase()}`}
+                      data-status={booking.status}
+                    >
                       {bookingStatusLabels[booking.status]}
                     </span>
                   </td>

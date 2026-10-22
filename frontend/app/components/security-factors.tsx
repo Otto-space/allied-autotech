@@ -115,7 +115,7 @@ export function SecurityFactors({ compact = false }: { compact?: boolean }) {
             <>
               <p className="security-factor-kind">
                 {factor.type === "TOTP" ? "Authenticator app" : "Security key"}
-                <span className="security-badge">
+                <span className="security-badge" data-status={factor.status}>
                   {factor.status === "ACTIVE"
                     ? "Active"
                     : factor.status === "PENDING"

@@ -10,6 +10,7 @@ import "./public-site.css";
 import "./feedback.css";
 import "./dashboard-forms.css";
 import "./brand-system.css";
+import "./status-progress.css";
 
 import { SupportWidget } from "./components/support-widget";
 import { ToastRegion } from "./components/toast-region";
