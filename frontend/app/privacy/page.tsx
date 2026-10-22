@@ -62,11 +62,10 @@ export default function PrivacyPage() {
         <h2>Who receives information</h2>
         <p>
           Authorised staff and our authorised technical administrator access information
-          as needed for their work. DigitalOcean hosts the backend and storage, Vercel
-          hosts the website, Google Workspace handles business email, and Resend delivers
-          system emails. Their necessary service providers may also process information.
-          We may disclose information where required by law or necessary to establish or
-          defend legal claims.
+          as needed for their work. We use website hosting, cloud storage and email
+          service providers to operate the website and communications. Their necessary
+          service providers may also process information. We may disclose information
+          where required by law or necessary to establish or defend legal claims.
         </p>
         <p>
           Processing can take place outside Nigeria, including the United Kingdom and
