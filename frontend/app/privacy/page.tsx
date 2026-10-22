@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { business } from "@/lib/business";
 import { publicMetadata } from "@/lib/seo";
+import { catalogueOnly } from "@/lib/public-launch";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import "./privacy.css";
 
 export const metadata: Metadata = publicMetadata(
   "Privacy notice",
-  "How Allied Autotech Limited handles website visits and direct customer enquiries.",
+  "How Allied Autotech Limited handles your information, privacy choices and requests.",
   "/privacy",
 );
 
 export default function PrivacyPage() {
+  const catalogue = catalogueOnly();
   return (
     <>
       <SiteHeader />
@@ -22,7 +24,10 @@ export default function PrivacyPage() {
         </nav>
         <h1>Privacy notice</h1>
         <p className="privacy-version">
-          Catalogue release · Version 1 · Effective 22 October 2026
+          {catalogue
+            ? "Catalogue release · Version 1"
+            : "Accounts and enquiries · Version 2"}{" "}
+          · Effective 22 October 2026
         </p>
         <p>
           Allied Autotech Limited is responsible for the customer information described
@@ -33,10 +38,9 @@ export default function PrivacyPage() {
         </p>
         <h2>What this website offers</h2>
         <p>
-          You can browse services, products, vehicles and approved customer reviews, and
-          contact us by phone, email or WhatsApp. Website enquiry forms, customer
-          registration, checkout and paid reservations are currently unavailable. Staff
-          access is restricted.
+          {catalogue
+            ? "You can browse services, products, vehicles and approved customer reviews, and contact us by phone, email or WhatsApp. Website enquiry forms, customer registration, checkout and paid reservations are currently unavailable. Staff access is restricted."
+            : "You can browse the catalogue, create an account, save information to your profile and garage, and send enquiries, complaints and requests for service visits or vehicle inspections. Staff must confirm availability and arrangements. Submitting a request does not place an order, reserve a vehicle or guarantee an appointment. Online checkout, paid reservations and payment collection are unavailable in this release."}
         </p>
         <h2>Information we use and why</h2>
         <p>
@@ -59,6 +63,29 @@ export default function PrivacyPage() {
           is required. We do not make solely automated decisions about accepting a vehicle
           purchase or granting credit through this release.
         </p>
+        {!catalogue && (
+          <>
+            <h2>Accounts, forms and reviews</h2>
+            <p>
+              Registration uses your name, email, phone number and securely hashed
+              password. We also keep verification, sign-in and security records. Optional
+              profile information, addresses, profile photos, garage details and vehicle
+              images support the account features you choose to use. Enquiries and
+              complaints include your contact details, message, related listing or branch,
+              preferred visit time where supplied, correspondence and handling history.
+            </p>
+            <p>
+              We use these details to provide requested account services, respond to
+              requests, send essential account and support messages, and protect the
+              service. We rely on performance of requested services or steps you request
+              before a contract where applicable, and legitimate interests in support and
+              security, balanced against your rights. Optional fields may be left blank.
+              Registration is not marketing consent. Submitted reviews require moderation;
+              approved review text, ratings and your public display name can appear on the
+              website.
+            </p>
+          </>
+        )}
         <h2>Who receives information</h2>
         <p>
           Authorised staff and our authorised technical administrator access information
@@ -77,13 +104,33 @@ export default function PrivacyPage() {
         <h2>Links, cookies and your browser</h2>
         <p>
           WhatsApp, email and map links open the service you choose. That service&apos;s
-          own privacy terms also apply. This catalogue does not use advertising or
-          analytics cookies. Essential session and security cookies support staff sign-in
-          and protected functions. Catalogue searches and filters may appear in page
-          addresses and technical logs; do not enter confidential information in search
-          fields.
+          own privacy terms also apply. This website does not use advertising or analytics
+          cookies. Essential session and security cookies support sign-in and protected
+          functions. Catalogue searches and filters may appear in page addresses and
+          technical logs; do not enter confidential information in search fields.
         </p>
+        {!catalogue && (
+          <p>
+            Selected forms keep drafts in this browser&apos;s session storage to preserve
+            entered text during navigation or reloads. Drafts may contain contact details
+            and messages; password, file-upload and recognised security-token fields are
+            excluded. Successful submission clears the corresponding unchanged draft, and
+            signing out clears account drafts. Browser settings and session restoration
+            can affect how long drafts remain. Clear site data when using a shared device.
+          </p>
+        )}
         <h2>How long we keep information</h2>
+        {!catalogue && (
+          <p>
+            Account and related profile or garage information is kept while needed for
+            your active account and services. After 24 months without customer activity,
+            company staff review the account for closure and give 30 days&apos; notice to
+            sign in or request that it remain open. Staff updates and background emails do
+            not count as customer activity. Closure and removal require company action;
+            they are not automatic. Necessary records for unresolved matters or legal
+            obligations follow their applicable rules. You may request deletion sooner.
+          </p>
+        )}
         <p>
           Ordinary enquiries that close without a sale, booking or complaint are kept for
           12 months after closure. Ordinary complaints are kept for 24 months after final
