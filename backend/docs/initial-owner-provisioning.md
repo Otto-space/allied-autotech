@@ -1,18 +1,41 @@
 # Initial owner provisioning
 
-## Production setup pending — 22 October 2026
+## Production provisioning completed — 22 October 2026
 
 Production is separate from staging. Its canonical frontend is now
 https://alliedautotech.com, with private access retained during verification.
 The selected production owner remains `alliedautotechltd@gmail.com`.
 
-The user has been asked to register on the main domain using their own password
-and verify the email through the normal flow. The operator must then inspect
-the exact production target, owner count and selected account before running
-the existing guarded provisioning function with the inspected UUID. Sign in
-again after provisioning and complete MFA before privileged access. Do not copy
-staging credentials, set verification timestamps or enrol an authenticator for
-the user. No production owner promotion is claimed by this documentation step.
+The user registered using their own password and confirmed production email
+verification. Read-only inspection independently confirmed the selected account
+was active and email-verified and that no production Super Admin existed.
+The operator then used the existing guarded `provisionInitialOwner` function
+with the exact inspected account UUID. No account, password, verification
+timestamp or authenticator was created by the operator.
+
+The actual target was confirmed as managed PostgreSQL host
+`allied-autotech-staging-db-do-user-44970995-0.k.db.ondigitalocean.com`, port
+`25060`, database `allied_autotech_production`, environment `production`, using
+strict CA/hostname verification. The separate migration account passed
+`npm run db:check`. A fresh custom-format backup was created and its receipt,
+hash and archive index verified through `npm run db:backup` using the dedicated
+backup account. This fresh dump was not itself restore-rehearsed; the separate
+managed PITR and isolated recovery restore evidence remains as described in
+the production release record.
+
+Provisioning used the restricted production runtime role, the existing
+transaction/advisory lock, exact-account checks and installed ownership
+protections. Post-change verification confirmed one Super Admin, the selected
+active/verified account, zero unrevoked sessions for it and exactly one initial
+provisioning role-change audit entry. No schema, grants, migration history,
+staging account or other user was changed. Temporary operator-IP database
+access was removed, and the original two app-only firewall rules were verified.
+
+Do not rerun initial provisioning: it now correctly refuses replacement of the
+existing owner. The owner has been asked to sign in again at
+https://alliedautotech.com/login and complete MFA before entering the admin
+dashboard. MFA completion and an authenticated admin workflow remain pending
+user confirmation; operator provisioning is not proof of either.
 
 See [the production release record](digitalocean-production-release.md) for the
 database target, current deployments and remaining launch checks. The local

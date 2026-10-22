@@ -125,14 +125,19 @@ receiving/replying have not been certified by startup logs or earlier staging te
 1. DNS, HTTPS, root/www routing and read-only forwarding checks are complete.
    Keep the access gate while verifying authenticated canonical-host APIs,
    CSRF and uploads; guest page/read checks do not certify those workflows.
-2. Register/verify the distinct production owner `alliedautotechltd@gmail.com`,
-   then use the guarded bootstrap only after its identity and zero existing
-   production owners are verified. The owner must sign in again and complete
-   MFA before privileged access. Do not copy the staging password or bypass
-   normal verification. This corrects the earlier sequence: MFA enrollment
-   follows the role change, not the other way round.
-3. Verify the actual production verification-email delivery and link with the
-   selected owner; ordinary browsing does not prove receipt.
+2. Production owner `alliedautotechltd@gmail.com` is provisioned. Its normal
+   registration/email verification and initial zero-owner state were inspected;
+   the existing guarded function created the sole owner role. A separate
+   migration-account `db:check` and fresh dedicated-role verified backup preceded
+   the change. Post-change checks confirmed the selected active/verified owner,
+   zero unrevoked sessions and one provisioning audit entry. Temporary operator
+   access was removed and the original app-only firewall verified. See
+   [the owner record](initial-owner-provisioning.md). The owner must sign in
+   again and complete MFA; authenticated admin/CSRF/upload checks remain pending.
+3. The selected owner confirmed production email verification, and database
+   inspection confirmed the resulting verification state. Fresh email header
+   alignment and support receiving/replying remain to be checked; staging
+   DMARC evidence is not silently treated as a new production receipt.
 4. Obtain real owner-approved catalogue data/media. The 14 proposed service names
    remain a review proposal, not published records or approved prices.
 5. Verify receiving and replying through `support@alliedautotech.com` and the
