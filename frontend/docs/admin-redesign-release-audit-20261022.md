@@ -6,18 +6,18 @@ Direct, authenticated read-only provider inspection confirms that the canonical
 website serves a different release from the current redesign branch. This is a
 source-version difference; a browser-cache problem has not been established.
 
-| Item | Verified value |
-| --- | --- |
-| Canonical frontend | `https://alliedautotech.com` |
-| Active Vercel deployment | `dpl_FvauJmGHUenbBtHfwibnVtjvguMw`, READY, Production |
-| Frontend source | `f32b529c112941d2015b745740abb56d4c21f04c` |
-| Release branch | `deploy/public-browse-20261021` |
-| Current redesign source | `cafd28f0a0f4a05769e6f20249377f31cac8322c` |
-| Active production API deployment | `f18e29ee-4c53-4c4f-91cd-6008ccf1445b` |
-| Production API image source | `7acb19e1d6e505cb14abdf82674d6aa654e1c51b`; active image digests match the production release record |
-| Production API | `https://api.alliedautotech.com` |
-| Configured automatic production branch | `master`; the active release was explicitly deployed from the release worktree |
-| Latest redesign Preview attempt | `dpl_5u23gavQCdMibK9jmqDbTHNy2nAM`, CANCELED; this does not establish a build failure or production release |
+| Item                                   | Verified value                                                                                              |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Canonical frontend                     | `https://alliedautotech.com`                                                                                |
+| Active Vercel deployment               | `dpl_FvauJmGHUenbBtHfwibnVtjvguMw`, READY, Production                                                       |
+| Frontend source                        | `f32b529c112941d2015b745740abb56d4c21f04c`                                                                  |
+| Release branch                         | `deploy/public-browse-20261021`                                                                             |
+| Current redesign source                | `cafd28f0a0f4a05769e6f20249377f31cac8322c`                                                                  |
+| Active production API deployment       | `f18e29ee-4c53-4c4f-91cd-6008ccf1445b`                                                                      |
+| Production API image source            | `7acb19e1d6e505cb14abdf82674d6aa654e1c51b`; active image digests match the production release record        |
+| Production API                         | `https://api.alliedautotech.com`                                                                            |
+| Configured automatic production branch | `master`; the active release was explicitly deployed from the release worktree                              |
+| Latest redesign Preview attempt        | `dpl_5u23gavQCdMibK9jmqDbTHNy2nAM`, CANCELED; this does not establish a build failure or production release |
 
 Provider inspection on this date supersedes the older staging-only deployment
 records. The production release deliberately excluded the newer workforce branch.
@@ -31,17 +31,17 @@ vehicle stock. The redesign source records **109**, through managed workforce
 orders. These counts describe recorded local acceptance, not authenticated hosted
 acceptance of every page.
 
-| Area | Comparison with live source |
-| --- | --- |
-| Super Admin `/admin` overview | Overview component, route and overview stylesheet are identical between the compared commits; the shared shell has later changes. |
-| Product-category detail; orders and aftercare; inventory; promotions; vehicle stock directory | Already present in the release baseline. These are not all missing redesigns. |
-| Vehicle creation/detail, inspections and vehicle sales | Later redesign/acceptance work remains to be integrated. |
-| Customers, staff support conversations, privacy and review moderation | Later redesigned management pages are missing from the live baseline. |
-| Payments, invoices, refunds, exceptions and disputes | Later redesigned management pages are missing from the live baseline. |
-| Staff, invitations, branches, audit, processing jobs and owner policies | Later redesigned management pages are missing from the live baseline. |
-| Managed workforce pages | Later implementation is missing; compatible backend contracts and an additive workforce migration are required. |
-| Central owner decision checklist | Proposed consolidation; do not present it as an implemented feature. |
-| Managed workforce finance | Code is present in the redesign branch; its final page-acceptance record is unfinished. |
+| Area                                                                                          | Comparison with live source                                                                                                       |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Super Admin `/admin` overview                                                                 | Overview component, route and overview stylesheet are identical between the compared commits; the shared shell has later changes. |
+| Product-category detail; orders and aftercare; inventory; promotions; vehicle stock directory | Already present in the release baseline. These are not all missing redesigns.                                                     |
+| Vehicle creation/detail, inspections and vehicle sales                                        | Later redesign/acceptance work remains to be integrated.                                                                          |
+| Customers, staff support conversations, privacy and review moderation                         | Later redesigned management pages are missing from the live baseline.                                                             |
+| Payments, invoices, refunds, exceptions and disputes                                          | Later redesigned management pages are missing from the live baseline.                                                             |
+| Staff, invitations, branches, audit, processing jobs and owner policies                       | Later redesigned management pages are missing from the live baseline.                                                             |
+| Managed workforce pages                                                                       | Later implementation is missing; compatible backend contracts and an additive workforce migration are required.                   |
+| Central owner decision checklist                                                              | Proposed consolidation; do not present it as an implemented feature.                                                              |
+| Managed workforce finance                                                                     | Code is present in the redesign branch; its final page-acceptance record is unfinished.                                           |
 
 The unauthenticated canonical `/admin` request returned 401. This is consistent
 with the perimeter gate and is not a visual check of the owner's signed-in page.
