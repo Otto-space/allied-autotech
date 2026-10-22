@@ -72,6 +72,14 @@ export function renderProductionSpec(template, input, manifest, keys) {
           env.FRONTEND_URL === "https://alliedautotech.com",
         "Private prelaunch access and exact production origin are required.",
       );
+      requireValue(
+        [
+          "DEPARTMENT_INFO_EMAIL",
+          "DEPARTMENT_SALES_EMAIL",
+          "DEPARTMENT_SUPPORT_EMAIL",
+        ].every((name) => env[name] === "support@alliedautotech.com"),
+        "Initial public enquiries must use the owner's approved monitored support inbox.",
+      );
     }
     if (component.name === "migrate") {
       requireValue(

@@ -26,6 +26,15 @@ Kilimanjaro, Port Harcourt, Rivers State, Nigeria.
 
 ## Publication checklist
 
+The primary legal reference reviewed is the
+[Nigeria Data Protection Act, 2023, official Gazette hosted by NCC](https://ncc.gov.ng/media/1084/view).
+Sections 24–27 cover processing principles, lawful grounds and information given
+before collection. Section 27 includes purposes, retention, recipients, rights
+and overseas transfers. Sections 34–38 address individual rights. Sections 41–43
+require an appropriate, recorded transfer basis and protection assessment. These
+requirements inform this review; an owner's operational approval or a provider's
+foreign-law clauses alone does not establish the assessment's outcome.
+
 The wording above must not be used to claim that deletion is already automated,
 that every request results in erasure, or that all records disappear from every
 backup on the anniversary of closure.

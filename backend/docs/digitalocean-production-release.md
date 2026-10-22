@@ -11,8 +11,8 @@ payments remain unavailable. This record contains no credentials.
   workforce branch is excluded.
 - DigitalOcean app: `allied-autotech-production`, ID
   `6b13a247-a3b2-4354-9b9c-dedc185324f8`.
-- Active deployment: `bbcd6919-6b6d-4a1e-b908-3e36f8d5f15b`, following
-  DigitalOcean's custom-domain activation. Its four image digests still match
+- Active deployment: `f18e29ee-4c53-4c4f-91cd-6008ccf1445b`, following the
+  approved monitored-inbox routing alignment. Its four image digests still match
   source/image commit `7acb19e1d6e505cb14abdf82674d6aa654e1c51b`.
 - Backend default ingress:
   `https://allied-autotech-production-7jw94.ondigitalocean.app`.
@@ -103,8 +103,22 @@ the provider's invoice and the approved USD1 cap.
   empty console or coverage of all authenticated workflows.
   Canonical login/register additionally produced unused font preload warnings;
   no application errors were observed on those final page checks.
-- Production catalogue responses are empty. No invented products, vehicles or
-  business data were inserted to make the launch look populated.
+- Production inventory at the post-MFA read-only check: zero branches, services,
+  products and vehicle listings. No invented products, vehicles or business data
+  were inserted to make the launch look populated. Enquiry routing needs an
+  active branch; the owner subsequently created the approved Port Harcourt
+  workshop through the existing authenticated dashboard. A public API check
+  confirmed one active branch with the expected street, city, timezone and
+  public contact details. No appointment slots or capacity were created.
+- General and sales routing initially used info@ and sales@. The owner's approved
+  monitored enquiry contact is support@, so all three production department
+  routes now use `support@alliedautotech.com`. Active deployment and readiness
+  passed, with component sizes, images, existing secrets, private access and
+  disabled payments preserved. Thirty-two deployment-spec checks passed,
+  including rejection of an unreviewed recipient. No application image rebuild
+  or schema change was necessary for this configuration-only update. The owner
+  has been asked to verify Workspace receiving and branded replying; delivery
+  and handling of a website enquiry still need end-to-end confirmation.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
   The hosted install reported development dependency findings; these were not
   represented as production runtime vulnerabilities or silently auto-fixed.
@@ -132,8 +146,12 @@ receiving/replying have not been certified by startup logs or earlier staging te
    the change. Post-change checks confirmed the selected active/verified owner,
    zero unrevoked sessions and one provisioning audit entry. Temporary operator
    access was removed and the original app-only firewall verified. See
-   [the owner record](initial-owner-provisioning.md). The owner must sign in
-   again and complete MFA; authenticated admin/CSRF/upload checks remain pending.
+   [the owner record](initial-owner-provisioning.md). The owner subsequently
+   confirmed MFA and admin-dashboard access. Read-only verification confirmed
+   an active verified MFA factor and current MFA-verified session, with the
+   app-only firewall restored afterward. The owner subsequently confirmed
+   authenticated branch creation, and the resulting public branch was verified.
+   Upload workflows remain to be verified separately.
 3. The selected owner confirmed production email verification, and database
    inspection confirmed the resulting verification state. Fresh email header
    alignment and support receiving/replying remain to be checked; staging

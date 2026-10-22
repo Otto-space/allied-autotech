@@ -511,12 +511,12 @@
         {
           "key": "DEPARTMENT_INFO_EMAIL",
           "scope": "RUN_TIME",
-          "value": "info@alliedautotech.com"
+          "value": "support@alliedautotech.com"
         },
         {
           "key": "DEPARTMENT_SALES_EMAIL",
           "scope": "RUN_TIME",
-          "value": "sales@alliedautotech.com"
+          "value": "support@alliedautotech.com"
         },
         {
           "key": "DEPARTMENT_SUPPORT_EMAIL",

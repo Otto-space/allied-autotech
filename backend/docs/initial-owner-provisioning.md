@@ -32,10 +32,23 @@ staging account or other user was changed. Temporary operator-IP database
 access was removed, and the original two app-only firewall rules were verified.
 
 Do not rerun initial provisioning: it now correctly refuses replacement of the
-existing owner. The owner has been asked to sign in again at
-https://alliedautotech.com/login and complete MFA before entering the admin
-dashboard. MFA completion and an authenticated admin workflow remain pending
-user confirmation; operator provisioning is not proof of either.
+existing owner. The owner signed in again and confirmed completion of MFA and
+entry to the production admin dashboard on 22 October. A subsequent read-only
+check confirmed the same active, email-verified sole Super Admin, at least one
+active verified MFA factor and a current unrevoked MFA-verified session. It
+selected counts only; no factor secret, recovery code or session credential was
+read or copied. Temporary operator-IP access was removed and the original
+app-only firewall verified again.
+
+At the MFA check, production had zero branches, services, products and vehicle
+listings. The owner then confirmed branch creation through their own authenticated
+`/admin/branches` page. A subsequent public API read confirmed one active
+Port Harcourt branch, street address `133 Stadium Road`, state `Rivers`, country
+Nigeria, timezone `Africa/Lagos`, phone `08136075567` and email
+`support@alliedautotech.com`. The saved street field omits the landmark; the
+public site's approved address text still includes it. No appointment capacity
+or calendar was inferred. Media workflows still need their own checks;
+successful MFA and branch creation do not certify uploads.
 
 See [the production release record](digitalocean-production-release.md) for the
 database target, current deployments and remaining launch checks. The local

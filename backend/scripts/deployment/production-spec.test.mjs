@@ -74,6 +74,32 @@ test("production render uses the existing server, separate database and immutabl
   assert.equal(spec.jobs[0].run_command.includes("check-database-safety.ts"), true);
 });
 
+test("all initial enquiry types route to the approved monitored inbox", () => {
+  const f = fixture();
+  const spec = renderProductionSpec(f.template, f.input, f.manifest, f.keys);
+  const env = Object.fromEntries(spec.services[0].envs.map((e) => [e.key, e.value]));
+  for (const key of [
+    "DEPARTMENT_INFO_EMAIL",
+    "DEPARTMENT_SALES_EMAIL",
+    "DEPARTMENT_SUPPORT_EMAIL",
+  ]) {
+    assert.equal(env[key], "support@alliedautotech.com");
+    const changed = fixture();
+    changed.template.services[0].envs.find((e) => e.key === key).value =
+      "unreviewed@example.com";
+    assert.throws(
+      () =>
+        renderProductionSpec(
+          changed.template,
+          changed.input,
+          changed.manifest,
+          changed.keys,
+        ),
+      /approved monitored support inbox/,
+    );
+  }
+});
+
 for (const [name, mutate] of [
   [
     "another server",
