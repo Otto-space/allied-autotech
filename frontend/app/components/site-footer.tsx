@@ -9,7 +9,7 @@ export function SiteFooter() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 relative z-10">
         <div>
           <Brand inverse />
-          <p className="text-white/80 mb-6">
+          <p className="brand-signature text-white/90 mb-6">
             Built on Trust,
             <br />
             Driven by Quality.

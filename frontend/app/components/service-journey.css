@@ -57,7 +57,8 @@
   color: #4f6073;
   margin: 0;
 }
-.journey-start {
+.public-site .journey-start {
+  color: var(--brand-red-dark);
   margin-top: 28px;
   min-height: 44px;
   display: inline-flex;

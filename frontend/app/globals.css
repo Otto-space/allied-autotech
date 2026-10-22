@@ -3018,7 +3018,6 @@ address {
     flex-direction: column;
     gap: 24px;
   }
-  .dashboard[data-sidebar-collapsed="true"] .brand > span:last-child,
   .dashboard[data-sidebar-collapsed="true"] .side-nav > a > span,
   .dashboard[data-sidebar-collapsed="true"] .dashboard-logout > span {
     display: none;
