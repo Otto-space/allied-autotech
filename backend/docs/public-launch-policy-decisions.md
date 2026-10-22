@@ -1,4 +1,4 @@
-# Public launch decisions — 21 October 2026
+# Public launch decisions — updated 22 October 2026
 
 Authority: Mike's explicit answers in this conversation, relaying the business's
 instructions. These records do not publish transactional policies or enable
@@ -33,9 +33,21 @@ the London backend. Newworld Orlu handles privacy/correction/deletion requests
 through support@alliedautotech.com. Enquiry details are not used for marketing.
 
 This is approval of these business instructions only. Complete notice wording,
-retention periods and transfer safeguards still require review before public
-form intake; it does not assert that a consent alone establishes lawful transfer
-or authorise automated deletion.
+remaining record-type retention periods and transfer safeguards still require
+review before public form intake; it does not assert that consent alone
+establishes lawful transfer or authorise automated deletion.
+
+## Ordinary closed enquiry retention: confirmed 22 October 2026
+
+Mike explicitly selected **12 months after closure** for the name, contact details
+and messages of an ordinary enquiry that closes without a sale, booking or
+complaint. Closure is the starting event, not submission or the first response.
+
+This approves the rule for the draft retention schedule only. It does not enable
+automatic deletion, approve a blanket purge, set retention for transactions or
+complaints, or override a legal hold. Reopened enquiries, holds, backup expiry
+and operational deletion/anonymisation procedures still need to be defined
+before enforcement. The exact public notice must reflect the reviewed schedule.
 
 ## Previously confirmed VAT and quotations
 
@@ -63,8 +75,9 @@ Do not ask the owner to repeat these settled instructions.
    provider-dashboard responders. Newworld's customer-care responsibility does
    not automatically assign every financial/dispute permission.
 9. Marketing consent wording/version, sender, content and unsubscribe operation.
-10. Retention rules by record type, legal basis, start event and holds. No blanket
-    purge or automated deletion is approved.
+10. Remaining retention rules by record type, legal basis, start event and holds.
+    Ordinary enquiries that close without a sale, booking or complaint have the
+    approved 12-month rule above. No blanket purge or automated deletion is approved.
 
 Before public enquiry intake, review the exact public customer-care/privacy text
 and verify the monitored support receiving/replying path. Checkout, paid
