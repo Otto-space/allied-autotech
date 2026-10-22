@@ -121,7 +121,14 @@ the provider's invoice and the approved USD1 cap.
   email account reached Support and that the reply arrived at that account
   from `support@alliedautotech.com`. This is human acceptance evidence for
   external receiving and branded replying. Delivery and handling of a
-  website-submitted enquiry still need end-to-end confirmation.
+  website-submitted enquiry still need end-to-end confirmation. The owner then
+  confirmed receipt of the website's general enquiry alert in Support at
+  approximately 08:20 Nigeria time on 22 October 2026. Google Groups selected
+  `notifications@notify.alliedautotech.com` as the recipient when replying to
+  the author. The customer reply is therefore not yet accepted. The source
+  passes the customer's validated address as Resend `reply_to`; the received
+  Reply-To header and Groups reply setting need inspection before attributing
+  the behaviour to either the sender or Google Groups.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
   The hosted install reported development dependency findings; these were not
   represented as production runtime vulnerabilities or silently auto-fixed.
@@ -135,9 +142,9 @@ The production bucket's scoped-key upload/read/delete, private ACL, anonymous
 listing rejection and exact-origin CORS preflight passed. Full authenticated
 resource attachment/replacement/removal still needs the production owner account
 and authenticated canonical-host checks. The owner's Support mailbox acceptance
-is recorded above. Production website enquiry alerts and fresh email-header
-alignment still need separate confirmation; startup logs and earlier staging
-tests do not certify them.
+is recorded above, together with receipt of a production website enquiry alert.
+Customer reply routing and fresh email-header alignment still need separate
+confirmation; startup logs and earlier staging tests do not certify them.
 
 ## Required before public access
 
@@ -167,8 +174,10 @@ tests do not certify them.
 5. Complete the website enquiry acceptance check with an owner-controlled
    recipient: submission acknowledgement/reference, saved enquiry, Support
    email alert, and a branded reply addressed to the submitted customer email.
-   The standalone Support receiving/replying check has passed; it does not
-   certify the website-to-worker-to-mailbox path or alert Reply-To handling.
+   The standalone Support receiving/replying check and receipt of a website
+   enquiry alert have passed by owner confirmation. Automatic customer reply
+   selection failed in Google Groups; verify the received header and group
+   setting, then confirm receipt of the branded reply at the customer address.
 6. Complete the exact public privacy notice, retention rules and international
    processing safeguards. The approved data-handling instructions alone do not
    complete that review. Ordinary closed enquiries have an approved 12-month

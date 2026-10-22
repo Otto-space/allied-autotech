@@ -63,6 +63,14 @@ customer address entered on the form. Fresh authentication-header results and
 staff coverage are separate checks. This mailbox result does not approve
 privacy wording or enable public access automatically.
 
+The owner subsequently confirmed that the website enquiry alert reached Support
+at approximately 08:20 Nigeria time on the same day. Google Groups' reply-to-author
+action selected the notification sender rather than the customer's address.
+Website alert receipt is accepted; customer reply routing remains under
+investigation. Do not mark that reply as delivered or ask for another submission
+merely to reconfirm alert receipt. Check the received Reply-To header and the
+group's reply destination setting first.
+
 ## Previously confirmed VAT and quotations
 
 Advertised prices exclude VAT; add 7.5% after discounts to products/services and
