@@ -13,18 +13,24 @@ import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
 import { useAssetStorageHosts } from "./asset-storage-context";
 import { Feedback } from "./feedback";
-import type { MutationProposal } from "./mutation-review";
+import type { RefundReview } from "@/lib/admin/work-refund-pending";
 export function RefundEvidenceCheck({
   refund,
   actorId,
   disabled,
   onReview,
   onUncertain,
+  onReceipt,
+  requestSignal,
+  onDenied,
 }: {
   refund: ProcessingRefund;
   actorId: string;
   disabled: boolean;
-  onReview: (proposal: MutationProposal) => void;
+  onReview: (proposal: RefundReview) => void;
+  onReceipt?: (value: unknown) => void;
+  requestSignal?: () => AbortSignal | undefined;
+  onDenied?: () => void;
   onUncertain: () => void;
 }) {
   const [evidence, setEvidence] = useState<z.infer<typeof refundEvidenceSchema>>();
@@ -61,6 +67,8 @@ export function RefundEvidenceCheck({
       const url = trustedAssetUrl(saved.url, hosts, window.location.origin);
       if (!controller.signal.aborted) setEvidence({ ...saved, url });
     } catch (value) {
+      if (value instanceof ApiError && [401, 403, 404].includes(value.status))
+        onDenied?.();
       if (!controller.signal.aborted)
         setError(
           value instanceof ApiError
@@ -96,6 +104,7 @@ export function RefundEvidenceCheck({
     };
     setError(undefined);
     onReview({
+      refundChange: { action: "check", body },
       title: body.accepted
         ? "Confirm this refund was completed?"
         : "Dispute this transfer evidence?",
@@ -123,6 +132,7 @@ export function RefundEvidenceCheck({
               method: "POST",
               csrf: true,
               body,
+              signal: requestSignal?.(),
             })
           ).data,
         );
@@ -138,6 +148,7 @@ export function RefundEvidenceCheck({
           Date.parse(saved.transferredAt) !== Date.parse(evidence.transferredAt)
         )
           throw new Error("Unexpected refund check result");
+        onReceipt?.(saved);
       },
     });
   }
@@ -187,6 +198,7 @@ export function RefundEvidenceCheck({
             The document link is temporary. Load the evidence again if it expires.
           </p>
           <form
+            data-no-draft
             data-draft-key={JSON.stringify(["refund-evidence-check:1", refund?.id])}
             onSubmit={(event) => {
               event.preventDefault();

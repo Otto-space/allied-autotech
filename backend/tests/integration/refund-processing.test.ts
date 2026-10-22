@@ -9,7 +9,10 @@ import {
   hashToken,
 } from "../../src/common/security/session-tokens.js";
 import { objectStorage } from "../../src/providers/storage/s3-object-storage.adapter.js";
-import { refundQueueRecordSchema } from "../../src/modules/payments/refund-record.js";
+import {
+  refundQueueRecordSchema,
+  refundCurrentRecordSchema,
+} from "../../src/modules/payments/refund-record.js";
 import { testCapability } from "../helpers/owner-policy.js";
 import { sessionWindow } from "../helpers/session-window.js";
 
@@ -175,7 +178,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         expect(approved.status).toBe(200);
         expect(approved.body.data.status).toBe("NEEDS_ATTENTION");
         expect(
-          refundQueueRecordSchema.strict().safeParse(approved.body.data).success,
+          refundCurrentRecordSchema.strict().safeParse(approved.body.data).success,
         ).toBe(true);
         const transfers = await get(transfer);
         expect(

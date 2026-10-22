@@ -331,9 +331,6 @@
   .vc-guidance li {
     grid-template-columns: 24px minmax(0, 1fr);
   }
-  .vc-guidance li p {
-    display: block;
-  }
   .vc-footer {
     flex-direction: column-reverse;
     align-items: stretch;

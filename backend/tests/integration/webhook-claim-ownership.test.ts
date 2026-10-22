@@ -6,6 +6,7 @@ import { AuditOperationsService } from "../../src/modules/audit/audit.service.js
 import { PaymentWebhookRetryWorker } from "../../src/workers/webhook-retry.worker.js";
 import type { PaystackWebhookEvent } from "../../src/providers/payments/paystack-webhook.js";
 import { providerUnavailable } from "../../src/common/errors/provider-error-mapper.js";
+import { operationsAccount } from "../helpers/operations-paging.js";
 
 const digest = (value: string) => createHash("sha256").update(value).digest("hex");
 const context = { requestId: "webhook-claim-test", ipAddress: null, userAgent: null };
@@ -21,6 +22,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Webhook claim ownership",
   () => {
     const ids: string[] = [];
+    const sessions: string[] = [];
     afterEach(async () => {
       vi.restoreAllMocks();
       await prisma.paymentWebhookEvent.updateMany({
@@ -29,7 +31,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       });
       ids.length = 0;
     });
-    afterAll(() => prisma.$disconnect());
+    afterAll(async () => {
+      await prisma.session.deleteMany({ where: { id: { in: sessions } } });
+      await prisma.$disconnect();
+    });
     const snapshot = (id: string) =>
       prisma.paymentWebhookEvent.findUniqueOrThrow({ where: { id } });
     async function fixture(attempts = 0, provider: "PAYSTACK" | "MONNIFY" = "PAYSTACK") {
@@ -263,25 +268,20 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         where: { id: f.row.id },
         data: { status: "DEAD_LETTER", failedAt: new Date() },
       });
-      const user = await prisma.user.create({
-        data: {
-          email: `webhook-admin-${randomUUID()}@example.test`,
-          passwordHash: "unusable",
-          role: "ADMIN",
-        },
-      });
+      const { user, session } = await operationsAccount();
+      sessions.push(session.id);
       await new AuditOperationsService(prisma).retryJob(
         {
           userId: user.id,
           email: user.email,
           role: "ADMIN",
-          sessionId: randomUUID(),
+          sessionId: session.id,
           mfaRequired: true,
           mfaVerifiedAt: new Date(),
         },
         "webhook",
         f.row.id,
-        { expectedAttempts: 8 },
+        { expectedAttempts: 8, reason: "Synthetic prior processing reconciled" },
         context,
       );
       const service = new PaymentsService(prisma);

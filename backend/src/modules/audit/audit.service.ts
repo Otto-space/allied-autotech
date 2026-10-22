@@ -9,9 +9,11 @@ import type { RequestSecurityContext } from "../../common/contracts/request-secu
 import { env } from "../../config/env.js";
 import { prisma } from "../../config/database.js";
 import { notificationEventTypes } from "../notifications/notifications.events.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import { auditBadRequest, auditConflict, auditNotFound } from "./audit.errors.js";
 import { assertAuditAdministrator } from "./audit.policy.js";
 import { AuditRepository } from "./audit.repository.js";
+import { anomalySelect } from "./anomaly-record.js";
 import type {
   AnomalyListQuery,
   AnomalyUpdateInput,
@@ -68,16 +70,19 @@ export class AuditOperationsService {
           "Audit date range must be ordered and no longer than 90 days",
         );
     }
-    const result = page(await this.repository.list(query), query.limit);
-    await this.auditRead(
-      actor,
-      "USER",
-      actor.userId,
-      "AUDIT_LOG",
-      result.items.length,
-      context,
-    );
-    return result;
+    return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const result = page(await this.repository.list(query, transaction), query.limit);
+      await appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "USER",
+        entityId: actor.userId,
+        newValues: { resource: "AUDIT_LOG", resultCount: result.items.length },
+        context,
+      });
+      return result;
+    });
   }
 
   async jobs(
@@ -87,34 +92,61 @@ export class AuditOperationsService {
   ) {
     assertAuditAdministrator(actor);
     const binding = jobCursorBinding(actor.userId, query);
-    const rows = await this.repository.jobs(
-      query,
-      query.cursor ? decodeJobCursor(binding, query.cursor) : undefined,
-    );
-    const items = rows.slice(0, query.limit),
-      last = items.at(-1);
-    const result = {
-      items,
-      ...(rows.length > query.limit && last
-        ? {
-            nextCursor: encodeJobCursor(binding, {
-              id: last.id,
-              source: last.source,
-              updatedAt: last.updatedAt.toISOString(),
-            }),
-          }
-        : {}),
-    };
-    if (context)
-      await this.auditRead(
-        actor,
-        "USER",
-        actor.userId,
-        "OPERATIONAL_JOBS",
-        result.items.length,
-        context,
+    return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const rows = await this.repository.jobs(
+        query,
+        query.cursor ? decodeJobCursor(binding, query.cursor) : undefined,
+        transaction,
       );
-    return result;
+      const items = rows.slice(0, query.limit),
+        last = items.at(-1);
+      const result = {
+        items,
+        ...(rows.length > query.limit && last
+          ? {
+              nextCursor: encodeJobCursor(binding, {
+                id: last.id,
+                source: last.source,
+                updatedAt: last.updatedAt.toISOString(),
+              }),
+            }
+          : {}),
+      };
+      if (context)
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "READ",
+          entityType: "USER",
+          entityId: actor.userId,
+          newValues: { resource: "OPERATIONAL_JOBS", resultCount: result.items.length },
+          context,
+        });
+      return result;
+    });
+  }
+
+  async job(
+    actor: AuthenticatedActor,
+    source: "outbox" | "webhook",
+    id: string,
+    context: RequestSecurityContext,
+  ) {
+    assertAuditAdministrator(actor);
+    return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const record = await this.repository.job(source, id, transaction);
+      if (!record) throw auditNotFound();
+      await appendAuditEvent(transaction, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: source === "outbox" ? "USER" : "PAYMENT",
+        entityId: id,
+        newValues: { resource: "OPERATIONAL_JOB", source, resultCount: 1 },
+        context,
+      });
+      return record;
+    });
   }
 
   async status(actor: AuthenticatedActor, context: RequestSecurityContext) {
@@ -217,12 +249,17 @@ export class AuditOperationsService {
   ) {
     assertAuditAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await lockAccessActor(transaction, actor);
+      const revision = input.expectedUpdatedAt
+        ? { updatedAt: new Date(input.expectedUpdatedAt) }
+        : {};
       const changed =
         source === "outbox"
           ? await transaction.outboxEvent.updateMany({
               where: {
                 id,
                 attempts: input.expectedAttempts,
+                ...revision,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
               },
               data: {
@@ -236,6 +273,7 @@ export class AuditOperationsService {
               where: {
                 id,
                 processingAttempts: input.expectedAttempts,
+                ...revision,
                 status: { in: ["FAILED", "DEAD_LETTER"] },
               },
               data: {
@@ -351,6 +389,29 @@ export class AuditOperationsService {
     return result;
   }
 
+  async anomaly(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
+    assertAuditAdministrator(actor);
+    return this.database.$transaction(
+      async (transaction) => {
+        const record = await transaction.paymentAnomaly.findUnique({
+          where: { id },
+          select: anomalySelect,
+        });
+        if (!record) throw auditNotFound();
+        await appendAuditEvent(transaction, {
+          actorUserId: actor.userId,
+          action: "READ",
+          entityType: "PAYMENT",
+          entityId: id,
+          newValues: { resource: "PAYMENT_ANOMALY", resultCount: 1 },
+          context,
+        });
+        return record;
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
+
   async updateAnomaly(
     actor: AuthenticatedActor,
     id: string,
@@ -390,15 +451,7 @@ export class AuditOperationsService {
       });
       return transaction.paymentAnomaly.findUniqueOrThrow({
         where: { id },
-        select: {
-          id: true,
-          type: true,
-          status: true,
-          summary: true,
-          resolutionNote: true,
-          resolvedAt: true,
-          resolvedByUserId: true,
-        },
+        select: anomalySelect,
       });
     });
   }

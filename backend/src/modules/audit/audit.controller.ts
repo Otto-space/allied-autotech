@@ -64,6 +64,22 @@ export class AuditController {
           await this.service.status(actor(req), context(req)),
         ),
       );
+  job = async (req: Request, res: Response) => {
+    const params = validated<{ source: "outbox" | "webhook"; jobId: string }>(
+      res,
+      "params",
+    );
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Current processing job retrieved",
+          req.id,
+          await this.service.job(actor(req), params.source, params.jobId, context(req)),
+        ),
+      );
+  };
   retry = async (req: Request, res: Response) => {
     const params = validated<{ source: "outbox" | "webhook"; jobId: string }>(
       res,
@@ -87,6 +103,7 @@ export class AuditController {
   };
   anomalies = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -101,6 +118,7 @@ export class AuditController {
       );
   disputes = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -115,6 +133,7 @@ export class AuditController {
       );
   refunds = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -127,8 +146,24 @@ export class AuditController {
           ),
         ),
       );
+  anomaly = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Payment anomaly retrieved",
+          req.id,
+          await this.service.anomaly(
+            actor(req),
+            validated<{ anomalyId: string }>(res, "params").anomalyId,
+            context(req),
+          ),
+        ),
+      );
   updateAnomaly = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(

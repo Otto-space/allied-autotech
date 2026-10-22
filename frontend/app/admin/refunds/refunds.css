@@ -1,0 +1,674 @@
+.work-refunds {
+  color: #01121a;
+  font-size: 13px;
+  line-height: 1.65;
+  min-width: 0;
+}
+.dashboard .dashboard-content .work-refunds h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.3;
+  letter-spacing: -0.7px;
+}
+.dashboard .dashboard-content .work-refunds h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.4;
+}
+.dashboard .dashboard-content .work-refunds h3 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.work-refunds p {
+  margin: 8px 0 0;
+  color: #425767;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.work-refunds .button {
+  min-height: 44px;
+  font-size: 13px;
+  gap: 8px;
+}
+.work-refunds :is(button, a, input, select, textarea, summary):focus-visible {
+  outline: 3px solid #e60301;
+  outline-offset: 3px;
+}
+.work-refunds :is(h1, h2)[tabindex="-1"]:focus {
+  outline: 2px solid #e60301;
+  outline-offset: 5px;
+}
+.work-refunds button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.wr-breadcrumb {
+  margin-bottom: 28px;
+  font-size: 12px;
+}
+.wr-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.wr-breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.wr-breadcrumb a {
+  color: #425767;
+  text-decoration: none;
+}
+.wr-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.wr-heading > div:first-child {
+  min-width: 0;
+}
+.wr-heading p {
+  margin-top: 10px;
+}
+.wr-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+.wr-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  border: 1px solid #cfdce5;
+  border-radius: 8px;
+  background: #fff;
+}
+.dashboard .dashboard-content .work-refunds .field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  min-width: 0;
+}
+.wr-filter .field {
+  flex: 0 1 280px;
+}
+.work-refunds label {
+  color: #243b4b;
+  font-size: 13px;
+  font-weight: 600;
+}
+.work-refunds :is(select, textarea, input:not([type="checkbox"])) {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #8297a8;
+  border-radius: 6px;
+  background: #fff;
+  color: #01121a;
+  padding: 10px 12px;
+  font: inherit;
+}
+.work-refunds textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+.work-refunds input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #e60301;
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+.wr-filter p {
+  margin: 0 0 10px auto;
+  font-size: 12px;
+}
+.wr-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.wr-layout.wr-has-selection {
+  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 1fr);
+}
+.wr-queue {
+  background: #fff;
+  border: 1px solid #cfdae4;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 0;
+}
+.wr-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 18px;
+  border-bottom: 1px solid #dce4ea;
+}
+.wr-section-heading > span {
+  font-size: 11px;
+  color: #425767;
+}
+.wr-record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 17px 18px;
+  border-bottom: 1px solid #dce4ea;
+  border-left: 4px solid transparent;
+  min-width: 0;
+}
+.wr-record.wr-selected {
+  border-left-color: #e60301;
+  background: #fff7f6;
+}
+.wr-record-top {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.wr-record-top > div {
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.wr-record h3 {
+  overflow-wrap: anywhere;
+}
+.wr-amount {
+  display: block;
+  text-align: right;
+  font-size: 17px;
+  line-height: 1.45;
+  max-width: 52%;
+  overflow-wrap: anywhere;
+  flex-shrink: 0;
+}
+.wr-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border: 1px solid #bccbd8;
+  border-radius: 5px;
+  background: #eef3f7;
+  color: #31465b;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+.wr-status-requested {
+  background: #fff0ee;
+  border-color: #efb6b1;
+  color: #9a1f1a;
+}
+.wr-status-needs_attention,
+.wr-status-approved {
+  background: #fff7e7;
+  border-color: #dfc695;
+  color: #73500d;
+}
+.wr-status-processing,
+.wr-status-pending {
+  background: #edf3ff;
+  border-color: #bdcde8;
+  color: #244979;
+}
+.wr-status-succeeded {
+  background: #eaf5ee;
+  border-color: #b7d5c1;
+  color: #24603d;
+}
+.wr-status-failed {
+  background: #fff0ee;
+  border-color: #efb6b1;
+  color: #9a1f1a;
+}
+.work-refunds .wr-record-meta {
+  grid-column: 1 / -1;
+  margin-top: 9px;
+  font-size: 11px;
+}
+.work-refunds .wr-reason {
+  grid-column: 1 / -1;
+  overflow-wrap: anywhere;
+  color: #243b4b;
+}
+.wr-record-actions {
+  grid-column: 2;
+  grid-row: 4;
+  align-self: start;
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.wr-record > .wr-facts {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  margin-top: 8px;
+}
+.wr-record > .wr-facts > summary {
+  padding-right: 230px;
+  min-height: 44px;
+}
+.wr-record-actions .button {
+  padding-inline: 12px;
+  font-size: 12px;
+}
+.wr-facts {
+  margin-top: 12px;
+  min-width: 0;
+}
+.wr-facts summary {
+  padding: 10px 0;
+  cursor: pointer;
+  color: #294459;
+  font-size: 12px;
+  font-weight: 600;
+}
+.wr-facts dl {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 0;
+  min-width: 0;
+}
+.wr-facts dl > div {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1fr);
+  gap: 12px;
+  font-size: 12px;
+}
+.wr-facts dt {
+  margin: 0;
+  color: #425767;
+}
+.wr-facts dd {
+  margin: 0;
+  text-align: right;
+  color: #01121a;
+  overflow-wrap: anywhere;
+}
+.wr-cancellation {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #dce4ea;
+}
+.wr-cancellation p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.wr-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: #fafcfd;
+}
+.wr-pagination span {
+  color: #425767;
+  font-size: 12px;
+}
+.wr-handling {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #cfdae4;
+  border-radius: 8px;
+  min-width: 0;
+}
+.wr-handling[hidden] {
+  display: none !important;
+}
+.wr-pane-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 4px;
+}
+.wr-pane-heading h2 {
+  overflow-wrap: anywhere;
+}
+.wr-close {
+  min-width: 44px;
+  padding: 9px;
+  flex-shrink: 0;
+}
+.wr-back {
+  display: none;
+}
+.wr-value {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 20px;
+  border-radius: 7px;
+  background: #091b38;
+  color: #fff;
+}
+.wr-value > span {
+  color: #e5edf8;
+  font-size: 12px;
+}
+.wr-value > strong {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.wr-original,
+.wr-action-workspace {
+  padding: 17px;
+  border: 1px solid #dce4ea;
+  border-radius: 7px;
+}
+.wr-original dl {
+  margin: 14px 0 0;
+  display: grid;
+  gap: 10px;
+}
+.wr-original dl > div {
+  display: grid;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 12px;
+}
+.wr-original dt {
+  margin: 0;
+  color: #425767;
+  font-size: 12px;
+}
+.wr-original dd {
+  margin: 0;
+  font-size: 12px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.work-refunds .wr-state-note {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f0f4f8;
+  border-left: 3px solid #8297a8;
+  font-size: 12px;
+  color: #31495d;
+}
+.wr-action-workspace {
+  background: #fcfdfe;
+  box-shadow: 0 2px 6px #01121a05;
+}
+.wr-action-workspace .aftercare-record {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.wr-action-workspace form {
+  margin-top: 14px;
+}
+.wr-action-workspace fieldset {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.wr-action-workspace legend {
+  margin: 0 0 12px;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.wr-action-workspace fieldset > .button {
+  background: #e60301;
+  border-color: #e60301;
+  color: #fff;
+  width: 100%;
+}
+.wr-action-workspace .check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.work-refunds .wr-independence {
+  margin-top: 14px;
+  font-size: 12px;
+}
+.wr-handling > .wr-facts {
+  margin: 0;
+  padding: 6px 16px;
+  border: 1px solid #dce4ea;
+  border-radius: 7px;
+}
+.wr-refresh-current {
+  justify-self: start;
+}
+.wr-result,
+.wr-recovery,
+.wr-feedback {
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #b6c9d8;
+  border-left: 4px solid #3b6577;
+  background: #eef5f8;
+  border-radius: 8px;
+  overflow-wrap: anywhere;
+}
+.wr-recovery {
+  border-color: #dbc08f;
+  border-left-color: #997029;
+  background: #fff9ee;
+}
+.wr-recovery .field {
+  max-width: 490px;
+  margin: 14px 0;
+}
+.wr-recovery > .button,
+.wr-result > .button {
+  margin-top: 14px;
+}
+.wr-reference {
+  overflow-wrap: anywhere;
+}
+.wr-ack {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+}
+.wr-notice {
+  padding: 12px 16px;
+  background: #fff7e9;
+  color: #654b22 !important;
+}
+.wr-empty,
+.wr-loading {
+  padding: 30px 20px;
+  color: #425767;
+}
+.wr-empty .button {
+  margin-top: 14px;
+}
+.wr-empty h3 {
+  margin-top: 12px !important;
+}
+.wr-loading > div {
+  margin-top: 16px;
+  height: 64px;
+  border-radius: 6px;
+  background: #edf2f5;
+  animation: wr-loading 1.6s ease-in-out infinite;
+}
+@keyframes wr-loading {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (max-width: 1199px) {
+  .wr-layout.wr-has-selection {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .wr-has-selection .wr-handling {
+    order: -1;
+  }
+  .wr-heading {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .wr-header-actions {
+    justify-content: flex-start;
+  }
+  .wr-pane-heading {
+    flex-wrap: wrap;
+  }
+  .wr-back {
+    display: block;
+    flex-basis: 100%;
+    padding: 6px 0;
+    text-align: left;
+    background: none;
+    border: 0;
+    font-size: 13px;
+    min-height: 44px;
+  }
+  .wr-record-top > div {
+    flex-wrap: nowrap;
+  }
+}
+@media (max-width: 620px) {
+  .dashboard .dashboard-content .work-refunds h1 {
+    font-size: 24px;
+    letter-spacing: -0.45px;
+  }
+  .wr-breadcrumb {
+    margin-bottom: 24px;
+  }
+  .wr-heading {
+    margin-bottom: 20px;
+  }
+  .wr-header-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .wr-filter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 16px;
+  }
+  .wr-filter p {
+    margin: 0;
+  }
+  .wr-filter > .button {
+    width: 100%;
+  }
+  .wr-section-heading {
+    padding: 15px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .wr-record {
+    padding: 16px 13px;
+  }
+  .wr-record-top {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .wr-record-top > div {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .wr-amount {
+    text-align: left;
+    max-width: 100%;
+    font-size: 19px;
+  }
+  .wr-record-actions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+  .wr-record > .wr-facts {
+    grid-row: 5;
+  }
+  .wr-record > .wr-facts > summary {
+    padding-right: 0;
+  }
+  .wr-record-actions > .button {
+    width: 100%;
+  }
+  .wr-facts dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3px;
+  }
+  .wr-facts dd {
+    text-align: left;
+  }
+  .wr-pagination {
+    padding: 13px;
+    gap: 8px;
+  }
+  .wr-pagination .button {
+    padding-inline: 12px;
+  }
+  .wr-pagination span {
+    font-size: 11px;
+  }
+  .wr-handling {
+    padding: 10px;
+  }
+  .wr-value {
+    padding: 18px;
+  }
+  .wr-value > strong {
+    font-size: 27px;
+  }
+  .wr-original,
+  .wr-action-workspace {
+    padding: 16px;
+  }
+  .wr-original dl > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3px;
+  }
+  .wr-original dd {
+    text-align: left;
+  }
+  .wr-result,
+  .wr-recovery,
+  .wr-feedback {
+    padding: 17px;
+  }
+  .wr-result > .button,
+  .wr-recovery > .button {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wr-loading > div {
+    animation: none;
+  }
+}

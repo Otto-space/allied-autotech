@@ -1,0 +1,365 @@
+.dashboard .dashboard-content .workforce-jobs {
+  --wfj-line: #ccd6df;
+  --wfj-muted: #465866;
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+  padding-bottom: 28px;
+}
+.workforce-jobs * {
+  min-width: 0;
+}
+.workforce-jobs :is(a, button, input, select):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.workforce-jobs .wfj-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  color: var(--wfj-muted);
+}
+.workforce-jobs .wfj-breadcrumb a {
+  color: #01121a;
+  text-underline-offset: 3px;
+}
+.workforce-jobs .wfj-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.dashboard .dashboard-content .workforce-jobs h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.3;
+}
+.dashboard .dashboard-content .workforce-jobs h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.4;
+}
+.dashboard .dashboard-content .workforce-jobs h3 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .workforce-jobs p {
+  margin: 6px 0 0;
+  color: var(--wfj-muted);
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.workforce-jobs .wfj-refresh {
+  display: grid;
+  justify-items: end;
+  max-width: 320px;
+  flex-shrink: 0;
+}
+.dashboard .dashboard-content .workforce-jobs .wfj-refresh p {
+  font-size: 12px;
+  text-align: right;
+}
+.workforce-jobs .button {
+  min-height: 44px;
+  font-size: 13px;
+  border-radius: 6px;
+  gap: 7px;
+}
+.workforce-jobs .button.secondary {
+  border: 1px solid #aebecb;
+}
+.workforce-jobs .wfj-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(170px, 1fr) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--wfj-line);
+  border-radius: 6px;
+  margin: 0 0 24px;
+}
+.workforce-jobs .wfj-filters .field {
+  margin: 0;
+  display: grid;
+  gap: 7px;
+}
+.workforce-jobs .wfj-filters label {
+  color: #01121a;
+  font-size: 14px;
+  font-weight: 650;
+}
+.workforce-jobs .wfj-filters :is(input, select) {
+  width: 100%;
+  min-height: 44px;
+  font-size: 14px;
+  border: 1px solid #9cadba;
+  border-radius: 5px;
+  background: #fff;
+  color: #01121a;
+  padding: 10px 12px;
+}
+.workforce-jobs .wfj-search > div {
+  position: relative;
+}
+.workforce-jobs .wfj-search svg {
+  position: absolute;
+  left: 12px;
+  top: 13px;
+  color: var(--wfj-muted);
+  pointer-events: none;
+}
+.workforce-jobs .wfj-search input {
+  padding-left: 38px;
+}
+.workforce-jobs .wfj-filter-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dashboard .dashboard-content .workforce-jobs .wfj-filters p {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 13px;
+}
+.workforce-jobs .wfj-results {
+  background: #fff;
+  border: 1px solid var(--wfj-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.workforce-jobs .wfj-results > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid var(--wfj-line);
+}
+.workforce-jobs .wfj-results > header > span {
+  color: var(--wfj-muted);
+  font-size: 13px;
+}
+.workforce-jobs table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.workforce-jobs :is(th, td) {
+  padding: 16px 18px;
+  vertical-align: top;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+.workforce-jobs thead {
+  background: #f3f5f7;
+}
+.workforce-jobs thead th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.workforce-jobs thead th:nth-child(1) {
+  width: 26%;
+}
+.workforce-jobs thead th:nth-child(2) {
+  width: 23%;
+}
+.workforce-jobs thead th:nth-child(3) {
+  width: 24%;
+}
+.workforce-jobs thead th:nth-child(4) {
+  width: auto;
+}
+.workforce-jobs thead th:nth-child(5) {
+  width: 56px;
+}
+.workforce-jobs tbody tr {
+  border-bottom: 1px solid var(--wfj-line);
+}
+.workforce-jobs .wfj-job-link {
+  color: #01121a;
+  text-underline-offset: 3px;
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: -10px;
+  margin-bottom: -8px;
+  font-size: 14px;
+}
+.workforce-jobs small {
+  display: block;
+  color: var(--wfj-muted);
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 3px;
+}
+.workforce-jobs .wfj-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #253e50;
+  background: #eaf0f5;
+  font-size: 13px;
+}
+.workforce-jobs .wfj-status.is-awaiting_parts {
+  color: #614015;
+  background: #fff0d8;
+}
+.workforce-jobs .wfj-status.is-completed {
+  color: #205a37;
+  background: #e9f4ec;
+}
+.workforce-jobs .wfj-status.is-cancelled {
+  color: #912c29;
+  background: #fceeed;
+}
+.workforce-jobs .wfj-open {
+  padding: 12px 0;
+}
+.workforce-jobs .wfj-open a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 44px;
+  color: #465866;
+}
+.workforce-jobs .wfj-results footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+}
+.dashboard .dashboard-content .workforce-jobs .wfj-results footer p {
+  font-size: 12px;
+  margin: 0;
+}
+.workforce-jobs .wfj-results footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.workforce-jobs .wfj-state {
+  padding: 28px 20px;
+  color: var(--wfj-muted);
+  font-size: 14px;
+}
+.workforce-jobs .wfj-skeleton {
+  height: 60px;
+  margin-top: 16px;
+  border-radius: 4px;
+  background: #f1f4f6;
+}
+.workforce-jobs .wfj-feedback {
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  background: #fff;
+  border: 1px solid var(--wfj-line);
+  border-left: 3px solid #e60301;
+  border-radius: 4px;
+}
+@media (max-width: 1100px) {
+  .workforce-jobs .wfj-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .workforce-jobs .wfj-filter-actions {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 1000px) {
+  .workforce-jobs thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .workforce-jobs :is(table, tbody, tr, th, td) {
+    display: block;
+    width: 100%;
+  }
+  .workforce-jobs tbody tr {
+    position: relative;
+    padding: 18px 20px;
+  }
+  .workforce-jobs tbody th {
+    padding: 0 44px 10px 0;
+  }
+  .workforce-jobs td {
+    padding: 5px 0;
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+  .workforce-jobs td::before {
+    content: attr(data-label);
+    color: var(--wfj-muted);
+    font-size: 12px;
+  }
+  .workforce-jobs td small {
+    grid-column: 2;
+  }
+  .workforce-jobs .wfj-status {
+    justify-self: start;
+  }
+  .workforce-jobs td.wfj-open {
+    display: block;
+    position: absolute;
+    top: 12px;
+    right: 10px;
+    width: 44px;
+    padding: 0;
+  }
+  .workforce-jobs .wfj-results footer {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 760px) {
+  .dashboard .dashboard-content .workforce-jobs h1 {
+    font-size: 24px;
+  }
+  .workforce-jobs .wfj-heading {
+    display: block;
+  }
+  .workforce-jobs .wfj-refresh {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: none;
+  }
+  .workforce-jobs .wfj-refresh button {
+    flex-shrink: 0;
+  }
+  .workforce-jobs .wfj-filters {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .workforce-jobs .wfj-results > header {
+    padding: 16px;
+  }
+  .workforce-jobs tbody tr {
+    padding: 18px 16px;
+  }
+  .workforce-jobs .wfj-results footer {
+    padding: 16px;
+  }
+  .workforce-jobs .wfj-results footer nav {
+    width: 100%;
+    flex-shrink: 1;
+  }
+}

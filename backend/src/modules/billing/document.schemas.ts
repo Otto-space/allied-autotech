@@ -85,6 +85,19 @@ export const receiptDocumentSchema = z.object({
     type: z.enum(["ORDER", "BOOKING", "VEHICLE_TRANSACTION", "INVOICE"]),
   }),
 });
+export const staffInvoiceDocumentSchema = invoiceDocumentSchema.extend({
+  status: z.enum(["DRAFT", "ISSUED", "PAID", "VOID"]),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+  voidedAt: z.iso.datetime().nullable(),
+});
+export const staffInvoiceDownloadQuerySchema = z
+  .object({
+    expectedVersion: z.coerce.number().int().min(0).max(2_147_483_647),
+    expectedStatus: staffInvoiceDocumentSchema.shape.status,
+  })
+  .strict();
 export type InvoiceSnapshot = z.infer<typeof invoiceSnapshotSchema>;
 export type InvoiceDocument = z.infer<typeof invoiceDocumentSchema>;
+export type StaffInvoiceDocument = z.infer<typeof staffInvoiceDocumentSchema>;
 export type ReceiptDocument = z.infer<typeof receiptDocumentSchema>;

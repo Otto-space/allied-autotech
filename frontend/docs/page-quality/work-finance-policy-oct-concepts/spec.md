@@ -1,0 +1,7 @@
+# Financial policy — implementation specification
+
+Quicksand operational typography, ink sidebar, pale grey canvas, white fields with visible borders and restrained red primary action. Desktop heading 30px, mobile 24px; body 14px and mobile controls 16px. One compact page toolbar precedes an authoritative current-policy summary and distinct next scheduled/latest recorded facts. Show the server evaluation time. Render invoice identity, payment terms and existing calculation rules clearly, including incomplete or unapproved versions. Do not describe configuration as verified legal compliance.
+
+Below the current summary, use a two-column desktop approval form, with invoice identity and approval provenance in related groups. Stack on mobile with 16px outer margins and 44–48px controls. Compact expandable history shows recorded versions and their start times without asserting that highest version means currently effective. All approval actions remain inside the established confirmation dialog. Uncertain publication survives reload and blocks another send until a fresh read and explicit independent reconciliation. Current reads never prove an earlier request succeeded.
+
+Validate role/capability, state failures, stale latest version, draft retention, scheduling, confirmation focus, receipt identity and persistent recovery. Verify representative responsive widths, accessibility, typed contracts and isolated backend behavior. Reuse unchanged migration evidence; do not repeat financial mutations from previous gates.

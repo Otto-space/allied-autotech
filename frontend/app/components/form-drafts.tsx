@@ -247,7 +247,10 @@ export function FormDrafts() {
       const form = button?.form;
       if (!button || !form) return;
       const group = button.dataset.draftAdd ?? button.dataset.draftRemove!;
-      queueMicrotask(() => {
+      // Native event listeners can flush microtasks before React handles the click.
+      // Capture the form now; snapshot after the whole event and its DOM commit.
+      setTimeout(() => {
+        if (!form.isConnected) return;
         const state = forms.get(form);
         if (!state) return;
         const count = Array.from(
@@ -260,7 +263,7 @@ export function FormDrafts() {
         state.fields[`@rows:${group}`] = String(count);
         delete state.pending[`@rows:${group}`];
         writeDraft(state.key, state.fields);
-      });
+      }, 0);
     }
     function saved(event: Event) {
       if (!(event instanceof CustomEvent)) return;
@@ -286,7 +289,8 @@ export function FormDrafts() {
     document.addEventListener("submit", submit, true);
     document.addEventListener("pointerdown", pointer, true);
     document.addEventListener("reset", reset);
-    document.addEventListener("click", structureChanged);
+    // Capture the owning form before a React remove handler detaches its button.
+    document.addEventListener("click", structureChanged, true);
     window.addEventListener(DRAFT_IDENTITY_CHANGED, identityChanged);
     window.addEventListener(DRAFT_SAVED, saved);
     scan();
@@ -297,7 +301,7 @@ export function FormDrafts() {
       document.removeEventListener("submit", submit, true);
       document.removeEventListener("pointerdown", pointer, true);
       document.removeEventListener("reset", reset);
-      document.removeEventListener("click", structureChanged);
+      document.removeEventListener("click", structureChanged, true);
       window.removeEventListener(DRAFT_IDENTITY_CHANGED, identityChanged);
       window.removeEventListener(DRAFT_SAVED, saved);
     };

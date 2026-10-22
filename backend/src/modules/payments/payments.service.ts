@@ -54,7 +54,7 @@ import {
   assertPaymentCustomer,
   assertPaymentOperator,
 } from "./payments.policy.js";
-import { PaymentsRepository } from "./payments.repository.js";
+import { PaymentsRepository, staffPaymentView } from "./payments.repository.js";
 import type {
   ManualPaymentInput,
   ManualReviewInput,
@@ -66,7 +66,11 @@ import type {
   StaffPaymentListQuery,
 } from "./payments.schemas.js";
 import { paymentFingerprint, paymentJsonSafe, paymentPage } from "./payments.types.js";
-import { refundQueueSelect } from "./refund-record.js";
+import {
+  refundQueueSelect,
+  refundCurrentSelect,
+  refundCurrentRecord,
+} from "./refund-record.js";
 import {
   recordRefundObservationConflict,
   refundObservationMatches,
@@ -160,12 +164,49 @@ export class PaymentsService {
       checkoutProviders: this.providers.enabledProviders(),
     });
   }
-  async staffList(actor: AuthenticatedActor, query: StaffPaymentListQuery) {
+  async staffList(
+    actor: AuthenticatedActor,
+    query: StaffPaymentListQuery,
+    context: RequestSecurityContext,
+  ) {
     assertPaymentOperator(actor);
     const branchId = await this.allowedBranch(actor);
-    return paymentJsonSafe(
-      paymentPage(await this.repository.listStaff(query, branchId), query.limit),
+    const page = paymentPage(
+      await this.repository.listStaff(query, branchId),
+      query.limit,
     );
+    await this.database.$transaction((tx) =>
+      appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "PAYMENT",
+        entityId: null,
+        newValues: { collection: "staff-payments", resultCount: page.items.length },
+        context,
+      }),
+    );
+    return paymentJsonSafe({
+      ...page,
+      items: page.items.map((payment) => staffPaymentView(payment, actor.userId)),
+    });
+  }
+
+  async staffGet(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
+    assertPaymentOperator(actor);
+    await this.assertBranch(actor, id);
+    const payment = await this.repository.staffGet(id);
+    if (!payment) throw paymentNotFound();
+    await this.database.$transaction((tx) =>
+      appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "PAYMENT",
+        entityId: id,
+        newValues: { staffPaymentDetail: true },
+        context,
+      }),
+    );
+    return paymentJsonSafe(staffPaymentView(payment, actor.userId));
   }
 
   async createIntent(
@@ -672,7 +713,9 @@ export class PaymentsService {
         newValues: { decision: input.decision },
         context,
       });
-      return paymentJsonSafe(await this.repository.get(attempt.paymentId, tx));
+      const updated = await this.repository.staffGet(attempt.paymentId, tx);
+      if (!updated) throw paymentNotFound();
+      return paymentJsonSafe(staffPaymentView(updated, actor.userId));
     });
   }
 
@@ -716,10 +759,11 @@ export class PaymentsService {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`refund:${keyHash}`}, 0))`;
       const existing = await tx.refund.findUnique({
         where: { idempotencyKeyHash: keyHash },
-        omit: { reconciliationToken: true, reconciliationLeaseUntil: true },
+        select: refundQueueSelect,
       });
       if (existing) {
         if (
+          existing.requestedByUserId !== actor.userId ||
           existing.paymentAttemptId !== input.paymentAttemptId ||
           existing.amountKobo !== input.amountKobo ||
           existing.reason !== input.reason
@@ -734,12 +778,7 @@ export class PaymentsService {
           ).paymentId,
           tx,
         );
-        const {
-          beneficiaryEncrypted: _beneficiary,
-          evidenceObjectKey: _evidence,
-          ...safe
-        } = existing;
-        return paymentJsonSafe({ refund: safe, replayed: true });
+        return paymentJsonSafe({ refund: existing, replayed: true });
       }
       const attempt = await this.repository.attempt(input.paymentAttemptId, tx);
       if (
@@ -772,7 +811,7 @@ export class PaymentsService {
         throw paymentConflict("Refund total exceeds the captured amount");
       const refundPolicy = await approvedPolicy(tx, "manual-refund");
       const refund = await tx.refund.create({
-        omit: { reconciliationToken: true, reconciliationLeaseUntil: true },
+        select: refundQueueSelect,
         data: {
           policyVersionId: refundPolicy.id,
           policySnapshot: policySnapshot(refundPolicy),
@@ -798,6 +837,39 @@ export class PaymentsService {
       });
       return paymentJsonSafe({ refund, replayed: false });
     });
+  }
+
+  async recoverRefund(
+    actor: AuthenticatedActor,
+    attemptId: string,
+    rawKey: string,
+    context: RequestSecurityContext,
+  ) {
+    assertPaymentOperator(actor);
+    const existing = await this.database.refund.findUnique({
+      where: {
+        idempotencyKeyHash: hashToken("refund-idempotency", `${attemptId}:${rawKey}`),
+      },
+      select: refundQueueSelect,
+    });
+    if (existing && existing.requestedByUserId !== actor.userId) throw paymentNotFound();
+    if (existing) {
+      const attempt = await this.repository.attempt(attemptId);
+      if (!attempt) throw paymentNotFound();
+      await this.assertBranch(actor, attempt.paymentId);
+    }
+    await this.database.$transaction((tx) =>
+      appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "REFUND",
+        entityId: existing?.id ?? null,
+        newValues: { originalRefundRequest: true, found: existing !== null },
+        context,
+      }),
+    );
+    // Absence is only a current observation, never proof an in-flight request failed.
+    return paymentJsonSafe({ found: existing !== null, refund: existing });
   }
 
   async decideRefund(
@@ -849,7 +921,10 @@ export class PaymentsService {
         action: input.decision === "APPROVED" ? "REFUND_APPROVED" : "STATUS_CHANGE",
         entityType: "REFUND",
         entityId: id,
-        newValues: { decision: input.decision },
+        newValues: {
+          decision: input.decision,
+          ...(input.decision === "CANCELLED" ? { note: input.note ?? null } : {}),
+        },
         context,
       });
       await snapshotRefundClock(tx, id);
@@ -868,10 +943,13 @@ export class PaymentsService {
       });
     // Dispatch is durable and owned by RefundWorker, including crash recovery.
     return paymentJsonSafe(
-      await this.database.refund.findUniqueOrThrow({
-        where: { id },
-        select: refundQueueSelect,
-      }),
+      refundCurrentRecord(
+        await this.database.refund.findUniqueOrThrow({
+          where: { id },
+          select: refundCurrentSelect,
+        }),
+        input.decision === "CANCELLED" ? (input.note ?? null) : null,
+      ),
     );
   }
 

@@ -51,7 +51,13 @@ export function VehicleConditionForm({
       ...(values.inspectionId ? { inspectionId: values.inspectionId } : {}),
       ...(values.findings.length ? { findings: conditionFindings(values.findings) } : {}),
     };
+    let savedId: string | undefined;
     onReview({
+      stockChange: { kind: "condition", expected: body },
+      onConfirmed: () => {
+        setConfirmedId(savedId);
+        setLocked(true);
+      },
       title: "Record this public condition report?",
       description:
         "The summary, readings and findings can appear on available listings for this vehicle. Include only approved public information. Reports cannot be edited through this application. The stock screen shows the report with the latest inspection time; an older report will not replace that summary.",
@@ -96,8 +102,8 @@ export function VehicleConditionForm({
           { method: "POST", csrf: true, body },
         );
         const result = z.object({ id: z.string().uuid() }).parse(response.data);
-        setConfirmedId(result.id);
-        setLocked(true);
+        savedId = result.id;
+        return response;
       },
     });
   }

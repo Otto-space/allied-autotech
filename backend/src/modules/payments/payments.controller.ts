@@ -160,6 +160,7 @@ export class PaymentsController {
       );
   staffList = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -168,11 +169,44 @@ export class PaymentsController {
           await this.service.staffList(
             actor(req),
             validated<StaffPaymentListQuery>(res, "query"),
+            context(req),
+          ),
+        ),
+      );
+  staffGet = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Payment retrieved",
+          req.id,
+          await this.service.staffGet(
+            actor(req),
+            validated<{ paymentId: string }>(res, "params").paymentId,
+            context(req),
+          ),
+        ),
+      );
+  recoverRefund = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Original refund request checked",
+          req.id,
+          await this.service.recoverRefund(
+            actor(req),
+            validated<{ paymentAttemptId: string }>(res, "query").paymentAttemptId,
+            key(res),
+            context(req),
           ),
         ),
       );
   reviewManual = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -202,6 +236,7 @@ export class PaymentsController {
       );
   requestRefund = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(201)
       .json(
         successResponse(

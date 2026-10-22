@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { disputeId as id, disputeFixture } from "../fixtures/dispute-work";
 import { formatKobo } from "@/lib/format/money";
+import { disputeSchema } from "@/lib/api/operations-schemas";
 const reply = (route: Route, data: unknown) =>
   route.fulfill({
     json: { success: true, data, message: "Isolated", meta: { requestId: "dispute-qa" } },
@@ -41,6 +42,24 @@ async function fixture(page: Page, role = "STAFF") {
         capabilities: state.grants,
       });
     if (
+      endpoint === `/staff/disputes/${state.row.id}` &&
+      route.request().method() === "GET"
+    )
+      return state.fail
+        ? route.fulfill({
+            status: 503,
+            json: { success: false, error: { code: "UNAVAILABLE" } },
+          })
+        : reply(route, state.row);
+    if (endpoint === "/staff/disputes/operators")
+      return reply(route, {
+        items: [10, 11, 12].map((n) => ({
+          id: id(n),
+          label: `Synthetic Operator ${n} (operator${n}@example.test)`,
+        })),
+        nextCursor: null,
+      });
+    if (
       endpoint === "/staff/disputes" ||
       endpoint === "/admin/operations/payment-disputes"
     ) {
@@ -51,9 +70,22 @@ async function fixture(page: Page, role = "STAFF") {
           json: { success: false, error: { code: "UNAVAILABLE" } },
         });
       return reply(route, {
-        items: [state.row],
+        items:
+          endpoint === "/staff/disputes" &&
+          url.searchParams.get("openOnly") !== "false" &&
+          state.row.resolvedAt
+            ? []
+            : [
+                endpoint === "/admin/operations/payment-disputes"
+                  ? disputeSchema.parse(state.row)
+                  : state.row,
+              ],
         nextCursor:
-          endpoint === "/staff/disputes" ? state.cursor : (state.cursor ?? undefined),
+          endpoint === "/staff/disputes"
+            ? state.cursor && !url.searchParams.has("cursor")
+              ? state.row.id
+              : null
+            : undefined,
       });
     }
     if (endpoint === "/admin/staff")
@@ -115,12 +147,13 @@ async function fixture(page: Page, role = "STAFF") {
   return state;
 }
 async function open(page: Page) {
-  await page.goto("/admin/payment-disputes/work");
+  await page.goto(`/admin/payment-disputes/work?selected=${id(20)}`);
   await expect(page).toHaveTitle("Dispute work queue");
   await expect(
     page.getByRole("heading", { name: "Dispute work queue", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Review dispute actions" }).click();
+  await expect(page.locator(".wh-identity")).toBeVisible();
+  await page.locator(".wh-lifecycle summary").click();
 }
 async function confirm(page: Page) {
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
@@ -162,9 +195,16 @@ test("super admin sees confirmed partial chargebacks and unresolved provider out
     page.getByRole("heading", { name: "Dispute work queue", exact: true }),
   ).toBeVisible();
   await page.getByLabel("Dispute history").selectOption("all");
-  await expect(page.getByText(formatKobo("1200"), { exact: true })).toBeVisible();
+  await page.locator(".wh-record").first().getByRole("button").click();
+  await page.locator(".wh-lifecycle summary").click();
+  await expect(
+    page.locator(".wh-detail .totals").getByText(formatKobo("1200"), { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText("merchant accepted", { exact: true })).toBeVisible();
-  await page.getByText("Confirmed chargeback", { exact: true }).scrollIntoViewIfNeeded();
+  await page
+    .locator(".wh-detail .totals")
+    .getByText("Confirmed chargeback", { exact: true })
+    .scrollIntoViewIfNeeded();
   await page.screenshot({
     path: path.join(os.tmpdir(), "allied-dispute-contract-desktop.png"),
   });
@@ -173,6 +213,7 @@ test("super admin sees confirmed partial chargebacks and unresolved provider out
   await expect(
     page.getByRole("heading", { name: "Payment disputes", exact: true }),
   ).toBeVisible();
+  await page.locator(".wd-record").first().getByRole("button").click();
   await expect(page.getByText(formatKobo("1200"), { exact: true })).toBeVisible();
   Object.assign(state.row, {
     status: "UNDER_REVIEW",
@@ -183,10 +224,15 @@ test("super admin sees confirmed partial chargebacks and unresolved provider out
   });
   await page.reload();
   await expect(page.getByText(/provider outcome needs review/)).toBeVisible();
-  await expect(page.getByText("Not confirmed", { exact: true })).toBeVisible();
+  await expect(
+    page.locator(".wd-chargeback").getByText("Not confirmed", { exact: true }),
+  ).toBeVisible();
   await expect(page.getByText(formatKobo("1200"), { exact: true })).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByText("Confirmed chargeback", { exact: true }).scrollIntoViewIfNeeded();
+  await page
+    .locator(".wd-chargeback")
+    .getByText("Confirmed chargeback", { exact: true })
+    .scrollIntoViewIfNeeded();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
   ).toBe(true);
@@ -215,8 +261,12 @@ test("assigned staff acknowledge and record exact provider receipts without clai
     note: "Synthetic complete evidence",
   };
   await open(page);
-  await expect(page.getByText("12,345,678,901,234.56", { exact: false })).toBeVisible();
-  await expect(page.getByText("28 Sept 2026, 11:00 (Lagos time)")).toBeVisible();
+  await expect(
+    page
+      .locator(".wh-identity + .wh-facts")
+      .getByText("12,345,678,901,234.56", { exact: false }),
+  ).toBeVisible();
+  await expect(page.locator(".wh-lifecycle")).toContainText("28 Sept 2026");
   await expect(page.getByLabel("Primary operator", { exact: true })).toHaveCount(0);
   await page
     .getByLabel("Acknowledgement note")
@@ -261,7 +311,7 @@ test("assigned staff acknowledge and record exact provider receipts without clai
       },
     },
   ]);
-  await expect(page.locator(".status")).toHaveText("AWAITING RESPONSE");
+  await expect(page.locator(".wh-identity .wh-badge")).toHaveText("Awaiting response");
   await expect(page.getByText("SYNTHETIC-RECEIPT-001", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Review provider receipt" })).toHaveCount(
     0,
@@ -291,7 +341,10 @@ test("administrator assignment uses account IDs and requires different operators
     },
   });
   await expect(
-    page.getByRole("definition").filter({ hasText: "Synthetic assigned primary" }),
+    page
+      .locator(".wh-identity + .wh-facts")
+      .getByRole("definition")
+      .filter({ hasText: "Synthetic assigned primary" }),
   ).toBeVisible();
 });
 
@@ -305,7 +358,7 @@ test("grants and navigation revoke together without retaining private work detai
     nav.getByRole("link", { name: "Dispute work queue", exact: true }),
   ).toBeVisible();
   state.grants = [];
-  await page.getByRole("button", { name: "Refresh dispute permissions" }).click();
+  await page.getByRole("button", { name: "Check permissions" }).click();
   await expect(
     page.getByText("An active dispute-management grant is required to use this queue."),
   ).toBeVisible();
@@ -373,7 +426,7 @@ for (const result of ["unknown", "wrong-record", "stale"])
       page.getByRole("heading", { name: "PAYSTACK · ISOLATED-DISPUTE-020" }),
     ).toHaveCount(0);
     state.fail = false;
-    await page.getByRole("button", { name: "Refresh dispute records" }).click();
+    await page.getByRole("button", { name: "Refresh records" }).click();
     if (result === "stale")
       await expect(
         page.getByRole("button", { name: "Review acknowledgement" }),
@@ -460,13 +513,13 @@ test("queue history changes reset paging and account invalidation clears pending
   const state = await fixture(page);
   state.cursor = id(99);
   await open(page);
-  await page
-    .getByRole("navigation", { name: "Dispute work queue pages" })
-    .getByRole("button", { name: "Next" })
-    .click();
+  await page.locator(".wh-pagination").getByRole("button", { name: "Next" }).click();
   await expect.poll(() => state.reads.at(-1)).toContain("cursor=");
   await page.getByLabel("Dispute history").selectOption("all");
-  await expect.poll(() => state.reads.at(-1)).toBe("?limit=25&openOnly=false");
+  await expect
+    .poll(() => new URLSearchParams(state.reads.at(-1)).get("openOnly"))
+    .toBe("false");
+  expect(new URLSearchParams(state.reads.at(-1)).has("cursor")).toBe(false);
   await page.getByLabel("Acknowledgement note").fill("Synthetic acknowledgement");
   await page.getByRole("button", { name: "Review acknowledgement" }).click();
   await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));

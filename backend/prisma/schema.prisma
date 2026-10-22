@@ -559,13 +559,14 @@ enum OutboxStatus {
 }
 
 model User {
-  mediaUploads      MediaUpload[] @relation("MediaUploadActor")
-  ownedMediaUploads MediaUpload[] @relation("MediaUploadOwner")
-  id                String        @id @default(uuid()) @db.Uuid
-  email             String        @unique @db.Citext
+  workforceAccess   WorkforceAccess?
+  mediaUploads      MediaUpload[]    @relation("MediaUploadActor")
+  ownedMediaUploads MediaUpload[]    @relation("MediaUploadOwner")
+  id                String           @id @default(uuid()) @db.Uuid
+  email             String           @unique @db.Citext
   passwordHash      String
-  role              UserRole      @default(CUSTOMER)
-  status            UserStatus    @default(ACTIVE)
+  role              UserRole         @default(CUSTOMER)
+  status            UserStatus       @default(ACTIVE)
 
   emailVerifiedAt     DateTime?
   passwordChangedAt   DateTime?
@@ -850,19 +851,20 @@ model CustomerProfile {
 }
 
 model Branch {
-  id        String   @id @default(uuid()) @db.Uuid
-  code      String   @unique @db.Citext
-  name      String
-  phone     String?  @db.VarChar(32)
-  email     String?  @db.Citext
-  address   String
-  city      String
-  state     String
-  country   String   @default("Nigeria")
-  timezone  String   @default("Africa/Lagos") @db.VarChar(64)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  workforceAssignments WorkforceAssignment[]
+  id                   String                @id @default(uuid()) @db.Uuid
+  code                 String                @unique @db.Citext
+  name                 String
+  phone                String?               @db.VarChar(32)
+  email                String?               @db.Citext
+  address              String
+  city                 String
+  state                String
+  country              String                @default("Nigeria")
+  timezone             String                @default("Africa/Lagos") @db.VarChar(64)
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   staff                 StaffProfile[]
   enquiries             Enquiry[]
@@ -1145,19 +1147,22 @@ model QuoteItem {
 }
 
 model WorkOrder {
-  id              String          @id @default(uuid()) @db.Uuid
-  bookingId       String          @unique @db.Uuid
-  workOrderNumber String          @unique @db.VarChar(40)
-  status          WorkOrderStatus @default(DRAFT)
-  diagnosis       String?
-  internalNotes   String?
-  openedAt        DateTime?
-  startedAt       DateTime?
-  completedAt     DateTime?
-  cancelledAt     DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  version         Int             @default(0)
+  workedByUserIds         String[]        @default([]) @db.Uuid
+  qualityApprovedByUserId String?         @db.Uuid
+  qualityApprovedAt       DateTime?
+  id                      String          @id @default(uuid()) @db.Uuid
+  bookingId               String          @unique @db.Uuid
+  workOrderNumber         String          @unique @db.VarChar(40)
+  status                  WorkOrderStatus @default(DRAFT)
+  diagnosis               String?
+  internalNotes           String?
+  openedAt                DateTime?
+  startedAt               DateTime?
+  completedAt             DateTime?
+  cancelledAt             DateTime?
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+  version                 Int             @default(0)
 
   booking Booking         @relation(fields: [bookingId], references: [id], onDelete: Restrict)
   items   WorkOrderItem[]
@@ -2469,6 +2474,41 @@ model BusinessPolicyVersion {
 
   @@unique([key, version])
   @@index([key, effectiveAt])
+}
+
+// Explicit enrollment preserves approved legacy access until an operator reviews it.
+model WorkforceAccess {
+  userId             String                @id @db.Uuid
+  position           String                @db.VarChar(80)
+  enabledAt          DateTime              @default(now())
+  updatedByUserId    String                @db.Uuid
+  version            Int                   @default(0)
+  delegatedTemplates String[]              @default([])
+  delegatedBranchIds String[]              @default([]) @db.Uuid
+  user               User                  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  assignments        WorkforceAssignment[]
+}
+
+model WorkforceAssignment {
+  id               String          @id @default(uuid()) @db.Uuid
+  userId           String          @db.Uuid
+  template         String          @db.VarChar(80)
+  branchId         String          @db.Uuid
+  scope            String          @db.VarChar(20)
+  temporary        Boolean         @default(false)
+  startsAt         DateTime
+  expiresAt        DateTime?
+  reason           String          @db.VarChar(1000)
+  assignedByUserId String          @db.Uuid
+  createdAt        DateTime        @default(now())
+  revokedAt        DateTime?
+  revokedByUserId  String?         @db.Uuid
+  revocationReason String?         @db.VarChar(1000)
+  access           WorkforceAccess @relation(fields: [userId], references: [userId], onDelete: Restrict)
+  branch           Branch          @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  @@index([userId, revokedAt, startsAt, expiresAt])
+  @@index([branchId])
 }
 
 model UserCapability {

@@ -1,0 +1,86 @@
+/* Reuse the accepted compact workforce queue and review surfaces. */
+.workforce-orders .wfc-facts {
+  grid-template-columns: 1fr 1fr 1.3fr;
+}
+.workforce-orders .wfc-results thead th:nth-child(1) {
+  width: 24%;
+}
+.workforce-orders .wfc-results thead th:nth-child(2) {
+  width: 17%;
+}
+.workforce-orders .wfc-results thead th:nth-child(3) {
+  width: 14%;
+}
+.workforce-orders .wfc-results thead th:nth-child(4) {
+  width: 14%;
+}
+.workforce-orders .wfc-results thead th:nth-child(5) {
+  width: 14%;
+}
+.workforce-orders .wfc-results thead th:nth-child(6) {
+  width: 17%;
+}
+.workforce-orders .wfo-record {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.workforce-orders .wfc-status:is(.is-confirmed, .is-ready) {
+  background: #e9f4ec;
+  color: #205a37;
+}
+.workforce-orders .wfc-status.is-processing {
+  background: #fff0d8;
+  color: #614015;
+}
+.workforce-orders .wfo-items {
+  margin-top: 14px;
+}
+.workforce-orders .wfo-items thead th:first-child {
+  width: 75%;
+}
+.workforce-orders .wfo-items thead th:nth-child(2) {
+  width: 25%;
+}
+.workforce-orders .wfo-items :is(th, td) {
+  padding: 8px;
+}
+.workforce-orders .wfc-tracking > div:last-child {
+  border-bottom: 0;
+}
+@media (max-width: 1000px) {
+  .workforce-orders .wfo-items {
+    display: table;
+  }
+  .workforce-orders .wfo-items thead {
+    display: table-header-group;
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+    overflow: visible;
+  }
+  .workforce-orders .wfo-items tbody {
+    display: table-row-group;
+  }
+  .workforce-orders .wfo-items tr {
+    display: table-row;
+    padding: 0;
+  }
+  .workforce-orders .wfo-items :is(th, td) {
+    display: table-cell;
+    width: auto;
+  }
+  .workforce-orders .wfo-items td::before {
+    content: none;
+  }
+}
+@media (max-width: 760px) {
+  .workforce-orders .wfc-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-orders .wfc-columns > .wfc-panel {
+    border-top: 1px solid var(--wfc-line);
+    padding-top: 18px;
+  }
+}

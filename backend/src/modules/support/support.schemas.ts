@@ -253,6 +253,7 @@ export const staffComplaintListQuerySchema = z
 export const staffReviewListQuerySchema = z
   .object({
     ...page,
+    reviewId: uuid.optional(),
     status: z.enum(["PENDING", "APPROVED", "REJECTED"]).default("PENDING"),
     targetType: z
       .enum(["BUSINESS", "PRODUCT", "SERVICE", "ORDER", "VEHICLE_TRANSACTION"])

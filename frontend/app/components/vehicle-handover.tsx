@@ -6,7 +6,8 @@ import { z } from "zod";
 import { apiRequest } from "@/lib/api/client";
 import type { RequestBody } from "@/lib/api/contracts";
 import type { StaffVehicleSale } from "@/lib/api/staff-vehicle-sales-schemas";
-import { formatBusinessDate } from "@/lib/format/date";
+import { formatStockInstant as formatBusinessDate } from "@/lib/admin/work-vehicle-detail";
+import { forgetSaleFormDraft } from "@/lib/admin/work-vehicle-sale-detail";
 import type { MutationProposal } from "./mutation-review";
 import { VehicleAssetUpload, type AssetSelection } from "./vehicle-asset-upload";
 import { PrivateDocumentAccess } from "./private-document-access";
@@ -36,6 +37,7 @@ const createSchema = z.object({
 type Props = {
   sale: StaffVehicleSale;
   disabled: boolean;
+  accessDisabled?: boolean;
   onReview: (proposal: MutationProposal) => void;
 };
 
@@ -80,9 +82,13 @@ export function VehicleHandoverCreate({ sale, disabled, onReview }: Props) {
       ...(attachment?.prepared ? { assetToken: attachment.prepared.token } : {}),
     };
     onReview({
+      saleChange: { kind: "handover-create", body },
       title: "Create this handover record?",
       description:
-        "This moves the paid purchase to handover pending. It does not complete delivery. Your account must have a staff profile to create a handover.",
+        "This moves the paid purchase to handover pending. It does not complete delivery. Your account must have a staff profile to create a handover." +
+        (attachment?.prepared
+          ? ""
+          : " No signed document is attached. Completion requires one, and this application cannot add it after creation."),
       facts: [
         { label: "Transaction", value: sale.transactionNumber },
         { label: "Recipient", value: body.recipientName },
@@ -106,6 +112,10 @@ export function VehicleHandoverCreate({ sale, disabled, onReview }: Props) {
       <p>
         Record the recipient and the vehicle readings for this paid purchase. Check the
         details before continuing; they cannot be edited after creation.
+      </p>
+      <p className="field-hint">
+        A signed document is needed to complete delivery. If you create this record
+        without one, this application cannot attach it later.
       </p>
       {uncertain && (
         <p className="notice" role="status">
@@ -210,20 +220,49 @@ const explanations: Record<Target, string> = {
     "This cancels the handover record. It does not refund payment, cancel the purchase or release the vehicle. The purchase remains handover pending. You cannot reopen or replace a cancelled handover; an administrator must coordinate recovery before delivery can continue.",
 };
 
-export function VehicleHandoverRecord({ sale, disabled, onReview }: Props) {
+export function VehicleHandoverRecord({
+  sale,
+  disabled,
+  accessDisabled,
+  onReview,
+}: Props) {
   const handover = sale.handover;
+  const [version, setVersion] = useState(handover?.version),
+    changed = version !== handover?.version;
   const [target, setTarget] = useState<Target>(
-    handover?.status === "READY" ? "COMPLETED" : "READY",
+    handover?.status === "READY"
+      ? handover.hasSignedDocument === false
+        ? "CANCELLED"
+        : "COMPLETED"
+      : "READY",
   );
   if (!handover) return null;
-  const choices: readonly Target[] = transitions[handover.status];
+  const choices: readonly Target[] = transitions[handover.status].filter(
+    (status) => status !== "COMPLETED" || handover.hasSignedDocument !== false,
+  );
   function review() {
-    if (!handover || disabled || !choices.includes(target)) return;
+    if (!handover || disabled || changed || !choices.includes(target)) return;
     const body: RequestBody<
       "/staff/vehicle-transactions/{transactionId}/handovers/{handoverId}/status",
       "post"
-    > = { status: target, expectedVersion: handover.version };
+    > = { status: target, expectedVersion: version! };
     onReview({
+      saleChange: {
+        kind: "handover-status",
+        handoverId: handover.id,
+        expectedVersion: version,
+        body,
+      },
+      onConfirmed: () => {
+        setVersion((version ?? 0) + 1);
+        setTarget(
+          target === "READY"
+            ? handover.hasSignedDocument === false
+              ? "CANCELLED"
+              : "COMPLETED"
+            : "READY",
+        );
+      },
       title: "Change this handover status?",
       description: explanations[target],
       facts: [
@@ -242,6 +281,9 @@ export function VehicleHandoverRecord({ sale, disabled, onReview }: Props) {
   return (
     <section className="detail-section">
       <h2>Recorded handover</h2>
+      <p className="wsd-lifecycle">
+        Reference {handover.id} · Version {handover.version}
+      </p>
       <p className="status">{handover.status}</p>
       <dl className="totals">
         <dt>Recipient</dt>
@@ -256,6 +298,8 @@ export function VehicleHandoverRecord({ sale, disabled, onReview }: Props) {
         </dd>
         <dt>Keys recorded</dt>
         <dd>{handover.keysDelivered}</dd>
+        <dt>Signed document</dt>
+        <dd>{handover.hasSignedDocument === false ? "Not attached" : "Attached"}</dd>
       </dl>
       {handover.readyAt && <p>Ready {formatBusinessDate(handover.readyAt)}</p>}
       {handover.completedAt && (
@@ -270,12 +314,20 @@ export function VehicleHandoverRecord({ sale, disabled, onReview }: Props) {
           cancelled handover. Coordinate recovery with an administrator.
         </p>
       )}
-      <PrivateDocumentAccess
-        key={handover.id}
-        path={`/staff/vehicle-transactions/${sale.id}/handovers/${handover.id}/access`}
-        disabled={disabled}
-        label="signed handover document"
-      />
+      {handover.hasSignedDocument === false ? (
+        <p className="notice">
+          Completion requires a signed handover document. None is attached, and this
+          application cannot add it after creation. Coordinate delivery recovery with an
+          administrator.
+        </p>
+      ) : (
+        <PrivateDocumentAccess
+          key={handover.id}
+          path={`/staff/vehicle-transactions/${sale.id}/handovers/${handover.id}/access`}
+          disabled={accessDisabled ?? disabled}
+          label="signed handover document"
+        />
+      )}
       {choices.length > 0 && (
         <form
           data-draft-key={JSON.stringify(["vehicle-handover:2", sale?.id])}
@@ -284,7 +336,32 @@ export function VehicleHandoverRecord({ sale, disabled, onReview }: Props) {
             review();
           }}
         >
-          <fieldset disabled={disabled}>
+          {changed && (
+            <div className="notice">
+              <p>
+                This handover changed. Your choice is kept; reload before reviewing again.
+              </p>
+              <button
+                type="button"
+                className="button secondary"
+                disabled={disabled}
+                onClick={(event) => {
+                  forgetSaleFormDraft(event.currentTarget);
+                  setVersion(handover.version);
+                  setTarget(
+                    handover.status === "READY"
+                      ? handover.hasSignedDocument === false
+                        ? "CANCELLED"
+                        : "COMPLETED"
+                      : "READY",
+                  );
+                }}
+              >
+                Reload handover fields
+              </button>
+            </div>
+          )}
+          <fieldset disabled={disabled || changed}>
             <div className="field">
               <label htmlFor="handover-status">Next handover status</label>
               <select

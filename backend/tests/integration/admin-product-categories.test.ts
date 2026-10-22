@@ -222,14 +222,11 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         row = await category();
       const responses = await Promise.all(
         ["First", "Second"].map((name) =>
-          request(app)
-            .patch(`${endpoint}/${row.id}`)
-            .set(actor.headers)
-            .send({
-              name,
-              description: null,
-              expectedUpdatedAt: row.updatedAt.toISOString(),
-            }),
+          request(app).patch(`${endpoint}/${row.id}`).set(actor.headers).send({
+            name,
+            description: null,
+            expectedUpdatedAt: row.updatedAt.toISOString(),
+          }),
         ),
       );
       expect(responses.map((r) => r.status).sort()).toEqual([200, 409]);

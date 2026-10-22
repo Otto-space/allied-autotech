@@ -47,6 +47,10 @@ export function createManualRefundsRouter() {
   const router = Router();
   const service = new ManualRefundsService();
   router.use(authenticate(), requireStaff);
+  router.get("/", (_req, res, next) => {
+    res.set("Cache-Control", "private, no-store");
+    next();
+  });
   router.get("/", validate({ query: refundListQuerySchema }), async (req, res) => {
     res.json(
       successResponse(
@@ -60,6 +64,20 @@ export function createManualRefundsRouter() {
       ),
     );
   });
+  router.get(
+    "/:refundId",
+    validate({ params: params.strict(), query: z.object({}).strict() }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      res.json(
+        successResponse(
+          "Current permitted refund",
+          req.id,
+          await service.current(req.actor!, id(res), context(req)),
+        ),
+      );
+    },
+  );
   router.use(requireCsrf);
   router.post(
     "/:refundId/decision",

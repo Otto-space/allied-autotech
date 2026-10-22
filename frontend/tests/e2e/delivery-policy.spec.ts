@@ -1,260 +1,340 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import path from "node:path";
-import os from "node:os";
-import { collectionOnlyOptions } from "../fixtures/fulfillment";
-
-const id = (n: number) => `e8000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-const settings = {
-  collectionEnabled: true,
-  collectionAddress: collectionOnlyOptions.collection.address,
-  zones: [
-    {
-      id: "synthetic-area",
-      label: "Synthetic area",
-      city: "Port Harcourt",
-      state: "Rivers",
-      feeKobo: "10101",
-    },
-  ],
-};
-const initial = () => ({
-  id: id(3),
-  key: "delivery",
-  version: 4,
-  approvalStatus: "APPROVED",
-  source: "Synthetic approved source",
-  sourceQuestion: "Q9",
-  sourceSignatory: null,
-  approvedByUserId: id(2),
-  effectiveAt: "2026-01-01T00:00:00Z",
-  recordedAt: "2026-01-01T00:00:00Z",
-  approvalEvidence: "Synthetic signed delivery approval",
-  settings,
-});
-const reply = (route: Route, data: unknown) =>
-  route.fulfill({
-    json: {
-      success: true,
-      data,
-      message: "Synthetic response",
-      meta: { requestId: "delivery-policy-test" },
-    },
-  });
-async function fixture(
-  page: Page,
-  options: { role?: string; outcome?: "stale" | "interrupted" | "mismatched" } = {},
-) {
-  const state = {
-    reads: 0,
-    writes: [] as Record<string, unknown>[],
-    history: [initial()],
-    failRead: false,
-  };
-  await page.route("**/api/v1/**", async (route) => {
-    const url = new URL(route.request().url());
-    const endpoint = url.pathname.replace("/api/v1", "");
-    if (endpoint === "/auth/session")
-      return reply(route, {
-        id: id(1),
-        user: {
-          id: id(2),
-          email: "synthetic@example.test",
-          role: options.role ?? "SUPER_ADMIN",
-        },
-        mfaRequired: true,
-        mfaVerifiedAt: "2026-09-24T09:00:00Z",
-      });
-    if (endpoint === "/auth/csrf")
-      return reply(route, { csrfToken: "delivery-policy-csrf-".repeat(4) });
-    if (endpoint === "/admin/policies" && route.request().method() === "GET") {
-      state.reads++;
-      expect(url.searchParams.get("key")).toBe("delivery");
-      expect(url.searchParams.get("limit")).toBe("100");
-      if (state.failRead)
-        return route.fulfill({
-          status: 503,
-          json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
-        });
-      return reply(route, state.history);
-    }
-    if (endpoint === "/admin/policies" && route.request().method() === "POST") {
-      const body = route.request().postDataJSON();
-      state.writes.push(body);
-      expect(route.request().headers()["x-csrf-token"]).toBe(
-        "delivery-policy-csrf-".repeat(4),
-      );
-      if (options.outcome === "stale")
-        return route.fulfill({
-          status: 409,
-          json: { success: false, error: { code: "CONFLICT" } },
-        });
-      if (options.outcome === "interrupted") return route.abort("failed");
-      const saved = {
-        ...initial(),
-        id: id(4),
-        version: 5,
-        source: body.source,
-        approvalEvidence: body.approvalEvidence,
-        effectiveAt: body.effectiveAt,
-        settings: body.settings,
-      };
-      state.history = [saved, ...state.history];
-      return reply(
-        route,
-        options.outcome === "mismatched" ? { ...saved, version: 6 } : saved,
-      );
-    }
-    return route.fulfill({
-      status: 404,
-      json: { success: false, error: { code: "NOT_FOUND" } },
-    });
-  });
-  return state;
-}
-async function fill(page: Page) {
-  await page.getByLabel("Delivery fee (NGN, before tax)").fill("202.02");
-  await page
+import {
+  workDeliveryPolicyFixture,
+  deliveryPolicyRow,
+  id,
+} from "../fixtures/work-delivery-policy";
+const root = "/admin/delivery-policy";
+const reviewButton = (p: Page) =>
+  p.getByRole("button", { name: "Review delivery approval", exact: true });
+async function fill(p: Page) {
+  await p
     .getByLabel("Approval source", { exact: true })
-    .fill("Synthetic approval TEST-DEL");
-  await page
+    .fill("Synthetic owner delivery approval");
+  await p
     .getByLabel("Written approval or reference")
-    .fill("Synthetic written delivery approval TEST-001.");
-}
-test("owner reviews approved areas and publishes exact fees with version protection", async ({
-  page,
-}) => {
-  const state = await fixture(page);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  page.on("console", (message) => {
-    if (["error", "warning"].includes(message.type())) errors.push(message.text());
-  });
-  await page.goto("/admin/delivery-policy");
-  await expect(page).toHaveTitle(/Delivery setup/);
-  await expect(page.getByLabel("Delivery fee (NGN, before tax)")).toHaveValue("101.01");
-  await fill(page);
-  await page
+    .fill("Synthetic signed delivery list and exact fee approval for verification.");
+  await p
     .getByLabel("Effective date and time", { exact: false })
-    .fill("2027-01-05T08:30");
-  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
-    await page.setViewportSize({ width, height: 900 });
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    ).toBe(true);
-  }
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({
-    path: path.join(os.tmpdir(), "allied-delivery-policy-1440.png"),
-  });
-  await page.getByRole("button", { name: "Review delivery approval" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText(/202.02 before applicable tax/)).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Go back" })).toBeFocused();
-  expect(state.writes).toEqual([]);
-  await page.setViewportSize({ width: 390, height: 844 });
+    .fill("2048-01-05T08:30");
+}
+async function review(p: Page) {
+  await fill(p);
+  await reviewButton(p).click();
+}
+async function confirm(p: Page) {
+  await p
+    .getByRole("dialog")
+    .getByRole("button", { name: "Approve delivery", exact: true })
+    .click();
+}
+async function axe(p: Page) {
   expect(
     (
-      await new AxeBuilder({ page })
+      await new AxeBuilder({ page: p })
         .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
         .analyze()
     ).violations,
   ).toEqual([]);
-  await page.screenshot({
-    path: path.join(os.tmpdir(), "allied-delivery-policy-review-390.png"),
-  });
-  await dialog.getByRole("button", { name: "Approve delivery", exact: true }).click();
-  await expect(page.getByText("Latest recorded version: 5.")).toBeVisible();
-  expect(state.writes).toEqual([
-    {
-      kind: "DELIVERY",
-      expectedVersion: 4,
-      effectiveAt: "2027-01-05T07:30:00.000Z",
-      source: "Synthetic approval TEST-DEL",
-      approvalEvidence: "Synthetic written delivery approval TEST-001.",
-      settings: { ...settings, zones: [{ ...settings.zones[0], feeKobo: "20202" }] },
-    },
-  ]);
-  await expect(page.getByLabel("Written approval or reference")).toHaveValue("");
-  await page.getByText("Delivery policy history", { exact: true }).click();
-  await expect(page.getByRole("heading", { name: /Version 5/ })).toBeVisible();
-  expect(errors).toEqual([]);
-});
-for (const role of ["STAFF", "ADMIN"])
-  test(`${role} cannot read or publish owner delivery settings`, async ({ page }) => {
-    const state = await fixture(page, { role });
-    await page.goto("/admin/delivery-policy");
+}
+for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
+  test(`delivery responsive and accessible at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1050 });
+    const f = await workDeliveryPolicyFixture(page),
+      errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto(root);
+    const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
+    await expect(nav.locator("ol > li")).toHaveCount(2);
+    await expect(nav.getByRole("link", { name: "Overview" })).toHaveAttribute(
+      "href",
+      "/admin",
+    );
+    await expect(nav.locator('[aria-current="page"]')).toHaveText("Delivery setup");
     await expect(
-      page.getByText("Super Admin access is required to configure delivery."),
+      page.getByRole("region", { name: "Current delivery policy", exact: true }),
+    ).toContainText("Version 2");
+    await expect(page.locator(".delivery-schedule")).toContainText("Version 3");
+    await expect(page.locator(".delivery-schedule")).toContainText(
+      "Latest recorded version: 4.",
+    );
+    await expect(
+      page.getByText("Delivery available at checkout", { exact: true }),
     ).toBeVisible();
-    expect(state.reads).toBe(0);
-    expect(state.writes).toEqual([]);
+    await page.getByText("Delivery policy history", { exact: true }).click();
+    await page.locator(".delivery-version > summary").first().click();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await axe(page);
+    await review(page);
+    await axe(page);
+    await page.keyboard.press("Escape");
+    await expect(reviewButton(page)).toBeFocused();
+    expect(f.writes).toEqual([]);
+    expect(errors).toEqual([]);
   });
-for (const outcome of ["stale", "interrupted", "mismatched"] as const)
-  test(`delivery approval handles ${outcome} without automatic replay`, async ({
+test("exact complete-list publication includes zero and maximum fees and retires draft", async ({
+  page,
+}) => {
+  const f = await workDeliveryPolicyFixture(page);
+  await page.goto(root);
+  await page
+    .getByLabel("Delivery fee (NGN, before tax)", { exact: true })
+    .first()
+    .fill("9999999999999.99");
+  await page
+    .getByLabel("Delivery fee (NGN, before tax)", { exact: true })
+    .nth(1)
+    .fill("0.00");
+  await review(page);
+  await page.getByRole("button", { name: "Go back", exact: true }).click();
+  expect(f.writes).toEqual([]);
+  await reviewButton(page).click();
+  await confirm(page);
+  await expect(
+    page.getByRole("heading", { name: "Delivery policy recorded" }),
+  ).toBeFocused();
+  await expect(
+    page.getByText("Latest recorded version: 5.", { exact: true }),
+  ).toBeVisible();
+  expect(f.writes).toHaveLength(1);
+  expect(f.writes[0]).toMatchObject({
+    kind: "DELIVERY",
+    expectedVersion: 4,
+    effectiveAt: "2048-01-05T07:30:00.000Z",
+    settings: {
+      collectionEnabled: true,
+      zones: [
+        { id: "synthetic-central", feeKobo: "999999999999999" },
+        { id: "synthetic-extended", feeKobo: "0" },
+      ],
+    },
+  });
+  await expect(page.getByLabel("Written approval or reference")).toHaveValue("");
+  await expect(
+    page.getByRole("region", { name: "Current delivery policy", exact: true }),
+  ).toContainText("Version 2");
+});
+test("added and removed area identities and values persist across reload", async ({
+  page,
+}) => {
+  const f = await workDeliveryPolicyFixture(page);
+  await page.goto(root);
+  await page.getByRole("button", { name: "Remove area 1", exact: true }).click();
+  await page.getByRole("button", { name: "Add delivery area", exact: true }).click();
+  await page.getByLabel("Area name", { exact: true }).nth(1).fill("Synthetic new area");
+  await page.getByLabel("City", { exact: true }).nth(1).fill("Port Harcourt");
+  await page.getByLabel("State", { exact: true }).nth(1).fill("Rivers");
+  await page
+    .getByLabel("Delivery fee (NGN, before tax)", { exact: true })
+    .nth(1)
+    .fill("101.01");
+  const newId = await page.locator('input[name="delivery.1-id"]').inputValue();
+  await page.reload();
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveCount(2);
+  await expect(page.getByLabel("Area name", { exact: true }).first()).toHaveValue(
+    "Synthetic extended area",
+  );
+  await expect(page.getByLabel("Area name", { exact: true }).nth(1)).toHaveValue(
+    "Synthetic new area",
+  );
+  await expect(page.locator('input[name="delivery.1-id"]')).toHaveValue(newId);
+  await review(page);
+  await confirm(page);
+  await expect(
+    page.getByRole("heading", { name: "Delivery policy recorded" }),
+  ).toBeVisible();
+  expect(f.writes[0]).toMatchObject({
+    settings: {
+      zones: [
+        { id: "synthetic-extended", feeKobo: "500000" },
+        { id: newId, feeKobo: "10101" },
+      ],
+    },
+  });
+});
+test("structure-only draft keeps its base through refresh and reload", async ({
+  page,
+}) => {
+  const f = await workDeliveryPolicyFixture(page);
+  await page.goto(root);
+  await page.getByRole("button", { name: "Remove area 1", exact: true }).click();
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveCount(1);
+  f.history.unshift(deliveryPolicyRow(5));
+  await page.getByRole("button", { name: "Refresh delivery policy" }).click();
+  await expect(page.locator(".delivery-schedule")).toContainText(
+    "Latest recorded version: 5.",
+  );
+  await expect(reviewButton(page)).toBeDisabled();
+  await page.reload();
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveCount(1);
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveValue(
+    "Synthetic extended area",
+  );
+  await expect(reviewButton(page)).toBeDisabled();
+  await page.getByRole("button", { name: "Reload action fields" }).click();
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveCount(2);
+  await expect(reviewButton(page)).toBeEnabled();
+  expect(f.writes).toEqual([]);
+});
+test("empty policy supplies no areas and permits recovery from an empty draft", async ({
+  page,
+}) => {
+  const f = await workDeliveryPolicyFixture(page);
+  f.history = [];
+  f.deliveryEnabled = false;
+  await page.goto(root);
+  await expect(
+    page.getByText("No delivery policy is effective at this check."),
+  ).toBeVisible();
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveCount(0);
+  await fill(page);
+  await reviewButton(page).click();
+  await expect(
+    page.getByRole("button", { name: "Add delivery area", exact: true }),
+  ).toBeFocused();
+  await page.getByRole("button", { name: "Add delivery area", exact: true }).click();
+  await expect(
+    page.getByLabel("Delivery fee (NGN, before tax)", { exact: true }),
+  ).toHaveValue("");
+  await page.getByRole("button", { name: "Remove area 1", exact: true }).click();
+  await page.reload();
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveCount(0);
+  expect(f.writes).toEqual([]);
+});
+test("area limit is 100 with complete row structure", async ({ page }) => {
+  const f = await workDeliveryPolicyFixture(page);
+  f.history = f.history.map((r) => ({
+    ...r,
+    settings: {
+      ...r.settings,
+      zones: Array.from({ length: 100 }, (_, i) => ({
+        ...r.settings.zones[0]!,
+        id: `zone-${i}`,
+        label: `Synthetic area ${i + 1}`,
+      })),
+    },
+  }));
+  await page.goto(root);
+  await expect(page.getByLabel("Area name", { exact: true })).toHaveCount(100);
+  await expect(
+    page.getByRole("button", { name: "Add delivery area", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Remove area 100", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Add delivery area", exact: true }),
+  ).toBeEnabled();
+  expect(f.writes).toEqual([]);
+});
+for (const fee of ["-1", "1.001", "10000000000000.00", "1e3"])
+  test(`rejects invalid exact fee ${fee}`, async ({ page }) => {
+    const f = await workDeliveryPolicyFixture(page);
+    await page.goto(root);
+    await fill(page);
+    await page
+      .getByLabel("Delivery fee (NGN, before tax)", { exact: true })
+      .first()
+      .fill(fee);
+    await reviewButton(page).click();
+    await expect(
+      page.getByLabel("Delivery fee (NGN, before tax)", { exact: true }).first(),
+    ).toBeFocused();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    expect(f.writes).toEqual([]);
+  });
+for (const change of ["version", "identity"])
+  test(`fresh ${change} prevents approval`, async ({ page }) => {
+    const f = await workDeliveryPolicyFixture(page);
+    await page.goto(root);
+    await review(page);
+    if (change === "version") f.history.unshift(deliveryPolicyRow(5));
+    else f.base.profileOwner = id(999);
+    await confirm(page);
+    if (change === "identity")
+      await expect(
+        page.getByRole("button", { name: "Refresh permission" }),
+      ).toBeVisible();
+    else
+      await expect(
+        page
+          .getByRole("dialog")
+          .getByRole("button", { name: "Approve delivery", exact: true }),
+      ).toBeDisabled();
+    expect(f.writes).toEqual([]);
+  });
+for (const outcome of ["lost", "wrong actor"])
+  test(`${outcome} requires reconciliation after reload with no replay`, async ({
     page,
   }) => {
-    const state = await fixture(page, { outcome });
-    await page.goto("/admin/delivery-policy");
-    await fill(page);
-    await page.getByRole("button", { name: "Review delivery approval" }).click();
-    const dialog = page.getByRole("dialog");
-    const confirm = dialog.getByRole("button", { name: "Approve delivery", exact: true });
-    await confirm.click();
-    await expect(confirm).toBeDisabled();
+    const f = await workDeliveryPolicyFixture(page);
+    f.drop = outcome === "lost";
+    f.wrongActor = outcome === "wrong actor";
+    await page.goto(root);
+    await review(page);
+    await confirm(page);
+    await page.getByRole("button", { name: "Close & review record" }).click();
+    await page.reload();
+    await expect(reviewButton(page)).toBeDisabled();
+    await page.getByRole("button", { name: "Check current policy", exact: true }).click();
     await expect(
-      page.getByText("Delivery policy approved.", { exact: true }),
-    ).toHaveCount(0);
-    const unknown = outcome !== "stale";
-    await dialog
-      .getByRole("button", { name: unknown ? "Close & review record" : "Go back" })
-      .click();
-    if (unknown) {
-      await expect(
-        page.getByRole("button", { name: "Review delivery approval" }),
-      ).toBeDisabled();
-      state.failRead = true;
-      await page.getByRole("button", { name: "Refresh delivery policy" }).click();
-      await expect(page.getByText(/The approval outcome is uncertain/)).toBeVisible();
-      state.failRead = false;
-      await page.getByRole("button", { name: "Refresh delivery policy" }).click();
-      await expect(
-        page.getByRole("button", { name: "Review delivery approval" }),
-      ).toBeDisabled();
-    }
-    expect(state.writes).toHaveLength(1);
+      page.getByRole("button", { name: "Clear reconciled approval lock" }),
+    ).toBeDisabled();
+    await page.getByRole("checkbox", { name: /I independently reconciled/ }).check();
+    await page.getByRole("button", { name: "Clear reconciled approval lock" }).click();
+    await page.getByRole("button", { name: "Reload action fields" }).click();
+    await expect(reviewButton(page)).toBeEnabled();
+    expect(f.writes).toHaveLength(1);
   });
-test("owner must supply an area, valid fee and written approval", async ({ page }) => {
-  const state = await fixture(page);
-  await page.goto("/admin/delivery-policy");
-  await fill(page);
-  await page.getByRole("button", { name: "Remove area 1" }).click();
-  await page.getByRole("button", { name: "Review delivery approval" }).click();
-  await expect(page.getByText("Add at least one approved delivery area.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Add delivery area" })).toBeFocused();
-  await page.getByRole("button", { name: "Add delivery area" }).click();
-  await page.getByLabel("Area name", { exact: true }).fill("Synthetic replacement");
-  await page.getByLabel("City", { exact: true }).fill("Port Harcourt");
-  await page.getByLabel("State", { exact: true }).fill("Rivers");
-  await page.getByLabel("Delivery fee (NGN, before tax)").fill("1.005");
-  await page.getByRole("button", { name: "Review delivery approval" }).click();
-  await expect(page.getByLabel("Delivery fee (NGN, before tax)")).toBeFocused();
-  await page.getByLabel("Delivery fee (NGN, before tax)").fill("0");
-  await page.getByLabel("Written approval or reference").fill(" ".repeat(20));
-  await page.getByRole("button", { name: "Review delivery approval" }).click();
-  await expect(page.getByLabel("Written approval or reference")).toBeFocused();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  expect(state.writes).toEqual([]);
-});
-test("delivery approval drafts clear when the account changes", async ({ page }) => {
-  const state = await fixture(page);
-  await page.goto("/admin/delivery-policy");
-  await fill(page);
-  await page.getByRole("button", { name: "Review delivery approval" }).click();
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByLabel("Written approval or reference")).toHaveCount(0);
-  await expect(page.getByText(/Your session changed/)).toBeVisible();
-  expect(state.writes).toEqual([]);
-});
+for (const condition of ["checkout", "delivery"])
+  test(`approval is distinct from ${condition} availability`, async ({ page }) => {
+    const f = await workDeliveryPolicyFixture(page);
+    f.deliveryEnabled = false;
+    if (condition === "checkout") f.checkoutEnabled = false;
+    await page.goto(root);
+    await expect(
+      page.getByRole("region", { name: "Current delivery policy", exact: true }),
+    ).toContainText("Approved");
+    await expect(
+      page.getByText("Delivery unavailable at checkout", { exact: true }),
+    ).toBeVisible();
+    if (condition === "checkout")
+      await expect(
+        page.getByText("Checkout is unavailable under the current financial policy.", {
+          exact: true,
+        }),
+      ).toBeVisible();
+    await expect(reviewButton(page)).toBeEnabled();
+    expect(f.writes).toEqual([]);
+  });
+for (const status of ["error", "denied"])
+  test(`${status} state is accessible and permits no approval`, async ({ page }) => {
+    const f = await workDeliveryPolicyFixture(page);
+    f.fail = status === "error";
+    f.denied = status === "denied";
+    await page.goto(root);
+    await expect(
+      page.getByRole("button", {
+        name: status === "denied" ? "Refresh permission" : "Refresh delivery policy",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(page.locator(".delivery-form")).toHaveCount(0);
+    await axe(page);
+    expect(f.writes).toEqual([]);
+  });
+for (const role of ["STAFF", "ADMIN"])
+  test(`${role} cannot approve delivery`, async ({ page }) => {
+    const f = await workDeliveryPolicyFixture(page);
+    f.base.role = role;
+    await page.goto(root);
+    await expect(
+      page.getByText(
+        "Delivery policy requires an active, verified Super Admin account with MFA.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(page.locator(".delivery-form")).toHaveCount(0);
+    expect(f.writes).toEqual([]);
+  });

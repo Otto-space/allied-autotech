@@ -176,7 +176,7 @@ function assertWithinBookingWindow(startsAt: Date, now = new Date()): void {
     );
 }
 
-async function cancelPendingReminders(
+export async function cancelPendingReminders(
   transaction: Prisma.TransactionClient,
   bookingId: string,
 ): Promise<void> {
@@ -192,6 +192,24 @@ async function cancelPendingReminders(
       nextAttemptAt: null,
     },
   });
+}
+
+// Preserve contributor history across the legacy-to-workforce cutover. Callers
+// already hold the parent booking lock, shared by both operational paths.
+async function recordWorkContributor(
+  transaction: Prisma.TransactionClient,
+  workOrderId: string,
+  userId: string,
+) {
+  const work = await transaction.workOrder.findUniqueOrThrow({
+    where: { id: workOrderId },
+    select: { workedByUserIds: true },
+  });
+  if (!work.workedByUserIds.includes(userId))
+    await transaction.workOrder.update({
+      where: { id: workOrderId },
+      data: { workedByUserIds: { push: userId } },
+    });
 }
 
 export async function scheduleReminders(
@@ -1479,6 +1497,8 @@ export class ServiceOperationsService {
         lines,
         transaction,
       );
+      if (input.diagnosis || input.internalNotes)
+        await recordWorkContributor(transaction, workOrder.id, actor.userId);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "CREATE",
@@ -1526,6 +1546,8 @@ export class ServiceOperationsService {
         transaction,
       );
       if (updated === null) throw staleServiceOperation();
+      if (input.diagnosis !== undefined || input.internalNotes !== undefined)
+        await recordWorkContributor(transaction, workOrderId, actor.userId);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
         action: "UPDATE",
@@ -1580,6 +1602,8 @@ export class ServiceOperationsService {
         transaction,
       );
       if (result.count !== 1) throw staleServiceOperation();
+      if (["IN_PROGRESS", "AWAITING_PARTS", "QUALITY_CHECK"].includes(input.status))
+        await recordWorkContributor(transaction, workOrderId, actor.userId);
       if (input.status === "IN_PROGRESS" && booking.status === "CONFIRMED") {
         const changed = await this.repository.updateBooking(
           booking.id,

@@ -1,0 +1,58 @@
+.work-notifications .wn-breadcrumb {
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+.work-notifications .wn-breadcrumb ol {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.work-notifications .wn-breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.work-notifications .wn-breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.work-notifications .wn-breadcrumb svg {
+  flex-shrink: 0;
+  color: var(--cn-muted);
+}
+.work-notifications .wn-breadcrumb span {
+  color: var(--cn-muted);
+  white-space: nowrap;
+}
+.work-notifications .cn-page-heading h1 {
+  font-size: 30px;
+  line-height: 1.2;
+}
+.work-notifications .cn-inbox,
+.work-notifications .cn-preferences {
+  border-radius: 6px;
+}
+.dashboard .dashboard-content .work-notifications select {
+  min-height: 48px;
+  font-size: 16px;
+}
+.dashboard .dashboard-content .work-notifications .field label {
+  font-size: 14px;
+}
+.work-notifications .button {
+  font-size: 13px;
+}
+@media (max-width: 600px) {
+  .work-notifications .cn-page-heading h1 {
+    font-size: 24px;
+  }
+  .work-notifications .wn-breadcrumb {
+    margin-bottom: 16px;
+  }
+}

@@ -10,6 +10,7 @@ export const staffVehicleSaleSchema = vehicleTransactionSchema.extend({
       version: z.number().int().nonnegative(),
       recipientPhone: z.string().nullable(),
       cancelledAt: z.string().nullable(),
+      hasSignedDocument: z.boolean().optional(),
     })
     .nullable(),
   vehicleListing: vehicleTransactionSchema.shape.vehicleListing.extend({

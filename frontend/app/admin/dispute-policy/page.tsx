@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { OperationalPolicy } from "@/app/components/operational-policy";
+import { DisputePolicy } from "@/app/components/dispute-policy";
+import "./dispute-policy.css";
 export const metadata: Metadata = { title: "Dispute policy" };
 export default function Page() {
-  return <OperationalPolicy kind="DISPUTES" />;
+  return <DisputePolicy />;
 }

@@ -19,13 +19,11 @@ it("signs the actual backend route for SSR catalogue reads, independently of a p
   vi.stubEnv("VERCEL", "1");
   vi.stubEnv("BACKEND_ORIGIN", "https://backend.example.com");
   vi.stubEnv("PRIVATE_TESTING_ENABLED", "false");
-  const fetcher = vi
-    .fn()
-    .mockResolvedValue(
-      new Response(JSON.stringify({ success: true, data: { items: [] } }), {
-        headers: { "Content-Type": "application/json" },
-      }),
-    );
+  const fetcher = vi.fn().mockResolvedValue(
+    new Response(JSON.stringify({ success: true, data: { items: [] } }), {
+      headers: { "Content-Type": "application/json" },
+    }),
+  );
   vi.stubGlobal("fetch", fetcher);
   await publicData("/public/services?limit=3", (value) => value);
   const [url, options] = fetcher.mock.calls[0]!;

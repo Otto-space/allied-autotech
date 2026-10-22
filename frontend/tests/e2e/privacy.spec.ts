@@ -93,18 +93,19 @@ async function fixture(
       state.reads.push(endpoint);
       if (state.failRead) return failure(route);
       if (endpoint.endsWith("/privacy-requests")) {
-        expect(url.searchParams.get("limit")).toBe("10");
+        const limit = endpoint.startsWith("/staff/") ? 25 : 10;
+        expect(url.searchParams.get("limit")).toBe(String(limit));
         const start = url.searchParams.get("cursor")
           ? state.items.findIndex((item) => item.id === url.searchParams.get("cursor")) +
             1
           : 0;
-        const items = state.items.slice(start, start + 10).map((item) => ({
+        const items = state.items.slice(start, start + limit).map((item) => ({
           ...item,
           ...(state.wrongCustomer ? { userId: id(99) } : {}),
         }));
         return reply(route, {
           items,
-          nextCursor: state.items.length > start + 10 ? items.at(-1)?.id : null,
+          nextCursor: state.items.length > start + limit ? items.at(-1)?.id : null,
         });
       }
       if (endpoint === "/staff/retention-holds") {
@@ -173,7 +174,12 @@ async function fixture(
           ...hold,
           releasedAt: "2026-09-24T10:00:00Z",
         }));
-        return reply(route, { id: options.outcome === "mismatched" ? id(99) : id(20) });
+        return reply(route, {
+          id: options.outcome === "mismatched" ? id(99) : id(20),
+          userId: id(2),
+          releasedAt: "2026-09-24T10:00:00Z",
+          releaseReason: body.reason,
+        });
       }
     }
     return failure(route, 404);
@@ -195,10 +201,8 @@ async function fillIntake(page: Page) {
     .fill("Synthetic anonymization request for review only.");
 }
 async function openReview(page: Page) {
-  await page
-    .getByRole("button", { name: /Review request from/ })
-    .first()
-    .click();
+  if (await page.getByLabel("New request status").isVisible()) return;
+  await page.getByRole("button", { name: "Review request", exact: true }).first().click();
   await expect(page.getByLabel("New request status")).toBeVisible();
 }
 async function fillReview(page: Page) {
@@ -353,7 +357,8 @@ for (const outcome of ["interrupted", "mismatched", "stale", "revoked"] as const
     if (unknown) {
       state.failRead = true;
       await page.getByRole("button", { name: "Refresh privacy requests" }).click();
-      await expect(page.locator(".privacy-record")).toHaveCount(0);
+      await expect(page.locator(".privacy-record")).toHaveCount(1);
+      await expect(page.getByText(/Previously loaded requests are shown/)).toBeVisible();
       state.failRead = false;
       await page.getByRole("button", { name: "Refresh privacy requests" }).click();
       await expect(page.getByRole("button", { name: "Review response" })).toBeDisabled();

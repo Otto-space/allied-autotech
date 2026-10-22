@@ -1,156 +1,41 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import path from "node:path";
-import os from "node:os";
-
-const id = (n: number) => `e8000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-const settings = {
-  startEvent: "REQUESTED",
-  businessDays: 10,
-  countingConvention: "EXCLUDE_START_SAME_LOCAL_TIME",
-  bankingDays: [1, 2, 3, 4, 5],
-  holidays: ["2026-10-01"],
-  timezone: "Africa/Lagos",
-};
-const initial = () => ({
-  id: id(3),
-  key: "bank_refund_clock",
-  version: 4,
-  approvalStatus: "APPROVED",
-  source: "Synthetic approved source",
-  sourceQuestion: "Q6",
-  sourceSignatory: null,
-  approvedByUserId: id(2),
-  effectiveAt: "2026-01-01T00:00:00Z",
-  recordedAt: "2026-01-01T00:00:00Z",
-  approvalEvidence: "Synthetic signed refund timing",
-  settings,
-});
-const reply = (route: Route, data: unknown) =>
-  route.fulfill({
-    json: {
-      success: true,
-      data,
-      message: "Synthetic response",
-      meta: { requestId: "refund-timing-test" },
-    },
+import {
+  workRefundTimingPolicyFixture,
+  refundTimingPolicyRow,
+  refundTimingSettings,
+  id,
+} from "../fixtures/work-refund-timing";
+const root = "/admin/refund-timing";
+const reviewButton = (page: Page) =>
+  page.getByRole("button", { name: "Review refund timing", exact: true });
+const approval = (page: Page) =>
+  page.getByLabel("I confirm that these banking days and holiday dates are approved.", {
+    exact: true,
   });
-async function fixture(
-  page: Page,
-  options: { role?: string; outcome?: "stale" | "interrupted" | "mismatched" } = {},
-) {
-  const state = {
-    reads: 0,
-    writes: [] as Record<string, unknown>[],
-    history: [initial()],
-    failRead: false,
-  };
-  await page.route("**/api/v1/**", async (route) => {
-    const url = new URL(route.request().url());
-    const endpoint = url.pathname.replace("/api/v1", "");
-    if (endpoint === "/auth/session")
-      return reply(route, {
-        id: id(1),
-        user: {
-          id: id(2),
-          email: "synthetic@example.test",
-          role: options.role ?? "SUPER_ADMIN",
-        },
-        mfaRequired: true,
-        mfaVerifiedAt: "2026-09-24T09:00:00Z",
-      });
-    if (endpoint === "/auth/csrf")
-      return reply(route, { csrfToken: "refund-timing-csrf-".repeat(4) });
-    if (endpoint === "/admin/policies" && route.request().method() === "GET") {
-      state.reads++;
-      expect(url.searchParams.get("key")).toBe("bank_refund_clock");
-      expect(url.searchParams.get("limit")).toBe("100");
-      if (state.failRead)
-        return route.fulfill({
-          status: 503,
-          json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
-        });
-      return reply(route, state.history);
-    }
-    if (endpoint === "/admin/policies" && route.request().method() === "POST") {
-      const body = route.request().postDataJSON();
-      state.writes.push(body);
-      expect(route.request().headers()["x-csrf-token"]).toBe(
-        "refund-timing-csrf-".repeat(4),
-      );
-      if (options.outcome === "stale")
-        return route.fulfill({
-          status: 409,
-          json: { success: false, error: { code: "CONFLICT" } },
-        });
-      if (options.outcome === "interrupted") return route.abort("failed");
-      const saved = {
-        ...initial(),
-        id: id(4),
-        version: 5,
-        source: body.source,
-        approvalEvidence: body.approvalEvidence,
-        effectiveAt: body.effectiveAt,
-        settings: body.settings,
-      };
-      state.history = [saved, ...state.history];
-      return reply(
-        route,
-        options.outcome === "mismatched" ? { ...saved, version: 6 } : saved,
-      );
-    }
-    return route.fulfill({
-      status: 404,
-      json: { success: false, error: { code: "NOT_FOUND" } },
-    });
-  });
-  return state;
-}
 async function fill(page: Page) {
-  await page.getByLabel("I confirm that these banking days").check();
-  await page.getByLabel("Clock starts when", { exact: true }).selectOption("APPROVED");
   await page
     .getByLabel("Approval source", { exact: true })
-    .fill("Synthetic approval TEST-CLOCK");
+    .fill("Synthetic owner calendar approval");
   await page
-    .getByLabel("Written approval or reference")
-    .fill("Synthetic written refund timing TEST-001.");
-}
-test("owner reviews banking calendar and publishes exact settings with version protection", async ({
-  page,
-}) => {
-  const state = await fixture(page);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  page.on("console", (message) => {
-    if (["error", "warning"].includes(message.type())) errors.push(message.text());
-  });
-  await page.goto("/admin/refund-timing");
-  await expect(page).toHaveTitle(/Bank refund timing/);
-  await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveValue(
-    "REQUESTED",
-  );
-  await fill(page);
+    .getByLabel("Written approval or reference", { exact: true })
+    .fill("Synthetic written calendar approval for isolated verification.");
   await page
     .getByLabel("Effective date and time", { exact: false })
-    .fill("2027-01-05T08:30");
-  for (const width of [320, 360, 375, 390, 414, 768, 1024, 1280, 1440, 1920]) {
-    await page.setViewportSize({ width, height: 900 });
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    ).toBe(true);
-  }
-  await page.setViewportSize({ width: 1440, height: 900 });
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({
-    path: path.join(os.tmpdir(), "allied-refund-timing-1440.png"),
-  });
-  await page.getByRole("button", { name: "Review refund timing" }).click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog.getByText("Refund approved", { exact: true })).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Go back" })).toBeFocused();
-  expect(state.writes).toEqual([]);
-  await page.setViewportSize({ width: 390, height: 844 });
+    .fill("2048-01-05T08:30");
+  await approval(page).check();
+}
+async function review(page: Page) {
+  await fill(page);
+  await reviewButton(page).click();
+}
+async function confirm(page: Page) {
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Approve refund timing", exact: true })
+    .click();
+}
+async function axe(page: Page) {
   expect(
     (
       await new AxeBuilder({ page })
@@ -158,140 +43,312 @@ test("owner reviews banking calendar and publishes exact settings with version p
         .analyze()
     ).violations,
   ).toEqual([]);
-  await page.screenshot({
-    path: path.join(os.tmpdir(), "allied-refund-timing-review-390.png"),
-  });
-  await dialog
-    .getByRole("button", { name: "Approve refund timing", exact: true })
-    .click();
-  await expect(page.getByText("Latest recorded version: 5.")).toBeVisible();
-  expect(state.writes).toEqual([
-    {
-      kind: "BANK_REFUND_CLOCK",
-      expectedVersion: 4,
-      effectiveAt: "2027-01-05T07:30:00.000Z",
-      source: "Synthetic approval TEST-CLOCK",
-      approvalEvidence: "Synthetic written refund timing TEST-001.",
-      settings: { ...settings, startEvent: "APPROVED" },
-    },
-  ]);
-  await expect(page.getByLabel("Written approval or reference")).toHaveValue("");
-  await page.getByText("Refund timing history", { exact: true }).click();
-  await expect(page.getByRole("heading", { name: /Version 5/ })).toBeVisible();
-  expect(errors).toEqual([]);
-});
-for (const role of ["STAFF", "ADMIN"])
-  test(`${role} cannot read or publish owner refund timing`, async ({ page }) => {
-    const state = await fixture(page, { role });
-    await page.goto("/admin/refund-timing");
+}
+for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
+  test(`refund calendar and full review at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1050 });
+    const f = await workRefundTimingPolicyFixture(page),
+      errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto(root);
     await expect(
-      page.getByText("Super Admin access is required to configure bank refund timing."),
+      page.getByRole("heading", { name: "Bank refund timing", exact: true }),
     ).toBeVisible();
-    expect(state.reads).toBe(0);
-    expect(state.writes).toEqual([]);
-  });
-for (const outcome of ["stale", "interrupted", "mismatched"] as const)
-  test(`refund timing handles ${outcome} without automatic replay`, async ({ page }) => {
-    const state = await fixture(page, { outcome });
-    await page.goto("/admin/refund-timing");
-    await fill(page);
-    await page.getByRole("button", { name: "Review refund timing" }).click();
-    const dialog = page.getByRole("dialog");
-    const confirm = dialog.getByRole("button", {
-      name: "Approve refund timing",
-      exact: true,
-    });
-    await confirm.click();
-    await expect(confirm).toBeDisabled();
+    const nav = page.getByRole("navigation", { name: "Breadcrumb", exact: true });
+    await expect(nav.locator("ol > li")).toHaveCount(2);
+    await expect(nav.locator('[aria-current="page"]')).toHaveText("Bank refund timing");
+    await expect(page.locator(".refund-timing-current")).toContainText("Revision 2");
     await expect(
-      page.getByText("Bank refund timing approved.", { exact: true }),
-    ).toHaveCount(0);
-    const unknown = outcome !== "stale";
-    await dialog
-      .getByRole("button", { name: unknown ? "Close & review record" : "Go back" })
-      .click();
-    if (unknown) {
-      await expect(
-        page.getByRole("button", { name: "Review refund timing" }),
-      ).toBeDisabled();
-      state.failRead = true;
-      await page.getByRole("button", { name: "Refresh refund timing" }).click();
-      await expect(page.getByText(/The approval outcome is uncertain/)).toBeVisible();
-      state.failRead = false;
-      await page.getByRole("button", { name: "Refresh refund timing" }).click();
-      await expect(
-        page.getByRole("button", { name: "Review refund timing" }),
-      ).toBeDisabled();
-    }
-    expect(state.writes).toHaveLength(1);
+      page.locator(".refund-timing-next").first().locator(":scope > summary"),
+    ).toContainText("5 Jan 2032");
+    await page.getByLabel("Clock starts when", { exact: true }).focus();
+    await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveCSS(
+      "outline-color",
+      "rgb(230, 3, 1)",
+    );
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+    ).toBe(true);
+    await axe(page);
+    await review(page);
+    await axe(page);
+    await expect(page.getByRole("dialog")).toContainText("10 banking days");
+    await page.keyboard.press("Escape");
+    await expect(reviewButton(page)).toBeFocused();
+    await expect(approval(page)).not.toBeChecked();
+    expect(f.writes).toEqual([]);
+    expect(errors).toEqual([]);
   });
-test("calendar validation requires weekdays, valid dates and written approval", async ({
+test("exact calendar approval normalizes holiday dates, retires draft and preserves current", async ({
   page,
 }) => {
-  const state = await fixture(page);
-  await page.goto("/admin/refund-timing");
-  await fill(page);
-  for (const day of ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-    await page.getByLabel(day, { exact: true }).uncheck();
-  await page.getByRole("button", { name: "Review refund timing" }).click();
-  await expect(page.getByText("Choose at least one approved banking day.")).toBeVisible();
-  await expect(page.getByLabel("Sunday", { exact: true })).toBeFocused();
-  await page.getByLabel("Monday", { exact: true }).check();
-  await page.getByLabel("Excluded holiday dates").fill("2026-02-30");
-  await page.getByRole("button", { name: "Review refund timing" }).click();
-  await expect(page.getByLabel("Excluded holiday dates")).toBeFocused();
-  await page.getByLabel("Excluded holiday dates").fill("");
-  await page.getByLabel("Written approval or reference").fill(" ".repeat(20));
-  await page.getByRole("button", { name: "Review refund timing" }).click();
-  await expect(page.getByLabel("Written approval or reference")).toBeFocused();
-  expect(state.writes).toEqual([]);
+  const f = await workRefundTimingPolicyFixture(page);
+  await page.goto(root);
+  await page
+    .getByLabel("Excluded holiday dates")
+    .fill("2027-12-25, 2027-01-01\n2027-12-25");
+  await page
+    .getByLabel("Clock starts when", { exact: true })
+    .selectOption("TRANSFER_RECORDED");
+  await review(page);
+  await confirm(page);
+  await expect(
+    page.getByRole("heading", { name: "Bank refund timing approved", exact: true }),
+  ).toBeFocused();
+  expect(f.writes).toHaveLength(1);
+  expect(f.writes[0]).toMatchObject({
+    kind: "BANK_REFUND_CLOCK",
+    expectedVersion: 4,
+    effectiveAt: "2048-01-05T07:30:00.000Z",
+    settings: {
+      ...refundTimingSettings,
+      startEvent: "TRANSFER_RECORDED",
+      holidays: ["2027-01-01", "2027-12-25"],
+    },
+  });
+  await expect(page.locator(".refund-timing-current")).toContainText("Revision 2");
+  await expect(page.getByLabel("Written approval or reference")).toHaveValue("");
+  await expect(approval(page)).not.toBeChecked();
 });
-
-test("refund timing drafts clear when the account changes", async ({ page }) => {
-  const state = await fixture(page);
-  await page.goto("/admin/refund-timing");
+test("calendar drafts survive reload without restored approval", async ({ page }) => {
+  await workRefundTimingPolicyFixture(page);
+  await page.goto(root);
   await fill(page);
-  await page.getByRole("button", { name: "Review refund timing" }).click();
-  await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByLabel("Written approval or reference")).toHaveCount(0);
-  await expect(page.getByText(/Your session changed/)).toBeVisible();
-  expect(state.writes).toEqual([]);
+  await page.getByLabel("Clock starts when", { exact: true }).selectOption("REQUESTED");
+  await page.getByLabel("Sunday", { exact: true }).check();
+  await page.reload();
+  await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveValue(
+    "REQUESTED",
+  );
+  await expect(page.getByLabel("Sunday", { exact: true })).toBeChecked();
+  await expect(page.getByLabel("Written approval or reference")).toHaveValue(
+    "Synthetic written calendar approval for isolated verification.",
+  );
+  await expect(approval(page)).not.toBeChecked();
 });
-
-test("missing configuration never invents an approved calendar", async ({ page }) => {
-  const state = await fixture(page);
-  state.history = [];
-  await page.goto("/admin/refund-timing");
+test("refresh and newer revision retain unsent fields until explicit reload", async ({
+  page,
+}) => {
+  const f = await workRefundTimingPolicyFixture(page);
+  await page.goto(root);
+  await fill(page);
+  await page.getByLabel("Clock starts when", { exact: true }).selectOption("REQUESTED");
+  f.history.unshift(refundTimingPolicyRow(5));
+  await page.getByRole("button", { name: "Refresh refund timing", exact: true }).click();
+  await expect(page.locator(".refund-timing-stale")).toBeVisible();
+  await page.reload();
+  await expect(page.locator(".refund-timing-stale")).toBeVisible();
+  await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveValue(
+    "REQUESTED",
+  );
+  await page.getByRole("button", { name: "Reload action fields" }).click();
+  await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveValue(
+    "APPROVED",
+  );
+  expect(f.writes).toEqual([]);
+});
+test("empty policy has no invented calendar and supports explicit owner choices", async ({
+  page,
+}) => {
+  const f = await workRefundTimingPolicyFixture(page);
+  f.history = [];
+  await page.goto(root);
   await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveValue("");
   await expect(page.getByRole("checkbox", { checked: true })).toHaveCount(0);
   await page
     .getByLabel("Clock starts when", { exact: true })
     .selectOption("TRANSFER_RECORDED");
   await page.getByLabel("Saturday", { exact: true }).check();
-  await page.getByLabel("I confirm that these banking days").check();
-  await page
-    .getByLabel("Approval source", { exact: true })
-    .fill("Synthetic approval TEST-CLOCK");
-  await page
-    .getByLabel("Written approval or reference")
-    .fill("Synthetic approved banking calendar with no holidays.");
-  await page.getByRole("button", { name: "Review refund timing" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Go back" }).click();
-  await expect(page.getByRole("button", { name: "Review refund timing" })).toBeFocused();
-  await expect(page.getByLabel("Clock starts when", { exact: true })).toHaveValue(
-    "TRANSFER_RECORDED",
-  );
-  expect(state.writes).toEqual([]);
+  await review(page);
+  await confirm(page);
+  await expect(
+    page.getByRole("heading", { name: "Bank refund timing approved", exact: true }),
+  ).toBeVisible();
+  expect(f.writes[0]).toMatchObject({
+    expectedVersion: 0,
+    settings: { bankingDays: [6], holidays: [] },
+  });
 });
-
-test("customer cannot load the owner timing screen or policy history", async ({
+test("calendar validates banking days, real dates, trimmed evidence and future schedule", async ({
   page,
 }) => {
-  const state = await fixture(page, { role: "CUSTOMER" });
-  await page.goto("/admin/refund-timing");
-  await expect(page).toHaveURL(/\/dashboard$/);
-  await expect(page.getByRole("heading", { name: "Bank refund timing" })).toHaveCount(0);
-  expect(state.reads).toBe(0);
-  expect(state.writes).toEqual([]);
+  const f = await workRefundTimingPolicyFixture(page);
+  await page.goto(root);
+  await fill(page);
+  for (const day of ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    await page.getByLabel(day, { exact: true }).uncheck();
+  await reviewButton(page).click();
+  await expect(page.getByLabel("Sunday", { exact: true })).toBeFocused();
+  await page.getByLabel("Monday", { exact: true }).check();
+  await page.getByLabel("Excluded holiday dates").fill("2026-02-30");
+  await reviewButton(page).click();
+  await expect(page.getByLabel("Excluded holiday dates")).toBeFocused();
+  await page.getByLabel("Excluded holiday dates").fill("");
+  await page.getByLabel("Written approval or reference").fill(" ".repeat(20));
+  await reviewButton(page).click();
+  await expect(page.getByLabel("Written approval or reference")).toBeFocused();
+  await fill(page);
+  await page
+    .getByLabel("Effective date and time", { exact: false })
+    .fill("2020-01-01T08:00");
+  await reviewButton(page).click();
+  await expect(
+    page.getByLabel("Effective date and time", { exact: false }),
+  ).toBeFocused();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  expect(f.writes).toEqual([]);
 });
+test("session change redacts review and draft", async ({ page }) => {
+  const f = await workRefundTimingPolicyFixture(page);
+  await page.goto(root);
+  await review(page);
+  await page.evaluate(() => window.dispatchEvent(new CustomEvent("aat:session-changed")));
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByLabel("Written approval or reference")).toHaveCount(0);
+  expect(f.writes).toEqual([]);
+});
+test("definitive rejection never retries automatically", async ({ page }) => {
+  const f = await workRefundTimingPolicyFixture(page);
+  f.reject = true;
+  await page.goto(root);
+  await review(page);
+  await confirm(page);
+  await expect(
+    page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Approve refund timing", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("dialog").getByRole("button", { name: "Go back" }).click();
+  await expect(approval(page)).not.toBeChecked();
+  expect(f.writes).toHaveLength(1);
+});
+test("customer cannot read owner calendar", async ({ page }) => {
+  const f = await workRefundTimingPolicyFixture(page);
+  f.base.role = "CUSTOMER";
+  await page.goto(root);
+  await expect(page).toHaveURL(/\/dashboard$/);
+  expect(f.reads).toBe(0);
+  expect(f.writes).toEqual([]);
+});
+test("maximum holiday calendar remains readable and excess dates cannot be approved", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 1050 });
+  const f = await workRefundTimingPolicyFixture(page);
+  await page.goto(root);
+  await fill(page);
+  const dates = Array.from({ length: 367 }, (_, index) =>
+    new Date(Date.UTC(2032, 0, index + 1)).toISOString().slice(0, 10),
+  );
+  await page.getByLabel("Excluded holiday dates").fill(dates.join("\n"));
+  await reviewButton(page).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByLabel("Excluded holiday dates")).toBeFocused();
+  await page.getByLabel("Excluded holiday dates").fill(dates.slice(0, 366).join("\n"));
+  await reviewButton(page).click();
+  await expect(page.getByRole("dialog")).toContainText(dates[365]!);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await axe(page);
+  expect(f.writes).toEqual([]);
+});
+test("failed refresh preserves draft while approval stays disabled", async ({ page }) => {
+  const f = await workRefundTimingPolicyFixture(page);
+  await page.goto(root);
+  await fill(page);
+  f.fail = true;
+  await page.getByRole("button", { name: "Refresh refund timing", exact: true }).click();
+  await expect(
+    page.getByText("The request could not be completed. Please try again shortly.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(reviewButton(page)).toBeDisabled();
+  await expect(page.getByLabel("Written approval or reference")).toHaveValue(
+    "Synthetic written calendar approval for isolated verification.",
+  );
+  f.fail = false;
+  await page.getByRole("button", { name: "Refresh refund timing", exact: true }).click();
+  await expect(reviewButton(page)).toBeEnabled();
+  expect(f.writes).toEqual([]);
+});
+for (const changed of ["version", "identity"])
+  test(`fresh ${changed} change blocks publication`, async ({ page }) => {
+    const f = await workRefundTimingPolicyFixture(page);
+    await page.goto(root);
+    await review(page);
+    if (changed === "version") f.history.unshift(refundTimingPolicyRow(5));
+    else f.base.profileOwner = id(99);
+    await confirm(page);
+    if (changed === "identity") {
+      await expect(
+        page.getByText(
+          "Bank refund timing requires an active, verified Super Admin account with MFA.",
+          { exact: true },
+        ),
+      ).toBeVisible();
+    } else {
+      await expect(page.getByRole("dialog")).toContainText(
+        "This record has changed or is no longer available.",
+      );
+      await expect(
+        page
+          .getByRole("dialog")
+          .getByRole("button", { name: "Approve refund timing", exact: true }),
+      ).toBeDisabled();
+    }
+    expect(f.writes).toEqual([]);
+  });
+for (const outcome of ["drop", "wrongActor"] as const)
+  test(`${outcome} receipt stays locked after reload and reconciles without replay`, async ({
+    page,
+  }) => {
+    const f = await workRefundTimingPolicyFixture(page);
+    f[outcome] = true;
+    await page.goto(root);
+    await review(page);
+    await confirm(page);
+    await expect(page.getByRole("dialog")).toContainText("could not be confirmed");
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: "Approval needs reconciliation", exact: true }),
+    ).toBeVisible();
+    await expect(reviewButton(page)).toBeDisabled();
+    await page.getByRole("button", { name: "Check current policy", exact: true }).click();
+    await page.getByLabel("I independently reconciled", { exact: false }).check();
+    await page.getByRole("button", { name: "Clear reconciled approval lock" }).click();
+    await page.getByRole("button", { name: "Reload action fields" }).click();
+    await expect(reviewButton(page)).toBeEnabled();
+    expect(f.writes).toHaveLength(1);
+  });
+for (const mode of ["fail", "denied"] as const)
+  test(`${mode} read is accessible and blocks actions`, async ({ page }) => {
+    const f = await workRefundTimingPolicyFixture(page);
+    f[mode] = true;
+    await page.goto(root);
+    await expect(
+      page.getByText(
+        mode === "denied"
+          ? "Bank refund timing requires an active, verified Super Admin account with MFA."
+          : "The request could not be completed. Please try again shortly.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await axe(page);
+    expect(f.writes).toEqual([]);
+  });
+for (const role of ["STAFF", "ADMIN"])
+  test(`${role} cannot approve bank refund timing`, async ({ page }) => {
+    const f = await workRefundTimingPolicyFixture(page);
+    f.base.role = role;
+    await page.goto(root);
+    await expect(
+      page.getByText(
+        "Bank refund timing requires an active, verified Super Admin account with MFA.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+    await expect(reviewButton(page)).toHaveCount(0);
+    expect(f.writes).toEqual([]);
+  });

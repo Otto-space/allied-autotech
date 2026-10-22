@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
-import { SupportThread } from "@/app/components/support-thread";
+import { Suspense } from "react";
+import { WorkSupportDetail } from "@/app/components/work-support-detail";
+import "../../../inspections/inspections.css";
+import "./support-detail.css";
 export const metadata = { title: "Support conversation" };
 export default async function Page({
   params,
@@ -13,5 +16,9 @@ export default async function Page({
     !z.uuid().safeParse(supportId).success
   )
     notFound();
-  return <SupportThread key={`${kind}:${supportId}`} kind={kind} id={supportId} staff />;
+  return (
+    <Suspense fallback={<p role="status">Loading conversation…</p>}>
+      <WorkSupportDetail kind={kind} id={supportId.toLowerCase()} />
+    </Suspense>
+  );
 }

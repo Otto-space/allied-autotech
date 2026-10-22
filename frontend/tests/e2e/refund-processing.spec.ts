@@ -3,6 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 import type { ProcessingRefund } from "@/lib/api/refund-processing";
+import { refundFixtureDto } from "../fixtures/work-refunds";
 const id = (n: number) => `a0000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const reply = (route: Route, data: unknown) =>
   route.fulfill({
@@ -75,8 +76,13 @@ async function fixture(page: Page, grants: string[], row = refund()) {
           status: 503,
           json: { success: false, error: { code: "UNAVAILABLE" } },
         });
-      return reply(route, { items: [state.row] });
+      return reply(route, { items: [refundFixtureDto(state.row)] });
     }
+    if (
+      endpoint === `/staff/refunds/${state.row.id}` &&
+      route.request().method() === "GET"
+    )
+      return reply(route, refundFixtureDto(state.row, true));
     state.writes.push(endpoint);
     return route.fulfill({
       status: 404,
@@ -91,7 +97,8 @@ async function open(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Refund requests", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Review refund actions" }).click();
+  await page.locator(".wr-record").first().getByRole("button").click();
+  await expect(page.locator(".wr-handling")).toContainText("Original request");
 }
 
 test("delegated refund access and sidebar disappear together when the grant is revoked", async ({
@@ -161,9 +168,11 @@ test("a mismatched approval response locks writes through failed and recovered r
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
-  await expect(page.getByRole("heading", { name: state.row.refundNumber })).toHaveCount(
-    0,
-  );
+  await page.getByRole("button", { name: "Refresh refund records", exact: true }).click();
+  await expect(page.locator("main").getByRole("alert")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Refund change needs checking" }),
+  ).toBeVisible();
   state.fail = false;
   await page.getByRole("button", { name: "Refresh refund records" }).click();
   await expect(

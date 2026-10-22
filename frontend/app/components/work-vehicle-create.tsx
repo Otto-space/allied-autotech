@@ -33,7 +33,7 @@ import {
   vehicleRecordBody,
   type VehicleRecordValues,
 } from "@/lib/forms/vehicle-record";
-import { draftIdentity, draftKey, forgetDraft } from "@/lib/forms/drafts";
+import { draftIdentity, draftKey, forgetDraft, readDraft } from "@/lib/forms/drafts";
 import { vehicleEnums } from "@/lib/api/staff-vehicle-schemas";
 import { formatKobo } from "@/lib/format/money";
 import { formatBusinessDate } from "@/lib/format/date";
@@ -320,7 +320,7 @@ function CreationWorkspace({
       setProposal({
         title: "Create this stock record?",
         description:
-          "Review all permitted vehicle details. This creates a stock record only; it does not add photos or create or publish a sale listing. Empty optional fields are recorded as not set.",
+          "Review all permitted vehicle details. This creates a stock record only. It does not create or publish a sale listing. Photos are added after saving. Empty optional fields are recorded as not set.",
         facts,
         retryAfterRejection: false,
         onUncertain: () => {
@@ -488,6 +488,8 @@ function CreationWorkspace({
         <div className="vc-layout">
           <CreationForm
             key={generation}
+            owner={owner}
+            role={role}
             branchId={branchId}
             branchName={branchName}
             includeCost={includeCost}
@@ -553,6 +555,8 @@ type TextField =
   | "acquisitionPrice"
   | "acquiredAt";
 function CreationForm({
+  owner,
+  role,
   branchId,
   branchName,
   includeCost,
@@ -560,6 +564,8 @@ function CreationForm({
   disabled,
   onReview,
 }: {
+  owner: string;
+  role: string;
   branchId?: string;
   branchName?: string;
   includeCost: boolean;
@@ -567,9 +573,20 @@ function CreationForm({
   disabled: boolean;
   onReview: (values: VehicleRecordValues) => Promise<void>;
 }) {
+  const savedDraft =
+    draftIdentity() === `${owner}:${role}`
+      ? readDraft(draftKey(`${owner}:${role}`, "/admin/vehicles/new", draft))
+      : {};
+  const savedBranch = savedDraft["vehicle-record-branch:0"];
+  const initialBranch =
+    branchId ??
+    (typeof savedBranch === "string" && z.uuid().safeParse(savedBranch).success
+      ? savedBranch
+      : undefined);
   const form = useForm<VehicleRecordValues>({
     resolver: zodResolver(recordSchema),
-    defaultValues: vehicleDefaults(undefined, branchId),
+    defaultValues: vehicleDefaults(undefined, initialBranch),
+    shouldFocusError: false,
   });
   const input = (name: TextField, label: string, max: number) => {
     const error = form.formState.errors[name];
@@ -646,7 +663,33 @@ function CreationForm({
       data-draft-key={draft}
       className="vc-editor"
       noValidate
-      onSubmit={form.handleSubmit(onReview)}
+      onSubmit={form.handleSubmit(onReview, (errors) => {
+        const order: (keyof VehicleRecordValues)[] = [
+          "branchId",
+          "stockNumber",
+          "make",
+          "model",
+          "year",
+          "trim",
+          "condition",
+          "mileageKm",
+          "transmission",
+          "fuelType",
+          "bodyType",
+          "driveType",
+          "engineSize",
+          "color",
+          "doors",
+          "seats",
+          "vin",
+          "chassisNumber",
+          "registrationNumber",
+          "acquisitionPrice",
+          "acquiredAt",
+        ];
+        const first = order.find((name) => errors[name]);
+        if (first) form.setFocus(first);
+      })}
     >
       <fieldset disabled={disabled}>
         <legend className="sr-only">New vehicle details</legend>

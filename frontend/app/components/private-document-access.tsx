@@ -13,10 +13,12 @@ export function PrivateDocumentAccess({
   path,
   disabled = false,
   label = "signed document",
+  onDenied,
 }: {
   path: string;
   disabled?: boolean;
   label?: string;
+  onDenied?: () => void;
 }) {
   const hosts = useAssetStorageHosts();
   const pending = useRef<AbortController | null>(null);
@@ -72,6 +74,12 @@ export function PrivateDocumentAccess({
       if (!controller.signal.aborted && expiresAt > Date.now())
         setAccess({ path, url, expiresAt });
     } catch (error) {
+      if (
+        !controller.signal.aborted &&
+        error instanceof ApiError &&
+        [401, 403].includes(error.status)
+      )
+        onDenied?.();
       if (!controller.signal.aborted)
         setError(
           error instanceof ApiError && error.status === 404

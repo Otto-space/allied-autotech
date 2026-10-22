@@ -96,6 +96,16 @@ const reviewBaseSelect = {
   service: { select: { id: true, name: true, slug: true } },
 } satisfies Prisma.ReviewSelect;
 
+const staffReviewSelect = {
+  ...reviewBaseSelect,
+  customer: { select: { firstName: true, lastName: true } },
+  product: { select: { id: true, name: true, slug: true } },
+  orderItem: { select: { id: true, orderId: true } },
+  order: { select: { orderNumber: true } },
+  booking: { select: { id: true, completedAt: true } },
+  vehicleTransaction: { select: { transactionNumber: true } },
+} satisfies Prisma.ReviewSelect;
+
 export class SupportRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
@@ -677,17 +687,10 @@ export class SupportRepository {
     return this.database.review.findMany({
       where: {
         status: query.status,
+        ...(query.reviewId ? { id: query.reviewId } : {}),
         ...(query.targetType ? { targetType: query.targetType } : {}),
       },
-      select: {
-        ...reviewBaseSelect,
-        customer: { select: { firstName: true, lastName: true } },
-        product: { select: { id: true, name: true, slug: true } },
-        orderItem: { select: { id: true, orderId: true } },
-        order: { select: { orderNumber: true } },
-        booking: { select: { id: true, completedAt: true } },
-        vehicleTransaction: { select: { transactionNumber: true } },
-      },
+      select: staffReviewSelect,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: query.limit + 1,
       ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
@@ -808,6 +811,10 @@ export class SupportRepository {
     });
   }
 
+  staffReview(id: string, client: DatabaseClient = this.database) {
+    return client.review.findUnique({ where: { id }, select: staffReviewSelect });
+  }
+
   ownedReview(id: string, customerId: string, client: DatabaseClient) {
     return client.review.findFirst({
       where: { id, customerId },
@@ -841,7 +848,7 @@ export class SupportRepository {
         status,
         moderatedByUserId: moderatorUserId,
         moderatedAt: new Date(),
-        ...(note === undefined ? {} : { moderationNote: note }),
+        moderationNote: note ?? null,
         version: { increment: 1 },
       },
     });

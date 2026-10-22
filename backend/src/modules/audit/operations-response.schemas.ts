@@ -41,6 +41,23 @@ export const operationalJobsResponseSchema = z
     nextCursor: operationalJobCursorSchema.optional(),
   })
   .strict();
+export const currentOperationalJobResponseSchema = z.discriminatedUnion("source", [
+  operationalJobResponseSchema.options[0]
+    .omit({ lastError: true })
+    .extend({
+      status: z.enum(["PENDING", "PROCESSING", "PUBLISHED", "FAILED", "DEAD_LETTER"]),
+      publishedAt: date.nullable(),
+    })
+    .strict(),
+  operationalJobResponseSchema.options[1]
+    .omit({ lastErrorCode: true, lastErrorMessage: true })
+    .extend({
+      status: z.enum(["RECEIVED", "PROCESSING", "PROCESSED", "FAILED", "DEAD_LETTER"]),
+      processedAt: date.nullable(),
+      failedAt: date.nullable(),
+    })
+    .strict(),
+]);
 export const operationalRetryResponseSchema = z
   .object({
     id: z.uuid(),

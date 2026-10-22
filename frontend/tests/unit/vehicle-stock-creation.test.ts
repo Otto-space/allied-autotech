@@ -82,6 +82,7 @@ describe("stock creation safety and projection", () => {
     for (const bad of [
       { ...row, stockNumber: "OTHER" },
       { ...row, version: 1 },
+      { ...row, branch: { ...row.branch, isActive: false } },
       { ...row, branchId: bookingId(102) },
       { ...row, listings: stockRecord().listings },
       { ...row, images: stockRecord().images },

@@ -45,6 +45,11 @@ export function createAuditOperationsRouter(): Router {
     controller.retry,
   );
   router.get(
+    "/operations/jobs/:source/:jobId",
+    validate({ params: operationalJobParamsSchema, query: operationsEmptyQuerySchema }),
+    controller.job,
+  );
+  router.get(
     "/operations/payment-anomalies",
     validate({ query: anomalyListQuerySchema }),
     controller.anomalies,
@@ -68,6 +73,11 @@ export function createAuditOperationsRouter(): Router {
       query: operationsEmptyQuerySchema,
     }),
     controller.updateAnomaly,
+  );
+  router.get(
+    "/operations/payment-anomalies/:anomalyId",
+    validate({ params: anomalyParamsSchema, query: operationsEmptyQuerySchema }),
+    controller.anomaly,
   );
   return router;
 }

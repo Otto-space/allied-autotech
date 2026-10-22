@@ -1,0 +1,706 @@
+.dashboard .dashboard-content .workforce-enquiries {
+  --wfe-line: #ccd6df;
+  --wfe-muted: #465866;
+  --form-focus: #e60301;
+  --form-halo: #ffe7e6;
+  color: #01121a;
+  font-family: var(--font-quicksand), sans-serif;
+  padding-bottom: 28px;
+}
+.workforce-enquiries * {
+  min-width: 0;
+}
+.workforce-enquiries [tabindex]:focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.workforce-enquiries :is(a, button, input, select):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.workforce-enquiries .wfe-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  color: var(--wfe-muted);
+}
+.workforce-enquiries .wfe-breadcrumb a {
+  color: #01121a;
+  text-underline-offset: 3px;
+}
+.workforce-enquiries .wfe-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.dashboard .dashboard-content .workforce-enquiries h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.3;
+}
+.dashboard .dashboard-content .workforce-enquiries h2 {
+  margin: 0;
+  font-size: 19px;
+  line-height: 1.4;
+}
+.dashboard .dashboard-content .workforce-enquiries h3 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.dashboard .dashboard-content .workforce-enquiries p {
+  margin: 6px 0 0;
+  color: var(--wfe-muted);
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.workforce-enquiries .wfe-refresh {
+  display: grid;
+  justify-items: end;
+  max-width: 320px;
+  flex-shrink: 0;
+}
+.dashboard .dashboard-content .workforce-enquiries .wfe-refresh p {
+  font-size: 12px;
+  text-align: right;
+}
+.workforce-enquiries .button {
+  min-height: 44px;
+  font-size: 13px;
+  border-radius: 6px;
+  gap: 7px;
+}
+.workforce-enquiries .button.secondary {
+  border: 1px solid #aebecb;
+}
+.workforce-enquiries .wfe-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(170px, 1fr) auto;
+  align-items: end;
+  gap: 16px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid var(--wfe-line);
+  border-radius: 6px;
+  margin: 0 0 24px;
+}
+.dashboard .dashboard-content .workforce-enquiries .wfe-filters .field {
+  margin: 0;
+  display: grid;
+  gap: 7px;
+}
+.workforce-enquiries .wfe-filters label {
+  color: #01121a;
+  font-size: 14px;
+  font-weight: 650;
+}
+.workforce-enquiries .wfe-filters :is(input, select) {
+  width: 100%;
+  min-height: 44px;
+  font-size: 14px;
+  border: 1px solid #9cadba;
+  border-radius: 5px;
+  background: #fff;
+  color: #01121a;
+  padding: 10px 12px;
+}
+.workforce-enquiries .wfe-search > div {
+  position: relative;
+}
+.workforce-enquiries .wfe-search svg {
+  position: absolute;
+  left: 12px;
+  top: 13px;
+  color: var(--wfe-muted);
+  pointer-events: none;
+}
+.workforce-enquiries .wfe-search input {
+  padding-left: 38px;
+}
+.workforce-enquiries .wfe-filter-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dashboard .dashboard-content .workforce-enquiries .wfe-filters p {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 13px;
+}
+.workforce-enquiries .wfe-results {
+  background: #fff;
+  border: 1px solid var(--wfe-line);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.workforce-enquiries .wfe-results > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid var(--wfe-line);
+}
+.workforce-enquiries .wfe-results > header > span {
+  color: var(--wfe-muted);
+  font-size: 13px;
+}
+.workforce-enquiries table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.workforce-enquiries :is(th, td) {
+  padding: 14px 12px;
+  vertical-align: top;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+.workforce-enquiries thead {
+  background: #f3f5f7;
+}
+.workforce-enquiries thead th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+.workforce-enquiries thead th:nth-child(1) {
+  width: 18%;
+}
+.workforce-enquiries thead th:nth-child(2) {
+  width: 18%;
+}
+.workforce-enquiries thead th:nth-child(3) {
+  width: 18%;
+}
+.workforce-enquiries thead th:nth-child(4) {
+  width: 13%;
+}
+.workforce-enquiries thead th:nth-child(5) {
+  width: 20%;
+}
+.workforce-enquiries thead th:nth-child(6) {
+  width: 13%;
+}
+.workforce-enquiries tbody tr {
+  border-bottom: 1px solid var(--wfe-line);
+}
+.workforce-enquiries small {
+  display: block;
+  color: var(--wfe-muted);
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 3px;
+}
+.workforce-enquiries .wfe-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #253e50;
+  background: #eaf0f5;
+  font-size: 13px;
+}
+.workforce-enquiries .wfe-status.is-awaiting_deposit {
+  color: #614015;
+  background: #fff0d8;
+}
+.workforce-enquiries .wfe-status.is-completed {
+  color: #205a37;
+  background: #e9f4ec;
+}
+.workforce-enquiries .wfe-status.is-cancelled {
+  color: #912c29;
+  background: #fceeed;
+}
+.workforce-enquiries .wfe-results footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+}
+.dashboard .dashboard-content .workforce-enquiries .wfe-results footer p {
+  font-size: 12px;
+  margin: 0;
+}
+.workforce-enquiries .wfe-results footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.workforce-enquiries .wfe-state {
+  padding: 28px 20px;
+  color: var(--wfe-muted);
+  font-size: 14px;
+}
+.workforce-enquiries .wfe-skeleton {
+  height: 60px;
+  margin-top: 16px;
+  border-radius: 4px;
+  background: #f1f4f6;
+}
+.workforce-enquiries .wfe-feedback {
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  background: #fff;
+  border: 1px solid var(--wfe-line);
+  border-left: 3px solid #e60301;
+  border-radius: 4px;
+}
+@media (max-width: 1100px) {
+  .workforce-enquiries .wfe-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .workforce-enquiries .wfe-filter-actions {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 1000px) {
+  .workforce-enquiries thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .workforce-enquiries :is(table, tbody, tr, th, td) {
+    display: block;
+    width: 100%;
+  }
+  .workforce-enquiries tbody tr {
+    position: relative;
+    padding: 18px 20px;
+  }
+  .workforce-enquiries tbody th {
+    padding: 0 0 10px;
+  }
+  .workforce-enquiries td {
+    padding: 5px 0;
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+  .workforce-enquiries td::before {
+    content: attr(data-label);
+    color: var(--wfe-muted);
+    font-size: 12px;
+  }
+  .workforce-enquiries td small {
+    grid-column: 2;
+  }
+  .workforce-enquiries .wfe-status {
+    justify-self: start;
+  }
+  .workforce-enquiries .wfe-results footer {
+    align-items: start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 760px) {
+  .dashboard .dashboard-content .workforce-enquiries h1 {
+    font-size: 24px;
+  }
+  .workforce-enquiries .wfe-heading {
+    display: block;
+  }
+  .workforce-enquiries .wfe-refresh {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    max-width: none;
+  }
+  .workforce-enquiries .wfe-refresh button {
+    flex-shrink: 0;
+  }
+  .workforce-enquiries .wfe-filters {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .workforce-enquiries .wfe-results > header {
+    padding: 16px;
+  }
+  .workforce-enquiries tbody tr {
+    padding: 18px 16px;
+  }
+  .workforce-enquiries .wfe-results footer {
+    padding: 16px;
+  }
+  .workforce-enquiries .wfe-results footer nav {
+    width: 100%;
+    flex-shrink: 1;
+  }
+}
+
+.workforce-enquiries .wfe-breadcrumb ol,
+.workforce-enquiries .wfe-breadcrumb li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.workforce-enquiries .wfe-filters :is(input, select) {
+  margin: 0;
+}
+.workforce-enquiries .wfe-filters input::placeholder {
+  color: #526573;
+  opacity: 1;
+}
+.workforce-enquiries .wfe-filters > .wfe-filter-actions > .button:not(.secondary) {
+  background: #e60301;
+  color: #fff;
+}
+@media (max-width: 760px) {
+  .workforce-enquiries .wfe-refresh {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+  }
+  .dashboard .dashboard-content .workforce-enquiries .wfe-refresh p {
+    text-align: left;
+  }
+}
+
+/* The queue and inspector share the compact workforce surface. */
+.workforce-enquiries .wfe-filters {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+}
+.workforce-enquiries .wfe-filters .wfe-filter-actions {
+  grid-column: 2 / -1;
+  justify-content: end;
+}
+.dashboard .dashboard-content .workforce-enquiries .wfe-filters p {
+  grid-column: 1;
+  align-self: center;
+}
+.workforce-enquiries thead th:nth-child(1) {
+  width: 26%;
+}
+.workforce-enquiries thead th:nth-child(2) {
+  width: 10%;
+}
+.workforce-enquiries thead th:nth-child(3) {
+  width: 14%;
+}
+.workforce-enquiries thead th:nth-child(4) {
+  width: 16%;
+}
+.workforce-enquiries thead th:nth-child(5) {
+  width: 14%;
+}
+.workforce-enquiries thead th:nth-child(6) {
+  width: 20%;
+}
+.workforce-enquiries tr.is-selected {
+  background: #eef3f7;
+  box-shadow: inset 3px 0 #e60301;
+}
+.workforce-enquiries .wfe-status.is-open {
+  color: #253e50;
+  background: #eaf0f5;
+}
+.workforce-enquiries .wfe-status.is-in_progress {
+  color: #614015;
+  background: #fff0d8;
+}
+.workforce-enquiries .wfe-status:is(.is-resolved, .is-closed) {
+  color: #465866;
+  background: #edf0f2;
+}
+.workforce-enquiries .wfe-detail {
+  margin-top: 24px;
+  border: 1px solid var(--wfe-line);
+  border-radius: 6px;
+  background: #fff;
+}
+.workforce-enquiries .wfe-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  padding: 20px 20px 0;
+}
+.workforce-enquiries .wfe-detail-heading h2 {
+  overflow-wrap: anywhere;
+}
+.workforce-enquiries .wfe-detail-heading > button {
+  flex-shrink: 0;
+}
+.workforce-enquiries .wfe-facts {
+  margin: 16px 20px 0;
+  padding: 16px 0;
+  border-block: 1px solid var(--wfe-line);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 20px;
+}
+.workforce-enquiries .wfe-facts > div + div {
+  border-left: 1px solid var(--wfe-line);
+  padding-left: 20px;
+}
+.workforce-enquiries .wfe-facts dt {
+  font-size: 13px;
+  color: var(--wfe-muted);
+}
+.workforce-enquiries .wfe-facts dd {
+  font-size: 14px;
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+.workforce-enquiries .wfe-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  padding: 20px;
+  gap: 20px;
+  align-items: start;
+}
+.workforce-enquiries .wfe-actions {
+  display: grid;
+  gap: 20px;
+}
+.workforce-enquiries .wfe-panel {
+  border: 1px solid var(--wfe-line);
+  padding: 18px;
+  border-radius: 6px;
+  box-shadow: 0 2px 9px #01121a05;
+}
+.dashboard .dashboard-content .workforce-enquiries .wfe-panel > h3 {
+  font-size: 19px;
+}
+.workforce-enquiries .wfe-panel h4 {
+  margin: 0;
+  font-size: 14px;
+}
+.workforce-enquiries .wfe-original {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--wfe-line);
+  border-radius: 4px;
+  background: #f3f6f8;
+}
+.workforce-enquiries .wfe-messages {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+}
+.workforce-enquiries .wfe-messages li {
+  padding: 18px 0;
+  border-top: 1px solid var(--wfe-line);
+}
+.workforce-enquiries .wfe-messages header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: baseline;
+  font-size: 14px;
+}
+.workforce-enquiries .wfe-messages time {
+  font-size: 13px;
+  color: var(--wfe-muted);
+}
+.dashboard .dashboard-content .workforce-enquiries :is(.wfe-original, .wfe-messages) p {
+  white-space: pre-wrap;
+  color: #01121a;
+}
+.workforce-enquiries .wfe-conversation footer {
+  border-top: 1px solid var(--wfe-line);
+  padding-top: 12px;
+}
+.workforce-enquiries .wfe-paging {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.workforce-enquiries .wfe-panel .field {
+  display: grid;
+  gap: 7px;
+  margin: 16px 0;
+}
+.workforce-enquiries .wfe-panel label {
+  font-size: 14px;
+  font-weight: 650;
+}
+.workforce-enquiries .wfe-panel :is(input[type="search"], textarea) {
+  width: 100%;
+  margin: 0;
+  min-height: 44px;
+  border: 1px solid #9cadba;
+  border-radius: 5px;
+  padding: 10px 12px;
+  background: #fff;
+  color: #01121a;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.workforce-enquiries .wfe-panel textarea {
+  resize: vertical;
+}
+.workforce-enquiries :is(textarea, fieldset):focus-visible {
+  outline: 2px solid #e60301;
+  outline-offset: 3px;
+}
+.workforce-enquiries .wfe-panel :is(input, textarea)[aria-invalid="true"] {
+  border-color: #b42318;
+}
+.workforce-enquiries .wfe-panel .button:not(.secondary) {
+  background: #e60301;
+  color: #fff;
+}
+.workforce-enquiries .wfe-panel > .button {
+  margin-top: 14px;
+}
+.workforce-enquiries .wfe-staff-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  margin: 16px 0;
+}
+.workforce-enquiries .wfe-staff-search .field {
+  margin: 0;
+}
+.workforce-enquiries .wfe-staff-options {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.workforce-enquiries .wfe-staff-options > label {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--wfe-line);
+  cursor: pointer;
+  font-weight: 500;
+}
+.workforce-enquiries .wfe-staff-options input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0;
+  accent-color: #e60301;
+}
+.workforce-enquiries .wfe-staff-options em {
+  font-size: 12px;
+  font-style: normal;
+}
+.workforce-enquiries .wfe-staff-options small,
+.workforce-enquiries .wfe-selected-staff small {
+  overflow-wrap: anywhere;
+}
+.workforce-enquiries .wfe-recovery {
+  padding: 18px;
+  margin: 16px;
+  border: 1px solid var(--wfe-line);
+  border-left: 3px solid #e60301;
+  border-radius: 4px;
+  background: #f5f7f9;
+}
+.workforce-enquiries .wfe-recovery .button {
+  margin: 12px 8px 0 0;
+}
+.workforce-enquiries .wfe-check {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  margin-top: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.workforce-enquiries .wfe-check input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 3px 0;
+}
+.workforce-enquiries .wfe-detail > .notice {
+  margin: 16px;
+}
+.dashboard .dashboard-content .workforce-enquiries .wfe-selection-hint {
+  margin-top: 18px;
+}
+@media (max-width: 1200px) {
+  .workforce-enquiries .wfe-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-enquiries .wfe-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+@media (max-width: 760px) {
+  .workforce-enquiries .wfe-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-enquiries .wfe-filters .wfe-filter-actions {
+    grid-column: 1;
+    justify-content: start;
+  }
+  .dashboard .dashboard-content .workforce-enquiries .wfe-filters p {
+    grid-row: 5;
+  }
+  .workforce-enquiries .wfe-columns {
+    padding: 16px;
+    gap: 18px;
+  }
+  .workforce-enquiries .wfe-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-enquiries .wfe-detail-heading {
+    display: grid;
+    padding: 16px 16px 0;
+  }
+  .workforce-enquiries .wfe-facts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    margin-inline: 16px;
+  }
+  .workforce-enquiries .wfe-facts > div,
+  .workforce-enquiries .wfe-facts > div + div {
+    display: grid;
+    grid-template-columns: 85px minmax(0, 1fr);
+    gap: 12px;
+    border: 0;
+    padding: 0;
+  }
+  .workforce-enquiries .wfe-facts dd {
+    margin: 0;
+  }
+  .workforce-enquiries .wfe-panel {
+    border: 0;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .workforce-enquiries .wfe-actions > section {
+    border-top: 1px solid var(--wfe-line);
+    padding-top: 18px;
+  }
+  .workforce-enquiries .wfe-detail-heading > button {
+    justify-self: start;
+  }
+}
+@media (max-width: 380px) {
+  .workforce-enquiries .wfe-staff-search {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .workforce-enquiries .wfe-staff-search button {
+    justify-self: start;
+  }
+}

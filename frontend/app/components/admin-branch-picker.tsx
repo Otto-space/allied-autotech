@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState, type Ref } from "react";
+import { useCallback, useEffect, useState, type Ref } from "react";
 import { z } from "zod";
 import { useResource } from "@/lib/api/use-resource";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
@@ -19,6 +19,7 @@ export function AdminBranchPicker({
   inputRef,
   error,
   initialLabel = "Selected branch",
+  onDenied,
 }: {
   id: string;
   value: string;
@@ -27,6 +28,7 @@ export function AdminBranchPicker({
   inputRef?: Ref<HTMLSelectElement>;
   error?: string;
   initialLabel?: string;
+  onDenied?: () => void;
 }) {
   const pagination = useCursorPage();
   const [selectedLabel, setSelectedLabel] = useState(initialLabel);
@@ -56,6 +58,9 @@ export function AdminBranchPicker({
     parseSelected,
   );
   const direct = selected.data;
+  useEffect(() => {
+    if (branches.denied || selected.denied) onDenied?.();
+  }, [branches.denied, selected.denied, onDenied]);
   return (
     <>
       <select

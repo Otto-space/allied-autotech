@@ -465,7 +465,7 @@ export class VehicleSalesService {
         },
         context,
       });
-      return vehicleSaleJson(updated);
+      return vehicleSaleJson(await this.repository.transaction(id, transaction));
     });
   }
   async reservationTerms(actor: AuthenticatedActor, id: string) {
@@ -681,7 +681,7 @@ export class VehicleSalesService {
         newValues: { status: input.status, version: updated.version },
         context,
       });
-      return vehicleSaleJson(updated);
+      return vehicleSaleJson(await this.repository.transaction(id, transaction));
     });
   }
   async expire(
@@ -896,7 +896,14 @@ export class VehicleSalesService {
       await transaction.$queryRaw`SELECT "id" FROM "VehicleHandover" WHERE "id" = ${handoverId}::uuid FOR UPDATE`;
       const handover = await transaction.vehicleHandover.findFirst({
         where: { id: handoverId, vehicleTransactionId: transactionId },
-        select: { id: true, status: true, version: true },
+        select: {
+          id: true,
+          status: true,
+          version: true,
+          recipientName: true,
+          recipientPhone: true,
+          signedDocumentObjectKey: true,
+        },
       });
       if (handover === null) throw vehicleSaleNotFound();
       const allowed =
@@ -907,6 +914,15 @@ export class VehicleSalesService {
             : [];
       if (!allowed.includes(input.status))
         throw vehicleSaleConflict("Invalid handover lifecycle transition");
+      if (
+        input.status === "COMPLETED" &&
+        (!handover.recipientName ||
+          !handover.recipientPhone ||
+          !handover.signedDocumentObjectKey)
+      )
+        throw vehicleSaleConflict(
+          "A signed handover document and complete recipient details are required before completion",
+        );
       const now = new Date();
       const result = await transaction.vehicleHandover.updateMany({
         where: {

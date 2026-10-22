@@ -7,6 +7,7 @@ import { prisma } from "../../config/database.js";
 import type { BusinessPolicyVersion, Prisma } from "../../generated/prisma/client.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
 import { paymentConflict, paymentForbidden } from "../payments/payments.errors.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 
 type PolicyDatabase = Pick<
   Prisma.TransactionClient,
@@ -183,6 +184,8 @@ export async function grantCapability(
   if (actor.role !== "SUPER_ADMIN" || actor.mfaVerifiedAt === null)
     throw paymentForbidden();
   return prisma.$transaction(async (tx) => {
+    await lockAccessActor(tx, actor);
+    await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${userId}::uuid FOR UPDATE`;
     const user = await tx.user.findUnique({ where: { id: userId } });
     if (
       !user ||
@@ -223,6 +226,27 @@ export async function publishPolicy(
       ? `booking-capacity:${input.branchId}`
       : input.kind.toLowerCase();
   return prisma.$transaction(async (tx) => {
+    if (
+      input.kind === "RETENTION" ||
+      input.kind === "BANK_REFUND_CLOCK" ||
+      input.kind === "DELIVERY" ||
+      input.kind === "VEHICLE_RESERVATION_TERMS"
+    )
+      await lockAccessActor(tx, actor);
+    if (input.kind === "BRANCH_CAPACITY") {
+      await lockAccessActor(tx, actor);
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`branch:${input.branchId}`}, 0))`;
+      await tx.$queryRaw`SELECT "id" FROM "Branch" WHERE "id" = ${input.branchId}::uuid FOR UPDATE`;
+    }
+    if (input.kind === "COMPLAINTS" || input.kind === "DISPUTES") {
+      await lockAccessActor(tx, actor);
+      const selected =
+        input.kind === "COMPLAINTS"
+          ? [input.settings.escalationUserId]
+          : [input.settings.primaryUserId, input.settings.backupUserId];
+      for (const id of selected.sort())
+        await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${id}::uuid FOR UPDATE`;
+    }
     if (input.kind === "FINANCE")
       await assertCapability(tx, actor, "FINANCE_POLICY_APPROVE");
     const contactIds =

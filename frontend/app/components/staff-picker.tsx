@@ -15,6 +15,8 @@ export function StaffPicker({
   inputRef,
   error,
   onAvailabilityChange,
+  emptyLabel = "Choose a staff member",
+  required = true,
 }: {
   branchId: string | null;
   id: string;
@@ -24,6 +26,8 @@ export function StaffPicker({
   inputRef?: Ref<HTMLSelectElement>;
   error?: string;
   onAvailabilityChange?: (blocked: boolean) => void;
+  emptyLabel?: string;
+  required?: boolean;
 }) {
   const session = useAccountSession();
   const [selected, setSelected] = useState({
@@ -63,7 +67,7 @@ export function StaffPicker({
         ref={inputRef}
         id={id}
         name={name}
-        required
+        required={required}
         disabled={!!onAvailabilityChange && unavailable}
         aria-invalid={!!error}
         aria-describedby={error ? `${id}-error` : undefined}
@@ -80,7 +84,7 @@ export function StaffPicker({
           );
         }}
       >
-        <option value="">Choose a staff member</option>
+        <option value="">{emptyLabel}</option>
         {selected.id && !choices.some((choice) => choice.id === selected.id) && (
           <option value={selected.id}>{selected.label}</option>
         )}

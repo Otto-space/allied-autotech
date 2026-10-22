@@ -1,0 +1,15 @@
+# Branch booking capacity policy workspace
+
+GET `/admin/policies/booking-capacity/:branchId/current` returns the minimal branch identity/status/revision, evaluatedAt, current, nextScheduled, latest and history. Current and next are selected across all versions by effective time and descending version, independently of the latest 100 history entries. Inactive branch history remains readable. Super Admin/MFA, current actor/session checks, a repeatable snapshot and an atomic minimal CAPACITY_POLICY_CURRENT READ audit protect the endpoint. Responses are private/no-store; unknown branches return 404 and unexpected query parameters return 422.
+
+BRANCH_CAPACITY publication rechecks the actor/session and serializes branch eligibility with branch administration before the existing policy-version lock, immutable APPROVED/Q5 creation and CREATE audit. An inactive branch produces a conflict. The request contract remains daily limit 1–1000, 1–7 opening weekdays, fixed 08:00–18:00 Africa/Lagos hours and up to 366 valid ISO closed dates, with source/evidence, expected version and effective time. The publication audit identifies the actor and carries the policyVersionId in newValues. No schema or migration is required.
+
+Publication neither confirms nor reschedules bookings. Existing confirmation checks continue to enforce the approved effective calendar, daily count and staff resource review. The owner supplies business values through the dashboard; missing approved limits/days are not fabricated.
+
+The frontend validates the exact branch/Q5/actor/settings receipt, rechecks current branch and policy revision before sending, and retains branch-specific draft bases and uncertainty locks through navigation/reload. A lost response is reconciled independently; reading the latest version is not proof of the original request's outcome. No automatic publication retry occurs.
+
+## Remaining work
+
+[Milestone 98](../../frontend/docs/page-quality/work-booking-capacity.md) passed local acceptance with 24 distinct browser cases, five units, five isolated API scenarios, native comparisons, production build and 13 matching source hashes. Connected verification recorded two future publications/two CREATE audits, committed-lost-response recovery without replay, unchanged effective policy and pre-existing policy/account/booking/branch/financial/privacy/hold snapshots, and zero temporary sessions. See the milestone for exact safety checks, retained fixtures and focused continuation evidence. ADM-63's optional durable actor/policy/body-bound publication receipt also applies to branch capacity. Deploy the compatible backend and generated contracts with the dependent frontend.
+
+The broader owner decision centre discussed on 19 October is a proposed consolidation of existing policy pages and missing decision workflows. It must distinguish business approval from technical readiness. Arbitrary rule changes, secret administration, marketing execution and destructive retention are not enabled by this endpoint.

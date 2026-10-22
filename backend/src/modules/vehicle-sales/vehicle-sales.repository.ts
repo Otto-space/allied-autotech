@@ -109,6 +109,7 @@ export const transactionSelect = {
       status: true,
       recipientName: true,
       recipientPhone: true,
+      signedDocumentObjectKey: true,
       odometerKm: true,
       keysDelivered: true,
       readyAt: true,

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import { NotificationsPanel } from "@/app/components/notifications-panel";
+import { WorkNotifications } from "@/app/components/work-notifications";
+import "@/app/dashboard/notifications/notifications.css";
+import "./notifications.css";
 export const metadata: Metadata = { title: "My notifications" };
 export default function Page() {
-  return <NotificationsPanel audience="staff" />;
+  return <WorkNotifications />;
 }

@@ -1,0 +1,62 @@
+name: Backend database safety
+
+on:
+  push:
+    paths: ["backend/**", "AGENTS.md", ".github/workflows/backend-database-safety.yml"]
+  pull_request:
+    paths: ["backend/**", "AGENTS.md", ".github/workflows/backend-database-safety.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  database-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: isolated-ci-only-password
+          POSTGRES_DB: allied_autotech_schema_ci
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_NAME: allied_autotech_schema_ci
+      DB_USER: postgres
+      DB_PASSWORD: isolated-ci-only-password
+      DB_SSL_MODE: disable
+      CONFIRM_EMPTY_MIGRATION_DATABASE: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.13.0"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - run: npm ci
+      - run: npm run prisma:generate
+      - name: Replay migrations and reject missing schema migrations
+        run: npm run test:migrations
+      - run: npm run db:check
+      - run: npm run typecheck
+      - run: npm run check:scripts
+      - run: npm run lint
+      - name: Verify backup, command and startup protection
+        run: npx --no-install vitest run tests/unit/database-schema-safety.test.ts tests/unit/database-migration-safety.test.ts tests/unit/database-health.test.ts tests/unit/database-error-mapping.test.ts --maxWorkers=2
+      - name: Prove missing-column protection against isolated PostgreSQL
+        env:
+          TEST_DB_NAME: allied_autotech_schema_ci
+          RUN_DATABASE_TESTS: "true"
+          RUN_DATABASE_SAFETY_TESTS: "true"
+        run: npx --no-install vitest run tests/integration/database-schema-safety.test.ts --maxWorkers=1

@@ -52,15 +52,15 @@ with `view_image`. The native desktop viewport is 1402×1122; the full-page capt
 also includes content below that viewport. The mobile concept is an enlarged raster,
 so real mobile widths were verified directly.
 
-| Comparison | Evidence and disposition |
-| --- | --- |
-| Shell and orientation | Real Allied logo and authorised navigation retained; one named breadcrumb and exact reference. Generated phone chrome/search copy omitted. |
-| Typography and density | Accepted Quicksand 28/24px heading, 18px sections and 12–13px controls/content; no oversized generated title. |
-| Summary | Ink three-part desktop band and readable mobile rows; each label/value uses valid definition-list markup. |
-| Items and delivery | Four desktop column meanings retained in labelled mobile rows; actual SKU/customer/branch/address fields, without invented descriptions or location facts. |
-| Totals and actions | Ink saved-value heading, recorded subtotal/discount/VAT/delivery, private invoice link and server-authorised form with visible borders/focus. |
-| Activity and aftercare | Only actual timestamps; one working aftercare link. Mobile sequence matches the extracted spec. |
-| Review and recovery | Focus restores after cancel, pending outcomes remain locked, and viewport dialog inspection shows no clipping or visible skip link. |
+| Comparison             | Evidence and disposition                                                                                                                                   |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell and orientation  | Real Allied logo and authorised navigation retained; one named breadcrumb and exact reference. Generated phone chrome/search copy omitted.                 |
+| Typography and density | Accepted Quicksand 28/24px heading, 18px sections and 12–13px controls/content; no oversized generated title.                                              |
+| Summary                | Ink three-part desktop band and readable mobile rows; each label/value uses valid definition-list markup.                                                  |
+| Items and delivery     | Four desktop column meanings retained in labelled mobile rows; actual SKU/customer/branch/address fields, without invented descriptions or location facts. |
+| Totals and actions     | Ink saved-value heading, recorded subtotal/discount/VAT/delivery, private invoice link and server-authorised form with visible borders/focus.              |
+| Activity and aftercare | Only actual timestamps; one working aftercare link. Mobile sequence matches the extracted spec.                                                            |
+| Review and recovery    | Focus restores after cancel, pending outcomes remain locked, and viewport dialog inspection shows no clipping or visible skip link.                        |
 
 Primary copy matches the extracted spec. Additional cancellation, missing-data and
 recovery guidance is explicitly required workflow copy. The implementation was

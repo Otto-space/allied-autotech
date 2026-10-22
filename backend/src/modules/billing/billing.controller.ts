@@ -8,6 +8,7 @@ import type {
   InvoiceCreateInput,
   InvoiceTransitionInput,
   StaffInvoiceListQuery,
+  InvoiceSourceListQuery,
 } from "./billing.schemas.js";
 const validated = <T>(response: Response, location: "body" | "params" | "query") =>
   response.locals.validated?.[location] as T;
@@ -46,6 +47,7 @@ export class BillingController {
       );
   staffList = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
@@ -54,17 +56,34 @@ export class BillingController {
           await this.service.staffList(
             actor(req),
             validated<StaffInvoiceListQuery>(res, "query"),
+            context(req),
           ),
         ),
       );
   staffGet = async (req: Request, res: Response) =>
     res
+      .set("Cache-Control", "private, no-store")
       .status(200)
       .json(
         successResponse(
           "Invoice retrieved",
           req.id,
           await this.service.staffGet(actor(req), id(res), context(req)),
+        ),
+      );
+  invoiceSources = async (req: Request, res: Response) =>
+    res
+      .set("Cache-Control", "private, no-store")
+      .status(200)
+      .json(
+        successResponse(
+          "Invoice sources retrieved",
+          req.id,
+          await this.service.invoiceSources(
+            actor(req),
+            validated<InvoiceSourceListQuery>(res, "query"),
+            context(req),
+          ),
         ),
       );
   create = async (req: Request, res: Response) =>

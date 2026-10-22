@@ -1,0 +1,152 @@
+.work-support {
+  min-width: 0;
+}
+.wsu-kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.wsu-kinds button[aria-pressed="true"] {
+  background: #fff1ef;
+  border-color: #c50704;
+  color: #9d0302;
+}
+.work-support .wi-filters fieldset {
+  display: block;
+}
+.wsu-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+.wsu-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+.dashboard .dashboard-content .work-support .field-hint {
+  font-size: 12px;
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+.wsu-records {
+  display: grid;
+  gap: 16px;
+}
+.wsu-record {
+  background: white;
+  border: 1px solid #d5dfe8;
+  border-radius: 12px;
+  padding: 20px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.wsu-record > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.wsu-record > header > div {
+  min-width: 0;
+}
+.dashboard .dashboard-content .work-support .wsu-record h3 {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0;
+}
+.wsu-record h3 .text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: -8px;
+}
+.dashboard .dashboard-content .work-support .wsu-reference {
+  font-size: 12px;
+  color: #405566;
+  margin: 4px 0 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wsu-badges {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  font-size: 12px;
+}
+.wsu-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.1fr;
+  gap: 24px;
+  margin-top: 18px;
+}
+.wsu-groups dl {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  min-width: 0;
+}
+.wsu-groups dt {
+  font-size: 12px;
+  color: #405566;
+}
+.wsu-groups dd {
+  margin: 4px 0 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wsu-preview {
+  border-top: 1px solid #e2e8ee;
+  margin-top: 18px;
+  padding-top: 16px;
+}
+.wsu-preview strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.dashboard .dashboard-content .work-support .wsu-preview p {
+  margin: 6px 0 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.work-support .wi-header h1 {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1250px) {
+  .wsu-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wsu-groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 650px) {
+  .wsu-record {
+    padding: 16px;
+  }
+  .wsu-record > header {
+    flex-direction: column;
+  }
+  .wsu-badges {
+    justify-content: flex-start;
+  }
+  .wsu-filter-grid {
+    grid-template-columns: 1fr;
+  }
+  .wsu-groups {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .wsu-groups dl > div {
+    display: grid;
+    grid-template-columns: minmax(90px, 0.7fr) minmax(0, 1.3fr);
+    gap: 10px;
+  }
+  .wsu-groups dd {
+    margin: 0;
+  }
+}

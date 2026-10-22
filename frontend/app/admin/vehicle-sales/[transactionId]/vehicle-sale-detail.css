@@ -1,0 +1,229 @@
+.work-sale-detail {
+  min-width: 0;
+}
+.wsd-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.work-sale-detail .wi-header .status {
+  display: inline-flex;
+  margin-top: 12px;
+}
+.work-sale-detail .wi-header > div {
+  min-width: 0;
+}
+.work-sale-detail .wi-header h1,
+.work-sale-detail .wi-header p {
+  overflow-wrap: anywhere;
+}
+.wsd-sections {
+  display: flex;
+  gap: 8px 20px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #d5dfe8;
+  padding-bottom: 12px;
+  margin: 12px 0 24px;
+}
+.wsd-sections a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.wsd-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.wsd-overview .wi-card {
+  margin: 0;
+}
+.dashboard .dashboard-content .work-sale-detail :is(.wi-card, .detail-section) > h2 {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+.wsd-facts {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+.wsd-facts > div {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.2fr);
+  gap: 14px;
+  align-items: start;
+  min-width: 0;
+}
+.wsd-facts dt {
+  font-size: 12px;
+  color: #405566;
+}
+.wsd-facts dd {
+  margin: 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wsd-facts .text-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  margin-top: -12px;
+}
+.wsd-operations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.wsd-operations > div {
+  min-width: 0;
+}
+.dashboard .dashboard-content .work-sale-detail .detail-section {
+  max-width: none;
+  width: 100%;
+  margin: 0 0 20px;
+  padding: 20px;
+  border: 1px solid #d5dfe8;
+  border-radius: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  background: #fff;
+}
+.wsd-operations .detail-section {
+  height: 100%;
+  margin: 0;
+}
+.dashboard
+  .dashboard-content
+  .work-sale-detail
+  :is(label, input:not([type="checkbox"]), select, textarea) {
+  font-family: inherit;
+  font-size: 13px;
+}
+.work-sale-detail fieldset {
+  border: 0;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+}
+.work-sale-detail .field-error,
+.work-sale-detail .field-hint {
+  font-size: 13px;
+}
+.work-sale-detail .notice {
+  margin: 16px 0;
+}
+.wsd-history {
+  list-style: none;
+  padding: 0 0 0 18px;
+  margin: 0;
+}
+.wsd-history li {
+  border-left: 1px solid #d5dfe8;
+  padding: 0 0 24px 22px;
+  position: relative;
+  overflow-wrap: anywhere;
+}
+.wsd-history li::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  position: absolute;
+  left: -5px;
+  top: 6px;
+  background: #526b7c;
+}
+.wsd-history li:last-child {
+  padding-bottom: 0;
+}
+.wsd-history p {
+  margin: 6px 0 0;
+}
+.wsd-lifecycle {
+  font-size: 12px !important;
+  color: #405566;
+  overflow-wrap: anywhere;
+}
+.wsd-guidance {
+  border-top: 1px solid #e2e8ee;
+  padding-top: 16px;
+  margin: 18px 0 0;
+  color: #405566;
+}
+.work-sale-detail .totals {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.7fr) minmax(0, 1.3fr);
+  gap: 14px;
+  margin: 0 0 20px;
+}
+.work-sale-detail .totals > dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.work-sale-detail .totals > dt {
+  font-size: 12px;
+  color: #405566;
+}
+.work-sale-detail .mutation-review .totals {
+  display: block;
+}
+.work-sale-detail .mutation-review .totals .spec-row {
+  display: flex;
+}
+.work-sale-detail .private-document {
+  margin-top: 18px;
+}
+.work-sale-detail .private-document h3 {
+  font-size: 14px;
+}
+@media (max-width: 1180px) {
+  .wsd-overview,
+  .wsd-operations {
+    grid-template-columns: 1fr;
+  }
+  .wsd-operations .detail-section {
+    height: auto;
+  }
+}
+@media (max-width: 650px) {
+  .wsd-actions {
+    width: 100%;
+  }
+  .wsd-actions .button {
+    flex: 1 1 180px;
+  }
+  .dashboard .dashboard-content .work-sale-detail .detail-section {
+    padding: 16px;
+  }
+  .wsd-facts > div {
+    grid-template-columns: minmax(90px, 0.8fr) minmax(0, 1.2fr);
+    gap: 10px;
+  }
+  .work-sale-detail .totals {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .wsd-facts {
+    gap: 18px;
+  }
+  .wsd-facts .text-link {
+    margin-top: 0;
+  }
+  .work-sale-detail .totals > dd {
+    margin-bottom: 14px;
+  }
+  .work-sale-detail .mutation-review .totals {
+    display: block;
+  }
+  .work-sale-detail .mutation-review .totals .spec-row {
+    display: block;
+  }
+  .work-sale-detail .mutation-review .totals .spec-row > dd {
+    margin-top: 8px;
+  }
+}

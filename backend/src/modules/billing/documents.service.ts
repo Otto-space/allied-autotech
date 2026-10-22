@@ -1,8 +1,10 @@
 import { prisma } from "../../config/database.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
-import { assertInvoiceCustomer } from "./billing.policy.js";
-import { invoiceConflict, invoiceNotFound } from "./billing.errors.js";
+import { assertInvoiceCustomer, assertInvoiceOperator } from "./billing.policy.js";
+import { invoiceConflict, invoiceNotFound, invoiceStale } from "./billing.errors.js";
+import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
+import { appendAuditEvent } from "../audit/audit.service.js";
 import {
   assertDocumentTotals,
   buildInvoiceSnapshot,
@@ -10,6 +12,7 @@ import {
 } from "./document-snapshot.js";
 import {
   invoiceDocumentSchema,
+  staffInvoiceDocumentSchema,
   invoiceSnapshotSchema,
   receiptDocumentSchema,
   type ReceiptDocument,
@@ -96,15 +99,49 @@ export class FinancialDocumentsService {
   constructor(private readonly database: PrismaClient = prisma) {}
   async invoice(actor: AuthenticatedActor, invoiceId: string) {
     assertInvoiceCustomer(actor);
+    return invoiceDocumentSchema.parse(await this.readInvoice(actor, invoiceId));
+  }
+  async staffInvoice(
+    actor: AuthenticatedActor,
+    invoiceId: string,
+    context: RequestSecurityContext,
+    format: "document" | "download",
+    expected?: { expectedVersion: number; expectedStatus: string },
+  ) {
+    assertInvoiceOperator(actor);
+    return staffInvoiceDocumentSchema.parse(
+      await this.readInvoice(actor, invoiceId, {
+        context,
+        format,
+        ...(expected ? { expected } : {}),
+      }),
+    );
+  }
+  private async readInvoice(
+    actor: AuthenticatedActor,
+    invoiceId: string,
+    staff?: {
+      context: RequestSecurityContext;
+      format: "document" | "download";
+      expected?: { expectedVersion: number; expectedStatus: string };
+    },
+  ) {
     return this.database.$transaction(
       async (database) => {
-        const customer = await database.customerProfile.findUnique({
-          where: { userId: actor.userId },
-          select: { id: true },
-        });
-        if (!customer) throw invoiceNotFound();
+        const customer = staff
+          ? null
+          : await database.customerProfile.findUnique({
+              where: { userId: actor.userId },
+              select: { id: true },
+            });
+        if (!staff && !customer) throw invoiceNotFound();
         const invoice = await database.invoice.findFirst({
-          where: { id: invoiceId, customerId: customer.id, status: { not: "DRAFT" } },
+          where: {
+            id: invoiceId,
+            ...(staff
+              ? {}
+              : { customerId: customer!.id, status: { not: "DRAFT" as const } }),
+          },
           select: {
             id: true,
             invoiceNumber: true,
@@ -124,9 +161,18 @@ export class FinancialDocumentsService {
             totalKobo: true,
             policySnapshot: true,
             documentSnapshot: true,
+            createdAt: true,
+            updatedAt: true,
+            voidedAt: true,
           },
         });
         if (!invoice) throw invoiceNotFound();
+        if (
+          staff?.expected &&
+          (invoice.version !== staff.expected.expectedVersion ||
+            invoice.status !== staff.expected.expectedStatus)
+        )
+          throw invoiceStale();
         const stored =
           invoice.documentSnapshot === null
             ? null
@@ -145,14 +191,14 @@ export class FinancialDocumentsService {
             ? "BOOKING"
             : "VEHICLE_TRANSACTION";
         if (
-          snapshot.billTo.reference !== customer.id ||
+          snapshot.billTo.reference !== invoice.customerId ||
           snapshot.source.id !== expectedSource ||
           snapshot.source.type !== expectedType
         )
           throw invoiceConflict("The invoice document needs review");
         const payments = await database.payment.findMany({
           where: {
-            customerId: customer.id,
+            customerId: invoice.customerId,
             OR: [
               { invoiceId },
               ...(invoice.orderId ? [{ orderId: invoice.orderId }] : []),
@@ -181,13 +227,22 @@ export class FinancialDocumentsService {
               ]
             : [];
         });
-        return invoiceDocumentSchema.parse({
+        const document = (
+          staff ? staffInvoiceDocumentSchema : invoiceDocumentSchema
+        ).parse({
           ...snapshot,
           id: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
           currency: invoice.currency,
           status: invoice.status,
           version: invoice.version,
+          ...(staff
+            ? {
+                createdAt: invoice.createdAt.toISOString(),
+                updatedAt: invoice.updatedAt.toISOString(),
+                voidedAt: invoice.voidedAt?.toISOString() ?? null,
+              }
+            : {}),
           issuedAt: invoice.issuedAt?.toISOString() ?? null,
           dueAt: invoice.dueAt?.toISOString() ?? null,
           paidAt: invoice.paidAt?.toISOString() ?? null,
@@ -204,6 +259,21 @@ export class FinancialDocumentsService {
             succeededAt: payment.succeededAt?.toISOString() ?? null,
           })),
         });
+        if (staff)
+          await appendAuditEvent(database, {
+            actorUserId: actor.userId,
+            action: "READ",
+            entityType: "INVOICE",
+            entityId: invoice.id,
+            newValues: {
+              document: "invoice",
+              format: staff.format,
+              version: invoice.version,
+              status: invoice.status,
+            },
+            context: staff.context,
+          });
+        return document;
       },
       { isolationLevel: "RepeatableRead" },
     );

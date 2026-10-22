@@ -71,6 +71,20 @@ async function fixture(
   await page.route("**/api/v1/**", async (route) => {
     const endpoint = new URL(route.request().url()).pathname.replace("/api/v1", "");
     if (await handler(route, endpoint)) return;
+    if (endpoint === "/staff/profile")
+      return reply(route, {
+        id: id(11),
+        email: "operations@example.test",
+        role,
+        status: "ACTIVE",
+        capabilities: [],
+        staffProfile: {
+          id: id(12),
+          firstName: "Synthetic",
+          lastName: "Operator",
+          branchId: null,
+        },
+      });
     if (endpoint === "/auth/session")
       return reply(route, {
         id: id(10),
@@ -90,6 +104,19 @@ async function fixture(
 }
 const confirm = (page: Page) =>
   page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
+const inspectJob = (page: Page) =>
+  page
+    .locator(".wj-row")
+    .first()
+    .getByRole("button", { name: /Inspect job/ })
+    .click();
+const currentJob = (job: OperationalJob, retried = false) => ({
+  ...job,
+  status: retried ? (job.source === "OUTBOX" ? "PENDING" : "RECEIVED") : job.status,
+  ...(job.source === "OUTBOX"
+    ? { publishedAt: null }
+    : { processedAt: null, failedAt: time }),
+});
 
 test("operations overview uses real zero counts and links to the exception and job screens", async ({
   page,
@@ -142,7 +169,11 @@ for (const route of ["processing-jobs", "payment-exceptions", "payment-disputes"
     );
     await page.goto(`/admin/${route}`);
     await expect(
-      page.getByText("Administrator access is required to view these records."),
+      page.getByText(
+        route === "payment-exceptions"
+          ? "Administrator access is required for payment exceptions."
+          : "Administrator access is required to view these records.",
+      ),
     ).toBeVisible();
     expect(calls).toBe(0);
   });
@@ -165,9 +196,13 @@ test("job retry validates its reason and guards changed attempts while paging is
         });
       else
         await reply(route, {
-          items: retried ? [] : [{ ...job, lastError: "PRIVATE_BACKEND_DETAIL" }],
+          items: retried ? [] : [{ ...job, lastError: null }],
           ...(retried ? {} : { nextCursor: "A".repeat(100) }),
         });
+      return true;
+    }
+    if (endpoint === `/admin/operations/jobs/outbox/${job.id}`) {
+      await reply(route, currentJob(job, retried));
       return true;
     }
     if (endpoint.endsWith("/retry")) {
@@ -192,6 +227,7 @@ test("job retry validates its reason and guards changed attempts while paging is
   await expect(page.getByRole("heading", { name: job.eventType })).toBeVisible();
   await expect(page.getByRole("button", { name: "Next", exact: true })).toBeEnabled();
   await expect(page.getByText("PRIVATE_BACKEND_DETAIL", { exact: false })).toHaveCount(0);
+  await inspectJob(page);
   await page.getByRole("button", { name: "Review job retry" }).click();
   await expect(page.getByLabel("Job retry reason")).toBeFocused();
   await page.getByLabel("Job retry reason").fill("Isolated previous delivery reconciled");
@@ -208,9 +244,13 @@ test("job retry validates its reason and guards changed attempts while paging is
   await expect(page.getByRole("dialog")).toContainText("can send a notification");
   expect(writes).toHaveLength(0);
   await confirm(page).click();
-  await expect(page.getByRole("heading", { name: "No matching records" })).toBeVisible();
+  await expect(page.getByText("Retry queued.", { exact: false })).toBeVisible();
   expect(writes).toEqual([
-    { expectedAttempts: 4, reason: "Isolated fourth attempt reconciled" },
+    {
+      expectedAttempts: 4,
+      expectedUpdatedAt: time,
+      reason: "Isolated fourth attempt reconciled",
+    },
   ]);
   expect(queries.every((query) => !query.includes("cursor="))).toBe(true);
 });
@@ -219,7 +259,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
   test(`${role} can review and retry a dead-letter notification with zero attempts`, async ({
     page,
   }) => {
-    const job = { ...jobFixture(), status: "DEAD_LETTER", attempts: 0 };
+    const job: OperationalJob = { ...jobFixture(), status: "DEAD_LETTER", attempts: 0 };
     await page.setViewportSize(
       role === "SUPER_ADMIN" ? { width: 390, height: 844 } : { width: 1280, height: 720 },
     );
@@ -235,6 +275,10 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
       async (route, endpoint) => {
         if (endpoint === "/admin/operations/jobs") {
           await reply(route, { items: retried ? [] : [job] });
+          return true;
+        }
+        if (endpoint === `/admin/operations/jobs/outbox/${job.id}`) {
+          await reply(route, currentJob(job, retried));
           return true;
         }
         if (endpoint.endsWith("/retry")) {
@@ -257,6 +301,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
     await expect(page).toHaveURL(/\/admin\/processing-jobs$/);
     await expect(page).toHaveTitle(/Processing jobs/);
     await expect(page.getByRole("heading", { name: job.eventType })).toBeVisible();
+    await inspectJob(page);
     await expect(
       page.getByText("outside the supported manual retry range", { exact: false }),
     ).toHaveCount(0);
@@ -272,11 +317,13 @@ for (const role of ["ADMIN", "SUPER_ADMIN"]) {
       path: path.join(os.tmpdir(), `allied-notification-retry-${role.toLowerCase()}.png`),
     });
     await confirm(page).click();
-    await expect(
-      page.getByRole("heading", { name: "No matching records" }),
-    ).toBeVisible();
+    await expect(page.getByText("Retry queued.", { exact: false })).toBeVisible();
     expect(writes).toEqual([
-      { expectedAttempts: 0, reason: "Disabled delivery configuration repaired" },
+      {
+        expectedAttempts: 0,
+        expectedUpdatedAt: time,
+        reason: "Disabled delivery configuration repaired",
+      },
     ]);
     expect(errors).toEqual([]);
   });
@@ -307,10 +354,15 @@ test("unknown webhook retry is locked across filters and processing jobs never o
       });
       return true;
     }
+    if (endpoint === `/admin/operations/jobs/webhook/${job.id}`) {
+      await reply(route, currentJob(job));
+      return true;
+    }
     if (endpoint.endsWith("/retry")) {
       writes++;
       expect(route.request().postDataJSON()).toEqual({
         expectedAttempts: 5,
+        expectedUpdatedAt: time,
         reason: "Isolated webhook reconciliation",
       });
       await route.abort("failed");
@@ -319,6 +371,7 @@ test("unknown webhook retry is locked across filters and processing jobs never o
   });
   await page.goto("/admin/processing-jobs");
   await page.getByLabel("Job source").selectOption("PAYMENT_WEBHOOK");
+  await inspectJob(page);
   await page.getByLabel("Job retry reason").fill("Isolated webhook reconciliation");
   await page.getByRole("button", { name: "Review job retry" }).click();
   await expect(page.getByRole("dialog")).toContainText(
@@ -352,7 +405,16 @@ for (const status of ["RESOLVED", "IGNORED"] as const)
     await fixture(page, async (route, endpoint) => {
       if (endpoint === "/admin/operations/payment-anomalies") {
         queries.push(new URL(route.request().url()).search);
-        await reply(route, { items: [anomaly], nextCursor: id(20) });
+        await reply(
+          route,
+          new URL(route.request().url()).searchParams.has("cursor")
+            ? { items: [] }
+            : { items: [anomaly], nextCursor: anomaly.id },
+        );
+        return true;
+      }
+      if (endpoint === `/admin/operations/payment-anomalies/${anomaly.id}`) {
+        await reply(route, anomaly);
         return true;
       }
       if (endpoint.endsWith("/status")) {
@@ -369,24 +431,26 @@ for (const status of ["RESOLVED", "IGNORED"] as const)
       }
     });
     await page.goto("/admin/payment-exceptions");
-    await page
-      .getByRole("navigation", { name: "Payment exceptions pages" })
-      .getByRole("button", { name: "Next" })
-      .click();
-    await expect.poll(() => queries.at(-1)).toContain(`cursor=${id(20)}`);
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await expect.poll(() => queries.at(-1)).toContain(`cursor=${anomaly.id}`);
     await page.getByLabel("Exception type").selectOption("AMOUNT_MISMATCH");
     await expect.poll(() => queries.at(-1)).not.toContain("cursor=");
+    await page.getByRole("button", { name: "Open investigation", exact: true }).click();
     await expect(page.getByLabel("New exception status")).toHaveCount(0);
     await page
-      .getByLabel("Exception update reason")
+      .getByLabel("Investigation note", { exact: true })
       .fill("Isolated investigation opened");
-    await page.getByRole("button", { name: "Review exception update" }).click();
-    await confirm(page).click();
-    await expect(page.locator(".status")).toHaveText("INVESTIGATING");
+    await page.getByRole("button", { name: "Review investigation", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Confirm investigation update", exact: true })
+      .click();
+    await expect(page.locator(".we-detail-heading .we-badge")).toHaveText(
+      "Investigating",
+    );
     await page.getByRole("button", { name: "Reload action fields" }).click();
     await page.getByLabel("New exception status").selectOption(status);
     await page
-      .getByLabel("Exception update reason")
+      .getByLabel("Investigation note", { exact: true })
       .fill("Isolated reconciliation documented");
     await page.setViewportSize({ width: 320, height: 740 });
     expect(
@@ -399,13 +463,17 @@ for (const status of ["RESOLVED", "IGNORED"] as const)
           .analyze()
       ).violations,
     ).toEqual([]);
-    await page.getByRole("button", { name: "Review exception update" }).click();
+    await page.getByRole("button", { name: "Review investigation", exact: true }).click();
     await expect(page.getByRole("dialog")).toContainText("does not verify a payment");
     await page.screenshot({
       path: path.join(os.tmpdir(), "allied-exception-review-mobile.png"),
     });
-    await confirm(page).click();
-    await expect(page.locator(".status")).toHaveText(status);
+    await page
+      .getByRole("button", { name: "Confirm investigation update", exact: true })
+      .click();
+    await expect(page.locator(".we-detail-heading .we-badge")).toHaveText(
+      status === "RESOLVED" ? "Resolved" : "Ignored",
+    );
     expect(writes).toEqual([
       {
         expectedStatus: "OPEN",
@@ -419,7 +487,7 @@ for (const status of ["RESOLVED", "IGNORED"] as const)
       },
     ]);
     await expect(
-      page.getByRole("button", { name: "Review exception update" }),
+      page.getByRole("button", { name: "Review investigation", exact: true }),
     ).toHaveCount(0);
   });
 
@@ -433,6 +501,10 @@ test("malformed exception update responses cannot be replayed as successful deci
       await reply(route, { items: [anomaly] });
       return true;
     }
+    if (endpoint === `/admin/operations/payment-anomalies/${anomaly.id}`) {
+      await reply(route, anomaly);
+      return true;
+    }
     if (endpoint.endsWith("/status")) {
       writes++;
       await reply(route, {});
@@ -440,17 +512,24 @@ test("malformed exception update responses cannot be replayed as successful deci
     }
   });
   await page.goto("/admin/payment-exceptions");
-  await page.getByLabel("Exception update reason").fill("Isolated investigation");
-  await page.getByRole("button", { name: "Review exception update" }).click();
-  await confirm(page).click();
-  await expect(confirm(page)).toBeDisabled();
+  await page.getByRole("button", { name: "Open investigation", exact: true }).click();
+  await page
+    .getByLabel("Investigation note", { exact: true })
+    .fill("Isolated investigation");
+  await page.getByRole("button", { name: "Review investigation", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Confirm investigation update", exact: true })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "Confirm investigation update", exact: true }),
+  ).toBeDisabled();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
   await page.getByRole("button", { name: "Clear filters" }).click();
   await expect(
-    page.getByRole("button", { name: "Review exception update" }),
+    page.getByRole("button", { name: "Review investigation", exact: true }),
   ).toBeDisabled();
   expect(writes).toBe(1);
 });
@@ -465,15 +544,22 @@ test("dispute filters reset paging and show precise amounts, Lagos deadlines and
   await fixture(page, async (route, endpoint) => {
     if (endpoint === "/admin/operations/payment-disputes") {
       queries.push(new URL(route.request().url()).search);
-      await reply(route, { items: [dispute], nextCursor: id(20) });
+      await reply(
+        route,
+        new URL(route.request().url()).searchParams.has("cursor")
+          ? { items: [] }
+          : { items: [dispute], nextCursor: dispute.id },
+      );
       return true;
     }
   });
   await page.goto("/admin/payment-disputes");
   await expect(page).toHaveTitle(/Payment disputes/);
   await expect(page.getByText("12,345,678,901,234.56", { exact: false })).toBeVisible();
-  await expect(page.getByText("20 Sept 2026, 11:00 (Lagos time)")).toBeVisible();
-  await expect(page.getByText("Yes", { exact: true })).toBeVisible();
+  await expect(page.locator(".wd-deadline time")).toHaveText(
+    "20 Sept 2026, 11:00 (Lagos time)",
+  );
+  await expect(page.locator(".wd-evidence p")).toHaveText("Recorded");
   await expect(
     page.getByRole("button", { name: /evidence|accept dispute/i }),
   ).toHaveCount(0);
@@ -488,8 +574,8 @@ test("dispute filters reset paging and show precise amounts, Lagos deadlines and
   dispute.responseDueAt = null;
   dispute.hasEvidence = false;
   await page.getByRole("button", { name: "Refresh payment disputes" }).click();
-  await expect(page.getByText("Not recorded", { exact: true })).toBeVisible();
-  await expect(page.getByText("No", { exact: true })).toBeVisible();
+  await expect(page.locator(".wd-deadline")).toContainText("Not recorded");
+  await expect(page.locator(".wd-evidence p")).toHaveText("Not recorded");
   await page.setViewportSize({ width: 320, height: 740 });
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -526,7 +612,12 @@ test("processing jobs pages older records, resets filters and performs no mutati
         route,
         url.searchParams.has("cursor")
           ? { items: [second] }
-          : { items: [first], nextCursor: "A".repeat(100) },
+          : {
+              items: [
+                { ...first, status: url.searchParams.get("status") ?? first.status },
+              ],
+              nextCursor: "A".repeat(100),
+            },
       );
       return true;
     }

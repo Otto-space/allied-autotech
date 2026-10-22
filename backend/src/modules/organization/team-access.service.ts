@@ -19,6 +19,7 @@ import {
   assertPrivilegedActor,
 } from "./organization.policy.js";
 import { safeStaffSelect } from "./organization.repository.js";
+import { assertWorkforceInvitationDelegation } from "./workforce-invitations.js";
 import type {
   InvitationListQuery,
   PrivilegedInvitationAcceptInput,
@@ -77,6 +78,10 @@ export class TeamAccessService {
   ) {
     assertAdministrator(actor);
     return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
+      const envelope = await tx.workforceAccess.findUnique({
+        where: { userId: actor.userId },
+      });
       const items = await tx.user.findMany({
         where: {
           email,
@@ -89,7 +94,15 @@ export class TeamAccessService {
           email: true,
           role: true,
           profile: { select: { firstName: true, lastName: true } },
-          staffProfile: { select: { firstName: true, lastName: true, branchId: true } },
+          staffProfile: {
+            select: {
+              firstName: true,
+              lastName: true,
+              branchId: true,
+              branch: { select: { id: true, name: true, code: true, isActive: true } },
+            },
+          },
+          workforceAccess: { select: { userId: true } },
         },
         take: 1,
       });
@@ -101,7 +114,22 @@ export class TeamAccessService {
         newValues: { resultCount: items.length },
         context,
       });
-      return { items };
+      return {
+        items: items.map(({ workforceAccess, ...item }) => ({
+          ...item,
+          management: {
+            canPromote: item.role === "CUSTOMER" && !!item.profile,
+            canInvite:
+              item.role === "STAFF" &&
+              item.id !== actor.userId &&
+              item.staffProfile?.branch?.isActive === true &&
+              (!envelope ||
+                (!!workforceAccess &&
+                  envelope.delegatedTemplates.includes("ADMIN_INVITE") &&
+                  envelope.delegatedBranchIds.includes(item.staffProfile.branch.id))),
+          },
+        })),
+      };
     });
   }
 
@@ -205,6 +233,7 @@ export class TeamAccessService {
         where: { recipientId: recipient.id, usedAt: null, revokedAt: null },
         data: { revokedAt: new Date() },
       });
+      await assertWorkforceInvitationDelegation(tx, actor.userId, recipient.id);
       const invitation = await tx.privilegedInvitation.create({
         data: {
           email: recipient.email,
@@ -291,6 +320,7 @@ export class TeamAccessService {
         recipient.staffProfile?.branch?.isActive !== true
       )
         throw invalidInvitation();
+      await assertWorkforceInvitationDelegation(tx, invitation.invitedById, actor.userId);
       const consumed = await tx.privilegedInvitation.updateMany({
         where: {
           id: invitation.id,
@@ -349,6 +379,7 @@ export class TeamAccessService {
               ? { usedAt: null, revokedAt: null, expiresAt: { lte: now } }
               : {};
     return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
       const rows = await tx.privilegedInvitation.findMany({
         where: {
           ...status,
@@ -372,6 +403,34 @@ export class TeamAccessService {
         items,
         ...(rows.length > query.limit ? { nextCursor: items.at(-1)!.id } : {}),
       };
+    });
+  }
+
+  async invitation(
+    actor: AuthenticatedActor,
+    id: string,
+    context: RequestSecurityContext,
+  ) {
+    assertAdministrator(actor);
+    return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
+      const row = await tx.privilegedInvitation.findFirst({
+        where: {
+          id,
+          ...(actor.role === "SUPER_ADMIN" ? {} : { invitedById: actor.userId }),
+        },
+        select: invitationSelect,
+      });
+      if (!row) throw organizationResourceNotFound();
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "READ",
+        entityType: "PRIVILEGED_INVITATION",
+        entityId: id,
+        newValues: { resource: "INVITATION_DETAIL" },
+        context,
+      });
+      return invitationView(row);
     });
   }
 

@@ -51,6 +51,7 @@ const reply = (route: Route, data: unknown) =>
 const handoverFixture = (): NonNullable<StaffVehicleSale["handover"]> => ({
   id: id(20),
   status: "PENDING",
+  hasSignedDocument: true,
   version: 4,
   recipientName: "Isolated recipient",
   recipientPhone: "+2348000000000",
@@ -83,7 +84,10 @@ async function fixture(
         email: "sale@example.test",
         role,
         status: "ACTIVE",
-        staffProfile: null,
+        staffProfile:
+          role === "STAFF"
+            ? { id: id(8), firstName: "Isolated", lastName: "Operator", branchId: id(4) }
+            : null,
         capabilities: [],
       });
     if (endpoint === "/auth/csrf")
@@ -128,6 +132,13 @@ test("vehicle negotiation sends exact kobo and cancellation follows the server l
     if (endpoint.endsWith("/status")) {
       const body = route.request().postDataJSON();
       writes.push({ endpoint, body });
+      sale.statusHistory.push({
+        id: id(9),
+        fromStatus: sale.status,
+        toStatus: body.status,
+        reason: body.reason,
+        createdAt: new Date().toISOString(),
+      });
       sale.status = body.status;
       sale.cancellationReason = body.reason;
       sale.version++;
@@ -156,7 +167,7 @@ test("vehicle negotiation sends exact kobo and cancellation follows the server l
   await expect(page.getByRole("dialog")).toContainText("does not reserve the vehicle");
   expect(writes).toHaveLength(0);
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status").first()).toHaveText("NEGOTIATING");
+  await expect(page.locator(".status").first()).toHaveText("Negotiating");
   expect(writes[0].body).toEqual({
     expectedVersion: 0,
     agreedPriceKobo: "1234567891",
@@ -169,6 +180,9 @@ test("vehicle negotiation sends exact kobo and cancellation follows the server l
   await expect(page.getByRole("option", { name: "RESERVED", exact: true })).toHaveCount(
     0,
   );
+  await page
+    .getByRole("button", { name: "Reload purchase progress fields", exact: true })
+    .click();
   await page.getByRole("button", { name: "Review purchase status" }).click();
   await expect(page.getByLabel("Reason (required for cancellation)")).toBeFocused();
   await page
@@ -177,7 +191,7 @@ test("vehicle negotiation sends exact kobo and cancellation follows the server l
   await page.getByRole("button", { name: "Review purchase status" }).click();
   await expect(page.getByRole("dialog")).toContainText("does not issue a refund");
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status").first()).toHaveText("CANCELLED");
+  await expect(page.locator(".status").first()).toHaveText("Cancelled");
   expect(writes[1].body).toEqual({
     expectedVersion: 1,
     status: "CANCELLED",
@@ -234,12 +248,12 @@ test("lost vehicle cancellation stays unconfirmed until the refreshed server rec
   await expect(
     page.getByRole("dialog").getByRole("button", { name: "Confirm change" }),
   ).toBeDisabled();
-  await expect(page.locator(".status").first()).toHaveText("RESERVED");
+  await expect(page.locator(".status").first()).toHaveText("Reserved");
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
-  await expect(page.locator(".status").first()).toHaveText("CANCELLED");
+  await expect(page.locator(".status").first()).toHaveText("Cancelled");
   await expect(page.getByRole("button", { name: "Review purchase status" })).toHaveCount(
     0,
   );
@@ -254,6 +268,7 @@ test("vehicle list errors stay separate from empty results and legacy handover f
   sale.handover = {
     id: id(9),
     status: "PENDING",
+    hasSignedDocument: false,
     version: 0,
     recipientPhone: null,
     cancelledAt: null,
@@ -281,7 +296,18 @@ test("vehicle list errors stay separate from empty results and legacy handover f
       endpoint === `/staff/vehicle-transactions/${sale.id}` ||
       endpoint === `/customers/vehicle-transactions/${sale.id}`
     ) {
-      await reply(route, sale);
+      await reply(
+        route,
+        endpoint.startsWith("/customers/")
+          ? {
+              ...sale,
+              vehicleListing: {
+                ...sale.vehicleListing,
+                vehicle: { ...sale.vehicleListing.vehicle, images: [] },
+              },
+            }
+          : sale,
+      );
       return true;
     }
   });
@@ -295,6 +321,7 @@ test("vehicle list errors stay separate from empty results and legacy handover f
   recovered = true;
   await page.getByRole("button", { name: "Refresh vehicle sales" }).click();
   await page.getByLabel("Purchase status").selectOption("CANCELLED");
+  await page.getByRole("button", { name: "Apply filters", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "No purchases match these filters" }),
   ).toBeVisible();
@@ -326,7 +353,7 @@ test("vehicle list errors stay separate from empty results and legacy handover f
   ).toHaveText("Not recorded");
 });
 
-test("paid vehicle handover is reviewed before creation and completed with its own version", async ({
+test("paid vehicle handover without a signed document is reviewed and can become ready but cannot complete", async ({
   page,
 }) => {
   const sale = saleFixture();
@@ -348,7 +375,12 @@ test("paid vehicle handover is reviewed before creation and completed with its o
     if (endpoint.endsWith("/handovers")) {
       const body = route.request().postDataJSON();
       writes.push({ endpoint, body });
-      sale.handover = { ...handoverFixture(), ...body };
+      sale.handover = {
+        ...handoverFixture(),
+        ...body,
+        version: 0,
+        hasSignedDocument: false,
+      };
       sale.status = "HANDOVER_PENDING";
       sale.version++;
       await reply(route, sale);
@@ -375,7 +407,7 @@ test("paid vehicle handover is reviewed before creation and completed with its o
   await expect(page).toHaveURL(new RegExp(`/admin/vehicle-sales/${sale.id}$`));
   await expect(page).toHaveTitle(/Vehicle/);
   await expect(
-    page.getByRole("heading", { name: "Manage vehicle purchase" }),
+    page.getByRole("heading", { name: sale.vehicleListing.title }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Review new handover" }).click();
   await expect(page.getByLabel("Recipient name", { exact: true })).toBeFocused();
@@ -405,7 +437,7 @@ test("paid vehicle handover is reviewed before creation and completed with its o
     fullPage: false,
   });
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status").first()).toHaveText("HANDOVER PENDING");
+  await expect(page.locator(".status").first()).toHaveText("Handover pending");
   expect(writes[0].body).toEqual({
     recipientName: "Isolated recipient",
     recipientPhone: "+2348000000000",
@@ -422,16 +454,14 @@ test("paid vehicle handover is reviewed before creation and completed with its o
     "purchase remains handover pending",
   );
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.getByLabel("Next handover status")).toHaveValue("COMPLETED");
-  expect(writes[1].body).toEqual({ status: "READY", expectedVersion: 4 });
-  await page.getByRole("button", { name: "Review handover status" }).click();
-  await expect(page.getByRole("dialog")).toContainText("marks the vehicle listing sold");
-  await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status").first()).toHaveText("COMPLETED");
-  expect(writes[2].body).toEqual({ status: "COMPLETED", expectedVersion: 5 });
-  await expect(page.getByRole("button", { name: "Review handover status" })).toHaveCount(
-    0,
-  );
+  await expect(page.getByLabel("Next handover status")).toHaveValue("CANCELLED");
+  expect(writes[1].body).toEqual({ status: "READY", expectedVersion: 0 });
+  await expect(
+    page
+      .getByLabel("Next handover status")
+      .getByRole("option", { name: "COMPLETED", exact: true }),
+  ).toHaveCount(0);
+  expect(writes).toHaveLength(2);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
@@ -458,7 +488,12 @@ test("lost handover creation is not resent and cancellation explains the recover
     }
     if (endpoint.endsWith("/handovers")) {
       writes++;
-      sale.handover = handoverFixture();
+      sale.handover = {
+        ...handoverFixture(),
+        ...route.request().postDataJSON(),
+        version: 0,
+        hasSignedDocument: false,
+      };
       sale.status = "HANDOVER_PENDING";
       sale.version++;
       await route.abort("failed");
@@ -467,7 +502,7 @@ test("lost handover creation is not resent and cancellation explains the recover
     if (endpoint.endsWith("/status") && sale.handover) {
       expect(route.request().postDataJSON()).toEqual({
         status: "CANCELLED",
-        expectedVersion: 4,
+        expectedVersion: 0,
       });
       writes++;
       sale.handover.status = "CANCELLED";
@@ -487,13 +522,14 @@ test("lost handover creation is not resent and cancellation explains the recover
   await expect(
     page.getByRole("dialog").getByRole("button", { name: "Confirm change" }),
   ).toBeDisabled();
-  await expect(page.locator(".status").first()).toHaveText("PAID");
+  await expect(page.locator(".status").first()).toHaveText("Paid");
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Close & review record" })
     .click();
-  await expect(page.locator(".status").first()).toHaveText("HANDOVER PENDING");
+  await expect(page.locator(".status").first()).toHaveText("Handover pending");
   expect(writes).toBe(1);
+  await page.getByRole("button", { name: "Load current purchase", exact: true }).click();
   await page.getByLabel("Next handover status").selectOption("CANCELLED");
   await page.getByRole("button", { name: "Review handover status" }).click();
   await expect(page.getByRole("dialog")).toContainText(
@@ -504,7 +540,7 @@ test("lost handover creation is not resent and cancellation explains the recover
   await expect(
     page.getByText("The purchase is still handover pending.", { exact: false }),
   ).toBeVisible();
-  await expect(page.locator(".status").first()).toHaveText("HANDOVER PENDING");
+  await expect(page.locator(".status").first()).toHaveText("Handover pending");
   await expect(page.getByRole("button", { name: "Review new handover" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Review handover status" })).toHaveCount(
     0,
@@ -568,7 +604,12 @@ test("handover PDF is uploaded separately, attached by ticket and accessed throu
     }
     if (endpoint.endsWith("/handovers")) {
       handoverBody = route.request().postDataJSON();
-      sale.handover = handoverFixture();
+      sale.handover = {
+        ...handoverFixture(),
+        ...handoverBody,
+        version: 0,
+        hasSignedDocument: true,
+      };
       sale.status = "HANDOVER_PENDING";
       sale.version++;
       await reply(route, sale);
@@ -581,6 +622,21 @@ test("handover PDF is uploaded separately, attached by ticket and accessed throu
         url: "https://storage.invalid/download/handover?signature=isolated-private",
         expiresInSeconds: 2,
       });
+      return true;
+    }
+    if (endpoint.endsWith("/status") && sale.handover) {
+      const body = route.request().postDataJSON();
+      expect(body.expectedVersion).toBe(sale.handover.version);
+      sale.handover.status = body.status;
+      sale.handover.version++;
+      if (body.status === "READY") sale.handover.readyAt = "2026-10-17T10:00:37.123Z";
+      if (body.status === "COMPLETED") {
+        sale.handover.completedAt = "2026-10-17T11:00:37.123Z";
+        sale.status = "COMPLETED";
+        sale.version++;
+        sale.vehicleListing.status = "SOLD";
+      }
+      await reply(route, sale);
       return true;
     }
   });
@@ -643,7 +699,7 @@ test("handover PDF is uploaded separately, attached by ticket and accessed throu
   await expect(page.getByRole("dialog")).toContainText("isolated.pdf");
   await expect(page.getByRole("dialog")).not.toContainText(ticket);
   await page.getByRole("dialog").getByRole("button", { name: "Confirm change" }).click();
-  await expect(page.locator(".status").first()).toHaveText("HANDOVER PENDING");
+  await expect(page.locator(".status").first()).toHaveText("Handover pending");
   expect(handoverBody?.assetToken).toBe(ticket);
   expect(handoverBody).not.toHaveProperty("file");
   expect(accessRequests).toBe(0);
@@ -659,6 +715,16 @@ test("handover PDF is uploaded separately, attached by ticket and accessed throu
   await page.getByRole("button", { name: "Request signed handover document" }).click();
   await expect(download).toBeVisible();
   expect(accessRequests).toBe(2);
+  for (const status of ["READY", "COMPLETED"]) {
+    await page.getByLabel("Next handover status").selectOption(status);
+    await page.getByRole("button", { name: "Review handover status" }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Confirm change" })
+      .click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+  }
+  await expect(page.locator(".status").first()).toHaveText("Completed");
   await page.evaluate(() => window.dispatchEvent(new Event("aat:session-changed")));
   await expect(download).toHaveCount(0);
 });

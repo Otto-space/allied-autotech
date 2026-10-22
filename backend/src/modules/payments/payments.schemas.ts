@@ -109,6 +109,7 @@ export const refundCreateBodySchema = z
     reason: cleanText(1_000),
   })
   .strict();
+export const refundRecoveryQuerySchema = z.object({ paymentAttemptId: uuid }).strict();
 export const refundDecisionBodySchema = z
   .object({
     decision: z.enum(["APPROVED", "CANCELLED"]),

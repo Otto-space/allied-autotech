@@ -7,7 +7,13 @@ import {
 import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { BillingController } from "./billing.controller.js";
-import { invoiceDocument, invoiceDownload } from "./documents.controller.js";
+import {
+  invoiceDocument,
+  invoiceDownload,
+  staffInvoiceDocument,
+  staffInvoiceDownload,
+} from "./documents.controller.js";
+import { staffInvoiceDownloadQuerySchema } from "./document.schemas.js";
 import { createSensitiveRateLimit } from "../../common/middleware/rate-limits.js";
 import {
   billingEmptyQuerySchema,
@@ -16,6 +22,7 @@ import {
   invoiceParamsSchema,
   invoiceTransitionBodySchema,
   staffInvoiceListQuerySchema,
+  invoiceSourceListQuerySchema,
 } from "./billing.schemas.js";
 export function createCustomerBillingRouter(): Router {
   const router = Router();
@@ -48,7 +55,23 @@ export function createStaffBillingRouter(): Router {
   const router = Router();
   const controller = new BillingController();
   router.use(authenticate(), requireAdministrator);
+  router.get(
+    "/:invoiceId/document",
+    validate({ params: invoiceParamsSchema, query: billingEmptyQuerySchema }),
+    staffInvoiceDocument,
+  );
+  router.get(
+    "/:invoiceId/download",
+    createSensitiveRateLimit(20),
+    validate({ params: invoiceParamsSchema, query: staffInvoiceDownloadQuerySchema }),
+    staffInvoiceDownload,
+  );
   router.get("/", validate({ query: staffInvoiceListQuerySchema }), controller.staffList);
+  router.get(
+    "/sources",
+    validate({ query: invoiceSourceListQuerySchema }),
+    controller.invoiceSources,
+  );
   router.get(
     "/:invoiceId",
     validate({ params: invoiceParamsSchema, query: billingEmptyQuerySchema }),

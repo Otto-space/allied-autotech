@@ -1,10 +1,22 @@
 import { prisma } from "../../config/database.js";
+import { z } from "zod";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
 import type {
   CustomerInvoiceListQuery,
   StaffInvoiceListQuery,
+  InvoiceSourceListQuery,
 } from "./billing.schemas.js";
 type DatabaseClient = PrismaClient | Prisma.TransactionClient;
+export const invoiceableVehicleStatuses = [
+  "PAYMENT_PENDING",
+  "RESERVED",
+  "PARTIALLY_PAID",
+  "PAID",
+  "HANDOVER_PENDING",
+  "COMPLETED",
+] as const;
+const branchSelect = { id: true, code: true, name: true } as const;
+const literalPattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 export const invoiceSelect = {
   id: true,
   invoiceNumber: true,
@@ -85,6 +97,16 @@ export class BillingRepository {
       where: {
         ...(query.status === undefined ? {} : { status: query.status }),
         ...(query.customerId === undefined ? {} : { customerId: query.customerId }),
+        ...(query.invoiceNumber === undefined
+          ? {}
+          : { invoiceNumber: query.invoiceNumber }),
+        ...(query.sourceType === "ORDER"
+          ? { orderId: query.sourceId ?? { not: null } }
+          : query.sourceType === "BOOKING"
+            ? { bookingId: query.sourceId ?? { not: null } }
+            : query.sourceType === "VEHICLE_TRANSACTION"
+              ? { vehicleTransactionId: query.sourceId ?? { not: null } }
+              : {}),
         ...(branchId === undefined || branchId === null
           ? {}
           : {
@@ -103,6 +125,106 @@ export class BillingRepository {
   }
   invoice(id: string, client: DatabaseClient = this.database) {
     return client.invoice.findUnique({ where: { id }, select: invoiceSelect });
+  }
+  async invoiceSources(query: InvoiceSourceListQuery) {
+    const pagination = {
+      orderBy: [{ createdAt: "desc" as const }, { id: "desc" as const }],
+      take: query.limit + 1,
+      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+    };
+    const exact =
+      query.search && z.uuid().safeParse(query.search).success ? query.search : undefined;
+    if (query.sourceId && exact && query.sourceId.toLowerCase() !== exact.toLowerCase())
+      return [];
+    const reference = query.sourceId ?? exact;
+    const text =
+      query.search && !exact
+        ? { startsWith: literalPattern(query.search), mode: "insensitive" as const }
+        : undefined;
+    if (query.sourceType === "ORDER") {
+      const rows = await this.database.order.findMany({
+        where: {
+          status: { not: "CANCELLED" },
+          invoice: null,
+          ...(reference ? { id: reference } : {}),
+          ...(text ? { orderNumber: text } : {}),
+        },
+        select: {
+          id: true,
+          orderNumber: true,
+          createdAt: true,
+          updatedAt: true,
+          branch: { select: branchSelect },
+        },
+        ...pagination,
+      });
+      return rows.map((r) => ({
+        id: r.id,
+        sourceType: query.sourceType,
+        reference: r.orderNumber,
+        label: `${r.orderNumber} · ${r.branch?.name ?? "Unassigned branch"}`,
+        branch: r.branch,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+      }));
+    }
+    if (query.sourceType === "BOOKING") {
+      const rows = await this.database.booking.findMany({
+        where: {
+          status: { not: "CANCELLED" },
+          quotes: { some: { status: "ACCEPTED" } },
+          invoice: null,
+          ...(reference ? { id: reference } : {}),
+          ...(text ? { service: { name: text } } : {}),
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          service: { select: { name: true } },
+          branch: { select: branchSelect },
+        },
+        ...pagination,
+      });
+      return rows.map((r) => ({
+        id: r.id,
+        sourceType: query.sourceType,
+        reference: r.id,
+        label: `${r.service.name} · ${r.branch?.name ?? "Unassigned branch"} · ${r.id}`,
+        branch: r.branch,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+      }));
+    }
+    const rows = await this.database.vehicleTransaction.findMany({
+      where: {
+        customerId: { not: null },
+        agreedPriceKobo: { not: null },
+        status: { in: [...invoiceableVehicleStatuses] },
+        invoice: null,
+        ...(reference ? { id: reference } : {}),
+        ...(text
+          ? { OR: [{ transactionNumber: text }, { vehicleListing: { title: text } }] }
+          : {}),
+      },
+      select: {
+        id: true,
+        transactionNumber: true,
+        createdAt: true,
+        updatedAt: true,
+        vehicleListing: { select: { title: true, branch: { select: branchSelect } } },
+      },
+      ...pagination,
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      sourceType: query.sourceType,
+      reference: r.transactionNumber,
+      label: `${r.transactionNumber} · ${r.vehicleListing.title}`,
+      branch: r.vehicleListing.branch,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
   }
   ownedInvoice(id: string, customerId: string) {
     return this.database.invoice.findFirst({

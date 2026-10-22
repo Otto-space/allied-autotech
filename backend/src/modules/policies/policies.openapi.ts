@@ -8,6 +8,21 @@ import {
   staffAftercareResponse,
 } from "../orders/order-aftercare.schemas.js";
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
+import { retentionWorkspaceResponse } from "./retention-policy-workspace.js";
+import { reservationWorkspaceResponse } from "./reservation-policy-workspace.js";
+import { refundTimingWorkspaceResponse } from "./refund-timing-workspace.js";
+import { deliveryWorkspaceResponse } from "./delivery-policy-workspace.js";
+import {
+  capacityBranchParams,
+  capacityWorkspaceResponse,
+} from "./capacity-policy-workspace.js";
+import { disputeWorkspaceResponse } from "./dispute-policy-workspace.js";
+import { complaintWorkspaceResponse } from "./complaint-policy-workspace.js";
+import {
+  financeEmptyQuery,
+  policyVersionResponse,
+  financeWorkspaceResponse,
+} from "./finance-policy-workspace.js";
 import {
   bookingActionQuery,
   bookingActionBody,
@@ -24,12 +39,14 @@ import {
   review,
   hold,
   privacyPageQuery,
+  staffPrivacyPageQuery,
   holdQuery,
   releaseHold,
 } from "./privacy.routes.js";
 import { transfer, check } from "../payments/manual-refunds.routes.js";
 import {
   refundQueueRecordSchema,
+  refundCurrentRecordSchema,
   refundActionResponseSchema,
   refundEvidenceResponseSchema,
 } from "../payments/refund-record.js";
@@ -46,8 +63,20 @@ import {
   disputeListSchema,
   disputeRecordSchema,
   privateEvidenceUploadSchema,
+  disputeIdParams,
+  disputeEmptyQuery,
+  disputeOperatorQuery,
+  disputeOperatorPage,
 } from "../payments/disputes.schemas.js";
 
+const capabilityGrant = z.object({
+  id: z.uuid(),
+  userId: z.uuid(),
+  capability: z.string(),
+  grantedByUserId: z.uuid(),
+  grantedAt: z.iso.datetime({ offset: true }),
+  revokedAt: z.iso.datetime({ offset: true }).nullable(),
+});
 const id = z.object({ id: z.uuid() });
 const refundId = z.object({ refundId: z.uuid() });
 const privacyRecord = z.object({
@@ -130,8 +159,99 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       method: "get",
       path: "/staff/finance-policy",
       summary: "Read the latest 100 financial policy versions for approval review",
+      query: financeEmptyQuery,
+      data: z.array(policyVersionResponse).max(100),
       roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
       capability: "FINANCE_POLICY_APPROVE; SUPER_ADMIN may read without a grant",
+    },
+    {
+      method: "get",
+      path: "/staff/finance-policy/current",
+      summary:
+        "Read effective, next scheduled and latest financial policy with bounded history",
+      query: financeEmptyQuery,
+      data: financeWorkspaceResponse,
+      roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      capability: "FINANCE_POLICY_APPROVE; SUPER_ADMIN may read without a grant",
+      description:
+        "Private, no-store and atomically audited. Current and next scheduled policy are selected from all versions using effective time then descending version; history contains at most 100 latest recorded versions. evaluatedAt is the server selection time. Existing finance gate rules determine operational availability.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/complaints/current",
+      summary:
+        "Read effective, next scheduled and latest complaint policy with bounded history",
+      query: financeEmptyQuery,
+      data: complaintWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all complaint policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Publication does not replace existing complaint deadline snapshots.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/disputes/current",
+      summary:
+        "Read effective, next scheduled and latest dispute policy with bounded history",
+      query: financeEmptyQuery,
+      data: disputeWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all dispute policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Publication itself does not modify individual disputes; operational processing uses the effective defaults where acknowledgement deadlines are missing. Provider response deadlines remain authoritative.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/retention/current",
+      summary:
+        "Read effective, next scheduled and latest retention policy with bounded history",
+      query: financeEmptyQuery,
+      data: retentionWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private, no-store and atomically audited after a transaction-bound current actor/session check. A consistent snapshot selects current and next scheduled versions across all retention policies by effective time and descending version, independently from the latest 100 recorded versions. evaluatedAt is the server selection time. Deletion and anonymization remain disabled. Publication does not remove records, release holds or approve privacy requests.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/reservation-terms/current",
+      summary:
+        "Read effective reservation agreement, scheduled revision and bounded history",
+      query: financeEmptyQuery,
+      data: reservationWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store and atomically audited after current actor/session validation in a repeatable snapshot. Effective and next scheduled revisions are selected independently from the latest 100 recorded revisions. Withdrawals remain visible as effective policies; they do not remove prior acceptance. Later scheduled revisions still take effect. Publication rechecks the actor before immutable Q3 policy/audit creation and preserves the shared customer acceptance lock. Payment readiness is separate.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/refund-timing/current",
+      summary:
+        "Read current bank refund calendar, next applicable revision and bounded history",
+      query: financeEmptyQuery,
+      data: refundTimingWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store and atomically audited after current actor/session validation in a repeatable snapshot. Current is the highest APPROVED version effective at evaluatedAt, matching refund-request-time selection. Next scheduled is the earliest future approved revision with a higher version than current; equal effective times select the highest version. History contains the latest 100 revisions of all approval statuses, independently of current selection. Publication rechecks the actor before immutable Q6 policy/audit creation. Existing deadlines are never recalculated; publication does not transfer money or confirm receipt.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/delivery/current",
+      summary:
+        "Read effective delivery policy, scheduled version and checkout availability",
+      query: financeEmptyQuery,
+      data: deliveryWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store, current actor/session checked and atomically audited in a repeatable snapshot. Effective and next scheduled policies are selected independently from the latest 100 history entries. Availability uses the existing finance/delivery fulfillment rules at the same evaluation time. Publication rechecks the actor before immutable Q1 policy/audit creation; existing orders retain their saved delivery fees and addresses.",
+    },
+    {
+      method: "get",
+      path: "/admin/policies/booking-capacity/{branchId}/current",
+      summary: "Read current branch capacity, scheduled version and bounded history",
+      params: capacityBranchParams,
+      query: financeEmptyQuery,
+      data: capacityWorkspaceResponse,
+      roles: ["SUPER_ADMIN"],
+      description:
+        "Private/no-store, current actor/session checked, repeatable snapshot and atomic minimal branch READ audit. Current and next are selected across all versions independently of the latest 100 recorded entries. Minimal branch metadata includes active state and revision; inactive branches remain inspectable but cannot be approved. Publication rechecks and locks actor and branch before immutable Q5 version/audit creation. Existing bookings are neither confirmed nor rescheduled by publication.",
     },
     {
       method: "get",
@@ -147,11 +267,14 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       method: "post",
       path: "/admin/policies",
       summary: "Publish an approved policy version with written provenance",
+      data: policyVersionResponse,
       body: publishPolicyBodySchema,
       created: true,
       roles: ["STAFF", "ADMIN", "SUPER_ADMIN"],
       capability:
         "FINANCE_POLICY_APPROVE for FINANCE; SUPER_ADMIN for other policy kinds",
+      description:
+        "RETENTION rechecks the current actor/session under the organization access lock. COMPLAINTS and DISPUTES additionally recheck the current actor/session under the organization access lock and lock selected contact accounts in stable order before eligibility validation. Expected-version checking, immutable version creation and the audit are atomic. Other policy kinds retain their existing authorization and publication rules.",
     },
     {
       method: "get",
@@ -159,6 +282,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary:
         "Read the latest 100 grants and revocations, or all active grants with activeOnly=true",
       query: capabilityListQuerySchema,
+      data: z.array(capabilityGrant),
       roles: ["SUPER_ADMIN"],
     },
     {
@@ -166,6 +290,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       path: "/admin/capabilities",
       summary: "Grant a narrow duty to a verified existing account",
       body: z.object({ userId: z.uuid(), capability: capabilities }).strict(),
+      data: capabilityGrant,
       created: true,
       roles: ["SUPER_ADMIN"],
     },
@@ -175,6 +300,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary: "Revoke a duty immediately with an audit reason",
       params: id,
       body: z.object({ reason: z.string().min(10).max(1000) }).strict(),
+      data: z.object({ id: z.uuid(), revoked: z.literal(true) }),
       roles: ["SUPER_ADMIN"],
     },
     {
@@ -197,7 +323,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       method: "get",
       path: "/staff/privacy-requests",
       summary: "List privacy review queue",
-      query: privacyPageQuery,
+      query: staffPrivacyPageQuery,
       data: z.object({
         items: z.array(staffPrivacyRecord),
         nextCursor: z.uuid().nullable(),
@@ -237,7 +363,12 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       summary: "Release a hold with written justification; destruction stays disabled",
       body: releaseHold,
       params: id,
-      data: z.object({ id: z.uuid() }),
+      data: z.object({
+        id: z.uuid(),
+        userId: z.uuid(),
+        releasedAt: z.iso.datetime(),
+        releaseReason: z.string(),
+      }),
       capability: "PRIVACY_REVIEW",
     },
     {
@@ -325,7 +456,18 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       params: refundId,
       body: refundDecisionBodySchema,
       capability: "REFUND_APPROVE",
-      data: refundQueueRecordSchema,
+      data: refundCurrentRecordSchema,
+    },
+    {
+      method: "get",
+      path: "/staff/refunds/{refundId}",
+      summary:
+        "Read a current refund independently of paging, with private audit and safe cancellation facts",
+      params: refundId.strict(),
+      query: z.object({}).strict(),
+      capability:
+        "Verified active ADMIN/SUPER_ADMIN may inspect; STAFF requires a live refund capability and matching delegated queue scope",
+      data: refundCurrentRecordSchema,
     },
     {
       method: "get",
@@ -395,6 +537,23 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       }),
       capability: "DISPUTE_MANAGE",
     },
+    {
+      method: "get",
+      path: "/staff/disputes/operators",
+      summary: "Find verified active operators eligible for dispute assignment",
+      query: disputeOperatorQuery,
+      data: disputeOperatorPage,
+      capability: "DISPUTE_MANAGE; ADMIN or SUPER_ADMIN only",
+    },
+    {
+      method: "get",
+      path: "/staff/disputes/{id}",
+      summary: "Read an audited current dispute within the actor's assignment scope",
+      params: disputeIdParams,
+      query: disputeEmptyQuery,
+      data: disputeRecordSchema,
+      capability: "DISPUTE_MANAGE; STAFF must be a primary or backup assignee",
+    },
   ];
   for (const [action, body, summary] of [
     [
@@ -431,6 +590,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     routes.push({
       method: "post",
       path: `/staff/disputes/{id}/${action}`,
+      query: disputeEmptyQuery,
       data:
         action === "evidence-upload"
           ? privateEvidenceUploadSchema

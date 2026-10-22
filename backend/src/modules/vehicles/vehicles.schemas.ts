@@ -89,7 +89,12 @@ export const staffVehicleListQuerySchema = publicVehicleListQuerySchema
 export const vehicleCreateBodySchema = z
   .object({
     branchId: uuid,
-    stockNumber: clean(40).transform((v) => v.toUpperCase()),
+    stockNumber: clean(40)
+      .transform((v) => v.toUpperCase())
+      .refine(
+        (v) => v.length <= 40,
+        "Stock number must fit 40 characters after capitalization",
+      ),
     make: clean(80),
     model: clean(80),
     trim: nullableClean(80),

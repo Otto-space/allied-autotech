@@ -28,11 +28,9 @@ export function privateTesting(enabled: boolean, password?: string): RequestHand
       "WWW-Authenticate",
       'Basic realm="Allied AutoTech private testing", charset="UTF-8"',
     );
-    response
-      .status(401)
-      .json({
-        success: false,
-        error: { code: "UNAUTHORIZED", message: "Private testing access is required." },
-      });
+    response.status(401).json({
+      success: false,
+      error: { code: "UNAUTHORIZED", message: "Private testing access is required." },
+    });
   };
 }

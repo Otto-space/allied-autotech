@@ -1,0 +1,11 @@
+# Audit log baseline and contract
+
+Milestone92, route `/admin/audit`, following accepted branches. Four baseline widths430/768/1280/1440 were captured and inspected natively before runtime edits. No page overflow or errors occurred. The seven-field form occupies almost the whole desktop viewport and several mobile screens; records use large repeated detail panels with UUID-heavy content. A generic slash breadcrumb and redundant Back link add space. Applied filters/cursors are component-local. Before/after JSON already has safe lazy rendering and keyboard-scrollable regions.
+
+Actual contract: Admin/Super Admin GET `/admin/audit`; verified privileged session; private/no-store from global API middleware. Filters: recorded action/entity enums, user UUID, exact entity/request references, optional ISO date boundaries, limit1–100/default25 and UUID cursor. Both date bounds must be ordered and span at most90 days; either bound alone is allowed. Dates in the existing form convert from Lagos to ISO+01:00. Sorting is createdAt then ID descending. Results include safe event/reference/action/type/time/before/after values and only the actor's current role. No names, historical roles, IP/user-agent, credentials, export, edit, delete or individual-event endpoint exists. Successful reads append a minimal READ audit.
+
+Preserve the existing private-filter policy: references stay out of browser URLs. Preserve all recorded-value types, escaping, exact filters and supported current-record links. Reuse `auditFilterSchema`, `auditQuery`, `AuditValues`, cursor pagination and API primitives. Do not infer a complete resource snapshot or a historical actor role from the safe DTO.
+
+Backend improvement needed for current-access correctness: recheck actor/session and collect records plus the READ audit in one transaction, using the existing access-lock helper. No schema/migration or new endpoint is required. Existing cache/DTO/filter business behavior is already supported.
+
+Target flow: authorized page entry → filter/read history → inspect references and before/after values → paginate/refresh → preserve selected scope and clear private data on access loss. Browser plugin unavailable; Playwright/Edge is the recorded fallback.

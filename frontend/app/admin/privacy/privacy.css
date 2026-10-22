@@ -1,0 +1,231 @@
+.work-privacy {
+  min-width: 0;
+}
+.wpr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.wpr-guidance {
+  border-left: 3px solid #c90000;
+  padding: 14px 18px;
+  background: white;
+  border-radius: 8px;
+  margin: 0 0 22px;
+  line-height: 1.8;
+}
+.wpr-filters fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr auto;
+  gap: 16px;
+  align-items: end;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.wpr-filters .field {
+  min-width: 0;
+}
+.wpr-filters input,
+.wpr-filters select {
+  width: 100%;
+}
+.wpr-page {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 16px;
+}
+.dashboard .dashboard-content .work-privacy .wpr-page h2 {
+  font-size: 20px;
+  margin: 0;
+}
+.wpr-page p {
+  margin: 0;
+}
+.wpr-records {
+  display: grid;
+  gap: 20px;
+}
+.wpr-record {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.wpr-record-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 18px;
+}
+.dashboard .dashboard-content .work-privacy .wpr-record h2 {
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+.dashboard .dashboard-content .work-privacy .wpr-record h3 {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 18px 0 8px;
+}
+.wpr-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+  margin: 20px 0;
+}
+.wpr-facts > div {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.55fr) minmax(0, 1fr);
+  gap: 12px;
+  min-width: 0;
+}
+.wpr-facts dt {
+  font-size: 12px;
+  color: #405566;
+}
+.wpr-facts dd {
+  margin: 0;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.wpr-saved-response {
+  background: #f5f8fb;
+  border-radius: 8px;
+  padding: 4px 16px 12px;
+}
+.wpr-workspace {
+  margin-top: 24px;
+  border-top: 1px solid #d5dfe8;
+  padding-top: 24px;
+}
+.dashboard .dashboard-content .work-privacy .wpr-workspace > .detail-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 20px;
+  padding: 0;
+  border: 0;
+  margin: 0;
+  max-width: none;
+  background: transparent;
+}
+.wpr-response {
+  order: 1;
+  min-width: 0;
+}
+.dashboard
+  .dashboard-content
+  .work-privacy
+  .wpr-workspace
+  > .detail-section
+  > .detail-section {
+  order: 2;
+  max-width: none;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid #d5dfe8;
+  padding: 18px;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+.work-privacy fieldset {
+  border: 0;
+  min-width: 0;
+}
+.work-privacy .line-entry-form {
+  display: block;
+  max-width: none;
+  width: 100%;
+}
+.work-privacy .line-entry-form fieldset {
+  padding: 0;
+  margin: 0;
+}
+.work-privacy .line-entry-form legend {
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.dashboard .dashboard-content .work-privacy :is(input, select, textarea) {
+  font-family: inherit;
+  font-size: 13px;
+  min-height: 44px;
+  max-width: 100%;
+}
+.work-privacy textarea {
+  height: 128px;
+  min-height: 96px;
+}
+.wpr-response textarea {
+  height: 180px;
+}
+.work-privacy .wpr-workspace form {
+  margin-top: 14px;
+}
+.work-privacy .wpr-workspace article.detail-section {
+  padding: 16px;
+  border: 1px solid #dfc183;
+  border-radius: 8px;
+  background: #fff9ec;
+  max-width: none;
+}
+.work-privacy .wpr-workspace h4,
+.work-privacy .wpr-workspace h5 {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+.work-privacy .wpr-workspace p {
+  line-height: 1.8;
+}
+.work-privacy .wpr-workspace .field {
+  margin-bottom: 16px;
+}
+.work-privacy .wpr-workspace label {
+  font-size: 13px;
+}
+.work-privacy .review-facts dd {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1300px) {
+  .wpr-filters fieldset {
+    grid-template-columns: 1fr 1fr;
+  }
+  .wpr-facts {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 1100px) {
+  .dashboard .dashboard-content .work-privacy .wpr-workspace > .detail-section {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 650px) {
+  .wpr-filters fieldset {
+    grid-template-columns: 1fr;
+  }
+  .wpr-record-head {
+    flex-direction: column;
+  }
+  .wpr-record-head > .button {
+    width: 100%;
+  }
+  .wpr-facts > div {
+    grid-template-columns: minmax(88px, 0.6fr) minmax(0, 1fr);
+  }
+  .wpr-actions {
+    width: 100%;
+  }
+  .wpr-actions > .button {
+    flex: 1;
+  }
+  .work-privacy .wpr-workspace .button {
+    width: 100%;
+  }
+  .work-privacy .review-actions {
+    flex-direction: column;
+  }
+}

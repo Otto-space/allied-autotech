@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/support-schemas";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { Feedback } from "./feedback";
+import { forgetThreadFormDraft } from "@/lib/admin/work-support-detail";
 import { useSupportWrite } from "@/lib/support/use-support-write";
 import {
   draftIdentity,
@@ -30,6 +31,7 @@ export function SupportReplyForm({
   guard,
   userId,
   onReviewChange,
+  onReview,
 }: {
   record: SupportRecord;
   staff: boolean;
@@ -40,11 +42,13 @@ export function SupportReplyForm({
   guard?: ReturnType<typeof useSupportWrite>;
   userId?: string;
   onReviewChange?: (open: boolean) => void;
+  onReview?: (proposal: MutationProposal) => void;
 }) {
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [uncertain, setUncertain] = useState(false);
   const [message, setMessage] = useState<string>();
   const pending = useRef<AbortController | null>(null);
+  const formElement = useRef<HTMLFormElement>(null);
   const latestDisabled = useRef(disabled);
   useEffect(() => {
     latestDisabled.current = disabled;
@@ -76,6 +80,109 @@ export function SupportReplyForm({
     ];
     if (typeof saved === "string" && saved.length <= 4000) setValue("message", saved);
   }, [guard?.pending, userId, draftId, getValues, setValue]);
+  function review(values: z.infer<typeof supportReplySchema>) {
+    if (disabled || guard?.disabled || (!guard && uncertain) || proposal) return;
+    const visibility = staff ? values.visibility : "CUSTOMER";
+    setMessage(undefined);
+    (onReview ?? setProposal)({
+      supportChange: staff
+        ? { kind: "reply", body: { message: values.message, visibility } }
+        : undefined,
+      onConfirmed: () => {
+        if (staff && onReview) {
+          if (formElement.current) forgetThreadFormDraft(formElement.current);
+          form.reset({ message: "", visibility: "CUSTOMER" });
+          setMessage(
+            visibility === "INTERNAL"
+              ? "Internal note saved."
+              : "Reply saved. Use Next to reach later messages.",
+          );
+        }
+      },
+      title: visibility === "INTERNAL" ? "Save an internal note?" : "Send this reply?",
+      description:
+        visibility === "INTERNAL"
+          ? "Only authorized staff can read this note. It is not shown in the customer's conversation."
+          : "This message is customer-visible. It may trigger an account notification and optional email delivery. Avoid passwords, card details and private documents.",
+      facts: [
+        { label: "Conversation", value: record.subject },
+        {
+          label: "Visibility",
+          value: visibility === "INTERNAL" ? "Staff only" : "Customer-visible",
+        },
+        { label: "Message", value: values.message },
+      ],
+      onUncertain: () => {
+        if (!guard) setUncertain(true);
+        onUncertain();
+      },
+      retryAfterRejection: false,
+      submit: async () => {
+        const controller = new AbortController();
+        pending.current = controller;
+        try {
+          const prepare = async (signal: AbortSignal) => {
+            if (guard && latestDisabled.current)
+              throw new ApiError(409, { error: { code: "CONFLICT" } });
+            let current: SupportRecord;
+            try {
+              const response = await apiRequest(base, {
+                signal,
+              });
+              current = parseSupportRecord(record.kind, staff, response.data);
+            } catch {
+              throw new ApiError(409, {
+                error: { code: "PRECONDITION_UNAVAILABLE" },
+              });
+            }
+            if (current.id !== record.id || current.status === "CLOSED")
+              throw new ApiError(409, { error: { code: "CONFLICT" } });
+            if (guard && latestDisabled.current)
+              throw new ApiError(409, { error: { code: "CONFLICT" } });
+          };
+          const write = async (signal: AbortSignal) => {
+            const response = await apiRequest(`${base}/messages`, {
+              method: "POST",
+              csrf: true,
+              body: { message: values.message, ...(staff ? { visibility } : {}) },
+              signal,
+            });
+            const saved = supportMessageSchema.parse(response.data);
+            if (
+              saved.body !== values.message ||
+              saved.visibility !== visibility ||
+              saved.authorType !== (staff ? "STAFF" : "CUSTOMER")
+            )
+              throw new Error("Unconfirmed reply");
+            return response;
+          };
+          if (staff && onReview) return await write(controller.signal);
+          if (guard) await guard.run({ message: values.message }, prepare);
+          else {
+            await prepare(controller.signal);
+            await write(controller.signal);
+          }
+          if (guard) {
+            const owner = draftIdentity();
+            if (owner) {
+              const key = draftKey(owner, window.location.pathname, draftId);
+              forgetDraft(key);
+              window.dispatchEvent(new CustomEvent(DRAFT_SAVED, { detail: key }));
+            }
+          }
+          form.reset({ message: "", visibility: "CUSTOMER" });
+          setMessage(
+            visibility === "INTERNAL"
+              ? "Internal note saved."
+              : "Reply saved. Messages are shown oldest first; use Next to reach later replies.",
+          );
+          onSaved();
+        } finally {
+          pending.current = null;
+        }
+      },
+    });
+  }
   return (
     <section
       className={guard ? "ct-reply ct-panel" : "detail-section"}
@@ -100,96 +207,10 @@ export function SupportReplyForm({
         <p>This record is closed. The reply form is unavailable.</p>
       ) : (
         <form
+          ref={formElement}
           data-draft-key={draftId}
           noValidate
-          onSubmit={form.handleSubmit((values) => {
-            if (disabled || guard?.disabled || (!guard && uncertain) || proposal) return;
-            const visibility = staff ? values.visibility : "CUSTOMER";
-            setMessage(undefined);
-            setProposal({
-              title:
-                visibility === "INTERNAL" ? "Save an internal note?" : "Send this reply?",
-              description:
-                visibility === "INTERNAL"
-                  ? "Only authorized staff can read this note. It is not shown in the customer's conversation."
-                  : "This message is customer-visible. It may trigger an account notification and optional email delivery. Avoid passwords, card details and private documents.",
-              facts: [
-                { label: "Conversation", value: record.subject },
-                {
-                  label: "Visibility",
-                  value: visibility === "INTERNAL" ? "Staff only" : "Customer-visible",
-                },
-                { label: "Message", value: values.message },
-              ],
-              onUncertain: () => {
-                if (!guard) setUncertain(true);
-                onUncertain();
-              },
-              retryAfterRejection: false,
-              submit: async () => {
-                const controller = new AbortController();
-                pending.current = controller;
-                try {
-                  const prepare = async (signal: AbortSignal) => {
-                    if (guard && latestDisabled.current)
-                      throw new ApiError(409, { error: { code: "CONFLICT" } });
-                    let current: SupportRecord;
-                    try {
-                      const response = await apiRequest(base, {
-                        signal,
-                      });
-                      current = parseSupportRecord(record.kind, staff, response.data);
-                    } catch {
-                      throw new ApiError(409, {
-                        error: { code: "PRECONDITION_UNAVAILABLE" },
-                      });
-                    }
-                    if (current.id !== record.id || current.status === "CLOSED")
-                      throw new ApiError(409, { error: { code: "CONFLICT" } });
-                    if (guard && latestDisabled.current)
-                      throw new ApiError(409, { error: { code: "CONFLICT" } });
-                  };
-                  const write = async (signal: AbortSignal) => {
-                    const response = await apiRequest(`${base}/messages`, {
-                      method: "POST",
-                      csrf: true,
-                      body: { message: values.message, ...(staff ? { visibility } : {}) },
-                      signal,
-                    });
-                    const saved = supportMessageSchema.parse(response.data);
-                    if (
-                      saved.body !== values.message ||
-                      saved.visibility !== visibility ||
-                      saved.authorType !== (staff ? "STAFF" : "CUSTOMER")
-                    )
-                      throw new Error("Unconfirmed reply");
-                  };
-                  if (guard) await guard.run({ message: values.message }, prepare);
-                  else {
-                    await prepare(controller.signal);
-                    await write(controller.signal);
-                  }
-                  if (guard) {
-                    const owner = draftIdentity();
-                    if (owner) {
-                      const key = draftKey(owner, window.location.pathname, draftId);
-                      forgetDraft(key);
-                      window.dispatchEvent(new CustomEvent(DRAFT_SAVED, { detail: key }));
-                    }
-                  }
-                  form.reset({ message: "", visibility: "CUSTOMER" });
-                  setMessage(
-                    visibility === "INTERNAL"
-                      ? "Internal note saved."
-                      : "Reply saved. Messages are shown oldest first; use Next to reach later replies.",
-                  );
-                  onSaved();
-                } finally {
-                  pending.current = null;
-                }
-              },
-            });
-          })}
+          onSubmit={(event) => void form.handleSubmit(review)(event)}
         >
           <fieldset disabled={disabled || guard?.disabled || (!guard && uncertain)}>
             {staff && (

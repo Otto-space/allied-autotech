@@ -55,6 +55,7 @@ export function disputeProposal(
 ): MutationProposal {
   return {
     ...details,
+    disputeChange: { before: record, change },
     facts: [
       { label: "Dispute", value: record.providerDisputeId },
       { label: "Disputed amount", value: formatKobo(record.amountKobo) },
@@ -79,6 +80,7 @@ export function disputeProposal(
         !verify(saved)
       )
         throw new Error("Unexpected dispute action result");
+      return saved;
     },
   };
 }

@@ -298,6 +298,12 @@ export function createStaffSupportRouter(): Router {
     validate({ query: staffReviewListQuerySchema }),
     controller.staffReviews,
   );
+  router.get(
+    "/reviews/:reviewId",
+    requireAdministrator,
+    validate({ params: reviewIdParamsSchema, query: supportEmptyQuerySchema }),
+    controller.staffGetReview,
+  );
   router.post(
     "/reviews/:reviewId/moderation",
     requireAdministrator,

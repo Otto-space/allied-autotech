@@ -1,5 +1,6 @@
 import { newReviewRequestKey } from "../helpers/review-request.js";
 import { randomUUID } from "node:crypto";
+import { hashToken } from "../../src/common/security/session-tokens.js";
 import { afterAll, describe, expect, it } from "vitest";
 import type { AuthenticatedActor } from "../../src/common/contracts/actor.js";
 import { encryptNotificationPayload } from "../../src/common/security/mfa-encryption.js";
@@ -57,7 +58,11 @@ function actor(user: { id: string; email: string }): AuthenticatedActor {
 }
 
 describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
-  afterAll(async () => prisma.$disconnect());
+  const operationsSessions: string[] = [];
+  afterAll(async () => {
+    await prisma.session.deleteMany({ where: { id: { in: operationsSessions } } });
+    await prisma.$disconnect();
+  });
 
   it("enforces review eligibility, moderation, ownership, and safe publication", async () => {
     const support = new SupportService(prisma);
@@ -642,8 +647,22 @@ describe.skipIf(!runDatabaseTests)("Phase 9 support and worker flow", () => {
       },
       select: { id: true, email: true },
     });
+    const expiresAt = new Date(Date.now() + 3600000);
+    const operationsSession = await prisma.session.create({
+      data: {
+        userId: administrator.id,
+        tokenHash: hashToken("session", randomUUID()),
+        csrfTokenHash: hashToken("csrf", randomUUID()),
+        expiresAt,
+        idleExpiresAt: expiresAt,
+        mfaRequired: true,
+        mfaVerifiedAt: new Date(),
+      },
+    });
+    operationsSessions.push(operationsSession.id);
     const administratorActor: AuthenticatedActor = {
       ...actor(administrator),
+      sessionId: operationsSession.id,
       role: "ADMIN",
       mfaRequired: true,
       mfaVerifiedAt: new Date(),

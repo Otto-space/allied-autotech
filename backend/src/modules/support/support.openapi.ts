@@ -439,6 +439,14 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       security: true,
     },
     {
+      method: "get",
+      path: "/staff/support/reviews/{reviewId}",
+      summary:
+        "Read one review for administrative moderation or current-state reconciliation",
+      params: reviewIdParamsSchema,
+      security: true,
+    },
+    {
       method: "post",
       path: "/staff/support/reviews/{reviewId}/moderation",
       summary: "Approve or reject a review",

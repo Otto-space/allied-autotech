@@ -487,6 +487,10 @@ export class VehiclesRepository {
         sizeBytes: true,
         version: true,
         createdAt: true,
+        issuedAt: true,
+        expiresAt: true,
+        verifiedAt: true,
+        rejectionReason: true,
       },
     });
   }
@@ -503,6 +507,11 @@ export class VehiclesRepository {
         mimeType: true,
         sizeBytes: true,
         version: true,
+        createdAt: true,
+        issuedAt: true,
+        expiresAt: true,
+        verifiedAt: true,
+        rejectionReason: true,
       },
     });
   }

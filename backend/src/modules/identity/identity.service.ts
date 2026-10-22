@@ -333,7 +333,14 @@ export class IdentityService {
       },
     });
     if (value === null) throw invalidAuthentication();
-    return value;
+    const workforce =
+      value.user.role === "CUSTOMER"
+        ? null
+        : await this.database.workforceAccess.findUnique({
+            where: { userId },
+            select: { userId: true },
+          });
+    return { ...value, workforceManaged: workforce !== null };
   }
 
   async listSessions(userId: string, currentSessionId: string) {

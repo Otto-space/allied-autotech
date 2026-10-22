@@ -78,6 +78,7 @@ const nullableNumber = (value: string) => (value === "" ? null : Number(value));
 export function vehicleRecordBody(
   value: VehicleRecordValues,
   includeAcquisition = true,
+  existing?: StaffVehicle,
 ): Omit<RequestBody<"/staff/vehicles", "post">, "branchId" | "stockNumber"> {
   return {
     make: value.make,
@@ -104,7 +105,23 @@ export function vehicleRecordBody(
             : null,
         }
       : {}),
-    acquiredAt: value.acquiredAt ? `${value.acquiredAt}:00+01:00` : null,
+    acquiredAt:
+      existing && value.acquiredAt === vehicleDefaults(existing).acquiredAt
+        ? existing.acquiredAt
+        : value.acquiredAt
+          ? `${value.acquiredAt}:00+01:00`
+          : null,
+  };
+}
+// The editor presents minutes; an unchanged field must retain the exact saved instant.
+export function vehicleRecordUpdateBody(
+  value: VehicleRecordValues,
+  vehicle: StaffVehicle,
+  includeAcquisition = true,
+) {
+  return {
+    ...vehicleRecordBody(value, includeAcquisition, vehicle),
+    expectedVersion: vehicle.version,
   };
 }
 export function vehicleDefaults(

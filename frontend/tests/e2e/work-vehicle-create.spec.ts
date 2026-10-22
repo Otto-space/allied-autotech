@@ -3,6 +3,48 @@ import AxeBuilder from "@axe-core/playwright";
 import path from "node:path";
 import { workVehicleCreateFixture, bookingId } from "../fixtures/work-vehicle-create";
 import { stockCreationStorageKey } from "@/lib/admin/vehicle-stock-creation";
+test("an active branch chosen from a later choice page restores with its real name", async ({
+  page,
+}) => {
+  await workVehicleCreateFixture(page);
+  await page.route("**/api/v1/admin/branches**", (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname !== "/api/v1/admin/branches") return route.fallback();
+    const later = url.searchParams.has("cursor");
+    return route.fulfill({
+      json: {
+        success: true,
+        message: "Branch page",
+        meta: { requestId: "branch-reload" },
+        data: {
+          items: [
+            {
+              id: bookingId(later ? 103 : 101),
+              name: later ? "Remote workshop" : "Stadium Road workshop",
+              isActive: true,
+            },
+          ],
+          ...(later ? {} : { nextCursor: bookingId(101) }),
+        },
+      },
+    });
+  });
+  await open(page);
+  await page
+    .getByRole("navigation", { name: "Branch choices pages", exact: true })
+    .getByRole("button", { name: "Next", exact: true })
+    .click();
+  await page.getByLabel("Workshop branch", { exact: true }).selectOption(bookingId(103));
+  await page.getByLabel("Stock number", { exact: true }).fill("OFF-PAGE");
+  await page.reload();
+  await expect(page.getByLabel("Workshop branch", { exact: true })).toHaveValue(
+    bookingId(103),
+  );
+  await expect(page.locator("#vehicle-record-branch option:checked")).toHaveText(
+    "Remote workshop",
+  );
+  await expect(page.getByLabel("Stock number", { exact: true })).toHaveValue("OFF-PAGE");
+});
 const button = (p: Page, name: string) => p.getByRole("button", { name, exact: true });
 test("Customer cannot load a stock creation form or submit a vehicle", async ({
   page,

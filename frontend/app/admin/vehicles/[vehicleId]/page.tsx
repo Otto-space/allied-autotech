@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { StaffVehicleDetail } from "@/app/components/staff-vehicle-detail";
+import "./vehicle-detail.css";
 export const metadata: Metadata = { title: "Manage vehicle stock" };
 export default async function Page({
   params,

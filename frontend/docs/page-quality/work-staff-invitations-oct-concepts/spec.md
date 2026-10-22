@@ -1,0 +1,11 @@
+# Promotions and invitations — implementation specification
+
+Reuse Allied dashboard navigation, Quicksand, existing form borders/focus treatments, branch picker, MutationReview and cursor patterns. Pale gray canvas, compact white lookup surface, subdued guidance, red primary actions. Heading30px desktop/24px mobile, body14px, fields48px with16px input text, actions44px minimum. No photographs, charts, invented counts, avatars or unsupported delivery status.
+
+Hierarchy: semantic Overview / Promotions & invitations breadcrumb; heading and concise description; directory/audit links; desktop lookup (roughly two-thirds) beside two-path guidance; invitation toolbar and ruled records. On mobile, search, candidate and proof stack; guidance is a compact disclosure. List status and refresh sit together where space allows. Rows show email, human-readable role/status, created and expiry dates, and supported review action. Secondary details expose full timestamps and references without clutter. Accepted/revoked records do not show revoke controls.
+
+Only the selected recipient or invitation displays password/action fields. Candidate uses verified full name when present, email fallback otherwise. Customer promotion and Staff invitation must be distinct; no generic role picker or new-account fields. Owner sees all invitation records; Admin sees own. Display only loaded page count. Filter and cursor history survive reload/Back; no personal email in URL.
+
+Review preserves complete actual facts, empties and re-hides password fields before modal, and never renders/stores the password. No automatic retry after uncertain mutations. Fresh errors label retained facts and disable relevant changes; denial clears private results. Keep useful drafts on ordinary refresh but require explicit reload after target/version change. Focus validation, results and success appropriately; respect reduced motion and avoid enabled-state color interpolation that temporarily reduces contrast.
+
+Server conditions govern management eligibility. Do not infer grantable access from role alone. Backend updates are compatible, additive safe-response/read improvements; existing mutation authorization and data-preserving transactions remain authoritative.

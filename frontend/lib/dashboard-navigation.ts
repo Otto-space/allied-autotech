@@ -189,6 +189,11 @@ const operationalGroups: DashboardGroup[] = [
     icon: Users,
     links: [
       adminOnly("/admin/staff", "Staff directory"),
+      {
+        href: "/admin/workforce/access",
+        label: "Responsibilities",
+        roles: ["SUPER_ADMIN"],
+      },
       adminOnly("/admin/staff/invite", "Promotions & invitations"),
       adminOnly("/admin/audit", "Audit log"),
     ],

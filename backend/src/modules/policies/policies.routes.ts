@@ -14,7 +14,6 @@ import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { successResponse } from "../../common/http/api-response.js";
 import {
-  assertCapability,
   grantCapability,
   safeCapabilities,
   publishPolicy,
@@ -22,9 +21,63 @@ import {
 } from "./policies.service.js";
 import { prisma } from "../../config/database.js";
 import { appendAuditEvent } from "../audit/audit.service.js";
+import { financeEmptyQuery, readFinancePolicy } from "./finance-policy-workspace.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
+import { readRetentionPolicy } from "./retention-policy-workspace.js";
+import { readReservationPolicy } from "./reservation-policy-workspace.js";
+import { readRefundTimingPolicy } from "./refund-timing-workspace.js";
+import { readDeliveryPolicy } from "./delivery-policy-workspace.js";
+import { capacityBranchParams, readCapacityPolicy } from "./capacity-policy-workspace.js";
+import { readDisputePolicy } from "./dispute-policy-workspace.js";
+import { readComplaintPolicy } from "./complaint-policy-workspace.js";
 
 export function createPoliciesRouter() {
   const router = Router();
+  router.get(
+    "/admin/policies/refund-timing/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readRefundTimingPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current bank refund timing", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/delivery/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readDeliveryPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current delivery policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/reservation-terms/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readReservationPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current reservation-terms policy", req.id, result));
+    },
+  );
   router.get("/public/fulfillment-options", async (req, res) => {
     res.setHeader("Cache-Control", "no-store");
     res.json(
@@ -41,23 +94,93 @@ export function createPoliciesRouter() {
       successResponse("Policy availability summary", req.id, await safeCapabilities()),
     );
   });
-  router.get("/staff/finance-policy", authenticate(), requireStaff, async (req, res) => {
-    // Delegated approvers need this version to publish safely. Other policy
-    // histories remain restricted to the owner-only administrative endpoint.
-    if (req.actor!.role !== "SUPER_ADMIN")
-      await assertCapability(prisma, req.actor!, "FINANCE_POLICY_APPROVE");
-    res.json(
-      successResponse(
-        "Financial policy history",
-        req.id,
-        await prisma.businessPolicyVersion.findMany({
-          where: { key: "finance" },
-          orderBy: { version: "desc" },
-          take: 100,
-        }),
-      ),
+  for (const historyOnly of [true, false])
+    router.get(
+      historyOnly ? "/staff/finance-policy" : "/staff/finance-policy/current",
+      authenticate(),
+      requireStaff,
+      validate({ query: financeEmptyQuery }),
+      async (req, res) => {
+        res.set("Cache-Control", "private, no-store");
+        const result = await readFinancePolicy(
+          req.actor!,
+          {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          },
+          historyOnly,
+        );
+        res.json(
+          successResponse(
+            historyOnly ? "Financial policy history" : "Current financial policy",
+            req.id,
+            historyOnly ? result.history : result,
+          ),
+        );
+      },
     );
-  });
+  router.get(
+    "/admin/policies/complaints/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readComplaintPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current complaint policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/disputes/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readDisputePolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current dispute policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/retention/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ query: financeEmptyQuery }),
+    async (req, res) => {
+      res.set("Cache-Control", "private, no-store");
+      const result = await readRetentionPolicy(req.actor!, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current retention policy", req.id, result));
+    },
+  );
+  router.get(
+    "/admin/policies/booking-capacity/:branchId/current",
+    authenticate(),
+    requireSuperAdministrator,
+    validate({ params: capacityBranchParams, query: financeEmptyQuery }),
+    async (req, res) => {
+      const { branchId } = capacityBranchParams.parse(req.params);
+      res.set("Cache-Control", "private, no-store");
+      const result = await readCapacityPolicy(req.actor!, branchId, {
+        requestId: String(req.id),
+        ipAddress: req.ip ?? null,
+        userAgent: req.get("user-agent") ?? null,
+      });
+      res.json(successResponse("Current branch booking capacity", req.id, result));
+    },
+  );
   router.get(
     "/admin/policies",
     authenticate(),
@@ -89,17 +212,47 @@ export function createPoliciesRouter() {
     requireSuperAdministrator,
     async (req, res) => {
       const { userId, activeOnly } = capabilityListQuerySchema.parse(req.query);
+      res.set("Cache-Control", "private, no-store");
+      const grants = await prisma.$transaction(async (tx) => {
+        await lockAccessActor(tx, req.actor!);
+        const items = await tx.userCapability.findMany({
+          where: { userId, ...(activeOnly === "true" ? { revokedAt: null } : {}) },
+          select: {
+            id: true,
+            userId: true,
+            capability: true,
+            grantedByUserId: true,
+            grantedAt: true,
+            revokedAt: true,
+          },
+          orderBy: [{ grantedAt: "desc" }, { id: "desc" }],
+          ...(activeOnly === "true" ? {} : { take: 100 }),
+        });
+        await appendAuditEvent(tx, {
+          actorUserId: req.actor!.userId,
+          action: "READ",
+          entityType: "USER",
+          entityId: userId,
+          newValues: {
+            resource: "CAPABILITIES",
+            activeOnly: activeOnly === "true",
+            resultCount: items.length,
+          },
+          context: {
+            requestId: String(req.id),
+            ipAddress: req.ip ?? null,
+            userAgent: req.get("user-agent") ?? null,
+          },
+        });
+        return items;
+      });
       res.json(
         successResponse(
           activeOnly === "true"
             ? "Active account capabilities"
             : "Account capability history",
           req.id,
-          await prisma.userCapability.findMany({
-            where: { userId, ...(activeOnly === "true" ? { revokedAt: null } : {}) },
-            orderBy: { grantedAt: "desc" },
-            ...(activeOnly === "true" ? {} : { take: 100 }),
-          }),
+          grants,
         ),
       );
     },
@@ -111,11 +264,13 @@ export function createPoliciesRouter() {
     requireCsrf,
     async (req, res) => {
       const id = z.uuid().parse(req.params["id"]);
+      res.set("Cache-Control", "private, no-store");
       const { reason } = z
         .object({ reason: z.string().trim().min(10).max(1000) })
         .strict()
         .parse(req.body);
       const result = await prisma.$transaction(async (tx) => {
+        await lockAccessActor(tx, req.actor!);
         const grant = await tx.userCapability.findUniqueOrThrow({ where: { id } });
         await tx.userCapability.updateMany({
           where: { id, revokedAt: null },
@@ -169,6 +324,7 @@ export function createPoliciesRouter() {
         ipAddress: req.ip ?? null,
         userAgent: req.get("user-agent") ?? null,
       });
+      res.set("Cache-Control", "private, no-store");
       res.status(201).json(successResponse("Capability granted", req.id, result));
     },
   );
