@@ -117,6 +117,26 @@ reservations and live payments remain disabled under the approved launch scope.
 
 The owner requested public access tonight and approved a catalogue-only fallback: public services, products, vehicles and direct phone/email/WhatsApp contact. Website enquiry/complaint intake, customer registration/dashboard functions, checkout, reservations and live payments remain unavailable. Staff authentication and MFA remain required.
 
-The user approved the catalogue privacy wording in `frontend/app/privacy/page.tsx` on 22 October 2026. Provider names are retained for transparency; this approval does not close the broader provider/overseas-processing review or authorise website customer intake. No additional purchase is authorised.
+The user approved the catalogue privacy wording in `frontend/app/privacy/page.tsx` on 22 October 2026. At the user?s request, the public notice uses ?website hosting, cloud storage and email service providers?; named-provider records remain internal. This approval does not close the broader provider/overseas-processing review or authorise website customer intake. No additional purchase is authorised.
 
 Implementation and deployment verification are in progress; this entry is not evidence that public cutover has occurred. BitLocker was last reported by the user at 51%; completion has not been verified.
+
+
+## Public catalogue release verified ? 22 October 2026
+
+Public access is enabled at https://alliedautotech.com and the www address. Anonymous desktop/mobile browser checks passed for contact/privacy pages, external contact links, the real Tyre Change listing and its image, closed registration/customer routes, staff sign-in visibility, frontend API restrictions and robots indexing. No account password or MFA secret was used during these checks. The public privacy notice uses the owner-approved provider categories.
+
+- Frontend release source: 52aa7ccc (application changes through 8ecd6ff3); final Vercel deployment: dpl_Dv9hzGSbyrtgdxgzV3G2kD5BGxgB.
+- Backend source: 454fbeb9; active deployment: 1b68cadd-9e93-49bb-9bd8-8d489c655e59.
+- Production settings: catalogue mode, private perimeter disabled, search indexing enabled. Staff authentication/MFA and authorisation remain enabled.
+- Registration, website enquiry/complaint submission, customer dashboard APIs, checkout, reservations and live payments remain unavailable. Full privacy/provider review and the remaining transaction policies are still outstanding.
+- Validation: 53 backend launch-boundary unit tests; 68 frontend unit tests; backend/frontend TypeScript checks; changed-frontend-file lint; four Docker targets; Vercel production build; hosted protected and fresh anonymous browser checks. Local e2e runs could not complete because of cold-server/compilation timeouts; hosted checks supplied the release browser evidence. Final anonymous verification found cached CSS referencing fonts on an older protected deployment. A fresh Vercel build without reused build cache fixed those references. Repeated anonymous desktop/mobile browser checks passed with both custom fonts loaded, real service media visible, no HTTP authentication challenges and no page errors.
+- Both rollout pre-deployment jobs ran the read-only database safety check and confirmed compatible migration history/schema with no database changes. Schema/migration sources are unchanged from the prior release.
+- Rechecked the managed off-device backup dated 2026-10-22T05:22:09Z, application-only database firewall, exact production database host/port/name and restricted runtime/migrator roles. Reused the verified separate managed restore rehearsal and the support-timeline isolated 60-to-61 migration rehearsal (84 restored tables, source database not written); no new restore cluster or rehearsal was purchased/run for this schema-unchanged release. Existing provider encryption/retention/PITR evidence remains in the deployment records.
+- No database reset, replacement, migration, business-record deletion, resource resizing or new resource purchase occurred. Negative API checks submitted empty bodies only to routes already proven closed.
+
+Private deployment receipts are in backend/ops/digitalocean/.private/production/ under catalogue-* in the original Desktop checkout. Do not publish those files. Deployment completion does not imply zero operational risk or completion of the broader privacy review. BitLocker completion remains unverified; its last user-reported state was 51%.
+
+Rollback if needed: promote the protected catalogue frontend dpl_AYt7TtCfsDzuCBnjce1wdDxCquf5, and restore only the API private-testing flag after checking current provider state. Preserve database contents, immutable images, credentials and component sizes; do not restore an old full spec blindly.
+
+When changing the private/public boundary, build the Vercel release with `--force` without `--with-cache`, and verify CSS font asset deployment references in an unauthenticated browser. A successful page response alone does not prove that subresources are public.
