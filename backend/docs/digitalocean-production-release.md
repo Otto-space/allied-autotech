@@ -125,8 +125,11 @@ the provider's invoice and the approved USD1 cap.
   alert reached Support, the received Reply-To matched the submitted customer
   address, and the customer received a reply from `support@alliedautotech.com`.
   Google Groups' Post replies to is set to Sender chooses recipient. The
-  verified workflow uses Reply all, checking that recipients are the customer
-  and Support and selecting Support as From. Reply to author selected the
+  verified workflow uses Reply all with Support as From and To and the customer
+  in Cc. The owner confirmed receipt using this exact arrangement; the Groups
+  interface did not allow moving the customer to To. Moving that address is
+  unnecessary. Remove the notification sender from additional recipients if
+  present, and verify every recipient before sending. Reply to author selected the
   notification sender in the observed web interface; do not use that action
   without checking the recipient. The existing department-email and Resend
   reply-routing suites passed all 23 tests. No sender code change or deployment

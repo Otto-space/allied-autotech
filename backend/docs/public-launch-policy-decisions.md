@@ -61,9 +61,13 @@ The website enquiry email acceptance check also passed by owner confirmation:
 the alert reached Support, its received Reply-To matched the submitted customer
 address, and the customer received the reply from `support@alliedautotech.com`.
 Groups' Post replies to is set to Sender chooses recipient. The working staff
-procedure is Reply all, verify customer and Support recipients, and select
-`support@alliedautotech.com` as From. Reply to author selected the notification
-sender in the observed interface; staff must check recipients before sending.
+procedure is Reply all with `support@alliedautotech.com` as From and To and the
+customer's submitted email in Cc. The owner confirmed customer receipt with this
+arrangement after reporting that Groups would only place the customer in Cc.
+There is no requirement to move the customer to To. Remove the notification
+sender from additional recipients if present, and check all recipients before
+sending. Reply to author selected the notification sender in the observed
+interface.
 
 Fresh authentication-header results, staff dashboard visibility and actual
 staff coverage remain separate checks. This email acceptance does not approve
