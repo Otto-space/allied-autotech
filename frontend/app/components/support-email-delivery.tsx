@@ -112,7 +112,10 @@ export function SupportEmailDeliverySummary({
           </p>
         ))}
       {!!page?.items.length && (
-        <p>Latest {page.items.length} email {page.items.length === 1 ? "update" : "updates"}, newest first.</p>
+        <p>
+          Latest {page.items.length} email{" "}
+          {page.items.length === 1 ? "update" : "updates"}, newest first.
+        </p>
       )}
     </section>
   );

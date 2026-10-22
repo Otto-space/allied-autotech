@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "31bc0013da1db5f3df7d2154b76052a4135d4c0aa6e4ebe7380b85ef896b1e0d",
+  "sourceSha256": "77c62ae6f1bec0dbc22fdd5dcd75426aefaa041516f6d05d5545f1afa3410706",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -48668,6 +48668,354 @@
       "screen": "Pending mapping"
     },
     {
+      "operationId": "getStaffSupportComplaintsBySupportIdEmailDeliveries",
+      "method": "GET",
+      "path": "/api/v1/staff/support/complaints/{supportId}/email-deliveries",
+      "purpose": "Read the latest customer email delivery attempts for this conversation",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the support resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "supportId",
+          "in": "path",
+          "description": "Identifier selecting the support resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read the latest customer email delivery attempts for this conversation.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "QUEUED",
+                            "SENDING",
+                            "SENT",
+                            "RETRYING",
+                            "FAILED",
+                            "NOT_SENT"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "reason": {
+                          "type": ["string", "null"],
+                          "enum": [
+                            "CHANNEL_DISABLED",
+                            "CONSENT_WITHDRAWN",
+                            "NO_RECIPIENT",
+                            "SUPPORT_REPLY_ADDRESS_MISSING",
+                            "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                            "SUPPORT_EMAIL_FAILED",
+                            null
+                          ],
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "sentAt": {
+                          "type": ["string", "null"],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": ["id", "status", "reason", "createdAt", "sentAt"],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "maxItems": 20,
+                    "description": "Items validated by this operation's strict request contract."
+                  }
+                },
+                "required": ["items"],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": ["app/components/complaint-acknowledgement.tsx"],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getStaffSupportEnquiriesBySupportIdEmailDeliveries",
+      "method": "GET",
+      "path": "/api/v1/staff/support/enquiries/{supportId}/email-deliveries",
+      "purpose": "Read the latest customer email delivery attempts for this conversation",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the support resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "supportId",
+          "in": "path",
+          "description": "Identifier selecting the support resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read the latest customer email delivery attempts for this conversation.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "QUEUED",
+                            "SENDING",
+                            "SENT",
+                            "RETRYING",
+                            "FAILED",
+                            "NOT_SENT"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "reason": {
+                          "type": ["string", "null"],
+                          "enum": [
+                            "CHANNEL_DISABLED",
+                            "CONSENT_WITHDRAWN",
+                            "NO_RECIPIENT",
+                            "SUPPORT_REPLY_ADDRESS_MISSING",
+                            "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                            "SUPPORT_EMAIL_FAILED",
+                            null
+                          ],
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "sentAt": {
+                          "type": ["string", "null"],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": ["id", "status", "reason", "createdAt", "sentAt"],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "maxItems": 20,
+                    "description": "Items validated by this operation's strict request contract."
+                  }
+                },
+                "required": ["items"],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "The requested resource is not available.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
       "operationId": "getCustomersSupportReviewSources",
       "method": "GET",
       "path": "/api/v1/customers/support/review-sources",
@@ -80252,6 +80600,65 @@
                     },
                     "required": ["items"],
                     "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "emailDeliveries": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "QUEUED",
+                                "SENDING",
+                                "SENT",
+                                "RETRYING",
+                                "FAILED",
+                                "NOT_SENT"
+                              ],
+                              "description": "Requested or filtered lifecycle state from the documented enum."
+                            },
+                            "reason": {
+                              "type": ["string", "null"],
+                              "enum": [
+                                "CHANNEL_DISABLED",
+                                "CONSENT_WITHDRAWN",
+                                "NO_RECIPIENT",
+                                "SUPPORT_REPLY_ADDRESS_MISSING",
+                                "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                                "SUPPORT_EMAIL_FAILED",
+                                null
+                              ],
+                              "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "sentAt": {
+                              "type": ["string", "null"],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": ["id", "status", "reason", "createdAt", "sentAt"],
+                          "description": "Items Item validated by this operation's strict request contract."
+                        },
+                        "maxItems": 20,
+                        "description": "Items validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": ["items"],
+                    "description": "Email Deliveries validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -80270,7 +80677,8 @@
                   "access",
                   "generatedAt",
                   "latestMessageId",
-                  "messages"
+                  "messages",
+                  "emailDeliveries"
                 ],
                 "description": "Data validated by this operation's strict request contract."
               },
@@ -83702,6 +84110,65 @@
                     },
                     "required": ["items"],
                     "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "emailDeliveries": {
+                    "type": "object",
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "QUEUED",
+                                "SENDING",
+                                "SENT",
+                                "RETRYING",
+                                "FAILED",
+                                "NOT_SENT"
+                              ],
+                              "description": "Requested or filtered lifecycle state from the documented enum."
+                            },
+                            "reason": {
+                              "type": ["string", "null"],
+                              "enum": [
+                                "CHANNEL_DISABLED",
+                                "CONSENT_WITHDRAWN",
+                                "NO_RECIPIENT",
+                                "SUPPORT_REPLY_ADDRESS_MISSING",
+                                "STAGING_RECIPIENT_NOT_ALLOWLISTED",
+                                "SUPPORT_EMAIL_FAILED",
+                                null
+                              ],
+                              "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            },
+                            "sentAt": {
+                              "type": ["string", "null"],
+                              "format": "date-time",
+                              "description": "ISO 8601 timestamp interpreted and validated by the server."
+                            }
+                          },
+                          "required": ["id", "status", "reason", "createdAt", "sentAt"],
+                          "description": "Items Item validated by this operation's strict request contract."
+                        },
+                        "maxItems": 20,
+                        "description": "Items validated by this operation's strict request contract."
+                      }
+                    },
+                    "required": ["items"],
+                    "description": "Email Deliveries validated by this operation's strict request contract."
                   }
                 },
                 "required": [
@@ -83724,7 +84191,8 @@
                   "access",
                   "generatedAt",
                   "latestMessageId",
-                  "messages"
+                  "messages",
+                  "emailDeliveries"
                 ],
                 "description": "Data validated by this operation's strict request contract."
               },

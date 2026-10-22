@@ -23,6 +23,10 @@ for (const width of [1440, 390])
       page.getByRole("heading", { name: "Service estimate request", exact: true }),
     ).toBeVisible();
     await expect(page.locator('.workflow-stages [aria-current="step"]')).toHaveCount(1);
+    await page.locator(".workflow-progress").scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: path.join(os.tmpdir(), `allied-workflow-stages-${width}.png`),
+    });
     await expect(page.getByText("Queued", { exact: true })).toBeVisible();
     fixture.detail.emailDeliveries.items[0].status = "SENT";
     fixture.detail.emailDeliveries.items[0].sentAt = "2026-10-22T09:00:05Z";

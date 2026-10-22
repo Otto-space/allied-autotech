@@ -32,7 +32,11 @@ export function WorkflowProgress({
       </p>
       <ol className="workflow-stages" aria-label="Workflow stages">
         {progressStages(workflow, status).map((step) => (
-          <li key={step} data-status={step} aria-current={step === status ? "step" : undefined}>
+          <li
+            key={step}
+            data-status={step}
+            aria-current={step === status ? "step" : undefined}
+          >
             <span className="workflow-stage-dot" aria-hidden="true" />
             <span>{statusLabel(step)}</span>
             {step === status && <strong>Current</strong>}
@@ -41,7 +45,8 @@ export function WorkflowProgress({
       </ol>
       <p className="workflow-progress-note">
         Stages show the workflow, not a percentage complete. Some stages may be skipped;
-        only the current stage is confirmed here. Use recorded dates and history to check completed actions.
+        only the current stage is confirmed here. Use recorded dates and history to check
+        completed actions.
       </p>
     </section>
   );
