@@ -31,12 +31,49 @@
   mask-repeat: no-repeat;
   mask-mode: alpha, luminance;
   mask-composite: exclude;
-  /* Avoid a fractional-pixel mask seam along the empty bottom edge. */
-  clip-path: inset(0 0 1px);
+  /* Exclude compositing seams on every edge, inside the artwork's empty margins. */
+  clip-path: inset(1px);
   forced-color-adjust: none;
 }
 .brand-logo--inverse {
   color: #fff;
+}
+/* Original transparent emblem, used as decoration without repeating accessible names. */
+.partner-intro::before,
+.about-principles .about-section-heading::before,
+.contact-band::before {
+  content: "";
+  display: block;
+  flex: 0 0 auto;
+  width: 72px;
+  aspect-ratio: 367 / 317;
+  background: url("/brand/allied-mark-red.png") center / contain no-repeat;
+  pointer-events: none;
+}
+.partner-intro::before {
+  margin-bottom: 24px;
+}
+.about-principles .about-section-heading::before {
+  width: 128px;
+  margin: 0 auto 28px;
+}
+.contact-band::before {
+  width: 112px;
+}
+@media (max-width: 900px) {
+  .contact-band::before {
+    width: 64px;
+  }
+}
+@media (max-width: 700px) {
+  .partner-intro::before {
+    width: 56px;
+    margin-bottom: 20px;
+  }
+  .about-principles .about-section-heading::before {
+    width: 88px;
+    margin-bottom: 24px;
+  }
 }
 .brand-logo__compact {
   display: none;
