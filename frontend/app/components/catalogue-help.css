@@ -46,6 +46,12 @@
   display: inline;
   vertical-align: -2px;
 }
+.catalogue-help-answer a[target="_blank"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
 .catalogue-help-contact {
   padding: 26px;
   background: #fff;
