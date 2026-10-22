@@ -88,7 +88,7 @@ const optionalEmail = z.preprocess(
 const environmentSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DEPLOYMENT_ENV: z.enum(["local", "staging", "production"]).default("local"),
-  PUBLIC_LAUNCH_MODE: z.enum(["full", "browse_enquiries"]).default("full"),
+  PUBLIC_LAUNCH_MODE: z.enum(["full", "browse_enquiries", "catalogue"]).default("full"),
   CLIENT_IP_SOURCE: z.enum(["socket", "digitalocean"]).default("socket"),
   FRONTEND_PROXY_SECRET: base64Key,
   PRIVATE_TESTING_ENABLED: booleanValue(false),
@@ -475,7 +475,7 @@ export function assertApiEnvironment(
 
 export function assertPublicLaunchEnvironment(runtime: typeof env = env): void {
   if (
-    runtime.PUBLIC_LAUNCH_MODE === "browse_enquiries" &&
+    runtime.PUBLIC_LAUNCH_MODE !== "full" &&
     (runtime.PAYSTACK_MODE !== "disabled" ||
       runtime.MONNIFY_MODE !== "disabled" ||
       runtime.PAYSTACK_LIVE_ENABLED ||
@@ -483,7 +483,7 @@ export function assertPublicLaunchEnvironment(runtime: typeof env = env): void {
       runtime.PAYMENT_RECONCILIATION_ENABLED)
   )
     throw new Error(
-      "Browsing/enquiries launch requires disabled payment providers and reconciliation.",
+      "Limited public launch requires disabled payment providers and reconciliation.",
     );
 }
 

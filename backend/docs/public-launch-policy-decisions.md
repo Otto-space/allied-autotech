@@ -111,3 +111,12 @@ and complete the remaining launch checks. The standalone mailbox and website
 enquiry workflow, including owner-dashboard visibility, have passed as recorded
 above. Checkout, paid
 reservations and live payments remain disabled under the approved launch scope.
+
+
+## Catalogue fallback approved ? 22 October 2026
+
+The owner requested public access tonight and approved a catalogue-only fallback: public services, products, vehicles and direct phone/email/WhatsApp contact. Website enquiry/complaint intake, customer registration/dashboard functions, checkout, reservations and live payments remain unavailable. Staff authentication and MFA remain required.
+
+The user approved the catalogue privacy wording in `frontend/app/privacy/page.tsx` on 22 October 2026. Provider names are retained for transparency; this approval does not close the broader provider/overseas-processing review or authorise website customer intake. No additional purchase is authorised.
+
+Implementation and deployment verification are in progress; this entry is not evidence that public cutover has occurred. BitLocker was last reported by the user at 51%; completion has not been verified.

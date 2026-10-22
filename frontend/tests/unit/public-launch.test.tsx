@@ -9,10 +9,33 @@ import {
 import { ProductActions } from "@/app/components/product-actions";
 import { VehicleActions } from "@/app/components/vehicle-actions";
 import { dashboardNavigation } from "@/lib/dashboard-navigation";
+import { PublicEnquiryForm } from "@/app/components/public-enquiry-form";
 
 afterEach(() => {
   cleanup();
   vi.unstubAllEnvs();
+});
+it("closes customer entry points in catalogue mode while retaining staff access", () => {
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "catalogue");
+  expect(publicLaunchMode()).toBe("catalogue");
+  for (const path of [
+    "/register",
+    "/dashboard",
+    "/dashboard/support",
+    "/payments/complete",
+  ])
+    expect(restrictedLaunchPage(path)).toBe(true);
+  for (const path of ["/login", "/mfa", "/admin", "/services", "/contact", "/privacy"])
+    expect(restrictedLaunchPage(path)).toBe(false);
+});
+it("offers external contact without mounting an enquiry form in catalogue mode", () => {
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "catalogue");
+  const { container } = render(<PublicEnquiryForm />);
+  expect(container.querySelector("form")).toBeNull();
+  expect(container.querySelector("input,textarea,select")).toBeNull();
+  expect(
+    screen.getByRole("link", { name: "Enquire by email" }).getAttribute("href"),
+  ).toContain("mailto:support@alliedautotech.com");
 });
 it("validates mode explicitly and preserves existing full-mode default", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "");

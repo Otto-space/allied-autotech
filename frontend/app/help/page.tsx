@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { HelpCentre } from "../components/help-centre";
 import "./help.css";
+import { catalogueOnly } from "@/lib/public-launch";
+import { CatalogueHelp } from "../components/catalogue-help";
 export async function generateMetadata({
   searchParams,
 }: {
@@ -24,6 +26,7 @@ export default async function HelpPage({
   searchParams: SearchParameters;
 }) {
   const params = await searchParams;
+  if (catalogueOnly()) return <CatalogueHelp />;
   const query = typeof params.q === "string" ? params.q.slice(0, 200) : "";
   const topic = typeof params.topic === "string" ? params.topic : "All topics";
   return (

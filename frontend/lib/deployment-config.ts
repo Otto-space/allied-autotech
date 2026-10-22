@@ -11,7 +11,7 @@ export function validateDeploymentConfig() {
   privateTestingAuthorization();
   const apiOrigin = backendOrigin();
   if (process.env.VERCEL !== "1" || process.env.VERCEL_ENV !== "production") return;
-  if (apiOrigin && publicLaunchMode() === "browse_enquiries" && !frontendProxySecret())
+  if (apiOrigin && publicLaunchMode() !== "full" && !frontendProxySecret())
     throw new Error(
       "Production browsing launch requires verified backend client forwarding.",
     );

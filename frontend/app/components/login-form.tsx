@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { catalogueOnly } from "@/lib/public-launch";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole } from "lucide-react";
@@ -130,7 +131,11 @@ export function LoginForm() {
       <h1>
         Welcome back<span>.</span>
       </h1>
-      <p className="login-intro">Sign in to your Allied AutoTech account.</p>
+      <p className="login-intro">
+        {catalogueOnly()
+          ? "Sign in with your authorised Allied AutoTech staff account."
+          : "Sign in to your Allied AutoTech account."}
+      </p>
       <Feedback message={error} toast="Please review the message on this page." />
       {!ready && (
         <p>Enable JavaScript to sign in. You can still browse our Help Centre.</p>
@@ -202,9 +207,11 @@ export function LoginForm() {
           )}
         </button>
       </form>
-      <p className="login-register">
-        New to Allied AutoTech? <Link href="/register">Create an account</Link>
-      </p>
+      {!catalogueOnly() && (
+        <p className="login-register">
+          New to Allied AutoTech? <Link href="/register">Create an account</Link>
+        </p>
+      )}
       <div className="login-help">
         <Link href="/help/account-security">Need help with your account?</Link>
         <p>

@@ -2,7 +2,24 @@
 import { useState } from "react";
 import type { SupportKind } from "@/lib/api/support-schemas";
 import { SupportCreateForm } from "./support-create-form";
-export function PublicEnquiryForm({
+import { catalogueOnly } from "@/lib/public-launch";
+import { PublicEnquiryActions } from "./public-enquiry-actions";
+
+export function PublicEnquiryForm(props: Parameters<typeof EnabledPublicEnquiryForm>[0]) {
+  if (catalogueOnly())
+    return (
+      <section aria-label="Contact our team">
+        <h3>Speak with our team</h3>
+        <p>
+          Contact us by email or WhatsApp to discuss your vehicle, a service or a product.
+        </p>
+        <PublicEnquiryActions subject={props.serviceName || "an enquiry"} />
+      </section>
+    );
+  return <EnabledPublicEnquiryForm {...props} />;
+}
+
+function EnabledPublicEnquiryForm({
   serviceId,
   serviceName,
   submissionLocked = false,

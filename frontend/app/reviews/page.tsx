@@ -9,6 +9,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PublicReviews } from "../components/public-reviews";
 import { ReviewAccountLink } from "./review-account-link";
+import { catalogueOnly } from "@/lib/public-launch";
 import "./reviews.css";
 export async function generateMetadata({
   searchParams,
@@ -59,7 +60,7 @@ export default async function Page() {
                 purchases.
               </p>
               <div className="reviews-actions">
-                <ReviewAccountLink />
+                {!catalogueOnly() && <ReviewAccountLink />}
                 <a className="text-link" href="#published-feedback">
                   Browse feedback <ArrowRight size={16} aria-hidden="true" />
                 </a>

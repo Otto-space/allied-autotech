@@ -10,6 +10,7 @@ export const publicPaths = [
   "/contact",
   "/help",
   "/reviews",
+  "/privacy",
 ] as const;
 export const privatePaths = [
   "/dashboard",

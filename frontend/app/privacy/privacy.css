@@ -1,0 +1,23 @@
+.privacy-notice {
+  width: min(100% - 2.5rem, 52rem);
+  margin-inline: auto;
+  padding-block: 3rem 5rem;
+  overflow-wrap: anywhere;
+  line-height: 1.75;
+}
+.privacy-notice h1 {
+  margin-block: 1.5rem 1rem;
+}
+.privacy-notice h2 {
+  margin-block: 2.5rem 0.75rem;
+}
+.privacy-notice p {
+  margin-block: 0 1rem;
+}
+.privacy-notice a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.privacy-version {
+  color: var(--muted, #526477);
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { business } from "@/lib/business";
 import { Brand } from "./brand";
+import { catalogueOnly } from "@/lib/public-launch";
 
 export function SiteFooter() {
   return (
@@ -45,8 +46,11 @@ export function SiteFooter() {
             <Link href="/contact" className="hover:text-white transition-colors">
               Customer Care
             </Link>
-            <Link href="/dashboard" className="hover:text-white transition-colors">
-              Your Account
+            <Link
+              href={catalogueOnly() ? "/login" : "/dashboard"}
+              className="hover:text-white transition-colors"
+            >
+              {catalogueOnly() ? "Staff sign in" : "Your Account"}
             </Link>
           </nav>
         </div>
@@ -67,6 +71,11 @@ export function SiteFooter() {
           © {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>
         <div className="flex gap-6 mt-4 md:mt-0">
+          {catalogueOnly() && (
+            <Link href="/privacy" className="hover:text-white">
+              Privacy
+            </Link>
+          )}
           <Link href="/help" className="hover:text-white">
             Help centre
           </Link>

@@ -1,4 +1,5 @@
-import { browseEnquiriesOnly } from "@/lib/public-launch";
+import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
+import { CatalogueContact } from "../components/catalogue-contact";
 import { publicPageMetadata, type SearchParameters } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -38,6 +39,7 @@ const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURICom
 const directionsLink = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(locationQuery)}`;
 
 export default function ContactPage() {
+  if (catalogueOnly()) return <CatalogueContact />;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim();
   const mapsEmbed = mapsKey
     ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(mapsKey)}&q=${encodeURIComponent(locationQuery)}`
