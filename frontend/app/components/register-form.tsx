@@ -12,6 +12,7 @@ import {
 import { registrationFields, type RegistrationField } from "@/lib/auth/registration";
 import { Feedback } from "./feedback";
 import { notify } from "@/lib/notifications";
+import { IntakePrivacyNote } from "./intake-privacy-note";
 const subscribe = () => () => {};
 const clientReady = () => true;
 const serverReady = () => false;
@@ -267,6 +268,7 @@ export function RegisterForm() {
             </p>
           )}
         </div>
+        <IntakePrivacyNote account />
         <button className="button login-submit" disabled={busy} type="submit">
           {busy ? (
             <>

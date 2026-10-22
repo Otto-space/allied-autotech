@@ -22,6 +22,9 @@ import { MutationReview, type MutationProposal } from "./mutation-review";
 import { CopyControl } from "./copy-control";
 import type { useSupportCreateWrite } from "@/lib/support/use-support-create-write";
 import { draftIdentity, draftKey, forgetDraft, DRAFT_SAVED } from "@/lib/forms/drafts";
+import { visitRequestMessage } from "@/lib/support/visit-request";
+import { IntakePrivacyNote } from "./intake-privacy-note";
+import visitStyles from "./visit-request.module.css";
 function SelectFrame({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   return enabled ? (
     <div className="contact-select">
@@ -71,6 +74,10 @@ export function SupportCreateForm({
       : undefined,
   );
   const [branch, setBranch] = useState("");
+  const [visitRequested, setVisitRequested] = useState(false);
+  const [visitDate, setVisitDate] = useState("");
+  const [visitTime, setVisitTime] = useState("");
+  const [visitError, setVisitError] = useState<string>();
   const [branchLabel, setBranchLabel] = useState("");
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [error, setError] = useState<string>();
@@ -147,6 +154,10 @@ export function SupportCreateForm({
       setReceiptId(undefined);
       setError(undefined);
       setSessionChanged(true);
+      setVisitRequested(false);
+      setVisitDate("");
+      setVisitTime("");
+      setVisitError(undefined);
       setType(serviceId ? "SERVICE" : kind === "enquiries" ? "GENERAL" : "NONE");
       setSource(
         serviceId
@@ -282,11 +293,22 @@ export function SupportCreateForm({
                 document.getElementById("support-branch")?.focus();
                 return;
               }
+              const visit = visitRequestMessage({
+                message: values.message,
+                type,
+                requested: kind === "enquiries" && visitRequested,
+                date: visitDate,
+                time: visitTime,
+              });
+              setVisitError(visit.error);
+              if (visit.error !== undefined) {
+                document.getElementById("support-visit-date")?.focus();
+                return;
+              }
+              const message = visit.message;
               const body = {
                 subject: values.subject,
-                ...(kind === "enquiries"
-                  ? { type, message: values.message }
-                  : { description: values.message }),
+                ...(kind === "enquiries" ? { type, message } : { description: message }),
                 ...source?.fields,
                 ...(!source?.inheritsBranch ? { branchId: branch } : {}),
                 ...(publicMode
@@ -320,7 +342,7 @@ export function SupportCreateForm({
                       ? "The related record's branch"
                       : branchLabel,
                   },
-                  { label: "Message", value: values.message },
+                  { label: "Message", value: message },
                 ],
                 retryAfterRejection: false,
                 onUncertain,
@@ -361,7 +383,7 @@ export function SupportCreateForm({
                       if (
                         "subject" in saved &&
                         (saved.subject !== values.subject ||
-                          saved.text !== values.message ||
+                          saved.text !== message ||
                           (saved.kind === "enquiries" && saved.type !== type) ||
                           (branch &&
                             !source?.inheritsBranch &&
@@ -501,6 +523,8 @@ export function SupportCreateForm({
                     setType(event.target.value);
                     setSource(undefined);
                     setSourceBlocked(false);
+                    setVisitRequested(false);
+                    setVisitError(undefined);
                     setError(undefined);
                   }}
                 >
@@ -636,6 +660,73 @@ export function SupportCreateForm({
                 {isDashboard ? " / 4000 characters" : "/4000"}
               </p>
             )}
+          </div>
+          {kind === "enquiries" && ["SERVICE", "VEHICLE"].includes(type) && (
+            <fieldset className={`field contact-field-wide ${visitStyles.request}`}>
+              <legend>
+                {type === "SERVICE"
+                  ? "Request a service visit"
+                  : "Request a vehicle inspection"}
+              </legend>
+              <label className={visitStyles.toggle}>
+                <input
+                  type="checkbox"
+                  name="visitRequested"
+                  checked={visitRequested}
+                  onChange={(event) => {
+                    setVisitRequested(event.target.checked);
+                    setVisitError(undefined);
+                  }}
+                />
+                Include my preferred date and time
+              </label>
+              <p>
+                Our team will check availability and contact you to confirm. This request
+                collects no payment and does not hold an appointment or vehicle.
+              </p>
+              {visitRequested && (
+                <>
+                  <div className="field">
+                    <label htmlFor="support-visit-date">
+                      Preferred date (Nigeria time)
+                    </label>
+                    <input
+                      id="support-visit-date"
+                      type="date"
+                      name="visitDate"
+                      value={visitDate}
+                      onChange={(event) => setVisitDate(event.target.value)}
+                      aria-invalid={!!visitError}
+                      aria-describedby="support-visit-error"
+                    />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="support-visit-time">
+                      Preferred time (Nigeria time)
+                    </label>
+                    <input
+                      id="support-visit-time"
+                      type="time"
+                      name="visitTime"
+                      value={visitTime}
+                      onChange={(event) => setVisitTime(event.target.value)}
+                      aria-invalid={!!visitError}
+                      aria-describedby="support-visit-error"
+                    />
+                  </div>
+                  <p
+                    id="support-visit-error"
+                    className="field-error"
+                    role={visitError ? "alert" : undefined}
+                  >
+                    {visitError}
+                  </p>
+                </>
+              )}
+            </fieldset>
+          )}
+          <div className="contact-field-wide">
+            <IntakePrivacyNote />
           </div>
           <button
             type="submit"
