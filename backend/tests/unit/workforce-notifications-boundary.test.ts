@@ -29,6 +29,7 @@ describe("managed workforce personal notification boundary", () => {
         "/",
         "?limit=25&unreadOnly=true",
         "/preferences/current",
+        "/summary",
         "/read-all",
         `/${notification}/read`,
         `/${notification}/read/`,
@@ -46,6 +47,7 @@ describe("managed workforce personal notification boundary", () => {
       for (const path of [
         "/staff/notifications-admin",
         "/staff/notifications/export",
+        "/staff/notifications/summary/export",
         "/staff/notifications/preferences",
         "/staff/notifications/preferences/current/export",
         "/staff/notifications/read-all/export",

@@ -29,6 +29,9 @@ import { parseOwnStaffProfile } from "@/lib/api/capability-schemas";
 import { parseWorkforceAccess } from "@/lib/api/workforce-schemas";
 import { workforceNavigation } from "@/lib/workforce-navigation";
 import { WorkforceWorkspace, useWorkforceRefresh } from "./workforce-workspace";
+import { useNotificationSummary } from "@/lib/notifications/use-notification-summary";
+import { notificationNavigationCounts } from "@/lib/notifications/destinations";
+import { NotificationBadge } from "./notification-badge";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
   typeof useResource<ReturnType<typeof parseOwnStaffProfile>>
@@ -51,6 +54,12 @@ export function DashboardShell({
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<SessionState | null>(null);
+  const notifications = useNotificationSummary(session);
+  const unreadCount = notifications?.data?.unreadCount ?? 0;
+  const unreadLinks = notificationNavigationCounts(
+    notifications?.data,
+    audience === "customer",
+  );
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -308,6 +317,7 @@ export function DashboardShell({
         <div id="dashboard-navigation" className="dashboard-navigation-container">
           <DashboardNavigation
             collapsed={sidebarCollapsed}
+            unreadCounts={unreadLinks}
             onExpand={() => setSidebarCollapsed(false)}
             groups={navigation}
             pathname={pathname}
@@ -351,6 +361,7 @@ export function DashboardShell({
         <div id="dashboard-mobile-navigation" className="dashboard-drawer-content">
           <DashboardNavigation
             groups={navigation}
+            unreadCounts={unreadLinks}
             pathname={pathname}
             onNavigate={() => setMenuPath(null)}
             label={audience === "staff" ? "Administration" : "Customer dashboard"}
@@ -372,7 +383,13 @@ export function DashboardShell({
             {(!session.workforceManaged || verifiedWorkforce) && (
               <Link
                 className="dashboard-icon-link"
-                aria-label="Open notifications"
+                aria-label={
+                  unreadCount > 0
+                    ? `Open notifications, ${unreadCount} unread`
+                    : notifications?.unavailable
+                      ? "Open notifications, unread status unavailable"
+                      : "Open notifications"
+                }
                 href={
                   audience === "staff"
                     ? "/admin/notifications"
@@ -380,7 +397,8 @@ export function DashboardShell({
                 }
                 prefetch={false}
               >
-                <Bell size={19} />
+                <Bell size={19} aria-hidden="true" />
+                <NotificationBadge count={unreadCount} />
               </Link>
             )}
             <Link

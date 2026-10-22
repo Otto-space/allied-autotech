@@ -147,6 +147,22 @@ export class NotificationsService {
     return notificationPage(await this.repository.list(actor.userId, query), query.limit);
   }
 
+  async summary(actor: AuthenticatedActor) {
+    assertNotificationActor(actor);
+    const groups = (await this.repository.unreadGroups(actor.userId)).map(
+      ({ resourceType, type, category, _count }) => ({
+        resourceType,
+        type,
+        category,
+        count: _count._all,
+      }),
+    );
+    return {
+      unreadCount: groups.reduce((total, group) => total + group.count, 0),
+      groups,
+    };
+  }
+
   async markRead(actor: AuthenticatedActor, id: string) {
     assertNotificationActor(actor);
     return this.database.$transaction(async (transaction) => {

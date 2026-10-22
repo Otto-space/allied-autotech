@@ -35,6 +35,23 @@ export const notificationSchema = z.object({
   createdAt: timestamp,
 });
 export type InboxNotification = z.infer<typeof notificationSchema>;
+export const notificationSummarySchema = z
+  .object({
+    unreadCount: z.number().int().nonnegative().safe(),
+    groups: z.array(
+      z.object({
+        resourceType: z.string().nullable(),
+        type: z.enum(notificationTypes),
+        category: z.enum(notificationCategories),
+        count: z.number().int().positive().safe(),
+      }),
+    ),
+  })
+  .refine(
+    (summary) =>
+      summary.unreadCount === summary.groups.reduce((sum, group) => sum + group.count, 0),
+  );
+export type NotificationSummary = z.infer<typeof notificationSummarySchema>;
 export const parseNotifications = (value: unknown) =>
   z
     .object({
