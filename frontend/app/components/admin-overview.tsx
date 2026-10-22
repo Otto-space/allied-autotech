@@ -126,7 +126,9 @@ function OperationsOverview() {
                           {label(row.queue)}
                         </td>
                         <td data-label="Status">
-                          <span className="work-status-label">{label(row.status)}</span>
+                          <span className="work-status-label" data-status={row.status}>
+                            {label(row.status)}
+                          </span>
                         </td>
                         <td data-label="Records">{row.count.toLocaleString("en-NG")}</td>
                       </tr>

@@ -371,7 +371,7 @@ function CustomerRecord({ customer: r }: { customer: WorkCustomer }) {
         <div>
           <dt>Account status</dt>
           <dd>
-            <span className="status">
+            <span className="status" data-status={r.status}>
               {
                 { ACTIVE: "Active", SUSPENDED: "Suspended", DEACTIVATED: "Deactivated" }[
                   r.status

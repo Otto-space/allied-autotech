@@ -590,6 +590,7 @@ function InvitationWorkspace() {
                       </div>
                       <span
                         className={`wsi-status wsi-status-${item.status.toLowerCase()}`}
+                        data-status={item.status}
                       >
                         {item.status.charAt(0) + item.status.slice(1).toLowerCase()}
                       </span>

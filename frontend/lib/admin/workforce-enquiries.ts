@@ -1,3 +1,4 @@
+import { supportEmailDeliveryPageSchema } from "../api/support-email-schemas";
 import { z } from "zod";
 import { workforceAccessSchema, type WorkforceAccess } from "../api/workforce-schemas";
 import { sameWorkforceScope } from "./workforce-overview";
@@ -58,6 +59,7 @@ const messageSchema = z.object({
   isOwn: z.boolean(),
 });
 const detailSchema = rowSchema.extend({
+  emailDeliveries: supportEmailDeliveryPageSchema.optional(),
   access: accessSchema,
   generatedAt: z.iso.datetime(),
   latestMessageId: z.uuid().nullable(),

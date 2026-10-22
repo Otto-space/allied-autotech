@@ -166,6 +166,21 @@ describe.skipIf(process.env.RUN_SUPPORT_TIMELINE_TESTS !== "true")(
         event.id,
         reply.body.data.id,
       ]);
+      expect(
+        await prisma.outboxEvent.count({
+          where: {
+            aggregateType: "SupportCustomerEmail",
+            aggregateId: row.id,
+          },
+        }),
+      ).toBe(2);
+      expect(
+        await prisma.notificationDelivery.count({
+          where: {
+            notificationId: { in: notifications.map((n) => n.id) },
+          },
+        }),
+      ).toBe(0);
       await request(app)
         .get(customerPath("enquiries", row.id))
         .query({ messageId: note.body.data.id })

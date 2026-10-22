@@ -617,7 +617,10 @@ function ModerationCard({
               <span aria-hidden="true">{r.rating} / 5</span>
             </span>
             <span>{reviewLabels[r.targetType]}</span>
-            <span className={`wm-status ${r.status.toLowerCase()}`}>
+            <span
+              className={`wm-status ${r.status.toLowerCase()}`}
+              data-status={r.status}
+            >
               {statuses[r.status]}
             </span>
           </div>

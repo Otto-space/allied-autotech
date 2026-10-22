@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowRight, FileText, RefreshCw, ReceiptText } from "lucide-react";
@@ -124,6 +125,7 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
       {invoice.loading && <p role="status">Checking invoice…</p>}
       {current && (
         <>
+          <WorkflowProgress workflow="invoice" status={current.status} />
           <div className="invoice-layout">
             <aside className="invoice-aside">
               <section className="invoice-summary" aria-label="Invoice summary">
@@ -131,7 +133,9 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
                 <strong className="invoice-amount">
                   {formatKobo(current.totalKobo)}
                 </strong>
-                <span className="invoice-status">{labels[current.status]}</span>
+                <span className="invoice-status" data-status={current.status}>
+                  {labels[current.status]}
+                </span>
                 {paymentEligible ? (
                   <CreatePaymentRequest
                     key={current.id}
@@ -307,7 +311,9 @@ function InvoiceSheet({ document }: { document: InvoiceDocument }) {
         <div>
           <span>Invoice</span>
           <h2 id="invoice-number">{document.invoiceNumber}</h2>
-          <span className="invoice-status">{labels[document.status]}</span>
+          <span className="invoice-status" data-status={document.status}>
+            {labels[document.status]}
+          </span>
         </div>
       </header>
       <address>

@@ -1,4 +1,8 @@
 import {
+  enqueueSupportCustomerUpdate,
+  supportEmailDeliveries,
+} from "./customer-email.js";
+import {
   supportCreationReceipt,
   supportReplyReceipt,
 } from "./support-creation-receipt.js";
@@ -536,6 +540,17 @@ export class SupportService {
     return record;
   }
 
+  async emailDeliveries(
+    actor: AuthenticatedActor,
+    kind: "enquiry" | "complaint",
+    id: string,
+    context: RequestSecurityContext,
+  ) {
+    // Authorize the conversation before reading any delivery metadata.
+    await this.staffRecord(actor, kind, id, context);
+    return supportEmailDeliveries(this.database, id);
+  }
+
   async assign(
     actor: AuthenticatedActor,
     kind: "enquiry" | "complaint",
@@ -638,19 +653,14 @@ export class SupportService {
         input.response ?? "No additional explanation was provided.",
         transaction,
       );
-      if (current.customer?.userId)
-        await enqueueNotification(transaction, {
-          userId: current.customer.userId,
-          type: "ENQUIRY",
-          category: "OPERATIONAL",
-          title: `Your enquiry is now ${input.status.toLowerCase().replaceAll("_", " ")}`,
-          message: `Your enquiry is now ${input.status.toLowerCase().replaceAll("_", " ")}.`,
-          deduplicationKey: `enquiry:${id}:status:${input.status}:${current.version + 1}`,
-          supportMessageId: messageReceipt.id,
-          resourceType: "ENQUIRY",
-          resourceId: id,
-          channels: ["EMAIL"],
-        });
+      await enqueueSupportCustomerUpdate(transaction, {
+        kind: "enquiry",
+        record: current,
+        messageId: messageReceipt?.id ?? null,
+        status: input.status,
+        response: input.response,
+        version: current.version + 1,
+      });
       await this.auditTransition(
         transaction,
         actor,
@@ -713,19 +723,14 @@ export class SupportService {
         input.resolution ?? "No additional explanation was provided.",
         transaction,
       );
-      if (current.customer?.userId)
-        await enqueueNotification(transaction, {
-          userId: current.customer.userId,
-          type: "COMPLAINT",
-          category: "OPERATIONAL",
-          title: `Your complaint is now ${input.status.toLowerCase().replaceAll("_", " ")}`,
-          message: `Your complaint is now ${input.status.toLowerCase()}.`,
-          deduplicationKey: `complaint:${id}:status:${input.status}:${current.version + 1}`,
-          supportMessageId: messageReceipt.id,
-          resourceType: "COMPLAINT",
-          resourceId: id,
-          channels: ["EMAIL"],
-        });
+      await enqueueSupportCustomerUpdate(transaction, {
+        kind: "complaint",
+        record: current,
+        messageId: messageReceipt?.id ?? null,
+        status: input.status,
+        response: input.resolution,
+        version: current.version + 1,
+      });
       await this.auditTransition(
         transaction,
         actor,
@@ -775,6 +780,12 @@ export class SupportService {
         message,
         tx,
       );
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "complaint",
+        record: current,
+        messageId: messageReceipt.id,
+        response: message,
+      });
       await appendAuditEvent(tx, {
         actorUserId: actor.userId,
         action: "UPDATE",
@@ -860,18 +871,12 @@ export class SupportService {
         input.message,
         transaction,
       );
-      if (input.visibility === "CUSTOMER" && record.customer?.userId)
-        await enqueueNotification(transaction, {
-          userId: record.customer.userId,
-          type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-          category: "OPERATIONAL",
-          title: "New support reply",
-          message: "A new response is available in your Allied AutoTech account.",
-          deduplicationKey: `${kind}:${id}:message:${created.id}`,
-          supportMessageId: created.id,
-          resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-          resourceId: id,
-          channels: ["EMAIL"],
+      if (input.visibility === "CUSTOMER")
+        await enqueueSupportCustomerUpdate(transaction, {
+          kind,
+          record,
+          messageId: created.id,
+          response: input.message,
         });
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,

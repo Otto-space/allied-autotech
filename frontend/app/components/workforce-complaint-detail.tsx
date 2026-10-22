@@ -1,5 +1,7 @@
 "use client";
 import { SupportTimelineEntry } from "./support-timeline-entry";
+import { SupportEmailDeliverySummary } from "./support-email-delivery";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
@@ -407,7 +409,10 @@ export function WorkforceComplaintDetail({
                 <span className={`wfc-status is-${row.priority.toLowerCase()}`}>
                   {complaintPriorityLabels[row.priority]}
                 </span>{" "}
-                <span className={`wfc-status is-${row.status.toLowerCase()}`}>
+                <span
+                  className={`wfc-status is-${row.status.toLowerCase()}`}
+                  data-status={row.status}
+                >
                   {complaintStatusLabels[row.status]}
                 </span>
               </p>
@@ -416,6 +421,13 @@ export function WorkforceComplaintDetail({
               Close selection
             </button>
           </header>
+          <WorkflowProgress workflow="complaint" status={row.status} />
+          <SupportEmailDeliverySummary
+            page={row.emailDeliveries}
+            loading={busy}
+            error={failure}
+            onRefresh={record.refresh}
+          />
           <dl className="wfc-facts">
             <div>
               <dt>Branch</dt>

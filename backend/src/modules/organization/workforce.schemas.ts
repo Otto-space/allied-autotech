@@ -1,3 +1,4 @@
+import { supportEmailDeliveryPageSchema } from "../support/customer-email.js";
 import { z } from "zod";
 import { positionSchema, templateSchema } from "./workforce.policy.js";
 
@@ -436,6 +437,7 @@ export function workforceResponseSchema(action: string): z.ZodType {
         generatedAt: timestamp,
         latestMessageId: z.uuid().nullable(),
         messages: pageOf(enquiryMessage.extend({ isOwn: z.boolean() })),
+        emailDeliveries: supportEmailDeliveryPageSchema,
       });
     case "complaints":
       return pageOf(complaintRow).extend({
@@ -454,6 +456,7 @@ export function workforceResponseSchema(action: string): z.ZodType {
         generatedAt: timestamp,
         latestMessageId: z.uuid().nullable(),
         messages: pageOf(enquiryMessage.extend({ isOwn: z.boolean() })),
+        emailDeliveries: supportEmailDeliveryPageSchema,
       });
     case "orders":
       return pageOf(orderRow).extend({

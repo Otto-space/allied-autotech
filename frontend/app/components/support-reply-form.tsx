@@ -104,7 +104,7 @@ export function SupportReplyForm({
       description:
         visibility === "INTERNAL"
           ? "Only authorized staff can read this note. It is not shown in the customer's conversation."
-          : "This message is customer-visible. It may trigger an account notification and optional email delivery. Avoid passwords, card details and private documents.",
+          : "This message is customer-visible. Guests receive the reply by email; linked customers receive an account notification and an email alert if enabled. Check Customer email delivery after saving. Avoid passwords, card details and private documents.",
       facts: [
         { label: "Conversation", value: record.subject },
         {

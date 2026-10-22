@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronRight, FileText, RefreshCw } from "lucide-react";
@@ -476,9 +477,15 @@ function InvoiceWorkspace({
         <div>
           <h1>{current?.invoiceNumber ?? "Invoice details"}</h1>
           {current && (
-            <span className={`wid-status wid-status-${current.status.toLowerCase()}`}>
-              {invoiceStatusLabels[current.status]}
-            </span>
+            <>
+              <WorkflowProgress workflow="invoice" status={current.status} />
+              <span
+                className={`wid-status wid-status-${current.status.toLowerCase()}`}
+                data-status={current.status}
+              >
+                {invoiceStatusLabels[current.status]}
+              </span>
+            </>
           )}
           <p>Review the source, document and recorded payments before issuing.</p>
         </div>

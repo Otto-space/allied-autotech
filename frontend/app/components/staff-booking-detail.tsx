@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
@@ -308,10 +309,11 @@ function BookingRecord({ bookingId }: { bookingId: string }) {
                 <h2>{current.service.name}</h2>
                 <p>Booking {current.id}</p>
               </div>
-              <span className="booking-detail-status">
+              <span className="booking-detail-status" data-status={current.status}>
                 {current.status.replaceAll("_", " ")}
               </span>
             </header>
+            <WorkflowProgress workflow="booking" status={current.status} />
             <dl className="booking-detail-facts">
               <div>
                 <dt>Appointment</dt>

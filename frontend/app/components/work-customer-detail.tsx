@@ -97,7 +97,7 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
         <div>
           <h1>{name}</h1>
           {r && (
-            <span className="status">
+            <span className="status" data-status={r.status}>
               {
                 { ACTIVE: "Active", SUSPENDED: "Suspended", DEACTIVATED: "Deactivated" }[
                   r.status

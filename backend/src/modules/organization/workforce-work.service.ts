@@ -1,4 +1,7 @@
-import { enqueueNotification } from "../notifications/notifications.service.js";
+import {
+  enqueueSupportCustomerUpdate,
+  supportEmailDeliveries,
+} from "../support/customer-email.js";
 import type { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -710,7 +713,7 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return result;
+      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
     });
   }
   complaints(
@@ -780,7 +783,7 @@ export class WorkforceWorkService {
         },
         true,
       );
-      return result;
+      return { ...result, emailDeliveries: await supportEmailDeliveries(tx, id) };
     });
   }
   reply(
@@ -798,6 +801,7 @@ export class WorkforceWorkService {
           branchId: true,
           version: true,
           status: true,
+          email: true,
           customer: { select: { userId: true } },
         },
       });
@@ -830,19 +834,12 @@ export class WorkforceWorkService {
           body: input.body,
         },
       });
-      if (row.customer?.userId)
-        await enqueueNotification(tx, {
-          userId: row.customer.userId,
-          type: "ENQUIRY",
-          category: "OPERATIONAL",
-          title: "New support reply",
-          message: "A new reply is available in your Allied AutoTech account.",
-          deduplicationKey: `enquiry:${id}:message:${created.id}`,
-          resourceType: "ENQUIRY",
-          resourceId: id,
-          supportMessageId: created.id,
-          channels: ["EMAIL"],
-        });
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "enquiry",
+        record: row,
+        messageId: created.id,
+        response: input.body,
+      });
       await audit(tx, actor, context, "ENQUIRY", id, {
         workforceAction: "REPLY",
         messageId: created.id,
@@ -885,6 +882,7 @@ export class WorkforceWorkService {
           branchId: true,
           version: true,
           status: true,
+          email: true,
           customer: { select: { userId: true } },
         },
       });
@@ -917,19 +915,12 @@ export class WorkforceWorkService {
           body: input.body,
         },
       });
-      if (row.customer?.userId)
-        await enqueueNotification(tx, {
-          userId: row.customer.userId,
-          type: "COMPLAINT",
-          category: "OPERATIONAL",
-          title: "New support reply",
-          message: "A new reply is available in your Allied AutoTech account.",
-          deduplicationKey: `complaint:${id}:message:${created.id}`,
-          resourceType: "COMPLAINT",
-          resourceId: id,
-          supportMessageId: created.id,
-          channels: ["EMAIL"],
-        });
+      await enqueueSupportCustomerUpdate(tx, {
+        kind: "complaint",
+        record: row,
+        messageId: created.id,
+        response: input.body,
+      });
       await audit(tx, actor, context, "COMPLAINT", id, {
         workforceAction: "REPLY",
         messageId: created.id,

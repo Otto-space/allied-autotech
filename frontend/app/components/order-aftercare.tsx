@@ -1,4 +1,5 @@
 "use client";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowLeft, ChevronRight, RefreshCw } from "lucide-react";
@@ -543,7 +544,10 @@ function RequestRecord({
     >
       <header>
         <h3>{aftercareKinds[item.kind]}</h3>
-        <span className="wa-status">{aftercareLabels[item.status]}</span>
+        <WorkflowProgress workflow="aftercare" status={item.status} />
+        <span className="wa-status" data-status={item.status}>
+          {aftercareLabels[item.status]}
+        </span>
       </header>
       <p className="wa-date">
         Requested{" "}

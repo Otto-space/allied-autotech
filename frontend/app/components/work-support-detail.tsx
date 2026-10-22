@@ -1,6 +1,8 @@
 "use client";
 import { SupportTimelineEntry } from "./support-timeline-entry";
+import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
+import { SupportEmailDelivery } from "./support-email-delivery";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, RefreshCw, ArrowLeft } from "lucide-react";
@@ -346,7 +348,9 @@ function ThreadWorkspace({
           <h1>{current?.subject ?? "Conversation"}</h1>
           {current && (
             <div className="wst-badges">
-              <span className="status">{supportLabel(current.status)}</span>
+              <span className="status" data-status={current.status}>
+                {supportLabel(current.status)}
+              </span>
               <span>
                 {current.kind === "enquiries"
                   ? supportLabel(current.type)
@@ -428,7 +432,12 @@ function ThreadWorkspace({
               </a>
             ))}
           </nav>
+          <WorkflowProgress
+            workflow={kind === "enquiries" ? "enquiry" : "complaint"}
+            status={current.status}
+          />
           <ThreadFacts record={current} />
+          <SupportEmailDelivery base={base} revision={revision} />
           <div className="wst-workspace">
             <div>
               <ThreadHistory
@@ -559,9 +568,10 @@ function ThreadFacts({ record: r }: { record: SupportRecord }) {
           </dl>
           {!r.contact?.customerId && (
             <p className="notice">
-              This record has no linked customer account. Use the supplied contact details
-              for follow-up; account messages are not available to the person unless their
-              record is linked.
+              This record has no linked customer account. Customer-visible replies are
+              emailed to the supplied address. Check Customer email delivery below.
+              Replies from the customer arrive in the Support mailbox; they are not
+              imported here.
             </p>
           )}
         </section>

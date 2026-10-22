@@ -52,6 +52,7 @@ function PurchaseRow({ item }: { item: CustomerPurchase }) {
       <td headers={`${rowId} purchase-status-heading`} className="purchase-status-cell">
         <span
           className={`purchase-status${["CANCELLED", "EXPIRED"].includes(item.status) ? " closed" : ""}`}
+          data-status={item.status}
         >
           {purchaseLabels[item.status]}
         </span>

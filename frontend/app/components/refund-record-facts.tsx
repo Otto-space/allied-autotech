@@ -1,3 +1,4 @@
+import { WorkflowProgress } from "./status-progress";
 import { formatKobo } from "@/lib/format/money";
 import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
 import {
@@ -7,7 +8,7 @@ import {
 } from "@/lib/admin/work-refunds";
 export function RefundBadge({ status }: { status: WorkRefund["status"] }) {
   return (
-    <span className={`wr-status wr-status-${status.toLowerCase()}`}>
+    <span data-status={status} className={`wr-status wr-status-${status.toLowerCase()}`}>
       {refundStatusLabels[status]}
     </span>
   );
@@ -29,6 +30,7 @@ export function RefundFacts({
       onToggle={(event) => onOpenChange?.(event.currentTarget.open)}
     >
       <summary>Full lifecycle and references</summary>
+      <WorkflowProgress workflow="refund" status={row.status} />
       <dl>
         {[
           ["Refund reference", row.id],

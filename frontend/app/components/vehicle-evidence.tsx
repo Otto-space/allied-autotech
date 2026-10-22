@@ -45,7 +45,9 @@ export function VehicleEvidence({
             <h3 id={`document-heading-${document.id}`}>
               {document.type.replaceAll("_", " ")}
             </h3>
-            <p className="status">{document.verificationStatus}</p>
+            <p className="status" data-status={document.verificationStatus}>
+              {document.verificationStatus}
+            </p>
             <dl className="totals">
               <dt>Attached</dt>
               <dd>{formatBusinessDate(document.createdAt)}</dd>

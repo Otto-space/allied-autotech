@@ -73,5 +73,19 @@ was edited or migration-history checksum changed.
   exactly the expected pending migration, six managed backups and restricted runtime
   privileges. The temporary operator firewall rule was removed after backup.
 
-Production rollout is pending. Browser tests used synthetic accounts;
+The release also retains the previously deployed support email delivery, workflow
+progress and dashboard spacing changes (through `7354337`). The shared support
+email service creates one in-app notification and one email outbox intent per
+customer-visible update. Timeline integration tests verify that internal notes
+create neither, and that the generic notification delivery path does not duplicate
+support emails. The existing encrypted email payload remains compatible with the
+previous worker during rollout. After merging, backend types/lint, OpenAPI checks,
+24 focused backend tests and all five HTTP/database scenarios passed again.
+
+The additive production migration completed through the guarded runner at
+2026-10-22 10:12 UTC, with target `db:check`, restricted role verification and removal
+of the temporary operator firewall rule. No second migration is required for the
+merged application release because its Prisma schema and migrations are identical.
+
+Application rollout is pending. Browser tests used synthetic accounts;
 no real customer account or owner MFA session was used.
