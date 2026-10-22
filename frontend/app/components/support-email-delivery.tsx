@@ -50,7 +50,7 @@ export function SupportEmailDeliverySummary({
   onRefresh: () => void;
 }) {
   return (
-    <section className="wi-card" aria-labelledby="support-email-title">
+    <section className="wi-card support-delivery" aria-labelledby="support-email-title">
       <h2 id="support-email-title">Customer email delivery</h2>
       <p>
         Saving a reply and sending its email are separate steps. Sent means the email
