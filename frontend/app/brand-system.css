@@ -10,7 +10,7 @@
   --radius-control: 6px;
 }
 
-/* Original supplied artwork: preserve its proportions, colour and dark surface. */
+/* Invert the supplied monochrome artwork's luminance mask, preserving its geometry. */
 .brand-logo {
   display: inline-flex;
   align-items: center;
@@ -19,14 +19,24 @@
   max-width: 100%;
   flex-shrink: 0;
   vertical-align: middle;
-  background: #06181f;
-  border-radius: 4px;
-  overflow: hidden;
+  color: #06181f;
 }
 .brand-logo__primary {
   display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 743 / 251;
+  background: linear-gradient(to right, #ed1c24 35%, currentColor 35%);
+  mask-image: linear-gradient(#fff, #fff), url("/brand/allied-primary-black.png");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mask-mode: alpha, luminance;
+  mask-composite: exclude;
+  /* Avoid a fractional-pixel mask seam along the empty bottom edge. */
+  clip-path: inset(0 0 1px);
+  forced-color-adjust: none;
+}
+.brand-logo--inverse {
+  color: #fff;
 }
 .brand-logo__compact {
   display: none;

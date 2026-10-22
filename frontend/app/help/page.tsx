@@ -15,7 +15,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   return publicPageMetadata(
     "Help centre",
-    "Help with Allied AutoTech service bookings, payments, account access and finding our Port Harcourt workshop.",
+    catalogueOnly()
+      ? "Help with Allied AutoTech vehicle care, products, vehicles and contacting our Port Harcourt workshop."
+      : "Help with Allied AutoTech service bookings, payments, account access and finding our Port Harcourt workshop.",
     "/help",
     searchParams,
   );
