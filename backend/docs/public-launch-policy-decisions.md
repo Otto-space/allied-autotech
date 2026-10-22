@@ -69,8 +69,10 @@ sender from additional recipients if present, and check all recipients before
 sending. Reply to author selected the notification sender in the observed
 interface.
 
-Fresh authentication-header results, staff dashboard visibility and actual
-staff coverage remain separate checks. This email acceptance does not approve
+The owner also confirmed finding and opening Website Enquiry Check in the
+production staff dashboard. The tested enquiry workflow is accepted. Fresh
+authentication-header results and other staff-role access were not verified
+by this check. This workflow acceptance does not approve
 privacy wording or enable public access automatically. Do not ask for another
 submission merely to reconfirm the completed email workflow.
 
@@ -105,6 +107,7 @@ Do not ask the owner to repeat these settled instructions.
     approved 12-month rule above. No blanket purge or automated deletion is approved.
 
 Before public enquiry intake, review the exact public customer-care/privacy text
-and verify remaining staff handling. The standalone mailbox and website enquiry
-email checks have passed as recorded above. Checkout, paid
+and complete the remaining launch checks. The standalone mailbox and website
+enquiry workflow, including owner-dashboard visibility, have passed as recorded
+above. Checkout, paid
 reservations and live payments remain disabled under the approved launch scope.

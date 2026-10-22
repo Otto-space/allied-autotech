@@ -133,9 +133,11 @@ the provider's invoice and the approved USD1 cap.
   notification sender in the observed web interface; do not use that action
   without checking the recipient. The existing department-email and Resend
   reply-routing suites passed all 23 tests. No sender code change or deployment
-  was required. This is owner-reported email acceptance; a separate staff
-  dashboard inspection and fresh authentication-header alignment are not
-  implied by receipt of the reply.
+  was required. The owner subsequently confirmed finding and opening Website
+  Enquiry Check in the production staff dashboard. Email delivery/reply and
+  owner-dashboard visibility are accepted by human confirmation. This does not
+  verify another staff role's assignment permissions or fresh email-header
+  authentication alignment.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
   The hosted install reported development dependency findings; these were not
   represented as production runtime vulnerabilities or silently auto-fixed.
@@ -181,8 +183,9 @@ confirmation; startup logs and earlier staging tests do not certify it.
 5. The website enquiry email acceptance check passed by owner confirmation:
    Support alert, matching customer Reply-To and branded customer reply receipt.
    Keep the verified Reply all / Support From procedure in the staff handover.
-   Inspect the saved enquiry in the staff dashboard separately; the email
-   receipt alone does not certify staff dashboard visibility or assignment.
+   The owner also confirmed finding and opening the saved enquiry in the
+   production staff dashboard. This completes the tested owner enquiry
+   workflow; other staff-role assignment permissions were not exercised.
 6. Complete the exact public privacy notice, retention rules and international
    processing safeguards. The approved data-handling instructions alone do not
    complete that review. Ordinary closed enquiries have an approved 12-month
