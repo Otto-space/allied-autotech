@@ -10,34 +10,61 @@
   --radius-control: 6px;
 }
 
-.brand-wordmark {
+/* Original supplied artwork: preserve its proportions, colour and dark surface. */
+.brand-logo {
   display: inline-flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0;
-  color: var(--ink);
-  line-height: 1;
-  white-space: nowrap;
+  align-items: center;
+  justify-content: center;
+  width: 176px;
+  max-width: 100%;
+  flex-shrink: 0;
+  vertical-align: middle;
+  background: #06181f;
+  border-radius: 4px;
+  overflow: hidden;
 }
-.brand-wordmark .brand-wordmark__name {
+.brand-logo__primary {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.brand-logo__compact {
+  display: none;
+  width: 36px;
+  height: auto;
+}
+.dashboard .sidebar .brand-logo {
+  width: 160px;
+}
+.site-footer {
+  background-color: #06181f;
+  border-top: 2px solid var(--brand-red);
+}
+.site-footer .brand-logo {
+  width: 196px;
+}
+/* Quiet echoes of the curved linework in the company's campaign posters. */
+.site-footer::before {
+  content: "";
+  position: absolute;
+  right: -170px;
+  bottom: -270px;
+  width: 400px;
+  height: 560px;
+  border: 1px solid #ffffff26;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 22px #06181f,
+    0 0 0 23px #ffffff1f,
+    0 0 0 46px #06181f,
+    0 0 0 47px #ffffff14;
+  transform: rotate(-26deg);
+  pointer-events: none;
+}
+.brand-signature {
   font-family: var(--font-nippo), sans-serif;
-  font-size: 29px;
-  font-weight: 700;
-  letter-spacing: -1px;
-  line-height: 1;
-}
-.brand-wordmark .brand-wordmark__accent {
-  color: var(--brand-red);
-}
-.brand-wordmark .brand-wordmark__descriptor {
-  font:
-    700 9px/1.4 var(--font-quicksand),
-    sans-serif;
-  letter-spacing: 0.35em;
-  margin-top: 3px;
-}
-.brand-wordmark--inverse {
-  color: #fff;
+  font-size: 18px;
+  line-height: 1.5;
 }
 .site-header {
   --header-height: 78px;
@@ -1056,17 +1083,15 @@
   color: var(--text-secondary);
 }
 @media (min-width: 901px) {
-  .dashboard[data-sidebar-collapsed="true"] .brand-wordmark__name {
-    font-size: 0;
+  .dashboard[data-sidebar-collapsed="true"] .sidebar .brand-logo {
+    width: 48px;
+    height: 48px;
   }
-  .dashboard[data-sidebar-collapsed="true"] .brand-wordmark__name::before {
-    content: "A";
-    font:
-      700 25px/1 var(--font-nippo),
-      sans-serif;
-  }
-  .dashboard[data-sidebar-collapsed="true"] .brand-wordmark__accent {
+  .dashboard[data-sidebar-collapsed="true"] .sidebar .brand-logo__primary {
     display: none;
+  }
+  .dashboard[data-sidebar-collapsed="true"] .sidebar .brand-logo__compact {
+    display: block;
   }
 }
 @media (max-width: 900px) {
@@ -1273,8 +1298,8 @@
   .site-header__inner {
     width: calc(100% - 36px);
   }
-  .brand-wordmark .brand-wordmark__name {
-    font-size: 25px;
+  .site-header .brand-logo {
+    width: 152px;
   }
 }
 .media-gallery__controls {

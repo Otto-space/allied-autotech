@@ -175,8 +175,18 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440, 1920]) {
             `allied-brand-${route === "/" ? "home" : "about"}-${width}-viewport.png`,
           ),
         });
-        if (route === "/about")
+        if (route === "/about") {
           await page.getByText("From our workshop walls", { exact: true }).click();
+          // Closed equipment sections intentionally defer their images.
+          for (const summary of await page
+            .locator(".equipment-disclosure > summary")
+            .all()) {
+            if (
+              await summary.evaluate((node) => !node.parentElement?.hasAttribute("open"))
+            )
+              await summary.click();
+          }
+        }
         // Load below-the-fold images before capturing the full layout.
         for (const picture of await page.locator("main img").all()) {
           await picture.scrollIntoViewIfNeeded();
