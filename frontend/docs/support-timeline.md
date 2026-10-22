@@ -87,5 +87,32 @@ The additive production migration completed through the guarded runner at
 of the temporary operator firewall rule. No second migration is required for the
 merged application release because its Prisma schema and migrations are identical.
 
-Application rollout is pending. Browser tests used synthetic accounts;
-no real customer account or owner MFA session was used.
+## Live release ? 22 October 2026
+
+Application source `5d54211b56142837ca30ae74092f388af3580d0b` is deployed on
+`https://alliedautotech.com` and `https://api.alliedautotech.com`:
+
+- DigitalOcean deployment `8cb36e20-5140-447e-baca-6ff1fb7360a0` is ACTIVE;
+  all four component image digests match the clean source release manifest.
+- Vercel deployment `dpl_BF9NNyZf4ZJqzUWCdRm9DPFUpv17` is READY and was
+  promoted to the actual domain only after the backend became active.
+- At 10:31 UTC, provider identity checks confirmed both releases use that commit.
+  Hosted checks passed for API liveness/readiness, served timeline and notification
+  badge CSS, the support entry URL, private access and unauthenticated API rejection.
+- The final merged build passed the seven timeline browser scenarios again and
+  both existing support progress/email delivery scenarios at 390px and 1440px.
+  Frontend production build, focused lint and the 2,862-file secret guard passed.
+- Guarded production migration and target `db:check` passed with 61 migrations.
+  The fresh backup/isolated restore rehearsal above preserved existing rows and
+  original-column hashes. Managed encrypted off-device backups, seven-day retention
+  and PITR configuration were verified using the existing provider evidence and
+  current backup availability. The temporary operator firewall rule was removed.
+
+Private deployment, image, migration, restore and hosted-check receipts are retained
+under the existing protected operations evidence directory. Existing support email
+and progress behavior and the newer dashboard spacing are included. Private access
+and the enquiry-only launch restrictions remain enabled.
+
+Browser tests used synthetic accounts; no real customer account or owner MFA session
+was used. Hosted route/asset checks do not replace an authenticated owner acceptance
+session or establish that an email reached a recipient's inbox.

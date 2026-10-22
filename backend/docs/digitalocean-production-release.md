@@ -4,7 +4,22 @@ Status: **deployed and privately gated; public launch is not complete**.
 Approved scope is browsing and enquiries. Checkout, paid reservations and live
 payments remain unavailable. This record contains no credentials.
 
-## Current release: notification awareness
+## Current release: distinct support conversation events
+
+Source `5d54211b56142837ca30ae74092f388af3580d0b` is live in backend deployment
+`8cb36e20-5140-447e-baca-6ff1fb7360a0` and Vercel deployment
+`dpl_BF9NNyZf4ZJqzUWCdRm9DPFUpv17`. It preserves the later support email,
+workflow progress and spacing changes through `7354337`, and adds distinct status
+updates, replies and staff-only internal notes with exact-entry notification links.
+The additive migration passed the guarded runner and target database check,
+bringing history to 61 migrations. A fresh production backup was restored and the
+migration rehearsed in a separate isolated database with existing data preserved.
+Provider identities, all four backend image digests, hosted assets, API health and
+access controls passed at 10:31 UTC. Private access and enquiry-only restrictions
+remain enabled. See [support timeline release evidence](../../frontend/docs/support-timeline.md#live-release--22-october-2026)
+for the checks and acceptance limits.
+
+## Earlier release: notification awareness
 
 The notification update at `6df93869d470591886fbd0814fb7ddb4b54196c4` is active in backend deployment
 `dddab932-5fda-48f8-a94c-6c3b558dc5e2` and Vercel deployment `dpl_HzhSjpFjzcyTSbkbkNmu6eKqUDs2`.

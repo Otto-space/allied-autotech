@@ -1,5 +1,13 @@
 # Notification awareness
 
+Current application release: `5d54211b56142837ca30ae74092f388af3580d0b`.
+The original notification indicators and support email delivery are retained.
+New support notifications distinguish status updates from replies and open the
+exact visible conversation entry, including entries beyond the first history page.
+See [support timeline release evidence](support-timeline.md#live-release--22-october-2026)
+for the current matching frontend/backend deployments and additive migration.
+Earlier release records below remain historical evidence.
+
 The dashboard bell shows the account's total unread notifications, capped visually
 at `99+`. Screen readers receive the full count. Customer sidebar links show counts
 for their related records; closed groups and the collapsed sidebar show a dot.
