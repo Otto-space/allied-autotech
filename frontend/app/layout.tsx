@@ -52,6 +52,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
       className={`${quicksand.variable} ${nippo.variable}`}
     >
+      <head>
+        {/* Keep one versioned icon mounted across route metadata updates. */}
+        <link
+          rel="icon"
+          href="/brand/allied-favicon-v1.png"
+          type="image/png"
+          sizes="512x512"
+        />
+      </head>
       <body>
         {children}
         <SupportWidget />
