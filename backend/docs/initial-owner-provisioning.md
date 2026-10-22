@@ -1,5 +1,24 @@
 # Initial owner provisioning
 
+## Production setup pending — 22 October 2026
+
+Production is separate from staging. Its canonical frontend is now
+https://alliedautotech.com, with private access retained during verification.
+The selected production owner remains `alliedautotechltd@gmail.com`.
+
+The user has been asked to register on the main domain using their own password
+and verify the email through the normal flow. The operator must then inspect
+the exact production target, owner count and selected account before running
+the existing guarded provisioning function with the inspected UUID. Sign in
+again after provisioning and complete MFA before privileged access. Do not copy
+staging credentials, set verification timestamps or enrol an authenticator for
+the user. No production owner promotion is claimed by this documentation step.
+
+See [the production release record](digitalocean-production-release.md) for the
+database target, current deployments and remaining launch checks. The local
+production perimeter credential is separate from the user's account password;
+keep it in the protected operator file, never in this document or chat.
+
 ## Staging provisioning completed - 21 October 2026
 
 `alliedautotechltd@gmail.com` is now the sole staging `SUPER_ADMIN`. The selected account was already active and email-verified through the normal application workflow before the operator ran the existing guarded provisioning function with its inspected UUID. No account, password or verification timestamp was created by the operator.

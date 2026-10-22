@@ -11,16 +11,21 @@ payments remain unavailable. This record contains no credentials.
   workforce branch is excluded.
 - DigitalOcean app: `allied-autotech-production`, ID
   `6b13a247-a3b2-4354-9b9c-dedc185324f8`.
-- Active deployment: `371519cb-50e4-474d-81b2-d9d77d60c3cc`.
+- Active deployment: `bbcd6919-6b6d-4a1e-b908-3e36f8d5f15b`, following
+  DigitalOcean's custom-domain activation. Its four image digests still match
+  source/image commit `7acb19e1d6e505cb14abdf82674d6aa654e1c51b`.
 - Backend default ingress:
   `https://allied-autotech-production-7jw94.ondigitalocean.app`.
-- Intended backend hostname: `https://api.alliedautotech.com`; DNS/TLS verification
-  is outstanding. The frontend currently uses the working default ingress.
-- Vercel deployment: `dpl_ETwqNnArA6JAXmpKMUmtrCETh6oj`, READY, Production
-  environment, existing Pro project `allied-autotech`.
+- Backend hostname: `https://api.alliedautotech.com`, ACTIVE. DNS, strict HTTPS
+  hostname verification and readiness passed. Certificate expires 20 January 2027. Vercel Production now uses this address as `BACKEND_ORIGIN`.
+- Vercel deployment: `dpl_FvauJmGHUenbBtHfwibnVtjvguMw`, READY, Production
+  environment, existing Pro project `allied-autotech`. Its source commit is
+  `f32b529` (documentation changes after the unchanged application source).
 - Private frontend alias: `https://allied-autotech-drab.vercel.app`.
-- Root and www domains are assigned to this deployment; www has a configured
-  308 redirect to `alliedautotech.com`. Public DNS cutover remains outstanding.
+- Root DNS has both recommended Vercel A records, and www has its recommended
+  DNS-only CNAME. Authoritative DNS and Vercel configuration checks passed.
+  `https://www.alliedautotech.com/login` redirects to the root login page; the
+  configured redirect status is 308.
 - Both layers retain private access. Frontend indexing remains disabled. Normal
   account authentication and MFA remain separate from the outer access gate.
 
@@ -67,12 +72,26 @@ the provider's invoice and the approved USD1 cap.
 - On the real DigitalOcean default ingress, rate-limit partition matched the
   actual caller. Forged `do-connecting-ip`, XFF and alternate forwarding headers
   did not change it. Invalid signed claims returned 403; valid claims matched
-  their signed identity. Custom-hostname verification is still outstanding.
+  their signed identity. These checks also passed on the active custom backend
+  hostname after its DNS record was saved.
 - Through the real hosted Vercel alias, normal requests and caller-forged
   forwarding/proof requests all returned 200 with the actual caller's partition.
   The frontend replaced untrusted claims. Internal proof/request headers were
   absent from browser-visible response headers. The server-only signing key
   remains separate from application encryption keys.
+- Following the custom-origin frontend redeploy, these browser checks passed
+  again on both the Vercel alias and `https://alliedautotech.com`. The root login
+  page returned 200 after private access, without a Vercel SSO redirect. A separate
+  browser context with only its private-access cookie and no Basic credentials
+  reached login, reloaded and opened a new tab successfully (all 200). The cookie
+  is host-only, Secure, HttpOnly, SameSite=Lax and valid for eight hours.
+- Canonical registration renders on mobile; login renders on desktop. The root
+  response includes CSP, private/no-store caching and `noindex, nofollow`;
+  robots.txt disallows all crawling and advertises no sitemap. CORS preflight
+  allows the exact root origin with credentials (204), and rejects an unrelated
+  origin (403). Authenticated CSRF and uploads still await the owner account.
+  An initial exploratory GET to `/auth/csrf` returned 404: the actual contract
+  is authenticated POST, so that GET was not counted as a CSRF acceptance check.
 - Edge browser checks at 1440×1000 and 390×844 confirmed page identity, meaningful
   rendering, homepage-to-services navigation and the contact anchor interaction.
   `/dashboard/cart` redirected to `/contact#enquiry`. Mobile document width matched
@@ -82,6 +101,8 @@ the provider's invoice and the approved USD1 cap.
   console. One unused image preload warning appeared after client navigation.
   There were no observed framework crashes. This is not a claim of a completely
   empty console or coverage of all authenticated workflows.
+  Canonical login/register additionally produced unused font preload warnings;
+  no application errors were observed on those final page checks.
 - Production catalogue responses are empty. No invented products, vehicles or
   business data were inserted to make the launch look populated.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
@@ -96,26 +117,32 @@ the provider's invoice and the approved USD1 cap.
 The production bucket's scoped-key upload/read/delete, private ACL, anonymous
 listing rejection and exact-origin CORS preflight passed. Full authenticated
 resource attachment/replacement/removal still needs the production owner account
-and canonical frontend hostname. Production outbound email receipt and support
+and authenticated canonical-host checks. Production outbound email receipt and support
 receiving/replying have not been certified by startup logs or earlier staging tests.
 
 ## Required before public access
 
-1. Add and verify DNS for `api` (CNAME to the default backend ingress, DNS only),
-   complete its TLS issuance, and repeat forwarding/spoof checks on that hostname.
-2. Recheck Vercel's current DNS recommendations and connect root/www. Keep the
-   access gate while verifying canonical-host cookies, APIs, CSP, CSRF and uploads.
-3. Register/verify the distinct production owner `alliedautotechltd@gmail.com`,
-   complete MFA, then use the guarded bootstrap only after its identity and zero
-   existing production owners are verified. Do not copy the staging password or
-   bypass normal verification.
+1. DNS, HTTPS, root/www routing and read-only forwarding checks are complete.
+   Keep the access gate while verifying authenticated canonical-host APIs,
+   CSRF and uploads; guest page/read checks do not certify those workflows.
+2. Register/verify the distinct production owner `alliedautotechltd@gmail.com`,
+   then use the guarded bootstrap only after its identity and zero existing
+   production owners are verified. The owner must sign in again and complete
+   MFA before privileged access. Do not copy the staging password or bypass
+   normal verification. This corrects the earlier sequence: MFA enrollment
+   follows the role change, not the other way round.
+3. Verify the actual production verification-email delivery and link with the
+   selected owner; ordinary browsing does not prove receipt.
 4. Obtain real owner-approved catalogue data/media. The 14 proposed service names
    remain a review proposal, not published records or approved prices.
 5. Verify receiving and replying through `support@alliedautotech.com` and the
    essential production email path with authorised recipients.
 6. Complete the exact public privacy notice, retention rules and international
    processing safeguards. The approved data-handling instructions alone do not
-   complete that review. See [policy decisions](public-launch-policy-decisions.md).
+   complete that review. Ordinary closed enquiries have an approved 12-month
+   draft rule; automatic deletion remains disabled. See
+   [policy decisions](public-launch-policy-decisions.md) and the
+   [prepared enquiry wording](public-enquiry-privacy-review.md).
 7. Review future Vercel automatic deployment: the configured Git production branch
    is currently `master`, while this release was explicitly uploaded from the
    release worktree. Avoid an unrelated branch deploy overwriting this release.
