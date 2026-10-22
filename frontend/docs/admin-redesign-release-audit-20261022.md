@@ -1,8 +1,13 @@
 # Admin redesign release audit — 22 October 2026
 
+> The later notification update is now the current release (`6df9386`).
+> See [notification release verification](notification-awareness.md#release-verification--22-october-2026).
+> The identities below record the earlier admin redesign release.
+
 ## Released outcome
 
-The matching frontend and backend release is live on the canonical domains.
+The matching frontend and backend release was promoted to the canonical domains
+at the verification time recorded below.
 This deployment preserves the private testing gate, enquiry-only launch mode,
 disabled live payments, existing hosting allocation and existing application data.
 

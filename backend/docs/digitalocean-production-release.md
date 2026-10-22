@@ -4,7 +4,15 @@ Status: **deployed and privately gated; public launch is not complete**.
 Approved scope is browsing and enquiries. Checkout, paid reservations and live
 payments remain unavailable. This record contains no credentials.
 
-## Current release: admin redesign
+## Current release: notification awareness
+
+The notification update at `6df93869d470591886fbd0814fb7ddb4b54196c4` is active in backend deployment
+`dddab932-5fda-48f8-a94c-6c3b558dc5e2` and Vercel deployment `dpl_HzhSjpFjzcyTSbkbkNmu6eKqUDs2`.
+It adds unread bell/sidebar indicators and exact customer notification links,
+with no schema change. Private access and enquiry-only restrictions remain in place.
+See [notification release verification](../../frontend/docs/notification-awareness.md#release-verification--22-october-2026).
+
+## Earlier admin redesign release
 
 On 22 October 2026, the frontend and all four backend images were advanced to
 `a83a14091062d4991c15998636c9802727631166` from
@@ -207,7 +215,7 @@ confirmation; startup logs and earlier staging tests do not certify it.
    [policy decisions](public-launch-policy-decisions.md) and the
    [prepared enquiry wording](public-enquiry-privacy-review.md).
 7. Review future Vercel automatic deployment: the configured Git production branch
-   is currently `master`, while this release was explicitly uploaded from the
+   is now `release/public-launch-20261022` (verified 22 October), while earlier releases were uploaded from the
    release worktree. Avoid an unrelated branch deploy overwriting this release.
 8. After these checks and owner content acceptance, remove only production's
    perimeter gate and enable canonical indexing under the approved browsing and
