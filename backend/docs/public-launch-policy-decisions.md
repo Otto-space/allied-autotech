@@ -49,6 +49,20 @@ complaints, or override a legal hold. Reopened enquiries, holds, backup expiry
 and operational deletion/anonymisation procedures still need to be defined
 before enforcement. The exact public notice must reflect the reviewed schedule.
 
+## Support mailbox acceptance: confirmed 22 October 2026
+
+The owner confirmed that a message sent from another existing controlled email
+account reached the Support Google Group and that the reply arrived at that
+account from `support@alliedautotech.com`. This passes the owner-operated
+external receiving and branded replying check; no password or message contents
+were requested or recorded.
+
+A website-submitted enquiry still needs acceptance: on-screen acknowledgement
+and reference, a saved record, its Support email alert, and a reply sent to the
+customer address entered on the form. Fresh authentication-header results and
+staff coverage are separate checks. This mailbox result does not approve
+privacy wording or enable public access automatically.
+
 ## Previously confirmed VAT and quotations
 
 Advertised prices exclude VAT; add 7.5% after discounts to products/services and
@@ -80,5 +94,6 @@ Do not ask the owner to repeat these settled instructions.
     approved 12-month rule above. No blanket purge or automated deletion is approved.
 
 Before public enquiry intake, review the exact public customer-care/privacy text
-and verify the monitored support receiving/replying path. Checkout, paid
+and complete the website enquiry-to-support acceptance check. The standalone
+support receiving/replying check has passed as recorded above. Checkout, paid
 reservations and live payments remain disabled under the approved launch scope.

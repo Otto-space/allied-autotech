@@ -116,9 +116,12 @@ the provider's invoice and the approved USD1 cap.
   passed, with component sizes, images, existing secrets, private access and
   disabled payments preserved. Thirty-two deployment-spec checks passed,
   including rejection of an unreviewed recipient. No application image rebuild
-  or schema change was necessary for this configuration-only update. The owner
-  has been asked to verify Workspace receiving and branded replying; delivery
-  and handling of a website enquiry still need end-to-end confirmation.
+  or schema change was necessary for this configuration-only update. On
+  22 October 2026, the owner confirmed that a message from another controlled
+  email account reached Support and that the reply arrived at that account
+  from `support@alliedautotech.com`. This is human acceptance evidence for
+  external receiving and branded replying. Delivery and handling of a
+  website-submitted enquiry still need end-to-end confirmation.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
   The hosted install reported development dependency findings; these were not
   represented as production runtime vulnerabilities or silently auto-fixed.
@@ -131,8 +134,10 @@ the provider's invoice and the approved USD1 cap.
 The production bucket's scoped-key upload/read/delete, private ACL, anonymous
 listing rejection and exact-origin CORS preflight passed. Full authenticated
 resource attachment/replacement/removal still needs the production owner account
-and authenticated canonical-host checks. Production outbound email receipt and support
-receiving/replying have not been certified by startup logs or earlier staging tests.
+and authenticated canonical-host checks. The owner's Support mailbox acceptance
+is recorded above. Production website enquiry alerts and fresh email-header
+alignment still need separate confirmation; startup logs and earlier staging
+tests do not certify them.
 
 ## Required before public access
 
@@ -154,12 +159,16 @@ receiving/replying have not been certified by startup logs or earlier staging te
    Upload workflows remain to be verified separately.
 3. The selected owner confirmed production email verification, and database
    inspection confirmed the resulting verification state. Fresh email header
-   alignment and support receiving/replying remain to be checked; staging
-   DMARC evidence is not silently treated as a new production receipt.
+   alignment remains to be checked; staging DMARC evidence is not silently
+   treated as a new production receipt. Support receiving and branded replying
+   passed the owner-operated external-account check on 22 October 2026.
 4. Obtain real owner-approved catalogue data/media. The 14 proposed service names
    remain a review proposal, not published records or approved prices.
-5. Verify receiving and replying through `support@alliedautotech.com` and the
-   essential production email path with authorised recipients.
+5. Complete the website enquiry acceptance check with an owner-controlled
+   recipient: submission acknowledgement/reference, saved enquiry, Support
+   email alert, and a branded reply addressed to the submitted customer email.
+   The standalone Support receiving/replying check has passed; it does not
+   certify the website-to-worker-to-mailbox path or alert Reply-To handling.
 6. Complete the exact public privacy notice, retention rules and international
    processing safeguards. The approved data-handling instructions alone do not
    complete that review. Ordinary closed enquiries have an approved 12-month
