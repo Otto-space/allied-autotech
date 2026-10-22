@@ -4245,7 +4245,7 @@ export interface paths {
         };
         /**
          * Poll new customer-visible enquiry chat messages
-         * @description Poll new customer-visible enquiry chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new customer-visible enquiry chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersSupportEnquiriesBySupportIdMessages"];
         put?: never;
@@ -4289,7 +4289,7 @@ export interface paths {
         };
         /**
          * Poll new customer-visible complaint chat messages
-         * @description Poll new customer-visible complaint chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new customer-visible complaint chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersSupportComplaintsBySupportIdMessages"];
         put?: never;
@@ -4357,7 +4357,7 @@ export interface paths {
         };
         /**
          * Poll new branch-authorized enquiry chat messages
-         * @description Poll new branch-authorized enquiry chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new branch-authorized enquiry chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffSupportEnquiriesBySupportIdMessages"];
         put?: never;
@@ -4401,7 +4401,7 @@ export interface paths {
         };
         /**
          * Poll new branch-authorized complaint chat messages
-         * @description Poll new branch-authorized complaint chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new branch-authorized complaint chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffSupportComplaintsBySupportIdMessages"];
         put?: never;
@@ -70220,6 +70220,11 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Message Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                messageId?: string;
+                /**
                  * @description Opaque cursor returned by the preceding page.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -70253,8 +70258,21 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Poll new customer-visible enquiry chat messages",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "authorType": "CUSTOMER",
+                     *             "visibility": "CUSTOMER",
+                     *             "body": "synthetic-body",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "kind": "LEGACY",
+                     *             "fromStatus": "synthetic-fromstatus",
+                     *             "toStatus": "synthetic-tostatus"
+                     *           }
+                     *         ],
+                     *         "cursor": "00000000-0000-4000-8000-000000000001",
+                     *         "hasMore": true,
+                     *         "pollAfterMs": 1
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -70266,17 +70284,51 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Poll new customer-visible enquiry chat messages. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Author Type validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                authorType: "CUSTOMER" | "STAFF" | "SYSTEM";
+                                /**
+                                 * @description Visibility validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                visibility: "CUSTOMER" | "INTERNAL";
+                                /** @description Body validated by this operation's strict request contract. */
+                                body: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                /** @description From Status validated by this operation's strict request contract. */
+                                fromStatus: string | null;
+                                /** @description To Status validated by this operation's strict request contract. */
+                                toStatus: string | null;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Opaque cursor returned by the previous page.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            cursor: string | null;
+                            /** @description Boolean control for has more; authorization is still enforced server-side. */
+                            hasMore: boolean;
+                            /** @description Poll After Ms validated by this operation's strict request contract. */
+                            pollAfterMs: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -70505,6 +70557,9 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Add a customer message to an owned enquiry",
                      *       "data": {
+                     *         "kind": "LEGACY",
+                     *         "fromStatus": "synthetic-fromstatus",
+                     *         "toStatus": "synthetic-tostatus",
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "authorType": "CUSTOMER",
                      *         "visibility": "CUSTOMER",
@@ -70524,6 +70579,15 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /**
+                             * @description Kind validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                            /** @description From Status validated by this operation's strict request contract. */
+                            fromStatus: string | null;
+                            /** @description To Status validated by this operation's strict request contract. */
+                            toStatus: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -71059,6 +71123,11 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Message Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                messageId?: string;
+                /**
                  * @description Opaque cursor returned by the preceding page.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -71092,8 +71161,21 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Poll new customer-visible complaint chat messages",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "authorType": "CUSTOMER",
+                     *             "visibility": "CUSTOMER",
+                     *             "body": "synthetic-body",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "kind": "LEGACY",
+                     *             "fromStatus": "synthetic-fromstatus",
+                     *             "toStatus": "synthetic-tostatus"
+                     *           }
+                     *         ],
+                     *         "cursor": "00000000-0000-4000-8000-000000000001",
+                     *         "hasMore": true,
+                     *         "pollAfterMs": 1
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -71105,17 +71187,51 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Poll new customer-visible complaint chat messages. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Author Type validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                authorType: "CUSTOMER" | "STAFF" | "SYSTEM";
+                                /**
+                                 * @description Visibility validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                visibility: "CUSTOMER" | "INTERNAL";
+                                /** @description Body validated by this operation's strict request contract. */
+                                body: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                /** @description From Status validated by this operation's strict request contract. */
+                                fromStatus: string | null;
+                                /** @description To Status validated by this operation's strict request contract. */
+                                toStatus: string | null;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Opaque cursor returned by the previous page.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            cursor: string | null;
+                            /** @description Boolean control for has more; authorization is still enforced server-side. */
+                            hasMore: boolean;
+                            /** @description Poll After Ms validated by this operation's strict request contract. */
+                            pollAfterMs: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -71344,6 +71460,9 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Add a customer message to an owned complaint",
                      *       "data": {
+                     *         "kind": "LEGACY",
+                     *         "fromStatus": "synthetic-fromstatus",
+                     *         "toStatus": "synthetic-tostatus",
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "authorType": "CUSTOMER",
                      *         "visibility": "CUSTOMER",
@@ -71363,6 +71482,15 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /**
+                             * @description Kind validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                            /** @description From Status validated by this operation's strict request contract. */
+                            fromStatus: string | null;
+                            /** @description To Status validated by this operation's strict request contract. */
+                            toStatus: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -72516,6 +72644,11 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Message Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                messageId?: string;
+                /**
                  * @description Opaque cursor returned by the preceding page.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -72549,8 +72682,21 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Poll new branch-authorized enquiry chat messages",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "authorType": "CUSTOMER",
+                     *             "visibility": "CUSTOMER",
+                     *             "body": "synthetic-body",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "kind": "LEGACY",
+                     *             "fromStatus": "synthetic-fromstatus",
+                     *             "toStatus": "synthetic-tostatus"
+                     *           }
+                     *         ],
+                     *         "cursor": "00000000-0000-4000-8000-000000000001",
+                     *         "hasMore": true,
+                     *         "pollAfterMs": 1
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -72562,17 +72708,51 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Poll new branch-authorized enquiry chat messages. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Author Type validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                authorType: "CUSTOMER" | "STAFF" | "SYSTEM";
+                                /**
+                                 * @description Visibility validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                visibility: "CUSTOMER" | "INTERNAL";
+                                /** @description Body validated by this operation's strict request contract. */
+                                body: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                /** @description From Status validated by this operation's strict request contract. */
+                                fromStatus: string | null;
+                                /** @description To Status validated by this operation's strict request contract. */
+                                toStatus: string | null;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Opaque cursor returned by the previous page.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            cursor: string | null;
+                            /** @description Boolean control for has more; authorization is still enforced server-side. */
+                            hasMore: boolean;
+                            /** @description Poll After Ms validated by this operation's strict request contract. */
+                            pollAfterMs: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -73273,6 +73453,11 @@ export interface operations {
         parameters: {
             query?: {
                 /**
+                 * @description Message Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                messageId?: string;
+                /**
                  * @description Opaque cursor returned by the preceding page.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -73306,8 +73491,21 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Poll new branch-authorized complaint chat messages",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "authorType": "CUSTOMER",
+                     *             "visibility": "CUSTOMER",
+                     *             "body": "synthetic-body",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "kind": "LEGACY",
+                     *             "fromStatus": "synthetic-fromstatus",
+                     *             "toStatus": "synthetic-tostatus"
+                     *           }
+                     *         ],
+                     *         "cursor": "00000000-0000-4000-8000-000000000001",
+                     *         "hasMore": true,
+                     *         "pollAfterMs": 1
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -73319,17 +73517,51 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Poll new branch-authorized complaint chat messages. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * @description Author Type validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                authorType: "CUSTOMER" | "STAFF" | "SYSTEM";
+                                /**
+                                 * @description Visibility validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                visibility: "CUSTOMER" | "INTERNAL";
+                                /** @description Body validated by this operation's strict request contract. */
+                                body: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                /** @description From Status validated by this operation's strict request contract. */
+                                fromStatus: string | null;
+                                /** @description To Status validated by this operation's strict request contract. */
+                                toStatus: string | null;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Opaque cursor returned by the previous page.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            cursor: string | null;
+                            /** @description Boolean control for has more; authorization is still enforced server-side. */
+                            hasMore: boolean;
+                            /** @description Poll After Ms validated by this operation's strict request contract. */
+                            pollAfterMs: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -78684,7 +78916,16 @@ export interface operations {
                      *         "items": [
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
-                     *             "status": "synthetic-status"
+                     *             "type": "synthetic-type",
+                     *             "category": "synthetic-category",
+                     *             "title": "synthetic-title",
+                     *             "message": "synthetic-message",
+                     *             "resourceType": "synthetic-resourcetype",
+                     *             "resourceId": "synthetic-resourceid",
+                     *             "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *             "readAt": "2030-01-15T10:00:00.000Z",
+                     *             "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z"
                      *           }
                      *         ],
                      *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -78699,25 +78940,53 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Cursor-paginated result for: List own notifications. */
-                        data?: {
-                            /** @description Authorized resource projections for this page. */
-                            items: ({
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
                                 /**
                                  * Format: uuid
-                                 * @description Public or authorized resource identifier.
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
                                  */
-                                id?: string;
-                                /** @description Current server-owned lifecycle state when applicable. */
-                                status?: string;
-                            } & {
-                                [key: string]: unknown;
-                            })[];
+                                id: string;
+                                /** @description Type validated by this operation's strict request contract. */
+                                type: string;
+                                /** @description Category validated by this operation's strict request contract. */
+                                category: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                message: string;
+                                /** @description Resource Type validated by this operation's strict request contract. */
+                                resourceType: string | null;
+                                /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                                resourceId: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the support message resource; ownership is resolved server-side.
+                                 */
+                                supportMessageId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                readAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             * @description Next Cursor validated by this operation's strict request contract.
                              */
-                            nextCursor?: string | null;
+                            nextCursor?: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -80153,7 +80422,16 @@ export interface operations {
                      *         "items": [
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
-                     *             "status": "synthetic-status"
+                     *             "type": "synthetic-type",
+                     *             "category": "synthetic-category",
+                     *             "title": "synthetic-title",
+                     *             "message": "synthetic-message",
+                     *             "resourceType": "synthetic-resourcetype",
+                     *             "resourceId": "synthetic-resourceid",
+                     *             "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *             "readAt": "2030-01-15T10:00:00.000Z",
+                     *             "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z"
                      *           }
                      *         ],
                      *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -80168,25 +80446,53 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Cursor-paginated result for: List own notifications. */
-                        data?: {
-                            /** @description Authorized resource projections for this page. */
-                            items: ({
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
                                 /**
                                  * Format: uuid
-                                 * @description Public or authorized resource identifier.
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
                                  */
-                                id?: string;
-                                /** @description Current server-owned lifecycle state when applicable. */
-                                status?: string;
-                            } & {
-                                [key: string]: unknown;
-                            })[];
+                                id: string;
+                                /** @description Type validated by this operation's strict request contract. */
+                                type: string;
+                                /** @description Category validated by this operation's strict request contract. */
+                                category: string;
+                                /** @description Title validated by this operation's strict request contract. */
+                                title: string;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                message: string;
+                                /** @description Resource Type validated by this operation's strict request contract. */
+                                resourceType: string | null;
+                                /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                                resourceId: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the support message resource; ownership is resolved server-side.
+                                 */
+                                supportMessageId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                readAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                expiresAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             * @description Next Cursor validated by this operation's strict request contract.
                              */
-                            nextCursor?: string | null;
+                            nextCursor?: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -102817,6 +103123,9 @@ export interface operations {
                      *         },
                      *         "action": "reply",
                      *         "messageReceipt": {
+                     *           "kind": "LEGACY",
+                     *           "fromStatus": "synthetic-fromstatus",
+                     *           "toStatus": "synthetic-tostatus",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "authorType": "CUSTOMER",
                      *           "visibility": "CUSTOMER",
@@ -102968,6 +103277,15 @@ export interface operations {
                             action: "reply";
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             messageReceipt: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                /** @description From Status validated by this operation's strict request contract. */
+                                fromStatus: string | null;
+                                /** @description To Status validated by this operation's strict request contract. */
+                                toStatus: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -105903,6 +106221,9 @@ export interface operations {
                      *         "messages": {
                      *           "items": [
                      *             {
+                     *               "kind": "LEGACY",
+                     *               "fromStatus": "synthetic-fromstatus",
+                     *               "toStatus": "synthetic-tostatus",
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "authorType": "CUSTOMER",
                      *               "visibility": "CUSTOMER",
@@ -106099,6 +106420,15 @@ export interface operations {
                             messages: {
                                 /** @description Items validated by this operation's strict request contract. */
                                 items: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                    /** @description From Status validated by this operation's strict request contract. */
+                                    fromStatus: string | null;
+                                    /** @description To Status validated by this operation's strict request contract. */
+                                    toStatus: string | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -108251,6 +108581,9 @@ export interface operations {
                      *         },
                      *         "action": "reply",
                      *         "messageReceipt": {
+                     *           "kind": "LEGACY",
+                     *           "fromStatus": "synthetic-fromstatus",
+                     *           "toStatus": "synthetic-tostatus",
                      *           "id": "00000000-0000-4000-8000-000000000001",
                      *           "authorType": "CUSTOMER",
                      *           "visibility": "CUSTOMER",
@@ -108402,6 +108735,15 @@ export interface operations {
                             action: "reply";
                             /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                             messageReceipt: {
+                                /**
+                                 * @description Kind validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                /** @description From Status validated by this operation's strict request contract. */
+                                fromStatus: string | null;
+                                /** @description To Status validated by this operation's strict request contract. */
+                                toStatus: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -109080,6 +109422,9 @@ export interface operations {
                      *         "messages": {
                      *           "items": [
                      *             {
+                     *               "kind": "LEGACY",
+                     *               "fromStatus": "synthetic-fromstatus",
+                     *               "toStatus": "synthetic-tostatus",
                      *               "id": "00000000-0000-4000-8000-000000000001",
                      *               "authorType": "CUSTOMER",
                      *               "visibility": "CUSTOMER",
@@ -109286,6 +109631,15 @@ export interface operations {
                             messages: {
                                 /** @description Items validated by this operation's strict request contract. */
                                 items: {
+                                    /**
+                                     * @description Kind validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    kind: "LEGACY" | "REPLY" | "INTERNAL_NOTE" | "STATUS_CHANGE";
+                                    /** @description From Status validated by this operation's strict request contract. */
+                                    fromStatus: string | null;
+                                    /** @description To Status validated by this operation's strict request contract. */
+                                    toStatus: string | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.

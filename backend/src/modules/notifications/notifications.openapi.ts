@@ -16,6 +16,24 @@ const response = z.object({
   data: z.unknown().optional(),
   meta: z.object({ requestId: z.string() }),
 });
+const inboxPage = z.object({
+  items: z.array(
+    z.object({
+      id: z.uuid(),
+      type: z.string(),
+      category: z.string(),
+      title: z.string(),
+      message: z.string(),
+      resourceType: z.string().nullable(),
+      resourceId: z.string().nullable(),
+      supportMessageId: z.uuid().nullable(),
+      readAt: z.iso.datetime().nullable(),
+      expiresAt: z.iso.datetime().nullable(),
+      createdAt: z.iso.datetime(),
+    }),
+  ),
+  nextCursor: z.uuid().optional(),
+});
 const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 
 export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
@@ -47,7 +65,9 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
       responses: {
         "200": {
           description: "Notifications retrieved",
-          content: { "application/json": { schema: response } },
+          content: {
+            "application/json": { schema: response.extend({ data: inboxPage }) },
+          },
         },
       },
     });

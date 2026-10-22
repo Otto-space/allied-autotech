@@ -1,4 +1,5 @@
 "use client";
+import { SupportTimelineEntry } from "./support-timeline-entry";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -465,16 +466,8 @@ function ThreadWorkspace({
               className={`wi-card wst-confirmed${lastReceipt.visibility === "INTERNAL" ? " wst-internal" : ""}`}
               aria-labelledby="wst-confirmed"
             >
-              <h2 id="wst-confirmed">Last confirmed message</h2>
-              <span className="status">
-                {lastReceipt.visibility === "INTERNAL"
-                  ? "Internal staff note"
-                  : "Customer-visible"}
-              </span>
-              <p className="preserve-lines">{lastReceipt.body}</p>
-              <p className="wst-meta">
-                {formatStockInstant(lastReceipt.createdAt)} · Reference {lastReceipt.id}
-              </p>
+              <h2 id="wst-confirmed">Last confirmed update</h2>
+              <SupportTimelineEntry entry={lastReceipt} staff anchored={false} />
             </section>
           )}
         </div>
@@ -485,7 +478,11 @@ function ThreadWorkspace({
           confirmLabel={
             proposal.supportChange?.kind === "acknowledgement"
               ? "Record acknowledgement"
-              : "Confirm change"
+              : proposal.supportChange?.kind === "reply"
+                ? proposal.supportChange.body.visibility === "INTERNAL"
+                  ? "Save internal note"
+                  : "Send reply"
+                : `Confirm ${proposal.supportChange?.kind ?? "support"} change`
           }
           onClose={() => {
             setProposal(null);
@@ -646,8 +643,8 @@ function ThreadHistory({
           </button>
         </div>
         <p className="wst-meta">
-          Oldest replies appear first. Use Next for later pages. Refresh to check for
-          updates; this is not a live-agent chat.
+          Replies and status updates appear in chronological order. Use Next for later
+          pages. Refresh to check for updates; this is not a live-agent chat.
         </p>
         {query.invalid ? (
           <div className="wi-state">
@@ -687,32 +684,10 @@ function ThreadHistory({
               !error &&
               !readDisabled &&
               messages.data &&
-              !messages.data.items.length && <p>No replies on this page.</p>}
+              !messages.data.items.length && <p>No conversation updates on this page.</p>}
             <div className="wst-messages">
               {messages.data?.items.map((m) => (
-                <article
-                  key={m.id}
-                  className={`wst-message${m.visibility === "INTERNAL" ? " wst-internal" : ""}`}
-                >
-                  <header>
-                    <h3>
-                      {m.authorType === "SYSTEM"
-                        ? "System update"
-                        : m.authorType === "CUSTOMER"
-                          ? "Customer"
-                          : "Allied AutoTech team"}
-                    </h3>
-                    <span className="status">
-                      {m.visibility === "INTERNAL"
-                        ? "Internal staff note"
-                        : "Customer-visible"}
-                    </span>
-                  </header>
-                  <p className="preserve-lines">{m.body}</p>
-                  <p className="wst-meta">
-                    {formatStockInstant(m.createdAt)} · Reference {m.id}
-                  </p>
-                </article>
+                <SupportTimelineEntry key={m.id} entry={m} staff />
               ))}
             </div>
             <nav className="wi-pagination" aria-label="Conversation messages pages">

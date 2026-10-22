@@ -1,8 +1,8 @@
 "use client";
+import { SupportTimelineEntry } from "./support-timeline-entry";
 import { useCallback } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseSupportMessages, type SupportRecord } from "@/lib/api/support-schemas";
-import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { SupportReplyForm } from "./support-reply-form";
@@ -44,8 +44,9 @@ export function SupportMessages({
       <section className="detail-section" aria-labelledby="support-messages-title">
         <h2 id="support-messages-title">Messages</h2>
         <p>
-          Oldest replies appear first. Use Next for later pages, and refresh this page to
-          check for updates. This is not a live-agent chat.
+          Replies and status updates appear in chronological order. Use Next for later
+          pages, and refresh this page to check for updates. This is not a live-agent
+          chat.
         </p>
         <button
           className="button secondary"
@@ -57,33 +58,12 @@ export function SupportMessages({
         <Feedback message={messages.error} />
         {messages.loading && <p role="status">Checking messages…</p>}
         {!messages.loading && !messages.error && messages.data?.items.length === 0 && (
-          <p>No replies on this page.</p>
+          <p>No conversation updates on this page.</p>
         )}
         <div className="support-message-list">
           {!messages.error &&
             messages.data?.items.map((item) => (
-              <article className="support-message" key={item.id}>
-                <h3>
-                  {item.authorType === "SYSTEM"
-                    ? "System update"
-                    : item.authorType === "CUSTOMER"
-                      ? staff
-                        ? "Customer"
-                        : "You"
-                      : "Allied AutoTech team"}
-                </h3>
-                {staff && (
-                  <span className="status">
-                    {item.visibility === "INTERNAL"
-                      ? "Internal staff note"
-                      : "Customer-visible"}
-                  </span>
-                )}
-                <p className="support-text">{item.body}</p>
-                <time dateTime={item.createdAt}>
-                  {formatBusinessDate(item.createdAt)}
-                </time>
-              </article>
+              <SupportTimelineEntry key={item.id} entry={item} staff={staff} />
             ))}
         </div>
         <CursorPagination

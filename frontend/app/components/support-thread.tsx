@@ -14,10 +14,12 @@ export function SupportThread({
   kind,
   id,
   staff = false,
+  messageId,
 }: {
   kind: SupportKind;
   id: string;
   staff?: boolean;
+  messageId?: string;
 }) {
   const session = useAccountSession();
   if (!staff) {
@@ -25,6 +27,7 @@ export function SupportThread({
     return (
       <CustomerSupportThread
         key={`${session.user.id}:${kind}:${id}`}
+        messageId={messageId}
         userId={session.user.id}
         kind={kind}
         id={id}

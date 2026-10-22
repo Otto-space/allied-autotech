@@ -52,11 +52,17 @@ const customerResources: Record<
 };
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function customerNotificationDestination(
-  item: Pick<InboxNotification, "resourceType" | "resourceId" | "category">,
+  item: Pick<
+    InboxNotification,
+    "resourceType" | "resourceId" | "category" | "supportMessageId"
+  >,
 ) {
   const resource = customerResources[item.resourceType?.toUpperCase() ?? ""];
   if (resource && uuid.test(item.resourceId ?? ""))
-    return { href: `${resource.detail}/${item.resourceId}`, label: resource.label };
+    return {
+      href: `${resource.detail}/${item.resourceId}${["ENQUIRY", "COMPLAINT"].includes(item.resourceType?.toUpperCase() ?? "") && uuid.test(item.supportMessageId ?? "") ? `?messageId=${item.supportMessageId}#support-entry-${item.supportMessageId}` : ""}`,
+      label: resource.label,
+    };
   if (!item.resourceType && !item.resourceId && item.category === "SECURITY")
     return { href: "/dashboard/security", label: "Review account security" };
   return null;

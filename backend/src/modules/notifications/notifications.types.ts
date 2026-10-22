@@ -13,6 +13,7 @@ export interface EnqueueNotification {
   deduplicationKey: string;
   resourceType?: string;
   resourceId?: string;
+  supportMessageId?: string;
   channels?: readonly Exclude<NotificationChannel, "IN_APP">[];
   expiresAt?: Date;
   bookingAction?: { url: string; bookingId: string; scheduleVersion: number } | undefined;

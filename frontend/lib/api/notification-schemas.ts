@@ -30,6 +30,7 @@ export const notificationSchema = z.object({
   message: z.string().min(1).max(2000),
   resourceType: z.string().nullable(),
   resourceId: z.string().nullable(),
+  supportMessageId: z.uuid().nullable().optional(),
   readAt: timestamp.nullable(),
   expiresAt: timestamp.nullable(),
   createdAt: timestamp,

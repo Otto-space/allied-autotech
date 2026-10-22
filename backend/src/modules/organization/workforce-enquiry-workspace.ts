@@ -74,6 +74,9 @@ export async function readWorkforceEnquiry(
     ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
     select: {
       id: true,
+      kind: true,
+      fromStatus: true,
+      toStatus: true,
       authorType: true,
       authorUserId: true,
       visibility: true,

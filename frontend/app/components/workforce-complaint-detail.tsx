@@ -1,4 +1,5 @@
 "use client";
+import { SupportTimelineEntry } from "./support-timeline-entry";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { apiRequest, ApiError, SESSION_CHANGED } from "@/lib/api/client";
@@ -466,26 +467,12 @@ export function WorkforceComplaintDetail({
               <ol className="wfc-messages">
                 {[...row.messages.items].reverse().map((entry) => (
                   <li key={entry.id}>
-                    <header>
-                      <strong>
-                        {entry.authorType === "CUSTOMER"
-                          ? "Customer"
-                          : entry.authorType === "SYSTEM"
-                            ? "System"
-                            : entry.isOwn
-                              ? "You · Staff"
-                              : "Staff"}
-                      </strong>
-                      <time dateTime={entry.createdAt}>
-                        {formatBusinessDate(entry.createdAt)}
-                      </time>
-                    </header>
-                    <p>{entry.body}</p>
+                    <SupportTimelineEntry entry={entry} staff />
                   </li>
                 ))}
               </ol>
               {!row.messages.items.length && (
-                <p>No customer-visible replies have been recorded.</p>
+                <p>No customer-visible conversation updates have been recorded.</p>
               )}
               <footer>
                 <p>Customer-visible messages only.</p>

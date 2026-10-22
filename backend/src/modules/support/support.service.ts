@@ -630,24 +630,23 @@ export class SupportService {
         transaction,
       );
       if (changed.count !== 1) throw supportStale();
-      const messageReceipt = input.response
-        ? await this.repository.createMessage(
-            { enquiryId: id },
-            actor.userId,
-            "STAFF",
-            "CUSTOMER",
-            input.response,
-            transaction,
-          )
-        : null;
+      const messageReceipt = await this.repository.createStatusEvent(
+        { enquiryId: id },
+        actor.userId,
+        current.status,
+        input.status,
+        input.response ?? "No additional explanation was provided.",
+        transaction,
+      );
       if (current.customer?.userId)
         await enqueueNotification(transaction, {
           userId: current.customer.userId,
           type: "ENQUIRY",
           category: "OPERATIONAL",
-          title: "Your enquiry was updated",
+          title: `Your enquiry is now ${input.status.toLowerCase().replaceAll("_", " ")}`,
           message: `Your enquiry is now ${input.status.toLowerCase().replaceAll("_", " ")}.`,
           deduplicationKey: `enquiry:${id}:status:${input.status}:${current.version + 1}`,
+          supportMessageId: messageReceipt.id,
           resourceType: "ENQUIRY",
           resourceId: id,
           channels: ["EMAIL"],
@@ -706,24 +705,23 @@ export class SupportService {
         transaction,
       );
       if (changed.count !== 1) throw supportStale();
-      const messageReceipt = input.resolution
-        ? await this.repository.createMessage(
-            { complaintId: id },
-            actor.userId,
-            "STAFF",
-            "CUSTOMER",
-            input.resolution,
-            transaction,
-          )
-        : null;
+      const messageReceipt = await this.repository.createStatusEvent(
+        { complaintId: id },
+        actor.userId,
+        current.status,
+        input.status,
+        input.resolution ?? "No additional explanation was provided.",
+        transaction,
+      );
       if (current.customer?.userId)
         await enqueueNotification(transaction, {
           userId: current.customer.userId,
           type: "COMPLAINT",
           category: "OPERATIONAL",
-          title: "Your complaint was updated",
+          title: `Your complaint is now ${input.status.toLowerCase().replaceAll("_", " ")}`,
           message: `Your complaint is now ${input.status.toLowerCase()}.`,
           deduplicationKey: `complaint:${id}:status:${input.status}:${current.version + 1}`,
+          supportMessageId: messageReceipt.id,
           resourceType: "COMPLAINT",
           resourceId: id,
           channels: ["EMAIL"],
@@ -867,9 +865,10 @@ export class SupportService {
           userId: record.customer.userId,
           type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
           category: "OPERATIONAL",
-          title: kind === "enquiry" ? "New enquiry response" : "New complaint response",
+          title: "New support reply",
           message: "A new response is available in your Allied AutoTech account.",
           deduplicationKey: `${kind}:${id}:message:${created.id}`,
+          supportMessageId: created.id,
           resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
           resourceId: id,
           channels: ["EMAIL"],

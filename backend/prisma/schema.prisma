@@ -2254,15 +2254,26 @@ model Complaint {
   @@index([customerId, id], map: "Complaint_directory_idx")
 }
 
+enum SupportMessageKind {
+  LEGACY
+  REPLY
+  INTERNAL_NOTE
+  STATUS_CHANGE
+}
+
 model SupportMessage {
-  id           String                   @id @default(uuid()) @db.Uuid
-  enquiryId    String?                  @db.Uuid
-  complaintId  String?                  @db.Uuid
-  authorUserId String?                  @db.Uuid
-  authorType   SupportMessageAuthorType
-  visibility   SupportMessageVisibility @default(CUSTOMER)
-  body         String
-  createdAt    DateTime                 @default(now())
+  id            String                   @id @default(uuid()) @db.Uuid
+  enquiryId     String?                  @db.Uuid
+  complaintId   String?                  @db.Uuid
+  authorUserId  String?                  @db.Uuid
+  kind          SupportMessageKind       @default(LEGACY)
+  fromStatus    String?                  @db.VarChar(32)
+  toStatus      String?                  @db.VarChar(32)
+  notifications Notification[]
+  authorType    SupportMessageAuthorType
+  visibility    SupportMessageVisibility @default(CUSTOMER)
+  body          String
+  createdAt     DateTime                 @default(now())
 
   enquiry   Enquiry?   @relation(fields: [enquiryId], references: [id], onDelete: Restrict)
   complaint Complaint? @relation(fields: [complaintId], references: [id], onDelete: Restrict)
@@ -2350,6 +2361,8 @@ model Invoice {
 }
 
 model Notification {
+  supportMessageId String?              @db.Uuid
+  supportMessage   SupportMessage?      @relation(fields: [supportMessageId], references: [id], onDelete: Restrict)
   id               String               @id @default(uuid()) @db.Uuid
   userId           String               @db.Uuid
   type             NotificationType
@@ -2369,6 +2382,7 @@ model Notification {
   @@index([userId, readAt, createdAt])
   @@index([expiresAt])
   @@index([userId, category, createdAt])
+  @@index([supportMessageId])
 }
 
 model NotificationPreference {

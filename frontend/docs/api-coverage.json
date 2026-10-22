@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "31bc0013da1db5f3df7d2154b76052a4135d4c0aa6e4ebe7380b85ef896b1e0d",
+  "sourceSha256": "293a6db59ebe803c20c8d168c3734bf5b15f41ec0f1caea0ad0588ca7a90035e",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -49270,6 +49270,18 @@
           "schema": {
             "type": "string",
             "format": "uuid",
+            "description": "Identifier of the message resource; ownership is resolved server-side."
+          },
+          "required": false,
+          "name": "messageId",
+          "in": "query",
+          "description": "Message Id used to constrain this request.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
             "description": "Opaque cursor returned by the previous page."
           },
           "required": false,
@@ -49310,19 +49322,80 @@
               },
               "data": {
                 "type": "object",
-                "description": "Authorized response projection for: Poll new customer-visible enquiry chat messages.",
                 "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Public or authorized resource identifier."
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "authorType": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "STAFF", "SYSTEM"],
+                          "description": "Author Type validated by this operation's strict request contract."
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "INTERNAL"],
+                          "description": "Visibility validated by this operation's strict request contract."
+                        },
+                        "body": {
+                          "type": "string",
+                          "description": "Body validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                          "description": "Kind validated by this operation's strict request contract."
+                        },
+                        "fromStatus": {
+                          "type": ["string", "null"],
+                          "description": "From Status validated by this operation's strict request contract."
+                        },
+                        "toStatus": {
+                          "type": ["string", "null"],
+                          "description": "To Status validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "authorType",
+                        "visibility",
+                        "body",
+                        "createdAt",
+                        "kind",
+                        "fromStatus",
+                        "toStatus"
+                      ],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "description": "Items validated by this operation's strict request contract."
                   },
-                  "status": {
-                    "type": "string",
-                    "description": "Current server-owned lifecycle state when applicable."
+                  "cursor": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Opaque cursor returned by the previous page."
+                  },
+                  "hasMore": {
+                    "type": "boolean",
+                    "description": "Boolean control for has more; authorization is still enforced server-side."
+                  },
+                  "pollAfterMs": {
+                    "type": "integer",
+                    "description": "Poll After Ms validated by this operation's strict request contract."
                   }
                 },
-                "additionalProperties": true
+                "required": ["items", "cursor", "hasMore", "pollAfterMs"],
+                "description": "Data validated by this operation's strict request contract."
               },
               "meta": {
                 "type": "object",
@@ -49336,7 +49409,7 @@
                 "description": "Meta validated by this operation's strict request contract."
               }
             },
-            "required": ["success", "message", "meta"],
+            "required": ["success", "message", "data", "meta"],
             "description": "Response validated by this operation's strict request contract."
           }
         },
@@ -49480,6 +49553,19 @@
               "data": {
                 "type": "object",
                 "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                    "description": "Kind validated by this operation's strict request contract."
+                  },
+                  "fromStatus": {
+                    "type": ["string", "null"],
+                    "description": "From Status validated by this operation's strict request contract."
+                  },
+                  "toStatus": {
+                    "type": ["string", "null"],
+                    "description": "To Status validated by this operation's strict request contract."
+                  },
                   "id": {
                     "type": "string",
                     "format": "uuid",
@@ -49510,6 +49596,9 @@
                   }
                 },
                 "required": [
+                  "kind",
+                  "fromStatus",
+                  "toStatus",
                   "id",
                   "authorType",
                   "visibility",
@@ -49954,6 +50043,18 @@
           "schema": {
             "type": "string",
             "format": "uuid",
+            "description": "Identifier of the message resource; ownership is resolved server-side."
+          },
+          "required": false,
+          "name": "messageId",
+          "in": "query",
+          "description": "Message Id used to constrain this request.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
             "description": "Opaque cursor returned by the previous page."
           },
           "required": false,
@@ -49994,19 +50095,80 @@
               },
               "data": {
                 "type": "object",
-                "description": "Authorized response projection for: Poll new customer-visible complaint chat messages.",
                 "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Public or authorized resource identifier."
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "authorType": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "STAFF", "SYSTEM"],
+                          "description": "Author Type validated by this operation's strict request contract."
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "INTERNAL"],
+                          "description": "Visibility validated by this operation's strict request contract."
+                        },
+                        "body": {
+                          "type": "string",
+                          "description": "Body validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                          "description": "Kind validated by this operation's strict request contract."
+                        },
+                        "fromStatus": {
+                          "type": ["string", "null"],
+                          "description": "From Status validated by this operation's strict request contract."
+                        },
+                        "toStatus": {
+                          "type": ["string", "null"],
+                          "description": "To Status validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "authorType",
+                        "visibility",
+                        "body",
+                        "createdAt",
+                        "kind",
+                        "fromStatus",
+                        "toStatus"
+                      ],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "description": "Items validated by this operation's strict request contract."
                   },
-                  "status": {
-                    "type": "string",
-                    "description": "Current server-owned lifecycle state when applicable."
+                  "cursor": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Opaque cursor returned by the previous page."
+                  },
+                  "hasMore": {
+                    "type": "boolean",
+                    "description": "Boolean control for has more; authorization is still enforced server-side."
+                  },
+                  "pollAfterMs": {
+                    "type": "integer",
+                    "description": "Poll After Ms validated by this operation's strict request contract."
                   }
                 },
-                "additionalProperties": true
+                "required": ["items", "cursor", "hasMore", "pollAfterMs"],
+                "description": "Data validated by this operation's strict request contract."
               },
               "meta": {
                 "type": "object",
@@ -50020,7 +50182,7 @@
                 "description": "Meta validated by this operation's strict request contract."
               }
             },
-            "required": ["success", "message", "meta"],
+            "required": ["success", "message", "data", "meta"],
             "description": "Response validated by this operation's strict request contract."
           }
         },
@@ -50164,6 +50326,19 @@
               "data": {
                 "type": "object",
                 "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                    "description": "Kind validated by this operation's strict request contract."
+                  },
+                  "fromStatus": {
+                    "type": ["string", "null"],
+                    "description": "From Status validated by this operation's strict request contract."
+                  },
+                  "toStatus": {
+                    "type": ["string", "null"],
+                    "description": "To Status validated by this operation's strict request contract."
+                  },
                   "id": {
                     "type": "string",
                     "format": "uuid",
@@ -50194,6 +50369,9 @@
                   }
                 },
                 "required": [
+                  "kind",
+                  "fromStatus",
+                  "toStatus",
                   "id",
                   "authorType",
                   "visibility",
@@ -51127,6 +51305,18 @@
           "schema": {
             "type": "string",
             "format": "uuid",
+            "description": "Identifier of the message resource; ownership is resolved server-side."
+          },
+          "required": false,
+          "name": "messageId",
+          "in": "query",
+          "description": "Message Id used to constrain this request.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
             "description": "Opaque cursor returned by the previous page."
           },
           "required": false,
@@ -51167,19 +51357,80 @@
               },
               "data": {
                 "type": "object",
-                "description": "Authorized response projection for: Poll new branch-authorized enquiry chat messages.",
                 "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Public or authorized resource identifier."
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "authorType": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "STAFF", "SYSTEM"],
+                          "description": "Author Type validated by this operation's strict request contract."
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "INTERNAL"],
+                          "description": "Visibility validated by this operation's strict request contract."
+                        },
+                        "body": {
+                          "type": "string",
+                          "description": "Body validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                          "description": "Kind validated by this operation's strict request contract."
+                        },
+                        "fromStatus": {
+                          "type": ["string", "null"],
+                          "description": "From Status validated by this operation's strict request contract."
+                        },
+                        "toStatus": {
+                          "type": ["string", "null"],
+                          "description": "To Status validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "authorType",
+                        "visibility",
+                        "body",
+                        "createdAt",
+                        "kind",
+                        "fromStatus",
+                        "toStatus"
+                      ],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "description": "Items validated by this operation's strict request contract."
                   },
-                  "status": {
-                    "type": "string",
-                    "description": "Current server-owned lifecycle state when applicable."
+                  "cursor": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Opaque cursor returned by the previous page."
+                  },
+                  "hasMore": {
+                    "type": "boolean",
+                    "description": "Boolean control for has more; authorization is still enforced server-side."
+                  },
+                  "pollAfterMs": {
+                    "type": "integer",
+                    "description": "Poll After Ms validated by this operation's strict request contract."
                   }
                 },
-                "additionalProperties": true
+                "required": ["items", "cursor", "hasMore", "pollAfterMs"],
+                "description": "Data validated by this operation's strict request contract."
               },
               "meta": {
                 "type": "object",
@@ -51193,7 +51444,7 @@
                 "description": "Meta validated by this operation's strict request contract."
               }
             },
-            "required": ["success", "message", "meta"],
+            "required": ["success", "message", "data", "meta"],
             "description": "Response validated by this operation's strict request contract."
           }
         },
@@ -51603,6 +51854,18 @@
           "schema": {
             "type": "string",
             "format": "uuid",
+            "description": "Identifier of the message resource; ownership is resolved server-side."
+          },
+          "required": false,
+          "name": "messageId",
+          "in": "query",
+          "description": "Message Id used to constrain this request.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
             "description": "Opaque cursor returned by the previous page."
           },
           "required": false,
@@ -51643,19 +51906,80 @@
               },
               "data": {
                 "type": "object",
-                "description": "Authorized response projection for: Poll new branch-authorized complaint chat messages.",
                 "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "Public or authorized resource identifier."
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "authorType": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "STAFF", "SYSTEM"],
+                          "description": "Author Type validated by this operation's strict request contract."
+                        },
+                        "visibility": {
+                          "type": "string",
+                          "enum": ["CUSTOMER", "INTERNAL"],
+                          "description": "Visibility validated by this operation's strict request contract."
+                        },
+                        "body": {
+                          "type": "string",
+                          "description": "Body validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                          "description": "Kind validated by this operation's strict request contract."
+                        },
+                        "fromStatus": {
+                          "type": ["string", "null"],
+                          "description": "From Status validated by this operation's strict request contract."
+                        },
+                        "toStatus": {
+                          "type": ["string", "null"],
+                          "description": "To Status validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "authorType",
+                        "visibility",
+                        "body",
+                        "createdAt",
+                        "kind",
+                        "fromStatus",
+                        "toStatus"
+                      ],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "description": "Items validated by this operation's strict request contract."
                   },
-                  "status": {
-                    "type": "string",
-                    "description": "Current server-owned lifecycle state when applicable."
+                  "cursor": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Opaque cursor returned by the previous page."
+                  },
+                  "hasMore": {
+                    "type": "boolean",
+                    "description": "Boolean control for has more; authorization is still enforced server-side."
+                  },
+                  "pollAfterMs": {
+                    "type": "integer",
+                    "description": "Poll After Ms validated by this operation's strict request contract."
                   }
                 },
-                "additionalProperties": true
+                "required": ["items", "cursor", "hasMore", "pollAfterMs"],
+                "description": "Data validated by this operation's strict request contract."
               },
               "meta": {
                 "type": "object",
@@ -51669,7 +51993,7 @@
                 "description": "Meta validated by this operation's strict request contract."
               }
             },
-            "required": ["success", "message", "meta"],
+            "required": ["success", "message", "data", "meta"],
             "description": "Response validated by this operation's strict request contract."
           }
         },
@@ -55516,36 +55840,87 @@
               },
               "data": {
                 "type": "object",
-                "description": "Cursor-paginated result for: List own notifications.",
                 "properties": {
                   "items": {
                     "type": "array",
-                    "description": "Authorized resource projections for this page.",
                     "items": {
                       "type": "object",
-                      "description": "Safe item projection returned by List own notifications.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
                         },
-                        "status": {
+                        "type": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "description": "Type validated by this operation's strict request contract."
+                        },
+                        "category": {
+                          "type": "string",
+                          "description": "Category validated by this operation's strict request contract."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "resourceType": {
+                          "type": ["string", "null"],
+                          "description": "Resource Type validated by this operation's strict request contract."
+                        },
+                        "resourceId": {
+                          "type": ["string", "null"],
+                          "description": "Identifier of the resource resource; ownership is resolved server-side."
+                        },
+                        "supportMessageId": {
+                          "type": ["string", "null"],
+                          "format": "uuid",
+                          "description": "Identifier of the support message resource; ownership is resolved server-side."
+                        },
+                        "readAt": {
+                          "type": ["string", "null"],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "expiresAt": {
+                          "type": ["string", "null"],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
                         }
                       },
-                      "additionalProperties": true
-                    }
+                      "required": [
+                        "id",
+                        "type",
+                        "category",
+                        "title",
+                        "message",
+                        "resourceType",
+                        "resourceId",
+                        "supportMessageId",
+                        "readAt",
+                        "expiresAt",
+                        "createdAt"
+                      ],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "description": "Items validated by this operation's strict request contract."
                   },
                   "nextCursor": {
-                    "type": ["string", "null"],
+                    "type": "string",
                     "format": "uuid",
-                    "description": "Cursor for the next page, or null/omitted when exhausted."
+                    "description": "Next Cursor validated by this operation's strict request contract."
                   }
                 },
                 "required": ["items"],
-                "additionalProperties": false
+                "description": "Data validated by this operation's strict request contract."
               },
               "meta": {
                 "type": "object",
@@ -55559,7 +55934,7 @@
                 "description": "Meta validated by this operation's strict request contract."
               }
             },
-            "required": ["success", "message", "meta"],
+            "required": ["success", "message", "data", "meta"],
             "description": "Response validated by this operation's strict request contract."
           }
         },
@@ -56538,36 +56913,87 @@
               },
               "data": {
                 "type": "object",
-                "description": "Cursor-paginated result for: List own notifications.",
                 "properties": {
                   "items": {
                     "type": "array",
-                    "description": "Authorized resource projections for this page.",
                     "items": {
                       "type": "object",
-                      "description": "Safe item projection returned by List own notifications.",
                       "properties": {
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
                         },
-                        "status": {
+                        "type": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "description": "Type validated by this operation's strict request contract."
+                        },
+                        "category": {
+                          "type": "string",
+                          "description": "Category validated by this operation's strict request contract."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title validated by this operation's strict request contract."
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "resourceType": {
+                          "type": ["string", "null"],
+                          "description": "Resource Type validated by this operation's strict request contract."
+                        },
+                        "resourceId": {
+                          "type": ["string", "null"],
+                          "description": "Identifier of the resource resource; ownership is resolved server-side."
+                        },
+                        "supportMessageId": {
+                          "type": ["string", "null"],
+                          "format": "uuid",
+                          "description": "Identifier of the support message resource; ownership is resolved server-side."
+                        },
+                        "readAt": {
+                          "type": ["string", "null"],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "expiresAt": {
+                          "type": ["string", "null"],
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
                         }
                       },
-                      "additionalProperties": true
-                    }
+                      "required": [
+                        "id",
+                        "type",
+                        "category",
+                        "title",
+                        "message",
+                        "resourceType",
+                        "resourceId",
+                        "supportMessageId",
+                        "readAt",
+                        "expiresAt",
+                        "createdAt"
+                      ],
+                      "description": "Items Item validated by this operation's strict request contract."
+                    },
+                    "description": "Items validated by this operation's strict request contract."
                   },
                   "nextCursor": {
-                    "type": ["string", "null"],
+                    "type": "string",
                     "format": "uuid",
-                    "description": "Cursor for the next page, or null/omitted when exhausted."
+                    "description": "Next Cursor validated by this operation's strict request contract."
                   }
                 },
                 "required": ["items"],
-                "additionalProperties": false
+                "description": "Data validated by this operation's strict request contract."
               },
               "meta": {
                 "type": "object",
@@ -56581,7 +57007,7 @@
                 "description": "Meta validated by this operation's strict request contract."
               }
             },
-            "required": ["success", "message", "meta"],
+            "required": ["success", "message", "data", "meta"],
             "description": "Response validated by this operation's strict request contract."
           }
         },
@@ -76986,6 +77412,19 @@
                   "messageReceipt": {
                     "type": "object",
                     "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                        "description": "Kind validated by this operation's strict request contract."
+                      },
+                      "fromStatus": {
+                        "type": ["string", "null"],
+                        "description": "From Status validated by this operation's strict request contract."
+                      },
+                      "toStatus": {
+                        "type": ["string", "null"],
+                        "description": "To Status validated by this operation's strict request contract."
+                      },
                       "id": {
                         "type": "string",
                         "format": "uuid",
@@ -77017,6 +77456,9 @@
                       }
                     },
                     "required": [
+                      "kind",
+                      "fromStatus",
+                      "toStatus",
                       "id",
                       "authorType",
                       "visibility",
@@ -80203,6 +80645,24 @@
                         "items": {
                           "type": "object",
                           "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "LEGACY",
+                                "REPLY",
+                                "INTERNAL_NOTE",
+                                "STATUS_CHANGE"
+                              ],
+                              "description": "Kind validated by this operation's strict request contract."
+                            },
+                            "fromStatus": {
+                              "type": ["string", "null"],
+                              "description": "From Status validated by this operation's strict request contract."
+                            },
+                            "toStatus": {
+                              "type": ["string", "null"],
+                              "description": "To Status validated by this operation's strict request contract."
+                            },
                             "id": {
                               "type": "string",
                               "format": "uuid",
@@ -80233,6 +80693,9 @@
                             }
                           },
                           "required": [
+                            "kind",
+                            "fromStatus",
+                            "toStatus",
                             "id",
                             "authorType",
                             "visibility",
@@ -82714,6 +83177,19 @@
                   "messageReceipt": {
                     "type": "object",
                     "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": ["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"],
+                        "description": "Kind validated by this operation's strict request contract."
+                      },
+                      "fromStatus": {
+                        "type": ["string", "null"],
+                        "description": "From Status validated by this operation's strict request contract."
+                      },
+                      "toStatus": {
+                        "type": ["string", "null"],
+                        "description": "To Status validated by this operation's strict request contract."
+                      },
                       "id": {
                         "type": "string",
                         "format": "uuid",
@@ -82745,6 +83221,9 @@
                       }
                     },
                     "required": [
+                      "kind",
+                      "fromStatus",
+                      "toStatus",
                       "id",
                       "authorType",
                       "visibility",
@@ -83653,6 +84132,24 @@
                         "items": {
                           "type": "object",
                           "properties": {
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "LEGACY",
+                                "REPLY",
+                                "INTERNAL_NOTE",
+                                "STATUS_CHANGE"
+                              ],
+                              "description": "Kind validated by this operation's strict request contract."
+                            },
+                            "fromStatus": {
+                              "type": ["string", "null"],
+                              "description": "From Status validated by this operation's strict request contract."
+                            },
+                            "toStatus": {
+                              "type": ["string", "null"],
+                              "description": "To Status validated by this operation's strict request contract."
+                            },
                             "id": {
                               "type": "string",
                               "format": "uuid",
@@ -83683,6 +84180,9 @@
                             }
                           },
                           "required": [
+                            "kind",
+                            "fromStatus",
+                            "toStatus",
                             "id",
                             "authorType",
                             "visibility",

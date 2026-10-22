@@ -1,2 +1,5 @@
 # Linux container entrypoints must retain executable Unix shebangs on Windows.
 backend/docker/*.sh text eol=lf
+# Migration checksums were established from CRLF files. Preserve those exact
+# checkout bytes on every OS without changing any applied SQL or database history.
+backend/prisma/migrations/**/migration.sql text eol=crlf

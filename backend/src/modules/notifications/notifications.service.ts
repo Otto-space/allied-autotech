@@ -69,6 +69,9 @@ export async function enqueueNotification(
       title: input.title,
       message: input.message,
       deduplicationKey: input.deduplicationKey,
+      ...(input.supportMessageId === undefined
+        ? {}
+        : { supportMessageId: input.supportMessageId }),
       ...(input.resourceType === undefined ? {} : { resourceType: input.resourceType }),
       ...(input.resourceId === undefined ? {} : { resourceId: input.resourceId }),
       ...(input.expiresAt === undefined ? {} : { expiresAt: input.expiresAt }),

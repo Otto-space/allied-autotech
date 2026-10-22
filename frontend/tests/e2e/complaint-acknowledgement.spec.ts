@@ -197,7 +197,7 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"])
       ),
     ).toBeVisible();
     await expect(
-      page.locator(".support-message").getByText(response, { exact: true }),
+      page.locator(".support-timeline-entry").getByText(response, { exact: true }),
     ).toBeVisible();
     await expect(page.getByLabel("Reply text")).toHaveValue(
       "Keep my separate draft reply.",
@@ -338,7 +338,7 @@ test("a missing acknowledgement on a closed complaint does not reopen it", async
     .getByRole("button", { name: "Record acknowledgement", exact: true })
     .click();
   await expect(
-    page.locator(".support-message").getByText(response, { exact: true }),
+    page.locator(".support-timeline-entry").getByText(response, { exact: true }),
   ).toBeVisible();
   await expect(page.locator(".support-details dd").first()).toHaveText("closed");
   await expect(

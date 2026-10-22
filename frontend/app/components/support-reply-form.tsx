@@ -67,6 +67,7 @@ export function SupportReplyForm({
     resolver: zodResolver(supportReplySchema),
     defaultValues: { message: "", visibility: "CUSTOMER" },
   });
+  const visibility = useWatch({ control: form.control, name: "visibility" });
   const messageText = useWatch({ control: form.control, name: "message" });
   const { getValues, setValue } = form;
   useEffect(() => {
@@ -244,7 +245,9 @@ export function SupportReplyForm({
               </p>
             )}
             <button type="submit" className="button">
-              Review reply
+              {staff && visibility === "INTERNAL"
+                ? "Review internal note"
+                : "Review reply"}
             </button>
             {guard && <p className="ct-form-note">Review your message before sending.</p>}
           </fieldset>
@@ -255,7 +258,11 @@ export function SupportReplyForm({
           proposal={proposal}
           onClose={() => setProposal(null)}
           onSuccess={() => {}}
-          confirmLabel={guard ? "Send reply" : "Confirm change"}
+          confirmLabel={
+            proposal.supportChange?.body.visibility === "INTERNAL"
+              ? "Save internal note"
+              : "Send reply"
+          }
         />
       )}
     </section>

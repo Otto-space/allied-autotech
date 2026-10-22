@@ -11,6 +11,7 @@ export const notificationSelect = {
   message: true,
   resourceType: true,
   resourceId: true,
+  supportMessageId: true,
   readAt: true,
   expiresAt: true,
   createdAt: true,

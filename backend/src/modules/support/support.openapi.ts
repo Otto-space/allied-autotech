@@ -119,7 +119,27 @@ const complaintSubmission = supportSubmissionBase.extend({
 const creationDescription =
   "Requires Idempotency-Key support-create-v1.<13-digit Unix milliseconds>.<lowercase UUID v4>. Scope is authenticated customer plus enquiry/complaint creation. The normalized body is bound to the key; changed content returns 409 IDEMPOTENCY_CONFLICT. Original-key/body replay within 24 hours returns 201 with the same owned record ID, current state and replayed true, without another creation audit or repeating branch/source checks or complaint deadline assignment. New requests retain branch, source, ownership and policy validation. Keys over 24 hours old or more than one minute in the future return 409 IDEMPOTENCY_EXPIRED, including after receipt cleanup. Missing/malformed keys return 422. Receipts hold hashes and the record ID, not message/contact text. Private projections exclude contact fields and internal messages. Same-key concurrency serializes; role, CSRF and rate limits apply on every attempt. Public anonymous creation is unchanged. Deploy matching frontend/API; older customer clients must reload.";
 
+const timelineMessage = z.object({
+  id: z.uuid(),
+  authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
+  visibility: z.enum(["CUSTOMER", "INTERNAL"]),
+  body: z.string(),
+  createdAt: z.iso.datetime(),
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]),
+  fromStatus: z.string().nullable(),
+  toStatus: z.string().nullable(),
+});
+const timelinePage = z.object({
+  items: z.array(timelineMessage),
+  cursor: z.uuid().nullable(),
+  hasMore: z.boolean(),
+  pollAfterMs: z.number().int(),
+});
 const replySubmission = z.object({
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]),
+  fromStatus: z.string().nullable(),
+  toStatus: z.string().nullable(),
+
   id: z.uuid(),
   authorType: z.literal("CUSTOMER"),
   visibility: z.literal("CUSTOMER"),
@@ -207,6 +227,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new customer-visible enquiry chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {
@@ -222,6 +245,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new customer-visible complaint chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {
@@ -244,6 +270,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new branch-authorized enquiry chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {
@@ -270,6 +299,9 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       summary: "Poll new branch-authorized complaint chat messages",
       params: supportIdParamsSchema,
       query: supportMessageListQuerySchema,
+      data: timelinePage,
+      description:
+        "Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata.",
       security: true,
     },
     {

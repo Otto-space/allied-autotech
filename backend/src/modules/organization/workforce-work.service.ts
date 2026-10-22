@@ -1,3 +1,4 @@
+import { enqueueNotification } from "../notifications/notifications.service.js";
 import type { z } from "zod";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -792,7 +793,13 @@ export class WorkforceWorkService {
       await tx.$queryRaw`SELECT "id" FROM "Enquiry" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const row = await tx.enquiry.findFirst({
         where: { AND: [{ id }, enquiryScope(access)] },
-        select: { id: true, branchId: true, version: true, status: true },
+        select: {
+          id: true,
+          branchId: true,
+          version: true,
+          status: true,
+          customer: { select: { userId: true } },
+        },
       });
       if (!row?.branchId) workforceNotFound();
       if (
@@ -817,11 +824,25 @@ export class WorkforceWorkService {
         data: {
           enquiryId: id,
           authorUserId: actor.userId,
+          kind: "REPLY",
           authorType: "STAFF",
           visibility: "CUSTOMER",
           body: input.body,
         },
       });
+      if (row.customer?.userId)
+        await enqueueNotification(tx, {
+          userId: row.customer.userId,
+          type: "ENQUIRY",
+          category: "OPERATIONAL",
+          title: "New support reply",
+          message: "A new reply is available in your Allied AutoTech account.",
+          deduplicationKey: `enquiry:${id}:message:${created.id}`,
+          resourceType: "ENQUIRY",
+          resourceId: id,
+          supportMessageId: created.id,
+          channels: ["EMAIL"],
+        });
       await audit(tx, actor, context, "ENQUIRY", id, {
         workforceAction: "REPLY",
         messageId: created.id,
@@ -838,6 +859,9 @@ export class WorkforceWorkService {
           id: created.id,
           enquiryId: id,
           body: created.body,
+          kind: created.kind,
+          fromStatus: created.fromStatus,
+          toStatus: created.toStatus,
           authorType: created.authorType,
           visibility: created.visibility,
           createdAt: created.createdAt,
@@ -856,7 +880,13 @@ export class WorkforceWorkService {
       await tx.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const row = await tx.complaint.findFirst({
         where: { id, branchId: { in: branchesFor(access, "COMPLAINTS") } },
-        select: { id: true, branchId: true, version: true, status: true },
+        select: {
+          id: true,
+          branchId: true,
+          version: true,
+          status: true,
+          customer: { select: { userId: true } },
+        },
       });
       if (!row?.branchId) workforceNotFound();
       if (
@@ -881,11 +911,25 @@ export class WorkforceWorkService {
         data: {
           complaintId: id,
           authorUserId: actor.userId,
+          kind: "REPLY",
           authorType: "STAFF",
           visibility: "CUSTOMER",
           body: input.body,
         },
       });
+      if (row.customer?.userId)
+        await enqueueNotification(tx, {
+          userId: row.customer.userId,
+          type: "COMPLAINT",
+          category: "OPERATIONAL",
+          title: "New support reply",
+          message: "A new reply is available in your Allied AutoTech account.",
+          deduplicationKey: `complaint:${id}:message:${created.id}`,
+          resourceType: "COMPLAINT",
+          resourceId: id,
+          supportMessageId: created.id,
+          channels: ["EMAIL"],
+        });
       await audit(tx, actor, context, "COMPLAINT", id, {
         workforceAction: "REPLY",
         messageId: created.id,
@@ -902,6 +946,9 @@ export class WorkforceWorkService {
           id: created.id,
           complaintId: id,
           body: created.body,
+          kind: created.kind,
+          fromStatus: created.fromStatus,
+          toStatus: created.toStatus,
           authorType: created.authorType,
           visibility: created.visibility,
           createdAt: created.createdAt,

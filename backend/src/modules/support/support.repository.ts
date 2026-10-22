@@ -22,6 +22,9 @@ type DatabaseClient = PrismaClient | Prisma.TransactionClient;
 
 const messageSelect = {
   id: true,
+  kind: true,
+  fromStatus: true,
+  toStatus: true,
   authorType: true,
   visibility: true,
   body: true,
@@ -491,10 +494,11 @@ export class SupportRepository {
     customerVisibleOnly: boolean,
   ) {
     const target = kind === "enquiry" ? { enquiryId: id } : { complaintId: id };
-    if (query.cursor) {
+    const anchor = query.cursor ?? query.messageId;
+    if (anchor) {
       const cursor = await this.database.supportMessage.findFirst({
         where: {
-          id: query.cursor,
+          id: anchor,
           ...target,
           ...(customerVisibleOnly ? { visibility: "CUSTOMER" as const } : {}),
         },
@@ -510,7 +514,7 @@ export class SupportRepository {
       select: messageSelect,
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: query.limit + 1,
-      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+      ...(anchor ? { cursor: { id: anchor }, skip: query.cursor ? 1 : 0 } : {}),
     });
   }
 
@@ -605,7 +609,37 @@ export class SupportRepository {
     client: DatabaseClient,
   ) {
     return client.supportMessage.create({
-      data: { ...target, authorUserId, authorType, visibility, body },
+      data: {
+        ...target,
+        authorUserId,
+        authorType,
+        visibility,
+        body,
+        kind: visibility === "INTERNAL" ? "INTERNAL_NOTE" : "REPLY",
+      },
+      select: messageSelect,
+    });
+  }
+
+  createStatusEvent(
+    target: { enquiryId: string } | { complaintId: string },
+    authorUserId: string,
+    fromStatus: string,
+    toStatus: string,
+    body: string,
+    client: DatabaseClient,
+  ) {
+    return client.supportMessage.create({
+      data: {
+        ...target,
+        authorUserId,
+        authorType: "STAFF",
+        visibility: "CUSTOMER",
+        kind: "STATUS_CHANGE",
+        fromStatus,
+        toStatus,
+        body,
+      },
       select: messageSelect,
     });
   }

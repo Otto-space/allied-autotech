@@ -1,4 +1,5 @@
 "use client";
+import { SupportTimelineEntry } from "./support-timeline-entry";
 
 import { SupportReplyRecovery } from "./support-reply-recovery";
 import { useCallback, useState } from "react";
@@ -98,10 +99,12 @@ function RecordDetails({ record }: { record: SupportRecord }) {
 
 export function CustomerSupportThread({
   userId,
+  messageId,
   kind,
   id,
 }: {
   userId: string;
+  messageId?: string;
   kind: SupportKind;
   id: string;
 }) {
@@ -128,7 +131,7 @@ export function CustomerSupportThread({
   );
   const messages = useResource(
     record
-      ? `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`
+      ? `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : messageId ? `&messageId=${messageId}` : ""}`
       : null,
     parseMessages,
   );
@@ -263,9 +266,17 @@ export function CustomerSupportThread({
                 </button>
               </header>
               <p className="ct-message-intro">
-                Oldest replies appear first. Use Next for later pages. This is not a
-                live-agent chat.
+                Replies and status updates appear in chronological order. Use Next for
+                later pages. This is not a live-agent chat.
               </p>
+              {messageId && (
+                <p className="notice">
+                  Viewing the selected update and later entries.{" "}
+                  <Link href={`/dashboard/support/${kind}/${id}`}>
+                    View full conversation
+                  </Link>
+                </p>
+              )}
               <div className="ct-message-content">
                 <Feedback message={messages.error} />
                 {messages.refreshError && (
@@ -277,25 +288,15 @@ export function CustomerSupportThread({
                 {!messages.loading &&
                   !messages.error &&
                   messages.data?.items.length === 0 && (
-                    <p className="ct-empty">No replies on this page.</p>
+                    <p className="ct-empty">No conversation updates on this page.</p>
                   )}
                 {!messages.error &&
                   messages.data?.items.map((item) => (
-                    <article className="ct-message" key={item.id}>
-                      <div>
-                        <h3>
-                          {item.authorType === "SYSTEM"
-                            ? "System update"
-                            : item.authorType === "CUSTOMER"
-                              ? "You"
-                              : "Allied AutoTech team"}
-                        </h3>
-                        <time dateTime={item.createdAt}>
-                          {formatBusinessDate(item.createdAt)}
-                        </time>
-                      </div>
-                      <p className="support-text">{item.body}</p>
-                    </article>
+                    <SupportTimelineEntry
+                      key={item.id}
+                      entry={item}
+                      highlighted={item.id === messageId}
+                    />
                   ))}
               </div>
               <CursorPagination

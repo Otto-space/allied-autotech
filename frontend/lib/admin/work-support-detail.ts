@@ -140,10 +140,24 @@ export function validateThreadChange(
       if (saved.status !== change.body.status) throw Error("Unconfirmed status");
       const text = change.body.response ?? change.body.resolution;
       const extra = z.object({ messageReceipt: z.unknown().nullable() }).parse(data);
-      if (text) receipt = validateMessage(extra.messageReceipt, before, text, "CUSTOMER");
-      else if (extra.messageReceipt !== null) throw Error("Unexpected response message");
+      if (extra.messageReceipt !== null) {
+        receipt = validateMessage(
+          extra.messageReceipt,
+          before,
+          text ?? "No additional explanation was provided.",
+          "CUSTOMER",
+        );
+        if (
+          receipt.kind === "STATUS_CHANGE" &&
+          (receipt.fromStatus !== before.status || receipt.toStatus !== saved.status)
+        )
+          throw Error("Unconfirmed status event");
+        if (!text && receipt.kind !== "STATUS_CHANGE")
+          throw Error("Unexpected response message");
+      } else if (text) throw Error("Missing status explanation");
       if (
         saved.kind === "complaints" &&
+        change.body.status === "RESOLVED" &&
         change.body.resolution &&
         saved.resolution !== change.body.resolution
       )

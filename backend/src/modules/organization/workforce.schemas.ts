@@ -283,6 +283,9 @@ const enquiryRow = queueBase.extend({
   assignedStaffId: z.uuid().nullable(),
 });
 const enquiryMessage = z.object({
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]),
+  fromStatus: z.string().nullable(),
+  toStatus: z.string().nullable(),
   id: z.uuid(),
   authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
   visibility: z.literal("CUSTOMER"),

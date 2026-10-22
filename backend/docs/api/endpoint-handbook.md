@@ -5266,7 +5266,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/support/enquiries/{supportId}/messages`
 
 - Operation ID: `getCustomersSupportEnquiriesBySupportIdMessages`
-- Purpose: Poll new customer-visible enquiry chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new customer-visible enquiry chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5277,6 +5277,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -5287,8 +5288,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new customer-visible enquiry chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -5336,6 +5350,9 @@ Success: HTTP 201.
   "success": true,
   "message": "Add a customer message to an owned enquiry",
   "data": {
+    "kind": "LEGACY",
+    "fromStatus": "synthetic-fromstatus",
+    "toStatus": "synthetic-tostatus",
     "id": "00000000-0000-4000-8000-000000000001",
     "authorType": "CUSTOMER",
     "visibility": "CUSTOMER",
@@ -5354,7 +5371,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/support/complaints/{supportId}/messages`
 
 - Operation ID: `getCustomersSupportComplaintsBySupportIdMessages`
-- Purpose: Poll new customer-visible complaint chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new customer-visible complaint chat messages. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -5365,6 +5382,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -5375,8 +5393,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new customer-visible complaint chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -5424,6 +5455,9 @@ Success: HTTP 201.
   "success": true,
   "message": "Add a customer message to an owned complaint",
   "data": {
+    "kind": "LEGACY",
+    "fromStatus": "synthetic-fromstatus",
+    "toStatus": "synthetic-tostatus",
     "id": "00000000-0000-4000-8000-000000000001",
     "authorType": "CUSTOMER",
     "visibility": "CUSTOMER",
@@ -5927,7 +5961,16 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -9898,7 +9941,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/enquiries/{supportId}/messages`
 
 - Operation ID: `getStaffSupportEnquiriesBySupportIdMessages`
-- Purpose: Poll new branch-authorized enquiry chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new branch-authorized enquiry chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9909,6 +9952,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -9919,8 +9963,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new branch-authorized enquiry chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -9983,7 +10040,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/complaints/{supportId}/messages`
 
 - Operation ID: `getStaffSupportComplaintsBySupportIdMessages`
-- Purpose: Poll new branch-authorized complaint chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Chronological replies, status updates and authorized internal notes. messageId starts inclusively at an entry within this authorized conversation; cursor continues after an entry. Customer reads reject private and foreign anchors. Legacy messages retain their original content without inferred status metadata. Poll new branch-authorized complaint chat messages. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9994,6 +10051,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `supportId` | path | string (uuid) | Yes | Identifier selecting the support resource. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
@@ -10004,8 +10062,21 @@ Success: HTTP 200.
   "success": true,
   "message": "Poll new branch-authorized complaint chat messages",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "authorType": "CUSTOMER",
+        "visibility": "CUSTOMER",
+        "body": "synthetic-body",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "kind": "LEGACY",
+        "fromStatus": "synthetic-fromstatus",
+        "toStatus": "synthetic-tostatus"
+      }
+    ],
+    "cursor": "00000000-0000-4000-8000-000000000001",
+    "hasMore": true,
+    "pollAfterMs": 1
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10661,7 +10732,16 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -12884,6 +12964,9 @@ Success: HTTP 200.
     },
     "action": "reply",
     "messageReceipt": {
+      "kind": "LEGACY",
+      "fromStatus": "synthetic-fromstatus",
+      "toStatus": "synthetic-tostatus",
       "id": "00000000-0000-4000-8000-000000000001",
       "authorType": "CUSTOMER",
       "visibility": "CUSTOMER",
@@ -13491,6 +13574,9 @@ Success: HTTP 200.
     "messages": {
       "items": [
         {
+          "kind": "LEGACY",
+          "fromStatus": "synthetic-fromstatus",
+          "toStatus": "synthetic-tostatus",
           "id": "00000000-0000-4000-8000-000000000001",
           "authorType": "CUSTOMER",
           "visibility": "CUSTOMER",
@@ -14045,6 +14131,9 @@ Success: HTTP 200.
     },
     "action": "reply",
     "messageReceipt": {
+      "kind": "LEGACY",
+      "fromStatus": "synthetic-fromstatus",
+      "toStatus": "synthetic-tostatus",
       "id": "00000000-0000-4000-8000-000000000001",
       "authorType": "CUSTOMER",
       "visibility": "CUSTOMER",
@@ -14227,6 +14316,9 @@ Success: HTTP 200.
     "messages": {
       "items": [
         {
+          "kind": "LEGACY",
+          "fromStatus": "synthetic-fromstatus",
+          "toStatus": "synthetic-tostatus",
           "id": "00000000-0000-4000-8000-000000000001",
           "authorType": "CUSTOMER",
           "visibility": "CUSTOMER",

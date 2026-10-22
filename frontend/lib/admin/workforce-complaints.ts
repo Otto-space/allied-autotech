@@ -32,6 +32,9 @@ const rowSchema = z.object({
 });
 const messageSchema = z.object({
   id: z.uuid(),
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]).optional(),
+  fromStatus: z.string().nullable().optional(),
+  toStatus: z.string().nullable().optional(),
   authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
   visibility: z.literal("CUSTOMER"),
   body: z.string(),

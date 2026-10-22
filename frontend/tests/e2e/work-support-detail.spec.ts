@@ -5,10 +5,19 @@ import {
   threadMessage,
   bookingId,
 } from "../fixtures/work-support-detail";
-const btn = (p: Page, name: string) => p.getByRole("button", { name, exact: true }),
+const btn = (p: Page, name: string) =>
+    p.getByRole("button", {
+      name:
+        name === "Review support change"
+          ? /^Review (status|assignment|priority) change$/
+          : name,
+      exact: true,
+    }),
   confirm = (p: Page) =>
-    p.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true }),
-  messages = (p: Page) => p.locator(".wst-message");
+    p.getByRole("dialog").getByRole("button", {
+      name: /^(Confirm (status|assignment|priority) change|Send reply|Save internal note)$/,
+    }),
+  messages = (p: Page) => p.locator(".wst-messages .support-timeline-entry");
 async function open(p: Page, kind = "complaints", q = "") {
   await p.goto(
     `/admin/support/${kind}/${bookingId(kind === "complaints" ? 60000 : 50000)}${q}`,
@@ -27,7 +36,10 @@ async function reviewReply(p: Page, visibility = "CUSTOMER") {
   await p
     .getByLabel("Reply text", { exact: true })
     .fill("Reviewed conversation response\nSecond line");
-  await btn(p, "Review reply").click();
+  await btn(
+    p,
+    visibility === "INTERNAL" ? "Review internal note" : "Review reply",
+  ).click();
   await expect(p.getByRole("dialog")).toContainText("Reviewed conversation response");
 }
 for (const role of ["ADMIN", "SUPER_ADMIN", "STAFF"])
@@ -40,7 +52,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN", "STAFF"])
     await expect(page.locator("#conversation-details")).toContainText("Amina Okafor");
     await expect(page.locator("#conversation-details")).toContainText("10:00:00.123");
     await expect(page.locator("#conversation-details")).toContainText("Ada Okoro");
-    await expect(messages(page).nth(1)).toContainText("Internal staff note");
+    await expect(messages(page).nth(1)).toContainText("Internal note");
     await expect(page.getByRole("main")).not.toContainText("Embedded private fields");
   });
 test("own-profile gate prevents premature private reads and recovers", async ({
@@ -119,7 +131,7 @@ test("review cancellation sends nothing; held internal note is single-flight and
   await expect(page.getByRole("dialog")).toContainText("Staff only");
   await btn(page, "Go back").click();
   expect(f.detail.writes).toHaveLength(0);
-  await btn(page, "Review reply").click();
+  await btn(page, "Review internal note").click();
   f.detail.writeMode = "hold";
   await confirm(page).click();
   await expect(btn(page, "Submitting…")).toBeDisabled();
@@ -128,7 +140,7 @@ test("review cancellation sends nothing; held internal note is single-flight and
   f.detail.writeMode = "normal";
   f.detail.held?.();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.locator(".wst-confirmed")).toContainText("Internal staff note");
+  await expect(page.locator(".wst-confirmed")).toContainText("Internal note");
   await expect(page.locator(".wst-confirmed")).toContainText(
     "Reviewed conversation response",
   );
@@ -152,7 +164,7 @@ test("management writes exact independent versions and full reviewed resolution"
   expect(f.detail.writes[0].body).toEqual({ expectedVersion: 3, priority: "URGENT" });
   await page.getByLabel("New status", { exact: true }).selectOption("RESOLVED");
   await page
-    .getByLabel("Customer-visible response or resolution", { exact: true })
+    .getByLabel("Status update explanation", { exact: true })
     .fill("Exact reviewed complaint resolution");
   await btn(page, "Review support change").click();
   await expect(page.getByRole("dialog")).toContainText(
@@ -178,19 +190,19 @@ test("changed management version preserves unsaved fields until explicit reload"
   const f = await workThreadFixture(page);
   await open(page);
   await page
-    .getByLabel("Customer-visible response or resolution", { exact: true })
+    .getByLabel("Status update explanation", { exact: true })
     .fill("Kept management draft");
   f.detail.record.version++;
   await btn(page, "Refresh conversation").click();
   await expect(btn(page, "Reload management fields")).toBeVisible();
-  await expect(
-    page.getByLabel("Customer-visible response or resolution", { exact: true }),
-  ).toHaveValue("Kept management draft");
+  await expect(page.getByLabel("Status update explanation", { exact: true })).toHaveValue(
+    "Kept management draft",
+  );
   await expect(btn(page, "Review support change")).toBeDisabled();
   await btn(page, "Reload management fields").click();
-  await expect(
-    page.getByLabel("Customer-visible response or resolution", { exact: true }),
-  ).toHaveValue("");
+  await expect(page.getByLabel("Status update explanation", { exact: true })).toHaveValue(
+    "",
+  );
   expect(f.detail.writes).toHaveLength(0);
 });
 test("fresh closure preflight blocks a reviewed reply without sending", async ({

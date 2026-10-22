@@ -3281,3 +3281,64 @@ address {
     right: 0.4rem;
   }
 }
+
+/* Shared support history: explicit labels supplement colour in every dashboard. */
+.support-timeline-entry {
+  padding: 1rem;
+  margin-block: 0.75rem;
+  border: 1px solid var(--border, #d7dde4);
+  border-radius: 0.75rem;
+  background: var(--surface, #fff);
+  scroll-margin-block: 7rem;
+}
+.support-timeline-entry .support-timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.6rem;
+}
+.support-timeline-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.support-timeline-entry time {
+  font-size: 0.75rem;
+  color: var(--muted, #536171);
+}
+.support-timeline-entry .support-timeline-author {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--muted, #536171);
+}
+.support-timeline-entry .support-timeline-body {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.support-timeline-status {
+  background: #f1f6fa;
+  border-inline-start: 3px solid #496b85;
+}
+.support-timeline-entry .support-timeline-transition {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+.support-timeline-internal {
+  background: #fff9ed;
+  border-style: dashed;
+  border-color: #ad8544;
+}
+.support-timeline-selected,
+.support-timeline-entry:focus-visible {
+  outline: 2px solid #365e80;
+  outline-offset: 3px;
+}

@@ -88,6 +88,9 @@ export function parseSupportPage(kind: SupportKind, staff: boolean, value: unkno
 }
 export const supportMessageSchema = z.object({
   id: z.uuid(),
+  kind: z.enum(["LEGACY", "REPLY", "INTERNAL_NOTE", "STATUS_CHANGE"]).optional(),
+  fromStatus: z.string().nullable().optional(),
+  toStatus: z.string().nullable().optional(),
   authorType: z.enum(["CUSTOMER", "STAFF", "SYSTEM"]),
   visibility: z.enum(["CUSTOMER", "INTERNAL"]),
   body: z.string(),

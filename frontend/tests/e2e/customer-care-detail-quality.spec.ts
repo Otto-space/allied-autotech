@@ -39,7 +39,7 @@ for (const state of ["empty", "error", "closed", "uncertain"] as const) {
       );
     await page.goto(thread(s));
     if (state === "empty")
-      await expect(page.getByText("No replies on this page.")).toBeVisible();
+      await expect(page.getByText("No conversation updates on this page.")).toBeVisible();
     if (state === "error") {
       await expect(page.locator(".ct-message-content").getByRole("alert")).toBeVisible();
       await expect(
@@ -63,7 +63,7 @@ test("loading messages never appear as an empty conversation", async ({ page }) 
   s.delayMessages = true;
   await page.goto(thread(s));
   await expect(page.getByText("Checking messages…")).toBeVisible();
-  await expect(page.getByText("No replies on this page.")).toHaveCount(0);
+  await expect(page.getByText("No conversation updates on this page.")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Review reply", exact: true }),
   ).toBeDisabled();
