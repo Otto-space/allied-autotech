@@ -75,6 +75,49 @@ stages, invent timestamps, promise an outcome or convert a stage into a percenta
 Cancellation, expiry, rejection and unknown server states stay explicit. Existing
 dated histories are preserved. Mobile guides stack vertically.
 
+### Support and progress release verification — 22 October 2026
+
+Application source `7be80b4e1655b10903d47a138efc40a11460080d` is deployed:
+
+- DigitalOcean deployment `41fc52c9-a2cf-4c67-b9ec-bd6bad067427` is ACTIVE.
+  All four image digests match the clean release manifest. The packaged read-only
+  production database check passed, the general worker started, and API liveness
+  and readiness returned 200.
+- Vercel deployment `dpl_BoXHn7rcnyG9YhxEt7v7VA9Roo7L` is READY and assigned to
+  https://alliedautotech.com. Its source metadata matches the backend commit.
+  The automatic Git deployment was cancelled before building; the authenticated
+  CLI deployment completed successfully without changing project configuration.
+- Wide local suites passed with 408 backend unit tests and 913 frontend unit tests.
+  The merged notification-awareness release also passed its focused 50 frontend
+  tests, type checks, lint and production build. The two support integration suites
+  passed all 16 tests on the newly created isolated
+  `127.0.0.1:52797/aat_support_progress_1e08ed23_test` database.
+- All 60 existing migrations replayed on that empty isolated database without
+  schema drift. No schema or production migration was added. Six managed backups,
+  latest `2026-10-22T05:22:09Z`, and the existing app-only database firewall were
+  checked before rollout. Existing encrypted off-device/PITR configuration and
+  the earlier managed restore and same-day isolated production restore evidence
+  were reviewed; this feature release did not perform a new production restore.
+- Nine container checks passed, covering non-root startup, secure CA handling,
+  packaged entrypoints, native media dependencies and application imports.
+  OpenAPI, API generation, formatting, whitespace and secret checks passed.
+- Local Edge/Playwright checks covered support roles, confirmation/cancellation,
+  conflicts, responsive layouts and accessibility, plus notification awareness
+  and customer booking regressions. The delivery panel changed from Queued to
+  Sent after Refresh without another mutation; one actual current stage remained
+  highlighted. Desktop 1440px and mobile 390px screenshots were inspected.
+- Hosted Edge checks at both widths verified that a protected support URL redirects
+  to the normal sign-in page, with meaningful content, no horizontal overflow,
+  no page errors and no failed script/style/font requests. These checks used only
+  the perimeter credential, not an owner or customer application session.
+
+Real customer email inbox receipt and signed-in hosted reply acceptance were not
+exercised by this release. Delivery integration tests used a fake provider; staff
+should confirm one reply on their existing test conversation. No old messages are
+resent. Browser push remains outside this release. Private access, disabled live
+payments and existing hosting capacity are preserved; no additional resource or
+subscription was purchased. These checks do not promise zero risk.
+
 ## Release verification — 22 October 2026
 
 - Source: `6df93869d470591886fbd0814fb7ddb4b54196c4`, branch `feat/customer-notification-awareness`.
