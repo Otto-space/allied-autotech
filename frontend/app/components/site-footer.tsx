@@ -6,7 +6,7 @@ import { catalogueOnly } from "@/lib/public-launch";
 export function SiteFooter() {
   return (
     <footer className="site-footer bg-ink text-white py-12 overflow-hidden relative">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 relative z-10">
+      <div className="site-footer__inner grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10 relative z-10">
         <div>
           <Brand inverse />
           <p className="brand-signature text-white/90 mb-6">
@@ -66,7 +66,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-xs text-white/70 pt-8 border-t border-white/10 relative z-10">
+      <div className="site-footer__inner flex flex-col md:flex-row justify-between items-center text-xs text-white/70 pt-8 border-t border-white/10 relative z-10">
         <p>
           © {new Date().getFullYear()} {business.name}. All rights reserved.
         </p>

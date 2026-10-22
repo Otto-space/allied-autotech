@@ -40,8 +40,7 @@
 }
 /* Original transparent emblem, used as decoration without repeating accessible names. */
 .partner-intro::before,
-.about-principles .about-section-heading::before,
-.contact-band::before {
+.about-principles .about-section-heading::before {
   content: "";
   display: block;
   flex: 0 0 auto;
@@ -56,14 +55,6 @@
 .about-principles .about-section-heading::before {
   width: 128px;
   margin: 0 auto 28px;
-}
-.contact-band::before {
-  width: 112px;
-}
-@media (max-width: 900px) {
-  .contact-band::before {
-    width: 64px;
-  }
 }
 @media (max-width: 700px) {
   .partner-intro::before {
@@ -87,8 +78,9 @@
   background-color: #06181f;
   border-top: 2px solid var(--brand-red);
 }
+.site-header .brand-logo,
 .site-footer .brand-logo {
-  width: 196px;
+  width: 160px;
 }
 /* Quiet echoes of the curved linework in the company's campaign posters. */
 .site-footer::before {
@@ -119,8 +111,10 @@
 .site-header.site-header--scrolled {
   --header-height: 68px;
 }
-.site-header__inner {
+.site-header__inner,
+.site-footer__inner {
   width: min(1320px, calc(100% - 64px));
+  margin-inline: auto;
 }
 .site-header__nav {
   gap: 2px;
@@ -1328,7 +1322,8 @@
 }
 
 @media (max-width: 1100px) {
-  .site-header__inner {
+  .site-header__inner,
+  .site-footer__inner {
     width: calc(100% - 40px);
   }
 }
@@ -1342,11 +1337,13 @@
   .site-header {
     --header-height: 68px;
   }
-  .site-header__inner {
+  .site-header__inner,
+  .site-footer__inner {
     width: calc(100% - 36px);
   }
-  .site-header .brand-logo {
-    width: 152px;
+  .site-header .brand-logo,
+  .site-footer .brand-logo {
+    width: 136px;
   }
 }
 .media-gallery__controls {
