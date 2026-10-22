@@ -57,21 +57,18 @@ account from `support@alliedautotech.com`. This passes the owner-operated
 external receiving and branded replying check; no password or message contents
 were requested or recorded.
 
-A website-submitted enquiry still needs acceptance: on-screen acknowledgement
-and reference, a saved record, its Support email alert, and a reply sent to the
-customer address entered on the form. Fresh authentication-header results and
-staff coverage are separate checks. This mailbox result does not approve
-privacy wording or enable public access automatically.
+The website enquiry email acceptance check also passed by owner confirmation:
+the alert reached Support, its received Reply-To matched the submitted customer
+address, and the customer received the reply from `support@alliedautotech.com`.
+Groups' Post replies to is set to Sender chooses recipient. The working staff
+procedure is Reply all, verify customer and Support recipients, and select
+`support@alliedautotech.com` as From. Reply to author selected the notification
+sender in the observed interface; staff must check recipients before sending.
 
-The owner subsequently confirmed that the website enquiry alert reached Support
-at approximately 08:20 Nigeria time on the same day. Google Groups' reply-to-author
-action selected the notification sender rather than the customer's address.
-Website alert receipt is accepted. The owner then inspected the received header
-and confirmed that Reply-To matches the customer's submitted email; no option
-appeared selected under the group's Post replies to setting. The application
-reply address has therefore been confirmed in the received message. Group reply
-configuration and customer receipt remain outstanding. Do not mark that reply
-as delivered or ask for another submission merely to reconfirm alert receipt.
+Fresh authentication-header results, staff dashboard visibility and actual
+staff coverage remain separate checks. This email acceptance does not approve
+privacy wording or enable public access automatically. Do not ask for another
+submission merely to reconfirm the completed email workflow.
 
 ## Previously confirmed VAT and quotations
 
@@ -104,6 +101,6 @@ Do not ask the owner to repeat these settled instructions.
     approved 12-month rule above. No blanket purge or automated deletion is approved.
 
 Before public enquiry intake, review the exact public customer-care/privacy text
-and complete the website enquiry-to-support acceptance check. The standalone
-support receiving/replying check has passed as recorded above. Checkout, paid
+and verify remaining staff handling. The standalone mailbox and website enquiry
+email checks have passed as recorded above. Checkout, paid
 reservations and live payments remain disabled under the approved launch scope.

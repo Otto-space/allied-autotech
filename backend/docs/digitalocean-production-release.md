@@ -120,19 +120,19 @@ the provider's invoice and the approved USD1 cap.
   22 October 2026, the owner confirmed that a message from another controlled
   email account reached Support and that the reply arrived at that account
   from `support@alliedautotech.com`. This is human acceptance evidence for
-  external receiving and branded replying. Delivery and handling of a
-  website-submitted enquiry still need end-to-end confirmation. The owner then
-  confirmed receipt of the website's general enquiry alert in Support at
-  approximately 08:20 Nigeria time on 22 October 2026. Google Groups selected
-  `notifications@notify.alliedautotech.com` as the recipient when replying to
-  the author. The customer reply is therefore not yet accepted. The source
-  passes the customer's validated address as Resend `reply_to`. The owner
-  subsequently inspected the received message and confirmed that Reply-To
-  matches the email entered on the website. No option appeared selected in
-  Groups' Post replies to setting. Received customer Reply-To is accepted;
-  configuring and verifying the Groups reply workflow remains outstanding.
-  The existing department-email and Resend reply-routing suites passed all
-  23 tests. No sender code change or deployment was required for this finding.
+  external receiving and branded replying. The owner also completed the
+  website enquiry email acceptance check on the same date: the general enquiry
+  alert reached Support, the received Reply-To matched the submitted customer
+  address, and the customer received a reply from `support@alliedautotech.com`.
+  Google Groups' Post replies to is set to Sender chooses recipient. The
+  verified workflow uses Reply all, checking that recipients are the customer
+  and Support and selecting Support as From. Reply to author selected the
+  notification sender in the observed web interface; do not use that action
+  without checking the recipient. The existing department-email and Resend
+  reply-routing suites passed all 23 tests. No sender code change or deployment
+  was required. This is owner-reported email acceptance; a separate staff
+  dashboard inspection and fresh authentication-header alignment are not
+  implied by receipt of the reply.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
   The hosted install reported development dependency findings; these were not
   represented as production runtime vulnerabilities or silently auto-fixed.
@@ -146,9 +146,9 @@ The production bucket's scoped-key upload/read/delete, private ACL, anonymous
 listing rejection and exact-origin CORS preflight passed. Full authenticated
 resource attachment/replacement/removal still needs the production owner account
 and authenticated canonical-host checks. The owner's Support mailbox acceptance
-is recorded above, together with receipt of a production website enquiry alert.
-Customer reply routing and fresh email-header alignment still need separate
-confirmation; startup logs and earlier staging tests do not certify them.
+is recorded above, together with receipt of a production website enquiry alert
+and branded customer reply. Fresh email-header alignment still needs separate
+confirmation; startup logs and earlier staging tests do not certify it.
 
 ## Required before public access
 
@@ -175,15 +175,11 @@ confirmation; startup logs and earlier staging tests do not certify them.
    passed the owner-operated external-account check on 22 October 2026.
 4. Obtain real owner-approved catalogue data/media. The 14 proposed service names
    remain a review proposal, not published records or approved prices.
-5. Complete the website enquiry acceptance check with an owner-controlled
-   recipient: submission acknowledgement/reference, saved enquiry, Support
-   email alert, and a branded reply addressed to the submitted customer email.
-   The standalone Support receiving/replying check and receipt of a website
-   enquiry alert have passed by owner confirmation. Automatic customer reply
-   selection failed in Google Groups; the owner confirmed the received Reply-To
-   is correct. Configure the group reply destination and confirm receipt of the
-   branded reply at the customer address. Google Groups' Reply to author action
-   may still select the notification author; check the actual To address.
+5. The website enquiry email acceptance check passed by owner confirmation:
+   Support alert, matching customer Reply-To and branded customer reply receipt.
+   Keep the verified Reply all / Support From procedure in the staff handover.
+   Inspect the saved enquiry in the staff dashboard separately; the email
+   receipt alone does not certify staff dashboard visibility or assignment.
 6. Complete the exact public privacy notice, retention rules and international
    processing safeguards. The approved data-handling instructions alone do not
    complete that review. Ordinary closed enquiries have an approved 12-month
