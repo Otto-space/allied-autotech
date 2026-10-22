@@ -1,130 +1,156 @@
 # Admin redesign release audit — 22 October 2026
 
-## Verified cause
+## Released outcome
 
-Direct, authenticated read-only provider inspection confirms that the canonical
-website serves a different release from the current redesign branch. This is a
-source-version difference; a browser-cache problem has not been established.
+The matching frontend and backend release is live on the canonical domains.
+This deployment preserves the private testing gate, enquiry-only launch mode,
+disabled live payments, existing hosting allocation and existing application data.
 
-| Item                                   | Verified value                                                                                              |
-| -------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Canonical frontend                     | `https://alliedautotech.com`                                                                                |
-| Active Vercel deployment               | `dpl_FvauJmGHUenbBtHfwibnVtjvguMw`, READY, Production                                                       |
-| Frontend source                        | `f32b529c112941d2015b745740abb56d4c21f04c`                                                                  |
-| Release branch                         | `deploy/public-browse-20261021`                                                                             |
-| Current redesign source                | `cafd28f0a0f4a05769e6f20249377f31cac8322c`                                                                  |
-| Active production API deployment       | `f18e29ee-4c53-4c4f-91cd-6008ccf1445b`                                                                      |
-| Production API image source            | `7acb19e1d6e505cb14abdf82674d6aa654e1c51b`; active image digests match the production release record        |
-| Production API                         | `https://api.alliedautotech.com`                                                                            |
-| Configured automatic production branch | `master`; the active release was explicitly deployed from the release worktree                              |
-| Latest redesign Preview attempt        | `dpl_5u23gavQCdMibK9jmqDbTHNy2nAM`, CANCELED; this does not establish a build failure or production release |
+| Item                                                   | Verified value                                                                |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Website                                                | https://alliedautotech.com                                                    |
+| Frontend deployment                                    | `dpl_G8rBxP8ERi8zL45hYGWWW7vDRLTT`, READY, production                         |
+| Frontend preview URL                                   | https://allied-autotech-9gir46o5p-michael-enochs-projects-3da06943.vercel.app |
+| Source commit for frontend and all four backend images | `a83a14091062d4991c15998636c9802727631166`                                    |
+| Release branch                                         | `release/admin-redesign-20261022`                                             |
+| Production API                                         | https://api.alliedautotech.com                                                |
+| Active backend deployment                              | `6aef7f8e-2824-45bc-b754-7224e1467472`                                        |
+| Database migration history                             | 60 completed migrations; post-migration schema check passed                   |
+| Hosted verification time                               | 2026-10-22T07:51:26.643Z                                                      |
 
-Provider inspection on this date supersedes the older staging-only deployment
-records. The production release deliberately excluded the newer workforce branch.
-Staging's application is archived; its data is retained. Re-enabling it would
-change the existing resource allocation and is not part of this diagnostic work.
+The provider's active backend deployment and all four immutable image digests
+match the release manifest. Vercel's canonical-domain deployment reports the same
+source commit. No hosting resources or production environment values were changed.
 
-## Page coverage
+## Why the changes were missing
 
-The live source register records **68 locally accepted milestones**, through
-vehicle stock. The redesign source records **109**, through managed workforce
-orders. These counts describe recorded local acceptance, not authenticated hosted
-acceptance of every page.
+Initial provider inspection found frontend commit
+`f32b529c112941d2015b745740abb56d4c21f04c` in deployment
+`dpl_FvauJmGHUenbBtHfwibnVtjvguMw`, with backend image source
+`7acb19e1d6e505cb14abdf82674d6aa654e1c51b` in deployment
+`f18e29ee-4c53-4c4f-91cd-6008ccf1445b`.
+The newer redesign branch was not deployed there. A browser-cache fault was not
+established. An earlier canceled preview was not evidence of a build failure.
 
-| Area                                                                                          | Comparison with live source                                                                                                       |
-| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Super Admin `/admin` overview                                                                 | Overview component, route and overview stylesheet are identical between the compared commits; the shared shell has later changes. |
-| Product-category detail; orders and aftercare; inventory; promotions; vehicle stock directory | Already present in the release baseline. These are not all missing redesigns.                                                     |
-| Vehicle creation/detail, inspections and vehicle sales                                        | Later redesign/acceptance work remains to be integrated.                                                                          |
-| Customers, staff support conversations, privacy and review moderation                         | Later redesigned management pages are missing from the live baseline.                                                             |
-| Payments, invoices, refunds, exceptions and disputes                                          | Later redesigned management pages are missing from the live baseline.                                                             |
-| Staff, invitations, branches, audit, processing jobs and owner policies                       | Later redesigned management pages are missing from the live baseline.                                                             |
-| Managed workforce pages                                                                       | Later implementation is missing; compatible backend contracts and an additive workforce migration are required.                   |
-| Central owner decision checklist                                                              | Proposed consolidation; do not present it as an implemented feature.                                                              |
-| Managed workforce finance                                                                     | Code is present in the redesign branch; its final page-acceptance record is unfinished.                                           |
+The release merges redesign source `cafd28f` into production release base
+`4b2e60d`. Conflicts were reviewed to retain signed proxy forwarding, private
+access, enquiry-only launch restrictions, approved inbox routing and database
+safeguards alongside the redesigned pages and backend contracts.
 
-The unauthenticated canonical `/admin` request returned 401. This is consistent
-with the perimeter gate and is not a visual check of the owner's signed-in page.
-No owner password, MFA code or authenticated owner session was used.
+## Page coverage and limits
 
-## Prepared integration
+| Area                                                                                      | Release status                                                                                                                                                                                              |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Super Admin /admin overview                                                               | Its main component, route and overview stylesheet were already identical between the compared sources. Later shared-shell changes are included; this release does not introduce a new main overview design. |
+| Product-category detail, orders/aftercare, inventory, promotions, vehicle stock directory | Already present in the previous release baseline.                                                                                                                                                           |
+| Vehicle creation/detail, inspections and sales                                            | Later redesign source included in this release.                                                                                                                                                             |
+| Customers, staff support, privacy review and review moderation                            | Later redesign source included.                                                                                                                                                                             |
+| Payments, invoices, refunds, exceptions and disputes                                      | Later redesign source included.                                                                                                                                                                             |
+| Staff, invitations, branches, audit logs, processing jobs and owner policies              | Later redesign source included.                                                                                                                                                                             |
+| Managed workforce pages                                                                   | Frontend, compatible backend contracts and additive migration deployed together.                                                                                                                            |
+| Central owner decision checklist                                                          | Still proposed; this deployment does not implement that consolidation.                                                                                                                                      |
+| Managed workforce finance                                                                 | Code deployed; focused desktop/mobile browser and accessibility checks passed. Its separate overall goal/page-acceptance record has not been marked complete by this release task.                          |
 
-- Isolated candidate: `C:/Users/PC/.codex/worktrees/allied-admin-redesign-20261022`.
-- Branch: `release/admin-redesign-20261022`.
-- Base: `4b2e60d`, including the production release's later onboarding and routing records.
-- Merge source: `cafd28f`, the current redesign branch.
-- Resolved conflicts retain production signed forwarding, private access,
-  enquiry-only launch restrictions, approved inbox routing, and guarded migration
-  recovery alongside the redesigned pages and contracts.
-- Existing source workspace and unrelated changes remain untouched.
-- One additional migration is required relative to the live baseline:
-  `20261018140000_workforce_access`. It adds workforce tables and work-order fields;
-  no applied migration is edited.
+The prior live register had 68 local acceptance milestones; the redesign register
+had 109. These are local records, not proof that every role and mutation has been
+accepted on production. No owner password, MFA code or owner session was used.
 
-## Verification status
+## Validation completed
 
-The integrated source has passed the local checks below. Release packaging and
-production-target verification remain open. It has **not** been promoted,
-published, or applied to a shared database by this task.
+- Backend TypeScript, script checks, lint, OpenAPI export/validation and mounted
+  route coverage passed; **390 backend unit tests** passed.
+- A newly created isolated PostgreSQL 18 database passed an empty replay of all
+  **60 migrations**, client generation, schema comparison and `db:check`.
+- The real PostgreSQL missing-column rejection and transaction rollback test
+  passed, followed by a clean schema check.
+- All **12 distinct workforce access scenarios** have passing evidence. Eleven
+  passed initially; the remaining case passed after correcting a stale notification
+  assertion. Personal inbox access is allowed, while export/legacy operational
+  paths remain denied. No runtime permission was loosened.
+- Frontend lint, types, **889 unit tests**, production-mode enquiry-only build and
+  runtime dependency audit passed.
+- **17 focused browser scenarios** passed across customers, payments, branches,
+  workforce overview and workforce finance: filters, cursor paging, reload,
+  selected-detail return, denied roles and accessibility checks.
+- Six additional customer/payment/branch captures at 430 and 1440 pixels, plus
+  workforce-finance captures, were inspected. No clipping, horizontal overflow,
+  overlays or application errors were observed.
+- Browser tests used Edge against the built local application with synthetic
+  API fixtures. The real API access suite used an isolated database.
+- All four Docker images were built from the clean release commit. **10 focused
+  image checks** passed, covering non-root execution, CA handling, entrypoints,
+  native dependencies, packaged migration rejection and isolated restore/schema
+  checks. Secret scanning and whitespace checks passed.
+- Formatting checks passed after normalizing checkout line endings and formatting
+  the identified files. Applied migration SQL was not edited.
 
-- A new isolated PostgreSQL 18 container was created for this task.
-- Confirmed target: `127.0.0.1:62471/allied_admin_redesign_20261022_ci`, environment `test`.
-- The database was verified empty before replay.
-- Prisma client generation, all 60 migrations, schema comparison and `db:check` passed.
-- OpenAPI export/validation, mounted-route coverage, backend TypeScript,
-  script TypeScript and lint passed.
-- All 390 backend unit tests passed; the real PostgreSQL missing-column rejection
-  and transaction rollback test passed, followed by a clean `db:check`.
-- All 12 distinct workforce access scenarios have passing evidence (11 in the
-  initial run; the remaining case passed after correcting a stale notification
-  assertion). Tests used a newly created restricted runtime role with no database
-  or table ownership, schema creation, TRUNCATE, superuser or role-creation rights.
-  Personal notification access is explicitly allowed; notification export and
-  legacy operational paths remain denied. No application permission was loosened.
-- Frontend lint/type checks, all **889 unit tests**, the production-mode
-  browse/enquiries build, and runtime dependency audit passed.
-- **17 focused browser scenarios passed** across customers, payments, branches,
-  workforce overview and workforce finance. Coverage includes filters, cursor
-  paging, reload, selected-detail return, denied roles and accessibility checks.
-- Browser plugin was unavailable; existing Playwright tests used Microsoft Edge
-  against the built local application with synthetic API fixtures. This is not
-  authenticated production acceptance or proof of all backend mutations.
-- Six additional native desktop/mobile captures of customers, payments and
-  branches passed page-title, meaningful-render, overflow, overlay and page-error
-  checks. They and the workforce-finance desktop/mobile captures were inspected.
-  Controls and records reflowed without clipping; no application errors appeared.
-- Formatting issues from Windows checkout line endings and seven existing/generated
-  files were corrected without changing applied migration SQL. Focused formatting
-  checks and Git whitespace checks passed.
+The first frontend unit attempt inherited unsuitable external runner settings,
+causing React test-helper and request-scope failures. Correcting that runner
+produced the complete 889-test pass. The initial notification test failure was
+an outdated expectation. These initial failures remain recorded in local logs.
 
-The first frontend unit attempt mistakenly inherited `NODE_ENV=production` and
-the proxy signing key from the external test runner. That caused React test-helper
-and request-scope failures. Correcting the runner produced the complete passing
-889-test run; the production build separately used the proper launch settings.
-These failed attempts are retained in local logs and are not represented as passes.
+## Database safety evidence
 
-Example local captures (synthetic data):
-[customers desktop](C:/Users/PC/.codex/allied-redesign-customers-1440-20261022.png),
-[customers mobile](C:/Users/PC/.codex/allied-redesign-customers-430-20261022.png),
-[payments desktop](C:/Users/PC/.codex/allied-redesign-payments-1440-20261022.png),
-[branches mobile](C:/Users/PC/.codex/allied-redesign-branches-430-20261022.png).
+The confirmed production target was
+`allied-autotech-staging-db-do-user-44970995-0.k.db.ondigitalocean.com:25060/allied_autotech_production`,
+environment `production`. The cluster's historical name does not make this a
+staging database. Strict TLS and separate runtime, backup and migration roles
+were used. Existing migration checksums matched; no unresolved migration failed.
+The runtime role had no database/table ownership, schema creation, TRUNCATE,
+superuser, role creation, replication or bypass-RLS privileges.
 
-No production migration, backup, restore rehearsal, account change, public-gate
-removal or hosting-resource change was performed. Historical restore evidence
-must not be represented as a new restore test of this candidate.
+Provider inspection found six managed backups, latest
+`2026-10-22T05:22:09Z`. The existing encrypted off-device backup and seven-day
+PITR configuration and prior separate managed restore evidence were reviewed.
+This task also created and verified a fresh dedicated production backup, then
+restored it into the **new isolated local database**
+`127.0.0.1:62471/allied_redesign_restore_20261022_test`.
+The rehearsal restored 82 original tables and 83 rows, advanced migration history
+from 59 to 60 through the guarded runner, and verified hashes of the original
+columns in every original table remained unchanged. It passed at
+`2026-10-22T07:32:25Z`. The production source was not written during rehearsal.
+This was a new local restore rehearsal, not a newly provisioned managed PITR test.
 
-## Release requirements
+The only production schema addition was
+`20261018140000_workforce_access`. The previous production schema check,
+`npm run db:migrate` with fresh verified backup evidence, and the candidate's
+post-migration `npm run db:check` all passed. Production migration finished at
+`2026-10-22T07:37:12Z`. New-table runtime DML and backup SELECT privileges were
+verified through existing default grants. Existing grants were not altered.
+Temporary operator network access was removed; the application-only firewall
+was verified again. No application database was reset, truncated, replaced or
+restored over. These checks reduce risk; they do not promise zero risk.
 
-1. Finish candidate checks, including merged security/launch behavior, affected
-   page rendering and role boundaries. Preserve separate unfinished page gates.
-2. Verify the actual production database target and migration history with the
-   dedicated operator credentials; reconcile pending migration and current
-   backup/recovery evidence through the repository's supported workflow.
-3. Prepare immutable compatible API/worker/frontend artifacts and a rollback
-   plan that preserves database compatibility and existing data.
-4. Promote only the reviewed release. Preserve private access and disabled live
-   transactions; redesign deployment does not authorise a public launch.
-5. Verify the canonical deployment identity and authorised hosted admin flows.
+## Hosted checks and remaining acceptance
 
-Provider lookup references: [Vercel REST API](https://vercel.com/docs/rest-api)
-and [DigitalOcean Apps API](https://docs.digitalocean.com/reference/api/reference/apps/).
+- Canonical API liveness and readiness return 200 after the new backend became
+  active. DigitalOcean's packaged pre-deploy database check also succeeded.
+- Unauthenticated canonical /admin remains protected with 401.
+- Real Edge browser checks at 430 and 1440 pixels confirmed that opening the
+  customer admin route without an account session redirects to the sign-in page.
+  The form rendered without overflow, page errors or failed script/style/font
+  requests. Both screenshots were inspected; no credentials were entered.
+- Using only the existing perimeter credential, login and customer/payment/branch
+  route HTML and their CSS assets return 200 on the canonical domain. The customer
+  stylesheet contains the new record layout. This confirms deployed page assets,
+  not access to customer records or an authenticated owner workflow.
+- The owner should review the linked management pages after signing in normally.
+  Production mutations, real financial transactions and every role-specific
+  workflow were not exercised by this release task.
+- Vercel still names `master` as its automatic production branch. This release
+  was explicitly deployed from the named release branch. Reconcile those branches
+  before a later automatic deployment so it cannot supersede the redesign with
+  an older source version.
+
+## Rollback and evidence retention
+
+The previous backend image digests, provider specification and deployment identity
+are retained in protected local release evidence. The additive migration remains
+compatible with the prior application; application rollback must preserve the
+database and must not downgrade or remove its data. A rollback was not performed.
+
+Release receipts, backup receipts and provider specifications are outside tracked
+source under the protected operations directory. They contain sensitive operational
+configuration and must not be copied into public issues or this report.
+The original working tree's unrelated changes were preserved. Staging remains
+archived and was not reactivated.

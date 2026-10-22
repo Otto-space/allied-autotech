@@ -4,7 +4,21 @@ Status: **deployed and privately gated; public launch is not complete**.
 Approved scope is browsing and enquiries. Checkout, paid reservations and live
 payments remain unavailable. This record contains no credentials.
 
-## Deployed release
+## Current release: admin redesign
+
+On 22 October 2026, the frontend and all four backend images were advanced to
+`a83a14091062d4991c15998636c9802727631166` from
+`release/admin-redesign-20261022`. Vercel deployment
+`dpl_G8rBxP8ERi8zL45hYGWWW7vDRLTT` serves the canonical domain; DigitalOcean
+deployment `6aef7f8e-2824-45bc-b754-7224e1467472` is active. The additive workforce
+migration passed the guarded production workflow, bringing history to 60 migrations.
+Private access and enquiry-only launch restrictions remain in place.
+
+See the [admin redesign release audit](../../frontend/docs/admin-redesign-release-audit-20261022.md)
+for the matching release identities, verification, backup/restore evidence and
+remaining acceptance limits. The initial release identifiers below are historical.
+
+## Initial prelaunch release
 
 - Source/image commit: `7acb19e1d6e505cb14abdf82674d6aa654e1c51b`, on
   `deploy/public-browse-20261021`, based on the stable staging source. The newer
