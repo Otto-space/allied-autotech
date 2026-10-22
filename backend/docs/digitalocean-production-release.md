@@ -130,9 +130,28 @@ the provider's invoice and the approved USD1 cap.
   passed, with component sizes, images, existing secrets, private access and
   disabled payments preserved. Thirty-two deployment-spec checks passed,
   including rejection of an unreviewed recipient. No application image rebuild
-  or schema change was necessary for this configuration-only update. The owner
-  has been asked to verify Workspace receiving and branded replying; delivery
-  and handling of a website enquiry still need end-to-end confirmation.
+  or schema change was necessary for this configuration-only update. On
+  22 October 2026, the owner confirmed that a message from another controlled
+  email account reached Support and that the reply arrived at that account
+  from `support@alliedautotech.com`. This is human acceptance evidence for
+  external receiving and branded replying. The owner also completed the
+  website enquiry email acceptance check on the same date: the general enquiry
+  alert reached Support, the received Reply-To matched the submitted customer
+  address, and the customer received a reply from `support@alliedautotech.com`.
+  Google Groups' Post replies to is set to Sender chooses recipient. The
+  verified workflow uses Reply all with Support as From and To and the customer
+  in Cc. The owner confirmed receipt using this exact arrangement; the Groups
+  interface did not allow moving the customer to To. Moving that address is
+  unnecessary. Remove the notification sender from additional recipients if
+  present, and verify every recipient before sending. Reply to author selected the
+  notification sender in the observed web interface; do not use that action
+  without checking the recipient. The existing department-email and Resend
+  reply-routing suites passed all 23 tests. No sender code change or deployment
+  was required. The owner subsequently confirmed finding and opening Website
+  Enquiry Check in the production staff dashboard. Email delivery/reply and
+  owner-dashboard visibility are accepted by human confirmation. This does not
+  verify another staff role's assignment permissions or fresh email-header
+  authentication alignment.
 - Frontend `npm audit --omit=dev` reported zero vulnerabilities at inspection.
   The hosted install reported development dependency findings; these were not
   represented as production runtime vulnerabilities or silently auto-fixed.
@@ -145,8 +164,10 @@ the provider's invoice and the approved USD1 cap.
 The production bucket's scoped-key upload/read/delete, private ACL, anonymous
 listing rejection and exact-origin CORS preflight passed. Full authenticated
 resource attachment/replacement/removal still needs the production owner account
-and authenticated canonical-host checks. Production outbound email receipt and support
-receiving/replying have not been certified by startup logs or earlier staging tests.
+and authenticated canonical-host checks. The owner's Support mailbox acceptance
+is recorded above, together with receipt of a production website enquiry alert
+and branded customer reply. Fresh email-header alignment still needs separate
+confirmation; startup logs and earlier staging tests do not certify it.
 
 ## Required before public access
 
@@ -168,12 +189,17 @@ receiving/replying have not been certified by startup logs or earlier staging te
    Upload workflows remain to be verified separately.
 3. The selected owner confirmed production email verification, and database
    inspection confirmed the resulting verification state. Fresh email header
-   alignment and support receiving/replying remain to be checked; staging
-   DMARC evidence is not silently treated as a new production receipt.
+   alignment remains to be checked; staging DMARC evidence is not silently
+   treated as a new production receipt. Support receiving and branded replying
+   passed the owner-operated external-account check on 22 October 2026.
 4. Obtain real owner-approved catalogue data/media. The 14 proposed service names
    remain a review proposal, not published records or approved prices.
-5. Verify receiving and replying through `support@alliedautotech.com` and the
-   essential production email path with authorised recipients.
+5. The website enquiry email acceptance check passed by owner confirmation:
+   Support alert, matching customer Reply-To and branded customer reply receipt.
+   Keep the verified Reply all / Support From procedure in the staff handover.
+   The owner also confirmed finding and opening the saved enquiry in the
+   production staff dashboard. This completes the tested owner enquiry
+   workflow; other staff-role assignment permissions were not exercised.
 6. Complete the exact public privacy notice, retention rules and international
    processing safeguards. The approved data-handling instructions alone do not
    complete that review. Ordinary closed enquiries have an approved 12-month

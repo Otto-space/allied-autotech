@@ -49,6 +49,33 @@ complaints, or override a legal hold. Reopened enquiries, holds, backup expiry
 and operational deletion/anonymisation procedures still need to be defined
 before enforcement. The exact public notice must reflect the reviewed schedule.
 
+## Support mailbox acceptance: confirmed 22 October 2026
+
+The owner confirmed that a message sent from another existing controlled email
+account reached the Support Google Group and that the reply arrived at that
+account from `support@alliedautotech.com`. This passes the owner-operated
+external receiving and branded replying check; no password or message contents
+were requested or recorded.
+
+The website enquiry email acceptance check also passed by owner confirmation:
+the alert reached Support, its received Reply-To matched the submitted customer
+address, and the customer received the reply from `support@alliedautotech.com`.
+Groups' Post replies to is set to Sender chooses recipient. The working staff
+procedure is Reply all with `support@alliedautotech.com` as From and To and the
+customer's submitted email in Cc. The owner confirmed customer receipt with this
+arrangement after reporting that Groups would only place the customer in Cc.
+There is no requirement to move the customer to To. Remove the notification
+sender from additional recipients if present, and check all recipients before
+sending. Reply to author selected the notification sender in the observed
+interface.
+
+The owner also confirmed finding and opening Website Enquiry Check in the
+production staff dashboard. The tested enquiry workflow is accepted. Fresh
+authentication-header results and other staff-role access were not verified
+by this check. This workflow acceptance does not approve
+privacy wording or enable public access automatically. Do not ask for another
+submission merely to reconfirm the completed email workflow.
+
 ## Previously confirmed VAT and quotations
 
 Advertised prices exclude VAT; add 7.5% after discounts to products/services and
@@ -80,5 +107,7 @@ Do not ask the owner to repeat these settled instructions.
     approved 12-month rule above. No blanket purge or automated deletion is approved.
 
 Before public enquiry intake, review the exact public customer-care/privacy text
-and verify the monitored support receiving/replying path. Checkout, paid
+and complete the remaining launch checks. The standalone mailbox and website
+enquiry workflow, including owner-dashboard visibility, have passed as recorded
+above. Checkout, paid
 reservations and live payments remain disabled under the approved launch scope.
