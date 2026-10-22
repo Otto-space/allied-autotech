@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "d7f5c9238478768e566975f2d397f12dd8f109d8f299b68c41f82fc5184d3fcb",
+  "sourceSha256": "31bc0013da1db5f3df7d2154b76052a4135d4c0aa6e4ebe7380b85ef896b1e0d",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -52594,6 +52594,18 @@
         {
           "schema": {
             "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the review resource; ownership is resolved server-side."
+          },
+          "required": false,
+          "name": "reviewId",
+          "in": "query",
+          "description": "Review Id used to constrain this request.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        },
+        {
+          "schema": {
+            "type": "string",
             "enum": ["PENDING", "APPROVED", "REJECTED"],
             "description": "Requested or filtered lifecycle state from the documented enum."
           },
@@ -52713,6 +52725,7 @@
       },
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [
+        "app/components/customer-review-detail.tsx",
         "app/components/reviews-panel.tsx",
         "lib/reviews/use-review-write.ts"
       ],
@@ -53194,6 +53207,7 @@
       },
       "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
       "sourceCandidates": [
+        "app/components/customer-review-detail.tsx",
         "app/components/reviews-panel.tsx",
         "lib/reviews/use-review-write.ts"
       ],
@@ -55234,6 +55248,164 @@
       "verification": "Backend routes, schemas, projections, source eligibility and moderation/version policy inspected. Nineteen intercepted production Edge review scenarios passed, including all targets, source revalidation, publication/rejection, stale/unknown writes, role restrictions, private-field exclusion and account isolation. Mobile accessibility/focus and stable dialog capture checked. Real API ownership, uniqueness/concurrency and delivery remain unverified."
     },
     {
+      "operationId": "getCustomersNotificationsSummary",
+      "method": "GET",
+      "path": "/api/v1/customers/notifications/summary",
+      "purpose": "Count all own unexpired unread notifications by related resource",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Count all own unexpired unread notifications by related resource.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "unreadCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Unread Count validated by this operation's strict request contract."
+                  },
+                  "groups": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "resourceType": {
+                          "type": ["string", "null"],
+                          "description": "Resource Type validated by this operation's strict request contract."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "BOOKING",
+                            "QUOTATION",
+                            "WORK_ORDER",
+                            "ORDER",
+                            "PAYMENT",
+                            "REFUND",
+                            "DISPUTE",
+                            "INSPECTION",
+                            "VEHICLE_TRANSACTION",
+                            "ENQUIRY",
+                            "COMPLAINT",
+                            "REVIEW",
+                            "PROMOTION",
+                            "SYSTEM"
+                          ],
+                          "description": "Type validated by this operation's strict request contract."
+                        },
+                        "category": {
+                          "type": "string",
+                          "enum": [
+                            "SECURITY",
+                            "TRANSACTIONAL",
+                            "OPERATIONAL",
+                            "MARKETING"
+                          ],
+                          "description": "Category validated by this operation's strict request contract."
+                        },
+                        "count": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Count validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": ["resourceType", "type", "category", "count"],
+                      "description": "Groups Item validated by this operation's strict request contract."
+                    },
+                    "description": "Groups validated by this operation's strict request contract."
+                  }
+                },
+                "required": ["unreadCount", "groups"],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
       "operationId": "getCustomersNotifications",
       "method": "GET",
       "path": "/api/v1/customers/notifications",
@@ -56096,6 +56268,164 @@
       "source": "app/components/notifications-panel.tsx; app/components/notification-preferences.tsx; lib/api/notification-schemas.ts",
       "implementation": "Reviewed channel/category enable or disable. Marketing enable explicitly records consent; matching saved response and consent timestamp required for confirmation. Unknown writes lock further changes.",
       "verification": "Backend routes, schemas, service defaults, selectors and database preference constraints inspected. Seventeen intercepted production Edge notification scenarios passed across all four roles, including consent, pagination, failures, unknown writes, account isolation and mobile accessibility. Real API ownership, provider delivery and preference concurrency remain unverified."
+    },
+    {
+      "operationId": "getStaffNotificationsSummary",
+      "method": "GET",
+      "path": "/api/v1/staff/notifications/summary",
+      "purpose": "Count all own unexpired unread notifications by related resource",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Count all own unexpired unread notifications by related resource.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "unreadCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Unread Count validated by this operation's strict request contract."
+                  },
+                  "groups": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "resourceType": {
+                          "type": ["string", "null"],
+                          "description": "Resource Type validated by this operation's strict request contract."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "BOOKING",
+                            "QUOTATION",
+                            "WORK_ORDER",
+                            "ORDER",
+                            "PAYMENT",
+                            "REFUND",
+                            "DISPUTE",
+                            "INSPECTION",
+                            "VEHICLE_TRANSACTION",
+                            "ENQUIRY",
+                            "COMPLAINT",
+                            "REVIEW",
+                            "PROMOTION",
+                            "SYSTEM"
+                          ],
+                          "description": "Type validated by this operation's strict request contract."
+                        },
+                        "category": {
+                          "type": "string",
+                          "enum": [
+                            "SECURITY",
+                            "TRANSACTIONAL",
+                            "OPERATIONAL",
+                            "MARKETING"
+                          ],
+                          "description": "Category validated by this operation's strict request contract."
+                        },
+                        "count": {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Count validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": ["resourceType", "type", "category", "count"],
+                      "description": "Groups Item validated by this operation's strict request contract."
+                    },
+                    "description": "Groups validated by this operation's strict request contract."
+                  }
+                },
+                "required": ["unreadCount", "groups"],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
     },
     {
       "operationId": "getStaffNotifications",

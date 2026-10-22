@@ -19,7 +19,7 @@ const statuses = {
   REJECTED: { label: "Rejected", description: "Not approved for public display." },
 } as const;
 
-function CustomerReview({ review }: { review: ReviewRecord }) {
+export function CustomerReview({ review }: { review: ReviewRecord }) {
   const state = statuses[review.status];
   return (
     <article className="cr-record" aria-labelledby={`review-${review.id}`}>

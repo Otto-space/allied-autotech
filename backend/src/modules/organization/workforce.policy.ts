@@ -191,6 +191,7 @@ export function bookingScope(
 function isPersonalNotificationPath(path: string): boolean {
   return (
     path === "/api/v1/staff/notifications" ||
+    path === "/api/v1/staff/notifications/summary" ||
     path === "/api/v1/staff/notifications/read-all" ||
     path === "/api/v1/staff/notifications/preferences/current" ||
     /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/read$/.test(

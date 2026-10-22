@@ -98,6 +98,32 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
               preferences: state.preferences,
             });
       if (state.failInbox) return fail(route, state.failStatus);
+      if (endpoint.endsWith("/summary")) {
+        const unread = state.items.filter(
+          (item) =>
+            !item.readAt && (!item.expiresAt || Date.parse(item.expiresAt) > Date.now()),
+        );
+        const groups = new Map<
+          string,
+          {
+            resourceType: string | null;
+            type: InboxNotification["type"];
+            category: InboxNotification["category"];
+            count: number;
+          }
+        >();
+        for (const item of unread) {
+          const key = `${item.resourceType}:${item.type}:${item.category}`;
+          const prior = groups.get(key);
+          groups.set(key, {
+            resourceType: item.resourceType,
+            type: item.type,
+            category: item.category,
+            count: (prior?.count ?? 0) + 1,
+          });
+        }
+        return reply(route, { unreadCount: unread.length, groups: [...groups.values()] });
+      }
       if (state.malformed) return reply(route, { items: [{}] });
       const selected = (
         state.paginate && url.searchParams.has("cursor")
