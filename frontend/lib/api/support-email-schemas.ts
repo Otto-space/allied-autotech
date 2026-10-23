@@ -13,10 +13,18 @@ export const supportEmailDeliveryPageSchema = z.object({
             "SUPPORT_REPLY_ADDRESS_MISSING",
             "STAGING_RECIPIENT_NOT_ALLOWLISTED",
             "SUPPORT_EMAIL_FAILED",
+            "PROVIDER_REJECTED",
+            "RETRY_EXHAUSTED",
           ])
           .nullable(),
         createdAt: z.iso.datetime(),
         sentAt: z.iso.datetime().nullable(),
+        attempts: z.number().int().nonnegative(),
+        nextRetryAt: z.iso.datetime().nullable(),
+        providerStatus: z
+          .enum(["DELIVERED", "DELAYED", "BOUNCED", "COMPLAINED", "FAILED", "SUPPRESSED"])
+          .nullable(),
+        providerUpdatedAt: z.iso.datetime().nullable(),
       }),
     )
     .max(20),

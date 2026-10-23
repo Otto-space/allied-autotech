@@ -5,6 +5,7 @@ import { createBookingActionsRouter } from "../modules/service-operations/bookin
 import { createPoliciesRouter } from "../modules/policies/policies.routes.js";
 import { createManualRefundsRouter } from "../modules/payments/manual-refunds.routes.js";
 import { Router } from "express";
+import { createResendWebhookRouter } from "../providers/messaging/resend-webhook.routes.js";
 import { publicLaunch } from "../common/middleware/public-launch.js";
 
 import { publicApiPaths } from "../common/contracts/public-api.js";
@@ -162,6 +163,7 @@ export function createApiRouter(options: ApiRouterOptions): Router {
   apiRouter.use("/admin", createAuditOperationsRouter());
   apiRouter.use("/webhooks/paystack", createPaystackWebhookRouter());
   apiRouter.use("/webhooks/monnify", createMonnifyWebhookRouter());
+  apiRouter.use("/webhooks/resend", createResendWebhookRouter());
   if (env.API_DOCS_ENABLED) {
     apiRouter.get("/openapi.json", (_req, res): void => {
       res.setHeader("Cache-Control", "no-store");

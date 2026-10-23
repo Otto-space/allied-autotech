@@ -10092,7 +10092,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/complaints/{supportId}/email-deliveries`
 
 - Operation ID: `getStaffSupportComplaintsBySupportIdEmailDeliveries`
-- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -10117,7 +10117,11 @@ Success: HTTP 200.
         "status": "QUEUED",
         "reason": "CHANNEL_DISABLED",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "sentAt": "2030-01-15T10:00:00.000Z"
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -10132,7 +10136,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/enquiries/{supportId}/email-deliveries`
 
 - Operation ID: `getStaffSupportEnquiriesBySupportIdEmailDeliveries`
-- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -10157,7 +10161,11 @@ Success: HTTP 200.
         "status": "QUEUED",
         "reason": "CHANNEL_DISABLED",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "sentAt": "2030-01-15T10:00:00.000Z"
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -13976,7 +13984,11 @@ Success: HTTP 200.
           "status": "QUEUED",
           "reason": "CHANNEL_DISABLED",
           "createdAt": "2030-01-15T10:00:00.000Z",
-          "sentAt": "2030-01-15T10:00:00.000Z"
+          "sentAt": "2030-01-15T10:00:00.000Z",
+          "attempts": 0,
+          "nextRetryAt": "2030-01-15T10:00:00.000Z",
+          "providerStatus": "DELIVERED",
+          "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }
@@ -14729,7 +14741,11 @@ Success: HTTP 200.
           "status": "QUEUED",
           "reason": "CHANNEL_DISABLED",
           "createdAt": "2030-01-15T10:00:00.000Z",
-          "sentAt": "2030-01-15T10:00:00.000Z"
+          "sentAt": "2030-01-15T10:00:00.000Z",
+          "attempts": 0,
+          "nextRetryAt": "2030-01-15T10:00:00.000Z",
+          "providerStatus": "DELIVERED",
+          "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }
@@ -20536,6 +20552,45 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 Missing or invalid production signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+
+
+## Messaging webhooks
+
+### POST `/webhooks/resend`
+
+- Operation ID: `postWebhooksResend`
+- Purpose: The exact raw JSON and Svix headers are signature-checked before processing. Only tagged Support email outcomes are retained. Duplicate events are acknowledged idempotently. Provider delivery to a mail server does not prove inbox placement or reading. Receive a signed Resend email outcome. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: EMAIL_PROVIDER
+- Authentication: Provider signature plus authoritative verification
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `svix-id` | header | string | Yes | Svix Id used to constrain this request. |
+| `svix-timestamp` | header | string | Yes | Svix Timestamp used to constrain this request. |
+| `svix-signature` | header | string | Yes | Provider-generated webhook signature verified against the exact raw request bytes. |
+
+Success: HTTP 204.
+
+```json
+{
+  "success": true,
+  "message": "Receive a signed Resend email outcome",
+  "data": {
+    "accepted": true,
+    "duplicate": true,
+    "ignored": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Webhook secret not configured
 
 
 ## Operational

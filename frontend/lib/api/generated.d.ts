@@ -4176,6 +4176,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/webhooks/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Receive a signed Resend email outcome
+         * @description The exact raw JSON and Svix headers are signature-checked before processing. Only tagged Support email outcomes are retained. Duplicate events are acknowledged idempotently. Provider delivery to a mail server does not prove inbox placement or reading. Receive a signed Resend email outcome. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        post: operations["postWebhooksResend"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/support/reviews/{reviewId}/photo": {
         parameters: {
             query?: never;
@@ -4205,7 +4225,7 @@ export interface paths {
         };
         /**
          * Read the latest customer email delivery attempts for this conversation
-         * @description Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffSupportComplaintsBySupportIdEmailDeliveries"];
         put?: never;
@@ -4225,7 +4245,7 @@ export interface paths {
         };
         /**
          * Read the latest customer email delivery attempts for this conversation
-         * @description Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffSupportEnquiriesBySupportIdEmailDeliveries"];
         put?: never;
@@ -69651,6 +69671,194 @@ export interface operations {
             };
         };
     };
+    postWebhooksResend: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Svix Id used to constrain this request.
+                 * @example synthetic-svix-id
+                 */
+                "svix-id": string;
+                /**
+                 * @description Svix Timestamp used to constrain this request.
+                 * @example synthetic-svix-timestamp
+                 */
+                "svix-timestamp": string;
+                /**
+                 * @description Provider-generated webhook signature verified against the exact raw request bytes.
+                 * @example synthetic-svix-signature
+                 */
+                "svix-signature": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Receive a signed Resend email outcome. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Receive a signed Resend email outcome",
+                     *       "data": {
+                     *         "accepted": true,
+                     *         "duplicate": true,
+                     *         "ignored": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                        /** @description Idempotent webhook-ingestion result. */
+                        data?: {
+                            /** @description Whether the event was accepted. */
+                            accepted: boolean;
+                            /** @description Whether the event was already processed. */
+                            duplicate?: boolean;
+                            /** @description Whether no eligible state transition existed. */
+                            ignored?: boolean;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Invalid signature */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Webhook secret not configured */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     getPublicSupportReviewsByReviewIdPhoto: {
         parameters: {
             query?: {
@@ -69813,7 +70021,11 @@ export interface operations {
                      *             "status": "QUEUED",
                      *             "reason": "CHANNEL_DISABLED",
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
-                     *             "sentAt": "2030-01-15T10:00:00.000Z"
+                     *             "sentAt": "2030-01-15T10:00:00.000Z",
+                     *             "attempts": 0,
+                     *             "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *             "providerStatus": "DELIVERED",
+                     *             "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
                      *           }
                      *         ]
                      *       },
@@ -69845,7 +70057,7 @@ export interface operations {
                                  * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
                                  * @enum {string|null}
                                  */
-                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | null;
+                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -69856,6 +70068,23 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 sentAt: string | null;
+                                /** @description Attempts validated by this operation's strict request contract. */
+                                attempts: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextRetryAt: string | null;
+                                /**
+                                 * @description Provider Status validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                providerUpdatedAt: string | null;
                             }[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
@@ -70068,7 +70297,11 @@ export interface operations {
                      *             "status": "QUEUED",
                      *             "reason": "CHANNEL_DISABLED",
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
-                     *             "sentAt": "2030-01-15T10:00:00.000Z"
+                     *             "sentAt": "2030-01-15T10:00:00.000Z",
+                     *             "attempts": 0,
+                     *             "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *             "providerStatus": "DELIVERED",
+                     *             "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
                      *           }
                      *         ]
                      *       },
@@ -70100,7 +70333,7 @@ export interface operations {
                                  * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
                                  * @enum {string|null}
                                  */
-                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | null;
+                                reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
                                 /**
                                  * Format: date-time
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -70111,6 +70344,23 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 sentAt: string | null;
+                                /** @description Attempts validated by this operation's strict request contract. */
+                                attempts: number;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                nextRetryAt: string | null;
+                                /**
+                                 * @description Provider Status validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                providerUpdatedAt: string | null;
                             }[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
@@ -108697,7 +108947,11 @@ export interface operations {
                      *               "status": "QUEUED",
                      *               "reason": "CHANNEL_DISABLED",
                      *               "createdAt": "2030-01-15T10:00:00.000Z",
-                     *               "sentAt": "2030-01-15T10:00:00.000Z"
+                     *               "sentAt": "2030-01-15T10:00:00.000Z",
+                     *               "attempts": 0,
+                     *               "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *               "providerStatus": "DELIVERED",
+                     *               "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
                      *             }
                      *           ]
                      *         }
@@ -108945,7 +109199,7 @@ export interface operations {
                                      * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
                                      * @enum {string|null}
                                      */
-                                    reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | null;
+                                    reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
                                     /**
                                      * Format: date-time
                                      * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -108956,6 +109210,23 @@ export interface operations {
                                      * @description ISO 8601 timestamp interpreted and validated by the server.
                                      */
                                     sentAt: string | null;
+                                    /** @description Attempts validated by this operation's strict request contract. */
+                                    attempts: number;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    nextRetryAt: string | null;
+                                    /**
+                                     * @description Provider Status validated by this operation's strict request contract.
+                                     * @enum {string|null}
+                                     */
+                                    providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    providerUpdatedAt: string | null;
                                 }[];
                             };
                         };
@@ -111940,7 +112211,11 @@ export interface operations {
                      *               "status": "QUEUED",
                      *               "reason": "CHANNEL_DISABLED",
                      *               "createdAt": "2030-01-15T10:00:00.000Z",
-                     *               "sentAt": "2030-01-15T10:00:00.000Z"
+                     *               "sentAt": "2030-01-15T10:00:00.000Z",
+                     *               "attempts": 0,
+                     *               "nextRetryAt": "2030-01-15T10:00:00.000Z",
+                     *               "providerStatus": "DELIVERED",
+                     *               "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
                      *             }
                      *           ]
                      *         }
@@ -112198,7 +112473,7 @@ export interface operations {
                                      * @description Plain-text business context; HTML is not accepted or rendered as trusted markup.
                                      * @enum {string|null}
                                      */
-                                    reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | null;
+                                    reason: "CHANNEL_DISABLED" | "CONSENT_WITHDRAWN" | "NO_RECIPIENT" | "SUPPORT_REPLY_ADDRESS_MISSING" | "STAGING_RECIPIENT_NOT_ALLOWLISTED" | "SUPPORT_EMAIL_FAILED" | "PROVIDER_REJECTED" | "RETRY_EXHAUSTED" | null;
                                     /**
                                      * Format: date-time
                                      * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -112209,6 +112484,23 @@ export interface operations {
                                      * @description ISO 8601 timestamp interpreted and validated by the server.
                                      */
                                     sentAt: string | null;
+                                    /** @description Attempts validated by this operation's strict request contract. */
+                                    attempts: number;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    nextRetryAt: string | null;
+                                    /**
+                                     * @description Provider Status validated by this operation's strict request contract.
+                                     * @enum {string|null}
+                                     */
+                                    providerStatus: "DELIVERED" | "DELAYED" | "BOUNCED" | "COMPLAINED" | "FAILED" | "SUPPRESSED" | null;
+                                    /**
+                                     * Format: date-time
+                                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                                     */
+                                    providerUpdatedAt: string | null;
                                 }[];
                             };
                         };

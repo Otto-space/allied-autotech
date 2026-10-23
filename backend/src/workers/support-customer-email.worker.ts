@@ -94,6 +94,7 @@ export class SupportCustomerEmailWorker {
         replyTo: payload.replyTo,
         ...renderSupportCustomerEmail(payload),
         idempotencyKey: event.eventId,
+        supportOutboxEventId: event.id,
       });
       await this.database.outboxEvent.updateMany({
         where,
@@ -105,7 +106,12 @@ export class SupportCustomerEmailWorker {
         },
       });
     } catch (error: unknown) {
-      if (error instanceof AppError && !error.retryable) terminal = true;
+      if (error instanceof AppError && !error.retryable) {
+        terminal = true;
+        if (code === "SUPPORT_EMAIL_FAILED") code = "PROVIDER_REJECTED";
+      } else if (terminal && code === "SUPPORT_EMAIL_FAILED") {
+        code = "RETRY_EXHAUSTED";
+      }
       await this.database.outboxEvent.updateMany({
         where,
         data: {

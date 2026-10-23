@@ -67,6 +67,8 @@ function accessFor(
   roles: string[];
 } {
   if (path.startsWith("/public/")) return { boundary: "public", roles: ["PUBLIC"] };
+  if (path === "/webhooks/resend")
+    return { boundary: "provider-webhook", roles: ["EMAIL_PROVIDER"] };
   if (path.startsWith("/webhooks/"))
     return { boundary: "provider-webhook", roles: ["PAYMENT_PROVIDER"] };
   if (path.startsWith("/customers/"))

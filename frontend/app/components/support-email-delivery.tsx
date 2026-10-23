@@ -18,6 +18,10 @@ const explanations = {
   STAGING_RECIPIENT_NOT_ALLOWLISTED:
     "This recipient is outside the testing email allowlist.",
   SUPPORT_EMAIL_FAILED: "Email delivery encountered an error.",
+  PROVIDER_REJECTED:
+    "The email provider rejected this message. Ask an administrator to review the provider result before any follow-up.",
+  RETRY_EXHAUSTED:
+    "Repeated delivery attempts failed. Ask an administrator to review the provider result before any follow-up.",
 };
 export function SupportEmailDelivery({
   base,
@@ -54,7 +58,9 @@ export function SupportEmailDeliverySummary({
       <h2 id="support-email-title">Customer email delivery</h2>
       <p>
         Saving a reply and sending its email are separate steps. Sent means the email
-        provider accepted it; inbox delivery and reading are not confirmed.
+        provider accepted it for processing. A "delivered" event confirms the
+        recipient&apos;s mail server accepted it; inbox placement and reading remain
+        unconfirmed.
       </p>
       <p>
         Email replies arrive in the Support mailbox and are not automatically added to
@@ -81,6 +87,27 @@ export function SupportEmailDeliverySummary({
             {page.items.map((item) => (
               <li key={item.id}>
                 <StatusBadge status={item.status} />
+                {item.status === "SENT" && <span> Provider accepted</span>}
+                {item.providerStatus && (
+                  <p>
+                    Provider delivery event:{" "}
+                    {item.providerStatus.toLowerCase().replaceAll("_", " ")}.{" "}
+                    {item.providerUpdatedAt && (
+                      <>
+                        Recorded{" "}
+                        {new Intl.DateTimeFormat("en-NG", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                          timeZone: "Africa/Lagos",
+                        }).format(new Date(item.providerUpdatedAt))}{" "}
+                        (Nigeria time).{" "}
+                      </>
+                    )}
+                    {item.providerStatus === "DELIVERED"
+                      ? "The recipient's mail server accepted it; inbox placement and reading are still unconfirmed."
+                      : "Check Resend and coordinate follow-up before sending again."}
+                  </p>
+                )}
                 <time dateTime={item.createdAt}>
                   {new Intl.DateTimeFormat("en-NG", {
                     dateStyle: "medium",
@@ -90,10 +117,14 @@ export function SupportEmailDeliverySummary({
                   (Nigeria time)
                 </time>
                 {item.reason && <p>{explanations[item.reason]}</p>}
+                {item.attempts > 0 && <p>Send attempts: {item.attempts}</p>}
                 {item.status === "RETRYING" && (
                   <p>
-                    Another attempt is scheduled automatically. Do not send the same reply
-                    again.
+                    Another attempt is scheduled automatically
+                    {item.nextRetryAt
+                      ? ` after ${new Intl.DateTimeFormat("en-NG", { dateStyle: "medium", timeStyle: "short", timeZone: "Africa/Lagos" }).format(new Date(item.nextRetryAt))} (Nigeria time)`
+                      : ""}
+                    . Do not send the same reply again.
                   </p>
                 )}
                 {item.status === "FAILED" && (

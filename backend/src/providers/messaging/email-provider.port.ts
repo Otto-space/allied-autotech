@@ -5,6 +5,7 @@ export interface TransactionalEmail {
   text: string;
   html: string;
   idempotencyKey: string;
+  supportOutboxEventId?: string;
 }
 
 export interface EmailProvider {
