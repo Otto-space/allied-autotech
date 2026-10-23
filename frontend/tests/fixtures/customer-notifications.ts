@@ -82,6 +82,8 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-notification-csrf-".repeat(3) });
     const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications`;
+    if (endpoint === `${base}/push` && request.method() === "GET")
+      return reply(route, { available: false, publicKey: null, enabled: false });
     if (!endpoint.startsWith(base)) return fail(route, 403);
     if (request.method() === "GET") {
       state.reads.push(endpoint + url.search);

@@ -5898,6 +5898,157 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/customers/notifications/{notificationId}`
+
+- Operation ID: `getCustomersNotificationsByNotificationId`
+- Purpose: Read one owned unexpired notification. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read one owned unexpired notification",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/notifications/push`
+
+- Operation ID: `getCustomersNotificationsPush`
+- Purpose: Read browser push availability and current session subscription status. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read browser push availability and current session subscription status",
+  "data": {
+    "available": true,
+    "publicKey": "synthetic-publickey",
+    "enabled": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PUT `/customers/notifications/push`
+
+- Operation ID: `putCustomersNotificationsPush`
+- Purpose: Opt this session into browser push. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `endpoint` | string | Yes | Endpoint validated by this operation's strict request contract. |
+| `keys` | object | Yes | Keys validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "endpoint": "synthetic-endpoint",
+  "keys": {
+    "p256dh": "synthetic-p256dh",
+    "auth": "synthetic-auth"
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Opt this session into browser push",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Unavailable or endpoint belongs to another account; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### DELETE `/customers/notifications/push`
+
+- Operation ID: `deleteCustomersNotificationsPush`
+- Purpose: Disable browser push for this session only. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Disable browser push for this session only",
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/customers/notifications/summary`
 
 - Operation ID: `getCustomersNotificationsSummary`
@@ -10748,6 +10899,157 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/notifications/{notificationId}`
+
+- Operation ID: `getStaffNotificationsByNotificationId`
+- Purpose: Read one owned unexpired notification. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `notificationId` | path | string (uuid) | Yes | Identifier selecting the notification resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read one owned unexpired notification",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "type": "synthetic-type",
+    "category": "synthetic-category",
+    "title": "synthetic-title",
+    "message": "synthetic-message",
+    "resourceType": "synthetic-resourcetype",
+    "resourceId": "synthetic-resourceid",
+    "supportMessageId": "00000000-0000-4000-8000-000000000001",
+    "readAt": "2030-01-15T10:00:00.000Z",
+    "expiresAt": "2030-01-15T10:00:00.000Z",
+    "createdAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Notification unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/notifications/push`
+
+- Operation ID: `getStaffNotificationsPush`
+- Purpose: Read browser push availability and current session subscription status. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read browser push availability and current session subscription status",
+  "data": {
+    "available": true,
+    "publicKey": "synthetic-publickey",
+    "enabled": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### PUT `/staff/notifications/push`
+
+- Operation ID: `putStaffNotificationsPush`
+- Purpose: Opt this session into browser push. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `endpoint` | string | Yes | Endpoint validated by this operation's strict request contract. |
+| `keys` | object | Yes | Keys validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "endpoint": "synthetic-endpoint",
+  "keys": {
+    "p256dh": "synthetic-p256dh",
+    "auth": "synthetic-auth"
+  }
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Opt this session into browser push",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "status": "synthetic-status"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 Unavailable or endpoint belongs to another account; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### DELETE `/staff/notifications/push`
+
+- Operation ID: `deleteStaffNotificationsPush`
+- Purpose: Disable browser push for this session only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Disable browser push for this session only",
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
 ### GET `/staff/notifications/summary`
 

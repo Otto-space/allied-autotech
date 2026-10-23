@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { BrowserPushSettings } from "./browser-push-settings";
+import { NotificationArrival } from "./notification-arrival";
 import Link from "next/link";
-import { customerNotificationDestination } from "@/lib/notifications/destinations";
+import {
+  customerNotificationDestination,
+  staffNotificationDestination,
+} from "@/lib/notifications/destinations";
+import { useNotificationAccess } from "@/lib/notifications/access-context";
 import { announceNotificationChange } from "@/lib/notifications/use-notification-summary";
 import { Bell, Check, RefreshCw } from "lucide-react";
 import { ApiError, apiRequest } from "@/lib/api/client";
@@ -139,6 +145,7 @@ export function AccountNotificationPreferences({
         <p>Choose optional email and SMS updates.</p>
       </header>
       <div className="cn-preferences-body">
+        <BrowserPushSettings role={role} />
         <Feedback message={records.error} />
         <Feedback
           message={message}
@@ -249,6 +256,7 @@ export function AccountNotificationInbox({
   userId,
   role = "CUSTOMER",
 }: AccountNotificationProps) {
+  const notificationAccess = useNotificationAccess();
   const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications`;
   const [filters, setFilters] = useState({ type: "", category: "", unreadOnly: false });
   const pagination = useCursorPage();
@@ -333,6 +341,9 @@ export function AccountNotificationInbox({
   }
   return (
     <section className="cn-inbox" aria-labelledby="inbox-title">
+      <Suspense fallback={<p role="status">Opening notification…</p>}>
+        <NotificationArrival role={role} />
+      </Suspense>
       <div className="cn-inbox-heading">
         <h2 id="inbox-title">Inbox</h2>
         <button
@@ -453,7 +464,9 @@ export function AccountNotificationInbox({
         <div className="cn-list">
           {records.data?.items.map((item) => {
             const destination =
-              role === "CUSTOMER" ? customerNotificationDestination(item) : null;
+              role === "CUSTOMER"
+                ? customerNotificationDestination(item)
+                : staffNotificationDestination(item, notificationAccess);
             return (
               <article
                 className={`cn-item${item.readAt ? " cn-item-read" : ""}`}

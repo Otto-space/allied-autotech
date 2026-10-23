@@ -24,6 +24,19 @@ const context = (request: Request): RequestSecurityContext => ({
 
 export class NotificationsController {
   constructor(private readonly service: NotificationsService = notificationsService) {}
+  detail = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Notification retrieved",
+        req.id,
+        await this.service.detail(
+          actor(req),
+          validated<{ notificationId: string }>(res, "params").notificationId,
+        ),
+      ),
+    );
+  };
 
   summary = async (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "private, no-store");

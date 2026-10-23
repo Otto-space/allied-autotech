@@ -5,6 +5,20 @@
   overflow-wrap: anywhere;
   padding-bottom: 32px;
 }
+.cn-browser-push {
+  border-bottom: 1px solid var(--cn-line);
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+}
+.cn-browser-push h3 {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+.cn-browser-push p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--cn-muted);
+}
 .cn-page-heading {
   margin-bottom: 24px;
 }

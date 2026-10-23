@@ -4764,6 +4764,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/customers/notifications/{notificationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read one owned unexpired notification
+         * @description Read one owned unexpired notification. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersNotificationsByNotificationId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/notifications/push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read browser push availability and current session subscription status
+         * @description Read browser push availability and current session subscription status. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getCustomersNotificationsPush"];
+        /**
+         * Opt this session into browser push
+         * @description Opt this session into browser push. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        put: operations["putCustomersNotificationsPush"];
+        post?: never;
+        /**
+         * Disable browser push for this session only
+         * @description Disable browser push for this session only. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deleteCustomersNotificationsPush"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/customers/notifications/summary": {
         parameters: {
             query?: never;
@@ -4863,6 +4911,54 @@ export interface paths {
         put: operations["putCustomersNotificationsPreferencesCurrent"];
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/notifications/{notificationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read one owned unexpired notification
+         * @description Read one owned unexpired notification. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffNotificationsByNotificationId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/notifications/push": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read browser push availability and current session subscription status
+         * @description Read browser push availability and current session subscription status. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffNotificationsPush"];
+        /**
+         * Opt this session into browser push
+         * @description Opt this session into browser push. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        put: operations["putStaffNotificationsPush"];
+        post?: never;
+        /**
+         * Disable browser push for this session only
+         * @description Disable browser push for this session only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        delete: operations["deleteStaffNotificationsPush"];
         options?: never;
         head?: never;
         patch?: never;
@@ -79198,6 +79294,911 @@ export interface operations {
             };
         };
     };
+    getCustomersNotificationsByNotificationId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the notification resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read one owned unexpired notification. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read one owned unexpired notification",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "type": "synthetic-type",
+                     *         "category": "synthetic-category",
+                     *         "title": "synthetic-title",
+                     *         "message": "synthetic-message",
+                     *         "resourceType": "synthetic-resourcetype",
+                     *         "resourceId": "synthetic-resourceid",
+                     *         "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "readAt": "2030-01-15T10:00:00.000Z",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Type validated by this operation's strict request contract. */
+                            type: string;
+                            /** @description Category validated by this operation's strict request contract. */
+                            category: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            message: string;
+                            /** @description Resource Type validated by this operation's strict request contract. */
+                            resourceType: string | null;
+                            /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                            resourceId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the support message resource; ownership is resolved server-side.
+                             */
+                            supportMessageId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            readAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Notification unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getCustomersNotificationsPush: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read browser push availability and current session subscription status. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read browser push availability and current session subscription status",
+                     *       "data": {
+                     *         "available": true,
+                     *         "publicKey": "synthetic-publickey",
+                     *         "enabled": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Available validated by this operation's strict request contract. */
+                            available: boolean;
+                            /** @description Public Key validated by this operation's strict request contract. */
+                            publicKey: string | null;
+                            /** @description Enabled validated by this operation's strict request contract. */
+                            enabled: boolean;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    putCustomersNotificationsPush: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "endpoint": "synthetic-endpoint",
+                 *       "keys": {
+                 *         "p256dh": "synthetic-p256dh",
+                 *         "auth": "synthetic-auth"
+                 *       }
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Endpoint validated by this operation's strict request contract. */
+                    endpoint: string;
+                    /** @description Keys validated by this operation's strict request contract. */
+                    keys: {
+                        /** @description P256dh validated by this operation's strict request contract. */
+                        p256dh: string;
+                        /** @description Auth validated by this operation's strict request contract. */
+                        auth: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Opt this session into browser push. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Opt this session into browser push",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                        /** @description Authorized response projection for: Opt this session into browser push. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unavailable or endpoint belongs to another account */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteCustomersNotificationsPush: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Disable browser push for this session only. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Disable browser push for this session only",
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                        /** @description No data field is returned for: Disable browser push for this session only. Completion is expressed by the HTTP status and message. */
+                        data?: null;
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getCustomersNotificationsSummary: {
         parameters: {
             query?: never;
@@ -80531,6 +81532,911 @@ export interface operations {
                             /** @description Identifier of the request resource; ownership is resolved server-side. */
                             requestId: string;
                         };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffNotificationsByNotificationId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the notification resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read one owned unexpired notification. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read one owned unexpired notification",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "type": "synthetic-type",
+                     *         "category": "synthetic-category",
+                     *         "title": "synthetic-title",
+                     *         "message": "synthetic-message",
+                     *         "resourceType": "synthetic-resourcetype",
+                     *         "resourceId": "synthetic-resourceid",
+                     *         "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "readAt": "2030-01-15T10:00:00.000Z",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Type validated by this operation's strict request contract. */
+                            type: string;
+                            /** @description Category validated by this operation's strict request contract. */
+                            category: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            message: string;
+                            /** @description Resource Type validated by this operation's strict request contract. */
+                            resourceType: string | null;
+                            /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                            resourceId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the support message resource; ownership is resolved server-side.
+                             */
+                            supportMessageId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            readAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Notification unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffNotificationsPush: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Read browser push availability and current session subscription status. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Read browser push availability and current session subscription status",
+                     *       "data": {
+                     *         "available": true,
+                     *         "publicKey": "synthetic-publickey",
+                     *         "enabled": true
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Available validated by this operation's strict request contract. */
+                            available: boolean;
+                            /** @description Public Key validated by this operation's strict request contract. */
+                            publicKey: string | null;
+                            /** @description Enabled validated by this operation's strict request contract. */
+                            enabled: boolean;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    putStaffNotificationsPush: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "endpoint": "synthetic-endpoint",
+                 *       "keys": {
+                 *         "p256dh": "synthetic-p256dh",
+                 *         "auth": "synthetic-auth"
+                 *       }
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Endpoint validated by this operation's strict request contract. */
+                    endpoint: string;
+                    /** @description Keys validated by this operation's strict request contract. */
+                    keys: {
+                        /** @description P256dh validated by this operation's strict request contract. */
+                        p256dh: string;
+                        /** @description Auth validated by this operation's strict request contract. */
+                        auth: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Opt this session into browser push. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Opt this session into browser push",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "status": "synthetic-status"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                        /** @description Authorized response projection for: Opt this session into browser push. */
+                        data?: {
+                            /**
+                             * Format: uuid
+                             * @description Public or authorized resource identifier.
+                             */
+                            id?: string;
+                            /** @description Current server-owned lifecycle state when applicable. */
+                            status?: string;
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unavailable or endpoint belongs to another account */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteStaffNotificationsPush: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Disable browser push for this session only. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Disable browser push for this session only",
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                        /** @description No data field is returned for: Disable browser push for this session only. Completion is expressed by the HTTP status and message. */
+                        data?: null;
                     };
                 };
             };

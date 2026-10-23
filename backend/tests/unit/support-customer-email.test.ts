@@ -136,7 +136,8 @@ describe("support customer email", () => {
     const rendered = renderSupportCustomerEmail(payload);
     expect(rendered.html).toContain("&lt;script&gt;");
     expect(rendered.text).toContain(payload.message);
-    expect(rendered.html).not.toContain("href=");
+    expect(rendered.html).not.toContain("/dashboard/");
+    expect(rendered.html).toContain('href="https://alliedautotech.com/help"');
   });
   it("uses the configured frontend and the real authenticated support route", () => {
     env.FRONTEND_URL = ["https://allied.example.test"];

@@ -238,6 +238,9 @@ export function refreshCsrf(): Promise<string> {
 }
 
 export function invalidateSession(reason?: "password-changed"): void {
+  void import("../notifications/browser-push")
+    .then(({ clearBrowserPush }) => clearBrowserPush())
+    .catch(() => undefined);
   clearAccountDrafts();
   redactVehicleRetries();
   redactReservationRetries();

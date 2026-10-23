@@ -32,6 +32,7 @@ import { WorkforceWorkspace, useWorkforceRefresh } from "./workforce-workspace";
 import { useNotificationSummary } from "@/lib/notifications/use-notification-summary";
 import { notificationNavigationCounts } from "@/lib/notifications/destinations";
 import { NotificationBadge } from "./notification-badge";
+import { NotificationAccessContext } from "@/lib/notifications/access-context";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
   typeof useResource<ReturnType<typeof parseOwnStaffProfile>>
@@ -56,10 +57,6 @@ export function DashboardShell({
   const [session, setSession] = useState<SessionState | null>(null);
   const notifications = useNotificationSummary(session);
   const unreadCount = notifications?.data?.unreadCount ?? 0;
-  const unreadLinks = notificationNavigationCounts(
-    notifications?.data,
-    audience === "customer",
-  );
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -105,6 +102,15 @@ export function DashboardShell({
     .flatMap((group) => group.links.map((link) => ({ ...link, group: group.label })))
     .filter((link) => pathname === link.href || pathname.startsWith(`${link.href}/`))
     .sort((a, b) => b.href.length - a.href.length)[0];
+  const notificationAccess = {
+    managed: !!session?.workforceManaged,
+    links: navigation.flatMap((group) => group.links.map((link) => link.href)),
+  };
+  const unreadLinks = notificationNavigationCounts(
+    notifications?.data,
+    audience === "customer",
+    notificationAccess,
+  );
   useEffect(() => {
     const dialog = mobileDialog.current;
     const opener = menuButton.current;
@@ -517,37 +523,39 @@ export function DashboardShell({
             )}
           <Feedback message={error} />
           <SessionContext.Provider value={session}>
-            <StaffPermissionContext.Provider
-              value={session.user.role === "STAFF" ? grants : null}
-            >
-              {session.workforceManaged ? (
-                verifiedWorkforce ? (
-                  pathname === "/admin/security" ||
-                  pathname === "/admin/notifications" ? (
-                    children
+            <NotificationAccessContext.Provider value={notificationAccess}>
+              <StaffPermissionContext.Provider
+                value={session.user.role === "STAFF" ? grants : null}
+              >
+                {session.workforceManaged ? (
+                  verifiedWorkforce ? (
+                    pathname === "/admin/security" ||
+                    pathname === "/admin/notifications" ? (
+                      children
+                    ) : (
+                      <WorkforceWorkspace
+                        key={JSON.stringify([
+                          verifiedWorkforce.version,
+                          verifiedWorkforce.assignments.map((a) => a.id),
+                        ])}
+                        access={verifiedWorkforce}
+                        refreshAccess={workforce.refresh}
+                      />
+                    )
                   ) : (
-                    <WorkforceWorkspace
-                      key={JSON.stringify([
-                        verifiedWorkforce.version,
-                        verifiedWorkforce.assignments.map((a) => a.id),
-                      ])}
-                      access={verifiedWorkforce}
-                      refreshAccess={workforce.refresh}
-                    />
+                    <>
+                      <Feedback message={workforce.error} />
+                      <p role="status">Checking current responsibility access…</p>
+                      <button className="button secondary" onClick={workforce.refresh}>
+                        Retry access check
+                      </button>
+                    </>
                   )
                 ) : (
-                  <>
-                    <Feedback message={workforce.error} />
-                    <p role="status">Checking current responsibility access…</p>
-                    <button className="button secondary" onClick={workforce.refresh}>
-                      Retry access check
-                    </button>
-                  </>
-                )
-              ) : (
-                children
-              )}
-            </StaffPermissionContext.Provider>
+                  children
+                )}
+              </StaffPermissionContext.Provider>
+            </NotificationAccessContext.Provider>
           </SessionContext.Provider>
         </main>
       </div>

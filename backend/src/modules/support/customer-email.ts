@@ -1,3 +1,4 @@
+import { renderBrandEmail } from "../../common/email/brand-template.js";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { env } from "../../config/env.js";
@@ -144,15 +145,12 @@ export function renderSupportCustomerEmail(
     `/dashboard/support/${payload.kind === "enquiry" ? "enquiries" : "complaints"}/${payload.conversationId}`,
     env.FRONTEND_URL[0],
   ).href;
-  const escaped = url
-    .replaceAll("&", "&amp;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("<", "&lt;");
-  return {
-    ...rendered,
-    text: `${rendered.text}\nView response: ${url}`,
-    html: `${rendered.html}<p><a href="${escaped}">View response</a></p>`,
-  };
+  return renderBrandEmail({
+    title: payload.title,
+    message: payload.message,
+    eyebrow: "Customer care",
+    action: { label: "View response", url },
+  });
 }
 
 export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: string) {

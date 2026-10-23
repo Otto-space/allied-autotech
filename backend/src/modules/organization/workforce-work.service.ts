@@ -3,6 +3,8 @@ import {
   supportEmailDeliveries,
 } from "../support/customer-email.js";
 import type { z } from "zod";
+import { notifySupportTeam } from "../notifications/team-notifications.js";
+import { enqueueNotification } from "../notifications/notifications.service.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { prisma } from "../../config/database.js";
@@ -645,6 +647,19 @@ export class WorkforceWorkService {
         previousStaffId: booking.assignedStaffId,
         reason: input.reason,
       });
+      if (technician.userId !== actor.userId && booking.assignedStaffId !== input.staffId)
+        await enqueueNotification(tx, {
+          userId: technician.userId,
+          type: "WORK_ORDER",
+          category: "OPERATIONAL",
+          title: "Workshop job assigned to you",
+          message:
+            "A workshop job has been assigned to you. Open the update to review the work.",
+          resourceType: "WORKFORCE_JOB",
+          resourceId: id,
+          deduplicationKey: `job-assigned:${id}:${input.expectedVersion + 1}`,
+          channels: [],
+        });
       return changedJob(tx, access, id);
     });
   }
@@ -1005,6 +1020,15 @@ export class WorkforceWorkService {
         previousStaffId: row.assignedStaffId,
         reason: input.reason,
       });
+      if (input.staffId !== row.assignedStaffId)
+        await notifySupportTeam(tx, {
+          kind: "ENQUIRY",
+          id,
+          event: `assigned:${id}:${input.expectedVersion + 1}`,
+          title: "Support conversation assigned to you",
+          actorUserId: actor.userId,
+          assignedOnly: true,
+        });
       return {
         id,
         version: input.expectedVersion + 1,

@@ -1,3 +1,4 @@
+import { notifySupportTeam } from "../notifications/team-notifications.js";
 import {
   enqueueSupportCustomerUpdate,
   supportEmailDeliveries,
@@ -91,6 +92,12 @@ export class SupportService {
         context,
       });
       await enqueueDepartmentEmail(transaction, { ...input, id: enquiry.id });
+      await notifySupportTeam(transaction, {
+        kind: "ENQUIRY",
+        id: enquiry.id,
+        event: `new:${enquiry.id}`,
+        title: "New customer enquiry",
+      });
       return enquiry;
     });
   }
@@ -140,6 +147,13 @@ export class SupportService {
               id: enquiry.id,
               email: customer.user.email,
             });
+            await notifySupportTeam(transaction, {
+              kind: "ENQUIRY",
+              id: enquiry.id,
+              event: `new:${enquiry.id}`,
+              title: "New customer enquiry",
+              actorUserId: actor.userId,
+            });
             return enquiry;
           },
           (id) => this.repository.ownedEnquirySummary(customer.id, id, transaction),
@@ -178,6 +192,12 @@ export class SupportService {
         email: input.email,
         subject: input.subject,
         message: input.description,
+      });
+      await notifySupportTeam(transaction, {
+        kind: "COMPLAINT",
+        id: complaint.id,
+        event: `new:${complaint.id}`,
+        title: "New customer complaint",
       });
       return {
         ...complaint,
@@ -238,6 +258,13 @@ export class SupportService {
               email: customer.user.email,
               subject: input.subject,
               message: input.description,
+            });
+            await notifySupportTeam(transaction, {
+              kind: "COMPLAINT",
+              id: complaint.id,
+              event: `new:${complaint.id}`,
+              title: "New customer complaint",
+              actorUserId: actor.userId,
             });
             const record = await this.repository.ownedComplaintSummary(
               customer.id,
@@ -367,28 +394,14 @@ export class SupportService {
               input.message,
               transaction,
             );
-            const assignedStaff = record.assignedStaffId
-              ? await transaction.staffProfile.findUnique({
-                  where: { id: record.assignedStaffId },
-                  select: { userId: true },
-                })
-              : null;
-            if (assignedStaff)
-              await enqueueNotification(transaction, {
-                userId: assignedStaff.userId,
-                type: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-                category: "OPERATIONAL",
-                title:
-                  kind === "enquiry"
-                    ? "New customer enquiry message"
-                    : "New customer complaint message",
-                message:
-                  "A customer added a message to an assigned support conversation.",
-                deduplicationKey: `${kind}:${id}:customer-message:${created.id}`,
-                resourceType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
-                resourceId: id,
-                channels: ["EMAIL"],
-              });
+            await notifySupportTeam(transaction, {
+              kind: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+              id,
+              event: `reply:${created.id}`,
+              title: "New customer reply",
+              actorUserId: actor.userId,
+              supportMessageId: created.id,
+            });
             await appendAuditEvent(transaction, {
               actorUserId: actor.userId,
               action: "CREATE",
@@ -610,6 +623,15 @@ export class SupportService {
           ? await this.repository.staffEnquiry(id, transaction)
           : await this.repository.staffComplaint(id, transaction);
       if (updated === null) throw supportNotFound();
+      if (record.assignedStaffId !== input.assignedStaffId && input.assignedStaffId)
+        await notifySupportTeam(transaction, {
+          kind: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+          id,
+          event: `assigned:${id}:${updated.version}`,
+          title: "Support conversation assigned to you",
+          actorUserId: actor.userId,
+          assignedOnly: true,
+        });
       return updated;
     });
   }

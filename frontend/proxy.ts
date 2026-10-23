@@ -18,6 +18,7 @@ function contentSecurityPolicy(nonce: string, allowWorkshopMap: boolean): string
   const development = process.env.NODE_ENV !== "production";
   return [
     "default-src 'self'",
+    "worker-src 'self'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${development ? " 'unsafe-eval'" : ""}`,
     `style-src 'self' ${development ? "'unsafe-inline'" : `'nonce-${nonce}'`}`,
     "style-src-attr 'unsafe-inline'",

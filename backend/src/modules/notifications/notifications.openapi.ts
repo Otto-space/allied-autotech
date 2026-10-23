@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
+import { pushSubscriptionSchema } from "./push.schemas.js";
 import {
   notificationListQuerySchema,
   notificationSummarySchema,
@@ -38,6 +39,75 @@ const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 
 export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
   for (const prefix of ["/customers/notifications", "/staff/notifications"] as const) {
+    registry.registerPath({
+      method: "get",
+      path: `${prefix}/{notificationId}`,
+      tags: ["Notifications"],
+      summary: "Read one owned unexpired notification",
+      security: [{ sessionCookie: [] }],
+      request: { params: notificationParamsSchema as never },
+      responses: {
+        "200": {
+          description: "Owned notification",
+          content: {
+            "application/json": {
+              schema: response.extend({ data: inboxPage.shape.items.element }),
+            },
+          },
+        },
+        "404": { description: "Notification unavailable" },
+      },
+    });
+    registry.registerPath({
+      method: "get",
+      path: `${prefix}/push`,
+      tags: ["Notifications"],
+      summary: "Read browser push availability and current session subscription status",
+      security: [{ sessionCookie: [] }],
+      responses: {
+        "200": {
+          description: "Browser push settings",
+          content: {
+            "application/json": {
+              schema: response.extend({
+                data: z.object({
+                  available: z.boolean(),
+                  publicKey: z.string().nullable(),
+                  enabled: z.boolean(),
+                }),
+              }),
+            },
+          },
+        },
+      },
+    });
+    registry.registerPath({
+      method: "put",
+      path: `${prefix}/push`,
+      tags: ["Notifications"],
+      summary: "Opt this session into browser push",
+      security: [{ sessionCookie: [] }],
+      request: {
+        headers: csrf as never,
+        body: {
+          required: true,
+          content: { "application/json": { schema: pushSubscriptionSchema } },
+        },
+      },
+      responses: {
+        "200": { description: "Subscription saved" },
+        "409": { description: "Unavailable or endpoint belongs to another account" },
+      },
+    });
+    registry.registerPath({
+      method: "delete",
+      path: `${prefix}/push`,
+      tags: ["Notifications"],
+      summary: "Disable browser push for this session only",
+      security: [{ sessionCookie: [] }],
+      request: { headers: csrf as never },
+      responses: { "200": { description: "Subscription disabled" } },
+    });
     registry.registerPath({
       method: "get",
       path: `${prefix}/summary`,

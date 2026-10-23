@@ -4,6 +4,9 @@ import { requireCustomer, requireStaff } from "../../common/middleware/authorize
 import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { NotificationsController } from "./notifications.controller.js";
+import { PushService } from "./push.service.js";
+import { pushSubscriptionSchema } from "./push.schemas.js";
+import { successResponse } from "../../common/http/api-response.js";
 import {
   notificationListQuerySchema,
   notificationParamsSchema,
@@ -16,6 +19,52 @@ import {
 function routes(): Router {
   const router = Router();
   const controller = new NotificationsController();
+  const push = new PushService();
+  router.get(
+    "/push",
+    validate({ query: notificationsEmptyQuerySchema }),
+    async (req, res) => {
+      res.setHeader("Cache-Control", "private, no-store");
+      res.json(
+        successResponse(
+          "Browser notification settings",
+          req.id,
+          await push.status(req.actor!),
+        ),
+      );
+    },
+  );
+  router.put(
+    "/push",
+    requireCsrf,
+    validate({ body: pushSubscriptionSchema, query: notificationsEmptyQuerySchema }),
+    async (req, res) => {
+      res.json(
+        successResponse(
+          "Browser notifications enabled",
+          req.id,
+          await push.subscribe(req.actor!, res.locals.validated?.["body"]),
+        ),
+      );
+    },
+  );
+  router.delete(
+    "/push",
+    requireCsrf,
+    validate({
+      body: notificationsEmptyBodySchema,
+      query: notificationsEmptyQuerySchema,
+    }),
+    async (req, res) => {
+      res.json(
+        successResponse(
+          "Browser notifications disabled",
+          req.id,
+          await push.unsubscribe(req.actor!),
+        ),
+      );
+    },
+  );
   router.get("/", validate({ query: notificationListQuerySchema }), controller.list);
   router.get(
     "/summary",
@@ -55,6 +104,11 @@ function routes(): Router {
       headers: preferenceRequestHeadersSchema,
     }),
     controller.updatePreference,
+  );
+  router.get(
+    "/:notificationId",
+    validate({ params: notificationParamsSchema, query: notificationsEmptyQuerySchema }),
+    controller.detail,
   );
   return router;
 }

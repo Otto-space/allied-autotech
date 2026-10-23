@@ -1,4 +1,5 @@
 import { fileURLToPath } from "node:url";
+import { createECDH } from "node:crypto";
 
 import { config } from "dotenv";
 import { z } from "zod";
@@ -192,6 +193,10 @@ const environmentSchema = z.object({
   DEPARTMENT_SALES_EMAIL: optionalEmail,
   DEPARTMENT_SUPPORT_EMAIL: optionalEmail,
   EMAIL_DELIVERY_ENABLED: booleanValue(false),
+  PUSH_DELIVERY_ENABLED: booleanValue(false),
+  VAPID_PUBLIC_KEY: optionalNonEmptyString,
+  VAPID_PRIVATE_KEY: optionalNonEmptyString,
+  VAPID_SUBJECT: optionalNonEmptyString,
   SMS_DELIVERY_ENABLED: booleanValue(false),
   STAGING_EMAIL_ALLOWLIST: optionalCommaSeparatedValues,
   STAGING_SMS_ALLOWLIST: optionalCommaSeparatedValues,
@@ -318,6 +323,26 @@ if (!environment.success) {
   throw new Error(
     `Invalid server environment configuration: ${invalidFields.join(", ")}`,
   );
+}
+
+if (environment.data.PUSH_DELIVERY_ENABLED) {
+  const { VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT } = environment.data;
+  try {
+    if (
+      !VAPID_PUBLIC_KEY ||
+      !VAPID_PRIVATE_KEY ||
+      !VAPID_SUBJECT ||
+      !/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/.test(VAPID_SUBJECT)
+    )
+      throw new Error();
+    const key = createECDH("prime256v1");
+    key.setPrivateKey(Buffer.from(VAPID_PRIVATE_KEY, "base64url"));
+    if (key.getPublicKey().toString("base64url") !== VAPID_PUBLIC_KEY) throw new Error();
+  } catch {
+    throw new Error(
+      "Browser push requires matching VAPID keys and a valid mailto contact",
+    );
+  }
 }
 
 const localOnlyKey = (fill: number): string => Buffer.alloc(32, fill).toString("base64");

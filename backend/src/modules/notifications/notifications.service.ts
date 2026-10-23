@@ -21,6 +21,8 @@ import type {
   NotificationDeliveryPayload,
 } from "./notifications.types.js";
 import { notificationPage } from "./notifications.types.js";
+import { pushConfigured } from "./push.service.js";
+import { pushEventType } from "./push.schemas.js";
 
 type Transaction = Prisma.TransactionClient;
 
@@ -79,6 +81,27 @@ export async function enqueueNotification(
     select: { id: true },
   });
 
+  if (pushConfigured()) {
+    const now = new Date();
+    const subscriptions = await transaction.pushSubscription.findMany({
+      where: {
+        userId: input.userId,
+        disabledAt: null,
+        session: { revokedAt: null, expiresAt: { gt: now }, idleExpiresAt: { gt: now } },
+      },
+      select: { id: true },
+    });
+    if (subscriptions.length)
+      await transaction.outboxEvent.createMany({
+        data: subscriptions.map((subscription) => ({
+          eventId: randomUUID(),
+          aggregateType: "Notification",
+          aggregateId: notification.id,
+          eventType: pushEventType,
+          payload: { subscriptionId: subscription.id, notificationId: notification.id },
+        })),
+      });
+  }
   for (const channel of new Set(input.channels ?? [])) {
     const enabledByRuntime =
       channel === "EMAIL" ? env.EMAIL_DELIVERY_ENABLED : env.SMS_DELIVERY_ENABLED;
@@ -148,6 +171,13 @@ export class NotificationsService {
   async list(actor: AuthenticatedActor, query: NotificationListQuery) {
     assertNotificationActor(actor);
     return notificationPage(await this.repository.list(actor.userId, query), query.limit);
+  }
+  async detail(actor: AuthenticatedActor, id: string) {
+    assertNotificationActor(actor);
+    const item = await this.repository.owned(id, actor.userId, this.database);
+    if (!item || (item.expiresAt && item.expiresAt <= new Date()))
+      throw notificationNotFound();
+    return item;
   }
 
   async summary(actor: AuthenticatedActor) {

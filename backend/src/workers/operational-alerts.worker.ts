@@ -103,7 +103,7 @@ export class OperationalAlertsWorker {
                 title: "Payment dispute requires attention",
                 message:
                   "Review acknowledgement, private evidence and the authoritative provider deadline in the dispute queue.",
-                resourceType: "PAYMENT",
+                resourceType: "DISPUTE",
                 resourceId: dispute.id,
                 deduplicationKey: `dispute:${dispute.id}:reminder:${new Date().toISOString().slice(0, 10)}:${userId}`,
                 channels: ["EMAIL"],

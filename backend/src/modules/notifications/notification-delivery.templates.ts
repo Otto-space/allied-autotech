@@ -1,27 +1,16 @@
+import { renderBrandEmail } from "../../common/email/brand-template.js";
 import type { NotificationDeliveryPayload } from "./notifications.types.js";
-
-function escapeHtml(value: string): string {
-  return value.replace(
-    /[&<>'"]/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        "'": "&#39;",
-        '"': "&quot;",
-      })[character] ?? character,
-  );
-}
-
 export function renderNotificationEmail(payload: NotificationDeliveryPayload) {
-  return {
-    subject: payload.title,
-    text:
-      payload.message +
-      (payload.bookingAction
-        ? `\nConfirm attendance or cancel: ${payload.bookingAction.url}`
-        : ""),
-    html: `<h1>${escapeHtml(payload.title)}</h1><p>${escapeHtml(payload.message).replaceAll("\n", "<br>")}</p>${payload.bookingAction ? `<p><a href="${escapeHtml(payload.bookingAction.url)}">Review appointment: confirm attendance or cancel</a></p>` : ""}`,
-  };
+  return renderBrandEmail({
+    title: payload.title,
+    message: payload.message,
+    ...(payload.bookingAction
+      ? {
+          action: {
+            label: "Review appointment: confirm attendance or cancel",
+            url: payload.bookingAction.url,
+          },
+        }
+      : {}),
+  });
 }

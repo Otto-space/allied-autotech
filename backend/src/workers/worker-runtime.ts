@@ -1,4 +1,5 @@
 import { SupportCustomerEmailWorker } from "./support-customer-email.worker.js";
+import { PushWorker } from "./push.worker.js";
 import { OperationalAlertsWorker } from "./operational-alerts.worker.js";
 import { DepartmentEmailWorker } from "./department-email.worker.js";
 import { RefundWorker } from "./refund.worker.js";
@@ -63,6 +64,7 @@ export async function runGeneralWorker(): Promise<void> {
     env.SMS_DELIVERY_ENABLED ? new TermiiSmsProvider() : null,
   );
   const webhook = new PaymentWebhookRetryWorker();
+  const push = new PushWorker();
   const departmentEmail = new DepartmentEmailWorker(
     env.EMAIL_DELIVERY_ENABLED ? new ResendEmailProvider() : null,
   );
@@ -94,6 +96,7 @@ export async function runGeneralWorker(): Promise<void> {
   );
   try {
     while (!stop.signal.aborted) {
+      await safely("browser-push", () => push.runOnce(env.WORKER_BATCH_SIZE));
       await safely("notification-delivery", () =>
         notification.runOnce(env.WORKER_BATCH_SIZE),
       );

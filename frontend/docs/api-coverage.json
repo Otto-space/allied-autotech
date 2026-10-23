@@ -1,6 +1,6 @@
 {
   "source": "../backend/docs/api/allied-autotech.openapi.json",
-  "sourceSha256": "7477943ddc3a4e3f14ad972b5a276874bb6cb16316d173de66f65cfa2c04a342",
+  "sourceSha256": "5c0eaac641a608803d26f7b1d4be0a17a44adf8febac12615be93b28261889f7",
   "note": "Private contract inventory. Source candidates are search hints, not proof of consumption. Response schemas with additionalProperties may be incomplete; reconcile serializers. Operational routes outside OpenAPI are tracked in the Markdown inventory.",
   "operations": [
     {
@@ -55920,6 +55920,580 @@
       "verification": "Backend routes, schemas, projections, source eligibility and moderation/version policy inspected. Nineteen intercepted production Edge review scenarios passed, including all targets, source revalidation, publication/rejection, stale/unknown writes, role restrictions, private-field exclusion and account isolation. Mobile accessibility/focus and stable dialog capture checked. Real API ownership, uniqueness/concurrency and delivery remain unverified."
     },
     {
+      "operationId": "getCustomersNotificationsByNotificationId",
+      "method": "GET",
+      "path": "/api/v1/customers/notifications/{notificationId}",
+      "purpose": "Read one owned unexpired notification",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the notification resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "notificationId",
+          "in": "path",
+          "description": "Identifier selecting the notification resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read one owned unexpired notification.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Type validated by this operation's strict request contract."
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Category validated by this operation's strict request contract."
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Title validated by this operation's strict request contract."
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "resourceType": {
+                    "type": ["string", "null"],
+                    "description": "Resource Type validated by this operation's strict request contract."
+                  },
+                  "resourceId": {
+                    "type": ["string", "null"],
+                    "description": "Identifier of the resource resource; ownership is resolved server-side."
+                  },
+                  "supportMessageId": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Identifier of the support message resource; ownership is resolved server-side."
+                  },
+                  "readAt": {
+                    "type": ["string", "null"],
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "expiresAt": {
+                    "type": ["string", "null"],
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "category",
+                  "title",
+                  "message",
+                  "resourceType",
+                  "resourceId",
+                  "supportMessageId",
+                  "readAt",
+                  "expiresAt",
+                  "createdAt"
+                ],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "Notification unavailable",
+          "schema": null
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getCustomersNotificationsPush",
+      "method": "GET",
+      "path": "/api/v1/customers/notifications/push",
+      "purpose": "Read browser push availability and current session subscription status",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read browser push availability and current session subscription status.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "available": {
+                    "type": "boolean",
+                    "description": "Available validated by this operation's strict request contract."
+                  },
+                  "publicKey": {
+                    "type": ["string", "null"],
+                    "description": "Public Key validated by this operation's strict request contract."
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enabled validated by this operation's strict request contract."
+                  }
+                },
+                "required": ["available", "publicKey", "enabled"],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "putCustomersNotificationsPush",
+      "method": "PUT",
+      "path": "/api/v1/customers/notifications/push",
+      "purpose": "Opt this session into browser push",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "maxLength": 2048,
+            "description": "Endpoint validated by this operation's strict request contract."
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "p256dh": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "description": "P256dh validated by this operation's strict request contract."
+              },
+              "auth": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "description": "Auth validated by this operation's strict request contract."
+              }
+            },
+            "required": ["p256dh", "auth"],
+            "additionalProperties": false,
+            "description": "Keys validated by this operation's strict request contract."
+          }
+        },
+        "required": ["endpoint", "keys"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Opt this session into browser push.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Opt this session into browser push.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "Unavailable or endpoint belongs to another account",
+          "schema": null
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "deleteCustomersNotificationsPush",
+      "method": "DELETE",
+      "path": "/api/v1/customers/notifications/push",
+      "purpose": "Disable browser push for this session only",
+      "audience": "customer-facing",
+      "accessBoundary": "authenticated-customer",
+      "roles": ["CUSTOMER"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Disable browser push for this session only.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              },
+              "data": {
+                "type": "null",
+                "description": "No data field is returned for: Disable browser push for this session only. Completion is expressed by the HTTP status and message."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
       "operationId": "getCustomersNotificationsSummary",
       "method": "GET",
       "path": "/api/v1/customers/notifications/summary",
@@ -56991,6 +57565,580 @@
       "source": "app/components/notifications-panel.tsx; app/components/notification-preferences.tsx; lib/api/notification-schemas.ts",
       "implementation": "Reviewed channel/category enable or disable. Marketing enable explicitly records consent; matching saved response and consent timestamp required for confirmation. Unknown writes lock further changes.",
       "verification": "Backend routes, schemas, service defaults, selectors and database preference constraints inspected. Seventeen intercepted production Edge notification scenarios passed across all four roles, including consent, pagination, failures, unknown writes, account isolation and mobile accessibility. Real API ownership, provider delivery and preference concurrency remain unverified."
+    },
+    {
+      "operationId": "getStaffNotificationsByNotificationId",
+      "method": "GET",
+      "path": "/api/v1/staff/notifications/{notificationId}",
+      "purpose": "Read one owned unexpired notification",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the notification resource; ownership is resolved server-side."
+          },
+          "required": true,
+          "name": "notificationId",
+          "in": "path",
+          "description": "Identifier selecting the notification resource.",
+          "example": "00000000-0000-4000-8000-000000000001"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read one owned unexpired notification.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Type validated by this operation's strict request contract."
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Category validated by this operation's strict request contract."
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Title validated by this operation's strict request contract."
+                  },
+                  "message": {
+                    "type": "string",
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "resourceType": {
+                    "type": ["string", "null"],
+                    "description": "Resource Type validated by this operation's strict request contract."
+                  },
+                  "resourceId": {
+                    "type": ["string", "null"],
+                    "description": "Identifier of the resource resource; ownership is resolved server-side."
+                  },
+                  "supportMessageId": {
+                    "type": ["string", "null"],
+                    "format": "uuid",
+                    "description": "Identifier of the support message resource; ownership is resolved server-side."
+                  },
+                  "readAt": {
+                    "type": ["string", "null"],
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "expiresAt": {
+                    "type": ["string", "null"],
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "category",
+                  "title",
+                  "message",
+                  "resourceType",
+                  "resourceId",
+                  "supportMessageId",
+                  "readAt",
+                  "expiresAt",
+                  "createdAt"
+                ],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "404": {
+          "description": "Notification unavailable",
+          "schema": null
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "getStaffNotificationsPush",
+      "method": "GET",
+      "path": "/api/v1/staff/notifications/push",
+      "purpose": "Read browser push availability and current session subscription status",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": false,
+      "idempotency": false,
+      "parameters": [],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Read browser push availability and current session subscription status.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "data": {
+                "type": "object",
+                "properties": {
+                  "available": {
+                    "type": "boolean",
+                    "description": "Available validated by this operation's strict request contract."
+                  },
+                  "publicKey": {
+                    "type": ["string", "null"],
+                    "description": "Public Key validated by this operation's strict request contract."
+                  },
+                  "enabled": {
+                    "type": "boolean",
+                    "description": "Enabled validated by this operation's strict request contract."
+                  }
+                },
+                "required": ["available", "publicKey", "enabled"],
+                "description": "Data validated by this operation's strict request contract."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              }
+            },
+            "required": ["success", "message", "data", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "putStaffNotificationsPush",
+      "method": "PUT",
+      "path": "/api/v1/staff/notifications/push",
+      "purpose": "Opt this session into browser push",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "maxLength": 2048,
+            "description": "Endpoint validated by this operation's strict request contract."
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "p256dh": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "description": "P256dh validated by this operation's strict request contract."
+              },
+              "auth": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]+$",
+                "description": "Auth validated by this operation's strict request contract."
+              }
+            },
+            "required": ["p256dh", "auth"],
+            "additionalProperties": false,
+            "description": "Keys validated by this operation's strict request contract."
+          }
+        },
+        "required": ["endpoint", "keys"],
+        "additionalProperties": false,
+        "description": "Request Body validated by this operation's strict request contract."
+      },
+      "responses": {
+        "200": {
+          "description": "Success: Opt this session into browser push.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              },
+              "data": {
+                "type": "object",
+                "description": "Authorized response projection for: Opt this session into browser push.",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Public or authorized resource identifier."
+                  },
+                  "status": {
+                    "type": "string",
+                    "description": "Current server-owned lifecycle state when applicable."
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "Unavailable or endpoint belongs to another account",
+          "schema": null
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
+    },
+    {
+      "operationId": "deleteStaffNotificationsPush",
+      "method": "DELETE",
+      "path": "/api/v1/staff/notifications/push",
+      "purpose": "Disable browser push for this session only",
+      "audience": "administrator-facing",
+      "accessBoundary": "mfa-verified-staff",
+      "roles": ["STAFF", "ADMIN", "SUPER_ADMIN"],
+      "security": [
+        {
+          "sessionCookie": []
+        }
+      ],
+      "csrf": true,
+      "idempotency": false,
+      "parameters": [
+        {
+          "schema": {
+            "type": "string",
+            "minLength": 32,
+            "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+          },
+          "required": true,
+          "name": "x-csrf-token",
+          "in": "header",
+          "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+          "example": "synthetic-token-value-not-a-real-secret"
+        }
+      ],
+      "request": null,
+      "responses": {
+        "200": {
+          "description": "Success: Disable browser push for this session only.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "success": {
+                "type": "boolean",
+                "description": "Success validated by this operation's strict request contract."
+              },
+              "message": {
+                "type": "string",
+                "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+              },
+              "meta": {
+                "type": "object",
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "description": "Identifier of the request resource; ownership is resolved server-side."
+                  }
+                },
+                "required": ["requestId"],
+                "description": "Meta validated by this operation's strict request contract."
+              },
+              "data": {
+                "type": "null",
+                "description": "No data field is returned for: Disable browser push for this session only. Completion is expressed by the HTTP status and message."
+              }
+            },
+            "required": ["success", "message", "meta"],
+            "description": "Response validated by this operation's strict request contract."
+          }
+        },
+        "400": {
+          "description": "The request is malformed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "401": {
+          "description": "A valid session and required assurance are missing.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "403": {
+          "description": "The actor is not authorized for this resource or action.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "409": {
+          "description": "The request conflicts with current state or idempotency.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "422": {
+          "description": "One or more request fields are invalid.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "429": {
+          "description": "The route-specific request limit was exceeded.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "500": {
+          "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        },
+        "503": {
+          "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+          "schema": {
+            "$ref": "#/components/schemas/ErrorResponse"
+          }
+        }
+      },
+      "cache": "All browser API requests use no-store. Account-scoped data must be discarded on session change. Refresh the affected resource after a confirmed mutation; never optimistically confirm money or stock.",
+      "sourceCandidates": [],
+      "implementation": "Pending explicit integration audit",
+      "verification": "Not yet verified",
+      "screen": "Pending mapping"
     },
     {
       "operationId": "getStaffNotificationsSummary",
