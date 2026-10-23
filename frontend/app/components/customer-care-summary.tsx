@@ -173,7 +173,7 @@ export function CustomerCareSummary({ care }: { care: CustomerCare }) {
             ) : (
               <>
                 <p>No orders yet.</p>
-                <Action href="/shop">Browse parts</Action>
+                <Action href="/parts">Browse parts</Action>
               </>
             )}
           </div>
