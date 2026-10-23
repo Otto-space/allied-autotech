@@ -144,6 +144,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).rejects.toMatchObject({ code: "NOT_FOUND" });
       const detail = await customers.vehicle(a.actor, a.id);
       expect(detail.images).toEqual(result.images);
+      const ownerPage = await customers.listVehicles(a.actor, { limit: 20 });
+      expect(ownerPage.vehicles.find((vehicle) => vehicle.id === a.id)?.images).toEqual(
+        result.images,
+      );
+      const otherPage = await customers.listVehicles(b.actor, { limit: 20 });
+      expect(otherPage.vehicles.find((vehicle) => vehicle.id === a.id)).toBeUndefined();
+      expect(JSON.stringify(ownerPage)).not.toMatch(
+        /objectKey|assetToken|tokenHash|checksum/,
+      );
       expect(JSON.stringify(detail)).not.toMatch(
         /objectKey|assetToken|tokenHash|checksum/,
       );

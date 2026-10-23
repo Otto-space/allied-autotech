@@ -34,6 +34,10 @@ const garageVehicleResponse = z.object({
   mediaVersion: z.number().int(),
   images: z.array(mediaImageSchema).max(12),
 });
+const garageVehiclePageResponse = z.object({
+  vehicles: z.array(garageVehicleResponse.omit({ mediaVersion: true })).max(50),
+  nextCursor: z.uuid().optional(),
+});
 
 import {
   customerProfileUpdateBodySchema,
@@ -155,10 +159,12 @@ export function registerCustomersOpenApi(registry: OpenAPIRegistry): void {
               schema:
                 path.path === "/customers/profile"
                   ? responseSchema.extend({ data: profileResponse })
-                  : path.path === "/customers/vehicles/{vehicleId}" &&
-                      path.method === "get"
-                    ? responseSchema.extend({ data: garageVehicleResponse })
-                    : responseSchema,
+                  : path.path === "/customers/vehicles" && path.method === "get"
+                    ? responseSchema.extend({ data: garageVehiclePageResponse })
+                    : path.path === "/customers/vehicles/{vehicleId}" &&
+                        path.method === "get"
+                      ? responseSchema.extend({ data: garageVehicleResponse })
+                      : responseSchema,
             },
           },
         },

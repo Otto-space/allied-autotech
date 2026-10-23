@@ -98,13 +98,24 @@ export class CustomersRepository {
     });
     if (profile === null) return null;
 
-    return this.database.customerVehicle.findMany({
+    const rows = await this.database.customerVehicle.findMany({
       where: { customerId: profile.id },
-      select: vehicleSelect,
+      select: {
+        ...vehicleSelect,
+        mediaImages: {
+          select: resourceImageSelect,
+          orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+          take: 12,
+        },
+      },
       orderBy: { id: "asc" },
       take: limit + 1,
       ...(cursor === undefined ? {} : { cursor: { id: cursor }, skip: 1 }),
     });
+    return rows.map(({ mediaImages, ...vehicle }) => ({
+      ...vehicle,
+      images: mediaImages.map((image) => projectResourceImage(image)),
+    }));
   }
 
   vehicle(userId: string, vehicleId: string, client: DatabaseClient = this.database) {

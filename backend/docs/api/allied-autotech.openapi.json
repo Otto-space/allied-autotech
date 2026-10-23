@@ -7326,41 +7326,148 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Cursor-paginated result for: List own customer vehicles.",
                       "properties": {
-                        "items": {
+                        "vehicles": {
                           "type": "array",
-                          "description": "Authorized resource projections for this page.",
                           "items": {
                             "type": "object",
-                            "description": "Safe item projection returned by List own customer vehicles.",
                             "properties": {
                               "id": {
                                 "type": "string",
                                 "format": "uuid",
-                                "description": "Public or authorized resource identifier."
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
                               },
-                              "status": {
+                              "make": {
                                 "type": "string",
-                                "description": "Current server-owned lifecycle state when applicable."
+                                "description": "Make validated by this operation's strict request contract."
+                              },
+                              "model": {
+                                "type": "string",
+                                "description": "Model validated by this operation's strict request contract."
+                              },
+                              "year": {
+                                "type": "integer",
+                                "description": "Year validated by this operation's strict request contract."
+                              },
+                              "registrationNumber": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Registration Number validated by this operation's strict request contract."
+                              },
+                              "vin": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Vin validated by this operation's strict request contract."
+                              },
+                              "color": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Color validated by this operation's strict request contract."
+                              },
+                              "mileageKm": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "description": "Mileage Km validated by this operation's strict request contract."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "images": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "description": "Identifier of the id resource; ownership is resolved server-side."
+                                    },
+                                    "url": {
+                                      "type": "string",
+                                      "description": "HTTPS location validated against the operation's server-side allowlist."
+                                    },
+                                    "altText": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "description": "Alt Text validated by this operation's strict request contract."
+                                    },
+                                    "sortOrder": {
+                                      "type": "integer",
+                                      "description": "Sort Order validated by this operation's strict request contract."
+                                    },
+                                    "isPrimary": {
+                                      "type": "boolean",
+                                      "description": "Boolean control for is primary; authorization is still enforced server-side."
+                                    },
+                                    "width": {
+                                      "type": "integer",
+                                      "description": "Width validated by this operation's strict request contract."
+                                    },
+                                    "height": {
+                                      "type": "integer",
+                                      "description": "Height validated by this operation's strict request contract."
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "url",
+                                    "altText",
+                                    "sortOrder",
+                                    "isPrimary",
+                                    "width",
+                                    "height"
+                                  ],
+                                  "description": "Images Item validated by this operation's strict request contract."
+                                },
+                                "maxItems": 12,
+                                "description": "Images validated by this operation's strict request contract."
                               }
                             },
-                            "additionalProperties": true
-                          }
+                            "required": [
+                              "id",
+                              "make",
+                              "model",
+                              "year",
+                              "registrationNumber",
+                              "vin",
+                              "color",
+                              "mileageKm",
+                              "createdAt",
+                              "updatedAt",
+                              "images"
+                            ],
+                            "description": "Vehicles Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 50,
+                          "description": "Vehicles validated by this operation's strict request contract."
                         },
                         "nextCursor": {
-                          "type": [
-                            "string",
-                            "null"
-                          ],
+                          "type": "string",
                           "format": "uuid",
-                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                          "description": "Next Cursor validated by this operation's strict request contract."
                         }
                       },
                       "required": [
-                        "items"
+                        "vehicles"
                       ],
-                      "additionalProperties": false
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -7379,6 +7486,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -7387,10 +7495,29 @@
                   "success": true,
                   "message": "List own customer vehicles",
                   "data": {
-                    "items": [
+                    "vehicles": [
                       {
                         "id": "00000000-0000-4000-8000-000000000001",
-                        "status": "synthetic-status"
+                        "make": "synthetic-make",
+                        "model": "synthetic-model",
+                        "year": 1,
+                        "registrationNumber": "synthetic-registrationnumber",
+                        "vin": "synthetic-vin",
+                        "color": "synthetic-color",
+                        "mileageKm": "synthetic-mileagekm",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "updatedAt": "2030-01-15T10:00:00.000Z",
+                        "images": [
+                          {
+                            "id": "00000000-0000-4000-8000-000000000001",
+                            "url": "https://example.test/continue",
+                            "altText": "synthetic-alttext",
+                            "sortOrder": 1,
+                            "isPrimary": true,
+                            "width": 1,
+                            "height": 1
+                          }
+                        ]
                       }
                     ],
                     "nextCursor": "00000000-0000-4000-8000-000000000001"

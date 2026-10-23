@@ -12479,10 +12479,29 @@ export interface operations {
                      *       "success": true,
                      *       "message": "List own customer vehicles",
                      *       "data": {
-                     *         "items": [
+                     *         "vehicles": [
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
-                     *             "status": "synthetic-status"
+                     *             "make": "synthetic-make",
+                     *             "model": "synthetic-model",
+                     *             "year": 1,
+                     *             "registrationNumber": "synthetic-registrationnumber",
+                     *             "vin": "synthetic-vin",
+                     *             "color": "synthetic-color",
+                     *             "mileageKm": "synthetic-mileagekm",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *             "images": [
+                     *               {
+                     *                 "id": "00000000-0000-4000-8000-000000000001",
+                     *                 "url": "https://example.test/continue",
+                     *                 "altText": "synthetic-alttext",
+                     *                 "sortOrder": 1,
+                     *                 "isPrimary": true,
+                     *                 "width": 1,
+                     *                 "height": 1
+                     *               }
+                     *             ]
                      *           }
                      *         ],
                      *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -12497,25 +12516,65 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Cursor-paginated result for: List own customer vehicles. */
-                        data?: {
-                            /** @description Authorized resource projections for this page. */
-                            items: ({
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Vehicles validated by this operation's strict request contract. */
+                            vehicles: {
                                 /**
                                  * Format: uuid
-                                 * @description Public or authorized resource identifier.
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
                                  */
-                                id?: string;
-                                /** @description Current server-owned lifecycle state when applicable. */
-                                status?: string;
-                            } & {
-                                [key: string]: unknown;
-                            })[];
+                                id: string;
+                                /** @description Make validated by this operation's strict request contract. */
+                                make: string;
+                                /** @description Model validated by this operation's strict request contract. */
+                                model: string;
+                                /** @description Year validated by this operation's strict request contract. */
+                                year: number;
+                                /** @description Registration Number validated by this operation's strict request contract. */
+                                registrationNumber: string | null;
+                                /** @description Vin validated by this operation's strict request contract. */
+                                vin: string | null;
+                                /** @description Color validated by this operation's strict request contract. */
+                                color: string | null;
+                                /** @description Mileage Km validated by this operation's strict request contract. */
+                                mileageKm: number | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /** @description Images validated by this operation's strict request contract. */
+                                images: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description HTTPS location validated against the operation's server-side allowlist. */
+                                    url: string;
+                                    /** @description Alt Text validated by this operation's strict request contract. */
+                                    altText: string | null;
+                                    /** @description Sort Order validated by this operation's strict request contract. */
+                                    sortOrder: number;
+                                    /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                                    isPrimary: boolean;
+                                    /** @description Width validated by this operation's strict request contract. */
+                                    width: number;
+                                    /** @description Height validated by this operation's strict request contract. */
+                                    height: number;
+                                }[];
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             * @description Next Cursor validated by this operation's strict request contract.
                              */
-                            nextCursor?: string | null;
+                            nextCursor?: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {

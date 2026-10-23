@@ -115,6 +115,9 @@
   font-size: 13px;
   white-space: nowrap;
 }
+.featureGallery {
+  margin-bottom: 24px;
+}
 .workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 330px;

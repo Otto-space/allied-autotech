@@ -15,6 +15,7 @@ import { useResource } from "@/lib/api/use-resource";
 import { FileUpload, type AssetSelection } from "./file-upload";
 import { Feedback } from "./feedback";
 import { GaragePhotoReview, type PhotoProposal } from "./garage-photo-review";
+import { GaragePhotoCarousel } from "./garage-photo-carousel";
 import { profilePhotoSchema } from "@/lib/api/profile-schemas";
 import {
   ArrowLeft,
@@ -171,6 +172,15 @@ function Gallery({
         </div>
         <span>{vehicle.images.length} of 12 photos</span>
       </div>
+      {vehicle.images.length > 0 && (
+        <div className={styles.featureGallery}>
+          <GaragePhotoCarousel
+            images={vehicle.images}
+            vehicleName={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+            size="feature"
+          />
+        </div>
+      )}
       <div className={styles.workspace}>
         <div>
           {!vehicle.images.length && (
