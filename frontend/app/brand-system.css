@@ -11,30 +11,45 @@
   --brand-logo-width: 160px;
 }
 
-/* Invert the supplied monochrome artwork's luminance mask, preserving its geometry. */
+/* The original red mark has true transparency; typography stays crisp at every size. */
 .brand-logo {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   width: var(--brand-logo-width);
   max-width: 100%;
   flex-shrink: 0;
   vertical-align: middle;
   color: #06181f;
+  gap: 7px;
 }
-.brand-logo__primary {
+.brand-logo__mark {
   display: block;
-  width: 100%;
-  aspect-ratio: 743 / 251;
-  background: linear-gradient(to right, #ed1c24 35%, currentColor 35%);
-  mask-image: linear-gradient(#fff, #fff), url("/brand/allied-primary-black.png");
-  mask-size: 100% 100%;
-  mask-repeat: no-repeat;
-  mask-mode: alpha, luminance;
-  mask-composite: exclude;
-  /* Exclude compositing seams on every edge, inside the artwork's empty margins. */
-  clip-path: inset(1px);
-  forced-color-adjust: none;
+  flex: 0 0 46px;
+  width: 46px;
+  height: auto;
+}
+.brand-logo__wordmark {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  white-space: nowrap;
+}
+.brand-logo__name {
+  font-family: var(--font-nippo), var(--font-quicksand), sans-serif;
+  font-size: 29px;
+  font-weight: 800;
+  letter-spacing: -0.055em;
+}
+.brand-logo__descriptor {
+  margin-top: 3px;
+  font-family: var(--font-quicksand), sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.29em;
+  text-transform: uppercase;
 }
 .brand-logo--inverse {
   color: #fff;
@@ -61,6 +76,16 @@
   :root {
     --brand-logo-width: 136px;
   }
+  .brand-logo__mark {
+    flex-basis: 39px;
+    width: 39px;
+  }
+  .brand-logo__name {
+    font-size: 25px;
+  }
+  .brand-logo__descriptor {
+    font-size: 8px;
+  }
   .partner-intro::before {
     width: 56px;
     margin-bottom: 20px;
@@ -68,11 +93,6 @@
   .about-brand {
     margin-bottom: 24px;
   }
-}
-.brand-logo__compact {
-  display: none;
-  width: 36px;
-  height: auto;
 }
 .site-footer {
   background-color: #06181f;
@@ -1124,11 +1144,12 @@
     width: 48px;
     height: 48px;
   }
-  .dashboard[data-sidebar-collapsed="true"] .sidebar .brand-logo__primary {
+  .dashboard[data-sidebar-collapsed="true"] .sidebar .brand-logo__wordmark {
     display: none;
   }
-  .dashboard[data-sidebar-collapsed="true"] .sidebar .brand-logo__compact {
-    display: block;
+  .dashboard[data-sidebar-collapsed="true"] .sidebar .brand-logo__mark {
+    flex-basis: 36px;
+    width: 36px;
   }
 }
 @media (max-width: 900px) {
