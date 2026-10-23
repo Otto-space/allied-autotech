@@ -10092,7 +10092,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/complaints/{supportId}/email-deliveries`
 
 - Operation ID: `getStaffSupportComplaintsBySupportIdEmailDeliveries`
-- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -10117,7 +10117,9 @@ Success: HTTP 200.
         "status": "QUEUED",
         "reason": "CHANNEL_DISABLED",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "sentAt": "2030-01-15T10:00:00.000Z"
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -10132,7 +10134,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/support/enquiries/{supportId}/email-deliveries`
 
 - Operation ID: `getStaffSupportEnquiriesBySupportIdEmailDeliveries`
-- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means the provider accepted the email, not confirmed inbox delivery. RETRYING will retry automatically; FAILED needs manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Staff/admin only, branch scoped, private/no-store. Latest 20 updates, newest first. SENT means provider acceptance, not recipient-server or inbox delivery. Attempt count and next scheduled retry are shown. RETRYING will retry automatically; FAILED needs provider review and coordinated manual follow-up. NOT_SENT explains disabled delivery, opt-out or missing destination. No recipient, message content, provider payload or internal error is exposed. Historical updates before this feature are not backfilled. Read the latest customer email delivery attempts for this conversation. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -10157,7 +10159,9 @@ Success: HTTP 200.
         "status": "QUEUED",
         "reason": "CHANNEL_DISABLED",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "sentAt": "2030-01-15T10:00:00.000Z"
+        "sentAt": "2030-01-15T10:00:00.000Z",
+        "attempts": 0,
+        "nextRetryAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -13976,7 +13980,9 @@ Success: HTTP 200.
           "status": "QUEUED",
           "reason": "CHANNEL_DISABLED",
           "createdAt": "2030-01-15T10:00:00.000Z",
-          "sentAt": "2030-01-15T10:00:00.000Z"
+          "sentAt": "2030-01-15T10:00:00.000Z",
+          "attempts": 0,
+          "nextRetryAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }
@@ -14729,7 +14735,9 @@ Success: HTTP 200.
           "status": "QUEUED",
           "reason": "CHANNEL_DISABLED",
           "createdAt": "2030-01-15T10:00:00.000Z",
-          "sentAt": "2030-01-15T10:00:00.000Z"
+          "sentAt": "2030-01-15T10:00:00.000Z",
+          "attempts": 0,
+          "nextRetryAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }

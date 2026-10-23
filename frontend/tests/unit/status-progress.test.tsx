@@ -52,6 +52,8 @@ describe("workflow progress and delivery clarity", () => {
               reason: null,
               createdAt: "2026-10-22T09:00:00Z",
               sentAt: "2026-10-22T09:00:05Z",
+              attempts: 1,
+              nextRetryAt: null,
             },
             {
               id: "51000000-0000-4000-8000-000000000002",
@@ -59,12 +61,16 @@ describe("workflow progress and delivery clarity", () => {
               reason: "SUPPORT_EMAIL_FAILED",
               createdAt: "2026-10-22T09:00:00Z",
               sentAt: null,
+              attempts: 2,
+              nextRetryAt: "2026-10-22T09:01:00Z",
             },
           ],
         }}
       />,
     );
-    expect(screen.getByText(/inbox delivery and reading are not confirmed/)).toBeTruthy();
+    expect(screen.getByText(/inbox placement/)).toBeTruthy();
+    expect(screen.getByText(/Provider accepted/)).toBeTruthy();
+    expect(screen.getByText(/Send attempts: 2/)).toBeTruthy();
     expect(screen.getByText(/Do not send the same reply again/)).toBeTruthy();
     expect(screen.getByText("Sent")).toBeTruthy();
   });

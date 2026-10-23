@@ -32,6 +32,8 @@ const reasons = [
   "SUPPORT_REPLY_ADDRESS_MISSING",
   "STAGING_RECIPIENT_NOT_ALLOWLISTED",
   "SUPPORT_EMAIL_FAILED",
+  "PROVIDER_REJECTED",
+  "RETRY_EXHAUSTED",
 ] as const;
 export const supportEmailDeliverySchema = z.object({
   id: z.uuid(),
@@ -39,6 +41,8 @@ export const supportEmailDeliverySchema = z.object({
   reason: z.enum(reasons).nullable(),
   createdAt: z.iso.datetime(),
   sentAt: z.iso.datetime().nullable(),
+  attempts: z.number().int().nonnegative(),
+  nextRetryAt: z.iso.datetime().nullable(),
 });
 export const supportEmailDeliveryPageSchema = z.object({
   items: z.array(supportEmailDeliverySchema).max(20),
@@ -168,6 +172,8 @@ export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: s
       lastError: true,
       createdAt: true,
       publishedAt: true,
+      attempts: true,
+      availableAt: true,
     },
   });
   return {
@@ -195,6 +201,8 @@ export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: s
         (row.lastError ? "SUPPORT_EMAIL_FAILED" : null),
       createdAt: row.createdAt.toISOString(),
       sentAt: row.publishedAt?.toISOString() ?? null,
+      attempts: row.attempts,
+      nextRetryAt: row.status === "FAILED" ? row.availableAt.toISOString() : null,
     })),
   };
 }

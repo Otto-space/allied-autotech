@@ -212,6 +212,9 @@ describe("support customer email", () => {
     expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.status).toBe(
       attempts === 8 ? "DEAD_LETTER" : "FAILED",
     );
+    expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.lastError).toBe(
+      attempts === 8 ? "RETRY_EXHAUSTED" : "SUPPORT_EMAIL_FAILED",
+    );
   });
   it("does not retry a permanent provider rejection", async () => {
     const h = harness();
@@ -220,18 +223,31 @@ describe("support customer email", () => {
     expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.status).toBe(
       "DEAD_LETTER",
     );
+    expect(h.database.outboxEvent.updateMany.mock.calls[0]![0].data.lastError).toBe(
+      "PROVIDER_REJECTED",
+    );
   });
   it("returns bounded redacted delivery metadata, never recipients or payloads", async () => {
     const tx = transaction();
     const date = new Date();
     tx.outboxEvent.findMany.mockResolvedValue([
-      { id, status: "PUBLISHED", lastError: null, createdAt: date, publishedAt: date },
+      {
+        id,
+        status: "PUBLISHED",
+        lastError: null,
+        createdAt: date,
+        publishedAt: date,
+        attempts: 1,
+        availableAt: date,
+      },
       {
         id: userId,
         status: "DEAD_LETTER",
         lastError: "private-provider-text",
         createdAt: date,
         publishedAt: null,
+        attempts: 8,
+        availableAt: date,
       },
     ]);
     const result = await supportEmailDeliveries(
@@ -239,6 +255,8 @@ describe("support customer email", () => {
       id,
     );
     expect(result.items.map((r) => r.status)).toEqual(["SENT", "FAILED"]);
+    expect(result.items.map((r) => r.attempts)).toEqual([1, 8]);
+    expect(result.items.every((r) => r.nextRetryAt === null)).toBe(true);
     expect(JSON.stringify(result)).not.toContain("private-provider-text");
     expect(tx.outboxEvent.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
