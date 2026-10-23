@@ -87,6 +87,15 @@ export function SupportEmailDeliverySummary({
               <li key={item.id}>
                 <StatusBadge status={item.status} />
                 {item.status === "SENT" && <span> Provider accepted</span>}
+                {item.providerStatus && (
+                  <p>
+                    Provider delivery event:{" "}
+                    {item.providerStatus.toLowerCase().replaceAll("_", " ")}.{" "}
+                    {item.providerStatus === "DELIVERED"
+                      ? "The recipient's mail server accepted it; inbox placement and reading are still unconfirmed."
+                      : "Check Resend and coordinate follow-up before sending again."}
+                  </p>
+                )}
                 <time dateTime={item.createdAt}>
                   {new Intl.DateTimeFormat("en-NG", {
                     dateStyle: "medium",

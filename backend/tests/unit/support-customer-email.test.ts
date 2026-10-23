@@ -257,6 +257,7 @@ describe("support customer email", () => {
     expect(result.items.map((r) => r.status)).toEqual(["SENT", "FAILED"]);
     expect(result.items.map((r) => r.attempts)).toEqual([1, 8]);
     expect(result.items.every((r) => r.nextRetryAt === null)).toBe(true);
+    expect(result.items.every((r) => r.providerStatus === null)).toBe(true);
     expect(JSON.stringify(result)).not.toContain("private-provider-text");
     expect(tx.outboxEvent.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -265,5 +266,42 @@ describe("support customer email", () => {
         select: expect.not.objectContaining({ payload: true }),
       }),
     );
+  });
+  it("uses the latest provider event time even when callbacks arrive out of order", async () => {
+    const tx = transaction();
+    const accepted = new Date("2026-10-23T10:00:00Z");
+    tx.outboxEvent.findMany
+      .mockResolvedValueOnce([
+        {
+          id,
+          status: "PUBLISHED",
+          lastError: null,
+          createdAt: accepted,
+          publishedAt: accepted,
+          attempts: 1,
+          availableAt: accepted,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          aggregateId: id,
+          createdAt: new Date("2026-10-23T10:02:00Z"),
+          payload: { type: "email.delivered" },
+        },
+        {
+          aggregateId: id,
+          createdAt: new Date("2026-10-23T10:01:00Z"),
+          payload: { type: "email.delivery_delayed" },
+        },
+      ]);
+    const result = await supportEmailDeliveries(
+      tx as unknown as Prisma.TransactionClient,
+      id,
+    );
+    expect(result.items[0]).toMatchObject({
+      providerStatus: "DELIVERED",
+      providerUpdatedAt: "2026-10-23T10:02:00.000Z",
+    });
+    expect(JSON.stringify(result)).not.toContain("guest@example.test");
   });
 });

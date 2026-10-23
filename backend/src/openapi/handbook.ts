@@ -8,6 +8,7 @@ const GROUP_ORDER = [
   "Staff API",
   "Administration",
   "Payment webhooks",
+  "Messaging webhooks",
   "Operational",
 ] as const;
 
@@ -21,6 +22,7 @@ function groupFor(path: string): (typeof GROUP_ORDER)[number] {
   if (path.startsWith("/customers/")) return "Customer API";
   if (path.startsWith("/staff/")) return "Staff API";
   if (path.startsWith("/admin/")) return "Administration";
+  if (path === "/webhooks/resend") return "Messaging webhooks";
   if (path.startsWith("/webhooks/")) return "Payment webhooks";
   return "Operational";
 }

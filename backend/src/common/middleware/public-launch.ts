@@ -14,7 +14,9 @@ export function publicLaunch(mode: PublicLaunchMode): RequestHandler {
       mode === "catalogue" &&
       (/^\/customers(?:\/|$)/i.test(request.path) ||
         /^\/auth\/register(?:\/|$)/i.test(request.path) ||
-        (isWrite && /^\/(?:public|webhooks)(?:\/|$)/i.test(request.path)))
+        (isWrite &&
+          /^\/(?:public|webhooks)(?:\/|$)/i.test(request.path) &&
+          request.path !== "/webhooks/resend"))
     ) {
       next(
         new AppError({

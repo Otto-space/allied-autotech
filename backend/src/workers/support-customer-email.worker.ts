@@ -94,6 +94,7 @@ export class SupportCustomerEmailWorker {
         replyTo: payload.replyTo,
         ...renderSupportCustomerEmail(payload),
         idempotencyKey: event.eventId,
+        supportOutboxEventId: event.id,
       });
       await this.database.outboxEvent.updateMany({
         where,

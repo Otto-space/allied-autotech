@@ -189,6 +189,7 @@ const environmentSchema = z.object({
     emailSenderSchema.optional(),
   ),
   RESEND_REPLY_TO_EMAIL: optionalEmail,
+  RESEND_WEBHOOK_SECRET: optionalNonEmptyString,
   DEPARTMENT_INFO_EMAIL: optionalEmail,
   DEPARTMENT_SALES_EMAIL: optionalEmail,
   DEPARTMENT_SUPPORT_EMAIL: optionalEmail,

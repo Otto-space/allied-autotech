@@ -10119,7 +10119,9 @@ Success: HTTP 200.
         "createdAt": "2030-01-15T10:00:00.000Z",
         "sentAt": "2030-01-15T10:00:00.000Z",
         "attempts": 0,
-        "nextRetryAt": "2030-01-15T10:00:00.000Z"
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -10161,7 +10163,9 @@ Success: HTTP 200.
         "createdAt": "2030-01-15T10:00:00.000Z",
         "sentAt": "2030-01-15T10:00:00.000Z",
         "attempts": 0,
-        "nextRetryAt": "2030-01-15T10:00:00.000Z"
+        "nextRetryAt": "2030-01-15T10:00:00.000Z",
+        "providerStatus": "DELIVERED",
+        "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
       }
     ]
   },
@@ -13982,7 +13986,9 @@ Success: HTTP 200.
           "createdAt": "2030-01-15T10:00:00.000Z",
           "sentAt": "2030-01-15T10:00:00.000Z",
           "attempts": 0,
-          "nextRetryAt": "2030-01-15T10:00:00.000Z"
+          "nextRetryAt": "2030-01-15T10:00:00.000Z",
+          "providerStatus": "DELIVERED",
+          "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }
@@ -14737,7 +14743,9 @@ Success: HTTP 200.
           "createdAt": "2030-01-15T10:00:00.000Z",
           "sentAt": "2030-01-15T10:00:00.000Z",
           "attempts": 0,
-          "nextRetryAt": "2030-01-15T10:00:00.000Z"
+          "nextRetryAt": "2030-01-15T10:00:00.000Z",
+          "providerStatus": "DELIVERED",
+          "providerUpdatedAt": "2030-01-15T10:00:00.000Z"
         }
       ]
     }
@@ -20544,6 +20552,45 @@ Success: HTTP 200.
 ```
 
 Relevant errors: 400 The request is malformed.; 401 Missing or invalid production signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required provider or database is temporarily unavailable.
+
+
+## Messaging webhooks
+
+### POST `/webhooks/resend`
+
+- Operation ID: `postWebhooksResend`
+- Purpose: The exact raw JSON and Svix headers are signature-checked before processing. Only tagged Support email outcomes are retained. Duplicate events are acknowledged idempotently. Provider delivery to a mail server does not prove inbox placement or reading. Receive a signed Resend email outcome. Access boundary: provider-webhook. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: EMAIL_PROVIDER
+- Authentication: Provider signature plus authoritative verification
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `svix-id` | header | string | Yes | Svix Id used to constrain this request. |
+| `svix-timestamp` | header | string | Yes | Svix Timestamp used to constrain this request. |
+| `svix-signature` | header | string | Yes | Provider-generated webhook signature verified against the exact raw request bytes. |
+
+Success: HTTP 204.
+
+```json
+{
+  "success": true,
+  "message": "Receive a signed Resend email outcome",
+  "data": {
+    "accepted": true,
+    "duplicate": true,
+    "ignored": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Invalid signature; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 Webhook secret not configured
 
 
 ## Operational

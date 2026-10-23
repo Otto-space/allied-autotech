@@ -9,6 +9,8 @@ import { renderNotificationEmail } from "../notifications/notification-delivery.
 
 export const supportCustomerEmailEvent = "support.customer-email.requested";
 export const supportCustomerEmailAggregate = "SupportCustomerEmail";
+export const supportEmailProviderOutcomeAggregate = "SupportEmailProviderOutcome";
+export const supportEmailProviderOutcomeEvent = "support.customer-email.provider-outcome";
 export const supportEmailPayloadSchema = z
   .object({
     recipient: z.email().nullable(),
@@ -43,6 +45,10 @@ export const supportEmailDeliverySchema = z.object({
   sentAt: z.iso.datetime().nullable(),
   attempts: z.number().int().nonnegative(),
   nextRetryAt: z.iso.datetime().nullable(),
+  providerStatus: z
+    .enum(["DELIVERED", "DELAYED", "BOUNCED", "COMPLAINED", "FAILED", "SUPPRESSED"])
+    .nullable(),
+  providerUpdatedAt: z.iso.datetime().nullable(),
 });
 export const supportEmailDeliveryPageSchema = z.object({
   items: z.array(supportEmailDeliverySchema).max(20),
@@ -176,6 +182,35 @@ export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: s
       availableAt: true,
     },
   });
+  const outcomeRows = rows.length
+    ? await tx.outboxEvent.findMany({
+        where: {
+          aggregateType: supportEmailProviderOutcomeAggregate,
+          eventType: supportEmailProviderOutcomeEvent,
+          aggregateId: { in: rows.map((row) => row.id) },
+        },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: 400,
+        select: { aggregateId: true, createdAt: true, payload: true },
+      })
+    : [];
+  const outcomes = new Map<string, { type: string; at: Date }>();
+  for (const row of outcomeRows) {
+    if (outcomes.has(row.aggregateId)) continue;
+    const type = (row.payload as { type?: unknown } | null)?.type;
+    if (
+      typeof type === "string" &&
+      [
+        "email.delivered",
+        "email.delivery_delayed",
+        "email.bounced",
+        "email.complained",
+        "email.failed",
+        "email.suppressed",
+      ].includes(type)
+    )
+      outcomes.set(row.aggregateId, { type, at: row.createdAt });
+  }
   return {
     items: rows.map((row) => ({
       id: row.id,
@@ -203,6 +238,13 @@ export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: s
       sentAt: row.publishedAt?.toISOString() ?? null,
       attempts: row.attempts,
       nextRetryAt: row.status === "FAILED" ? row.availableAt.toISOString() : null,
+      providerStatus:
+        outcomes
+          .get(row.id)
+          ?.type.replace("email.", "")
+          .replace("delivery_delayed", "delayed")
+          .toUpperCase() ?? null,
+      providerUpdatedAt: outcomes.get(row.id)?.at.toISOString() ?? null,
     })),
   };
 }

@@ -59,6 +59,12 @@
           "type": "GENERAL"
         },
         {
+          "key": "RESEND_WEBHOOK_SECRET",
+          "value": "REPLACE_RESEND_WEBHOOK_SIGNING_SECRET",
+          "scope": "RUN_TIME",
+          "type": "SECRET"
+        },
+        {
           "key": "DEPLOYMENT_ENV",
           "value": "production",
           "scope": "RUN_TIME",

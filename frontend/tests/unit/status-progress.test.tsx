@@ -54,6 +54,8 @@ describe("workflow progress and delivery clarity", () => {
               sentAt: "2026-10-22T09:00:05Z",
               attempts: 1,
               nextRetryAt: null,
+              providerStatus: "DELIVERED",
+              providerUpdatedAt: "2026-10-22T09:00:07Z",
             },
             {
               id: "51000000-0000-4000-8000-000000000002",
@@ -63,12 +65,14 @@ describe("workflow progress and delivery clarity", () => {
               sentAt: null,
               attempts: 2,
               nextRetryAt: "2026-10-22T09:01:00Z",
+              providerStatus: null,
+              providerUpdatedAt: null,
             },
           ],
         }}
       />,
     );
-    expect(screen.getByText(/inbox placement/)).toBeTruthy();
+    expect(screen.getAllByText(/inbox placement/).length).toBeGreaterThan(0);
     expect(screen.getByText(/Provider accepted/)).toBeTruthy();
     expect(screen.getByText(/Send attempts: 2/)).toBeTruthy();
     expect(screen.getByText(/Do not send the same reply again/)).toBeTruthy();

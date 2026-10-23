@@ -21,6 +21,10 @@ export const supportEmailDeliveryPageSchema = z.object({
         sentAt: z.iso.datetime().nullable(),
         attempts: z.number().int().nonnegative(),
         nextRetryAt: z.iso.datetime().nullable(),
+        providerStatus: z
+          .enum(["DELIVERED", "DELAYED", "BOUNCED", "COMPLAINED", "FAILED", "SUPPRESSED"])
+          .nullable(),
+        providerUpdatedAt: z.iso.datetime().nullable(),
       }),
     )
     .max(20),
