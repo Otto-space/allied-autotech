@@ -28,16 +28,19 @@ The API stores only the event type and provider event time; duplicate callbacks
 are ignored, and case status uses the latest provider event time. It does not
 store recipient addresses or webhook bodies in the case evidence. The callback
 returns 503 until `RESEND_WEBHOOK_SECRET` is configured on the API. Existing emails
-sent before tagging cannot be backfilled from webhook events. Do not register the
-Resend endpoint until the matching API release is active and its secret is ready.
-Provider records still require staff review for a reported missing message.
+sent before tagging cannot be backfilled from webhook events. Provider records
+still require staff review for a reported missing message.
 Relevant provider documentation:
 [webhook event visibility](https://www.resend.com/changelog/webhook-event-visibility),
 [event types](https://resend.com/migrate/mailgun),
 [signed webhook verification](https://www.resend.com/changelog/managing-webhooks-via-api).
 
 This change has no Prisma schema or migration. It does not change the sending
-provider, retry budget, message content or customer preferences. Resend's existing
-free plan advertises one webhook endpoint; check whether that slot is available
-before creating one. No subscription upgrade is authorised. No production messages
-or database writes were made to prepare this record.
+provider, retry budget, message content or customer preferences. The account
+holder used the one available Resend webhook slot and saved its signing secret
+locally. No subscription upgrade was needed. DigitalOcean deployment
+`b0e22da8-0616-4413-b2db-d86319c931eb` is active with the API-only secret;
+a signed synthetic event returned 204 and a tampered event returned 401. This
+test sent no email and wrote no customer record. A provider-origin event from a
+new Support reply and its appearance in the staff case screen remain to be
+verified. Existing untagged messages cannot prove this path.
