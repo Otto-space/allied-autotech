@@ -1,5 +1,7 @@
 "use client";
 
+import "./fitment-catalogue-picker.css";
+
 import { useEffect, useId, useRef, useState } from "react";
 import { apiRequest, ApiError } from "@/lib/api/client";
 import { fitmentOptionsSchema, type FitmentOption } from "@/lib/parts-fitment";

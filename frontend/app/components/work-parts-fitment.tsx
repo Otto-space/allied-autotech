@@ -988,6 +988,7 @@ function RuleEditor({
                 <div className="field">
                   <label htmlFor="rule-vehicle-model">Vehicle model</label>
                   <FitmentCataloguePicker
+                    key={make?.id || "unselected"}
                     id="rule-vehicle-model"
                     kind="model"
                     makeId={make?.id}

@@ -1,12 +1,16 @@
 import { z } from "zod";
+import { savedVehicleQualifierKeys } from "./parts-fitment";
+import type { CustomerVehicle } from "./api/vehicle-schemas";
 import { customerVehicleSchema } from "./api/vehicle-schemas";
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 export const garageVehicleSchema = customerVehicleSchema.extend({
-  make: z.string().min(1).max(80),
-  model: z.string().min(1).max(80),
+  make: z.string().min(1).max(100),
+  model: z.string().min(1).max(100),
   year: z.number().int().min(1886),
   mileageKm: z.number().int().min(0).max(5000000).nullable(),
+  createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
 });
 export const parseGarageVehicles = (value: unknown) =>
   z
@@ -47,7 +51,7 @@ export function garageFieldError(name: keyof GarageFields, raw: string): true | 
   const value = raw.trim();
   if ((name === "make" || name === "model") && !value) return `Enter the ${name}.`;
   if (["make", "model", "color"].includes(name)) {
-    const max = name === "color" ? 50 : 80;
+    const max = name === "color" ? 50 : 100;
     if (value.length > max) return `Use ${max} characters or fewer.`;
     if ([...value].some((c) => c.charCodeAt(0) < 32 || c.charCodeAt(0) === 127))
       return "Remove control characters.";
@@ -85,4 +89,45 @@ export function garageBody(values: GarageFields) {
     vin: values.vin.trim().toUpperCase() || null,
     mileageKm: values.mileageKm.trim() ? Number(values.mileageKm.trim()) : null,
   };
+}
+
+/** No VIN, registration, nickname or account identifier belongs in a public search URL. */
+export function garagePartsQuery(vehicle: CustomerVehicle): URLSearchParams | null {
+  const model = vehicle.vehicleModel;
+  if (
+    !model ||
+    model.id !== vehicle.vehicleModelId ||
+    model.makeId !== model.make.id ||
+    vehicle.make.normalize("NFKC").trim().toLowerCase() !==
+      model.make.name.normalize("NFKC").trim().toLowerCase() ||
+    vehicle.model.normalize("NFKC").trim().toLowerCase() !==
+      model.name.normalize("NFKC").trim().toLowerCase() ||
+    !model.isActive ||
+    !model.make.isActive ||
+    vehicle.year < model.yearFrom ||
+    vehicle.year > model.yearTo
+  )
+    return null;
+  const params = new URLSearchParams({
+    vehicleMakeId: model.makeId,
+    vehicleModelId: model.id,
+    year: String(vehicle.year),
+  });
+  for (const key of savedVehicleQualifierKeys) {
+    const value = vehicle[key];
+    if (typeof value !== "string" || !value.trim()) continue;
+    const normalized = value.normalize("NFKC").trim();
+    const compact = normalized.toUpperCase().replace(/[ -]/g, "");
+    const vin = vehicle.vin?.toUpperCase().replace(/[ -]/g, "");
+    const registration = vehicle.registrationNumber?.toUpperCase().replace(/[ -]/g, "");
+    if (
+      normalized.length > 100 ||
+      /[\u0000-\u001f\u007f]/.test(normalized) ||
+      (vin && compact.includes(vin)) ||
+      (registration && compact === registration)
+    )
+      return null;
+    params.set(key, normalized);
+  }
+  return params;
 }

@@ -179,3 +179,53 @@ including universal-accessory review and rejection of product-type changes that
 would carry an existing approval onto a different classification. Legacy catalogue
 screens link to the scoped technical-review workspace and do not offer legacy
 edit/remove actions for normalized or reviewed rules.
+
+### Saved garage configuration checkpoint (23 October 2026)
+
+Saved configurations now reuse CustomerVehicle and the existing owned garage API,
+media and removal flow. They are independent of Vehicle/VehicleListing sale stock.
+The feature exposes nickname, one default per customer, an explicit normalized
+make/model link and optional vehicle specifications. Axle/position stays with the
+part search. Legacy manual names remain unlinked rather than being guessed.
+
+- Garage writes lock the owned customer profile, then the selected owned vehicle.
+  Default changes serialize and audit any previous default being cleared; the
+  unique database slot is retained. Stale expectedUpdatedAt rejects the entire
+  transaction, including an attempted default switch. Ordinary edits to a retained
+  inactive catalogue link remain possible; new/changed links require an active
+  matching catalogue identity and a supported year. Model/year changes clear
+  implicit prior technical specifications.
+- Owner reads return isDefault without exposing the internal slot. defaultOnly=true
+  finds the owned default independently of the normal result page. A foreign
+  account cannot read, mutate, remove, page through or change the default of
+  another customer's vehicles. Removal preserves associated bookings.
+- The garage editor supports catalogue linking, nickname, default and editable
+  specifications, while keeping the existing manual workflow and media controls.
+  Missing record revisions block editing rather than producing an unversioned
+  fallback. Unknown specifications stay blank.
+- The parts finder can select/switch saved vehicles and reuse the default even
+  beyond the first option page. It re-reads the owned record before applying it,
+  clears on session changes/expiry, aborts late reads and does not overwrite a newer
+  search. Saved-account controls stay mounted while the URL-bound manual car draft
+  resets, avoiding repeated account requests and layout jumps on each selection.
+- Only model identity, year and vehicle qualifiers enter a public search URL. VIN,
+  registration, nickname, default state and account identifiers are excluded.
+  Accidental VIN/registration copies in specification fields are not exported.
+  Limited catalogue launch mode does not enable account controls or checkout.
+
+Verification: all 14 PostgreSQL scenarios passed together after the final lock
+change: six saved-configuration HTTP scenarios and eight existing garage-media
+scenarios. Five saved-vehicle browser
+scenarios plus the newer-search race scenario passed across desktop/mobile,
+including real catalogue selection for an unlinked garage car. Two existing garage
+create/edit/short-modal regressions and the three existing parts-finder browser
+scenarios passed. Browser data is intercepted synthetic fixture data; database
+ownership/default/retention enforcement is checked separately over authenticated
+HTTP against the verified private `_ci` target. The full frontend unit suite now
+passes 146 files / 977 tests; TypeScript, targeted lint, API export, OpenAPI/route
+coverage and secret guard passed at this checkpoint. No additional migration or
+production deployment ran.
+
+Notifications, explicit public subcategory controls, the remaining multi-select/
+facet requirement audit, full backend regression, production build and final
+least-privilege/staging acceptance remain required before full completion.

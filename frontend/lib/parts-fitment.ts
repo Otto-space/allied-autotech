@@ -24,6 +24,10 @@ export const fitmentLabels: Record<(typeof fitmentQualifierKeys)[number], string
   generation: "Generation",
   chassisCode: "Chassis / model code",
 };
+// Position belongs to the requested part, rather than the saved car.
+export const savedVehicleQualifierKeys = fitmentQualifierKeys.filter(
+  (key) => key !== "position",
+);
 export const vehicleSelectionKeys = [
   "vehicleMakeId",
   "vehicleModelId",

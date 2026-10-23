@@ -2907,7 +2907,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/vehicles`
 
 - Operation ID: `getCustomersVehicles`
-- Purpose: List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -2918,6 +2918,7 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `defaultOnly` | query | true / false | No | Default Only used to constrain this request. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 
 Success: HTTP 200.
@@ -2927,10 +2928,43 @@ Success: HTTP 200.
   "success": true,
   "message": "List own customer vehicles",
   "data": {
-    "items": [
+    "vehicles": [
       {
+        "nickname": "synthetic-nickname",
+        "isDefault": true,
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "vehicleModel": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "makeId": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "yearFrom": 1,
+          "yearTo": 1,
+          "isActive": true,
+          "make": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name",
+            "isActive": true
+          }
+        },
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode",
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "year": 1,
+        "registrationNumber": "synthetic-registrationnumber",
+        "vin": "synthetic-vin",
+        "color": "synthetic-color",
+        "mileageKm": "synthetic-mileagekm",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -2946,7 +2980,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### POST `/customers/vehicles`
 
 - Operation ID: `postCustomersVehicles`
-- Purpose: Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -2962,6 +2996,18 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `nickname` | string / null | No | Nickname validated by this operation's strict request contract. |
+| `isDefault` | boolean | No | Boolean control for is default; authorization is still enforced server-side. |
+| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
+| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market` | string / null | No | Market validated by this operation's strict request contract. |
+| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
+| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
+| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
+| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
+| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
+| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
 | `make` | string | Yes | Make validated by this operation's strict request contract. |
 | `model` | string | Yes | Model validated by this operation's strict request contract. |
 | `year` | integer | Yes | Year validated by this operation's strict request contract. |
@@ -2976,11 +3022,7 @@ Synthetic request example:
 {
   "make": "synthetic-make",
   "model": "synthetic-model",
-  "year": 1886,
-  "registrationNumber": "synthetic-registrationnumber",
-  "vin": "synthetic-vin",
-  "color": "synthetic-color",
-  "mileageKm": "synthetic-mileagekm"
+  "year": 1886
 }
 ```
 
@@ -2991,8 +3033,41 @@ Success: HTTP 201.
   "success": true,
   "message": "Create an owned customer vehicle",
   "data": {
+    "nickname": "synthetic-nickname",
+    "isDefault": true,
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "isActive": true,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    },
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "year": 1,
+    "registrationNumber": "synthetic-registrationnumber",
+    "vin": "synthetic-vin",
+    "color": "synthetic-color",
+    "mileageKm": "synthetic-mileagekm",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -3005,7 +3080,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/customers/vehicles/{vehicleId}`
 
 - Operation ID: `getCustomersVehiclesByVehicleId`
-- Purpose: Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -3024,6 +3099,31 @@ Success: HTTP 200.
   "success": true,
   "message": "Get an owned customer vehicle",
   "data": {
+    "nickname": "synthetic-nickname",
+    "isDefault": true,
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "isActive": true,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    },
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
     "id": "00000000-0000-4000-8000-000000000001",
     "make": "synthetic-make",
     "model": "synthetic-model",
@@ -3058,7 +3158,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/customers/vehicles/{vehicleId}`
 
 - Operation ID: `patchCustomersVehiclesByVehicleId`
-- Purpose: Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3075,6 +3175,19 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `nickname` | string / null | No | Nickname validated by this operation's strict request contract. |
+| `isDefault` | boolean | No | Boolean control for is default; authorization is still enforced server-side. |
+| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
+| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market` | string / null | No | Market validated by this operation's strict request contract. |
+| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
+| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
+| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
+| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
+| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
+| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `make` | string | No | Make validated by this operation's strict request contract. |
 | `model` | string | No | Model validated by this operation's strict request contract. |
 | `year` | integer | No | Year validated by this operation's strict request contract. |
@@ -3086,15 +3199,7 @@ JSON request fields:
 Synthetic request example:
 
 ```json
-{
-  "make": "synthetic-make",
-  "model": "synthetic-model",
-  "year": 1886,
-  "registrationNumber": "synthetic-registrationnumber",
-  "vin": "synthetic-vin",
-  "color": "synthetic-color",
-  "mileageKm": "synthetic-mileagekm"
-}
+{}
 ```
 
 Success: HTTP 200.
@@ -3104,8 +3209,41 @@ Success: HTTP 200.
   "success": true,
   "message": "Update an owned customer vehicle",
   "data": {
+    "nickname": "synthetic-nickname",
+    "isDefault": true,
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "isActive": true,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "isActive": true
+      }
+    },
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "year": 1,
+    "registrationNumber": "synthetic-registrationnumber",
+    "vin": "synthetic-vin",
+    "color": "synthetic-color",
+    "mileageKm": "synthetic-mileagekm",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -3118,7 +3256,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/customers/vehicles/{vehicleId}`
 
 - Operation ID: `deleteCustomersVehiclesByVehicleId`
-- Purpose: Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`

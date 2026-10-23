@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
+import { savedVehicleQualifierKeys } from "./customers.schemas.js";
 import { mediaImageSchema } from "../media/media.schemas.js";
 
 const profileResponse = z.object({
@@ -21,6 +22,23 @@ const profileResponse = z.object({
   photo: mediaImageSchema.nullable(),
 });
 const garageVehicleResponse = z.object({
+  nickname: z.string().nullable(),
+  isDefault: z.boolean(),
+  vehicleModelId: z.uuid().nullable(),
+  vehicleModel: z
+    .object({
+      id: z.uuid(),
+      makeId: z.uuid(),
+      name: z.string(),
+      yearFrom: z.number().int(),
+      yearTo: z.number().int(),
+      isActive: z.boolean(),
+      make: z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean() }),
+    })
+    .nullable(),
+  ...(Object.fromEntries(
+    savedVehicleQualifierKeys.map((key) => [key, z.string().nullable()]),
+  ) as { [K in (typeof savedVehicleQualifierKeys)[number]]: z.ZodNullable<z.ZodString> }),
   id: z.uuid(),
   make: z.string(),
   model: z.string(),
@@ -132,7 +150,10 @@ export function registerCustomersOpenApi(registry: OpenAPIRegistry): void {
             description:
               "Customer owner only. Profile text has its own profileVersion, independent of mediaVersion. PATCH requires expectedVersion from the owned profile read and at least one editable field. The update, revision increment and changed-field audit commit atomically. A stale version returns 409 STALE_VERSION without changes. Missing versions return 422; there is no unversioned update bypass. Changing the phone clears its previous verification. Optional address/city/state accept null. On a lost response, GET and explicitly review saved details before another update; automatic replay is not supported. Deploy the additive profile-version migration and matching backend/frontend together.",
           }
-        : {}),
+        : {
+            description:
+              "Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs.",
+          }),
       security: [{ sessionCookie: [] }],
       request: {
         ...(path.params === undefined ? {} : { params: path.params }),
@@ -158,7 +179,26 @@ export function registerCustomersOpenApi(registry: OpenAPIRegistry): void {
                   : path.path === "/customers/vehicles/{vehicleId}" &&
                       path.method === "get"
                     ? responseSchema.extend({ data: garageVehicleResponse })
-                    : responseSchema,
+                    : path.path === "/customers/vehicles" && path.method === "get"
+                      ? responseSchema.extend({
+                          data: z.object({
+                            vehicles: z.array(
+                              garageVehicleResponse.omit({
+                                mediaVersion: true,
+                                images: true,
+                              }),
+                            ),
+                            nextCursor: z.uuid().optional(),
+                          }),
+                        })
+                      : path.method === "post" || path.method === "patch"
+                        ? responseSchema.extend({
+                            data: garageVehicleResponse.omit({
+                              mediaVersion: true,
+                              images: true,
+                            }),
+                          })
+                        : responseSchema,
             },
           },
         },

@@ -136,7 +136,6 @@ export function PartsCatalogue({
           </p>
         </div>
         <FindPartsForCar
-          key={vehicleQuery}
           query={vehicleQuery}
           enquiryQuery={params.toString()}
           update={update}

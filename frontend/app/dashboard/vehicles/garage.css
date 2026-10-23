@@ -527,3 +527,34 @@
     flex: 1;
   }
 }
+
+.garage-default-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-block: 12px;
+}
+.garage-default-choice input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  flex: 0 0 18px;
+}
+.garage-default-badge {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 4px 10px;
+  background: #e3f1e8;
+  color: #184a2c;
+  font-size: 12px;
+}
+.garage-dialog details summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 12px;
+}
+.garage-dialog .fitment-picker > input {
+  width: 100%;
+  min-height: 44px;
+}

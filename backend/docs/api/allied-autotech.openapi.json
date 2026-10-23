@@ -7275,6 +7275,7 @@
           "Customers"
         ],
         "summary": "List own customer vehicles",
+        "description": "Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -7292,6 +7293,21 @@
             "in": "query",
             "description": "Opaque cursor returned by the preceding page.",
             "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Default Only validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "defaultOnly",
+            "in": "query",
+            "description": "Default Only used to constrain this request.",
+            "example": "true"
           },
           {
             "schema": {
@@ -7326,41 +7342,257 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Cursor-paginated result for: List own customer vehicles.",
                       "properties": {
-                        "items": {
+                        "vehicles": {
                           "type": "array",
-                          "description": "Authorized resource projections for this page.",
                           "items": {
                             "type": "object",
-                            "description": "Safe item projection returned by List own customer vehicles.",
                             "properties": {
+                              "nickname": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Nickname validated by this operation's strict request contract."
+                              },
+                              "isDefault": {
+                                "type": "boolean",
+                                "description": "Boolean control for is default; authorization is still enforced server-side."
+                              },
+                              "vehicleModelId": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "format": "uuid",
+                                "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                              },
+                              "vehicleModel": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the id resource; ownership is resolved server-side."
+                                  },
+                                  "makeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "description": "Identifier of the make resource; ownership is resolved server-side."
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "Name validated by this operation's strict request contract."
+                                  },
+                                  "yearFrom": {
+                                    "type": "integer",
+                                    "description": "Year From validated by this operation's strict request contract."
+                                  },
+                                  "yearTo": {
+                                    "type": "integer",
+                                    "description": "Year To validated by this operation's strict request contract."
+                                  },
+                                  "isActive": {
+                                    "type": "boolean",
+                                    "description": "Boolean control for is active; authorization is still enforced server-side."
+                                  },
+                                  "make": {
+                                    "type": "object",
+                                    "properties": {
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "description": "Identifier of the id resource; ownership is resolved server-side."
+                                      },
+                                      "name": {
+                                        "type": "string",
+                                        "description": "Name validated by this operation's strict request contract."
+                                      },
+                                      "isActive": {
+                                        "type": "boolean",
+                                        "description": "Boolean control for is active; authorization is still enforced server-side."
+                                      }
+                                    },
+                                    "required": [
+                                      "id",
+                                      "name",
+                                      "isActive"
+                                    ],
+                                    "description": "Make validated by this operation's strict request contract."
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "makeId",
+                                  "name",
+                                  "yearFrom",
+                                  "yearTo",
+                                  "isActive",
+                                  "make"
+                                ],
+                                "description": "Vehicle Model validated by this operation's strict request contract."
+                              },
+                              "trim": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Trim validated by this operation's strict request contract."
+                              },
+                              "engineCode": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                              },
+                              "market": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Market validated by this operation's strict request contract."
+                              },
+                              "brakeSystem": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Brake System validated by this operation's strict request contract."
+                              },
+                              "brakeDiameterMm": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                              },
+                              "bodyType": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Body Type validated by this operation's strict request contract."
+                              },
+                              "transmission": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Transmission validated by this operation's strict request contract."
+                              },
+                              "generation": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Generation validated by this operation's strict request contract."
+                              },
+                              "chassisCode": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                              },
                               "id": {
                                 "type": "string",
                                 "format": "uuid",
-                                "description": "Public or authorized resource identifier."
+                                "description": "Identifier of the id resource; ownership is resolved server-side."
                               },
-                              "status": {
+                              "make": {
                                 "type": "string",
-                                "description": "Current server-owned lifecycle state when applicable."
+                                "description": "Make validated by this operation's strict request contract."
+                              },
+                              "model": {
+                                "type": "string",
+                                "description": "Model validated by this operation's strict request contract."
+                              },
+                              "year": {
+                                "type": "integer",
+                                "description": "Year validated by this operation's strict request contract."
+                              },
+                              "registrationNumber": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Registration Number validated by this operation's strict request contract."
+                              },
+                              "vin": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Vin validated by this operation's strict request contract."
+                              },
+                              "color": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Color validated by this operation's strict request contract."
+                              },
+                              "mileageKm": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "description": "Mileage Km validated by this operation's strict request contract."
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "ISO 8601 timestamp interpreted and validated by the server."
                               }
                             },
-                            "additionalProperties": true
-                          }
+                            "required": [
+                              "nickname",
+                              "isDefault",
+                              "vehicleModelId",
+                              "vehicleModel",
+                              "trim",
+                              "engineCode",
+                              "market",
+                              "brakeSystem",
+                              "brakeDiameterMm",
+                              "bodyType",
+                              "transmission",
+                              "generation",
+                              "chassisCode",
+                              "id",
+                              "make",
+                              "model",
+                              "year",
+                              "registrationNumber",
+                              "vin",
+                              "color",
+                              "mileageKm",
+                              "createdAt",
+                              "updatedAt"
+                            ],
+                            "description": "Vehicles Item validated by this operation's strict request contract."
+                          },
+                          "description": "Vehicles validated by this operation's strict request contract."
                         },
                         "nextCursor": {
-                          "type": [
-                            "string",
-                            "null"
-                          ],
+                          "type": "string",
                           "format": "uuid",
-                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                          "description": "Next Cursor validated by this operation's strict request contract."
                         }
                       },
                       "required": [
-                        "items"
+                        "vehicles"
                       ],
-                      "additionalProperties": false
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -7379,6 +7611,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -7387,10 +7620,43 @@
                   "success": true,
                   "message": "List own customer vehicles",
                   "data": {
-                    "items": [
+                    "vehicles": [
                       {
+                        "nickname": "synthetic-nickname",
+                        "isDefault": true,
+                        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                        "vehicleModel": {
+                          "id": "00000000-0000-4000-8000-000000000001",
+                          "makeId": "00000000-0000-4000-8000-000000000001",
+                          "name": "synthetic-name",
+                          "yearFrom": 1,
+                          "yearTo": 1,
+                          "isActive": true,
+                          "make": {
+                            "id": "00000000-0000-4000-8000-000000000001",
+                            "name": "synthetic-name",
+                            "isActive": true
+                          }
+                        },
+                        "trim": "synthetic-trim",
+                        "engineCode": "synthetic-enginecode",
+                        "market": "synthetic-market",
+                        "brakeSystem": "synthetic-brakesystem",
+                        "brakeDiameterMm": "synthetic-brakediametermm",
+                        "bodyType": "synthetic-bodytype",
+                        "transmission": "synthetic-transmission",
+                        "generation": "synthetic-generation",
+                        "chassisCode": "synthetic-chassiscode",
                         "id": "00000000-0000-4000-8000-000000000001",
-                        "status": "synthetic-status"
+                        "make": "synthetic-make",
+                        "model": "synthetic-model",
+                        "year": 1,
+                        "registrationNumber": "synthetic-registrationnumber",
+                        "vin": "synthetic-vin",
+                        "color": "synthetic-color",
+                        "mileageKm": "synthetic-mileagekm",
+                        "createdAt": "2030-01-15T10:00:00.000Z",
+                        "updatedAt": "2030-01-15T10:00:00.000Z"
                       }
                     ],
                     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -7544,7 +7810,6 @@
           }
         },
         "operationId": "getCustomersVehicles",
-        "description": "List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -7557,6 +7822,7 @@
           "Customers"
         ],
         "summary": "Create an owned customer vehicle",
+        "description": "Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -7583,16 +7849,118 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "nickname": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "description": "Nickname validated by this operation's strict request contract."
+                  },
+                  "isDefault": {
+                    "type": "boolean",
+                    "description": "Boolean control for is default; authorization is still enforced server-side."
+                  },
+                  "vehicleModelId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid",
+                    "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                  },
+                  "trim": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Trim validated by this operation's strict request contract."
+                  },
+                  "engineCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "market": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Market validated by this operation's strict request contract."
+                  },
+                  "brakeSystem": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake System validated by this operation's strict request contract."
+                  },
+                  "brakeDiameterMm": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                  },
+                  "bodyType": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Body Type validated by this operation's strict request contract."
+                  },
+                  "transmission": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Transmission validated by this operation's strict request contract."
+                  },
+                  "generation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Generation validated by this operation's strict request contract."
+                  },
+                  "chassisCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
                   "make": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 80,
+                    "maxLength": 100,
                     "description": "Make validated by this operation's strict request contract."
                   },
                   "model": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 80,
+                    "maxLength": 100,
                     "description": "Model validated by this operation's strict request contract."
                   },
                   "year": {
@@ -7647,11 +8015,7 @@
               "example": {
                 "make": "synthetic-make",
                 "model": "synthetic-model",
-                "year": 1886,
-                "registrationNumber": "synthetic-registrationnumber",
-                "vin": "synthetic-vin",
-                "color": "synthetic-color",
-                "mileageKm": "synthetic-mileagekm"
+                "year": 1886
               }
             }
           }
@@ -7674,19 +8038,239 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Create an owned customer vehicle.",
                       "properties": {
+                        "nickname": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Nickname validated by this operation's strict request contract."
+                        },
+                        "isDefault": {
+                          "type": "boolean",
+                          "description": "Boolean control for is default; authorization is still enforced server-side."
+                        },
+                        "vehicleModelId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                        },
+                        "vehicleModel": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "makeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the make resource; ownership is resolved server-side."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "yearFrom": {
+                              "type": "integer",
+                              "description": "Year From validated by this operation's strict request contract."
+                            },
+                            "yearTo": {
+                              "type": "integer",
+                              "description": "Year To validated by this operation's strict request contract."
+                            },
+                            "isActive": {
+                              "type": "boolean",
+                              "description": "Boolean control for is active; authorization is still enforced server-side."
+                            },
+                            "make": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "isActive": {
+                                  "type": "boolean",
+                                  "description": "Boolean control for is active; authorization is still enforced server-side."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "isActive"
+                              ],
+                              "description": "Make validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "makeId",
+                            "name",
+                            "yearFrom",
+                            "yearTo",
+                            "isActive",
+                            "make"
+                          ],
+                          "description": "Vehicle Model validated by this operation's strict request contract."
+                        },
+                        "trim": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Trim validated by this operation's strict request contract."
+                        },
+                        "engineCode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                        },
+                        "market": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Market validated by this operation's strict request contract."
+                        },
+                        "brakeSystem": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Brake System validated by this operation's strict request contract."
+                        },
+                        "brakeDiameterMm": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                        },
+                        "bodyType": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Body Type validated by this operation's strict request contract."
+                        },
+                        "transmission": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Transmission validated by this operation's strict request contract."
+                        },
+                        "generation": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Generation validated by this operation's strict request contract."
+                        },
+                        "chassisCode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                        },
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
                         },
-                        "status": {
+                        "make": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "description": "Make validated by this operation's strict request contract."
+                        },
+                        "model": {
+                          "type": "string",
+                          "description": "Model validated by this operation's strict request contract."
+                        },
+                        "year": {
+                          "type": "integer",
+                          "description": "Year validated by this operation's strict request contract."
+                        },
+                        "registrationNumber": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Registration Number validated by this operation's strict request contract."
+                        },
+                        "vin": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Vin validated by this operation's strict request contract."
+                        },
+                        "color": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Color validated by this operation's strict request contract."
+                        },
+                        "mileageKm": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Mileage Km validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "nickname",
+                        "isDefault",
+                        "vehicleModelId",
+                        "vehicleModel",
+                        "trim",
+                        "engineCode",
+                        "market",
+                        "brakeSystem",
+                        "brakeDiameterMm",
+                        "bodyType",
+                        "transmission",
+                        "generation",
+                        "chassisCode",
+                        "id",
+                        "make",
+                        "model",
+                        "year",
+                        "registrationNumber",
+                        "vin",
+                        "color",
+                        "mileageKm",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -7705,6 +8289,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -7713,8 +8298,41 @@
                   "success": true,
                   "message": "Create an owned customer vehicle",
                   "data": {
+                    "nickname": "synthetic-nickname",
+                    "isDefault": true,
+                    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                    "vehicleModel": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "makeId": "00000000-0000-4000-8000-000000000001",
+                      "name": "synthetic-name",
+                      "yearFrom": 1,
+                      "yearTo": 1,
+                      "isActive": true,
+                      "make": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "name": "synthetic-name",
+                        "isActive": true
+                      }
+                    },
+                    "trim": "synthetic-trim",
+                    "engineCode": "synthetic-enginecode",
+                    "market": "synthetic-market",
+                    "brakeSystem": "synthetic-brakesystem",
+                    "brakeDiameterMm": "synthetic-brakediametermm",
+                    "bodyType": "synthetic-bodytype",
+                    "transmission": "synthetic-transmission",
+                    "generation": "synthetic-generation",
+                    "chassisCode": "synthetic-chassiscode",
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "make": "synthetic-make",
+                    "model": "synthetic-model",
+                    "year": 1,
+                    "registrationNumber": "synthetic-registrationnumber",
+                    "vin": "synthetic-vin",
+                    "color": "synthetic-color",
+                    "mileageKm": "synthetic-mileagekm",
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "updatedAt": "2030-01-15T10:00:00.000Z"
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -7885,7 +8503,6 @@
           }
         },
         "operationId": "postCustomersVehicles",
-        "description": "Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -7900,6 +8517,7 @@
           "Customers"
         ],
         "summary": "Get an owned customer vehicle",
+        "description": "Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -7938,6 +8556,156 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "nickname": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Nickname validated by this operation's strict request contract."
+                        },
+                        "isDefault": {
+                          "type": "boolean",
+                          "description": "Boolean control for is default; authorization is still enforced server-side."
+                        },
+                        "vehicleModelId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                        },
+                        "vehicleModel": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "makeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the make resource; ownership is resolved server-side."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "yearFrom": {
+                              "type": "integer",
+                              "description": "Year From validated by this operation's strict request contract."
+                            },
+                            "yearTo": {
+                              "type": "integer",
+                              "description": "Year To validated by this operation's strict request contract."
+                            },
+                            "isActive": {
+                              "type": "boolean",
+                              "description": "Boolean control for is active; authorization is still enforced server-side."
+                            },
+                            "make": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "isActive": {
+                                  "type": "boolean",
+                                  "description": "Boolean control for is active; authorization is still enforced server-side."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "isActive"
+                              ],
+                              "description": "Make validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "makeId",
+                            "name",
+                            "yearFrom",
+                            "yearTo",
+                            "isActive",
+                            "make"
+                          ],
+                          "description": "Vehicle Model validated by this operation's strict request contract."
+                        },
+                        "trim": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Trim validated by this operation's strict request contract."
+                        },
+                        "engineCode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                        },
+                        "market": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Market validated by this operation's strict request contract."
+                        },
+                        "brakeSystem": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Brake System validated by this operation's strict request contract."
+                        },
+                        "brakeDiameterMm": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                        },
+                        "bodyType": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Body Type validated by this operation's strict request contract."
+                        },
+                        "transmission": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Transmission validated by this operation's strict request contract."
+                        },
+                        "generation": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Generation validated by this operation's strict request contract."
+                        },
+                        "chassisCode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                        },
                         "id": {
                           "type": "string",
                           "format": "uuid",
@@ -8051,6 +8819,19 @@
                         }
                       },
                       "required": [
+                        "nickname",
+                        "isDefault",
+                        "vehicleModelId",
+                        "vehicleModel",
+                        "trim",
+                        "engineCode",
+                        "market",
+                        "brakeSystem",
+                        "brakeDiameterMm",
+                        "bodyType",
+                        "transmission",
+                        "generation",
+                        "chassisCode",
                         "id",
                         "make",
                         "model",
@@ -8092,6 +8873,31 @@
                   "success": true,
                   "message": "Get an owned customer vehicle",
                   "data": {
+                    "nickname": "synthetic-nickname",
+                    "isDefault": true,
+                    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                    "vehicleModel": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "makeId": "00000000-0000-4000-8000-000000000001",
+                      "name": "synthetic-name",
+                      "yearFrom": 1,
+                      "yearTo": 1,
+                      "isActive": true,
+                      "make": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "name": "synthetic-name",
+                        "isActive": true
+                      }
+                    },
+                    "trim": "synthetic-trim",
+                    "engineCode": "synthetic-enginecode",
+                    "market": "synthetic-market",
+                    "brakeSystem": "synthetic-brakesystem",
+                    "brakeDiameterMm": "synthetic-brakediametermm",
+                    "bodyType": "synthetic-bodytype",
+                    "transmission": "synthetic-transmission",
+                    "generation": "synthetic-generation",
+                    "chassisCode": "synthetic-chassiscode",
                     "id": "00000000-0000-4000-8000-000000000001",
                     "make": "synthetic-make",
                     "model": "synthetic-model",
@@ -8284,7 +9090,6 @@
           }
         },
         "operationId": "getCustomersVehiclesByVehicleId",
-        "description": "Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -8297,6 +9102,7 @@
           "Customers"
         ],
         "summary": "Update an owned customer vehicle",
+        "description": "Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -8335,16 +9141,123 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "nickname": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "description": "Nickname validated by this operation's strict request contract."
+                  },
+                  "isDefault": {
+                    "type": "boolean",
+                    "description": "Boolean control for is default; authorization is still enforced server-side."
+                  },
+                  "vehicleModelId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid",
+                    "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                  },
+                  "trim": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Trim validated by this operation's strict request contract."
+                  },
+                  "engineCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "market": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Market validated by this operation's strict request contract."
+                  },
+                  "brakeSystem": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake System validated by this operation's strict request contract."
+                  },
+                  "brakeDiameterMm": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                  },
+                  "bodyType": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Body Type validated by this operation's strict request contract."
+                  },
+                  "transmission": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Transmission validated by this operation's strict request contract."
+                  },
+                  "generation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Generation validated by this operation's strict request contract."
+                  },
+                  "chassisCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "expectedUpdatedAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp interpreted and validated by the server."
+                  },
                   "make": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 80,
+                    "maxLength": 100,
                     "description": "Make validated by this operation's strict request contract."
                   },
                   "model": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 80,
+                    "maxLength": 100,
                     "description": "Model validated by this operation's strict request contract."
                   },
                   "year": {
@@ -8391,15 +9304,7 @@
                 "additionalProperties": false,
                 "description": "Request Body validated by this operation's strict request contract."
               },
-              "example": {
-                "make": "synthetic-make",
-                "model": "synthetic-model",
-                "year": 1886,
-                "registrationNumber": "synthetic-registrationnumber",
-                "vin": "synthetic-vin",
-                "color": "synthetic-color",
-                "mileageKm": "synthetic-mileagekm"
-              }
+              "example": {}
             }
           }
         },
@@ -8421,19 +9326,239 @@
                     },
                     "data": {
                       "type": "object",
-                      "description": "Authorized response projection for: Update an owned customer vehicle.",
                       "properties": {
+                        "nickname": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Nickname validated by this operation's strict request contract."
+                        },
+                        "isDefault": {
+                          "type": "boolean",
+                          "description": "Boolean control for is default; authorization is still enforced server-side."
+                        },
+                        "vehicleModelId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                        },
+                        "vehicleModel": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the id resource; ownership is resolved server-side."
+                            },
+                            "makeId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "description": "Identifier of the make resource; ownership is resolved server-side."
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Name validated by this operation's strict request contract."
+                            },
+                            "yearFrom": {
+                              "type": "integer",
+                              "description": "Year From validated by this operation's strict request contract."
+                            },
+                            "yearTo": {
+                              "type": "integer",
+                              "description": "Year To validated by this operation's strict request contract."
+                            },
+                            "isActive": {
+                              "type": "boolean",
+                              "description": "Boolean control for is active; authorization is still enforced server-side."
+                            },
+                            "make": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "description": "Identifier of the id resource; ownership is resolved server-side."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "Name validated by this operation's strict request contract."
+                                },
+                                "isActive": {
+                                  "type": "boolean",
+                                  "description": "Boolean control for is active; authorization is still enforced server-side."
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "isActive"
+                              ],
+                              "description": "Make validated by this operation's strict request contract."
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "makeId",
+                            "name",
+                            "yearFrom",
+                            "yearTo",
+                            "isActive",
+                            "make"
+                          ],
+                          "description": "Vehicle Model validated by this operation's strict request contract."
+                        },
+                        "trim": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Trim validated by this operation's strict request contract."
+                        },
+                        "engineCode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                        },
+                        "market": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Market validated by this operation's strict request contract."
+                        },
+                        "brakeSystem": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Brake System validated by this operation's strict request contract."
+                        },
+                        "brakeDiameterMm": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                        },
+                        "bodyType": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Body Type validated by this operation's strict request contract."
+                        },
+                        "transmission": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Transmission validated by this operation's strict request contract."
+                        },
+                        "generation": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Generation validated by this operation's strict request contract."
+                        },
+                        "chassisCode": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                        },
                         "id": {
                           "type": "string",
                           "format": "uuid",
-                          "description": "Public or authorized resource identifier."
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
                         },
-                        "status": {
+                        "make": {
                           "type": "string",
-                          "description": "Current server-owned lifecycle state when applicable."
+                          "description": "Make validated by this operation's strict request contract."
+                        },
+                        "model": {
+                          "type": "string",
+                          "description": "Model validated by this operation's strict request contract."
+                        },
+                        "year": {
+                          "type": "integer",
+                          "description": "Year validated by this operation's strict request contract."
+                        },
+                        "registrationNumber": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Registration Number validated by this operation's strict request contract."
+                        },
+                        "vin": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Vin validated by this operation's strict request contract."
+                        },
+                        "color": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Color validated by this operation's strict request contract."
+                        },
+                        "mileageKm": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "description": "Mileage Km validated by this operation's strict request contract."
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
                         }
                       },
-                      "additionalProperties": true
+                      "required": [
+                        "nickname",
+                        "isDefault",
+                        "vehicleModelId",
+                        "vehicleModel",
+                        "trim",
+                        "engineCode",
+                        "market",
+                        "brakeSystem",
+                        "brakeDiameterMm",
+                        "bodyType",
+                        "transmission",
+                        "generation",
+                        "chassisCode",
+                        "id",
+                        "make",
+                        "model",
+                        "year",
+                        "registrationNumber",
+                        "vin",
+                        "color",
+                        "mileageKm",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
                     },
                     "meta": {
                       "type": "object",
@@ -8452,6 +9577,7 @@
                   "required": [
                     "success",
                     "message",
+                    "data",
                     "meta"
                   ],
                   "description": "Response validated by this operation's strict request contract."
@@ -8460,8 +9586,41 @@
                   "success": true,
                   "message": "Update an owned customer vehicle",
                   "data": {
+                    "nickname": "synthetic-nickname",
+                    "isDefault": true,
+                    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                    "vehicleModel": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "makeId": "00000000-0000-4000-8000-000000000001",
+                      "name": "synthetic-name",
+                      "yearFrom": 1,
+                      "yearTo": 1,
+                      "isActive": true,
+                      "make": {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "name": "synthetic-name",
+                        "isActive": true
+                      }
+                    },
+                    "trim": "synthetic-trim",
+                    "engineCode": "synthetic-enginecode",
+                    "market": "synthetic-market",
+                    "brakeSystem": "synthetic-brakesystem",
+                    "brakeDiameterMm": "synthetic-brakediametermm",
+                    "bodyType": "synthetic-bodytype",
+                    "transmission": "synthetic-transmission",
+                    "generation": "synthetic-generation",
+                    "chassisCode": "synthetic-chassiscode",
                     "id": "00000000-0000-4000-8000-000000000001",
-                    "status": "synthetic-status"
+                    "make": "synthetic-make",
+                    "model": "synthetic-model",
+                    "year": 1,
+                    "registrationNumber": "synthetic-registrationnumber",
+                    "vin": "synthetic-vin",
+                    "color": "synthetic-color",
+                    "mileageKm": "synthetic-mileagekm",
+                    "createdAt": "2030-01-15T10:00:00.000Z",
+                    "updatedAt": "2030-01-15T10:00:00.000Z"
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -8652,7 +9811,6 @@
           }
         },
         "operationId": "patchCustomersVehiclesByVehicleId",
-        "description": "Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"
@@ -8665,6 +9823,7 @@
           "Customers"
         ],
         "summary": "Delete an owned customer vehicle",
+        "description": "Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -8929,7 +10088,6 @@
           }
         },
         "operationId": "deleteCustomersVehiclesByVehicleId",
-        "description": "Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"

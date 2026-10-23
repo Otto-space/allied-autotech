@@ -44,9 +44,33 @@ export const customerProfileUpdateBodySchema = z
     "At least one profile field is required",
   );
 
+export const savedVehicleQualifierKeys = [
+  "trim",
+  "engineCode",
+  "market",
+  "brakeSystem",
+  "brakeDiameterMm",
+  "bodyType",
+  "transmission",
+  "generation",
+  "chassisCode",
+] as const;
+export const savedVehicleFields = {
+  nickname: nullableText(80).optional(),
+  isDefault: z.boolean().optional(),
+  vehicleModelId: z.uuid().nullable().optional(),
+  ...(Object.fromEntries(
+    savedVehicleQualifierKeys.map((key) => [key, nullableText(100).optional()]),
+  ) as {
+    [K in (typeof savedVehicleQualifierKeys)[number]]: z.ZodOptional<
+      z.ZodNullable<z.ZodString>
+    >;
+  }),
+};
 const vehicleFields = {
-  make: cleanText(80),
-  model: cleanText(80),
+  ...savedVehicleFields,
+  make: cleanText(100),
+  model: cleanText(100),
   year: z.coerce
     .number()
     .int()
@@ -73,6 +97,8 @@ const vehicleFields = {
 export const customerVehicleCreateBodySchema = z.object(vehicleFields).strict();
 export const customerVehicleUpdateBodySchema = z
   .object({
+    ...savedVehicleFields,
+    expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     make: vehicleFields.make.optional(),
     model: vehicleFields.model.optional(),
     year: vehicleFields.year.optional(),
@@ -82,12 +108,19 @@ export const customerVehicleUpdateBodySchema = z
     mileageKm: vehicleFields.mileageKm,
   })
   .strict()
-  .refine((value) => Object.keys(value).length > 0, "At least one field is required");
+  .refine(
+    (value) => Object.keys(value).some((key) => key !== "expectedUpdatedAt"),
+    "At least one field is required",
+  );
 
 export const customerVehicleParamsSchema = z.object({ vehicleId: z.uuid() }).strict();
 export const customerVehicleListQuerySchema = z
   .object({
     cursor: z.uuid().optional(),
+    defaultOnly: z
+      .enum(["true", "false"])
+      .transform((value) => value === "true")
+      .optional(),
     limit: z.coerce.number().int().min(1).max(100).default(25),
   })
   .strict();

@@ -461,13 +461,13 @@ export interface paths {
         };
         /**
          * List own customer vehicles
-         * @description List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. List own customer vehicles. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersVehicles"];
         put?: never;
         /**
          * Create an owned customer vehicle
-         * @description Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Create an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postCustomersVehicles"];
         delete?: never;
@@ -485,21 +485,21 @@ export interface paths {
         };
         /**
          * Get an owned customer vehicle
-         * @description Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Get an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getCustomersVehiclesByVehicleId"];
         put?: never;
         post?: never;
         /**
          * Delete an owned customer vehicle
-         * @description Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Delete an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         delete: operations["deleteCustomersVehiclesByVehicleId"];
         options?: never;
         head?: never;
         /**
          * Update an owned customer vehicle
-         * @description Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Owned garage records only; independent of vehicles offered for sale. vehicleModelId explicitly links a real active make/model/year. Names must match that catalogue identity. Unknown legacy names are not automatically linked. Nickname, optional technical qualifiers and isDefault are supported. Defaults serialize per customer and never alter another account. Changing model or year clears implicit old specifications. PATCH accepts expectedUpdatedAt to reject stale edits. defaultOnly=true finds the owned default independently of ordinary list pagination. Removal preserves bookings and clears their vehicle reference; no default replacement is guessed. VIN and registration never enter public parts-search URLs. Update an owned customer vehicle. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchCustomersVehiclesByVehicleId"];
         trace?: never;
@@ -12761,6 +12761,11 @@ export interface operations {
                  */
                 cursor?: string;
                 /**
+                 * @description Default Only used to constrain this request.
+                 * @example true
+                 */
+                defaultOnly?: "true" | "false";
+                /**
                  * @description Maximum number of records to return, bounded by the API.
                  * @example 1
                  */
@@ -12783,10 +12788,43 @@ export interface operations {
                      *       "success": true,
                      *       "message": "List own customer vehicles",
                      *       "data": {
-                     *         "items": [
+                     *         "vehicles": [
                      *           {
+                     *             "nickname": "synthetic-nickname",
+                     *             "isDefault": true,
+                     *             "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *             "vehicleModel": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "makeId": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "synthetic-name",
+                     *               "yearFrom": 1,
+                     *               "yearTo": 1,
+                     *               "isActive": true,
+                     *               "make": {
+                     *                 "id": "00000000-0000-4000-8000-000000000001",
+                     *                 "name": "synthetic-name",
+                     *                 "isActive": true
+                     *               }
+                     *             },
+                     *             "trim": "synthetic-trim",
+                     *             "engineCode": "synthetic-enginecode",
+                     *             "market": "synthetic-market",
+                     *             "brakeSystem": "synthetic-brakesystem",
+                     *             "brakeDiameterMm": "synthetic-brakediametermm",
+                     *             "bodyType": "synthetic-bodytype",
+                     *             "transmission": "synthetic-transmission",
+                     *             "generation": "synthetic-generation",
+                     *             "chassisCode": "synthetic-chassiscode",
                      *             "id": "00000000-0000-4000-8000-000000000001",
-                     *             "status": "synthetic-status"
+                     *             "make": "synthetic-make",
+                     *             "model": "synthetic-model",
+                     *             "year": 1,
+                     *             "registrationNumber": "synthetic-registrationnumber",
+                     *             "vin": "synthetic-vin",
+                     *             "color": "synthetic-color",
+                     *             "mileageKm": "synthetic-mileagekm",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "updatedAt": "2030-01-15T10:00:00.000Z"
                      *           }
                      *         ],
                      *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -12801,25 +12839,105 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Cursor-paginated result for: List own customer vehicles. */
-                        data?: {
-                            /** @description Authorized resource projections for this page. */
-                            items: ({
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Vehicles validated by this operation's strict request contract. */
+                            vehicles: {
+                                /** @description Nickname validated by this operation's strict request contract. */
+                                nickname: string | null;
+                                /** @description Boolean control for is default; authorization is still enforced server-side. */
+                                isDefault: boolean;
                                 /**
                                  * Format: uuid
-                                 * @description Public or authorized resource identifier.
+                                 * @description Identifier of the vehicle model resource; ownership is resolved server-side.
                                  */
-                                id?: string;
-                                /** @description Current server-owned lifecycle state when applicable. */
-                                status?: string;
-                            } & {
-                                [key: string]: unknown;
-                            })[];
+                                vehicleModelId: string | null;
+                                /** @description Vehicle Model validated by this operation's strict request contract. */
+                                vehicleModel: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the make resource; ownership is resolved server-side.
+                                     */
+                                    makeId: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Year From validated by this operation's strict request contract. */
+                                    yearFrom: number;
+                                    /** @description Year To validated by this operation's strict request contract. */
+                                    yearTo: number;
+                                    /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                    isActive: boolean;
+                                    /** @description Make validated by this operation's strict request contract. */
+                                    make: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description Name validated by this operation's strict request contract. */
+                                        name: string;
+                                        /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                        isActive: boolean;
+                                    };
+                                } | null;
+                                /** @description Trim validated by this operation's strict request contract. */
+                                trim: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                engineCode: string | null;
+                                /** @description Market validated by this operation's strict request contract. */
+                                market: string | null;
+                                /** @description Brake System validated by this operation's strict request contract. */
+                                brakeSystem: string | null;
+                                /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                brakeDiameterMm: string | null;
+                                /** @description Body Type validated by this operation's strict request contract. */
+                                bodyType: string | null;
+                                /** @description Transmission validated by this operation's strict request contract. */
+                                transmission: string | null;
+                                /** @description Generation validated by this operation's strict request contract. */
+                                generation: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                chassisCode: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Make validated by this operation's strict request contract. */
+                                make: string;
+                                /** @description Model validated by this operation's strict request contract. */
+                                model: string;
+                                /** @description Year validated by this operation's strict request contract. */
+                                year: number;
+                                /** @description Registration Number validated by this operation's strict request contract. */
+                                registrationNumber: string | null;
+                                /** @description Vin validated by this operation's strict request contract. */
+                                vin: string | null;
+                                /** @description Color validated by this operation's strict request contract. */
+                                color: string | null;
+                                /** @description Mileage Km validated by this operation's strict request contract. */
+                                mileageKm: number | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             * @description Next Cursor validated by this operation's strict request contract.
                              */
-                            nextCursor?: string | null;
+                            nextCursor?: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -12997,14 +13115,37 @@ export interface operations {
                  * @example {
                  *       "make": "synthetic-make",
                  *       "model": "synthetic-model",
-                 *       "year": 1886,
-                 *       "registrationNumber": "synthetic-registrationnumber",
-                 *       "vin": "synthetic-vin",
-                 *       "color": "synthetic-color",
-                 *       "mileageKm": "synthetic-mileagekm"
+                 *       "year": 1886
                  *     }
                  */
                 "application/json": {
+                    /** @description Nickname validated by this operation's strict request contract. */
+                    nickname?: string | null;
+                    /** @description Boolean control for is default; authorization is still enforced server-side. */
+                    isDefault?: boolean;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                     */
+                    vehicleModelId?: string | null;
+                    /** @description Trim validated by this operation's strict request contract. */
+                    trim?: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    engineCode?: string | null;
+                    /** @description Market validated by this operation's strict request contract. */
+                    market?: string | null;
+                    /** @description Brake System validated by this operation's strict request contract. */
+                    brakeSystem?: string | null;
+                    /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                    brakeDiameterMm?: string | null;
+                    /** @description Body Type validated by this operation's strict request contract. */
+                    bodyType?: string | null;
+                    /** @description Transmission validated by this operation's strict request contract. */
+                    transmission?: string | null;
+                    /** @description Generation validated by this operation's strict request contract. */
+                    generation?: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    chassisCode?: string | null;
                     /** @description Make validated by this operation's strict request contract. */
                     make: string;
                     /** @description Model validated by this operation's strict request contract. */
@@ -13034,8 +13175,41 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Create an owned customer vehicle",
                      *       "data": {
+                     *         "nickname": "synthetic-nickname",
+                     *         "isDefault": true,
+                     *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleModel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "makeId": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name",
+                     *           "yearFrom": 1,
+                     *           "yearTo": 1,
+                     *           "isActive": true,
+                     *           "make": {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "isActive": true
+                     *           }
+                     *         },
+                     *         "trim": "synthetic-trim",
+                     *         "engineCode": "synthetic-enginecode",
+                     *         "market": "synthetic-market",
+                     *         "brakeSystem": "synthetic-brakesystem",
+                     *         "brakeDiameterMm": "synthetic-brakediametermm",
+                     *         "bodyType": "synthetic-bodytype",
+                     *         "transmission": "synthetic-transmission",
+                     *         "generation": "synthetic-generation",
+                     *         "chassisCode": "synthetic-chassiscode",
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "make": "synthetic-make",
+                     *         "model": "synthetic-model",
+                     *         "year": 1,
+                     *         "registrationNumber": "synthetic-registrationnumber",
+                     *         "vin": "synthetic-vin",
+                     *         "color": "synthetic-color",
+                     *         "mileageKm": "synthetic-mileagekm",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z",
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -13047,17 +13221,97 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Create an owned customer vehicle. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Nickname validated by this operation's strict request contract. */
+                            nickname: string | null;
+                            /** @description Boolean control for is default; authorization is still enforced server-side. */
+                            isDefault: boolean;
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            vehicleModelId: string | null;
+                            /** @description Vehicle Model validated by this operation's strict request contract. */
+                            vehicleModel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the make resource; ownership is resolved server-side.
+                                 */
+                                makeId: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Year From validated by this operation's strict request contract. */
+                                yearFrom: number;
+                                /** @description Year To validated by this operation's strict request contract. */
+                                yearTo: number;
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                                /** @description Make validated by this operation's strict request contract. */
+                                make: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                    isActive: boolean;
+                                };
+                            } | null;
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode: string | null;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market: string | null;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem: string | null;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm: string | null;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType: string | null;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission: string | null;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Make validated by this operation's strict request contract. */
+                            make: string;
+                            /** @description Model validated by this operation's strict request contract. */
+                            model: string;
+                            /** @description Year validated by this operation's strict request contract. */
+                            year: number;
+                            /** @description Registration Number validated by this operation's strict request contract. */
+                            registrationNumber: string | null;
+                            /** @description Vin validated by this operation's strict request contract. */
+                            vin: string | null;
+                            /** @description Color validated by this operation's strict request contract. */
+                            color: string | null;
+                            /** @description Mileage Km validated by this operation's strict request contract. */
+                            mileageKm: number | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -13263,6 +13517,31 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Get an owned customer vehicle",
                      *       "data": {
+                     *         "nickname": "synthetic-nickname",
+                     *         "isDefault": true,
+                     *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleModel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "makeId": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name",
+                     *           "yearFrom": 1,
+                     *           "yearTo": 1,
+                     *           "isActive": true,
+                     *           "make": {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "isActive": true
+                     *           }
+                     *         },
+                     *         "trim": "synthetic-trim",
+                     *         "engineCode": "synthetic-enginecode",
+                     *         "market": "synthetic-market",
+                     *         "brakeSystem": "synthetic-brakesystem",
+                     *         "brakeDiameterMm": "synthetic-brakediametermm",
+                     *         "bodyType": "synthetic-bodytype",
+                     *         "transmission": "synthetic-transmission",
+                     *         "generation": "synthetic-generation",
+                     *         "chassisCode": "synthetic-chassiscode",
                      *         "id": "00000000-0000-4000-8000-000000000001",
                      *         "make": "synthetic-make",
                      *         "model": "synthetic-model",
@@ -13298,6 +13577,66 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Nickname validated by this operation's strict request contract. */
+                            nickname: string | null;
+                            /** @description Boolean control for is default; authorization is still enforced server-side. */
+                            isDefault: boolean;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                             */
+                            vehicleModelId: string | null;
+                            /** @description Vehicle Model validated by this operation's strict request contract. */
+                            vehicleModel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the make resource; ownership is resolved server-side.
+                                 */
+                                makeId: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Year From validated by this operation's strict request contract. */
+                                yearFrom: number;
+                                /** @description Year To validated by this operation's strict request contract. */
+                                yearTo: number;
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                                /** @description Make validated by this operation's strict request contract. */
+                                make: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                    isActive: boolean;
+                                };
+                            } | null;
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode: string | null;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market: string | null;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem: string | null;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm: string | null;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType: string | null;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission: string | null;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -13791,18 +14130,40 @@ export interface operations {
         };
         requestBody: {
             content: {
-                /**
-                 * @example {
-                 *       "make": "synthetic-make",
-                 *       "model": "synthetic-model",
-                 *       "year": 1886,
-                 *       "registrationNumber": "synthetic-registrationnumber",
-                 *       "vin": "synthetic-vin",
-                 *       "color": "synthetic-color",
-                 *       "mileageKm": "synthetic-mileagekm"
-                 *     }
-                 */
+                /** @example {} */
                 "application/json": {
+                    /** @description Nickname validated by this operation's strict request contract. */
+                    nickname?: string | null;
+                    /** @description Boolean control for is default; authorization is still enforced server-side. */
+                    isDefault?: boolean;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                     */
+                    vehicleModelId?: string | null;
+                    /** @description Trim validated by this operation's strict request contract. */
+                    trim?: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    engineCode?: string | null;
+                    /** @description Market validated by this operation's strict request contract. */
+                    market?: string | null;
+                    /** @description Brake System validated by this operation's strict request contract. */
+                    brakeSystem?: string | null;
+                    /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                    brakeDiameterMm?: string | null;
+                    /** @description Body Type validated by this operation's strict request contract. */
+                    bodyType?: string | null;
+                    /** @description Transmission validated by this operation's strict request contract. */
+                    transmission?: string | null;
+                    /** @description Generation validated by this operation's strict request contract. */
+                    generation?: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    chassisCode?: string | null;
+                    /**
+                     * Format: date-time
+                     * @description ISO 8601 timestamp interpreted and validated by the server.
+                     */
+                    expectedUpdatedAt?: string;
                     /** @description Make validated by this operation's strict request contract. */
                     make?: string;
                     /** @description Model validated by this operation's strict request contract. */
@@ -13832,8 +14193,41 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Update an owned customer vehicle",
                      *       "data": {
+                     *         "nickname": "synthetic-nickname",
+                     *         "isDefault": true,
+                     *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleModel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "makeId": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name",
+                     *           "yearFrom": 1,
+                     *           "yearTo": 1,
+                     *           "isActive": true,
+                     *           "make": {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "isActive": true
+                     *           }
+                     *         },
+                     *         "trim": "synthetic-trim",
+                     *         "engineCode": "synthetic-enginecode",
+                     *         "market": "synthetic-market",
+                     *         "brakeSystem": "synthetic-brakesystem",
+                     *         "brakeDiameterMm": "synthetic-brakediametermm",
+                     *         "bodyType": "synthetic-bodytype",
+                     *         "transmission": "synthetic-transmission",
+                     *         "generation": "synthetic-generation",
+                     *         "chassisCode": "synthetic-chassiscode",
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "make": "synthetic-make",
+                     *         "model": "synthetic-model",
+                     *         "year": 1,
+                     *         "registrationNumber": "synthetic-registrationnumber",
+                     *         "vin": "synthetic-vin",
+                     *         "color": "synthetic-color",
+                     *         "mileageKm": "synthetic-mileagekm",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z",
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -13845,17 +14239,97 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Update an owned customer vehicle. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Nickname validated by this operation's strict request contract. */
+                            nickname: string | null;
+                            /** @description Boolean control for is default; authorization is still enforced server-side. */
+                            isDefault: boolean;
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            vehicleModelId: string | null;
+                            /** @description Vehicle Model validated by this operation's strict request contract. */
+                            vehicleModel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the make resource; ownership is resolved server-side.
+                                 */
+                                makeId: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Year From validated by this operation's strict request contract. */
+                                yearFrom: number;
+                                /** @description Year To validated by this operation's strict request contract. */
+                                yearTo: number;
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                                /** @description Make validated by this operation's strict request contract. */
+                                make: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                    isActive: boolean;
+                                };
+                            } | null;
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode: string | null;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market: string | null;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem: string | null;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm: string | null;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType: string | null;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission: string | null;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Make validated by this operation's strict request contract. */
+                            make: string;
+                            /** @description Model validated by this operation's strict request contract. */
+                            model: string;
+                            /** @description Year validated by this operation's strict request contract. */
+                            year: number;
+                            /** @description Registration Number validated by this operation's strict request contract. */
+                            registrationNumber: string | null;
+                            /** @description Vin validated by this operation's strict request contract. */
+                            vin: string | null;
+                            /** @description Color validated by this operation's strict request contract. */
+                            color: string | null;
+                            /** @description Mileage Km validated by this operation's strict request contract. */
+                            mileageKm: number | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {

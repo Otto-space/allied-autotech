@@ -2,7 +2,8 @@ import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { projectResourceImage, resourceImageSelect } from "../media/media.projection.js";
 import { enqueueMediaCleanup } from "../media/media.service.js";
-import { staleCustomerProfile } from "./customers.errors.js";
+import { savedVehicleQualifierKeys } from "./customers.schemas.js";
+import { staleCustomerVehicle, staleCustomerProfile } from "./customers.errors.js";
 import type {
   CustomerProfileUpdateInput,
   CustomerVehicleCreateInput,
@@ -11,7 +12,30 @@ import type {
 
 type DatabaseClient = PrismaClient | Prisma.TransactionClient;
 
-const vehicleSelect = {
+export const vehicleSelect = {
+  nickname: true,
+  defaultSlot: true,
+  vehicleModelId: true,
+  vehicleModel: {
+    select: {
+      id: true,
+      makeId: true,
+      name: true,
+      yearFrom: true,
+      yearTo: true,
+      isActive: true,
+      make: { select: { id: true, name: true, isActive: true } },
+    },
+  },
+  trim: true,
+  engineCode: true,
+  market: true,
+  brakeSystem: true,
+  brakeDiameterMm: true,
+  bodyType: true,
+  transmission: true,
+  generation: true,
+  chassisCode: true,
   id: true,
   make: true,
   model: true,
@@ -23,6 +47,11 @@ const vehicleSelect = {
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.CustomerVehicleSelect;
+
+const projectSavedVehicle = <T extends { defaultSlot: number | null }>(row: T) => {
+  const { defaultSlot, ...safe } = row;
+  return { ...safe, isDefault: defaultSlot === 1 };
+};
 
 export class CustomersRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
@@ -91,20 +120,27 @@ export class CustomersRepository {
     return this.profile(userId, client);
   }
 
-  async listVehicles(userId: string, cursor: string | undefined, limit: number) {
+  async listVehicles(
+    userId: string,
+    cursor: string | undefined,
+    limit: number,
+    defaultOnly = false,
+  ) {
     const profile = await this.database.customerProfile.findUnique({
       where: { userId },
       select: { id: true },
     });
     if (profile === null) return null;
 
-    return this.database.customerVehicle.findMany({
-      where: { customerId: profile.id },
-      select: vehicleSelect,
-      orderBy: { id: "asc" },
-      take: limit + 1,
-      ...(cursor === undefined ? {} : { cursor: { id: cursor }, skip: 1 }),
-    });
+    return this.database.customerVehicle
+      .findMany({
+        where: { customerId: profile.id, ...(defaultOnly ? { defaultSlot: 1 } : {}) },
+        select: vehicleSelect,
+        orderBy: { id: "asc" },
+        take: limit + 1,
+        ...(cursor === undefined ? {} : { cursor: { id: cursor }, skip: 1 }),
+      })
+      .then((rows) => rows.map(projectSavedVehicle));
   }
 
   vehicle(userId: string, vehicleId: string, client: DatabaseClient = this.database) {
@@ -125,10 +161,31 @@ export class CustomersRepository {
         if (!row) return null;
         const { mediaImages, ...vehicle } = row;
         return {
-          ...vehicle,
+          ...projectSavedVehicle(vehicle),
           images: mediaImages.map((image) => projectResourceImage(image)),
         };
       });
+  }
+
+  async lockGarage(userId: string, tx: Prisma.TransactionClient) {
+    const rows = await tx.$queryRaw<
+      { id: string }[]
+    >`SELECT "id" FROM "CustomerProfile" WHERE "userId" = ${userId}::uuid FOR UPDATE`;
+    return rows[0]?.id ?? null;
+  }
+
+  async clearOtherDefaults(
+    customerId: string,
+    vehicleId: string | null,
+    tx: Prisma.TransactionClient,
+  ) {
+    return tx.$queryRaw<{ id: string }[]>`
+      UPDATE "CustomerVehicle"
+      SET "defaultSlot" = NULL,
+          "updatedAt" = GREATEST(CURRENT_TIMESTAMP(3), "updatedAt" + interval '1 millisecond')
+      WHERE "customerId" = ${customerId}::uuid AND "defaultSlot" = 1
+        AND (${vehicleId}::uuid IS NULL OR "id" <> ${vehicleId}::uuid)
+      RETURNING "id"`;
   }
 
   async createVehicle(
@@ -144,6 +201,12 @@ export class CustomersRepository {
 
     const data: Prisma.CustomerVehicleUncheckedCreateInput = {
       customerId: profile.id,
+      nickname: input.nickname ?? null,
+      defaultSlot: input.isDefault ? 1 : null,
+      vehicleModelId: input.vehicleModelId ?? null,
+      ...Object.fromEntries(
+        savedVehicleQualifierKeys.map((key) => [key, input[key] ?? null]),
+      ),
       make: input.make,
       model: input.model,
       year: input.year,
@@ -154,10 +217,12 @@ export class CustomersRepository {
       ...(input.color === undefined ? {} : { color: input.color }),
       ...(input.mileageKm === undefined ? {} : { mileageKm: input.mileageKm }),
     };
-    return client.customerVehicle.create({
-      data,
-      select: vehicleSelect,
-    });
+    return client.customerVehicle
+      .create({
+        data,
+        select: vehicleSelect,
+      })
+      .then(projectSavedVehicle);
   }
 
   async updateVehicle(
@@ -166,9 +231,32 @@ export class CustomersRepository {
     input: CustomerVehicleUpdateInput,
     client: DatabaseClient,
   ) {
+    await client.$queryRaw`
+      SELECT v."id" FROM "CustomerVehicle" v
+      JOIN "CustomerProfile" c ON c."id" = v."customerId"
+      WHERE v."id" = ${vehicleId}::uuid AND c."userId" = ${userId}::uuid
+      FOR UPDATE OF v`;
     const owned = await this.vehicle(userId, vehicleId, client);
     if (owned === null) return null;
-    const data: Prisma.CustomerVehicleUpdateInput = {
+    if (
+      input.expectedUpdatedAt !== undefined &&
+      new Date(input.expectedUpdatedAt).getTime() !== owned.updatedAt.getTime()
+    )
+      throw staleCustomerVehicle();
+    const data: Prisma.CustomerVehicleUncheckedUpdateInput = {
+      updatedAt: new Date(Math.max(Date.now(), owned.updatedAt.getTime() + 1)),
+      ...(input.nickname === undefined ? {} : { nickname: input.nickname }),
+      ...(input.vehicleModelId === undefined
+        ? {}
+        : { vehicleModelId: input.vehicleModelId }),
+      ...(input.isDefault === undefined
+        ? {}
+        : { defaultSlot: input.isDefault ? 1 : null }),
+      ...Object.fromEntries(
+        savedVehicleQualifierKeys
+          .filter((key) => input[key] !== undefined)
+          .map((key) => [key, input[key]]),
+      ),
       ...(input.make === undefined ? {} : { make: input.make }),
       ...(input.model === undefined ? {} : { model: input.model }),
       ...(input.year === undefined ? {} : { year: input.year }),
@@ -179,15 +267,21 @@ export class CustomersRepository {
       ...(input.color === undefined ? {} : { color: input.color }),
       ...(input.mileageKm === undefined ? {} : { mileageKm: input.mileageKm }),
     };
-    return client.customerVehicle.update({
-      where: { id: vehicleId },
-      data,
-      select: vehicleSelect,
-    });
+    return client.customerVehicle
+      .update({
+        where: { id: vehicleId },
+        data,
+        select: vehicleSelect,
+      })
+      .then(projectSavedVehicle);
   }
 
   async deleteVehicle(userId: string, vehicleId: string, client: DatabaseClient) {
-    await client.$queryRaw`SELECT "id" FROM "CustomerVehicle" WHERE "id" = ${vehicleId}::uuid FOR UPDATE`;
+    await client.$queryRaw`
+      SELECT v."id" FROM "CustomerVehicle" v
+      JOIN "CustomerProfile" c ON c."id" = v."customerId"
+      WHERE v."id" = ${vehicleId}::uuid AND c."userId" = ${userId}::uuid
+      FOR UPDATE OF v`;
     const owned = await this.vehicle(userId, vehicleId, client);
     if (owned === null) return null;
     const images = await client.resourceImage.findMany({

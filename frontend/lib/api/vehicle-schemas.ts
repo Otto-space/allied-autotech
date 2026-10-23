@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { savedVehicleQualifierKeys } from "../parts-fitment";
 import { branchRef, money } from "./commerce-schemas";
 const image = z.object({
   id: z.string().uuid(),
@@ -60,6 +61,33 @@ export const parseVehicleDiscovery = (value: unknown) =>
     })
     .parse(value);
 export const customerVehicleSchema = z.object({
+  nickname: z.string().max(80).nullable().optional(),
+  isDefault: z.boolean().optional(),
+  vehicleModelId: z.uuid().nullable().optional(),
+  vehicleModel: z
+    .object({
+      id: z.uuid(),
+      makeId: z.uuid(),
+      name: z.string(),
+      yearFrom: z.number().int(),
+      yearTo: z.number().int(),
+      isActive: z.boolean(),
+      make: z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean() }),
+    })
+    .nullable()
+    .optional(),
+  ...(Object.fromEntries(
+    savedVehicleQualifierKeys.map((key) => [
+      key,
+      z.string().max(100).nullable().optional(),
+    ]),
+  ) as {
+    [K in (typeof savedVehicleQualifierKeys)[number]]: z.ZodOptional<
+      z.ZodNullable<z.ZodString>
+    >;
+  }),
+  createdAt: z.iso.datetime({ offset: true }).optional(),
+  updatedAt: z.iso.datetime({ offset: true }).optional(),
   id: z.string().uuid(),
   make: z.string(),
   model: z.string(),

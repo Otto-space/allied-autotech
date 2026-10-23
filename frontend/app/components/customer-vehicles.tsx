@@ -16,7 +16,11 @@ import {
 import { SESSION_CHANGED } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
-import { garageQuery, parseGarageVehicles } from "@/lib/customer-garage";
+import {
+  garagePartsQuery,
+  garageQuery,
+  parseGarageVehicles,
+} from "@/lib/customer-garage";
 import { GarageVehicleEditor } from "./garage-vehicle-editor";
 import { GarageRemoveDialog } from "./garage-remove-dialog";
 import { Feedback } from "./feedback";
@@ -85,7 +89,7 @@ export function CustomerVehicles() {
       <header className="garage-heading">
         <div>
           <h1>Your vehicles</h1>
-          <p>Keep the details you use for workshop visits in your account.</p>
+          <p>Keep your vehicle details for workshop visits and parts searches.</p>
         </div>
         <div className="garage-heading-actions">
           <button
@@ -220,6 +224,10 @@ export function CustomerVehicles() {
                 <h2 id={`garage-title-${vehicle.id}`}>
                   {vehicle.year} {vehicle.make} {vehicle.model}
                 </h2>
+                {vehicle.nickname && <p>{vehicle.nickname}</p>}
+                {vehicle.isDefault && (
+                  <p className="garage-default-badge">Default vehicle</p>
+                )}
                 <dl>
                   {[
                     ["Registration", vehicle.registrationNumber],
@@ -245,6 +253,22 @@ export function CustomerVehicles() {
                 </dl>
               </div>
               <div className="garage-record-actions">
+                {garagePartsQuery(vehicle) ? (
+                  <Link
+                    className="button secondary"
+                    href={`/parts?${garagePartsQuery(vehicle)}`}
+                  >
+                    Find parts for this vehicle
+                  </Link>
+                ) : (
+                  <button
+                    className="garage-text-action"
+                    disabled={blocked}
+                    onClick={() => open({ mode: "edit", vehicle })}
+                  >
+                    Set up parts search
+                  </button>
+                )}
                 <Link
                   className="button secondary"
                   href={`/dashboard/vehicles/${vehicle.id}`}

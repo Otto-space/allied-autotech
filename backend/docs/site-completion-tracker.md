@@ -487,3 +487,12 @@ See `discovery-fitment-implementation.md` for exact browser evidence and remaini
 scope. Saved configurations, notifications and final release-wide acceptance are
 still required. No push or production rollout occurred; existing support-email
 provider-origin acceptance remains separate and pending.
+
+Saved garage checkpoint: owner-scoped nickname/default, normalized model links,
+optional specifications, edit/remove and parts-search selection are implemented
+using CustomerVehicle. Six private PostgreSQL HTTP scenarios and desktop/mobile/
+session-race browser checks passed. The current frontend full unit suite passes
+977 tests. No new schema migration was needed; no production write or deployment
+occurred. The feature branch still requires notification navigation/read-after-
+display, public subcategory controls, the final filter audit and release-wide
+verification. Existing provider-origin support-email acceptance is unchanged.
