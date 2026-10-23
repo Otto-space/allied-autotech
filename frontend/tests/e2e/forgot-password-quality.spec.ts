@@ -203,9 +203,12 @@ test("no JavaScript fallback never submits an email in the URL", async ({ browse
       (process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000") + "/forgot-password",
     );
     await expect(
-      page.getByText(
-        "Enable JavaScript to request a recovery link. You can still browse our Help Centre.",
-      ),
+      page
+        .locator("noscript p")
+        .filter({
+          hasText:
+            "Enable JavaScript to request a recovery link. You can still browse our Help Centre.",
+        }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Send recovery link" })).toHaveCount(0);
     await expect(page.locator("form")).toHaveAttribute("method", "post");

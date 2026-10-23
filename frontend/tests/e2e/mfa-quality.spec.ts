@@ -203,7 +203,9 @@ test("MFA no-JavaScript explanation keeps sign-in and Help usable", async ({
     const p = await c.newPage();
     await p.goto((process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000") + "/mfa");
     await expect(
-      p.getByText("Enable JavaScript to verify your sign-in.", { exact: false }),
+      p
+        .locator("noscript p")
+        .filter({ hasText: "Enable JavaScript to verify your sign-in." }),
     ).toBeVisible();
     await expect(
       p.getByRole("link", { name: "Need help with your account?" }),

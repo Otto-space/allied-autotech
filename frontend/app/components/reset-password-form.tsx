@@ -241,12 +241,12 @@ export function ResetPasswordForm() {
         </>
       )}
       <Feedback message={error} />
-      {!ready && (
+      <noscript hidden={ready}>
         <p>
           Enable JavaScript to reset your password. You can still request a new link or
           browse our Help Centre.
         </p>
-      )}
+      </noscript>
       <form
         ref={form}
         hidden={!ready || mode !== "form"}

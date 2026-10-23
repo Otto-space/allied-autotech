@@ -15,6 +15,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { EquipmentGallery } from "../components/equipment-gallery";
 import { TrustPrinciples } from "../components/brand-editorial";
+import { Brand } from "../components/brand";
 import "./about.css";
 
 export const metadata = publicMetadata(
@@ -126,6 +127,9 @@ export default function AboutPage() {
           aria-labelledby="about-principles-title"
         >
           <div className="about-section-heading">
+            <div className="about-brand">
+              <Brand />
+            </div>
             <h2 id="about-principles-title">Built on Trust, Driven by Quality.</h2>
             <p>
               Inspect carefully. Diagnose the issue. Explain the next step. Our approach

@@ -137,9 +137,9 @@ export function LoginForm() {
           : "Sign in to your Allied AutoTech account."}
       </p>
       <Feedback message={error} toast="Please review the message on this page." />
-      {!ready && (
+      <noscript hidden={ready}>
         <p>Enable JavaScript to sign in. You can still browse our Help Centre.</p>
-      )}
+      </noscript>
       <form
         ref={formRef}
         hidden={!ready}

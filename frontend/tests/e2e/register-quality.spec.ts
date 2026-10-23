@@ -245,9 +245,12 @@ test("without JavaScript registration remains explanatory and cannot leak a quer
       (process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000") + "/register",
     );
     await expect(
-      p.getByText(
-        "Enable JavaScript to create an account. You can still browse our Help Centre.",
-      ),
+      p
+        .locator("noscript p")
+        .filter({
+          hasText:
+            "Enable JavaScript to create an account. You can still browse our Help Centre.",
+        }),
     ).toBeVisible();
     await expect(
       p.getByRole("button", { name: "Create account", exact: true }),

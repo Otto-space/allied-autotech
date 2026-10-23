@@ -250,7 +250,7 @@ export function EmailVerificationForm() {
         </>
       )}
       <Feedback message={error} />
-      <noscript>
+      <noscript hidden={ready}>
         <p>
           Enable JavaScript to verify your email or request a new link. You can still sign
           in or browse our Help Centre.

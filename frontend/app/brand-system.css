@@ -8,6 +8,7 @@
   --muted: #526370;
   --text-secondary: #4c5c66;
   --radius-control: 6px;
+  --brand-logo-width: 160px;
 }
 
 /* Invert the supplied monochrome artwork's luminance mask, preserving its geometry. */
@@ -15,7 +16,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 176px;
+  width: var(--brand-logo-width);
   max-width: 100%;
   flex-shrink: 0;
   vertical-align: middle;
@@ -39,8 +40,7 @@
   color: #fff;
 }
 /* Original transparent emblem, used as decoration without repeating accessible names. */
-.partner-intro::before,
-.about-principles .about-section-heading::before {
+.partner-intro::before {
   content: "";
   display: block;
   flex: 0 0 auto;
@@ -52,17 +52,20 @@
 .partner-intro::before {
   margin-bottom: 24px;
 }
-.about-principles .about-section-heading::before {
-  width: 128px;
+.about-brand {
+  display: flex;
+  justify-content: center;
   margin: 0 auto 28px;
 }
 @media (max-width: 700px) {
+  :root {
+    --brand-logo-width: 136px;
+  }
   .partner-intro::before {
     width: 56px;
     margin-bottom: 20px;
   }
-  .about-principles .about-section-heading::before {
-    width: 88px;
+  .about-brand {
     margin-bottom: 24px;
   }
 }
@@ -71,16 +74,9 @@
   width: 36px;
   height: auto;
 }
-.dashboard .sidebar .brand-logo {
-  width: 160px;
-}
 .site-footer {
   background-color: #06181f;
   border-top: 2px solid var(--brand-red);
-}
-.site-header .brand-logo,
-.site-footer .brand-logo {
-  width: 160px;
 }
 /* Quiet echoes of the curved linework in the company's campaign posters. */
 .site-footer::before {
@@ -1340,10 +1336,6 @@
   .site-header__inner,
   .site-footer__inner {
     width: calc(100% - 36px);
-  }
-  .site-header .brand-logo,
-  .site-footer .brand-logo {
-    width: 136px;
   }
 }
 .media-gallery__controls {

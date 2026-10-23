@@ -160,11 +160,11 @@ export function RegisterForm() {
       </h1>
       <p className="login-intro">Create your Allied AutoTech customer account.</p>
       <Feedback message={error} toast="Please review the message on this page." />
-      {!ready && (
+      <noscript hidden={ready}>
         <p>
           Enable JavaScript to create an account. You can still browse our Help Centre.
         </p>
-      )}
+      </noscript>
       {accepted && (
         <section className="register-accepted" aria-label="Registration next step">
           <Mail size={36} aria-hidden="true" />
