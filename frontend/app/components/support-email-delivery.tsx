@@ -58,8 +58,9 @@ export function SupportEmailDeliverySummary({
       <h2 id="support-email-title">Customer email delivery</h2>
       <p>
         Saving a reply and sending its email are separate steps. Sent means the email
-        provider accepted it for processing; recipient-server delivery, inbox placement
-        and reading are not confirmed here.
+        provider accepted it for processing. A "delivered" event confirms the
+        recipient&apos;s mail server accepted it; inbox placement and reading remain
+        unconfirmed.
       </p>
       <p>
         Email replies arrive in the Support mailbox and are not automatically added to
@@ -91,6 +92,17 @@ export function SupportEmailDeliverySummary({
                   <p>
                     Provider delivery event:{" "}
                     {item.providerStatus.toLowerCase().replaceAll("_", " ")}.{" "}
+                    {item.providerUpdatedAt && (
+                      <>
+                        Recorded{" "}
+                        {new Intl.DateTimeFormat("en-NG", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                          timeZone: "Africa/Lagos",
+                        }).format(new Date(item.providerUpdatedAt))}{" "}
+                        (Nigeria time).{" "}
+                      </>
+                    )}
                     {item.providerStatus === "DELIVERED"
                       ? "The recipient's mail server accepted it; inbox placement and reading are still unconfirmed."
                       : "Check Resend and coordinate follow-up before sending again."}
