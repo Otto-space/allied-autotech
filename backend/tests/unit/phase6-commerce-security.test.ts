@@ -44,7 +44,7 @@ describe("Phase 6 commerce security contracts", () => {
     expect(() => assertOrderOperator(actor("STAFF", false))).toThrow();
     expect(() => assertOrderOperator(actor("STAFF"))).not.toThrow();
   });
-  it("rejects client-owned checkout prices, totals, identities, and incomplete delivery", () => {
+  it("rejects client-owned checkout prices, totals, identities, and all new delivery requests", () => {
     const branchId = crypto.randomUUID();
     expect(
       checkoutBodySchema.safeParse({
@@ -56,6 +56,30 @@ describe("Phase 6 commerce security contracts", () => {
     expect(
       checkoutBodySchema.safeParse({ branchId, fulfillmentMethod: "DELIVERY" }).success,
     ).toBe(false);
+    expect(
+      checkoutBodySchema.safeParse({
+        branchId,
+        fulfillmentMethod: "DELIVERY",
+        delivery: {
+          name: "Synthetic",
+          phone: "+2348000000000",
+          address: "Synthetic address",
+          city: "Test",
+          state: "Test",
+          country: "Nigeria",
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      checkoutBodySchema.safeParse({
+        branchId,
+        delivery: { address: "Hidden delivery details" },
+      }).success,
+    ).toBe(false);
+    expect(checkoutBodySchema.parse({ branchId })).toEqual({
+      branchId,
+      fulfillmentMethod: "COLLECTION",
+    });
     expect(
       checkoutBodySchema.safeParse({ branchId, customerId: crypto.randomUUID() }).success,
     ).toBe(false);

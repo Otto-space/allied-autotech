@@ -1,6 +1,11 @@
 import { z } from "zod";
 export const compatibilitySchema = z.object({
   id: z.uuid(),
+  vehicleModelId: z.uuid().nullable().optional(),
+  reviewStatus: z
+    .enum(["DRAFT", "PENDING", "APPROVED", "REJECTED", "RETIRED"])
+    .optional(),
+  effect: z.enum(["INCLUDE", "EXCLUDE"]).optional(),
   make: z.string(),
   model: z.string().nullable(),
   yearFrom: z.number().int().nullable(),
@@ -40,7 +45,7 @@ export const parseProductExtrasSource = (value: unknown) => {
   const direct = productExtrasSchema.safeParse(value);
   return direct.success ? { items: [direct.data] } : parseProductExtrasPage(value);
 };
-// Compatibility writes have no version counter; compare the complete child projection too.
+// Legacy compatibility writes compare the child projection; reviewed rules use the versioned fitment workspace.
 export const productExtrasRevision = (product: ProductExtras) => JSON.stringify(product);
 export const parseCompatibilityChange = (value: unknown) =>
   compatibilitySchema.extend({ productId: z.uuid() }).parse(value);

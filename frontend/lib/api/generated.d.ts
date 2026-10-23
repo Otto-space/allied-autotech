@@ -1357,7 +1357,7 @@ export interface paths {
         };
         /**
          * Search public products with exact totals and stable paging
-         * @description Anonymous. Active products in active categories only. Existing product filters retain literal case-insensitive exact brand/make/model matching, inclusive compatibility year bounds on the same compatibility row, and literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Anonymous. Active products in active categories with active parents only. Normalized vehicleModelId plus year (1886-2200), optional matching vehicleMakeId and technical qualifiers use approved inclusion evidence before counts and paging. fitment=verified requires a full technical match and no possible approved exclusion; make/model/year alone are candidates. verifiedMatches counts genuine verified results in the same repeatable-read snapshot. Legacy literal make/model filters remain available but expose only approved inclusion rules. Filters include condition (NEW/USED/REFURBISHED), classification (GENUINE_OEM/AFTERMARKET), stored productType, categoryId and parentCategoryId (direct subcategories), plus literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getPublicCatalogProductsDiscovery"];
         put?: never;
@@ -3584,6 +3584,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/public/fitment/models/{modelId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vehicle catalogue and reviewed parts fitment: model
+         * @description Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: model. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicFitmentModelsByModelId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/fitment/years": {
         parameters: {
             query?: never;
@@ -3657,6 +3677,50 @@ export interface paths {
          */
         get: operations["getStaffFitmentProducts"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/fitment/products/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vehicle catalogue and reviewed parts fitment: product
+         * @description Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: product. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffFitmentProductsByProductId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/fitment/products/{productId}/rules/{ruleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vehicle catalogue and reviewed parts fitment: rule
+         * @description Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: rule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getStaffFitmentProductsByProductIdRulesByRuleId"];
+        /**
+         * Vehicle catalogue and reviewed parts fitment: updateRule
+         * @description Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: updateRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        put: operations["putStaffFitmentProductsByProductIdRulesByRuleId"];
         post?: never;
         delete?: never;
         options?: never;
@@ -3758,26 +3822,6 @@ export interface paths {
          * @description Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffFitmentProductsByProductIdRules"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/staff/fitment/products/{productId}/rules/{ruleId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Vehicle catalogue and reviewed parts fitment: updateRule
-         * @description Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: updateRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-         */
-        put: operations["putStaffFitmentProductsByProductIdRulesByRuleId"];
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -5596,8 +5640,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Read collection details and currently effective approved delivery zones without private policy provenance
-         * @description Read collection details and currently effective approved delivery zones without private policy provenance. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * Read collection-only ordering availability and collection details
+         * @description Read collection-only ordering availability and collection details. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getPublicFulfillmentOptions"];
         put?: never;
@@ -5617,7 +5661,7 @@ export interface paths {
         };
         /**
          * Read effective policy availability and server time
-         * @description Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getPublicCapabilities"];
         put?: never;
@@ -26498,6 +26542,91 @@ export interface operations {
                  */
                 categoryId?: string;
                 /**
+                 * @description Parent Category Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                parentCategoryId?: string;
+                /**
+                 * @description Condition used to constrain this request.
+                 * @example NEW
+                 */
+                condition?: "NEW" | "USED" | "REFURBISHED";
+                /**
+                 * @description Classification used to constrain this request.
+                 * @example GENUINE_OEM
+                 */
+                classification?: "GENUINE_OEM" | "AFTERMARKET";
+                /**
+                 * @description Product Type used to constrain this request.
+                 * @example synthetic-producttype
+                 */
+                productType?: string;
+                /**
+                 * @description Vehicle Make Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                vehicleMakeId?: string;
+                /**
+                 * @description Vehicle Model Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                vehicleModelId?: string;
+                /**
+                 * @description Fitment used to constrain this request.
+                 * @example candidates
+                 */
+                fitment?: "candidates" | "verified";
+                /**
+                 * @description Trim used to constrain this request.
+                 * @example synthetic-trim
+                 */
+                trim?: string;
+                /**
+                 * @description Engine Code used to constrain this request.
+                 * @example synthetic-enginecode
+                 */
+                engineCode?: string;
+                /**
+                 * @description Market used to constrain this request.
+                 * @example synthetic-market
+                 */
+                market?: string;
+                /**
+                 * @description Position used to constrain this request.
+                 * @example synthetic-position
+                 */
+                position?: string;
+                /**
+                 * @description Brake System used to constrain this request.
+                 * @example synthetic-brakesystem
+                 */
+                brakeSystem?: string;
+                /**
+                 * @description Brake Diameter Mm used to constrain this request.
+                 * @example synthetic-brakediametermm
+                 */
+                brakeDiameterMm?: string;
+                /**
+                 * @description Body Type used to constrain this request.
+                 * @example synthetic-bodytype
+                 */
+                bodyType?: string;
+                /**
+                 * @description Transmission used to constrain this request.
+                 * @example synthetic-transmission
+                 */
+                transmission?: string;
+                /**
+                 * @description Generation used to constrain this request.
+                 * @example synthetic-generation
+                 */
+                generation?: string;
+                /**
+                 * @description Chassis Code used to constrain this request.
+                 * @example synthetic-chassiscode
+                 */
+                chassisCode?: string;
+                /**
                  * @description Brand used to constrain this request.
                  * @example synthetic-brand
                  */
@@ -26587,6 +26716,7 @@ export interface operations {
                      *               "name": "synthetic-name",
                      *               "slug": "synthetic-slug",
                      *               "description": "synthetic-description",
+                     *               "parentId": "00000000-0000-4000-8000-000000000001",
                      *               "isActive": true,
                      *               "createdAt": "2030-01-15T10:00:00.000Z",
                      *               "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -26611,7 +26741,21 @@ export interface operations {
                      *                 "model": "synthetic-model",
                      *                 "yearFrom": "synthetic-yearfrom",
                      *                 "yearTo": "synthetic-yearto",
-                     *                 "notes": "synthetic-notes"
+                     *                 "notes": "synthetic-notes",
+                     *                 "scope": "MODEL",
+                     *                 "requiredQualifiers": [
+                     *                   "trim"
+                     *                 ],
+                     *                 "trim": "synthetic-trim",
+                     *                 "engineCode": "synthetic-enginecode",
+                     *                 "market": "synthetic-market",
+                     *                 "position": "synthetic-position",
+                     *                 "brakeSystem": "synthetic-brakesystem",
+                     *                 "brakeDiameterMm": "synthetic-brakediametermm",
+                     *                 "bodyType": "synthetic-bodytype",
+                     *                 "transmission": "synthetic-transmission",
+                     *                 "generation": "synthetic-generation",
+                     *                 "chassisCode": "synthetic-chassiscode"
                      *               }
                      *             ],
                      *             "availability": [
@@ -26627,7 +26771,8 @@ export interface operations {
                      *           }
                      *         ],
                      *         "nextCursor": "synthetic-nextcursor",
-                     *         "totalMatches": 0
+                     *         "totalMatches": 0,
+                     *         "verifiedMatches": 0
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -26643,6 +26788,37 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Fitment validated by this operation's strict request contract. */
+                                fitment?: {
+                                    /**
+                                     * @description Requested or filtered lifecycle state from the documented enum.
+                                     * @enum {string}
+                                     */
+                                    status: "VERIFIED_FIT" | "NEEDS_VERIFICATION" | "NOT_COMPATIBLE" | "UNKNOWN";
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope?: "MODEL" | "UNIVERSAL";
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    message: string;
+                                    /** @description Missing Qualifiers validated by this operation's strict request contract. */
+                                    missingQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                    /** @description Matched Rule Ids validated by this operation's strict request contract. */
+                                    matchedRuleIds: string[];
+                                };
+                                /**
+                                 * @description Condition validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                                /**
+                                 * @description Classification validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                                /** @description Product Type validated by this operation's strict request contract. */
+                                productType?: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -26698,6 +26874,11 @@ export interface operations {
                                     slug: string;
                                     /** @description Description validated by this operation's strict request contract. */
                                     description: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the parent resource; ownership is resolved server-side.
+                                     */
+                                    parentId: string | null;
                                     /** @description Boolean control for is active; authorization is still enforced server-side. */
                                     isActive: boolean;
                                     /**
@@ -26758,6 +26939,33 @@ export interface operations {
                                     yearTo: number | null;
                                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                     notes: string | null;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "MODEL" | "UNIVERSAL";
+                                    /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                    requiredQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                    /** @description Trim validated by this operation's strict request contract. */
+                                    trim: string | null;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    engineCode: string | null;
+                                    /** @description Market validated by this operation's strict request contract. */
+                                    market: string | null;
+                                    /** @description Position validated by this operation's strict request contract. */
+                                    position: string | null;
+                                    /** @description Brake System validated by this operation's strict request contract. */
+                                    brakeSystem: string | null;
+                                    /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                    brakeDiameterMm: string | null;
+                                    /** @description Body Type validated by this operation's strict request contract. */
+                                    bodyType: string | null;
+                                    /** @description Transmission validated by this operation's strict request contract. */
+                                    transmission: string | null;
+                                    /** @description Generation validated by this operation's strict request contract. */
+                                    generation: string | null;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    chassisCode: string | null;
                                 }[];
                                 /** @description Availability validated by this operation's strict request contract. */
                                 availability: {
@@ -26781,6 +26989,8 @@ export interface operations {
                             nextCursor?: string;
                             /** @description Total Matches validated by this operation's strict request contract. */
                             totalMatches: number;
+                            /** @description Verified Matches validated by this operation's strict request contract. */
+                            verifiedMatches?: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -27106,6 +27316,16 @@ export interface operations {
                  * @example 1
                  */
                 limit?: number;
+                /**
+                 * @description Root Only used to constrain this request.
+                 * @example true
+                 */
+                rootOnly?: "true" | "false";
+                /**
+                 * @description Parent Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                parentId?: string;
             };
             header?: never;
             path?: never;
@@ -27483,6 +27703,91 @@ export interface operations {
                  */
                 categoryId?: string;
                 /**
+                 * @description Parent Category Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                parentCategoryId?: string;
+                /**
+                 * @description Condition used to constrain this request.
+                 * @example NEW
+                 */
+                condition?: "NEW" | "USED" | "REFURBISHED";
+                /**
+                 * @description Classification used to constrain this request.
+                 * @example GENUINE_OEM
+                 */
+                classification?: "GENUINE_OEM" | "AFTERMARKET";
+                /**
+                 * @description Product Type used to constrain this request.
+                 * @example synthetic-producttype
+                 */
+                productType?: string;
+                /**
+                 * @description Vehicle Make Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                vehicleMakeId?: string;
+                /**
+                 * @description Vehicle Model Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                vehicleModelId?: string;
+                /**
+                 * @description Fitment used to constrain this request.
+                 * @example candidates
+                 */
+                fitment?: "candidates" | "verified";
+                /**
+                 * @description Trim used to constrain this request.
+                 * @example synthetic-trim
+                 */
+                trim?: string;
+                /**
+                 * @description Engine Code used to constrain this request.
+                 * @example synthetic-enginecode
+                 */
+                engineCode?: string;
+                /**
+                 * @description Market used to constrain this request.
+                 * @example synthetic-market
+                 */
+                market?: string;
+                /**
+                 * @description Position used to constrain this request.
+                 * @example synthetic-position
+                 */
+                position?: string;
+                /**
+                 * @description Brake System used to constrain this request.
+                 * @example synthetic-brakesystem
+                 */
+                brakeSystem?: string;
+                /**
+                 * @description Brake Diameter Mm used to constrain this request.
+                 * @example synthetic-brakediametermm
+                 */
+                brakeDiameterMm?: string;
+                /**
+                 * @description Body Type used to constrain this request.
+                 * @example synthetic-bodytype
+                 */
+                bodyType?: string;
+                /**
+                 * @description Transmission used to constrain this request.
+                 * @example synthetic-transmission
+                 */
+                transmission?: string;
+                /**
+                 * @description Generation used to constrain this request.
+                 * @example synthetic-generation
+                 */
+                generation?: string;
+                /**
+                 * @description Chassis Code used to constrain this request.
+                 * @example synthetic-chassiscode
+                 */
+                chassisCode?: string;
+                /**
                  * @description Brand used to constrain this request.
                  * @example synthetic-brand
                  */
@@ -27557,6 +27862,7 @@ export interface operations {
                      *               "name": "synthetic-name",
                      *               "slug": "synthetic-slug",
                      *               "description": "synthetic-description",
+                     *               "parentId": "00000000-0000-4000-8000-000000000001",
                      *               "isActive": true,
                      *               "createdAt": "2030-01-15T10:00:00.000Z",
                      *               "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -27581,7 +27887,21 @@ export interface operations {
                      *                 "model": "synthetic-model",
                      *                 "yearFrom": "synthetic-yearfrom",
                      *                 "yearTo": "synthetic-yearto",
-                     *                 "notes": "synthetic-notes"
+                     *                 "notes": "synthetic-notes",
+                     *                 "scope": "MODEL",
+                     *                 "requiredQualifiers": [
+                     *                   "trim"
+                     *                 ],
+                     *                 "trim": "synthetic-trim",
+                     *                 "engineCode": "synthetic-enginecode",
+                     *                 "market": "synthetic-market",
+                     *                 "position": "synthetic-position",
+                     *                 "brakeSystem": "synthetic-brakesystem",
+                     *                 "brakeDiameterMm": "synthetic-brakediametermm",
+                     *                 "bodyType": "synthetic-bodytype",
+                     *                 "transmission": "synthetic-transmission",
+                     *                 "generation": "synthetic-generation",
+                     *                 "chassisCode": "synthetic-chassiscode"
                      *               }
                      *             ],
                      *             "availability": [
@@ -27612,6 +27932,37 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Fitment validated by this operation's strict request contract. */
+                                fitment?: {
+                                    /**
+                                     * @description Requested or filtered lifecycle state from the documented enum.
+                                     * @enum {string}
+                                     */
+                                    status: "VERIFIED_FIT" | "NEEDS_VERIFICATION" | "NOT_COMPATIBLE" | "UNKNOWN";
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope?: "MODEL" | "UNIVERSAL";
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    message: string;
+                                    /** @description Missing Qualifiers validated by this operation's strict request contract. */
+                                    missingQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                    /** @description Matched Rule Ids validated by this operation's strict request contract. */
+                                    matchedRuleIds: string[];
+                                };
+                                /**
+                                 * @description Condition validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                                /**
+                                 * @description Classification validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                                /** @description Product Type validated by this operation's strict request contract. */
+                                productType?: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -27667,6 +28018,11 @@ export interface operations {
                                     slug: string;
                                     /** @description Description validated by this operation's strict request contract. */
                                     description: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the parent resource; ownership is resolved server-side.
+                                     */
+                                    parentId: string | null;
                                     /** @description Boolean control for is active; authorization is still enforced server-side. */
                                     isActive: boolean;
                                     /**
@@ -27727,6 +28083,33 @@ export interface operations {
                                     yearTo: number | null;
                                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                     notes: string | null;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "MODEL" | "UNIVERSAL";
+                                    /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                    requiredQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                    /** @description Trim validated by this operation's strict request contract. */
+                                    trim: string | null;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    engineCode: string | null;
+                                    /** @description Market validated by this operation's strict request contract. */
+                                    market: string | null;
+                                    /** @description Position validated by this operation's strict request contract. */
+                                    position: string | null;
+                                    /** @description Brake System validated by this operation's strict request contract. */
+                                    brakeSystem: string | null;
+                                    /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                    brakeDiameterMm: string | null;
+                                    /** @description Body Type validated by this operation's strict request contract. */
+                                    bodyType: string | null;
+                                    /** @description Transmission validated by this operation's strict request contract. */
+                                    transmission: string | null;
+                                    /** @description Generation validated by this operation's strict request contract. */
+                                    generation: string | null;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    chassisCode: string | null;
                                 }[];
                                 /** @description Availability validated by this operation's strict request contract. */
                                 availability: {
@@ -27913,6 +28296,7 @@ export interface operations {
                      *           "name": "synthetic-name",
                      *           "slug": "synthetic-slug",
                      *           "description": "synthetic-description",
+                     *           "parentId": "00000000-0000-4000-8000-000000000001",
                      *           "isActive": true,
                      *           "createdAt": "2030-01-15T10:00:00.000Z",
                      *           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -27937,7 +28321,21 @@ export interface operations {
                      *             "model": "synthetic-model",
                      *             "yearFrom": "synthetic-yearfrom",
                      *             "yearTo": "synthetic-yearto",
-                     *             "notes": "synthetic-notes"
+                     *             "notes": "synthetic-notes",
+                     *             "scope": "MODEL",
+                     *             "requiredQualifiers": [
+                     *               "trim"
+                     *             ],
+                     *             "trim": "synthetic-trim",
+                     *             "engineCode": "synthetic-enginecode",
+                     *             "market": "synthetic-market",
+                     *             "position": "synthetic-position",
+                     *             "brakeSystem": "synthetic-brakesystem",
+                     *             "brakeDiameterMm": "synthetic-brakediametermm",
+                     *             "bodyType": "synthetic-bodytype",
+                     *             "transmission": "synthetic-transmission",
+                     *             "generation": "synthetic-generation",
+                     *             "chassisCode": "synthetic-chassiscode"
                      *           }
                      *         ],
                      *         "availability": [
@@ -27963,6 +28361,37 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Fitment validated by this operation's strict request contract. */
+                            fitment?: {
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "VERIFIED_FIT" | "NEEDS_VERIFICATION" | "NOT_COMPATIBLE" | "UNKNOWN";
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope?: "MODEL" | "UNIVERSAL";
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                message: string;
+                                /** @description Missing Qualifiers validated by this operation's strict request contract. */
+                                missingQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Matched Rule Ids validated by this operation's strict request contract. */
+                                matchedRuleIds: string[];
+                            };
+                            /**
+                             * @description Condition validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                            /**
+                             * @description Classification validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                            /** @description Product Type validated by this operation's strict request contract. */
+                            productType?: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -28018,6 +28447,11 @@ export interface operations {
                                 slug: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the parent resource; ownership is resolved server-side.
+                                 */
+                                parentId: string | null;
                                 /** @description Boolean control for is active; authorization is still enforced server-side. */
                                 isActive: boolean;
                                 /**
@@ -28078,6 +28512,33 @@ export interface operations {
                                 yearTo: number | null;
                                 /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                 notes: string | null;
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "MODEL" | "UNIVERSAL";
+                                /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                requiredQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Trim validated by this operation's strict request contract. */
+                                trim: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                engineCode: string | null;
+                                /** @description Market validated by this operation's strict request contract. */
+                                market: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Brake System validated by this operation's strict request contract. */
+                                brakeSystem: string | null;
+                                /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                brakeDiameterMm: string | null;
+                                /** @description Body Type validated by this operation's strict request contract. */
+                                bodyType: string | null;
+                                /** @description Transmission validated by this operation's strict request contract. */
+                                transmission: string | null;
+                                /** @description Generation validated by this operation's strict request contract. */
+                                generation: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                chassisCode: string | null;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -29898,6 +30359,16 @@ export interface operations {
                  */
                 limit?: number;
                 /**
+                 * @description Root Only used to constrain this request.
+                 * @example true
+                 */
+                rootOnly?: "true" | "false";
+                /**
+                 * @description Parent Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                parentId?: string;
+                /**
                  * @description Search used to constrain this request.
                  * @example synthetic-search
                  */
@@ -30140,6 +30611,7 @@ export interface operations {
                  *       "name": "synthetic-name",
                  *       "slug": "synthetic-slug",
                  *       "description": "synthetic-description",
+                 *       "parentId": "00000000-0000-4000-8000-000000000001",
                  *       "isActive": true
                  *     }
                  */
@@ -30150,6 +30622,11 @@ export interface operations {
                     slug: string;
                     /** @description Description validated by this operation's strict request contract. */
                     description?: string | null;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the parent resource; ownership is resolved server-side.
+                     */
+                    parentId?: string | null;
                     /**
                      * @description Boolean control for is active; authorization is still enforced server-side.
                      * @default true
@@ -30648,6 +31125,7 @@ export interface operations {
                  *       "name": "synthetic-name",
                  *       "slug": "synthetic-slug",
                  *       "description": "synthetic-description",
+                 *       "parentId": "00000000-0000-4000-8000-000000000001",
                  *       "isActive": true
                  *     }
                  */
@@ -30663,6 +31141,11 @@ export interface operations {
                     slug?: string;
                     /** @description Description validated by this operation's strict request contract. */
                     description?: string | null;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the parent resource; ownership is resolved server-side.
+                     */
+                    parentId?: string | null;
                     /** @description Boolean control for is active; authorization is still enforced server-side. */
                     isActive?: boolean;
                 };
@@ -30923,6 +31406,91 @@ export interface operations {
                  */
                 categoryId?: string;
                 /**
+                 * @description Parent Category Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                parentCategoryId?: string;
+                /**
+                 * @description Condition used to constrain this request.
+                 * @example NEW
+                 */
+                condition?: "NEW" | "USED" | "REFURBISHED";
+                /**
+                 * @description Classification used to constrain this request.
+                 * @example GENUINE_OEM
+                 */
+                classification?: "GENUINE_OEM" | "AFTERMARKET";
+                /**
+                 * @description Product Type used to constrain this request.
+                 * @example synthetic-producttype
+                 */
+                productType?: string;
+                /**
+                 * @description Vehicle Make Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                vehicleMakeId?: string;
+                /**
+                 * @description Vehicle Model Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                vehicleModelId?: string;
+                /**
+                 * @description Fitment used to constrain this request.
+                 * @example candidates
+                 */
+                fitment?: "candidates" | "verified";
+                /**
+                 * @description Trim used to constrain this request.
+                 * @example synthetic-trim
+                 */
+                trim?: string;
+                /**
+                 * @description Engine Code used to constrain this request.
+                 * @example synthetic-enginecode
+                 */
+                engineCode?: string;
+                /**
+                 * @description Market used to constrain this request.
+                 * @example synthetic-market
+                 */
+                market?: string;
+                /**
+                 * @description Position used to constrain this request.
+                 * @example synthetic-position
+                 */
+                position?: string;
+                /**
+                 * @description Brake System used to constrain this request.
+                 * @example synthetic-brakesystem
+                 */
+                brakeSystem?: string;
+                /**
+                 * @description Brake Diameter Mm used to constrain this request.
+                 * @example synthetic-brakediametermm
+                 */
+                brakeDiameterMm?: string;
+                /**
+                 * @description Body Type used to constrain this request.
+                 * @example synthetic-bodytype
+                 */
+                bodyType?: string;
+                /**
+                 * @description Transmission used to constrain this request.
+                 * @example synthetic-transmission
+                 */
+                transmission?: string;
+                /**
+                 * @description Generation used to constrain this request.
+                 * @example synthetic-generation
+                 */
+                generation?: string;
+                /**
+                 * @description Chassis Code used to constrain this request.
+                 * @example synthetic-chassiscode
+                 */
+                chassisCode?: string;
+                /**
                  * @description Brand used to constrain this request.
                  * @example synthetic-brand
                  */
@@ -31002,6 +31570,7 @@ export interface operations {
                      *               "name": "synthetic-name",
                      *               "slug": "synthetic-slug",
                      *               "description": "synthetic-description",
+                     *               "parentId": "00000000-0000-4000-8000-000000000001",
                      *               "isActive": true,
                      *               "createdAt": "2030-01-15T10:00:00.000Z",
                      *               "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -31026,7 +31595,21 @@ export interface operations {
                      *                 "model": "synthetic-model",
                      *                 "yearFrom": "synthetic-yearfrom",
                      *                 "yearTo": "synthetic-yearto",
-                     *                 "notes": "synthetic-notes"
+                     *                 "notes": "synthetic-notes",
+                     *                 "scope": "MODEL",
+                     *                 "requiredQualifiers": [
+                     *                   "trim"
+                     *                 ],
+                     *                 "trim": "synthetic-trim",
+                     *                 "engineCode": "synthetic-enginecode",
+                     *                 "market": "synthetic-market",
+                     *                 "position": "synthetic-position",
+                     *                 "brakeSystem": "synthetic-brakesystem",
+                     *                 "brakeDiameterMm": "synthetic-brakediametermm",
+                     *                 "bodyType": "synthetic-bodytype",
+                     *                 "transmission": "synthetic-transmission",
+                     *                 "generation": "synthetic-generation",
+                     *                 "chassisCode": "synthetic-chassiscode"
                      *               }
                      *             ],
                      *             "availability": [
@@ -31057,6 +31640,37 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /** @description Fitment validated by this operation's strict request contract. */
+                                fitment?: {
+                                    /**
+                                     * @description Requested or filtered lifecycle state from the documented enum.
+                                     * @enum {string}
+                                     */
+                                    status: "VERIFIED_FIT" | "NEEDS_VERIFICATION" | "NOT_COMPATIBLE" | "UNKNOWN";
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope?: "MODEL" | "UNIVERSAL";
+                                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                    message: string;
+                                    /** @description Missing Qualifiers validated by this operation's strict request contract. */
+                                    missingQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                    /** @description Matched Rule Ids validated by this operation's strict request contract. */
+                                    matchedRuleIds: string[];
+                                };
+                                /**
+                                 * @description Condition validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                                /**
+                                 * @description Classification validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                                /** @description Product Type validated by this operation's strict request contract. */
+                                productType?: string | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -31112,6 +31726,11 @@ export interface operations {
                                     slug: string;
                                     /** @description Description validated by this operation's strict request contract. */
                                     description: string | null;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the parent resource; ownership is resolved server-side.
+                                     */
+                                    parentId: string | null;
                                     /** @description Boolean control for is active; authorization is still enforced server-side. */
                                     isActive: boolean;
                                     /**
@@ -31172,6 +31791,33 @@ export interface operations {
                                     yearTo: number | null;
                                     /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                     notes: string | null;
+                                    /**
+                                     * @description Scope validated by this operation's strict request contract.
+                                     * @enum {string}
+                                     */
+                                    scope: "MODEL" | "UNIVERSAL";
+                                    /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                    requiredQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                    /** @description Trim validated by this operation's strict request contract. */
+                                    trim: string | null;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    engineCode: string | null;
+                                    /** @description Market validated by this operation's strict request contract. */
+                                    market: string | null;
+                                    /** @description Position validated by this operation's strict request contract. */
+                                    position: string | null;
+                                    /** @description Brake System validated by this operation's strict request contract. */
+                                    brakeSystem: string | null;
+                                    /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                    brakeDiameterMm: string | null;
+                                    /** @description Body Type validated by this operation's strict request contract. */
+                                    bodyType: string | null;
+                                    /** @description Transmission validated by this operation's strict request contract. */
+                                    transmission: string | null;
+                                    /** @description Generation validated by this operation's strict request contract. */
+                                    generation: string | null;
+                                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                    chassisCode: string | null;
                                 }[];
                                 /** @description Availability validated by this operation's strict request contract. */
                                 availability: {
@@ -31384,6 +32030,18 @@ export interface operations {
                      * @description Identifier of the category resource; ownership is resolved server-side.
                      */
                     categoryId: string;
+                    /**
+                     * @description Condition validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                    /**
+                     * @description Classification validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                    /** @description Product Type validated by this operation's strict request contract. */
+                    productType?: string | null;
                     /** @description Name validated by this operation's strict request contract. */
                     name: string;
                     /** @description Slug validated by this operation's strict request contract. */
@@ -31451,6 +32109,7 @@ export interface operations {
                      *           "name": "synthetic-name",
                      *           "slug": "synthetic-slug",
                      *           "description": "synthetic-description",
+                     *           "parentId": "00000000-0000-4000-8000-000000000001",
                      *           "isActive": true,
                      *           "createdAt": "2030-01-15T10:00:00.000Z",
                      *           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -31475,7 +32134,21 @@ export interface operations {
                      *             "model": "synthetic-model",
                      *             "yearFrom": "synthetic-yearfrom",
                      *             "yearTo": "synthetic-yearto",
-                     *             "notes": "synthetic-notes"
+                     *             "notes": "synthetic-notes",
+                     *             "scope": "MODEL",
+                     *             "requiredQualifiers": [
+                     *               "trim"
+                     *             ],
+                     *             "trim": "synthetic-trim",
+                     *             "engineCode": "synthetic-enginecode",
+                     *             "market": "synthetic-market",
+                     *             "position": "synthetic-position",
+                     *             "brakeSystem": "synthetic-brakesystem",
+                     *             "brakeDiameterMm": "synthetic-brakediametermm",
+                     *             "bodyType": "synthetic-bodytype",
+                     *             "transmission": "synthetic-transmission",
+                     *             "generation": "synthetic-generation",
+                     *             "chassisCode": "synthetic-chassiscode"
                      *           }
                      *         ],
                      *         "availability": [
@@ -31501,6 +32174,37 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Fitment validated by this operation's strict request contract. */
+                            fitment?: {
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "VERIFIED_FIT" | "NEEDS_VERIFICATION" | "NOT_COMPATIBLE" | "UNKNOWN";
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope?: "MODEL" | "UNIVERSAL";
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                message: string;
+                                /** @description Missing Qualifiers validated by this operation's strict request contract. */
+                                missingQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Matched Rule Ids validated by this operation's strict request contract. */
+                                matchedRuleIds: string[];
+                            };
+                            /**
+                             * @description Condition validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                            /**
+                             * @description Classification validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                            /** @description Product Type validated by this operation's strict request contract. */
+                            productType?: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -31556,6 +32260,11 @@ export interface operations {
                                 slug: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the parent resource; ownership is resolved server-side.
+                                 */
+                                parentId: string | null;
                                 /** @description Boolean control for is active; authorization is still enforced server-side. */
                                 isActive: boolean;
                                 /**
@@ -31616,6 +32325,33 @@ export interface operations {
                                 yearTo: number | null;
                                 /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                 notes: string | null;
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "MODEL" | "UNIVERSAL";
+                                /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                requiredQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Trim validated by this operation's strict request contract. */
+                                trim: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                engineCode: string | null;
+                                /** @description Market validated by this operation's strict request contract. */
+                                market: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Brake System validated by this operation's strict request contract. */
+                                brakeSystem: string | null;
+                                /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                brakeDiameterMm: string | null;
+                                /** @description Body Type validated by this operation's strict request contract. */
+                                bodyType: string | null;
+                                /** @description Transmission validated by this operation's strict request contract. */
+                                transmission: string | null;
+                                /** @description Generation validated by this operation's strict request contract. */
+                                generation: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                chassisCode: string | null;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -31859,6 +32595,7 @@ export interface operations {
                      *           "name": "synthetic-name",
                      *           "slug": "synthetic-slug",
                      *           "description": "synthetic-description",
+                     *           "parentId": "00000000-0000-4000-8000-000000000001",
                      *           "isActive": true,
                      *           "createdAt": "2030-01-15T10:00:00.000Z",
                      *           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -31883,7 +32620,21 @@ export interface operations {
                      *             "model": "synthetic-model",
                      *             "yearFrom": "synthetic-yearfrom",
                      *             "yearTo": "synthetic-yearto",
-                     *             "notes": "synthetic-notes"
+                     *             "notes": "synthetic-notes",
+                     *             "scope": "MODEL",
+                     *             "requiredQualifiers": [
+                     *               "trim"
+                     *             ],
+                     *             "trim": "synthetic-trim",
+                     *             "engineCode": "synthetic-enginecode",
+                     *             "market": "synthetic-market",
+                     *             "position": "synthetic-position",
+                     *             "brakeSystem": "synthetic-brakesystem",
+                     *             "brakeDiameterMm": "synthetic-brakediametermm",
+                     *             "bodyType": "synthetic-bodytype",
+                     *             "transmission": "synthetic-transmission",
+                     *             "generation": "synthetic-generation",
+                     *             "chassisCode": "synthetic-chassiscode"
                      *           }
                      *         ],
                      *         "availability": [
@@ -31909,6 +32660,37 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Fitment validated by this operation's strict request contract. */
+                            fitment?: {
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "VERIFIED_FIT" | "NEEDS_VERIFICATION" | "NOT_COMPATIBLE" | "UNKNOWN";
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope?: "MODEL" | "UNIVERSAL";
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                message: string;
+                                /** @description Missing Qualifiers validated by this operation's strict request contract. */
+                                missingQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Matched Rule Ids validated by this operation's strict request contract. */
+                                matchedRuleIds: string[];
+                            };
+                            /**
+                             * @description Condition validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                            /**
+                             * @description Classification validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                            /** @description Product Type validated by this operation's strict request contract. */
+                            productType?: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -31964,6 +32746,11 @@ export interface operations {
                                 slug: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the parent resource; ownership is resolved server-side.
+                                 */
+                                parentId: string | null;
                                 /** @description Boolean control for is active; authorization is still enforced server-side. */
                                 isActive: boolean;
                                 /**
@@ -32024,6 +32811,33 @@ export interface operations {
                                 yearTo: number | null;
                                 /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                 notes: string | null;
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "MODEL" | "UNIVERSAL";
+                                /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                requiredQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Trim validated by this operation's strict request contract. */
+                                trim: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                engineCode: string | null;
+                                /** @description Market validated by this operation's strict request contract. */
+                                market: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Brake System validated by this operation's strict request contract. */
+                                brakeSystem: string | null;
+                                /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                brakeDiameterMm: string | null;
+                                /** @description Body Type validated by this operation's strict request contract. */
+                                bodyType: string | null;
+                                /** @description Transmission validated by this operation's strict request contract. */
+                                transmission: string | null;
+                                /** @description Generation validated by this operation's strict request contract. */
+                                generation: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                chassisCode: string | null;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -32254,6 +33068,18 @@ export interface operations {
                      * @description Identifier of the category resource; ownership is resolved server-side.
                      */
                     categoryId?: string;
+                    /**
+                     * @description Condition validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                    /**
+                     * @description Classification validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                    /** @description Product Type validated by this operation's strict request contract. */
+                    productType?: string | null;
                     /** @description Name validated by this operation's strict request contract. */
                     name?: string;
                     /** @description Slug validated by this operation's strict request contract. */
@@ -32314,6 +33140,7 @@ export interface operations {
                      *           "name": "synthetic-name",
                      *           "slug": "synthetic-slug",
                      *           "description": "synthetic-description",
+                     *           "parentId": "00000000-0000-4000-8000-000000000001",
                      *           "isActive": true,
                      *           "createdAt": "2030-01-15T10:00:00.000Z",
                      *           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -32338,7 +33165,21 @@ export interface operations {
                      *             "model": "synthetic-model",
                      *             "yearFrom": "synthetic-yearfrom",
                      *             "yearTo": "synthetic-yearto",
-                     *             "notes": "synthetic-notes"
+                     *             "notes": "synthetic-notes",
+                     *             "scope": "MODEL",
+                     *             "requiredQualifiers": [
+                     *               "trim"
+                     *             ],
+                     *             "trim": "synthetic-trim",
+                     *             "engineCode": "synthetic-enginecode",
+                     *             "market": "synthetic-market",
+                     *             "position": "synthetic-position",
+                     *             "brakeSystem": "synthetic-brakesystem",
+                     *             "brakeDiameterMm": "synthetic-brakediametermm",
+                     *             "bodyType": "synthetic-bodytype",
+                     *             "transmission": "synthetic-transmission",
+                     *             "generation": "synthetic-generation",
+                     *             "chassisCode": "synthetic-chassiscode"
                      *           }
                      *         ],
                      *         "availability": [
@@ -32364,6 +33205,37 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /** @description Fitment validated by this operation's strict request contract. */
+                            fitment?: {
+                                /**
+                                 * @description Requested or filtered lifecycle state from the documented enum.
+                                 * @enum {string}
+                                 */
+                                status: "VERIFIED_FIT" | "NEEDS_VERIFICATION" | "NOT_COMPATIBLE" | "UNKNOWN";
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope?: "MODEL" | "UNIVERSAL";
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                message: string;
+                                /** @description Missing Qualifiers validated by this operation's strict request contract. */
+                                missingQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Matched Rule Ids validated by this operation's strict request contract. */
+                                matchedRuleIds: string[];
+                            };
+                            /**
+                             * @description Condition validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            condition?: "NEW" | "USED" | "REFURBISHED" | null;
+                            /**
+                             * @description Classification validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            classification?: "GENUINE_OEM" | "AFTERMARKET" | null;
+                            /** @description Product Type validated by this operation's strict request contract. */
+                            productType?: string | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the id resource; ownership is resolved server-side.
@@ -32419,6 +33291,11 @@ export interface operations {
                                 slug: string;
                                 /** @description Description validated by this operation's strict request contract. */
                                 description: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the parent resource; ownership is resolved server-side.
+                                 */
+                                parentId: string | null;
                                 /** @description Boolean control for is active; authorization is still enforced server-side. */
                                 isActive: boolean;
                                 /**
@@ -32479,6 +33356,33 @@ export interface operations {
                                 yearTo: number | null;
                                 /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                                 notes: string | null;
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "MODEL" | "UNIVERSAL";
+                                /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                requiredQualifiers: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                                /** @description Trim validated by this operation's strict request contract. */
+                                trim: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                engineCode: string | null;
+                                /** @description Market validated by this operation's strict request contract. */
+                                market: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Brake System validated by this operation's strict request contract. */
+                                brakeSystem: string | null;
+                                /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                brakeDiameterMm: string | null;
+                                /** @description Body Type validated by this operation's strict request contract. */
+                                bodyType: string | null;
+                                /** @description Transmission validated by this operation's strict request contract. */
+                                transmission: string | null;
+                                /** @description Generation validated by this operation's strict request contract. */
+                                generation: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                chassisCode: string | null;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -47311,16 +48215,7 @@ export interface operations {
                  * @example {
                  *       "branchId": "00000000-0000-4000-8000-000000000001",
                  *       "fulfillmentMethod": "COLLECTION",
-                 *       "promotionCode": "synthetic-promotioncode",
-                 *       "delivery": {
-                 *         "zoneId": "synthetic-zoneid",
-                 *         "name": "synthetic-name",
-                 *         "phone": "+2348000000000",
-                 *         "address": "synthetic-address",
-                 *         "city": "synthetic-city",
-                 *         "state": "synthetic-state",
-                 *         "country": "Nigeria"
-                 *       }
+                 *       "promotionCode": "synthetic-promotioncode"
                  *     }
                  */
                 "application/json": {
@@ -47334,30 +48229,9 @@ export interface operations {
                      * @default COLLECTION
                      * @enum {string}
                      */
-                    fulfillmentMethod?: "COLLECTION" | "DELIVERY";
+                    fulfillmentMethod?: "COLLECTION";
                     /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                     promotionCode?: string;
-                    /** @description Delivery validated by this operation's strict request contract. */
-                    delivery?: {
-                        /** @description Identifier of the zone resource; ownership is resolved server-side. */
-                        zoneId?: string;
-                        /** @description Name validated by this operation's strict request contract. */
-                        name: string;
-                        /** @description Customer or business phone number in international format. */
-                        phone: string;
-                        /** @description Address validated by this operation's strict request contract. */
-                        address: string;
-                        /** @description City validated by this operation's strict request contract. */
-                        city: string;
-                        /** @description State validated by this operation's strict request contract. */
-                        state: string;
-                        /**
-                         * @description Country validated by this operation's strict request contract.
-                         * @default Nigeria
-                         * @enum {string}
-                         */
-                        country?: "Nigeria";
-                    };
                 };
             };
         };
@@ -61581,8 +62455,13 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Vehicle catalogue and reviewed parts fitment: makes",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -61597,17 +62476,23 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: makes. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Next Cursor validated by this operation's strict request contract.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            nextCursor?: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -61781,8 +62666,16 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Vehicle catalogue and reviewed parts fitment: models",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name",
+                     *             "makeId": "00000000-0000-4000-8000-000000000001",
+                     *             "yearFrom": 1,
+                     *             "yearTo": 1
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -61797,17 +62690,241 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: models. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the make resource; ownership is resolved server-side.
+                                 */
+                                makeId: string;
+                                /** @description Year From validated by this operation's strict request contract. */
+                                yearFrom: number;
+                                /** @description Year To validated by this operation's strict request contract. */
+                                yearTo: number;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Next Cursor validated by this operation's strict request contract.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            nextCursor?: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required for staff routes */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current MFA, branch or responsibility does not permit this action */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record is unavailable in this scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version, duplicate rule or invalid review transition */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields, vehicle relationship or incomplete evidence */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPublicFitmentModelsByModelId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the model resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                modelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: model. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: model",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "name": "synthetic-name",
+                     *         "makeId": "00000000-0000-4000-8000-000000000001",
+                     *         "yearFrom": 1,
+                     *         "yearTo": 1,
+                     *         "make": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name"
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Name validated by this operation's strict request contract. */
+                            name: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the make resource; ownership is resolved server-side.
+                             */
+                            makeId: string;
+                            /** @description Year From validated by this operation's strict request contract. */
+                            yearFrom: number;
+                            /** @description Year To validated by this operation's strict request contract. */
+                            yearTo: number;
+                            /** @description Make validated by this operation's strict request contract. */
+                            make: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                            };
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -61966,8 +63083,9 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Vehicle catalogue and reviewed parts fitment: years",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "years": [
+                     *           1
+                     *         ]
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -61982,17 +63100,10 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: years. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Years validated by this operation's strict request contract. */
+                            years: number[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -62410,8 +63521,22 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Vehicle catalogue and reviewed parts fitment: access",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "canAuthor": true,
+                     *         "canReview": true,
+                     *         "globalAuthor": true,
+                     *         "globalReviewer": true,
+                     *         "authorBranches": [
+                     *           "00000000-0000-4000-8000-000000000001"
+                     *         ],
+                     *         "reviewBranches": [
+                     *           "00000000-0000-4000-8000-000000000001"
+                     *         ],
+                     *         "branches": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name"
+                     *           }
+                     *         ]
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -62426,17 +63551,30 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: access. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Can Author validated by this operation's strict request contract. */
+                            canAuthor: boolean;
+                            /** @description Can Review validated by this operation's strict request contract. */
+                            canReview: boolean;
+                            /** @description Global Author validated by this operation's strict request contract. */
+                            globalAuthor: boolean;
+                            /** @description Global Reviewer validated by this operation's strict request contract. */
+                            globalReviewer: boolean;
+                            /** @description Author Branches validated by this operation's strict request contract. */
+                            authorBranches: string[];
+                            /** @description Review Branches validated by this operation's strict request contract. */
+                            reviewBranches: string[];
+                            /** @description Branches validated by this operation's strict request contract. */
+                            branches: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                            }[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -62605,411 +63743,13 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Vehicle catalogue and reviewed parts fitment: products",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": {
-                        /**
-                         * @description Success validated by this operation's strict request contract.
-                         * @enum {boolean}
-                         */
-                        success: true;
-                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
-                        message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: products. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
-                        };
-                        /** @description Meta validated by this operation's strict request contract. */
-                        meta: {
-                            /** @description Identifier of the request resource; ownership is resolved server-side. */
-                            requestId: string;
-                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
-                            serverTime: string;
-                        };
-                    };
-                };
-            };
-            /** @description The request is malformed. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The request is malformed.",
-                     *       "error": {
-                     *         "code": "BAD_REQUEST"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Authentication required for staff routes */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Current MFA, branch or responsibility does not permit this action */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Record is unavailable in this scope */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Stale version, duplicate rule or invalid review transition */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid fields, vehicle relationship or incomplete evidence */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description The route-specific request limit was exceeded. */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The route-specific request limit was exceeded.",
-                     *       "error": {
-                     *         "code": "RATE_LIMITED"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
-                     *       "error": {
-                     *         "code": "INTERNAL_ERROR"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
-                     *       "error": {
-                     *         "code": "DATABASE_UNAVAILABLE"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getStaffFitmentRules: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Product Id used to constrain this request.
-                 * @example 00000000-0000-4000-8000-000000000001
-                 */
-                productId?: string;
-                /**
-                 * @description Review Status used to constrain this request.
-                 * @example DRAFT
-                 */
-                reviewStatus?: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "RETIRED";
-                /**
-                 * @description Opaque cursor returned by the preceding page.
-                 * @example 00000000-0000-4000-8000-000000000001
-                 */
-                cursor?: string;
-                /**
-                 * @description Maximum number of records to return, bounded by the API.
-                 * @example 1
-                 */
-                limit?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Success: Vehicle catalogue and reviewed parts fitment: rules. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": true,
-                     *       "message": "Vehicle catalogue and reviewed parts fitment: rules",
-                     *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": {
-                        /**
-                         * @description Success validated by this operation's strict request contract.
-                         * @enum {boolean}
-                         */
-                        success: true;
-                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
-                        message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: rules. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
-                        };
-                        /** @description Meta validated by this operation's strict request contract. */
-                        meta: {
-                            /** @description Identifier of the request resource; ownership is resolved server-side. */
-                            requestId: string;
-                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
-                            serverTime: string;
-                        };
-                    };
-                };
-            };
-            /** @description The request is malformed. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The request is malformed.",
-                     *       "error": {
-                     *         "code": "BAD_REQUEST"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Authentication required for staff routes */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Current MFA, branch or responsibility does not permit this action */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Record is unavailable in this scope */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Stale version, duplicate rule or invalid review transition */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid fields, vehicle relationship or incomplete evidence */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description The route-specific request limit was exceeded. */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The route-specific request limit was exceeded.",
-                     *       "error": {
-                     *         "code": "RATE_LIMITED"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
-                     *       "error": {
-                     *         "code": "INTERNAL_ERROR"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
-                     *       "error": {
-                     *         "code": "DATABASE_UNAVAILABLE"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    getStaffFitmentProductsByProductIdRulesByRuleIdHistory: {
-        parameters: {
-            query?: {
-                /**
-                 * @description Opaque cursor returned by the preceding page.
-                 * @example 00000000-0000-4000-8000-000000000001
-                 */
-                cursor?: string;
-                /**
-                 * @description Maximum number of records to return, bounded by the API.
-                 * @example 1
-                 */
-                limit?: number;
-            };
-            header?: never;
-            path: {
-                /**
-                 * @description Identifier selecting the product resource.
-                 * @example 00000000-0000-4000-8000-000000000001
-                 */
-                productId: string;
-                /**
-                 * @description Identifier selecting the rule resource.
-                 * @example 00000000-0000-4000-8000-000000000001
-                 */
-                ruleId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Success: Vehicle catalogue and reviewed parts fitment: history. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": true,
-                     *       "message": "Vehicle catalogue and reviewed parts fitment: history",
-                     *       "data": {
                      *         "items": [
                      *           {
                      *             "id": "00000000-0000-4000-8000-000000000001",
-                     *             "status": "synthetic-status"
+                     *             "name": "synthetic-name",
+                     *             "sku": "synthetic-sku",
+                     *             "isActive": true,
+                     *             "productType": "synthetic-producttype"
                      *           }
                      *         ],
                      *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -63027,25 +63767,29 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Cursor-paginated result for: Vehicle catalogue and reviewed parts fitment: history. */
-                        data?: {
-                            /** @description Authorized resource projections for this page. */
-                            items: ({
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
                                 /**
                                  * Format: uuid
-                                 * @description Public or authorized resource identifier.
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
                                  */
-                                id?: string;
-                                /** @description Current server-owned lifecycle state when applicable. */
-                                status?: string;
-                            } & {
-                                [key: string]: unknown;
-                            })[];
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Sku validated by this operation's strict request contract. */
+                                sku: string;
+                                /** @description Boolean control for is active; authorization is still enforced server-side. */
+                                isActive: boolean;
+                                /** @description Product Type validated by this operation's strict request contract. */
+                                productType: string | null;
+                            }[];
                             /**
                              * Format: uuid
-                             * @description Cursor for the next page, or null/omitted when exhausted.
+                             * @description Next Cursor validated by this operation's strict request contract.
                              */
-                            nextCursor?: string | null;
+                            nextCursor?: string;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -63178,425 +63922,10 @@ export interface operations {
             };
         };
     };
-    postStaffFitmentMakes: {
+    getStaffFitmentProductsByProductId: {
         parameters: {
             query?: never;
-            header: {
-                /**
-                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
-                 * @example synthetic-token-value-not-a-real-secret
-                 */
-                "x-csrf-token": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                /**
-                 * @example {
-                 *       "name": "synthetic-name"
-                 *     }
-                 */
-                "application/json": {
-                    /** @description Name validated by this operation's strict request contract. */
-                    name: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Success: Vehicle catalogue and reviewed parts fitment: createMake. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": true,
-                     *       "message": "Vehicle catalogue and reviewed parts fitment: createMake",
-                     *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": {
-                        /**
-                         * @description Success validated by this operation's strict request contract.
-                         * @enum {boolean}
-                         */
-                        success: true;
-                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
-                        message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: createMake. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
-                        };
-                        /** @description Meta validated by this operation's strict request contract. */
-                        meta: {
-                            /** @description Identifier of the request resource; ownership is resolved server-side. */
-                            requestId: string;
-                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
-                            serverTime: string;
-                        };
-                    };
-                };
-            };
-            /** @description The request is malformed. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The request is malformed.",
-                     *       "error": {
-                     *         "code": "BAD_REQUEST"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Authentication required for staff routes */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Current MFA, branch or responsibility does not permit this action */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Record is unavailable in this scope */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Stale version, duplicate rule or invalid review transition */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid fields, vehicle relationship or incomplete evidence */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description The route-specific request limit was exceeded. */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The route-specific request limit was exceeded.",
-                     *       "error": {
-                     *         "code": "RATE_LIMITED"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
-                     *       "error": {
-                     *         "code": "INTERNAL_ERROR"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
-                     *       "error": {
-                     *         "code": "DATABASE_UNAVAILABLE"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    postStaffFitmentModels: {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
-                 * @example synthetic-token-value-not-a-real-secret
-                 */
-                "x-csrf-token": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                /**
-                 * @example {
-                 *       "makeId": "00000000-0000-4000-8000-000000000001",
-                 *       "name": "synthetic-name",
-                 *       "yearFrom": 1886,
-                 *       "yearTo": 1886,
-                 *       "sourceReference": "synthetic-sourcereference"
-                 *     }
-                 */
-                "application/json": {
-                    /**
-                     * Format: uuid
-                     * @description Identifier of the make resource; ownership is resolved server-side.
-                     */
-                    makeId: string;
-                    /** @description Name validated by this operation's strict request contract. */
-                    name: string;
-                    /** @description Year From validated by this operation's strict request contract. */
-                    yearFrom: number;
-                    /** @description Year To validated by this operation's strict request contract. */
-                    yearTo: number;
-                    /** @description Source Reference validated by this operation's strict request contract. */
-                    sourceReference: string;
-                };
-            };
-        };
-        responses: {
-            /** @description Success: Vehicle catalogue and reviewed parts fitment: createModel. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": true,
-                     *       "message": "Vehicle catalogue and reviewed parts fitment: createModel",
-                     *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": {
-                        /**
-                         * @description Success validated by this operation's strict request contract.
-                         * @enum {boolean}
-                         */
-                        success: true;
-                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
-                        message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: createModel. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
-                        };
-                        /** @description Meta validated by this operation's strict request contract. */
-                        meta: {
-                            /** @description Identifier of the request resource; ownership is resolved server-side. */
-                            requestId: string;
-                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
-                            serverTime: string;
-                        };
-                    };
-                };
-            };
-            /** @description The request is malformed. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The request is malformed.",
-                     *       "error": {
-                     *         "code": "BAD_REQUEST"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Authentication required for staff routes */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Current MFA, branch or responsibility does not permit this action */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Record is unavailable in this scope */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Stale version, duplicate rule or invalid review transition */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Invalid fields, vehicle relationship or incomplete evidence */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description The route-specific request limit was exceeded. */
-            429: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "The route-specific request limit was exceeded.",
-                     *       "error": {
-                     *         "code": "RATE_LIMITED"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
-                     *       "error": {
-                     *         "code": "INTERNAL_ERROR"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "success": false,
-                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
-                     *       "error": {
-                     *         "code": "DATABASE_UNAVAILABLE"
-                     *       },
-                     *       "meta": {
-                     *         "requestId": "req_0000000000000001"
-                     *       }
-                     *     }
-                     */
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    postStaffFitmentProductsByProductIdRules: {
-        parameters: {
-            query?: never;
-            header: {
-                /**
-                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
-                 * @example synthetic-token-value-not-a-real-secret
-                 */
-                "x-csrf-token": string;
-            };
+            header?: never;
             path: {
                 /**
                  * @description Identifier selecting the product resource.
@@ -63606,82 +63935,9 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                /** @example {} */
-                "application/json": {
-                    /**
-                     * @description Scope validated by this operation's strict request contract.
-                     * @default MODEL
-                     * @enum {string}
-                     */
-                    scope?: "MODEL" | "UNIVERSAL";
-                    /**
-                     * Format: uuid
-                     * @description Identifier of the vehicle model resource; ownership is resolved server-side.
-                     */
-                    vehicleModelId?: string | null;
-                    /**
-                     * Format: uuid
-                     * @description Identifier of the branch resource; ownership is resolved server-side.
-                     */
-                    branchId?: string | null;
-                    /** @description Year From validated by this operation's strict request contract. */
-                    yearFrom?: number | null;
-                    /** @description Year To validated by this operation's strict request contract. */
-                    yearTo?: number | null;
-                    /**
-                     * @description Effect validated by this operation's strict request contract.
-                     * @default INCLUDE
-                     * @enum {string}
-                     */
-                    effect?: "INCLUDE" | "EXCLUDE";
-                    /**
-                     * @description Safety Critical validated by this operation's strict request contract.
-                     * @default true
-                     */
-                    safetyCritical?: boolean;
-                    /**
-                     * @description All Variants Confirmed validated by this operation's strict request contract.
-                     * @default false
-                     */
-                    allVariantsConfirmed?: boolean;
-                    /**
-                     * @description Required Qualifiers validated by this operation's strict request contract.
-                     * @default []
-                     */
-                    requiredQualifiers?: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
-                    /** @description Trim validated by this operation's strict request contract. */
-                    trim?: string | null;
-                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
-                    engineCode?: string | null;
-                    /** @description Market validated by this operation's strict request contract. */
-                    market?: string | null;
-                    /** @description Position validated by this operation's strict request contract. */
-                    position?: string | null;
-                    /** @description Brake System validated by this operation's strict request contract. */
-                    brakeSystem?: string | null;
-                    /** @description Brake Diameter Mm validated by this operation's strict request contract. */
-                    brakeDiameterMm?: string | null;
-                    /** @description Body Type validated by this operation's strict request contract. */
-                    bodyType?: string | null;
-                    /** @description Transmission validated by this operation's strict request contract. */
-                    transmission?: string | null;
-                    /** @description Generation validated by this operation's strict request contract. */
-                    generation?: string | null;
-                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
-                    chassisCode?: string | null;
-                    /** @description Source Reference validated by this operation's strict request contract. */
-                    sourceReference?: string | null;
-                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
-                    evidenceNotes?: string | null;
-                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
-                    notes?: string | null;
-                };
-            };
-        };
+        requestBody?: never;
         responses: {
-            /** @description Success: Vehicle catalogue and reviewed parts fitment: createRule. */
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: product. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -63690,10 +63946,13 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "Vehicle catalogue and reviewed parts fitment: createRule",
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: product",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "name": "synthetic-name",
+                     *         "sku": "synthetic-sku",
+                     *         "isActive": true,
+                     *         "productType": "synthetic-producttype"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -63708,17 +63967,493 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: createRule. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Identifier of the id resource; ownership is resolved server-side.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            id: string;
+                            /** @description Name validated by this operation's strict request contract. */
+                            name: string;
+                            /** @description Sku validated by this operation's strict request contract. */
+                            sku: string;
+                            /** @description Boolean control for is active; authorization is still enforced server-side. */
+                            isActive: boolean;
+                            /** @description Product Type validated by this operation's strict request contract. */
+                            productType: string | null;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required for staff routes */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current MFA, branch or responsibility does not permit this action */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record is unavailable in this scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version, duplicate rule or invalid review transition */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields, vehicle relationship or incomplete evidence */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffFitmentProductsByProductIdRulesByRuleId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the product resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                productId: string;
+                /**
+                 * @description Identifier selecting the rule resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                ruleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: rule. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: rule",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "productId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "scope": "MODEL",
+                     *         "effect": "INCLUDE",
+                     *         "reviewStatus": "DRAFT",
+                     *         "safetyCritical": true,
+                     *         "allVariantsConfirmed": true,
+                     *         "requiredQualifiers": [
+                     *           "synthetic-requiredqualifiers-item"
+                     *         ],
+                     *         "trim": "synthetic-trim",
+                     *         "engineCode": "synthetic-enginecode",
+                     *         "market": "synthetic-market",
+                     *         "position": "synthetic-position",
+                     *         "brakeSystem": "synthetic-brakesystem",
+                     *         "brakeDiameterMm": "synthetic-brakediametermm",
+                     *         "bodyType": "synthetic-bodytype",
+                     *         "transmission": "synthetic-transmission",
+                     *         "generation": "synthetic-generation",
+                     *         "chassisCode": "synthetic-chassiscode",
+                     *         "make": "synthetic-make",
+                     *         "model": "synthetic-model",
+                     *         "yearFrom": "synthetic-yearfrom",
+                     *         "yearTo": "synthetic-yearto",
+                     *         "sourceReference": "synthetic-sourcereference",
+                     *         "evidenceNotes": "synthetic-evidencenotes",
+                     *         "reviewNote": "synthetic-reviewnote",
+                     *         "notes": "synthetic-notes",
+                     *         "createdByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z",
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "submittedAt": "2030-01-15T10:00:00.000Z",
+                     *         "reviewedAt": "2030-01-15T10:00:00.000Z",
+                     *         "version": 0,
+                     *         "product": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name",
+                     *           "sku": "synthetic-sku"
+                     *         },
+                     *         "vehicleModel": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "name": "synthetic-name",
+                     *           "makeId": "00000000-0000-4000-8000-000000000001",
+                     *           "yearFrom": 1,
+                     *           "yearTo": 1,
+                     *           "make": {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "name": "synthetic-name"
+                     *           }
+                     *         },
+                     *         "createdBy": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "email": "customer@example.test",
+                     *           "staffProfile": {
+                     *             "firstName": "synthetic-firstname",
+                     *             "lastName": "synthetic-lastname"
+                     *           }
+                     *         },
+                     *         "updatedBy": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "email": "customer@example.test",
+                     *           "staffProfile": {
+                     *             "firstName": "synthetic-firstname",
+                     *             "lastName": "synthetic-lastname"
+                     *           }
+                     *         },
+                     *         "reviewedBy": {
+                     *           "id": "00000000-0000-4000-8000-000000000001",
+                     *           "email": "customer@example.test",
+                     *           "staffProfile": {
+                     *             "firstName": "synthetic-firstname",
+                     *             "lastName": "synthetic-lastname"
+                     *           }
+                     *         }
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the product resource; ownership is resolved server-side.
+                             */
+                            productId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                             */
+                            vehicleModelId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /**
+                             * @description Scope validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            scope: "MODEL" | "UNIVERSAL";
+                            /**
+                             * @description Effect validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            effect: "INCLUDE" | "EXCLUDE";
+                            /**
+                             * @description Review Status validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            reviewStatus: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "RETIRED";
+                            /** @description Safety Critical validated by this operation's strict request contract. */
+                            safetyCritical: boolean;
+                            /** @description All Variants Confirmed validated by this operation's strict request contract. */
+                            allVariantsConfirmed: boolean;
+                            /** @description Required Qualifiers validated by this operation's strict request contract. */
+                            requiredQualifiers: string[];
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode: string | null;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market: string | null;
+                            /** @description Position validated by this operation's strict request contract. */
+                            position: string | null;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem: string | null;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm: string | null;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType: string | null;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission: string | null;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode: string | null;
+                            /** @description Make validated by this operation's strict request contract. */
+                            make: string;
+                            /** @description Model validated by this operation's strict request contract. */
+                            model: string | null;
+                            /** @description Year From validated by this operation's strict request contract. */
+                            yearFrom: number | null;
+                            /** @description Year To validated by this operation's strict request contract. */
+                            yearTo: number | null;
+                            /** @description Source Reference validated by this operation's strict request contract. */
+                            sourceReference: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            evidenceNotes: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            reviewNote: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            notes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the created by user resource; ownership is resolved server-side.
+                             */
+                            createdByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the updated by user resource; ownership is resolved server-side.
+                             */
+                            updatedByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the reviewed by user resource; ownership is resolved server-side.
+                             */
+                            reviewedByUserId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            submittedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            reviewedAt: string | null;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                            /** @description Product validated by this operation's strict request contract. */
+                            product: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /** @description Sku validated by this operation's strict request contract. */
+                                sku: string;
+                            };
+                            /** @description Vehicle Model validated by this operation's strict request contract. */
+                            vehicleModel: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /** @description Name validated by this operation's strict request contract. */
+                                name: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the make resource; ownership is resolved server-side.
+                                 */
+                                makeId: string;
+                                /** @description Year From validated by this operation's strict request contract. */
+                                yearFrom: number;
+                                /** @description Year To validated by this operation's strict request contract. */
+                                yearTo: number;
+                                /** @description Make validated by this operation's strict request contract. */
+                                make: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                };
+                            } | null;
+                            /** @description Created By validated by this operation's strict request contract. */
+                            createdBy: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: email
+                                 * @description Normalized account email address.
+                                 */
+                                email: string;
+                                /** @description Staff Profile validated by this operation's strict request contract. */
+                                staffProfile: {
+                                    /** @description First Name validated by this operation's strict request contract. */
+                                    firstName: string;
+                                    /** @description Last Name validated by this operation's strict request contract. */
+                                    lastName: string;
+                                } | null;
+                            } | null;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            updatedBy: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: email
+                                 * @description Normalized account email address.
+                                 */
+                                email: string;
+                                /** @description Staff Profile validated by this operation's strict request contract. */
+                                staffProfile: {
+                                    /** @description First Name validated by this operation's strict request contract. */
+                                    firstName: string;
+                                    /** @description Last Name validated by this operation's strict request contract. */
+                                    lastName: string;
+                                } | null;
+                            } | null;
+                            /** @description Reviewed By validated by this operation's strict request contract. */
+                            reviewedBy: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: email
+                                 * @description Normalized account email address.
+                                 */
+                                email: string;
+                                /** @description Staff Profile validated by this operation's strict request contract. */
+                                staffProfile: {
+                                    /** @description First Name validated by this operation's strict request contract. */
+                                    firstName: string;
+                                    /** @description Last Name validated by this operation's strict request contract. */
+                                    lastName: string;
+                                } | null;
+                            } | null;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -63968,7 +64703,43 @@ export interface operations {
                      *       "message": "Vehicle catalogue and reviewed parts fitment: updateRule",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "productId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "scope": "MODEL",
+                     *         "effect": "INCLUDE",
+                     *         "reviewStatus": "DRAFT",
+                     *         "safetyCritical": true,
+                     *         "allVariantsConfirmed": true,
+                     *         "requiredQualifiers": [
+                     *           "synthetic-requiredqualifiers-item"
+                     *         ],
+                     *         "trim": "synthetic-trim",
+                     *         "engineCode": "synthetic-enginecode",
+                     *         "market": "synthetic-market",
+                     *         "position": "synthetic-position",
+                     *         "brakeSystem": "synthetic-brakesystem",
+                     *         "brakeDiameterMm": "synthetic-brakediametermm",
+                     *         "bodyType": "synthetic-bodytype",
+                     *         "transmission": "synthetic-transmission",
+                     *         "generation": "synthetic-generation",
+                     *         "chassisCode": "synthetic-chassiscode",
+                     *         "make": "synthetic-make",
+                     *         "model": "synthetic-model",
+                     *         "yearFrom": "synthetic-yearfrom",
+                     *         "yearTo": "synthetic-yearto",
+                     *         "sourceReference": "synthetic-sourcereference",
+                     *         "evidenceNotes": "synthetic-evidencenotes",
+                     *         "reviewNote": "synthetic-reviewnote",
+                     *         "notes": "synthetic-notes",
+                     *         "createdByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z",
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "submittedAt": "2030-01-15T10:00:00.000Z",
+                     *         "reviewedAt": "2030-01-15T10:00:00.000Z",
+                     *         "version": 0
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -63983,17 +64754,1705 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: updateRule. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Identifier of the id resource; ownership is resolved server-side.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the product resource; ownership is resolved server-side.
+                             */
+                            productId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                             */
+                            vehicleModelId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /**
+                             * @description Scope validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            scope: "MODEL" | "UNIVERSAL";
+                            /**
+                             * @description Effect validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            effect: "INCLUDE" | "EXCLUDE";
+                            /**
+                             * @description Review Status validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            reviewStatus: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "RETIRED";
+                            /** @description Safety Critical validated by this operation's strict request contract. */
+                            safetyCritical: boolean;
+                            /** @description All Variants Confirmed validated by this operation's strict request contract. */
+                            allVariantsConfirmed: boolean;
+                            /** @description Required Qualifiers validated by this operation's strict request contract. */
+                            requiredQualifiers: string[];
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode: string | null;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market: string | null;
+                            /** @description Position validated by this operation's strict request contract. */
+                            position: string | null;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem: string | null;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm: string | null;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType: string | null;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission: string | null;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode: string | null;
+                            /** @description Make validated by this operation's strict request contract. */
+                            make: string;
+                            /** @description Model validated by this operation's strict request contract. */
+                            model: string | null;
+                            /** @description Year From validated by this operation's strict request contract. */
+                            yearFrom: number | null;
+                            /** @description Year To validated by this operation's strict request contract. */
+                            yearTo: number | null;
+                            /** @description Source Reference validated by this operation's strict request contract. */
+                            sourceReference: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            evidenceNotes: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            reviewNote: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            notes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the created by user resource; ownership is resolved server-side.
+                             */
+                            createdByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the updated by user resource; ownership is resolved server-side.
+                             */
+                            updatedByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the reviewed by user resource; ownership is resolved server-side.
+                             */
+                            reviewedByUserId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            submittedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            reviewedAt: string | null;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required for staff routes */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current MFA, branch or responsibility does not permit this action */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record is unavailable in this scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version, duplicate rule or invalid review transition */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields, vehicle relationship or incomplete evidence */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffFitmentRules: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Product Id used to constrain this request.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                productId?: string;
+                /**
+                 * @description Review Status used to constrain this request.
+                 * @example DRAFT
+                 */
+                reviewStatus?: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "RETIRED";
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                cursor?: string;
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: rules. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: rules",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "productId": "00000000-0000-4000-8000-000000000001",
+                     *             "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *             "branchId": "00000000-0000-4000-8000-000000000001",
+                     *             "scope": "MODEL",
+                     *             "effect": "INCLUDE",
+                     *             "reviewStatus": "DRAFT",
+                     *             "safetyCritical": true,
+                     *             "allVariantsConfirmed": true,
+                     *             "requiredQualifiers": [
+                     *               "synthetic-requiredqualifiers-item"
+                     *             ],
+                     *             "trim": "synthetic-trim",
+                     *             "engineCode": "synthetic-enginecode",
+                     *             "market": "synthetic-market",
+                     *             "position": "synthetic-position",
+                     *             "brakeSystem": "synthetic-brakesystem",
+                     *             "brakeDiameterMm": "synthetic-brakediametermm",
+                     *             "bodyType": "synthetic-bodytype",
+                     *             "transmission": "synthetic-transmission",
+                     *             "generation": "synthetic-generation",
+                     *             "chassisCode": "synthetic-chassiscode",
+                     *             "make": "synthetic-make",
+                     *             "model": "synthetic-model",
+                     *             "yearFrom": "synthetic-yearfrom",
+                     *             "yearTo": "synthetic-yearto",
+                     *             "sourceReference": "synthetic-sourcereference",
+                     *             "evidenceNotes": "synthetic-evidencenotes",
+                     *             "reviewNote": "synthetic-reviewnote",
+                     *             "notes": "synthetic-notes",
+                     *             "createdByUserId": "00000000-0000-4000-8000-000000000001",
+                     *             "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *             "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *             "createdAt": "2030-01-15T10:00:00.000Z",
+                     *             "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *             "submittedAt": "2030-01-15T10:00:00.000Z",
+                     *             "reviewedAt": "2030-01-15T10:00:00.000Z",
+                     *             "version": 0,
+                     *             "product": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "synthetic-name",
+                     *               "sku": "synthetic-sku"
+                     *             },
+                     *             "vehicleModel": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "name": "synthetic-name",
+                     *               "makeId": "00000000-0000-4000-8000-000000000001",
+                     *               "yearFrom": 1,
+                     *               "yearTo": 1,
+                     *               "make": {
+                     *                 "id": "00000000-0000-4000-8000-000000000001",
+                     *                 "name": "synthetic-name"
+                     *               }
+                     *             },
+                     *             "createdBy": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "email": "customer@example.test",
+                     *               "staffProfile": {
+                     *                 "firstName": "synthetic-firstname",
+                     *                 "lastName": "synthetic-lastname"
+                     *               }
+                     *             },
+                     *             "updatedBy": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "email": "customer@example.test",
+                     *               "staffProfile": {
+                     *                 "firstName": "synthetic-firstname",
+                     *                 "lastName": "synthetic-lastname"
+                     *               }
+                     *             },
+                     *             "reviewedBy": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "email": "customer@example.test",
+                     *               "staffProfile": {
+                     *                 "firstName": "synthetic-firstname",
+                     *                 "lastName": "synthetic-lastname"
+                     *               }
+                     *             }
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the product resource; ownership is resolved server-side.
+                                 */
+                                productId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                                 */
+                                vehicleModelId: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the branch resource; ownership is resolved server-side.
+                                 */
+                                branchId: string | null;
+                                /**
+                                 * @description Scope validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                scope: "MODEL" | "UNIVERSAL";
+                                /**
+                                 * @description Effect validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                effect: "INCLUDE" | "EXCLUDE";
+                                /**
+                                 * @description Review Status validated by this operation's strict request contract.
+                                 * @enum {string}
+                                 */
+                                reviewStatus: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "RETIRED";
+                                /** @description Safety Critical validated by this operation's strict request contract. */
+                                safetyCritical: boolean;
+                                /** @description All Variants Confirmed validated by this operation's strict request contract. */
+                                allVariantsConfirmed: boolean;
+                                /** @description Required Qualifiers validated by this operation's strict request contract. */
+                                requiredQualifiers: string[];
+                                /** @description Trim validated by this operation's strict request contract. */
+                                trim: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                engineCode: string | null;
+                                /** @description Market validated by this operation's strict request contract. */
+                                market: string | null;
+                                /** @description Position validated by this operation's strict request contract. */
+                                position: string | null;
+                                /** @description Brake System validated by this operation's strict request contract. */
+                                brakeSystem: string | null;
+                                /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                                brakeDiameterMm: string | null;
+                                /** @description Body Type validated by this operation's strict request contract. */
+                                bodyType: string | null;
+                                /** @description Transmission validated by this operation's strict request contract. */
+                                transmission: string | null;
+                                /** @description Generation validated by this operation's strict request contract. */
+                                generation: string | null;
+                                /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                                chassisCode: string | null;
+                                /** @description Make validated by this operation's strict request contract. */
+                                make: string;
+                                /** @description Model validated by this operation's strict request contract. */
+                                model: string | null;
+                                /** @description Year From validated by this operation's strict request contract. */
+                                yearFrom: number | null;
+                                /** @description Year To validated by this operation's strict request contract. */
+                                yearTo: number | null;
+                                /** @description Source Reference validated by this operation's strict request contract. */
+                                sourceReference: string | null;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                evidenceNotes: string | null;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                reviewNote: string | null;
+                                /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                                notes: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the created by user resource; ownership is resolved server-side.
+                                 */
+                                createdByUserId: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the updated by user resource; ownership is resolved server-side.
+                                 */
+                                updatedByUserId: string | null;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the reviewed by user resource; ownership is resolved server-side.
+                                 */
+                                reviewedByUserId: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                updatedAt: string;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                submittedAt: string | null;
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                reviewedAt: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Product validated by this operation's strict request contract. */
+                                product: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /** @description Sku validated by this operation's strict request contract. */
+                                    sku: string;
+                                };
+                                /** @description Vehicle Model validated by this operation's strict request contract. */
+                                vehicleModel: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description Name validated by this operation's strict request contract. */
+                                    name: string;
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the make resource; ownership is resolved server-side.
+                                     */
+                                    makeId: string;
+                                    /** @description Year From validated by this operation's strict request contract. */
+                                    yearFrom: number;
+                                    /** @description Year To validated by this operation's strict request contract. */
+                                    yearTo: number;
+                                    /** @description Make validated by this operation's strict request contract. */
+                                    make: {
+                                        /**
+                                         * Format: uuid
+                                         * @description Identifier of the id resource; ownership is resolved server-side.
+                                         */
+                                        id: string;
+                                        /** @description Name validated by this operation's strict request contract. */
+                                        name: string;
+                                    };
+                                } | null;
+                                /** @description Created By validated by this operation's strict request contract. */
+                                createdBy: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: email
+                                     * @description Normalized account email address.
+                                     */
+                                    email: string;
+                                    /** @description Staff Profile validated by this operation's strict request contract. */
+                                    staffProfile: {
+                                        /** @description First Name validated by this operation's strict request contract. */
+                                        firstName: string;
+                                        /** @description Last Name validated by this operation's strict request contract. */
+                                        lastName: string;
+                                    } | null;
+                                } | null;
+                                /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                                updatedBy: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: email
+                                     * @description Normalized account email address.
+                                     */
+                                    email: string;
+                                    /** @description Staff Profile validated by this operation's strict request contract. */
+                                    staffProfile: {
+                                        /** @description First Name validated by this operation's strict request contract. */
+                                        firstName: string;
+                                        /** @description Last Name validated by this operation's strict request contract. */
+                                        lastName: string;
+                                    } | null;
+                                } | null;
+                                /** @description Reviewed By validated by this operation's strict request contract. */
+                                reviewedBy: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: email
+                                     * @description Normalized account email address.
+                                     */
+                                    email: string;
+                                    /** @description Staff Profile validated by this operation's strict request contract. */
+                                    staffProfile: {
+                                        /** @description First Name validated by this operation's strict request contract. */
+                                        firstName: string;
+                                        /** @description Last Name validated by this operation's strict request contract. */
+                                        lastName: string;
+                                    } | null;
+                                } | null;
+                            }[];
+                            /**
+                             * Format: uuid
+                             * @description Next Cursor validated by this operation's strict request contract.
+                             */
+                            nextCursor?: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required for staff routes */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current MFA, branch or responsibility does not permit this action */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record is unavailable in this scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version, duplicate rule or invalid review transition */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields, vehicle relationship or incomplete evidence */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getStaffFitmentProductsByProductIdRulesByRuleIdHistory: {
+        parameters: {
+            query?: {
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                cursor?: string;
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example 1
+                 */
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                /**
+                 * @description Identifier selecting the product resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                productId: string;
+                /**
+                 * @description Identifier selecting the rule resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                ruleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: history. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: history",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "id": "00000000-0000-4000-8000-000000000001",
+                     *             "compatibilityId": "00000000-0000-4000-8000-000000000001",
+                     *             "actorUserId": "00000000-0000-4000-8000-000000000001",
+                     *             "actor": {
+                     *               "id": "00000000-0000-4000-8000-000000000001",
+                     *               "email": "customer@example.test",
+                     *               "staffProfile": {
+                     *                 "firstName": "synthetic-firstname",
+                     *                 "lastName": "synthetic-lastname"
+                     *               }
+                     *             },
+                     *             "action": "synthetic-action",
+                     *             "version": 1,
+                     *             "snapshot": {},
+                     *             "createdAt": "2030-01-15T10:00:00.000Z"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "00000000-0000-4000-8000-000000000001"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the id resource; ownership is resolved server-side.
+                                 */
+                                id: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the compatibility resource; ownership is resolved server-side.
+                                 */
+                                compatibilityId: string;
+                                /**
+                                 * Format: uuid
+                                 * @description Identifier of the actor user resource; ownership is resolved server-side.
+                                 */
+                                actorUserId: string;
+                                /** @description Actor validated by this operation's strict request contract. */
+                                actor: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /**
+                                     * Format: email
+                                     * @description Normalized account email address.
+                                     */
+                                    email: string;
+                                    /** @description Staff Profile validated by this operation's strict request contract. */
+                                    staffProfile: {
+                                        /** @description First Name validated by this operation's strict request contract. */
+                                        firstName: string;
+                                        /** @description Last Name validated by this operation's strict request contract. */
+                                        lastName: string;
+                                    } | null;
+                                };
+                                /** @description Action validated by this operation's strict request contract. */
+                                action: string;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
+                                /** @description Snapshot validated by this operation's strict request contract. */
+                                snapshot: {
+                                    [key: string]: unknown;
+                                };
+                                /**
+                                 * Format: date-time
+                                 * @description ISO 8601 timestamp interpreted and validated by the server.
+                                 */
+                                createdAt: string;
+                            }[];
+                            /**
+                             * Format: uuid
+                             * @description Next Cursor validated by this operation's strict request contract.
+                             */
+                            nextCursor?: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required for staff routes */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current MFA, branch or responsibility does not permit this action */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record is unavailable in this scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version, duplicate rule or invalid review transition */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields, vehicle relationship or incomplete evidence */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffFitmentMakes: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "name": "synthetic-name"
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: createMake. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: createMake",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "name": "synthetic-name"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Name validated by this operation's strict request contract. */
+                            name: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required for staff routes */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current MFA, branch or responsibility does not permit this action */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record is unavailable in this scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version, duplicate rule or invalid review transition */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields, vehicle relationship or incomplete evidence */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffFitmentModels: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "makeId": "00000000-0000-4000-8000-000000000001",
+                 *       "name": "synthetic-name",
+                 *       "yearFrom": 1886,
+                 *       "yearTo": 1886,
+                 *       "sourceReference": "synthetic-sourcereference"
+                 *     }
+                 */
+                "application/json": {
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the make resource; ownership is resolved server-side.
+                     */
+                    makeId: string;
+                    /** @description Name validated by this operation's strict request contract. */
+                    name: string;
+                    /** @description Year From validated by this operation's strict request contract. */
+                    yearFrom: number;
+                    /** @description Year To validated by this operation's strict request contract. */
+                    yearTo: number;
+                    /** @description Source Reference validated by this operation's strict request contract. */
+                    sourceReference: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: createModel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: createModel",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "name": "synthetic-name",
+                     *         "makeId": "00000000-0000-4000-8000-000000000001",
+                     *         "yearFrom": 1,
+                     *         "yearTo": 1
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Name validated by this operation's strict request contract. */
+                            name: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the make resource; ownership is resolved server-side.
+                             */
+                            makeId: string;
+                            /** @description Year From validated by this operation's strict request contract. */
+                            yearFrom: number;
+                            /** @description Year To validated by this operation's strict request contract. */
+                            yearTo: number;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            serverTime: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Authentication required for staff routes */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current MFA, branch or responsibility does not permit this action */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Record is unavailable in this scope */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Stale version, duplicate rule or invalid review transition */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid fields, vehicle relationship or incomplete evidence */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    postStaffFitmentProductsByProductIdRules: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the product resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                productId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /** @example {} */
+                "application/json": {
+                    /**
+                     * @description Scope validated by this operation's strict request contract.
+                     * @default MODEL
+                     * @enum {string}
+                     */
+                    scope?: "MODEL" | "UNIVERSAL";
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                     */
+                    vehicleModelId?: string | null;
+                    /**
+                     * Format: uuid
+                     * @description Identifier of the branch resource; ownership is resolved server-side.
+                     */
+                    branchId?: string | null;
+                    /** @description Year From validated by this operation's strict request contract. */
+                    yearFrom?: number | null;
+                    /** @description Year To validated by this operation's strict request contract. */
+                    yearTo?: number | null;
+                    /**
+                     * @description Effect validated by this operation's strict request contract.
+                     * @default INCLUDE
+                     * @enum {string}
+                     */
+                    effect?: "INCLUDE" | "EXCLUDE";
+                    /**
+                     * @description Safety Critical validated by this operation's strict request contract.
+                     * @default true
+                     */
+                    safetyCritical?: boolean;
+                    /**
+                     * @description All Variants Confirmed validated by this operation's strict request contract.
+                     * @default false
+                     */
+                    allVariantsConfirmed?: boolean;
+                    /**
+                     * @description Required Qualifiers validated by this operation's strict request contract.
+                     * @default []
+                     */
+                    requiredQualifiers?: ("trim" | "engineCode" | "market" | "position" | "brakeSystem" | "brakeDiameterMm" | "bodyType" | "transmission" | "generation" | "chassisCode")[];
+                    /** @description Trim validated by this operation's strict request contract. */
+                    trim?: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    engineCode?: string | null;
+                    /** @description Market validated by this operation's strict request contract. */
+                    market?: string | null;
+                    /** @description Position validated by this operation's strict request contract. */
+                    position?: string | null;
+                    /** @description Brake System validated by this operation's strict request contract. */
+                    brakeSystem?: string | null;
+                    /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                    brakeDiameterMm?: string | null;
+                    /** @description Body Type validated by this operation's strict request contract. */
+                    bodyType?: string | null;
+                    /** @description Transmission validated by this operation's strict request contract. */
+                    transmission?: string | null;
+                    /** @description Generation validated by this operation's strict request contract. */
+                    generation?: string | null;
+                    /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                    chassisCode?: string | null;
+                    /** @description Source Reference validated by this operation's strict request contract. */
+                    sourceReference?: string | null;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    evidenceNotes?: string | null;
+                    /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                    notes?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Success: Vehicle catalogue and reviewed parts fitment: createRule. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Vehicle catalogue and reviewed parts fitment: createRule",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "productId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "scope": "MODEL",
+                     *         "effect": "INCLUDE",
+                     *         "reviewStatus": "DRAFT",
+                     *         "safetyCritical": true,
+                     *         "allVariantsConfirmed": true,
+                     *         "requiredQualifiers": [
+                     *           "synthetic-requiredqualifiers-item"
+                     *         ],
+                     *         "trim": "synthetic-trim",
+                     *         "engineCode": "synthetic-enginecode",
+                     *         "market": "synthetic-market",
+                     *         "position": "synthetic-position",
+                     *         "brakeSystem": "synthetic-brakesystem",
+                     *         "brakeDiameterMm": "synthetic-brakediametermm",
+                     *         "bodyType": "synthetic-bodytype",
+                     *         "transmission": "synthetic-transmission",
+                     *         "generation": "synthetic-generation",
+                     *         "chassisCode": "synthetic-chassiscode",
+                     *         "make": "synthetic-make",
+                     *         "model": "synthetic-model",
+                     *         "yearFrom": "synthetic-yearfrom",
+                     *         "yearTo": "synthetic-yearto",
+                     *         "sourceReference": "synthetic-sourcereference",
+                     *         "evidenceNotes": "synthetic-evidencenotes",
+                     *         "reviewNote": "synthetic-reviewnote",
+                     *         "notes": "synthetic-notes",
+                     *         "createdByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z",
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "submittedAt": "2030-01-15T10:00:00.000Z",
+                     *         "reviewedAt": "2030-01-15T10:00:00.000Z",
+                     *         "version": 0
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /**
+                         * @description Success validated by this operation's strict request contract.
+                         * @enum {boolean}
+                         */
+                        success: true;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the product resource; ownership is resolved server-side.
+                             */
+                            productId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                             */
+                            vehicleModelId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /**
+                             * @description Scope validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            scope: "MODEL" | "UNIVERSAL";
+                            /**
+                             * @description Effect validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            effect: "INCLUDE" | "EXCLUDE";
+                            /**
+                             * @description Review Status validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            reviewStatus: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "RETIRED";
+                            /** @description Safety Critical validated by this operation's strict request contract. */
+                            safetyCritical: boolean;
+                            /** @description All Variants Confirmed validated by this operation's strict request contract. */
+                            allVariantsConfirmed: boolean;
+                            /** @description Required Qualifiers validated by this operation's strict request contract. */
+                            requiredQualifiers: string[];
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode: string | null;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market: string | null;
+                            /** @description Position validated by this operation's strict request contract. */
+                            position: string | null;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem: string | null;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm: string | null;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType: string | null;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission: string | null;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode: string | null;
+                            /** @description Make validated by this operation's strict request contract. */
+                            make: string;
+                            /** @description Model validated by this operation's strict request contract. */
+                            model: string | null;
+                            /** @description Year From validated by this operation's strict request contract. */
+                            yearFrom: number | null;
+                            /** @description Year To validated by this operation's strict request contract. */
+                            yearTo: number | null;
+                            /** @description Source Reference validated by this operation's strict request contract. */
+                            sourceReference: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            evidenceNotes: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            reviewNote: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            notes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the created by user resource; ownership is resolved server-side.
+                             */
+                            createdByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the updated by user resource; ownership is resolved server-side.
+                             */
+                            updatedByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the reviewed by user resource; ownership is resolved server-side.
+                             */
+                            reviewedByUserId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            submittedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            reviewedAt: string | null;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -64185,7 +66644,43 @@ export interface operations {
                      *       "message": "Vehicle catalogue and reviewed parts fitment: transition",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "productId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+                     *         "branchId": "00000000-0000-4000-8000-000000000001",
+                     *         "scope": "MODEL",
+                     *         "effect": "INCLUDE",
+                     *         "reviewStatus": "DRAFT",
+                     *         "safetyCritical": true,
+                     *         "allVariantsConfirmed": true,
+                     *         "requiredQualifiers": [
+                     *           "synthetic-requiredqualifiers-item"
+                     *         ],
+                     *         "trim": "synthetic-trim",
+                     *         "engineCode": "synthetic-enginecode",
+                     *         "market": "synthetic-market",
+                     *         "position": "synthetic-position",
+                     *         "brakeSystem": "synthetic-brakesystem",
+                     *         "brakeDiameterMm": "synthetic-brakediametermm",
+                     *         "bodyType": "synthetic-bodytype",
+                     *         "transmission": "synthetic-transmission",
+                     *         "generation": "synthetic-generation",
+                     *         "chassisCode": "synthetic-chassiscode",
+                     *         "make": "synthetic-make",
+                     *         "model": "synthetic-model",
+                     *         "yearFrom": "synthetic-yearfrom",
+                     *         "yearTo": "synthetic-yearto",
+                     *         "sourceReference": "synthetic-sourcereference",
+                     *         "evidenceNotes": "synthetic-evidencenotes",
+                     *         "reviewNote": "synthetic-reviewnote",
+                     *         "notes": "synthetic-notes",
+                     *         "createdByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z",
+                     *         "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *         "submittedAt": "2030-01-15T10:00:00.000Z",
+                     *         "reviewedAt": "2030-01-15T10:00:00.000Z",
+                     *         "version": 0
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -64200,17 +66695,122 @@ export interface operations {
                         success: true;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
-                        /** @description Authorized response projection for: Vehicle catalogue and reviewed parts fitment: transition. */
-                        data?: {
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
                             /**
                              * Format: uuid
-                             * @description Public or authorized resource identifier.
+                             * @description Identifier of the id resource; ownership is resolved server-side.
                              */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
+                            id: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the product resource; ownership is resolved server-side.
+                             */
+                            productId: string;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the vehicle model resource; ownership is resolved server-side.
+                             */
+                            vehicleModelId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the branch resource; ownership is resolved server-side.
+                             */
+                            branchId: string | null;
+                            /**
+                             * @description Scope validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            scope: "MODEL" | "UNIVERSAL";
+                            /**
+                             * @description Effect validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            effect: "INCLUDE" | "EXCLUDE";
+                            /**
+                             * @description Review Status validated by this operation's strict request contract.
+                             * @enum {string}
+                             */
+                            reviewStatus: "DRAFT" | "PENDING" | "APPROVED" | "REJECTED" | "RETIRED";
+                            /** @description Safety Critical validated by this operation's strict request contract. */
+                            safetyCritical: boolean;
+                            /** @description All Variants Confirmed validated by this operation's strict request contract. */
+                            allVariantsConfirmed: boolean;
+                            /** @description Required Qualifiers validated by this operation's strict request contract. */
+                            requiredQualifiers: string[];
+                            /** @description Trim validated by this operation's strict request contract. */
+                            trim: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            engineCode: string | null;
+                            /** @description Market validated by this operation's strict request contract. */
+                            market: string | null;
+                            /** @description Position validated by this operation's strict request contract. */
+                            position: string | null;
+                            /** @description Brake System validated by this operation's strict request contract. */
+                            brakeSystem: string | null;
+                            /** @description Brake Diameter Mm validated by this operation's strict request contract. */
+                            brakeDiameterMm: string | null;
+                            /** @description Body Type validated by this operation's strict request contract. */
+                            bodyType: string | null;
+                            /** @description Transmission validated by this operation's strict request contract. */
+                            transmission: string | null;
+                            /** @description Generation validated by this operation's strict request contract. */
+                            generation: string | null;
+                            /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
+                            chassisCode: string | null;
+                            /** @description Make validated by this operation's strict request contract. */
+                            make: string;
+                            /** @description Model validated by this operation's strict request contract. */
+                            model: string | null;
+                            /** @description Year From validated by this operation's strict request contract. */
+                            yearFrom: number | null;
+                            /** @description Year To validated by this operation's strict request contract. */
+                            yearTo: number | null;
+                            /** @description Source Reference validated by this operation's strict request contract. */
+                            sourceReference: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            evidenceNotes: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            reviewNote: string | null;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            notes: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the created by user resource; ownership is resolved server-side.
+                             */
+                            createdByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the updated by user resource; ownership is resolved server-side.
+                             */
+                            updatedByUserId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the reviewed by user resource; ownership is resolved server-side.
+                             */
+                            reviewedByUserId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            updatedAt: string;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            submittedAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            reviewedAt: string | null;
+                            /** @description Version validated by this operation's strict request contract. */
+                            version: number;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -91958,7 +94558,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success: Read collection details and currently effective approved delivery zones without private policy provenance. */
+            /** @description Success: Read collection-only ordering availability and collection details. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -91967,7 +94567,7 @@ export interface operations {
                     /**
                      * @example {
                      *       "success": true,
-                     *       "message": "Read collection details and currently effective approved delivery zones without private policy provenance",
+                     *       "message": "Read collection-only ordering availability and collection details",
                      *       "data": {
                      *         "serverTime": "2030-01-15T10:00:00.000Z",
                      *         "currency": "NGN",

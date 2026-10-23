@@ -1031,3 +1031,30 @@
   gap: 0.75rem;
   margin-block: 1rem;
 }
+
+.product-configuration-fitment {
+  padding: 18px;
+  margin-block: 18px;
+  background: #f6f8f9;
+  border: 1px solid #d4dbe4;
+  border-radius: 6px;
+}
+.product-configuration-fitment .actions {
+  margin-top: 14px;
+}
+
+.pd-fitment-qualifiers {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.pd-fitment-qualifiers > div {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(0, 2fr);
+  gap: 12px;
+}
+.pd-fitment-qualifiers dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

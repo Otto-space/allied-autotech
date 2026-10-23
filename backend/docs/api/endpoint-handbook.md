@@ -203,7 +203,7 @@ Relevant errors: 400 The request is malformed.; 404 The requested resource is no
 ### GET `/public/catalog/products/discovery`
 
 - Operation ID: `getPublicCatalogProductsDiscovery`
-- Purpose: Anonymous. Active products in active categories only. Existing product filters retain literal case-insensitive exact brand/make/model matching, inclusive compatibility year bounds on the same compatibility row, and literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Anonymous. Active products in active categories with active parents only. Normalized vehicleModelId plus year (1886-2200), optional matching vehicleMakeId and technical qualifiers use approved inclusion evidence before counts and paging. fitment=verified requires a full technical match and no possible approved exclusion; make/model/year alone are candidates. verifiedMatches counts genuine verified results in the same repeatable-read snapshot. Legacy literal make/model filters remain available but expose only approved inclusion rules. Filters include condition (NEW/USED/REFURBISHED), classification (GENUINE_OEM/AFTERMARKET), stored productType, categoryId and parentCategoryId (direct subcategories), plus literal substring search across name, SKU, brand and manufacturer part number. minPriceKobo/maxPriceKobo are inclusive integer kobo (0-9999999999999999); availability=in_stock means at least one active branch has quantity greater than reserved, out_of_stock is its complement, including products with no inventory. No raw stock quantities are exposed. Maximum 50/default 20. totalMatches counts the filtered dataset before the cursor in the same repeatable-read transaction as the page. Sort and all filters are bound into authenticated cursors; page size may change. Deleted/unpublished anchors remain usable. Legacy UUID anchors require a currently visible matching product. Invalid/tampered/mismatched cursors return 422 VALIDATION_FAILED; restart from page one. Sort ties use ID; no cross-request snapshot/cache is promised. Price, name, stock or visibility edits can move products between reads. Existing /public/catalog/products remains supported. Search public products with exact totals and stable paging. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -216,6 +216,23 @@ Parameters:
 | `cursor` | query | object | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
 | `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
+| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
+| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
+| `productType` | query | string | No | Product Type used to constrain this request. |
+| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
+| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
+| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `engineCode` | query | string | No | Engine Code used to constrain this request. |
+| `market` | query | string | No | Market used to constrain this request. |
+| `position` | query | string | No | Position used to constrain this request. |
+| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
+| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
+| `bodyType` | query | string | No | Body Type used to constrain this request. |
+| `transmission` | query | string | No | Transmission used to constrain this request. |
+| `generation` | query | string | No | Generation used to constrain this request. |
+| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
 | `brand` | query | string | No | Brand used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `make` | query | string | No | Make used to constrain this request. |
@@ -256,6 +273,7 @@ Success: HTTP 200.
           "name": "synthetic-name",
           "slug": "synthetic-slug",
           "description": "synthetic-description",
+          "parentId": "00000000-0000-4000-8000-000000000001",
           "isActive": true,
           "createdAt": "2030-01-15T10:00:00.000Z",
           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -280,7 +298,21 @@ Success: HTTP 200.
             "model": "synthetic-model",
             "yearFrom": "synthetic-yearfrom",
             "yearTo": "synthetic-yearto",
-            "notes": "synthetic-notes"
+            "notes": "synthetic-notes",
+            "scope": "MODEL",
+            "requiredQualifiers": [
+              "trim"
+            ],
+            "trim": "synthetic-trim",
+            "engineCode": "synthetic-enginecode",
+            "market": "synthetic-market",
+            "position": "synthetic-position",
+            "brakeSystem": "synthetic-brakesystem",
+            "brakeDiameterMm": "synthetic-brakediametermm",
+            "bodyType": "synthetic-bodytype",
+            "transmission": "synthetic-transmission",
+            "generation": "synthetic-generation",
+            "chassisCode": "synthetic-chassiscode"
           }
         ],
         "availability": [
@@ -296,7 +328,8 @@ Success: HTTP 200.
       }
     ],
     "nextCursor": "synthetic-nextcursor",
-    "totalMatches": 0
+    "totalMatches": 0,
+    "verifiedMatches": 0
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -364,6 +397,8 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `rootOnly` | query | true / false | No | Root Only used to constrain this request. |
+| `parentId` | query | string (uuid) | No | Parent Id used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -437,6 +472,23 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
+| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
+| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
+| `productType` | query | string | No | Product Type used to constrain this request. |
+| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
+| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
+| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `engineCode` | query | string | No | Engine Code used to constrain this request. |
+| `market` | query | string | No | Market used to constrain this request. |
+| `position` | query | string | No | Position used to constrain this request. |
+| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
+| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
+| `bodyType` | query | string | No | Body Type used to constrain this request. |
+| `transmission` | query | string | No | Transmission used to constrain this request. |
+| `generation` | query | string | No | Generation used to constrain this request. |
+| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
 | `brand` | query | string | No | Brand used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `make` | query | string | No | Make used to constrain this request. |
@@ -474,6 +526,7 @@ Success: HTTP 200.
           "name": "synthetic-name",
           "slug": "synthetic-slug",
           "description": "synthetic-description",
+          "parentId": "00000000-0000-4000-8000-000000000001",
           "isActive": true,
           "createdAt": "2030-01-15T10:00:00.000Z",
           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -498,7 +551,21 @@ Success: HTTP 200.
             "model": "synthetic-model",
             "yearFrom": "synthetic-yearfrom",
             "yearTo": "synthetic-yearto",
-            "notes": "synthetic-notes"
+            "notes": "synthetic-notes",
+            "scope": "MODEL",
+            "requiredQualifiers": [
+              "trim"
+            ],
+            "trim": "synthetic-trim",
+            "engineCode": "synthetic-enginecode",
+            "market": "synthetic-market",
+            "position": "synthetic-position",
+            "brakeSystem": "synthetic-brakesystem",
+            "brakeDiameterMm": "synthetic-brakediametermm",
+            "bodyType": "synthetic-bodytype",
+            "transmission": "synthetic-transmission",
+            "generation": "synthetic-generation",
+            "chassisCode": "synthetic-chassiscode"
           }
         ],
         "availability": [
@@ -565,6 +632,7 @@ Success: HTTP 200.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -589,7 +657,21 @@ Success: HTTP 200.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode"
       }
     ],
     "availability": [
@@ -1262,8 +1344,13 @@ Success: HTTP 200.
   "success": true,
   "message": "Vehicle catalogue and reviewed parts fitment: makes",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -1298,8 +1385,56 @@ Success: HTTP 200.
   "success": true,
   "message": "Vehicle catalogue and reviewed parts fitment: models",
   "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name",
+        "makeId": "00000000-0000-4000-8000-000000000001",
+        "yearFrom": 1,
+        "yearTo": 1
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/public/fitment/models/{modelId}`
+
+- Operation ID: `getPublicFitmentModelsByModelId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: model. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `modelId` | path | string (uuid) | Yes | Identifier selecting the model resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: model",
+  "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "name": "synthetic-name",
+    "makeId": "00000000-0000-4000-8000-000000000001",
+    "yearFrom": 1,
+    "yearTo": 1,
+    "make": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -1331,8 +1466,9 @@ Success: HTTP 200.
   "success": true,
   "message": "Vehicle catalogue and reviewed parts fitment: years",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "years": [
+      1
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -1571,7 +1707,7 @@ Relevant errors: 400 The request is malformed.; 409 The request conflicts with c
 ### GET `/public/fulfillment-options`
 
 - Operation ID: `getPublicFulfillmentOptions`
-- Purpose: Read collection details and currently effective approved delivery zones without private policy provenance. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Read collection-only ordering availability and collection details. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -1582,7 +1718,7 @@ Success: HTTP 200.
 ```json
 {
   "success": true,
-  "message": "Read collection details and currently effective approved delivery zones without private policy provenance",
+  "message": "Read collection-only ordering availability and collection details",
   "data": {
     "serverTime": "2030-01-15T10:00:00.000Z",
     "currency": "NGN",
@@ -1616,7 +1752,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### GET `/public/capabilities`
 
 - Operation ID: `getPublicCapabilities`
-- Purpose: Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store. Read effective policy availability and server time. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -4091,9 +4227,8 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `branchId` | string (uuid) | Yes | Identifier of the branch resource; ownership is resolved server-side. |
-| `fulfillmentMethod` | COLLECTION / DELIVERY | No | Fulfillment Method validated by this operation's strict request contract. |
+| `fulfillmentMethod` | COLLECTION | No | Fulfillment Method validated by this operation's strict request contract. |
 | `promotionCode` | string | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `delivery` | object | No | Delivery validated by this operation's strict request contract. |
 
 Synthetic request example:
 
@@ -4101,16 +4236,7 @@ Synthetic request example:
 {
   "branchId": "00000000-0000-4000-8000-000000000001",
   "fulfillmentMethod": "COLLECTION",
-  "promotionCode": "synthetic-promotioncode",
-  "delivery": {
-    "zoneId": "synthetic-zoneid",
-    "name": "synthetic-name",
-    "phone": "+2348000000000",
-    "address": "synthetic-address",
-    "city": "synthetic-city",
-    "state": "synthetic-state",
-    "country": "Nigeria"
-  }
+  "promotionCode": "synthetic-promotioncode"
 }
 ```
 
@@ -9602,8 +9728,22 @@ Success: HTTP 200.
   "success": true,
   "message": "Vehicle catalogue and reviewed parts fitment: access",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "canAuthor": true,
+    "canReview": true,
+    "globalAuthor": true,
+    "globalReviewer": true,
+    "authorBranches": [
+      "00000000-0000-4000-8000-000000000001"
+    ],
+    "reviewBranches": [
+      "00000000-0000-4000-8000-000000000001"
+    ],
+    "branches": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -9637,82 +9777,13 @@ Success: HTTP 200.
   "success": true,
   "message": "Vehicle catalogue and reviewed parts fitment: products",
   "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
-  },
-  "meta": {
-    "requestId": "req_0000000000000001"
-  }
-}
-```
-
-Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
-
-### GET `/staff/fitment/rules`
-
-- Operation ID: `getStaffFitmentRules`
-- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: rules. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
-- Authentication: Opaque session cookie
-- CSRF: Not required
-- Idempotency: Not required
-
-Parameters:
-
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | query | string (uuid) | No | Product Id used to constrain this request. |
-| `reviewStatus` | query | DRAFT / PENDING / APPROVED / REJECTED / RETIRED | No | Review Status used to constrain this request. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-
-Success: HTTP 200.
-
-```json
-{
-  "success": true,
-  "message": "Vehicle catalogue and reviewed parts fitment: rules",
-  "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
-  },
-  "meta": {
-    "requestId": "req_0000000000000001"
-  }
-}
-```
-
-Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
-
-### GET `/staff/fitment/products/{productId}/rules/{ruleId}/history`
-
-- Operation ID: `getStaffFitmentProductsByProductIdRulesByRuleIdHistory`
-- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: history. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
-- Authentication: Opaque session cookie
-- CSRF: Not required
-- Idempotency: Not required
-
-Parameters:
-
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
-| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
-| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
-
-Success: HTTP 200.
-
-```json
-{
-  "success": true,
-  "message": "Vehicle catalogue and reviewed parts fitment: history",
-  "data": {
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
-        "status": "synthetic-status"
+        "name": "synthetic-name",
+        "sku": "synthetic-sku",
+        "isActive": true,
+        "productType": "synthetic-producttype"
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -9725,115 +9796,13 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
-### POST `/staff/fitment/makes`
+### GET `/staff/fitment/products/{productId}`
 
-- Operation ID: `postStaffFitmentMakes`
-- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createMake. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Operation ID: `getStaffFitmentProductsByProductId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: product. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
-- CSRF: Required in `X-CSRF-Token`
-- Idempotency: Not required
-
-Parameters:
-
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-
-JSON request fields:
-
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-
-Synthetic request example:
-
-```json
-{
-  "name": "synthetic-name"
-}
-```
-
-Success: HTTP 200.
-
-```json
-{
-  "success": true,
-  "message": "Vehicle catalogue and reviewed parts fitment: createMake",
-  "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
-  },
-  "meta": {
-    "requestId": "req_0000000000000001"
-  }
-}
-```
-
-Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
-
-### POST `/staff/fitment/models`
-
-- Operation ID: `postStaffFitmentModels`
-- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createModel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
-- Authentication: Opaque session cookie
-- CSRF: Required in `X-CSRF-Token`
-- Idempotency: Not required
-
-Parameters:
-
-| Parameter | Location | Type | Required | Purpose |
-| --- | --- | --- | --- | --- |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-
-JSON request fields:
-
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `makeId` | string (uuid) | Yes | Identifier of the make resource; ownership is resolved server-side. |
-| `name` | string | Yes | Name validated by this operation's strict request contract. |
-| `yearFrom` | integer | Yes | Year From validated by this operation's strict request contract. |
-| `yearTo` | integer | Yes | Year To validated by this operation's strict request contract. |
-| `sourceReference` | string | Yes | Source Reference validated by this operation's strict request contract. |
-
-Synthetic request example:
-
-```json
-{
-  "makeId": "00000000-0000-4000-8000-000000000001",
-  "name": "synthetic-name",
-  "yearFrom": 1886,
-  "yearTo": 1886,
-  "sourceReference": "synthetic-sourcereference"
-}
-```
-
-Success: HTTP 200.
-
-```json
-{
-  "success": true,
-  "message": "Vehicle catalogue and reviewed parts fitment: createModel",
-  "data": {
-    "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
-  },
-  "meta": {
-    "requestId": "req_0000000000000001"
-  }
-}
-```
-
-Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
-
-### POST `/staff/fitment/products/{productId}/rules`
-
-- Operation ID: `postStaffFitmentProductsByProductIdRules`
-- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
-- Roles: STAFF, ADMIN, SUPER_ADMIN
-- Authentication: Opaque session cookie
-- CSRF: Required in `X-CSRF-Token`
+- CSRF: Not required
 - Idempotency: Not required
 
 Parameters:
@@ -9841,50 +9810,129 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
-| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
-
-JSON request fields:
-
-| Field | Type | Required | Purpose |
-| --- | --- | --- | --- |
-| `scope` | MODEL / UNIVERSAL | No | Scope validated by this operation's strict request contract. |
-| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
-| `branchId` | string / null | No | Identifier of the branch resource; ownership is resolved server-side. |
-| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
-| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
-| `effect` | INCLUDE / EXCLUDE | No | Effect validated by this operation's strict request contract. |
-| `safetyCritical` | boolean | No | Safety Critical validated by this operation's strict request contract. |
-| `allVariantsConfirmed` | boolean | No | All Variants Confirmed validated by this operation's strict request contract. |
-| `requiredQualifiers` | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No | Required Qualifiers validated by this operation's strict request contract. |
-| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
-| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `market` | string / null | No | Market validated by this operation's strict request contract. |
-| `position` | string / null | No | Position validated by this operation's strict request contract. |
-| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
-| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
-| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
-| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
-| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
-| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
-| `sourceReference` | string / null | No | Source Reference validated by this operation's strict request contract. |
-| `evidenceNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
-
-Synthetic request example:
-
-```json
-{}
-```
 
 Success: HTTP 200.
 
 ```json
 {
   "success": true,
-  "message": "Vehicle catalogue and reviewed parts fitment: createRule",
+  "message": "Vehicle catalogue and reviewed parts fitment: product",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "name": "synthetic-name",
+    "sku": "synthetic-sku",
+    "isActive": true,
+    "productType": "synthetic-producttype"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/products/{productId}/rules/{ruleId}`
+
+- Operation ID: `getStaffFitmentProductsByProductIdRulesByRuleId`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: rule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: rule",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0,
+    "product": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "sku": "synthetic-sku"
+    },
+    "vehicleModel": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name",
+      "makeId": "00000000-0000-4000-8000-000000000001",
+      "yearFrom": 1,
+      "yearTo": 1,
+      "make": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "name": "synthetic-name"
+      }
+    },
+    "createdBy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test",
+      "staffProfile": {
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    },
+    "updatedBy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test",
+      "staffProfile": {
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    },
+    "reviewedBy": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "email": "customer@example.test",
+      "staffProfile": {
+        "firstName": "synthetic-firstname",
+        "lastName": "synthetic-lastname"
+      }
+    }
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -9955,7 +10003,422 @@ Success: HTTP 200.
   "message": "Vehicle catalogue and reviewed parts fitment: updateRule",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/rules`
+
+- Operation ID: `getStaffFitmentRules`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: rules. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | query | string (uuid) | No | Product Id used to constrain this request. |
+| `reviewStatus` | query | DRAFT / PENDING / APPROVED / REJECTED / RETIRED | No | Review Status used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: rules",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "productId": "00000000-0000-4000-8000-000000000001",
+        "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+        "branchId": "00000000-0000-4000-8000-000000000001",
+        "scope": "MODEL",
+        "effect": "INCLUDE",
+        "reviewStatus": "DRAFT",
+        "safetyCritical": true,
+        "allVariantsConfirmed": true,
+        "requiredQualifiers": [
+          "synthetic-requiredqualifiers-item"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode",
+        "make": "synthetic-make",
+        "model": "synthetic-model",
+        "yearFrom": "synthetic-yearfrom",
+        "yearTo": "synthetic-yearto",
+        "sourceReference": "synthetic-sourcereference",
+        "evidenceNotes": "synthetic-evidencenotes",
+        "reviewNote": "synthetic-reviewnote",
+        "notes": "synthetic-notes",
+        "createdByUserId": "00000000-0000-4000-8000-000000000001",
+        "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+        "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+        "createdAt": "2030-01-15T10:00:00.000Z",
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "submittedAt": "2030-01-15T10:00:00.000Z",
+        "reviewedAt": "2030-01-15T10:00:00.000Z",
+        "version": 0,
+        "product": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "sku": "synthetic-sku"
+        },
+        "vehicleModel": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "name": "synthetic-name",
+          "makeId": "00000000-0000-4000-8000-000000000001",
+          "yearFrom": 1,
+          "yearTo": 1,
+          "make": {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "name": "synthetic-name"
+          }
+        },
+        "createdBy": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        },
+        "updatedBy": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        },
+        "reviewedBy": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        }
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/fitment/products/{productId}/rules/{ruleId}/history`
+
+- Operation ID: `getStaffFitmentProductsByProductIdRulesByRuleIdHistory`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: history. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `ruleId` | path | string (uuid) | Yes | Identifier selecting the rule resource. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: history",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "compatibilityId": "00000000-0000-4000-8000-000000000001",
+        "actorUserId": "00000000-0000-4000-8000-000000000001",
+        "actor": {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "email": "customer@example.test",
+          "staffProfile": {
+            "firstName": "synthetic-firstname",
+            "lastName": "synthetic-lastname"
+          }
+        },
+        "action": "synthetic-action",
+        "version": 1,
+        "snapshot": {},
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/fitment/makes`
+
+- Operation ID: `postStaffFitmentMakes`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createMake. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `name` | string | Yes | Name validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "name": "synthetic-name"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: createMake",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/fitment/models`
+
+- Operation ID: `postStaffFitmentModels`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createModel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `makeId` | string (uuid) | Yes | Identifier of the make resource; ownership is resolved server-side. |
+| `name` | string | Yes | Name validated by this operation's strict request contract. |
+| `yearFrom` | integer | Yes | Year From validated by this operation's strict request contract. |
+| `yearTo` | integer | Yes | Year To validated by this operation's strict request contract. |
+| `sourceReference` | string | Yes | Source Reference validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "makeId": "00000000-0000-4000-8000-000000000001",
+  "name": "synthetic-name",
+  "yearFrom": 1886,
+  "yearTo": 1886,
+  "sourceReference": "synthetic-sourcereference"
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: createModel",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "name": "synthetic-name",
+    "makeId": "00000000-0000-4000-8000-000000000001",
+    "yearFrom": 1,
+    "yearTo": 1
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 Authentication required for staff routes; 403 Current MFA, branch or responsibility does not permit this action; 404 Record is unavailable in this scope; 409 Stale version, duplicate rule or invalid review transition; 422 Invalid fields, vehicle relationship or incomplete evidence; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/fitment/products/{productId}/rules`
+
+- Operation ID: `postStaffFitmentProductsByProductIdRules`
+- Purpose: Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `scope` | MODEL / UNIVERSAL | No | Scope validated by this operation's strict request contract. |
+| `vehicleModelId` | string / null | No | Identifier of the vehicle model resource; ownership is resolved server-side. |
+| `branchId` | string / null | No | Identifier of the branch resource; ownership is resolved server-side. |
+| `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
+| `yearTo` | integer / null | No | Year To validated by this operation's strict request contract. |
+| `effect` | INCLUDE / EXCLUDE | No | Effect validated by this operation's strict request contract. |
+| `safetyCritical` | boolean | No | Safety Critical validated by this operation's strict request contract. |
+| `allVariantsConfirmed` | boolean | No | All Variants Confirmed validated by this operation's strict request contract. |
+| `requiredQualifiers` | array<trim / engineCode / market / position / brakeSystem / brakeDiameterMm / bodyType / transmission / generation / chassisCode> | No | Required Qualifiers validated by this operation's strict request contract. |
+| `trim` | string / null | No | Trim validated by this operation's strict request contract. |
+| `engineCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `market` | string / null | No | Market validated by this operation's strict request contract. |
+| `position` | string / null | No | Position validated by this operation's strict request contract. |
+| `brakeSystem` | string / null | No | Brake System validated by this operation's strict request contract. |
+| `brakeDiameterMm` | string / null | No | Brake Diameter Mm validated by this operation's strict request contract. |
+| `bodyType` | string / null | No | Body Type validated by this operation's strict request contract. |
+| `transmission` | string / null | No | Transmission validated by this operation's strict request contract. |
+| `generation` | string / null | No | Generation validated by this operation's strict request contract. |
+| `chassisCode` | string / null | No | Sensitive single-purpose value; submit once and never log or persist it in browser storage. |
+| `sourceReference` | string / null | No | Source Reference validated by this operation's strict request contract. |
+| `evidenceNotes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+| `notes` | string / null | No | Plain-text business context; HTML is not accepted or rendered as trusted markup. |
+
+Synthetic request example:
+
+```json
+{}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Vehicle catalogue and reviewed parts fitment: createRule",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -10008,7 +10471,43 @@ Success: HTTP 200.
   "message": "Vehicle catalogue and reviewed parts fitment: transition",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
-    "status": "synthetic-status"
+    "productId": "00000000-0000-4000-8000-000000000001",
+    "vehicleModelId": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "scope": "MODEL",
+    "effect": "INCLUDE",
+    "reviewStatus": "DRAFT",
+    "safetyCritical": true,
+    "allVariantsConfirmed": true,
+    "requiredQualifiers": [
+      "synthetic-requiredqualifiers-item"
+    ],
+    "trim": "synthetic-trim",
+    "engineCode": "synthetic-enginecode",
+    "market": "synthetic-market",
+    "position": "synthetic-position",
+    "brakeSystem": "synthetic-brakesystem",
+    "brakeDiameterMm": "synthetic-brakediametermm",
+    "bodyType": "synthetic-bodytype",
+    "transmission": "synthetic-transmission",
+    "generation": "synthetic-generation",
+    "chassisCode": "synthetic-chassiscode",
+    "make": "synthetic-make",
+    "model": "synthetic-model",
+    "yearFrom": "synthetic-yearfrom",
+    "yearTo": "synthetic-yearto",
+    "sourceReference": "synthetic-sourcereference",
+    "evidenceNotes": "synthetic-evidencenotes",
+    "reviewNote": "synthetic-reviewnote",
+    "notes": "synthetic-notes",
+    "createdByUserId": "00000000-0000-4000-8000-000000000001",
+    "updatedByUserId": "00000000-0000-4000-8000-000000000001",
+    "reviewedByUserId": "00000000-0000-4000-8000-000000000001",
+    "createdAt": "2030-01-15T10:00:00.000Z",
+    "updatedAt": "2030-01-15T10:00:00.000Z",
+    "submittedAt": "2030-01-15T10:00:00.000Z",
+    "reviewedAt": "2030-01-15T10:00:00.000Z",
+    "version": 0
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -17621,6 +18120,8 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `rootOnly` | query | true / false | No | Root Only used to constrain this request. |
+| `parentId` | query | string (uuid) | No | Parent Id used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `isActive` | query | true / false | No | Is Active used to constrain this request. |
 
@@ -17669,6 +18170,7 @@ JSON request fields:
 | `name` | string | Yes | Name validated by this operation's strict request contract. |
 | `slug` | string | Yes | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
+| `parentId` | string / null | No | Identifier of the parent resource; ownership is resolved server-side. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
@@ -17678,6 +18180,7 @@ Synthetic request example:
   "name": "synthetic-name",
   "slug": "synthetic-slug",
   "description": "synthetic-description",
+  "parentId": "00000000-0000-4000-8000-000000000001",
   "isActive": true
 }
 ```
@@ -17762,6 +18265,7 @@ JSON request fields:
 | `name` | string | No | Name validated by this operation's strict request contract. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
+| `parentId` | string / null | No | Identifier of the parent resource; ownership is resolved server-side. |
 | `isActive` | boolean | No | Boolean control for is active; authorization is still enforced server-side. |
 
 Synthetic request example:
@@ -17772,6 +18276,7 @@ Synthetic request example:
   "name": "synthetic-name",
   "slug": "synthetic-slug",
   "description": "synthetic-description",
+  "parentId": "00000000-0000-4000-8000-000000000001",
   "isActive": true
 }
 ```
@@ -17810,6 +18315,23 @@ Parameters:
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `categoryId` | query | string (uuid) | No | Category Id used to constrain this request. |
+| `parentCategoryId` | query | string (uuid) | No | Parent Category Id used to constrain this request. |
+| `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
+| `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
+| `productType` | query | string | No | Product Type used to constrain this request. |
+| `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
+| `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
+| `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
+| `trim` | query | string | No | Trim used to constrain this request. |
+| `engineCode` | query | string | No | Engine Code used to constrain this request. |
+| `market` | query | string | No | Market used to constrain this request. |
+| `position` | query | string | No | Position used to constrain this request. |
+| `brakeSystem` | query | string | No | Brake System used to constrain this request. |
+| `brakeDiameterMm` | query | string | No | Brake Diameter Mm used to constrain this request. |
+| `bodyType` | query | string | No | Body Type used to constrain this request. |
+| `transmission` | query | string | No | Transmission used to constrain this request. |
+| `generation` | query | string | No | Generation used to constrain this request. |
+| `chassisCode` | query | string | No | Chassis Code used to constrain this request. |
 | `brand` | query | string | No | Brand used to constrain this request. |
 | `search` | query | string | No | Search used to constrain this request. |
 | `make` | query | string | No | Make used to constrain this request. |
@@ -17848,6 +18370,7 @@ Success: HTTP 200.
           "name": "synthetic-name",
           "slug": "synthetic-slug",
           "description": "synthetic-description",
+          "parentId": "00000000-0000-4000-8000-000000000001",
           "isActive": true,
           "createdAt": "2030-01-15T10:00:00.000Z",
           "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -17872,7 +18395,21 @@ Success: HTTP 200.
             "model": "synthetic-model",
             "yearFrom": "synthetic-yearfrom",
             "yearTo": "synthetic-yearto",
-            "notes": "synthetic-notes"
+            "notes": "synthetic-notes",
+            "scope": "MODEL",
+            "requiredQualifiers": [
+              "trim"
+            ],
+            "trim": "synthetic-trim",
+            "engineCode": "synthetic-enginecode",
+            "market": "synthetic-market",
+            "position": "synthetic-position",
+            "brakeSystem": "synthetic-brakesystem",
+            "brakeDiameterMm": "synthetic-brakediametermm",
+            "bodyType": "synthetic-bodytype",
+            "transmission": "synthetic-transmission",
+            "generation": "synthetic-generation",
+            "chassisCode": "synthetic-chassiscode"
           }
         ],
         "availability": [
@@ -17917,6 +18454,9 @@ JSON request fields:
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
 | `categoryId` | string (uuid) | Yes | Identifier of the category resource; ownership is resolved server-side. |
+| `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |
+| `classification` | GENUINE_OEM / AFTERMARKET / null | No | Classification validated by this operation's strict request contract. |
+| `productType` | string / null | No | Product Type validated by this operation's strict request contract. |
 | `name` | string | Yes | Name validated by this operation's strict request contract. |
 | `slug` | string | Yes | Slug validated by this operation's strict request contract. |
 | `sku` | string | Yes | Sku validated by this operation's strict request contract. |
@@ -17968,6 +18508,7 @@ Success: HTTP 201.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -17992,7 +18533,21 @@ Success: HTTP 201.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode"
       }
     ],
     "availability": [
@@ -18056,6 +18611,7 @@ Success: HTTP 200.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -18080,7 +18636,21 @@ Success: HTTP 200.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode"
       }
     ],
     "availability": [
@@ -18124,6 +18694,9 @@ JSON request fields:
 | --- | --- | --- | --- |
 | `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `categoryId` | string (uuid) | No | Identifier of the category resource; ownership is resolved server-side. |
+| `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |
+| `classification` | GENUINE_OEM / AFTERMARKET / null | No | Classification validated by this operation's strict request contract. |
+| `productType` | string / null | No | Product Type validated by this operation's strict request contract. |
 | `name` | string | No | Name validated by this operation's strict request contract. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
 | `sku` | string | No | Sku validated by this operation's strict request contract. |
@@ -18169,6 +18742,7 @@ Success: HTTP 200.
       "name": "synthetic-name",
       "slug": "synthetic-slug",
       "description": "synthetic-description",
+      "parentId": "00000000-0000-4000-8000-000000000001",
       "isActive": true,
       "createdAt": "2030-01-15T10:00:00.000Z",
       "updatedAt": "2030-01-15T10:00:00.000Z"
@@ -18193,7 +18767,21 @@ Success: HTTP 200.
         "model": "synthetic-model",
         "yearFrom": "synthetic-yearfrom",
         "yearTo": "synthetic-yearto",
-        "notes": "synthetic-notes"
+        "notes": "synthetic-notes",
+        "scope": "MODEL",
+        "requiredQualifiers": [
+          "trim"
+        ],
+        "trim": "synthetic-trim",
+        "engineCode": "synthetic-enginecode",
+        "market": "synthetic-market",
+        "position": "synthetic-position",
+        "brakeSystem": "synthetic-brakesystem",
+        "brakeDiameterMm": "synthetic-brakediametermm",
+        "bodyType": "synthetic-bodytype",
+        "transmission": "synthetic-transmission",
+        "generation": "synthetic-generation",
+        "chassisCode": "synthetic-chassiscode"
       }
     ],
     "availability": [

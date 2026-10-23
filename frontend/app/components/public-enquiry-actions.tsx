@@ -2,19 +2,27 @@ import Link from "next/link";
 import { business } from "@/lib/business";
 import { catalogueOnly } from "@/lib/public-launch";
 
-export function PublicEnquiryActions({ subject }: { subject: string }) {
-  const whatsapp = `${business.whatsapp}?text=${encodeURIComponent(`Hello Allied AutoTech, I would like more information about ${subject}.`)}`;
+export function PublicEnquiryActions({
+  subject,
+  message,
+  enquiryHref,
+}: {
+  subject: string;
+  message?: string;
+  enquiryHref?: string;
+}) {
+  const whatsapp = `${business.whatsapp}?text=${encodeURIComponent(message ?? `Hello Allied AutoTech, I would like more information about ${subject}.`)}`;
   return (
     <div className="actions">
       {catalogueOnly() ? (
         <a
           className="button"
-          href={`mailto:${business.email}?subject=${encodeURIComponent(subject)}`}
+          href={`mailto:${business.email}?subject=${encodeURIComponent(subject)}${message ? `&body=${encodeURIComponent(message)}` : ""}`}
         >
           Enquire by email
         </a>
       ) : (
-        <Link className="button" href="/contact#enquiry">
+        <Link className="button" href={enquiryHref ?? "/contact#enquiry"}>
           Send an enquiry
         </Link>
       )}

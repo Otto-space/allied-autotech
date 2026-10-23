@@ -145,7 +145,12 @@ export function fitmentRuleWhere(
               {
                 OR: [
                   { [key]: null },
-                  { [key]: { equals: literal(selection[key]!), mode: "insensitive" } },
+                  {
+                    [key]: {
+                      equals: literal(normalizeFitmentValue(selection[key]!)),
+                      mode: "insensitive",
+                    },
+                  },
                 ],
               },
             ]
@@ -196,5 +201,27 @@ export function fitmentProductWhere(
           },
         ],
       }
-    : { compatibilities: { some: fitmentRuleWhere(selection) } };
+    : {
+        compatibilities: { some: { ...fitmentRuleWhere(selection), effect: "INCLUDE" } },
+      };
+}
+
+export function selectionFromQuery(
+  query: {
+    vehicleModelId?: string | undefined;
+    vehicleMakeId?: string | undefined;
+    year?: number | undefined;
+  } & Partial<Record<QualifierKey, string | undefined>>,
+): FitmentSelection | undefined {
+  if (!query.vehicleModelId || query.year === undefined) return undefined;
+  return {
+    vehicleModelId: query.vehicleModelId,
+    year: query.year,
+    ...(query.vehicleMakeId ? { vehicleMakeId: query.vehicleMakeId } : {}),
+    ...Object.fromEntries(
+      qualifierKeys
+        .filter((key) => query[key] !== undefined)
+        .map((key) => [key, query[key]]),
+    ),
+  };
 }

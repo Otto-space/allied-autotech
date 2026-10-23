@@ -20,6 +20,7 @@ import { WorkforceComplaints } from "./workforce-complaints";
 import { WorkforceFinance } from "./workforce-finance";
 import { WorkforceOrders } from "./workforce-orders";
 import { WorkforceJobs } from "./workforce-jobs";
+import { WorkPartsFitment } from "./work-parts-fitment";
 import { WorkforceJobDetail } from "./workforce-job-detail";
 
 export function WorkforceWorkspace({
@@ -30,6 +31,7 @@ export function WorkforceWorkspace({
   refreshAccess: () => void;
 }) {
   const path = usePathname();
+  if (path === "/admin/fitment") return <WorkPartsFitment />;
   if (path === "/admin" || path === "/admin/workforce")
     return <WorkforceOverview access={access} refreshAccess={refreshAccess} />;
   if (path === "/admin/workforce/access" && access.canManageAssignments)

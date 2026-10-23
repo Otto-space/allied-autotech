@@ -1,3 +1,6 @@
+import { activeCategoryWhere, activeProductWhere } from "./catalog-visibility.js";
+import { publishedFitmentSelect } from "../fitment/fitment.projection.js";
+import { fitmentProductWhere, selectionFromQuery } from "../fitment/fitment.engine.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { prisma } from "../../config/database.js";
 import { productImageSelect, projectProductImage } from "./product-media.projection.js";
@@ -27,6 +30,7 @@ export const categorySelect = {
   name: true,
   slug: true,
   description: true,
+  parentId: true,
   isActive: true,
   createdAt: true,
   updatedAt: true,
@@ -46,6 +50,9 @@ export const productSelect = {
   currency: true,
   isActive: true,
   featured: true,
+  condition: true,
+  classification: true,
+  productType: true,
   createdAt: true,
   updatedAt: true,
   category: { select: categorySelect },
@@ -55,6 +62,7 @@ export const productSelect = {
   },
   compatibilities: {
     select: {
+      ...publishedFitmentSelect,
       id: true,
       make: true,
       model: true,
@@ -81,9 +89,25 @@ export function productWhere(
   query: ProductListQuery | AdminProductListQuery,
   activeOnly: boolean,
 ): Prisma.ProductWhereInput {
+  const selection = selectionFromQuery(query);
   return {
+    ...(selection ? fitmentProductWhere(selection, query.fitment === "verified") : {}),
+    ...(query.condition ? { condition: query.condition } : {}),
+    ...(query.classification ? { classification: query.classification } : {}),
+    ...(query.productType
+      ? {
+          productType: { equals: literalPattern(query.productType), mode: "insensitive" },
+        }
+      : {}),
+    ...(query.parentCategoryId ? { category: { parentId: query.parentCategoryId } } : {}),
     ...(activeOnly
-      ? { isActive: true, category: { isActive: true } }
+      ? {
+          isActive: true,
+          category: {
+            ...activeCategoryWhere,
+            ...(query.parentCategoryId ? { parentId: query.parentCategoryId } : {}),
+          },
+        }
       : "isActive" in query && query.isActive !== undefined
         ? { isActive: query.isActive }
         : {}),
@@ -107,7 +131,8 @@ export function productWhere(
             },
           ],
         }),
-    ...(query.make === undefined && query.model === undefined && query.year === undefined
+    ...(selection ||
+    (query.make === undefined && query.model === undefined && query.year === undefined)
       ? {}
       : {
           compatibilities: {
@@ -161,9 +186,14 @@ export class CatalogRepository {
     return client.category.findMany({
       where: {
         ...(activeOnly
-          ? { isActive: true }
+          ? activeCategoryWhere
           : "isActive" in query && query.isActive !== undefined
             ? { isActive: query.isActive }
+            : {}),
+        ...(query.rootOnly
+          ? { parentId: null }
+          : query.parentId
+            ? { parentId: query.parentId }
             : {}),
         ...(!activeOnly && "search" in query && query.search
           ? {
@@ -183,7 +213,7 @@ export class CatalogRepository {
 
   category(id: string, activeOnly: boolean, client: DatabaseClient = this.database) {
     return client.category.findFirst({
-      where: { id, ...(activeOnly ? { isActive: true } : {}) },
+      where: { id, ...(activeOnly ? activeCategoryWhere : {}) },
       select: categorySelect,
     });
   }
@@ -195,6 +225,7 @@ export class CatalogRepository {
         slug: input.slug,
         isActive: input.isActive,
         description: input.description ?? null,
+        parentId: input.parentId ?? null,
       },
       select: categorySelect,
     });
@@ -208,6 +239,7 @@ export class CatalogRepository {
   ) {
     const data: Prisma.CategoryUncheckedUpdateInput = {
       updatedAt,
+      ...(input.parentId === undefined ? {} : { parentId: input.parentId }),
       ...(input.name === undefined ? {} : { name: input.name }),
       ...(input.slug === undefined ? {} : { slug: input.slug }),
       ...(input.description === undefined ? {} : { description: input.description }),
@@ -234,7 +266,7 @@ export class CatalogRepository {
     return client.product.findFirst({
       where: {
         id,
-        ...(activeOnly ? { isActive: true, category: { isActive: true } } : {}),
+        ...(activeOnly ? activeProductWhere : {}),
       },
       select: productSelect,
     });
@@ -244,6 +276,9 @@ export class CatalogRepository {
     return client.product.create({
       data: {
         categoryId: input.categoryId,
+        condition: input.condition ?? null,
+        classification: input.classification ?? null,
+        productType: input.productType ?? null,
         name: input.name,
         slug: input.slug,
         sku: input.sku,
@@ -269,6 +304,11 @@ export class CatalogRepository {
   ) {
     const data: Prisma.ProductUncheckedUpdateInput = {
       updatedAt,
+      ...(input.condition === undefined ? {} : { condition: input.condition }),
+      ...(input.classification === undefined
+        ? {}
+        : { classification: input.classification }),
+      ...(input.productType === undefined ? {} : { productType: input.productType }),
       ...(input.categoryId === undefined ? {} : { categoryId: input.categoryId }),
       ...(input.name === undefined ? {} : { name: input.name }),
       ...(input.slug === undefined ? {} : { slug: input.slug }),
@@ -390,7 +430,7 @@ export class CatalogRepository {
     return this.database.productFavourite.findMany({
       where: {
         customer: { userId },
-        product: { isActive: true, category: { isActive: true } },
+        product: activeProductWhere,
       },
       select: { id: true, createdAt: true, product: { select: productSelect } },
       orderBy: { id: "asc" },

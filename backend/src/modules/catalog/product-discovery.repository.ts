@@ -1,3 +1,4 @@
+import { fitmentProductWhere, selectionFromQuery } from "../fitment/fitment.engine.js";
 import { z } from "zod";
 import { prisma } from "../../config/database.js";
 import { Prisma, type PrismaClient } from "../../generated/prisma/client.js";
@@ -98,11 +99,20 @@ export class ProductDiscoveryRepository {
           take: query.limit + 1,
         });
         const totalMatches = await tx.product.count({ where: visibility });
+        const selection = selectionFromQuery(query);
+        const verifiedMatches = selection
+          ? query.fitment === "verified"
+            ? totalMatches
+            : await tx.product.count({
+                where: { AND: [visibility, fitmentProductWhere(selection, true)] },
+              })
+          : undefined;
         const items = rows.slice(0, query.limit),
           last = items.at(-1);
         return {
           items,
           totalMatches,
+          ...(verifiedMatches === undefined ? {} : { verifiedMatches }),
           ...(rows.length > query.limit && last
             ? {
                 nextCursor: encodeCatalogueCursor(binding, {
@@ -144,7 +154,7 @@ export class ProductDiscoveryRepository {
     const key = Prisma.sql`lower(${column}) COLLATE "C"`;
     const value = query.field === "category" ? Prisma.sql`c."id"::text COLLATE "C"` : key;
     const clauses = [
-      Prisma.sql`p."isActive" = true AND c."isActive" = true`,
+      Prisma.sql`p."isActive" = true AND c."isActive" = true AND (c."parentId" IS NULL OR EXISTS (SELECT 1 FROM "Category" parent WHERE parent."id" = c."parentId" AND parent."isActive" = true))`,
       Prisma.sql`${column} IS NOT NULL AND ${column} <> ''`,
     ];
     if (compatibility)

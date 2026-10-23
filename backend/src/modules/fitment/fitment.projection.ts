@@ -1,0 +1,26 @@
+import type { Prisma } from "../../generated/prisma/client.js";
+
+export const publishedFitmentSelect = {
+  id: true,
+  reviewStatus: true,
+  scope: true,
+  effect: true,
+  vehicleModelId: true,
+  yearFrom: true,
+  yearTo: true,
+  safetyCritical: true,
+  allVariantsConfirmed: true,
+  requiredQualifiers: true,
+  sourceReference: true,
+  reviewedAt: true,
+  trim: true,
+  engineCode: true,
+  market: true,
+  position: true,
+  brakeSystem: true,
+  brakeDiameterMm: true,
+  bodyType: true,
+  transmission: true,
+  generation: true,
+  chassisCode: true,
+} satisfies Prisma.ProductCompatibilitySelect;

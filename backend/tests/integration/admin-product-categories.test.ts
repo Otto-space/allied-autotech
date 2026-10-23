@@ -68,6 +68,68 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       expect(actual?.database).toBe(env.DB_NAME);
       expect(actual?.database).toMatch(/_(test|ci)$/);
     });
+    it("supports subcategories, prevents cycles and third levels, and protects parent visibility", async () => {
+      const actor = await account();
+      const root = await category(),
+        other = await category(),
+        inactive = await category(false);
+      const create = (parentId: string) =>
+        request(app)
+          .post(endpoint)
+          .set(actor.headers)
+          .send({ name: "Synthetic subcategory", slug: `sub-${randomUUID()}`, parentId });
+      const child = await create(root.id);
+      expect(child.status).toBe(201);
+      expect(child.body.data.parentId).toBe(root.id);
+      expect((await create(child.body.data.id)).status).toBe(409);
+      expect((await create(inactive.id)).status).toBe(409);
+      const update = (id: string, body: unknown) =>
+        request(app).patch(`${endpoint}/${id}`).set(actor.headers).send(body);
+      expect((await update(root.id, { parentId: root.id })).status).toBe(409);
+      expect((await update(root.id, { parentId: child.body.data.id })).status).toBe(409);
+      expect((await update(root.id, { parentId: other.id })).status).toBe(409);
+      expect((await update(root.id, { isActive: false })).status).toBe(409);
+      const onlyRoots = await request(app)
+        .get(endpoint)
+        .set(actor.headers)
+        .query({ rootOnly: "true", limit: 100 });
+      expect(onlyRoots.status).toBe(200);
+      expect(
+        onlyRoots.body.data.items.every(
+          (row: { parentId: string | null }) => row.parentId === null,
+        ),
+      ).toBe(true);
+      const children = await request(app)
+        .get(endpoint)
+        .set(actor.headers)
+        .query({ parentId: root.id });
+      expect(children.body.data.items.map((row: { id: string }) => row.id)).toEqual([
+        child.body.data.id,
+      ]);
+      expect((await update(child.body.data.id, { parentId: other.id })).status).toBe(200);
+      expect((await update(root.id, { isActive: false })).status).toBe(200);
+      expect((await update(child.body.data.id, { parentId: root.id })).status).toBe(409);
+    });
+    it("serializes competing hierarchy moves so two roots cannot become a cycle", async () => {
+      const actor = await account();
+      const first = await category(),
+        second = await category();
+      const responses = await Promise.all([
+        request(app)
+          .patch(`${endpoint}/${first.id}`)
+          .set(actor.headers)
+          .send({ parentId: second.id }),
+        request(app)
+          .patch(`${endpoint}/${second.id}`)
+          .set(actor.headers)
+          .send({ parentId: first.id }),
+      ]);
+      expect(responses.map((r) => r.status).sort()).toEqual([200, 409]);
+      const rows = await prisma.category.findMany({
+        where: { id: { in: [first.id, second.id] } },
+      });
+      expect(rows.filter((row) => row.parentId === null)).toHaveLength(1);
+    });
     afterAll(async () => {
       await prisma.session.deleteMany({ where: { id: { in: sessions } } });
       await prisma.$disconnect();
@@ -85,6 +147,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
             name: row.name,
             slug: row.slug,
             description: null,
+            parentId: null,
             isActive: active,
             createdAt: row.createdAt.toISOString(),
             updatedAt: row.updatedAt.toISOString(),

@@ -293,6 +293,309 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       ).toBe("VERIFIED_FIT");
     });
 
+    it("filters normalized fitment in PostgreSQL before counts, attributes and cursor traversal", async () => {
+      const prefix = `Finder-${randomUUID()}`;
+      const root = await prisma.category.create({
+        data: { name: "Synthetic finder parent", slug: prefix.toLowerCase() },
+      });
+      const child = await prisma.category.create({
+        data: {
+          name: "Synthetic finder brakes",
+          slug: `${prefix.toLowerCase()}-child`,
+          parentId: root.id,
+        },
+      });
+      const otherModel = await prisma.vehicleModel.create({
+        data: {
+          makeId,
+          name: `Other ${prefix}`,
+          key: prefix.toLowerCase(),
+          yearFrom: 2013,
+          yearTo: 2019,
+          sourceReference: "Synthetic model reference",
+        },
+      });
+      for (let index = 0; index < 7; index++) {
+        await prisma.product.create({
+          data: {
+            name: `${prefix} pads ${index}`,
+            sku: `${prefix}-${index}`,
+            slug: `${prefix.toLowerCase()}-${index}`,
+            categoryId: child.id,
+            priceKobo: 10000n,
+            condition: index === 0 ? "NEW" : index === 1 ? "USED" : "REFURBISHED",
+            classification: index === 0 ? "GENUINE_OEM" : "AFTERMARKET",
+            productType: "BRAKE_PADS",
+            isActive: index !== 6,
+            compatibilities: {
+              create: {
+                make: "Synthetic Toyota",
+                model: "Corolla",
+                vehicleModelId: index === 3 ? otherModel.id : modelId,
+                yearFrom: 2013,
+                yearTo: 2019,
+                reviewStatus:
+                  index === 4 ? "DRAFT" : index === 5 ? "REJECTED" : "APPROVED",
+                safetyCritical: true,
+                allVariantsConfirmed: true,
+                requiredQualifiers: ["engineCode", "market", "position", "brakeSystem"],
+                engineCode: index === 2 ? "1NZ" : "2ZR-FE",
+                market: "Japan",
+                position: "front",
+                brakeSystem: "Akebono",
+                sourceReference: "Synthetic finder evidence",
+                evidenceNotes: "Synthetic fixture only",
+                reviewedAt: new Date(),
+                reviewedByUserId: f.lead.user.id,
+                createdByUserId: f.operations.user.id,
+                updatedByUserId: f.operations.user.id,
+              },
+            },
+          },
+        });
+      }
+      const path = "/public/catalog/products/discovery";
+      const query = {
+        search: prefix,
+        vehicleMakeId: makeId,
+        vehicleModelId: modelId,
+        year: 2018,
+        limit: 1,
+      };
+      const candidates = await read(path).query(query);
+      expect(candidates.status, JSON.stringify(candidates.body)).toBe(200);
+      expect(candidates.body.data).toMatchObject({ totalMatches: 3, verifiedMatches: 0 });
+      expect(candidates.body.data.items).toHaveLength(1);
+      expect(JSON.stringify(candidates.body)).not.toContain("sourceReference");
+      expect(JSON.stringify(candidates.body)).not.toContain("reviewedByUserId");
+      expect(candidates.body.data.items[0].fitment.status).toBe("NEEDS_VERIFICATION");
+      expect(
+        (await read(path).query({ ...query, ...selection() })).body.data,
+      ).toMatchObject({ totalMatches: 2, verifiedMatches: 2 });
+      expect(
+        (await read(path).query({ ...query, condition: "REFURBISHED" })).body.data
+          .totalMatches,
+      ).toBe(1);
+      expect(
+        (await read(path).query({ ...query, classification: "GENUINE_OEM" })).body.data
+          .totalMatches,
+      ).toBe(1);
+      expect(
+        (
+          await read(path).query({
+            ...query,
+            productType: "BRAKE_PADS",
+            parentCategoryId: root.id,
+          })
+        ).body.data.totalMatches,
+      ).toBe(3);
+      expect(
+        (await read(path).query({ ...query, vehicleMakeId: randomUUID() })).status,
+      ).toBe(422);
+      expect(
+        (await read(path).query({ ...query, vehicleModelId: undefined })).status,
+      ).toBe(422);
+      expect(
+        (
+          await read(path).query({
+            ...query,
+            fitment: "verified",
+            cursor: candidates.body.data.nextCursor,
+          })
+        ).status,
+      ).toBe(422);
+      for (const sort of ["newest", "name", "price_asc", "price_desc"]) {
+        const seen: string[] = [];
+        let cursor: string | undefined;
+        do {
+          const response = await read(path).query({
+            ...query,
+            ...selection(),
+            fitment: "verified",
+            sort,
+            cursor,
+          });
+          expect(response.status, JSON.stringify(response.body)).toBe(200);
+          expect(response.body.data).toMatchObject({
+            totalMatches: 2,
+            verifiedMatches: 2,
+          });
+          expect(response.body.data.items[0].fitment.status).toBe("VERIFIED_FIT");
+          seen.push(response.body.data.items[0].id);
+          cursor = response.body.data.nextCursor;
+          expect(seen.length).toBeLessThanOrEqual(2);
+        } while (cursor);
+        expect(new Set(seen).size).toBe(2);
+      }
+      await prisma.category.update({ where: { id: root.id }, data: { isActive: false } });
+      expect((await read(path).query(query)).body.data.totalMatches).toBe(0);
+    });
+
+    it("provides scoped direct rule reads and named immutable history for the staff workspace", async () => {
+      const rule = await create({ ...input(), engineCode: "STAFF-DIRECT-TEST" });
+      const path = `${rules()}/${rule.id}`;
+      const detail = await read(path, f.operations);
+      expect(detail.status).toBe(200);
+      expect(detail.body.data).toMatchObject({
+        id: rule.id,
+        productId,
+        vehicleModel: { id: modelId, make: { id: makeId } },
+        createdBy: { id: f.operations.user.id },
+      });
+      expect((await read(path, f.lead)).status).toBe(200);
+      expect((await read(path, f.mechanical1)).status).toBe(403);
+      expect(
+        (await read(`/staff/fitment/products/${productId}`, f.operations)).body.data,
+      ).toMatchObject({ id: productId, productType: "BRAKE_PADS" });
+      const history = await read(`${path}/history`, f.lead);
+      expect(history.status).toBe(200);
+      expect(history.body.data.items[0]).toMatchObject({
+        actor: { id: f.operations.user.id },
+        snapshot: {
+          engineCode: "staff-direct-test",
+          sourceReference: input().sourceReference,
+        },
+      });
+      const foreign = await prisma.product.create({
+        data: {
+          name: "Synthetic other-branch part",
+          slug: `foreign-fitment-${randomUUID()}`,
+          sku: `FOREIGN-${randomUUID()}`,
+          priceKobo: 100n,
+          category: {
+            create: {
+              name: "Synthetic other-branch",
+              slug: `foreign-fitment-${randomUUID()}`,
+            },
+          },
+          inventories: { create: { branchId: f.other.id, quantity: 1 } },
+        },
+      });
+      expect(
+        (await read(`/staff/fitment/products/${foreign.id}`, f.operations)).status,
+      ).toBe(404);
+      expect(
+        (
+          await read(
+            `/staff/fitment/products/${foreign.id}/rules/${rule.id}`,
+            f.operations,
+          )
+        ).status,
+      ).toBe(404);
+    });
+    it("limits universal scope to reviewed accessories and prevents type changes from carrying approval", async () => {
+      const accessory = await prisma.product.create({
+        data: {
+          name: "Synthetic universal accessory",
+          sku: `UNIVERSAL-${randomUUID()}`,
+          slug: `universal-${randomUUID()}`,
+          priceKobo: 100n,
+          productType: "ACCESSORY",
+          category: {
+            create: { name: "Synthetic accessories", slug: `accessory-${randomUUID()}` },
+          },
+          inventories: { create: { branchId: f.home.id, quantity: 1 } },
+        },
+      });
+      const base = `/staff/fitment/products/${accessory.id}/rules`;
+      const created = await write(
+        "post",
+        base,
+        {
+          scope: "UNIVERSAL",
+          branchId: f.home.id,
+          safetyCritical: false,
+          allVariantsConfirmed: true,
+          sourceReference: "Synthetic universal accessory manufacturer reference",
+          evidenceNotes:
+            "Synthetic evidence for a non-critical accessory with no vehicle-specific fitment claim.",
+        },
+        f.operations,
+      );
+      expect(created.status, JSON.stringify(created.body)).toBe(200);
+      const path = `${base}/${created.body.data.id}`;
+      const pending = await write(
+        "post",
+        `${path}/transitions`,
+        {
+          action: "SUBMIT",
+          expectedVersion: 0,
+          note: "Synthetic accessory source checked",
+        },
+        f.operations,
+      );
+      expect(pending.status).toBe(200);
+      expect(
+        (
+          await write(
+            "post",
+            `${path}/transitions`,
+            {
+              action: "APPROVE",
+              expectedVersion: 1,
+              note: "Synthetic independent universal accessory review",
+            },
+            f.lead,
+          )
+        ).status,
+      ).toBe(200);
+      const decision = await read(`/public/fitment/products/${accessory.id}`).query(
+        selection(),
+      );
+      expect(decision.body.data).toMatchObject({
+        status: "VERIFIED_FIT",
+        scope: "UNIVERSAL",
+      });
+      const ownerSession = await f.session(f.owner.id, "SUPER_ADMIN");
+      const changeType = () =>
+        request(app)
+          .patch(`/api/v1/admin/catalog/products/${accessory.id}`)
+          .set(ownerSession.headers)
+          .send({
+            productType: "BRAKE_PADS",
+            expectedUpdatedAt: accessory.updatedAt.toISOString(),
+          });
+      expect((await changeType()).status).toBe(409);
+      expect(
+        (await prisma.product.findUniqueOrThrow({ where: { id: accessory.id } }))
+          .productType,
+      ).toBe("ACCESSORY");
+      expect(
+        (
+          await write(
+            "post",
+            `${path}/transitions`,
+            {
+              action: "RETIRE",
+              expectedVersion: 2,
+              note: "Synthetic withdrawal before product classification correction",
+            },
+            f.lead,
+          )
+        ).status,
+      ).toBe(200);
+      expect((await changeType()).status).toBe(200);
+      expect(
+        (
+          await write(
+            "post",
+            base,
+            {
+              scope: "UNIVERSAL",
+              branchId: f.home.id,
+              safetyCritical: false,
+              allVariantsConfirmed: true,
+            },
+            f.operations,
+          )
+        ).status,
+      ).toBe(422);
+      expect(
+        await prisma.productCompatibilityHistory.count({
+          where: { compatibilityId: created.body.data.id },
+        }),
+      ).toBe(4);
+    });
     it("keeps legacy compatibility edits unreviewed and retires them without losing history", async () => {
       const admin = await f.account(null, "ADMIN");
       const base = `/admin/catalog/products/${productId}/compatibilities`;

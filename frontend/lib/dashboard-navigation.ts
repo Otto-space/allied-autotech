@@ -125,6 +125,7 @@ const operationalGroups: DashboardGroup[] = [
       { href: "/admin/orders", label: "Order fulfilment" },
       { href: "/admin/inventory", label: "Product inventory" },
       adminOnly("/admin/products", "Products"),
+      adminOnly("/admin/fitment", "Fitment evidence & review"),
       adminOnly("/admin/categories", "Product categories"),
       adminOnly("/admin/promotions", "Promotions"),
       { href: "/admin/delivery-policy", label: "Delivery setup", roles: ["SUPER_ADMIN"] },

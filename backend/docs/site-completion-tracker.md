@@ -445,7 +445,7 @@ secret locally. Provider-origin event receipt and staff case-view acceptance
 still require a post-release controlled Support reply; older untagged emails
 cannot acquire provider-event evidence retroactively. No additional purchase.
 
-## Requested discovery and fitment implementation ? 23 October 2026
+## Requested discovery and fitment implementation - 23 October 2026
 
 The user requested implementation of the pasted vehicle/parts discovery, reviewed
 fitment, saved configurations, notification navigation and branding requirements.
@@ -475,3 +475,15 @@ The current implementation work is connecting the reviewed fitment foundation to
 parts search/admin screens and saved configurations; notification read-on-arrival
 and final full-scope regressions remain pending. Original provider-origin email
 acceptance remains separately pending and unchanged.
+
+Parts checkpoint: normalized search and verified totals now precede paging;
+customer parts finder and contextual enquiry are connected; staff product/category
+attributes and scoped fitment author/reviewer/history screens are implemented.
+New orders are collection only; historical delivery snapshots remain readable.
+Frontend unit suite passed 975 tests. Focused backend validation passed 62 tests
+plus 13 engine cases; discovery's 12 integration scenarios include 10,000 synthetic
+products. Current private `_ci` `db:check` remains compatible with 64 migrations.
+See `discovery-fitment-implementation.md` for exact browser evidence and remaining
+scope. Saved configurations, notifications and final release-wide acceptance are
+still required. No push or production rollout occurred; existing support-email
+provider-origin acceptance remains separate and pending.

@@ -849,3 +849,10 @@
     animation: none;
   }
 }
+
+.parts-enquiry-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.7;
+}

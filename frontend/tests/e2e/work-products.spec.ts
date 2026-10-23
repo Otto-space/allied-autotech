@@ -18,6 +18,11 @@ async function fillCreate(page: Page) {
   await page
     .getByLabel("Category", { exact: true })
     .selectOption(productCategories[0].id);
+  await page.getByLabel("Condition (optional)", { exact: true }).selectOption("NEW");
+  await page
+    .getByLabel("Classification (optional)", { exact: true })
+    .selectOption("AFTERMARKET");
+  await page.getByLabel("Product type (optional)", { exact: true }).fill("OIL_FILTER");
   await page.getByLabel("Brand (optional)", { exact: true }).fill("Quality Parts");
   await page.getByLabel("Manufacturer part number (optional)").fill("OEM-123");
   await page.getByLabel("Description (optional)").fill("Product description.");
@@ -100,6 +105,9 @@ test("creation validates, reviews all eleven facts, cancels without writing and 
     method: "POST",
     body: {
       sku: "QA-NEW-1",
+      condition: "NEW",
+      classification: "AFTERMARKET",
+      productType: "OIL_FILTER",
       priceKobo: "1234567",
       compareAtPriceKobo: "1300000",
       featured: true,

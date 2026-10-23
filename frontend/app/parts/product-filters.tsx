@@ -87,7 +87,7 @@ export function ProductSearch({
   );
 }
 
-const labels = {
+const labels: Record<string, string> = {
   brand: "Brand (exact name)",
   make: "Vehicle make (exact name)",
   model: "Vehicle model (exact name)",
@@ -96,6 +96,9 @@ const labels = {
   minPriceKobo: "Minimum price (NGN)",
   maxPriceKobo: "Maximum price (NGN)",
   availability: "Availability",
+  condition: "Part condition",
+  classification: "OEM / aftermarket",
+  productType: "Product type (exact name)",
 };
 
 export function ProductFilters({
@@ -219,9 +222,9 @@ export function ProductFilters({
               values.year.trim() &&
               (!/^\d{4}$/.test(values.year.trim()) ||
                 +values.year < 1886 ||
-                +values.year > 2100)
+                +values.year > 2200)
             )
-              nextErrors.year = "Enter a year between 1886 and 2100.";
+              nextErrors.year = "Enter a year between 1886 and 2200.";
             const amounts: Record<string, string> = {};
             for (const key of ["minPriceKobo", "maxPriceKobo"]) {
               if (!values[key].trim()) continue;
@@ -272,88 +275,125 @@ export function ProductFilters({
             </button>
           </div>
           <div className="product-filter-fields">
-            {advancedProductKeys.map((key) => (
-              <div className="product-field" key={key}>
-                <label htmlFor={`product-filter-${key}`}>{labels[key]}</label>
-                {key === "featured" || key === "availability" ? (
-                  <div className="product-select">
+            {advancedProductKeys
+              .filter((key): boolean => !["make", "model", "year"].includes(key))
+              .map((key) => (
+                <div className="product-field" key={key}>
+                  <label htmlFor={`product-filter-${key}`}>{labels[key]}</label>
+                  {key === "condition" || key === "classification" ? (
                     <select
                       id={`product-filter-${key}`}
                       value={values[key]}
-                      onChange={(e) =>
-                        setValues((v) => ({ ...v, [key]: e.target.value }))
+                      onChange={(event) =>
+                        setValues((previous) => ({
+                          ...previous,
+                          [key]: event.target.value,
+                        }))
                       }
                     >
                       <option value="">Any</option>
-                      {key === "featured" ? (
-                        <>
-                          <option value="true">Featured only</option>
-                          <option value="false">Non-featured only</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="in_stock">In stock</option>
-                          <option value="out_of_stock">Out of stock</option>
-                        </>
-                      )}
+                      {(key === "condition"
+                        ? [
+                            ["NEW", "New"],
+                            ["USED", "Used"],
+                            ["REFURBISHED", "Refurbished"],
+                          ]
+                        : [
+                            ["GENUINE_OEM", "Genuine OEM"],
+                            ["AFTERMARKET", "Aftermarket"],
+                          ]
+                      ).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
                     </select>
-                    <ChevronDown size={16} aria-hidden="true" />
-                  </div>
-                ) : key === "brand" || key === "make" || key === "model" ? (
-                  <ProductNameField
-                    kind={key}
-                    error={errors[key]}
-                    value={values[key]}
-                    make={values.make}
-                    open={open}
-                    onChange={(value) => {
-                      setValues((v) => ({
-                        ...v,
-                        [key]: value,
-                        ...(key === "make" ? { model: "" } : {}),
-                      }));
-                      setErrors((v) => ({ ...v, [key]: "" }));
-                    }}
-                  />
-                ) : (
-                  <input
-                    id={`product-filter-${key}`}
-                    value={values[key]}
-                    maxLength={key === "year" ? 4 : 20}
-                    inputMode={key === "year" ? "numeric" : "decimal"}
-                    aria-invalid={!!errors[key]}
-                    aria-describedby={
-                      errors[key]
-                        ? `product-filter-${key}-error`
-                        : key === "year"
-                          ? "product-year-hint"
-                          : undefined
-                    }
-                    onChange={(e) => {
-                      setValues((v) => ({ ...v, [key]: e.target.value }));
-                      setErrors((v) => ({ ...v, [key]: "" }));
-                    }}
-                  />
-                )}
-                {key === "year" && (
-                  <small id="product-year-hint">
-                    Enter a year between 1886 and 2100.
-                  </small>
-                )}
-                {errors[key] && (
-                  <p
-                    className="product-field-error"
-                    role="alert"
-                    id={`product-filter-${key}-error`}
-                  >
-                    {errors[key]}
-                  </p>
-                )}
-              </div>
-            ))}
+                  ) : key === "featured" || key === "availability" ? (
+                    <div className="product-select">
+                      <select
+                        id={`product-filter-${key}`}
+                        value={values[key]}
+                        onChange={(e) =>
+                          setValues((v) => ({ ...v, [key]: e.target.value }))
+                        }
+                      >
+                        <option value="">Any</option>
+                        {key === "featured" ? (
+                          <>
+                            <option value="true">Featured only</option>
+                            <option value="false">Non-featured only</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="in_stock">In stock</option>
+                            <option value="out_of_stock">Out of stock</option>
+                          </>
+                        )}
+                      </select>
+                      <ChevronDown size={16} aria-hidden="true" />
+                    </div>
+                  ) : key === "brand" || key === "make" || key === "model" ? (
+                    <ProductNameField
+                      kind={key}
+                      error={errors[key]}
+                      value={values[key]}
+                      make={values.make}
+                      open={open}
+                      onChange={(value) => {
+                        setValues((v) => ({
+                          ...v,
+                          [key]: value,
+                          ...(key === "make" ? { model: "" } : {}),
+                        }));
+                        setErrors((v) => ({ ...v, [key]: "" }));
+                      }}
+                    />
+                  ) : (
+                    <input
+                      id={`product-filter-${key}`}
+                      value={values[key]}
+                      maxLength={key === "year" ? 4 : key === "productType" ? 80 : 20}
+                      inputMode={
+                        key === "year"
+                          ? "numeric"
+                          : key === "productType"
+                            ? "text"
+                            : "decimal"
+                      }
+                      aria-invalid={!!errors[key]}
+                      aria-describedby={
+                        errors[key]
+                          ? `product-filter-${key}-error`
+                          : key === "year"
+                            ? "product-year-hint"
+                            : undefined
+                      }
+                      onChange={(e) => {
+                        setValues((v) => ({ ...v, [key]: e.target.value }));
+                        setErrors((v) => ({ ...v, [key]: "" }));
+                      }}
+                    />
+                  )}
+                  {key === "year" && (
+                    <small id="product-year-hint">
+                      Enter a year between 1886 and 2200.
+                    </small>
+                  )}
+                  {errors[key] && (
+                    <p
+                      className="product-field-error"
+                      role="alert"
+                      id={`product-filter-${key}-error`}
+                    >
+                      {errors[key]}
+                    </p>
+                  )}
+                </div>
+              ))}
             <p className="product-fitment-note">
-              Compatibility follows the listed fitment details. Check the product
-              specifications before purchase.
+              Use Find parts for my car to check a specific configuration. Candidates
+              require technical verification; unknown specifications never confirm
+              fitment.
             </p>
           </div>
           <div className="product-filter-actions">

@@ -188,6 +188,9 @@ function ProductForm({
       slug: record?.slug ?? "",
       sku: record?.sku ?? "",
       categoryId: record?.category.id ?? "",
+      condition: record?.condition ?? "",
+      classification: record?.classification ?? "",
+      productType: record?.productType ?? "",
       brand: record?.brand ?? "",
       manufacturerPartNumber: record?.manufacturerPartNumber ?? "",
       description: record?.description ?? "",
@@ -206,6 +209,9 @@ function ProductForm({
     "slug",
     "sku",
     "categoryId",
+    "condition",
+    "classification",
+    "productType",
     "brand",
     "manufacturerPartNumber",
     "description",
@@ -230,6 +236,12 @@ function ProductForm({
           label: "Category",
           value: categoryLabel,
         },
+        { label: "Condition", value: body.condition || "Not recorded" },
+        {
+          label: "Classification",
+          value: body.classification?.replaceAll("_", " ") || "Not recorded",
+        },
+        { label: "Product type", value: body.productType || "Not recorded" },
         { label: "Brand", value: body.brand || "Not provided" },
         {
           label: "Manufacturer part number",
@@ -360,6 +372,9 @@ function ProductForm({
                   slug: "",
                   sku: "",
                   categoryId: "",
+                  condition: "",
+                  classification: "",
+                  productType: "",
                   brand: "",
                   manufacturerPartNumber: "",
                   priceKobo: "",
@@ -450,6 +465,49 @@ function ProductForm({
                 }}
               />
               {error("categoryId")}
+            </div>
+            <div className="field">
+              <label htmlFor="admin-condition">Condition (optional)</label>
+              <select {...form.register("condition")} {...common("condition")}>
+                <option value="">Not recorded</option>
+                <option value="NEW">New</option>
+                <option value="USED">Used</option>
+                <option value="REFURBISHED">Refurbished</option>
+              </select>
+              {error("condition")}
+            </div>
+            <div className="field">
+              <label htmlFor="admin-classification">Classification (optional)</label>
+              <select {...form.register("classification")} {...common("classification")}>
+                <option value="">Not recorded</option>
+                <option value="GENUINE_OEM">Genuine / OEM</option>
+                <option value="AFTERMARKET">Aftermarket</option>
+              </select>
+              {error("classification")}
+            </div>
+            <div className="field product-field-wide">
+              <label htmlFor="admin-productType">Product type (optional)</label>
+              <input
+                {...form.register("productType")}
+                {...common("productType")}
+                maxLength={80}
+                list="part-type-options"
+                aria-describedby="part-type-hint"
+              />
+              <datalist id="part-type-options">
+                <option value="BRAKE_PADS" />
+                <option value="BRAKE_DISCS" />
+                <option value="OIL_FILTER" />
+                <option value="AIR_FILTER" />
+                <option value="ACCESSORY" />
+              </datalist>
+              <span className="field-hint" id="part-type-hint">
+                Use a consistent type, such as BRAKE_PADS. Only the recorded ACCESSORY
+                type supports non-critical or universal scope; other types require
+                safety-critical fitment review. Retire approved fitment rules before
+                changing a product type.
+              </span>
+              {error("productType")}
             </div>
             <div className="field">
               <label htmlFor="admin-brand">Brand (optional)</label>

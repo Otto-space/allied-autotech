@@ -47,6 +47,11 @@ export function SupportCreateForm({
   userId,
   guard,
   onReviewChange,
+  productId,
+  productName,
+  initialSubject,
+  initialMessage,
+  initialContextKey,
 }: {
   kind: SupportKind;
   publicMode?: boolean;
@@ -55,13 +60,24 @@ export function SupportCreateForm({
   onSaved: (id: string) => void;
   serviceId?: string;
   serviceName?: string;
+  productId?: string;
+  productName?: string;
+  initialSubject?: string;
+  initialMessage?: string;
+  initialContextKey?: string;
   presentation?: "contact" | "dashboard";
   userId?: string;
   guard?: ReturnType<typeof useSupportCreateWrite>;
   onReviewChange?: (open: boolean) => void;
 }) {
   const [type, setType] = useState(
-    serviceId ? "SERVICE" : kind === "enquiries" ? "GENERAL" : "NONE",
+    serviceId
+      ? "SERVICE"
+      : kind === "enquiries"
+        ? productId
+          ? "PRODUCT"
+          : "GENERAL"
+        : "NONE",
   );
   const [source, setSource] = useState<SupportSource | undefined>(
     serviceId
@@ -71,7 +87,14 @@ export function SupportCreateForm({
           fields: { serviceId },
           inheritsBranch: false,
         }
-      : undefined,
+      : productId && kind === "enquiries"
+        ? {
+            id: productId,
+            label: productName ?? "Selected product",
+            fields: { productId },
+            inheritsBranch: false,
+          }
+        : undefined,
   );
   const [branch, setBranch] = useState("");
   const [visitRequested, setVisitRequested] = useState(false);
@@ -105,7 +128,9 @@ export function SupportCreateForm({
   const draftId = JSON.stringify(
     isDashboard
       ? ["support-create-form:2", userId, kind]
-      : ["support-create-form:1", serviceId, kind],
+      : initialContextKey
+        ? ["support-create-form:parts:1", initialContextKey, kind]
+        : ["support-create-form:1", serviceId, kind],
   );
   useEffect(() => {
     if (complete && isContact) {
@@ -126,8 +151,10 @@ export function SupportCreateForm({
   const form = useForm<z.infer<typeof supportCreateSchema>>({
     resolver: zodResolver(schema),
     defaultValues: {
-      subject: serviceName ? `Quotation enquiry: ${serviceName}`.slice(0, 160) : "",
-      message: "",
+      subject:
+        initialSubject ??
+        (serviceName ? `Quotation enquiry: ${serviceName}`.slice(0, 160) : ""),
+      message: initialMessage ?? "",
       name: "",
       email: "",
       phone: "",
@@ -158,7 +185,15 @@ export function SupportCreateForm({
       setVisitDate("");
       setVisitTime("");
       setVisitError(undefined);
-      setType(serviceId ? "SERVICE" : kind === "enquiries" ? "GENERAL" : "NONE");
+      setType(
+        serviceId
+          ? "SERVICE"
+          : kind === "enquiries"
+            ? productId
+              ? "PRODUCT"
+              : "GENERAL"
+            : "NONE",
+      );
       setSource(
         serviceId
           ? {
@@ -167,13 +202,22 @@ export function SupportCreateForm({
               fields: { serviceId },
               inheritsBranch: false,
             }
-          : undefined,
+          : productId && kind === "enquiries"
+            ? {
+                id: productId,
+                label: productName ?? "Selected product",
+                fields: { productId },
+                inheritsBranch: false,
+              }
+            : undefined,
       );
       setBranch("");
       setBranchLabel("");
       reset({
-        subject: serviceName ? `Quotation enquiry: ${serviceName}`.slice(0, 160) : "",
-        message: "",
+        subject:
+          initialSubject ??
+          (serviceName ? `Quotation enquiry: ${serviceName}`.slice(0, 160) : ""),
+        message: initialMessage ?? "",
         name: "",
         email: "",
         phone: "",
@@ -181,7 +225,18 @@ export function SupportCreateForm({
     }
     window.addEventListener(SESSION_CHANGED, discard);
     return () => window.removeEventListener(SESSION_CHANGED, discard);
-  }, [publicMode, kind, serviceId, serviceName, reset, onUncertain]);
+  }, [
+    publicMode,
+    kind,
+    serviceId,
+    serviceName,
+    productId,
+    productName,
+    initialSubject,
+    initialMessage,
+    reset,
+    onUncertain,
+  ]);
   const sourceType = supportSourceTypes.find((value) => value === type);
   const choices =
     kind === "enquiries"

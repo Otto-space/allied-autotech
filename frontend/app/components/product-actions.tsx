@@ -33,9 +33,14 @@ export function ProductActions(props: {
   productId: string;
   available: boolean;
   productName?: string;
+  enquiryHref?: string;
+  returnHref?: string;
 }) {
   return catalogueOnly() ? (
-    <PublicEnquiryActions subject={props.productName ?? "this product"} />
+    <PublicEnquiryActions
+      subject={props.productName ?? "this product"}
+      enquiryHref={props.enquiryHref}
+    />
   ) : (
     <ProductPurchaseActions {...props} enquiriesOnly={browseEnquiriesOnly()} />
   );
@@ -46,11 +51,15 @@ function ProductPurchaseActions({
   available,
   productName,
   enquiriesOnly,
+  enquiryHref,
+  returnHref,
 }: {
   productId: string;
   available: boolean;
   productName?: string;
   enquiriesOnly: boolean;
+  enquiryHref?: string;
+  returnHref?: string;
 }) {
   const form = useForm<{ quantity: number }>({
     defaultValues: { quantity: 1 },
@@ -111,7 +120,7 @@ function ProductPurchaseActions({
   }, [reset]);
   const operation = useAccountMutation(discard);
   const { busy } = operation;
-  const loginHref = `/login?next=${encodeURIComponent(`/parts/${productId}`)}`;
+  const loginHref = `/login?next=${encodeURIComponent(returnHref ?? `/parts/${productId}`)}`;
   useEffect(() => {
     if (result?.cart) return;
     if (result && getFieldState("quantity").error) {
@@ -238,7 +247,12 @@ function ProductPurchaseActions({
   }
   return (
     <div className="pd-actions">
-      {enquiriesOnly && <PublicEnquiryActions subject={productName ?? "this product"} />}
+      {enquiriesOnly && (
+        <PublicEnquiryActions
+          subject={productName ?? "this product"}
+          enquiryHref={enquiryHref}
+        />
+      )}
       {operation.sessionChanged && (
         <div ref={notice} tabIndex={-1}>
           <AccountChangeNotice visible />

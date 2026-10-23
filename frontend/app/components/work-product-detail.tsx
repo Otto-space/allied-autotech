@@ -390,6 +390,13 @@ function ProductCompatibility({ record }: { record: AdminProduct }) {
       aria-labelledby="product-compatibility-title"
     >
       <h2 id="product-compatibility-title">Vehicle compatibility</h2>
+      <p>
+        Only approved technical evidence supports public fitment checks. Legacy records
+        are not verified fit.
+      </p>
+      <Link className="button secondary" href={`/admin/fitment?productId=${record.id}`}>
+        Fitment evidence and review
+      </Link>
       {record.compatibilities.length ? (
         <table className="product-detail-table">
           <caption className="sr-only">Recorded vehicle compatibility</caption>
@@ -397,6 +404,7 @@ function ProductCompatibility({ record }: { record: AdminProduct }) {
             <tr>
               <th scope="col">Vehicle</th>
               <th scope="col">Model years</th>
+              <th scope="col">Review state</th>
               <th scope="col">Notes</th>
             </tr>
           </thead>
@@ -415,7 +423,11 @@ function ProductCompatibility({ record }: { record: AdminProduct }) {
                       ? `From ${item.yearFrom}`
                       : item.yearTo !== null
                         ? `Up to ${item.yearTo}`
-                        : "All years"}
+                        : "Years not specified"}
+                </td>
+                <td data-label="Review state">
+                  {item.reviewStatus?.toLowerCase() || "Unreviewed"}
+                  {item.effect === "EXCLUDE" ? " (exclusion)" : ""}
                 </td>
                 <td data-label="Notes">{item.notes || "Not provided"}</td>
               </tr>

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight } from "lucide-react";
 import { ApiError, apiRequest } from "@/lib/api/client";
@@ -15,11 +15,12 @@ import {
 } from "@/lib/admin/product-categories";
 import { formatBusinessDate } from "@/lib/format/date";
 import { Feedback } from "./feedback";
+import { WorkProductCategory } from "./work-product-category";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 
 const endpoint = "/admin/catalog/categories";
-const fields = ["name", "slug", "description", "isActive"] as const;
-const empty = { name: "", slug: "", description: "", isActive: true };
+const fields = ["name", "slug", "description", "parentId", "isActive"] as const;
+const empty = { name: "", slug: "", description: "", parentId: "", isActive: true };
 export function WorkProductCategoryEditor({
   id,
   owner,
@@ -197,10 +198,14 @@ function CategoryForm({
           name: record.name,
           slug: record.slug,
           description: record.description || "",
+          parentId: record.parentId || "",
           isActive: record.isActive,
         }
       : empty,
   });
+  const parentId = useWatch({ control: form.control, name: "parentId" });
+  const [parentBlocked, setParentBlocked] = useState(true);
+  const [parentLabel, setParentLabel] = useState("");
   const errors = form.formState.errors,
     disabled = blocked || uncertain || !!proposal;
   function pending(value: boolean) {
@@ -213,7 +218,7 @@ function CategoryForm({
     }
   }
   function review(values: CategoryFormValues) {
-    if (disabled) return;
+    if (disabled || (parentId && (parentBlocked || !parentLabel))) return;
     const body = productCategoryBody(values, record);
     setProposal({
       title: "Save this category?",
@@ -223,6 +228,10 @@ function CategoryForm({
         { label: "Name", value: body.name },
         { label: "URL name", value: body.slug },
         { label: "Description", value: body.description || "Not provided" },
+        {
+          label: "Parent category",
+          value: body.parentId ? parentLabel : "None (top-level category)",
+        },
         { label: "Active", value: body.isActive ? "Yes" : "No" },
       ],
       onUncertain: () => pending(true),
@@ -259,7 +268,8 @@ function CategoryForm({
           )
             throw new Error("Unexpected saved category");
           for (const key of fields)
-            if (saved[key] !== body[key]) throw new Error("Unexpected category details");
+            if ((saved[key] ?? null) !== body[key])
+              throw new Error("Unexpected category details");
           pending(false);
         } catch (error) {
           if (error instanceof ApiError && error.status >= 400 && error.status < 500) {
@@ -373,6 +383,34 @@ function CategoryForm({
               />
               {fieldError("name")}
             </div>
+            <div className="field product-field-wide">
+              <label htmlFor="product-category-parentId">
+                Parent category (optional)
+              </label>
+              <WorkProductCategory
+                id="product-category-parentId"
+                rootOnly
+                excludeId={record?.id}
+                value={parentId || ""}
+                initialValue={record?.parentId || undefined}
+                inputRef={form.register("parentId").ref}
+                onAvailabilityChange={setParentBlocked}
+                onLabelChange={setParentLabel}
+                invalid={!!errors.parentId}
+                describedBy="product-parent-hint"
+                onChange={(value) =>
+                  form.setValue("parentId", value, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
+              <span className="field-hint" id="product-parent-hint">
+                Choose a top-level category to create a subcategory. Categories have at
+                most two levels. Deactivate subcategories before their parent.
+              </span>
+              {fieldError("parentId")}
+            </div>
             <div className="field">
               <label htmlFor="product-category-slug">URL name</label>
               <input
@@ -420,7 +458,12 @@ function CategoryForm({
           >
             Close editing
           </button>
-          <button ref={trigger} type="submit" className="button" disabled={disabled}>
+          <button
+            ref={trigger}
+            type="submit"
+            className="button"
+            disabled={disabled || (!!parentId && (parentBlocked || !parentLabel))}
+          >
             Review changes
           </button>
         </div>

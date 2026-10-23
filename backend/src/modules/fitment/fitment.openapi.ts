@@ -1,7 +1,7 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z } from "zod";
 import { fitmentRouteDefinitions } from "./fitment.routes.js";
-import { fitmentDecisionSchema } from "./fitment.schemas.js";
+import { fitmentResponseSchemas } from "./fitment.schemas.js";
 
 export function registerFitmentOpenApi(registry: OpenAPIRegistry) {
   for (const [method, path, action, schema, params] of fitmentRouteDefinitions) {
@@ -30,7 +30,7 @@ export function registerFitmentOpenApi(registry: OpenAPIRegistry) {
               schema: z.object({
                 success: z.literal(true),
                 message: z.string(),
-                data: action === "productFitment" ? fitmentDecisionSchema : z.unknown(),
+                data: fitmentResponseSchemas[action],
                 meta: z.object({ requestId: z.string(), serverTime: z.string() }),
               }),
             },

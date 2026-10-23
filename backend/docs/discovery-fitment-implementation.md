@@ -104,3 +104,78 @@ Withdrawal authority: either a current scoped author or technical reviewer may
 retire a rule. Retirement removes the verified claim while preserving its history;
 it does not grant authority to approve or edit the rule. Tests cover technical
 reviewer retirement separately from authoring permission.
+
+### Parts search, staff workflow and collection checkpoint (23 October 2026)
+
+Implemented locally after the foundation commit:
+
+- Public normalized-car search applies approved evidence and exclusion predicates
+  in PostgreSQL before pagination, exact totals and verified totals. It supports
+  stored condition/classification/type and parent-category filters. Public product
+  projections omit private evidence sources and reviewer identities.
+- The desktop/mobile parts finder restores vehicle context from safe URLs, clears
+  dependent selections together, distinguishes all four fitment outcomes and keeps
+  unknown details unverified. The existing contact enquiry receives validated,
+  editable car/part context without accepting customer identity or redirect input.
+- Staff can record/clear real product condition, OEM/aftermarket classification and
+  product type. Category administration supports a top-level parent and one level
+  of subcategories. Hierarchy writers serialize concurrent moves; cycles, third
+  levels, inactive ancestors and unsafe deactivation are rejected.
+- `/admin/fitment` exposes current scoped Sales/Operations authoring and independent
+  Workshop/Quality review, with create/edit/submit/approve/reject/retire, sources,
+  technical restrictions, required customer details and immutable actor/version
+  history. The managed dashboard loads the component's own scoped styles. Editing
+  demotes approval. Approved rules must be retired before changing a product type.
+- Only recorded ACCESSORY products may propose universal scope. Recognized
+  non-braking consumable types may propose non-critical model-bound rules;
+  unrecognized types and braking parts retain conservative critical requirements.
+  No source dataset or guessed real fitment was inserted into production.
+- New checkout requests accept COLLECTION only and reject delivery/contact fields
+  before stock reservation. Public fulfilment never advertises retained delivery
+  policies. Existing delivery order snapshots and policy history remain readable.
+  Confirmed checkout clears its draft; uncertain requests retain their original
+  idempotency key and body.
+
+Checkpoint verification (not full release acceptance):
+
+- Frontend full unit suite: 146 files, **975 tests passed**.
+- Backend focused catalogue/fitment/order/schema-guard tests: eight files,
+  **62 tests passed**, plus **13 fitment-engine unit tests passed** separately.
+  This includes real isolated missing-column rollback, normalized filter/count/
+  paging, scoped HTTP authorization, independent review and history protection.
+- Discovery integration: **12 scenarios passed**, including 10,000 synthetic
+  products, stable signed cursors after withdrawal/deletion and preserved reviewed
+  history. Its fixtures now explicitly represent approved evidence; unreviewed
+  legacy rows remain excluded.
+- Collection checkout browser coverage: 39 scenarios passed across the final
+  focused rerun and the preceding 38 passing scenarios. Includes 320-1536px editor/
+  review/receipt checks, axe, original-request retry, session invalidation,
+  stale-cart preflight, branch paging and historical delivery reads.
+- Parts finder browser coverage: three desktop/mobile/error scenarios passed.
+  Staff browser coverage exercises authorship, independent review, self-approval
+  rejection, editing/demotion, rejection/retirement, history and uncertain saves.
+  Browser requests use intercepted synthetic fixtures; server authorization is
+  covered separately by isolated PostgreSQL HTTP tests.
+- Current `db:check` passed: 64 reviewed migrations, compatible history and no
+  Prisma schema difference on the verified private localhost:63888 `_ci` target.
+  No schema changes were made in this checkpoint. No application/shared/staging/
+  production database was accessed. No new backup or restore rehearsal ran.
+- OpenAPI validation: 340 paths; route coverage: 400 documented operations plus
+  four infrastructure routes. Staff read/write results now have explicit response
+  schemas. Secret guard passed. Targeted lint and both TypeScript projects passed
+  at their recorded checkpoints; final broad build/release checks remain pending.
+
+Required follow-up: explicit public subcategory controls, saved garage search
+configurations, notification navigation/read-on-successful-display, the final
+multi-select/facet requirement audit, whole-backend regression, production build,
+least-privilege runtime verification and final desktop/mobile scope acceptance.
+This checkpoint is local implementation evidence, not deployment approval.
+
+Staff follow-up checks: the styled desktop/mobile/uncertain-save browser scenarios
+passed (three scenarios), including edit/demotion, independent rejection and
+technical retirement. Four existing product/category create/edit browser
+regressions passed with the new attributes. Eight fitment HTTP scenarios now pass,
+including universal-accessory review and rejection of product-type changes that
+would carry an existing approval onto a different classification. Legacy catalogue
+screens link to the scoped technical-review workspace and do not offer legacy
+edit/remove actions for normalized or reviewed rules.

@@ -158,3 +158,117 @@ export const fitmentDecisionSchema = z.object({
   missingQualifiers: z.array(z.enum(qualifierKeys)),
   matchedRuleIds: z.array(z.uuid()),
 });
+
+export const publishedCompatibilitySchema = z.object({
+  id: z.uuid(),
+  make: z.string(),
+  model: z.string().nullable(),
+  yearFrom: z.number().int().nullable(),
+  yearTo: z.number().int().nullable(),
+  notes: z.string().nullable(),
+  scope: z.enum(["MODEL", "UNIVERSAL"]),
+  requiredQualifiers: z.array(z.enum(qualifierKeys)),
+  ...(Object.fromEntries(qualifierKeys.map((key) => [key, z.string().nullable()])) as {
+    [K in QualifierKey]: z.ZodNullable<z.ZodString>;
+  }),
+});
+
+const timestamp = z.iso.datetime({ offset: true });
+const nullableQualifierResponses = Object.fromEntries(
+  qualifierKeys.map((key) => [key, z.string().nullable()]),
+) as { [K in QualifierKey]: z.ZodNullable<z.ZodString> };
+const accountResponse = z.object({
+  id: z.uuid(),
+  email: z.email(),
+  staffProfile: z.object({ firstName: z.string(), lastName: z.string() }).nullable(),
+});
+const optionResponse = z.object({ id: z.uuid(), name: z.string() });
+export const modelResponseSchema = optionResponse.extend({
+  makeId: z.uuid(),
+  yearFrom: z.number().int(),
+  yearTo: z.number().int(),
+});
+export const modelDetailResponseSchema = modelResponseSchema.extend({
+  make: optionResponse,
+});
+export const fitmentProductResponseSchema = optionResponse.extend({
+  sku: z.string(),
+  isActive: z.boolean(),
+  productType: z.string().nullable(),
+});
+export const fitmentAccessResponseSchema = z.object({
+  canAuthor: z.boolean(),
+  canReview: z.boolean(),
+  globalAuthor: z.boolean(),
+  globalReviewer: z.boolean(),
+  authorBranches: z.array(z.uuid()),
+  reviewBranches: z.array(z.uuid()),
+  branches: z.array(optionResponse),
+});
+export const ruleRecordResponseSchema = z.object({
+  id: z.uuid(),
+  productId: z.uuid(),
+  vehicleModelId: z.uuid().nullable(),
+  branchId: z.uuid().nullable(),
+  scope: z.enum(["MODEL", "UNIVERSAL"]),
+  effect: z.enum(["INCLUDE", "EXCLUDE"]),
+  reviewStatus: z.enum(["DRAFT", "PENDING", "APPROVED", "REJECTED", "RETIRED"]),
+  safetyCritical: z.boolean(),
+  allVariantsConfirmed: z.boolean(),
+  requiredQualifiers: z.array(z.string()),
+  ...nullableQualifierResponses,
+  make: z.string(),
+  model: z.string().nullable(),
+  yearFrom: z.number().int().nullable(),
+  yearTo: z.number().int().nullable(),
+  sourceReference: z.string().nullable(),
+  evidenceNotes: z.string().nullable(),
+  reviewNote: z.string().nullable(),
+  notes: z.string().nullable(),
+  createdByUserId: z.uuid().nullable(),
+  updatedByUserId: z.uuid().nullable(),
+  reviewedByUserId: z.uuid().nullable(),
+  createdAt: timestamp,
+  updatedAt: timestamp,
+  submittedAt: timestamp.nullable(),
+  reviewedAt: timestamp.nullable(),
+  version: z.number().int().nonnegative(),
+});
+export const staffRuleResponseSchema = ruleRecordResponseSchema.extend({
+  product: fitmentProductResponseSchema.pick({ id: true, name: true, sku: true }),
+  vehicleModel: modelDetailResponseSchema.nullable(),
+  createdBy: accountResponse.nullable(),
+  updatedBy: accountResponse.nullable(),
+  reviewedBy: accountResponse.nullable(),
+});
+const pageResponse = <T extends z.ZodType>(item: T) =>
+  z.object({ items: z.array(item), nextCursor: z.uuid().optional() });
+export const fitmentResponseSchemas = {
+  makes: pageResponse(optionResponse),
+  models: pageResponse(modelResponseSchema),
+  model: modelDetailResponseSchema,
+  years: z.object({ years: z.array(z.number().int()) }),
+  productFitment: fitmentDecisionSchema,
+  access: fitmentAccessResponseSchema,
+  products: pageResponse(fitmentProductResponseSchema),
+  product: fitmentProductResponseSchema,
+  rules: pageResponse(staffRuleResponseSchema),
+  rule: staffRuleResponseSchema,
+  history: pageResponse(
+    z.object({
+      id: z.uuid(),
+      compatibilityId: z.uuid(),
+      actorUserId: z.uuid(),
+      actor: accountResponse,
+      action: z.string(),
+      version: z.number().int(),
+      snapshot: z.record(z.string(), z.unknown()),
+      createdAt: timestamp,
+    }),
+  ),
+  createMake: optionResponse,
+  createModel: modelResponseSchema,
+  createRule: ruleRecordResponseSchema,
+  updateRule: ruleRecordResponseSchema,
+  transition: ruleRecordResponseSchema,
+};

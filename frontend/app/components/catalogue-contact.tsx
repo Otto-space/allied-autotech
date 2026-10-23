@@ -1,3 +1,5 @@
+import { ContactPartsEnquiry } from "./contact-parts-enquiry";
+import { Suspense } from "react";
 import Link from "next/link";
 import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { business } from "@/lib/business";
@@ -40,6 +42,9 @@ export function CatalogueContact() {
               <p>{business.customerCareResponse}</p>
             </aside>
           </section>
+          <Suspense fallback={<p>Preparing your parts enquiry...</p>}>
+            <ContactPartsEnquiry onlyParts />
+          </Suspense>
           <section id="enquiry" className="contact-channels" aria-label="Contact options">
             <a href={`tel:${business.internationalPhone}`}>
               <Phone aria-hidden="true" />

@@ -1,3 +1,4 @@
+import { qualifiersShape, qualifierKeys } from "../fitment/fitment.schemas.js";
 import { z } from "zod";
 
 const cleanText = (maximum: number) =>
@@ -56,10 +57,15 @@ export const imageParamsSchema = z
   })
   .strict();
 
-export const categoryListQuerySchema = z.object(pageFields).strict();
+const categoryPageFields = {
+  ...pageFields,
+  rootOnly: optionalBoolean,
+  parentId: z.uuid().optional(),
+};
+export const categoryListQuerySchema = z.object(categoryPageFields).strict();
 export const adminCategoryListQuerySchema = z
   .object({
-    ...pageFields,
+    ...categoryPageFields,
     search: cleanText(120).optional(),
     isActive: optionalBoolean,
   })
@@ -69,6 +75,7 @@ export const categoryCreateBodySchema = z
     name: cleanText(120),
     slug,
     description: nullableText(2_000),
+    parentId: z.uuid().nullable().optional(),
     isActive: z.boolean().default(true),
   })
   .strict();
@@ -78,6 +85,7 @@ export const categoryUpdateBodySchema = z
     name: cleanText(120).optional(),
     slug: slug.optional(),
     description: nullableText(2_000),
+    parentId: z.uuid().nullable().optional(),
     isActive: z.boolean().optional(),
   })
   .strict()
@@ -90,21 +98,57 @@ export const productListQuerySchema = z
   .object({
     ...pageFields,
     categoryId: z.uuid().optional(),
+    parentCategoryId: z.uuid().optional(),
+    condition: z.enum(["NEW", "USED", "REFURBISHED"]).optional(),
+    classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).optional(),
+    productType: cleanText(80).optional(),
+    vehicleMakeId: z.uuid().optional(),
+    vehicleModelId: z.uuid().optional(),
+    fitment: z.enum(["candidates", "verified"]).optional(),
+    ...qualifiersShape,
     brand: cleanText(100).optional(),
     search: cleanText(100).optional(),
     make: cleanText(100).optional(),
     model: cleanText(100).optional(),
-    year: z.coerce.number().int().min(1886).max(2100).optional(),
+    year: z.coerce.number().int().min(1886).max(2200).optional(),
     featured: optionalBoolean,
     sort: z.enum(["newest", "name", "price_asc", "price_desc"]).default("newest"),
   })
-  .strict();
-export const adminProductListQuerySchema = productListQuerySchema.extend({
+  .strict()
+  .superRefine((value, context) => {
+    if (value.vehicleModelId && value.year === undefined)
+      context.addIssue({
+        code: "custom",
+        path: ["year"],
+        message: "Choose a model year",
+      });
+    if (
+      !value.vehicleModelId &&
+      (value.vehicleMakeId ||
+        value.fitment ||
+        qualifierKeys.some((key) => value[key] !== undefined))
+    )
+      context.addIssue({
+        code: "custom",
+        path: ["vehicleModelId"],
+        message: "Choose a vehicle model before checking fitment",
+      });
+    if (value.vehicleModelId && (value.make || value.model))
+      context.addIssue({
+        code: "custom",
+        path: ["vehicleModelId"],
+        message: "Use either a catalogue vehicle or legacy name filters",
+      });
+  });
+export const adminProductListQuerySchema = productListQuerySchema.safeExtend({
   isActive: optionalBoolean,
 });
 
 const productFields = {
   categoryId: z.uuid(),
+  condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
+  classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).nullable().optional(),
+  productType: nullableText(80),
   name: cleanText(180),
   slug,
   sku,
@@ -135,6 +179,9 @@ export const productUpdateBodySchema = z
   .object({
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     categoryId: productFields.categoryId.optional(),
+    condition: productFields.condition,
+    classification: productFields.classification,
+    productType: productFields.productType,
     name: productFields.name.optional(),
     slug: productFields.slug.optional(),
     sku: productFields.sku.optional(),
@@ -160,8 +207,8 @@ export const productUpdateBodySchema = z
 const compatibilityFields = {
   make: cleanText(100),
   model: nullableText(100),
-  yearFrom: z.number().int().min(1886).max(2100).nullable().optional(),
-  yearTo: z.number().int().min(1886).max(2100).nullable().optional(),
+  yearFrom: z.number().int().min(1886).max(2200).nullable().optional(),
+  yearTo: z.number().int().min(1886).max(2200).nullable().optional(),
   notes: nullableText(1_000),
 } as const;
 const validYearRange = (value: {

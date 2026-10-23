@@ -38,6 +38,13 @@ export const fitmentRouteDefinitions = [
   ],
   [
     "get",
+    "/public/fitment/models/:modelId",
+    "model",
+    empty,
+    z.object({ modelId: z.uuid() }).strict(),
+  ],
+  [
+    "get",
     "/public/fitment/years",
     "years",
     z.object({ modelId: z.uuid() }).strict(),
@@ -57,6 +64,20 @@ export const fitmentRouteDefinitions = [
     "products",
     schemas.registryListQuerySchema.omit({ makeId: true }),
     empty,
+  ],
+  [
+    "get",
+    "/staff/fitment/products/:productId",
+    "product",
+    empty,
+    schemas.fitmentProductParamsSchema,
+  ],
+  [
+    "get",
+    "/staff/fitment/products/:productId/rules/:ruleId",
+    "rule",
+    empty,
+    schemas.fitmentParamsSchema,
   ],
   ["get", "/staff/fitment/rules", "rules", rulesQuery, empty],
   [
@@ -116,6 +137,9 @@ export function createFitmentRouter() {
             read<z.infer<typeof schemas.registryListQuerySchema>>("query"),
           );
           break;
+        case "model":
+          result = await service.model(read<{ modelId: string }>("params").modelId);
+          break;
         case "years":
           result = await service.years(read<{ modelId: string }>("query").modelId);
           break;
@@ -133,6 +157,12 @@ export function createFitmentRouter() {
             req.actor!,
             read<z.infer<typeof schemas.registryListQuerySchema>>("query"),
           );
+          break;
+        case "product":
+          result = await service.product(req.actor!, productId);
+          break;
+        case "rule":
+          result = await service.rule(req.actor!, productId, ruleId);
           break;
         case "rules":
           result = await service.rules(

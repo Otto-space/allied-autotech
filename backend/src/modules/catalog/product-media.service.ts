@@ -1,3 +1,4 @@
+import { activeProductWhere } from "./catalog-visibility.js";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -122,9 +123,7 @@ export class ProductMediaService {
       where: {
         id: imageId,
         mediaAssetId: { not: null },
-        ...(admin
-          ? { productId: admin.productId }
-          : { product: { isActive: true, category: { isActive: true } } }),
+        ...(admin ? { productId: admin.productId } : { product: activeProductWhere }),
       },
       select: {
         mediaAsset: { select: { objectKey: true, sizeBytes: true, mimeType: true } },

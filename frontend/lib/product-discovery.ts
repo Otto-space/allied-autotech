@@ -1,3 +1,8 @@
+import {
+  clearVehicleSelection,
+  fitmentQualifierKeys,
+  vehicleSelectionKeys,
+} from "./parts-fitment";
 /** Keep aligned with the strict public catalogue query schema. */
 export const advancedProductKeys = [
   "brand",
@@ -8,10 +13,15 @@ export const advancedProductKeys = [
   "minPriceKobo",
   "maxPriceKobo",
   "availability",
+  "condition",
+  "classification",
+  "productType",
 ] as const;
 export const productFilterKeys = [
   "search",
   "categoryId",
+  "parentCategoryId",
+  ...vehicleSelectionKeys,
   ...advancedProductKeys,
 ] as const;
 export const productSorts = ["newest", "name", "price_asc", "price_desc"] as const;
@@ -27,27 +37,59 @@ export function validProductText(value: string) {
 export function normalizeProductQuery(input: URLSearchParams) {
   const params = new URLSearchParams();
   let invalid = false;
-  for (const key of [...productFilterKeys, "sort", "cursor"] as const) {
+  for (const key of [...new Set([...productFilterKeys, "sort", "cursor"])]) {
     const value = input.get(key)?.trim();
     if (!value) continue;
+    if (input.getAll(key).length > 1) invalid = true;
     const valid =
       key === "year"
-        ? /^\d{4}$/.test(value) && +value >= 1886 && +value <= 2100
+        ? /^\d{4}$/.test(value) && +value >= 1886 && +value <= 2200
         : key === "cursor"
           ? validCursor(value)
           : key === "minPriceKobo" || key === "maxPriceKobo"
             ? /^(?:0|[1-9][0-9]{0,15})$/.test(value)
             : key === "availability"
               ? ["in_stock", "out_of_stock"].includes(value)
-              : key === "categoryId"
+              : [
+                    "categoryId",
+                    "parentCategoryId",
+                    "vehicleMakeId",
+                    "vehicleModelId",
+                  ].includes(key)
                 ? uuid.test(value)
-                : key === "featured"
-                  ? ["true", "false"].includes(value)
-                  : key === "sort"
-                    ? (productSorts as readonly string[]).includes(value)
-                    : validProductText(value);
+                : key === "condition"
+                  ? ["NEW", "USED", "REFURBISHED"].includes(value)
+                  : key === "classification"
+                    ? ["GENUINE_OEM", "AFTERMARKET"].includes(value)
+                    : key === "fitment"
+                      ? ["candidates", "verified"].includes(value)
+                      : key === "productType"
+                        ? validProductText(value) && value.length <= 80
+                        : key === "featured"
+                          ? ["true", "false"].includes(value)
+                          : key === "sort"
+                            ? (productSorts as readonly string[]).includes(value)
+                            : validProductText(value);
     if (!valid) invalid = true;
     else if (key !== "sort" || value !== "newest") params.set(key, value);
+  }
+  const hasVehicle = params.has("vehicleModelId");
+  if (hasVehicle && params.has("year")) {
+    if (params.has("make") || params.has("model")) {
+      params.delete("make");
+      params.delete("model");
+      invalid = true;
+    }
+    for (const key of fitmentQualifierKeys)
+      if (params.has(key)) params.set(key, params.get(key)!.normalize("NFKC"));
+  } else if (
+    input.has("vehicleModelId") ||
+    params.has("vehicleMakeId") ||
+    params.has("fitment") ||
+    fitmentQualifierKeys.some((key) => params.has(key))
+  ) {
+    clearVehicleSelection(params);
+    invalid = true;
   }
   // UI-only history. Never forward this to the API's strict query validator.
   if (

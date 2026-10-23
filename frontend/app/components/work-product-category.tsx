@@ -16,6 +16,8 @@ export function WorkProductCategory({
   filter = false,
   invalid,
   describedBy,
+  rootOnly = false,
+  excludeId,
 }: {
   id: string;
   value: string;
@@ -28,10 +30,13 @@ export function WorkProductCategory({
   filter?: boolean;
   invalid?: boolean;
   describedBy?: string;
+  rootOnly?: boolean;
+  excludeId?: string;
 }) {
   const pagination = useCursorPage();
   const [selection, setSelection] = useState({ id: initialValue, label: initialLabel });
   const query = new URLSearchParams({ limit: "100" });
+  if (rootOnly) query.set("rootOnly", "true");
   if (pagination.cursor) query.set("cursor", pagination.cursor);
   const choices = useResource(
     `/admin/catalog/categories?${query}`,
@@ -55,7 +60,7 @@ export function WorkProductCategory({
     <>
       <select
         id={id}
-        name={filter ? undefined : "categoryId"}
+        name={rootOnly ? "parentId" : filter ? undefined : "categoryId"}
         ref={inputRef}
         value={value}
         disabled={blocked}
@@ -68,18 +73,26 @@ export function WorkProductCategory({
           onChange(e.target.value, nextLabel);
         }}
       >
-        <option value="">{filter ? "All categories" : "Choose category"}</option>
+        <option value="">
+          {rootOnly
+            ? "None (top-level category)"
+            : filter
+              ? "All categories"
+              : "Choose category"}
+        </option>
         {value && !choices.data?.items.some((r) => r.id === value) && (
           <option value={value}>
             {label || "Selected category — choose again to verify"}
           </option>
         )}
-        {choices.data?.items.map((r) => (
-          <option key={r.id} value={r.id}>
-            {r.name}
-            {!r.isActive ? " (inactive)" : ""}
-          </option>
-        ))}
+        {choices.data?.items
+          .filter((r) => r.id !== excludeId)
+          .map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.name}
+              {!r.isActive ? " (inactive)" : ""}
+            </option>
+          ))}
       </select>
       {value && !label && !filter && !blocked && (
         <span className="field-hint" role="status">

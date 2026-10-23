@@ -1,4 +1,13 @@
 "use client";
+import { FindPartsForCar } from "./find-parts-for-car";
+import { PartFitmentSummary } from "./part-fitment-summary";
+import {
+  clearVehicleSelection,
+  vehicleSelectionKeys,
+  fitmentLabels,
+  partsEnquiryHref,
+  productFitmentHref,
+} from "@/lib/parts-fitment";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
 import { useState } from "react";
@@ -58,7 +67,17 @@ export function PartsCatalogue({
     !categoryShortcuts.some((item) => item.id === categories.selected?.id)
   )
     categoryShortcuts.push(categories.selected);
-  const selected = productFilterKeys.filter((key) => params.has(key));
+  const selected = [...new Set(productFilterKeys)].filter(
+    (key) =>
+      params.has(key) &&
+      !["vehicleMakeId", "vehicleModelId"].includes(key) &&
+      !(key === "year" && params.has("vehicleModelId")),
+  );
+  const vehicleQuery = new URLSearchParams(
+    [...params].filter(([key]) =>
+      (vehicleSelectionKeys as readonly string[]).includes(key),
+    ),
+  ).toString();
   const advanced = new URLSearchParams(
     [...params].filter(([key]) =>
       (advancedProductKeys as readonly string[]).includes(key),
@@ -116,6 +135,12 @@ export function PartsCatalogue({
                 : `${(products.data?.totalMatches ?? 0).toLocaleString("en-NG")} matching product${products.data?.totalMatches === 1 ? "" : "s"} · ${products.data?.items.length ?? 0} product${products.data?.items.length === 1 ? "" : "s"} on this page`}
           </p>
         </div>
+        <FindPartsForCar
+          key={vehicleQuery}
+          query={vehicleQuery}
+          enquiryQuery={params.toString()}
+          update={update}
+        />
         {invalid && (
           <p className="notice">
             Some filters in this link were invalid and have been ignored. Review the
@@ -196,9 +221,36 @@ export function PartsCatalogue({
           </fieldset>
         )}
       </div>
+      {params.has("vehicleModelId") &&
+        !products.loading &&
+        !products.error &&
+        products.data?.verifiedMatches === 0 && (
+          <aside className="parts-fitment-help" role="status">
+            <h3>No verified match for these details</h3>
+            <p>
+              {products.data.totalMatches
+                ? "The products below are candidates requiring verification. Our team can check the missing specifications."
+                : "We could not confirm a matching part. Send your vehicle details to our team."}{" "}
+              Collection only; delivery is unavailable.
+            </p>
+            <Link className="button secondary" href={partsEnquiryHref(params)}>
+              Request the right part
+            </Link>
+          </aside>
+        )}
       <div className="product-active-filters" aria-label="Active product filters">
-        {selected.length ? (
+        {selected.length || params.has("vehicleModelId") ? (
           <>
+            {params.has("vehicleModelId") && (
+              <button
+                type="button"
+                className="product-chip"
+                onClick={() => update(clearVehicleSelection)}
+                aria-label="Remove selected vehicle"
+              >
+                Selected vehicle - {params.get("year")} <X size={14} aria-hidden="true" />
+              </button>
+            )}
             {selected.map((key) => {
               const value = params.get(key)!;
               const label =
@@ -224,9 +276,22 @@ export function PartsCatalogue({
                   className="product-chip"
                   aria-label={`Remove ${label}`}
                   title={label}
-                  onClick={() => update((next) => next.delete(key))}
+                  onClick={() =>
+                    update((next) => {
+                      next.delete(key);
+                      if (key === "make") next.delete("model");
+                    })
+                  }
                 >
-                  <span>{label}</span>
+                  <span>
+                    {key in fitmentLabels
+                      ? `${fitmentLabels[key as keyof typeof fitmentLabels]}: ${value}`
+                      : key === "fitment"
+                        ? value === "verified"
+                          ? "Verified matches only"
+                          : "Fitment candidates"
+                        : label}
+                  </span>
                   <X size={14} aria-hidden="true" />
                 </button>
               );
@@ -283,7 +348,7 @@ export function PartsCatalogue({
               const fitment = product.compatibilities[0];
               return (
                 <article className="product-card shop-product-card" key={product.id}>
-                  <Link href={`/parts/${product.id}`}>
+                  <Link href={productFitmentHref(product.id, params)}>
                     <div className="shop-product-top">
                       <PublicMedia
                         key={photo?.url ?? "missing"}
@@ -329,35 +394,28 @@ export function PartsCatalogue({
                       <div className="shop-card-fitment">
                         <CarFront size={16} aria-hidden="true" />
                         <div>
-                          {fitment ? (
+                          {params.has("vehicleModelId") ? (
+                            <PartFitmentSummary decision={product.fitment} />
+                          ) : fitment ? (
                             <>
                               <span className="shop-fitment-label">
-                                Listed compatibility
+                                Reviewed application listed
                               </span>
                               <p>
                                 {fitment.make}
-                                {fitment.model
-                                  ? ` ${fitment.model}`
-                                  : " · Model not listed"}
+                                {fitment.model ? ` ${fitment.model}` : ""}
                               </p>
-                              <p>
-                                {fitment.yearFrom !== null && fitment.yearTo !== null
-                                  ? `${fitment.yearFrom}–${fitment.yearTo}`
-                                  : fitment.yearFrom !== null
-                                    ? `From ${fitment.yearFrom}`
-                                    : fitment.yearTo !== null
-                                      ? `Up to ${fitment.yearTo}`
-                                      : "Years not listed"}
-                                {product.compatibilities.length > 1
-                                  ? ` · +${product.compatibilities.length - 1} more`
-                                  : ""}
-                              </p>
-                              <span>Check full fitment details</span>
+                              <span>
+                                Select your vehicle and technical details to confirm
+                                fitment.
+                              </span>
                             </>
                           ) : (
                             <>
-                              <p>Compatibility not listed</p>
-                              <span>Ask our team about suitability</span>
+                              <p>Fitment unknown</p>
+                              <span>
+                                Choose your vehicle or ask our team to verify suitability.
+                              </span>
                             </>
                           )}
                         </div>

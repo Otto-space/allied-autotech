@@ -17,7 +17,8 @@ import {
 import { business } from "@/lib/business";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
-import { PublicEnquiryForm } from "../components/public-enquiry-form";
+import { ContactPartsEnquiry } from "../components/contact-parts-enquiry";
+import { Suspense } from "react";
 import { ContactAccountLink } from "./contact-account-link";
 import { ContactAnchor } from "./contact-anchor";
 import "./contact.css";
@@ -182,7 +183,9 @@ export default function ContactPage() {
                 </aside>
               </div>
               <div className="contact-form-panel">
-                <PublicEnquiryForm presentation="contact" />
+                <Suspense fallback={<p>Preparing enquiry form...</p>}>
+                  <ContactPartsEnquiry />
+                </Suspense>
               </div>
             </section>
           </div>

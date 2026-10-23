@@ -143,8 +143,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
     {
       method: "get",
       path: "/public/fulfillment-options",
-      summary:
-        "Read collection details and currently effective approved delivery zones without private policy provenance",
+      summary: "Read collection-only ordering availability and collection details",
       data: publicFulfillmentOptionsSchema,
     },
     {
@@ -152,7 +151,7 @@ export function registerOwnerPolicyOpenApi(registry: OpenAPIRegistry) {
       path: "/public/capabilities",
       summary: "Read effective policy availability and server time",
       description:
-        "Informational only, not transaction authorization or a price quote. Checkout uses fulfillment-options for approved zones. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store.",
+        "Informational only, not transaction authorization or a price quote. New orders are collection only; delivery remains disabled even when historical delivery policies exist. Missing finance is represented by null approvalStatus and disabled checkout; private local/staging draft finance follows the existing finance gate. No private policy provenance is exposed. Refresh on use; responses are no-store.",
       data: publicCapabilitiesSchema,
     },
     {

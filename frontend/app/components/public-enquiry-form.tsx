@@ -13,7 +13,13 @@ export function PublicEnquiryForm(props: Parameters<typeof EnabledPublicEnquiryF
         <p>
           Contact us by email or WhatsApp to discuss your vehicle, a service or a product.
         </p>
-        <PublicEnquiryActions subject={props.serviceName || "an enquiry"} />
+        {props.initialMessage && (
+          <p className="parts-enquiry-message">{props.initialMessage}</p>
+        )}
+        <PublicEnquiryActions
+          subject={props.initialSubject || props.serviceName || "an enquiry"}
+          message={props.initialMessage}
+        />
       </section>
     );
   return <EnabledPublicEnquiryForm {...props} />;
@@ -25,9 +31,19 @@ function EnabledPublicEnquiryForm({
   submissionLocked = false,
   onSubmissionUncertain,
   presentation,
+  productId,
+  productName,
+  initialSubject,
+  initialMessage,
+  initialContextKey,
 }: {
   serviceId?: string;
   serviceName?: string;
+  productId?: string;
+  productName?: string;
+  initialSubject?: string;
+  initialMessage?: string;
+  initialContextKey?: string;
   submissionLocked?: boolean;
   onSubmissionUncertain?: () => void;
   presentation?: "contact";
@@ -91,6 +107,11 @@ function EnabledPublicEnquiryForm({
         serviceId={serviceId}
         serviceName={serviceName}
         presentation={presentation}
+        productId={productId}
+        productName={productName}
+        initialSubject={initialSubject}
+        initialMessage={initialMessage}
+        initialContextKey={initialContextKey}
       />
     </>
   );

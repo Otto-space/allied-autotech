@@ -71,6 +71,61 @@ async function product(active = true) {
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "administrator product direct read and observed update",
   () => {
+    it("records and clears real part attributes through the observed product update", async () => {
+      const actor = await account(),
+        row = await product();
+      const attributes = {
+        condition: "REFURBISHED",
+        classification: "AFTERMARKET",
+        productType: "BRAKE_PADS",
+      };
+      const updated = await request(app)
+        .patch(`${endpoint}/${row.id}`)
+        .set(actor.headers)
+        .send({ ...attributes, expectedUpdatedAt: row.updatedAt.toISOString() });
+      expect(updated.status).toBe(200);
+      expect(updated.body.data).toMatchObject(attributes);
+      const publicRead = await request(app).get(
+        `/api/v1/public/catalog/products/${row.id}`,
+      );
+      expect(publicRead.body.data).toMatchObject(attributes);
+      expect(
+        (
+          await request(app)
+            .patch(`${endpoint}/${row.id}`)
+            .set(actor.headers)
+            .send({ condition: "LIKE_NEW" })
+        ).status,
+      ).toBe(422);
+      const cleared = await request(app)
+        .patch(`${endpoint}/${row.id}`)
+        .set(actor.headers)
+        .send({
+          condition: null,
+          classification: null,
+          productType: null,
+          expectedUpdatedAt: updated.body.data.updatedAt,
+        });
+      expect(cleared.status).toBe(200);
+      expect(cleared.body.data).toMatchObject({
+        condition: null,
+        classification: null,
+        productType: null,
+      });
+      const created = await request(app)
+        .post(endpoint)
+        .set(actor.headers)
+        .send({
+          name: "Synthetic new part",
+          slug: `new-${randomUUID()}`,
+          sku: `NEW-${randomUUID()}`,
+          categoryId: row.categoryId,
+          priceKobo: "10000",
+          ...attributes,
+        });
+      expect(created.status).toBe(201);
+      expect(created.body.data).toMatchObject(attributes);
+    });
     afterAll(async () => {
       await prisma.session.deleteMany({ where: { id: { in: sessions } } });
       await prisma.$disconnect();

@@ -40,42 +40,18 @@ export const orderIdempotencyHeadersSchema = z.looseObject({
     .regex(/^[\x21-\x7E]+$/, "Use visible ASCII characters"),
 });
 
-const deliverySchema = z
-  .object({
-    zoneId: cleanText(64).optional(),
-    name: cleanText(160),
-    phone: cleanText(32),
-    address: cleanText(500),
-    city: cleanText(120),
-    state: cleanText(120),
-    country: z.literal("Nigeria").default("Nigeria"),
-  })
-  .strict();
-
 export const checkoutBodySchema = z
   .object({
     branchId: uuid,
-    fulfillmentMethod: z.enum(["COLLECTION", "DELIVERY"]).default("COLLECTION"),
+    fulfillmentMethod: z.literal("COLLECTION").default("COLLECTION"),
     promotionCode: cleanText(80)
       .transform((value) => value.toUpperCase())
       .optional(),
-    delivery: deliverySchema.optional(),
   })
   .strict()
-  .superRefine((value, context) => {
-    if (value.fulfillmentMethod === "DELIVERY" && value.delivery === undefined)
-      context.addIssue({
-        code: "custom",
-        path: ["delivery"],
-        message: "Delivery details are required",
-      });
-    if (value.fulfillmentMethod === "COLLECTION" && value.delivery !== undefined)
-      context.addIssue({
-        code: "custom",
-        path: ["delivery"],
-        message: "Delivery details are not accepted for collection",
-      });
-  });
+  .describe(
+    "New orders are collection only. Delivery and delivery contact fields are not accepted.",
+  );
 
 export const customerOrderListQuerySchema = z
   .object({ ...pageFields, status: orderStatus.optional() })

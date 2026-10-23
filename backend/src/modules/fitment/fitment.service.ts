@@ -1,3 +1,4 @@
+import { activeProductWhere } from "../catalog/catalog-visibility.js";
 import { createHash } from "node:crypto";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
@@ -42,6 +43,30 @@ const keyOf = (name: string) =>
     .replace(/\p{M}/gu, "")
     .replace(/\s+/g, " ");
 const literal = (value: string) => value.replace(/[\\%_]/g, "\\$&");
+const nonCriticalPartTypes = new Set([
+  "ACCESSORY",
+  "OIL_FILTER",
+  "AIR_FILTER",
+  "CABIN_FILTER",
+  "FUEL_FILTER",
+  "SPARK_PLUG",
+  "WIPER_BLADE",
+  "BULB",
+]);
+const permitsNonCritical = (productType: string | null | undefined) =>
+  !!productType && nonCriticalPartTypes.has(productType.toUpperCase());
+const actorSelect = {
+  id: true,
+  email: true,
+  staffProfile: { select: { firstName: true, lastName: true } },
+} satisfies Prisma.UserSelect;
+const ruleInclude = {
+  vehicleModel: { include: { make: true } },
+  product: { select: { id: true, name: true, sku: true } },
+  createdBy: { select: actorSelect },
+  updatedBy: { select: actorSelect },
+  reviewedBy: { select: actorSelect },
+} satisfies Prisma.ProductCompatibilityInclude;
 const qualifierData = (input: RuleWrite) =>
   Object.fromEntries(
     qualifierKeys.map((key) => [
@@ -56,30 +81,7 @@ const page = <T extends { id: string }>(rows: T[], limit: number) => ({
   ...(rows.length > limit ? { nextCursor: rows[limit - 1]!.id } : {}),
 });
 
-export const publishedFitmentSelect = {
-  id: true,
-  reviewStatus: true,
-  scope: true,
-  effect: true,
-  vehicleModelId: true,
-  yearFrom: true,
-  yearTo: true,
-  safetyCritical: true,
-  allVariantsConfirmed: true,
-  requiredQualifiers: true,
-  sourceReference: true,
-  reviewedAt: true,
-  trim: true,
-  engineCode: true,
-  market: true,
-  position: true,
-  brakeSystem: true,
-  brakeDiameterMm: true,
-  bodyType: true,
-  transmission: true,
-  generation: true,
-  chassisCode: true,
-} satisfies Prisma.ProductCompatibilitySelect;
+import { publishedFitmentSelect } from "./fitment.projection.js";
 
 export class FitmentService {
   constructor(private readonly db: PrismaClient = prisma) {}
@@ -148,6 +150,21 @@ export class FitmentService {
       query.limit,
     );
   }
+  async model(modelId: string) {
+    const row = await this.db.vehicleModel.findFirst({
+      where: { id: modelId, isActive: true, make: { isActive: true } },
+      select: {
+        id: true,
+        makeId: true,
+        name: true,
+        yearFrom: true,
+        yearTo: true,
+        make: { select: { id: true, name: true } },
+      },
+    });
+    if (!row) workforceNotFound();
+    return row;
+  }
   async years(modelId: string) {
     const model = await this.db.vehicleModel.findFirst({
       where: { id: modelId, isActive: true, make: { isActive: true } },
@@ -181,7 +198,7 @@ export class FitmentService {
   async productFitment(productId: string, selection: FitmentSelection) {
     await this.validateSelection(selection);
     const product = await this.db.product.findFirst({
-      where: { id: productId, isActive: true, category: { isActive: true } },
+      where: { id: productId, ...activeProductWhere },
       select: {
         compatibilities: {
           where: { reviewStatus: "APPROVED" },
@@ -266,7 +283,7 @@ export class FitmentService {
                 : []),
             ],
           },
-          select: { id: true, name: true, sku: true, isActive: true },
+          select: { id: true, name: true, sku: true, isActive: true, productType: true },
           orderBy: { id: "asc" },
           take: query.limit + 1,
           ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
@@ -274,6 +291,26 @@ export class FitmentService {
         query.limit,
       ),
     );
+  }
+  product(actor: AuthenticatedActor, productId: string) {
+    return this.run(actor, "read", async (tx, access) => {
+      const row = await tx.product.findFirst({
+        where: { AND: [{ id: productId }, fitmentProductScope(access)] },
+        select: { id: true, name: true, sku: true, isActive: true, productType: true },
+      });
+      if (!row) workforceNotFound();
+      return row;
+    });
+  }
+  rule(actor: AuthenticatedActor, productId: string, ruleId: string) {
+    return this.run(actor, "read", async (tx, access) => {
+      const row = await tx.productCompatibility.findFirst({
+        where: { AND: [{ id: ruleId, productId }, fitmentRuleScope(access)] },
+        include: ruleInclude,
+      });
+      if (!row) workforceNotFound();
+      return row;
+    });
   }
   rules(
     actor: AuthenticatedActor,
@@ -297,10 +334,7 @@ export class FitmentService {
               },
             ],
           },
-          include: {
-            vehicleModel: { include: { make: true } },
-            product: { select: { id: true, name: true, sku: true } },
-          },
+          include: ruleInclude,
           orderBy: { id: "asc" },
           take: query.limit + 1,
           ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
@@ -330,6 +364,7 @@ export class FitmentService {
       if (query.cursor && !anchor) invalid("History cursor does not belong to this rule");
       return page(
         await tx.productCompatibilityHistory.findMany({
+          include: { actor: { select: actorSelect } },
           where: {
             compatibilityId: ruleId,
             ...(anchor ? { version: { gt: anchor.version } } : {}),
@@ -351,14 +386,12 @@ export class FitmentService {
       where: { AND: [{ id: productId }, fitmentProductScope(access)] },
     });
     if (!product) workforceNotFound();
-    if (
-      !input.safetyCritical &&
-      (!product.productType ||
-        ["BRAKE_PADS", "BRAKE_DISCS"].includes(product.productType.toUpperCase()))
-    )
+    if (!input.safetyCritical && !permitsNonCritical(product.productType))
       invalid(
-        "Unknown part types and braking parts require safety-critical fitment. Record the correct product type before proposing non-critical or universal scope.",
+        "Braking parts and unrecognized product types require safety-critical fitment. Record a supported part type before proposing non-critical scope.",
       );
+    if (input.scope === "UNIVERSAL" && product.productType?.toUpperCase() !== "ACCESSORY")
+      invalid("Only a recorded ACCESSORY product type may propose universal fitment");
     const branchId = input.branchId ?? null;
     if (!access.globalAuthor && (!branchId || !access.authorBranches.includes(branchId)))
       workforceDenied(
@@ -557,6 +590,19 @@ export class FitmentService {
             "This transition is unavailable for the current review state",
           );
         if (input.action === "SUBMIT" || input.action === "APPROVE") {
+          const product = await tx.product.findUnique({
+            where: { id: productId },
+            select: { productType: true },
+          });
+          if (
+            old.scope === "UNIVERSAL" &&
+            product?.productType?.toUpperCase() !== "ACCESSORY"
+          )
+            invalid("Only an ACCESSORY product may use universal fitment");
+          if (!old.safetyCritical && !permitsNonCritical(product?.productType))
+            invalid(
+              "The product type changed. Edit this rule and verify its safety-critical requirements before submission or approval.",
+            );
           if (
             !old.sourceReference?.trim() ||
             !old.evidenceNotes?.trim() ||
@@ -580,11 +626,16 @@ export class FitmentService {
             invalid(
               "Safety-critical fitment requires a confirmed position and brake specification, both required from the customer",
             );
-          if (old.scope === "MODEL")
+          if (old.scope === "MODEL") {
             await this.validateSelection(
               { vehicleModelId: old.vehicleModelId!, year: old.yearFrom! },
               tx,
             );
+            await this.validateSelection(
+              { vehicleModelId: old.vehicleModelId!, year: old.yearTo! },
+              tx,
+            );
+          }
         }
         if (
           !(await tx.productCompatibilityHistory.findFirst({

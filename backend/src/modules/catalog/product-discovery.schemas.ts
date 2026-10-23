@@ -10,14 +10,14 @@ const limit = z
   .transform(Number);
 const kobo = z.string().regex(/^(?:0|[1-9][0-9]{0,15})$/);
 export const productDiscoveryQuerySchema = productListQuerySchema
-  .extend({
+  .safeExtend({
     limit,
     cursor: z.union([z.uuid(), catalogueCursorSchema]).optional(),
     year: z
       .string()
       .regex(/^\d{4}$/)
       .transform(Number)
-      .pipe(z.number().int().min(1886).max(2100))
+      .pipe(z.number().int().min(1886).max(2200))
       .optional(),
     minPriceKobo: kobo.optional(),
     maxPriceKobo: kobo.optional(),
@@ -38,6 +38,7 @@ export const productDiscoveryPageSchema = z.object({
   items: z.array(productResponseSchema).max(50),
   nextCursor: catalogueCursorSchema.optional(),
   totalMatches: z.number().int().nonnegative(),
+  verifiedMatches: z.number().int().nonnegative().optional(),
 });
 export const productFacetQuerySchema = z
   .object({

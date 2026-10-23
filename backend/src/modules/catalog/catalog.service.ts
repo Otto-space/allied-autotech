@@ -1,3 +1,10 @@
+import {
+  decideFitment,
+  selectionFromQuery,
+  type PublishedRule,
+} from "../fitment/fitment.engine.js";
+import type { FitmentSelection } from "../fitment/fitment.schemas.js";
+import { FitmentService } from "../fitment/fitment.service.js";
 import type { AuthenticatedActor } from "../../common/contracts/actor.js";
 import type { RequestSecurityContext } from "../../common/contracts/request-security.js";
 import { prisma } from "../../config/database.js";
@@ -46,17 +53,45 @@ function productView<
     priceKobo: bigint;
     compareAtPriceKobo: bigint | null;
     inventories: InventoryAvailability[];
-    compatibilities: { reviewStatus: string; effect: string }[];
+    compatibilities: (PublishedRule & {
+      make: string;
+      model: string | null;
+      notes: string | null;
+    })[];
   },
->(product: T, admin = false) {
+>(product: T, admin = false, selection?: FitmentSelection) {
   const { inventories, ...safe } = product;
   return {
     ...safe,
+    ...(selection ? { fitment: decideFitment(product.compatibilities, selection) } : {}),
     compatibilities: admin
       ? product.compatibilities.filter((rule) => rule.reviewStatus !== "RETIRED")
-      : product.compatibilities.filter(
-          (rule) => rule.reviewStatus === "APPROVED" && rule.effect === "INCLUDE",
-        ),
+      : product.compatibilities
+          .filter((rule) => rule.reviewStatus === "APPROVED" && rule.effect === "INCLUDE")
+          .map((rule) => ({
+            id: rule.id,
+            make: rule.make,
+            model: rule.model,
+            yearFrom: rule.yearFrom,
+            yearTo: rule.yearTo,
+            notes: rule.notes,
+            scope: rule.scope,
+            requiredQualifiers: rule.requiredQualifiers,
+            ...Object.fromEntries(
+              [
+                "trim",
+                "engineCode",
+                "market",
+                "position",
+                "brakeSystem",
+                "brakeDiameterMm",
+                "bodyType",
+                "transmission",
+                "generation",
+                "chassisCode",
+              ].map((key) => [key, rule[key as keyof typeof rule]]),
+            ),
+          })),
     images: product.images.map((image) => projectProductImage(image, product.id, admin)),
     priceKobo: product.priceKobo.toString(),
     compareAtPriceKobo: product.compareAtPriceKobo?.toString() ?? null,
@@ -74,11 +109,18 @@ function productPage<
     priceKobo: bigint;
     compareAtPriceKobo: bigint | null;
     inventories: InventoryAvailability[];
-    compatibilities: { reviewStatus: string; effect: string }[];
+    compatibilities: (PublishedRule & {
+      make: string;
+      model: string | null;
+      notes: string | null;
+    })[];
   },
->(rows: T[], limit: number, admin = false) {
+>(rows: T[], limit: number, admin = false, selection?: FitmentSelection) {
   const result = page(rows, limit);
-  return { ...result, items: result.items.map((product) => productView(product, admin)) };
+  return {
+    ...result,
+    items: result.items.map((product) => productView(product, admin, selection)),
+  };
 }
 
 export class CatalogService {
@@ -96,11 +138,23 @@ export class CatalogService {
     return category;
   }
   async publicProducts(query: ProductListQuery) {
-    return productPage(await this.repository.listProducts(query, true), query.limit);
+    const selection = selectionFromQuery(query);
+    if (selection) await new FitmentService(this.database).validateSelection(selection);
+    return productPage(
+      await this.repository.listProducts(query, true),
+      query.limit,
+      false,
+      selection,
+    );
   }
   async publicDiscovery(query: ProductDiscoveryQuery) {
+    const selection = selectionFromQuery(query);
+    if (selection) await new FitmentService(this.database).validateSelection(selection);
     const result = await new ProductDiscoveryRepository(this.database).products(query);
-    return { ...result, items: result.items.map((product) => productView(product)) };
+    return {
+      ...result,
+      items: result.items.map((product) => productView(product, false, selection)),
+    };
   }
   publicFacets(query: ProductFacetQuery) {
     return new ProductDiscoveryRepository(this.database).facets(query);
@@ -136,6 +190,53 @@ export class CatalogService {
     return productView(product, true);
   }
 
+  // All hierarchy writers share one lock. This also serializes product eligibility
+  // checks with ancestor moves/deactivation, so concurrent requests cannot create cycles.
+  private async lockCategoryHierarchy(transaction: Prisma.TransactionClient) {
+    await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('catalog-category-hierarchy', 0))`;
+  }
+
+  private async assertCategoryParent(
+    transaction: Prisma.TransactionClient,
+    parentId: string | null,
+    isActive: boolean,
+    categoryId?: string,
+  ) {
+    if (parentId === null) return;
+    if (parentId === categoryId)
+      throw catalogConflict("A category cannot be its own parent");
+    const parent = await this.repository.category(parentId, false, transaction);
+    if (!parent) throw catalogResourceNotFound();
+    if (parent.parentId !== null)
+      throw catalogConflict(
+        "Choose a top-level parent category. Categories support one level of subcategories.",
+      );
+    if (isActive && !parent.isActive)
+      throw catalogConflict("An active subcategory requires an active parent category");
+    if (
+      categoryId &&
+      (await transaction.category.count({ where: { parentId: categoryId } }))
+    )
+      throw catalogConflict(
+        "Move this category's subcategories before making it a subcategory",
+      );
+  }
+
+  private async assertProductCategoryActive(
+    transaction: Prisma.TransactionClient,
+    category: { isActive: boolean; parentId: string | null },
+  ) {
+    if (
+      !category.isActive ||
+      (category.parentId !== null &&
+        !(await this.repository.category(category.parentId, false, transaction))
+          ?.isActive)
+    )
+      throw catalogConflict(
+        "An active product requires an active category and parent category",
+      );
+  }
+
   async createCategory(
     actor: AuthenticatedActor,
     input: CategoryCreateInput,
@@ -143,6 +244,12 @@ export class CatalogService {
   ) {
     assertCatalogueAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await this.lockCategoryHierarchy(transaction);
+      await this.assertCategoryParent(
+        transaction,
+        input.parentId ?? null,
+        input.isActive,
+      );
       const category = await this.repository.createCategory(input, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -168,6 +275,7 @@ export class CatalogService {
   ) {
     assertCatalogueAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await this.lockCategoryHierarchy(transaction);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`category:${id}`}, 0))`;
       await transaction.$queryRaw`SELECT "id" FROM "Category" WHERE "id" = ${id}::uuid FOR UPDATE`;
       const existing = await this.repository.category(id, false, transaction);
@@ -178,6 +286,20 @@ export class CatalogService {
       ) {
         throw catalogConflict("This category has changed. Reload it before saving.");
       }
+      await this.assertCategoryParent(
+        transaction,
+        input.parentId === undefined ? existing.parentId : input.parentId,
+        input.isActive ?? existing.isActive,
+        id,
+      );
+      if (
+        input.isActive === false &&
+        existing.isActive &&
+        (await transaction.category.count({ where: { parentId: id, isActive: true } }))
+      )
+        throw catalogConflict(
+          "Deactivate subcategories before deactivating their parent category",
+        );
       if (
         input.isActive === false &&
         existing.isActive &&
@@ -221,6 +343,7 @@ export class CatalogService {
   ) {
     assertCatalogueAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await this.lockCategoryHierarchy(transaction);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`category:${input.categoryId}`}, 0))`;
       const category = await this.repository.category(
         input.categoryId,
@@ -228,8 +351,7 @@ export class CatalogService {
         transaction,
       );
       if (category === null) throw catalogResourceNotFound();
-      if (input.isActive && !category.isActive)
-        throw catalogConflict("An active product requires an active category");
+      if (input.isActive) await this.assertProductCategoryActive(transaction, category);
       const product = await this.repository.createProduct(input, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -255,6 +377,7 @@ export class CatalogService {
   ) {
     assertCatalogueAdministrator(actor);
     return this.database.$transaction(async (transaction) => {
+      await this.lockCategoryHierarchy(transaction);
       await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${`product:${id}`}, 0))`;
       // Serialize the observed timestamp with every database writer, including media.
       await transaction.$queryRaw`SELECT "id" FROM "Product" WHERE "id" = ${id}::uuid FOR UPDATE`;
@@ -272,8 +395,17 @@ export class CatalogService {
       const category = await this.repository.category(categoryId, false, transaction);
       if (category === null) throw catalogResourceNotFound();
       const nextActive = input.isActive ?? existing.isActive;
-      if (nextActive && !category.isActive)
-        throw catalogConflict("An active product requires an active category");
+      if (nextActive) await this.assertProductCategoryActive(transaction, category);
+      if (
+        input.productType !== undefined &&
+        input.productType !== existing.productType &&
+        (await transaction.productCompatibility.count({
+          where: { productId: id, reviewStatus: "APPROVED" },
+        }))
+      )
+        throw catalogConflict(
+          "Retire approved fitment rules before changing the product type, then submit the updated fitment for a new review",
+        );
       const nextPrice = BigInt(input.priceKobo ?? existing.priceKobo);
       const nextCompare =
         input.compareAtPriceKobo === undefined

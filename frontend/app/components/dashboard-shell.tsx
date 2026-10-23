@@ -461,6 +461,7 @@ export function DashboardShell({
             pathname !== "/admin/booking-slots" &&
             pathname !== "/admin/services" &&
             pathname !== "/admin/products" &&
+            pathname !== "/admin/fitment" &&
             pathname !== "/admin/categories" &&
             pathname !== "/admin/orders" &&
             pathname !== "/admin/inventory" &&

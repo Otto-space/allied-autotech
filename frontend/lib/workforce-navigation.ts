@@ -57,6 +57,17 @@ export function workforceNavigation(access: WorkforceAccess): DashboardGroup[] {
         allowed: can("COMPLAINTS"),
       },
     ]),
+    group("catalogue", "Parts catalogue", Package, [
+      {
+        href: "/admin/fitment",
+        label: "Fitment evidence & review",
+        allowed: access.assignments.some((assignment) =>
+          ["OPERATIONS", "SALES_SUPERVISOR", "WORKSHOP_LEAD"].includes(
+            assignment.template,
+          ),
+        ),
+      },
+    ]),
     group("orders", "Sales & Orders", Package, [
       {
         href: "/admin/workforce/orders",

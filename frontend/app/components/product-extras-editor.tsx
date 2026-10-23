@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useResource } from "@/lib/api/use-resource";
 import { ApiError } from "@/lib/api/client";
@@ -139,8 +140,8 @@ export function ProductExtrasEditor({
         Compatibility &amp; images{product ? ` · ${product.name}` : ""}
       </h2>
       <p>
-        These records describe the selected part in the public catalogue when its product
-        and category are active.
+        Images appear when the product and its category are active. Customer fitment
+        results use approved evidence. Legacy compatibility edits remain unreviewed.
       </p>
       <Feedback message={records.error} />
       {records.refreshError && (
@@ -191,6 +192,9 @@ export function ProductExtrasEditor({
             </p>
           )}
           <div className="actions">
+            <Link className="button" href={`/admin/fitment?productId=${productId}`}>
+              Fitment evidence and technical review
+            </Link>
             <button
               className="button secondary"
               disabled={disabled || !!editor}
@@ -270,7 +274,7 @@ export function ProductExtrasEditor({
                 ? "Review compatibility update"
                 : "Review new compatibility",
               description:
-                "These fitment details can appear to customers and affect vehicle compatibility searches.",
+                "This legacy record stays unreviewed. Normalize its vehicle configuration and obtain independent approval in Fitment evidence and technical review before it can support a customer match.",
               facts: [
                 { label: "Make", value: value.make },
                 { label: "Model", value: value.model || "Not specified" },
@@ -368,10 +372,30 @@ export function ProductExtrasEditor({
                   {item.yearTo ?? "not specified"}
                 </p>
                 <p>{item.notes ?? "No fitment notes recorded."}</p>
+                <p>
+                  Review state:{" "}
+                  {item.reviewStatus?.toLowerCase() || "unreviewed legacy record"}
+                  {item.effect === "EXCLUDE" ? " (exclusion)" : ""}
+                </p>
+                {(item.vehicleModelId ||
+                  (item.reviewStatus && item.reviewStatus !== "DRAFT")) && (
+                  <p>
+                    <Link
+                      href={`/admin/fitment?${new URLSearchParams({ productId, ruleId: item.id })}`}
+                    >
+                      Open this rule in technical review
+                    </Link>
+                  </p>
+                )}
                 <div className="actions">
                   <button
                     className="button secondary"
-                    disabled={disabled || !!editor}
+                    disabled={
+                      disabled ||
+                      !!editor ||
+                      !!item.vehicleModelId ||
+                      (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
+                    }
                     onClick={() => {
                       setEditor({
                         kind: "compatibility",
@@ -386,12 +410,17 @@ export function ProductExtrasEditor({
                   </button>
                   <button
                     className="button secondary"
-                    disabled={disabled || !!editor}
+                    disabled={
+                      disabled ||
+                      !!editor ||
+                      !!item.vehicleModelId ||
+                      (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
+                    }
                     onClick={() =>
                       review({
                         title: "Remove compatibility record?",
                         description:
-                          "This removes the saved fitment record and its match in catalogue searches. There is no undo action; adding it again creates a new record.",
+                          "This retires the unreviewed legacy record while preserving its version history. Reviewed rules must be retired through technical review.",
                         facts: [
                           {
                             label: "Make / model",
