@@ -9,3 +9,4 @@
 # Local browser captures may contain session data.
 .playwright-cli/
 output/playwright/
+frontend/allied-admin-redesign-20261022/
