@@ -180,3 +180,132 @@ test("mobile enquiries remain visible without runtime errors", async ({ page }) 
   });
   expect(errors).toEqual([]);
 });
+
+for (const width of [390, 1440]) {
+  test(`customers save, reload and remove both collections without transactions at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 1000 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    const saved = { product: false, vehicle: false };
+    const writes: string[] = [];
+    const userId = "a9000000-0000-4000-8000-000000000091";
+    await page.route("**/api/v1/**", async (route) => {
+      const req = route.request();
+      const p = new URL(req.url()).pathname.replace(/^\/api\/v1/, "");
+      const reply = (data: unknown) =>
+        route.fulfill({
+          json: {
+            success: true,
+            message: "Isolated saving fixture",
+            data,
+            meta: { requestId: "saving-test" },
+          },
+        });
+      if (p === "/auth/session")
+        return reply({
+          id: userId,
+          user: { id: userId, email: "saving@example.test", role: "CUSTOMER" },
+          mfaRequired: false,
+          mfaVerifiedAt: null,
+          expiresAt: "2099-01-01T00:00:00Z",
+          idleExpiresAt: "2099-01-01T00:00:00Z",
+        });
+      if (p === "/auth/csrf") return reply({ csrfToken: "s".repeat(64) });
+      if (p.startsWith("/public/")) return reply(publicRecord(p));
+      if (["PUT", "DELETE", "POST", "PATCH"].includes(req.method())) {
+        expect(req.headers()["x-csrf-token"]).toBe("s".repeat(64));
+        expect([
+          `/customers/favourites/${product.id}`,
+          `/customers/saved-vehicles/${listing.id}`,
+        ]).toContain(p);
+        writes.push(`${req.method()} ${p}`);
+        if (p.includes("favourites")) {
+          saved.product = req.method() === "PUT";
+          return reply({ product });
+        }
+        saved.vehicle = req.method() === "PUT";
+        return reply({ vehicleListing: listing });
+      }
+      if (p === "/customers/favourites")
+        return reply({ items: saved.product ? [{ id: product.id, product }] : [] });
+      if (p === "/customers/saved-vehicles/page")
+        return reply({
+          items: saved.vehicle ? [{ id: listing.id, vehicleListing: listing }] : [],
+        });
+      if (p.includes("notifications")) return reply({ items: [], unreadCount: 0 });
+      return reply({ items: [] });
+    });
+    for (const kind of ["product", "vehicle"] as const) {
+      await page.goto(
+        kind === "product" ? `/parts/${product.id}` : `/vehicles/${listing.id}`,
+      );
+      const save = page.getByRole("button", {
+        name: kind === "product" ? "Save to favourites" : "Save vehicle",
+        exact: true,
+      });
+      await expect(save).toBeVisible();
+      await expect(
+        page.getByRole("button", {
+          name: /cart|reserve|inspection|Enquire about this vehicle/i,
+        }),
+      ).toHaveCount(0);
+      await save.click();
+      await expect(
+        page
+          .getByText(
+            kind === "product"
+              ? "Product saved to your favourites."
+              : "This vehicle is saved to your account.",
+            { exact: true },
+          )
+          .first(),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      ).toBe(true);
+      await page.screenshot({
+        path: join(tmpdir(), `allied-saving-${kind}-${width}.png`),
+        fullPage: true,
+      });
+    }
+    await page.goto("/dashboard/saved");
+    await page.reload();
+    await expect(
+      page.getByRole("heading", { name: product.name, exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", {
+        name: `Remove ${product.name} from favourites`,
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Remove item", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: product.name, exact: true }),
+    ).toHaveCount(0);
+    await page.getByRole("tab", { name: "Saved vehicles" }).click();
+    await expect(
+      page.getByRole("heading", { name: listing.title, exact: true }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", {
+        name: `Remove ${listing.title} from saved vehicles`,
+        exact: true,
+      })
+      .click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Remove item", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: listing.title, exact: true }),
+    ).toHaveCount(0);
+    expect(writes).toHaveLength(4);
+    expect(errors).toEqual([]);
+  });
+}

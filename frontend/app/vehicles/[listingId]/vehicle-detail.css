@@ -1325,3 +1325,10 @@
   outline: 2px solid #c60000;
   outline-offset: 3px;
 }
+
+.vd-summary > .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block: 1rem;
+}
