@@ -151,6 +151,14 @@ export default async function ListingPage({
     Transmission: label(vehicle.transmission),
     "Fuel type": label(vehicle.fuelType),
     Condition: label(vehicle.condition),
+    "Final assembly country": label(vehicle.manufactureCountryCode),
+    Powertrain: label(vehicle.powertrain),
+    ...(vehicle.engineCapacityCc == null
+      ? {}
+      : { "Engine capacity": `${vehicle.engineCapacityCc.toLocaleString("en-NG")} cc` }),
+    ...(vehicle.features?.length
+      ? { "Recorded features": vehicle.features.join(", ") }
+      : {}),
     Colour: vehicle.color || "Not listed",
     ...(vehicle.engineSize ? { "Engine size": vehicle.engineSize } : {}),
     ...(vehicle.driveType

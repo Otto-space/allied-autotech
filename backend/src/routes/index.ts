@@ -1,3 +1,4 @@
+import { createFitmentRouter } from "../modules/fitment/fitment.routes.js";
 import { createServiceDiscoveryRouter } from "../modules/service-operations/service-discovery.routes.js";
 import { createOrderAftercareRouter } from "../modules/orders/order-aftercare.routes.js";
 import { createPrivacyRouter } from "../modules/policies/privacy.routes.js";
@@ -172,5 +173,6 @@ export function createApiRouter(options: ApiRouterOptions): Router {
     apiRouter.use("/docs", swaggerSecurityHeaders, swaggerServe, swaggerSetup);
   }
 
+  apiRouter.use(createFitmentRouter());
   return apiRouter;
 }

@@ -37,8 +37,8 @@ export function ProductCompatibilityForm({
     >
       <h3>{item ? "Edit compatibility" : "Add compatibility"}</h3>
       <p>
-        Enter verified fitment details. A model-specific search only matches records with
-        that model named.
+        Record draft compatibility details. A model-specific search only matches records
+        with that model named.
       </p>
       <fieldset className="handover-fields" disabled={disabled}>
         <div className="form-row">

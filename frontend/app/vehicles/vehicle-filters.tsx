@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
+import { CountryField } from "../components/country-field";
+import { countryCodes, europeanCountryCodes } from "@/lib/reference/countries";
 import { VehicleNameField } from "./vehicle-name-field";
 import {
   advancedVehicleKeys,
@@ -102,6 +104,22 @@ const labels: Record<string, string> = {
   transmission: "Transmission",
   fuelType: "Fuel type",
   featured: "Featured listings",
+  trim: "Trim (exact name)",
+  condition: "Vehicle condition",
+  manufactureCountryCode: "Final assembly country",
+  manufactureRegion: "Final assembly region",
+  powertrain: "Powertrain",
+  driveType: "Drivetrain",
+  minYear: "Year from",
+  maxYear: "Year to",
+  minMileageKm: "Mileage from (km)",
+  maxMileageKm: "Mileage to (km)",
+  minEngineCapacityCc: "Engine capacity from (cc)",
+  maxEngineCapacityCc: "Engine capacity to (cc)",
+  seats: "Seats",
+  color: "Colour (exact name)",
+  feature: "Recorded feature (exact name)",
+  inspected: "Condition report",
 };
 
 export function VehicleFilters({
@@ -169,6 +187,44 @@ export function VehicleFilters({
       (!/^\d{4}$/.test(values.year) || +values.year < 1886 || +values.year > 2200)
     )
       nextErrors.year = "Enter a year between 1886 and 2200.";
+    for (const [key, minimum, maximum] of [
+      ["minYear", 1886, 2200],
+      ["maxYear", 1886, 2200],
+      ["minMileageKm", 0, 10000000],
+      ["maxMileageKm", 0, 10000000],
+      ["minEngineCapacityCc", 1, 30000],
+      ["maxEngineCapacityCc", 1, 30000],
+      ["seats", 1, 100],
+    ] as const) {
+      const value = values[key];
+      if (value && (!/^\d{1,8}$/.test(value) || +value < minimum || +value > maximum))
+        nextErrors[key] = `Enter a whole number from ${minimum} to ${maximum}.`;
+    }
+    for (const [minKey, maxKey] of [
+      ["minYear", "maxYear"],
+      ["minMileageKm", "maxMileageKm"],
+      ["minEngineCapacityCc", "maxEngineCapacityCc"],
+    ]) {
+      if (values[minKey] && values[maxKey] && +values[minKey] > +values[maxKey])
+        nextErrors[maxKey] = "Maximum must be at least the minimum.";
+    }
+    if (values.model && !values.make) nextErrors.make = "Choose a make before a model.";
+    if (
+      values.year &&
+      ((values.minYear && +values.year < +values.minYear) ||
+        (values.maxYear && +values.year > +values.maxYear))
+    )
+      nextErrors.year = "Year conflicts with the selected range.";
+    if (values.manufactureCountryCode && !countryCodes.has(values.manufactureCountryCode))
+      nextErrors.manufactureCountryCode =
+        "Choose a country from the suggestions or clear the field.";
+    if (
+      values.manufactureRegion &&
+      countryCodes.has(values.manufactureCountryCode) &&
+      !(europeanCountryCodes as readonly string[]).includes(values.manufactureCountryCode)
+    )
+      nextErrors.manufactureCountryCode =
+        "Choose a European country or clear the region.";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
       document.getElementById(`filter-${Object.keys(nextErrors)[0]}`)?.focus();
@@ -263,87 +319,212 @@ export function VehicleFilters({
               <X size={20} />
             </button>
           </div>
-          <div className="vehicle-filter-fields">
-            {advancedVehicleKeys.map((key) => (
-              <div className="vehicle-field" key={key}>
-                <label htmlFor={`filter-${key}`}>{labels[key]}</label>
-                {key === "make" || key === "model" ? (
-                  <VehicleNameField
-                    kind={key}
-                    value={values[key]}
-                    make={values.make}
-                    open={open}
-                    onChange={(value) =>
-                      setValues((previous) => ({
-                        ...previous,
-                        [key]: value,
-                        ...(key === "make" ? { model: "" } : {}),
-                      }))
-                    }
-                  />
-                ) : key in vehicleChoices ? (
-                  <div className="vehicle-select">
-                    <select
-                      id={`filter-${key}`}
-                      value={values[key]}
-                      onChange={(e) =>
-                        setValues((v) => ({ ...v, [key]: e.target.value }))
-                      }
-                    >
-                      <option value="">Any</option>
-                      {vehicleChoices[
-                        key as "bodyType" | "transmission" | "fuelType" | "featured"
-                      ].map((option) => (
-                        <option key={option} value={option}>
-                          {key === "featured"
-                            ? option === "true"
-                              ? "Featured only"
-                              : "Non-featured only"
-                            : vehicleLabel(option)}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={16} aria-hidden="true" />
-                  </div>
-                ) : (
-                  <input
-                    id={`filter-${key}`}
-                    value={values[key]}
-                    inputMode={
-                      key.endsWith("Kobo")
-                        ? "decimal"
-                        : key === "year"
-                          ? "numeric"
-                          : undefined
-                    }
-                    maxLength={key === "year" ? 4 : key.endsWith("Kobo") ? 18 : 80}
-                    aria-invalid={!!errors[key]}
-                    aria-describedby={
-                      errors[key]
-                        ? `filter-${key}-error`
-                        : ["make", "model"].includes(key)
-                          ? `filter-${key}-hint`
-                          : undefined
-                    }
-                    onChange={(e) => {
-                      setValues((v) => ({ ...v, [key]: e.target.value }));
-                      setErrors((v) => ({ ...v, [key]: "" }));
-                    }}
-                  />
-                )}
-                {["make", "model"].includes(key) && (
-                  <small id={`filter-${key}-hint`}>Matches the full {key} name.</small>
-                )}
-                {errors[key] && (
-                  <p
-                    id={`filter-${key}-error`}
-                    className="vehicle-field-error"
-                    role="alert"
-                  >
-                    {errors[key]}
-                  </p>
-                )}
-              </div>
+          <div className="vehicle-filter-body">
+            <div className="vehicle-origin-presets" aria-label="Final assembly shortcuts">
+              <span>Final assembly:</span>
+              {[
+                ["CN", "China"],
+                ["JP", "Japan"],
+                ["KR", "South Korea"],
+                ["NG", "Nigeria"],
+                ["EUROPE", "Europe"],
+              ].map(([code, label]) => (
+                <button
+                  type="button"
+                  key={code}
+                  aria-pressed={
+                    code === "EUROPE"
+                      ? values.manufactureRegion === code
+                      : values.manufactureCountryCode === code
+                  }
+                  onClick={() =>
+                    setValues((v) => ({
+                      ...v,
+                      manufactureCountryCode: code === "EUROPE" ? "" : code,
+                      manufactureRegion: code === "EUROPE" ? code : "",
+                    }))
+                  }
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="vehicle-filter-hint">
+              Origin means final assembly country. Unknown origin and specifications
+              remain unspecified.
+            </p>
+            {[
+              [
+                "Vehicle",
+                [
+                  "make",
+                  "model",
+                  "trim",
+                  "condition",
+                  "manufactureCountryCode",
+                  "manufactureRegion",
+                ],
+              ],
+              [
+                "Price, year and mileage",
+                [
+                  "minPriceKobo",
+                  "maxPriceKobo",
+                  "year",
+                  "minYear",
+                  "maxYear",
+                  "minMileageKm",
+                  "maxMileageKm",
+                ],
+              ],
+              [
+                "Specifications",
+                [
+                  "bodyType",
+                  "powertrain",
+                  "fuelType",
+                  "transmission",
+                  "driveType",
+                  "minEngineCapacityCc",
+                  "maxEngineCapacityCc",
+                  "seats",
+                  "color",
+                  "feature",
+                  "inspected",
+                  "featured",
+                ],
+              ],
+            ].map(([heading, keys]) => (
+              <details className="vehicle-filter-group" key={heading as string} open>
+                <summary>{heading}</summary>
+                <div className="vehicle-filter-fields">
+                  {(keys as string[]).map((key) => (
+                    <div className="vehicle-field" key={key}>
+                      <label htmlFor={`filter-${key}`}>{labels[key]}</label>
+                      {key === "make" || key === "model" ? (
+                        <VehicleNameField
+                          kind={key}
+                          value={values[key]}
+                          make={values.make}
+                          open={open}
+                          onChange={(value) =>
+                            setValues((previous) => ({
+                              ...previous,
+                              [key]: value,
+                              ...(key === "make" ? { model: "" } : {}),
+                            }))
+                          }
+                        />
+                      ) : key === "manufactureCountryCode" ? (
+                        <CountryField
+                          id={`filter-${key}`}
+                          value={values[key]}
+                          europeOnly={values.manufactureRegion === "EUROPE"}
+                          invalid={!!errors[key]}
+                          describedBy={errors[key] ? `filter-${key}-error` : undefined}
+                          onChange={(value) => {
+                            setValues((v) => ({
+                              ...v,
+                              [key]: value,
+                              ...(countryCodes.has(value) &&
+                              !(europeanCountryCodes as readonly string[]).includes(value)
+                                ? { manufactureRegion: "" }
+                                : {}),
+                            }));
+                            setErrors((v) => ({ ...v, [key]: "" }));
+                          }}
+                        />
+                      ) : key in vehicleChoices ? (
+                        <div className="vehicle-select">
+                          <select
+                            id={`filter-${key}`}
+                            value={values[key]}
+                            onChange={(e) =>
+                              setValues((v) => ({
+                                ...v,
+                                [key]: e.target.value,
+                                ...(key === "manufactureRegion" &&
+                                e.target.value === "EUROPE" &&
+                                !(europeanCountryCodes as readonly string[]).includes(
+                                  v.manufactureCountryCode,
+                                )
+                                  ? { manufactureCountryCode: "" }
+                                  : {}),
+                              }))
+                            }
+                          >
+                            <option value="">Any</option>
+                            {vehicleChoices[key as keyof typeof vehicleChoices].map(
+                              (option) => (
+                                <option key={option} value={option}>
+                                  {key === "featured"
+                                    ? option === "true"
+                                      ? "Featured only"
+                                      : "Non-featured only"
+                                    : key === "inspected"
+                                      ? option === "true"
+                                        ? "Report available"
+                                        : "No report recorded"
+                                      : vehicleLabel(option)}
+                                </option>
+                              ),
+                            )}
+                          </select>
+                          <ChevronDown size={16} aria-hidden="true" />
+                        </div>
+                      ) : (
+                        <input
+                          id={`filter-${key}`}
+                          value={values[key]}
+                          inputMode={
+                            key.endsWith("Kobo")
+                              ? "decimal"
+                              : [
+                                    "year",
+                                    "minYear",
+                                    "maxYear",
+                                    "minMileageKm",
+                                    "maxMileageKm",
+                                    "minEngineCapacityCc",
+                                    "maxEngineCapacityCc",
+                                    "seats",
+                                  ].includes(key)
+                                ? "numeric"
+                                : undefined
+                          }
+                          maxLength={key === "year" ? 4 : key.endsWith("Kobo") ? 18 : 80}
+                          aria-invalid={!!errors[key]}
+                          aria-describedby={
+                            errors[key]
+                              ? `filter-${key}-error`
+                              : ["make", "model"].includes(key)
+                                ? `filter-${key}-hint`
+                                : undefined
+                          }
+                          onChange={(e) => {
+                            setValues((v) => ({ ...v, [key]: e.target.value }));
+                            setErrors((v) => ({ ...v, [key]: "" }));
+                          }}
+                        />
+                      )}
+                      {["make", "model"].includes(key) && (
+                        <small id={`filter-${key}-hint`}>
+                          Matches the full {key} name.
+                        </small>
+                      )}
+                      {errors[key] && (
+                        <p
+                          id={`filter-${key}-error`}
+                          className="vehicle-field-error"
+                          role="alert"
+                        >
+                          {errors[key]}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </details>
             ))}
           </div>
           <div className="vehicle-filter-actions">

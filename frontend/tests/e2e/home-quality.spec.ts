@@ -181,7 +181,7 @@ async function fixture(page: Page) {
 }
 async function ready(page: Page) {
   await page.goto("/");
-  await expect(page.locator("main h1")).toHaveText("Built on Trust,Driven by Quality.");
+  await expect(page.locator("main h1")).toHaveText("Built on trust driven by quality");
   await page.evaluate(() => document.fonts.ready);
 }
 async function noOverflow(page: Page) {
@@ -279,7 +279,7 @@ test("carousel, keyboard, FAQ and navigation perform their advertised actions", 
     "/parts",
   );
   await page.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(page.locator("main h1")).toContainText("Built on Trust,");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   await page
     .locator("main")
     .getByText("Where is Allied AutoTech?", { exact: true })
@@ -407,7 +407,7 @@ test("mobile menu, touch carousel and paused autoplay remain usable", async ({
   await page.getByRole("button", { name: "Pause slideshow", exact: true }).click();
   await page.mouse.move(1, 1);
   await page.waitForTimeout(7200);
-  await expect(page.locator("main h1")).toContainText("Built on Trust,");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   const hero = page.locator(".home-hero");
   await hero.dispatchEvent("pointerdown", {
     pointerType: "touch",

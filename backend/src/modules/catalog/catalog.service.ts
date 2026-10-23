@@ -46,11 +46,17 @@ function productView<
     priceKobo: bigint;
     compareAtPriceKobo: bigint | null;
     inventories: InventoryAvailability[];
+    compatibilities: { reviewStatus: string; effect: string }[];
   },
 >(product: T, admin = false) {
   const { inventories, ...safe } = product;
   return {
     ...safe,
+    compatibilities: admin
+      ? product.compatibilities.filter((rule) => rule.reviewStatus !== "RETIRED")
+      : product.compatibilities.filter(
+          (rule) => rule.reviewStatus === "APPROVED" && rule.effect === "INCLUDE",
+        ),
     images: product.images.map((image) => projectProductImage(image, product.id, admin)),
     priceKobo: product.priceKobo.toString(),
     compareAtPriceKobo: product.compareAtPriceKobo?.toString() ?? null,
@@ -68,6 +74,7 @@ function productPage<
     priceKobo: bigint;
     compareAtPriceKobo: bigint | null;
     inventories: InventoryAvailability[];
+    compatibilities: { reviewStatus: string; effect: string }[];
   },
 >(rows: T[], limit: number, admin = false) {
   const result = page(rows, limit);
@@ -320,14 +327,51 @@ export class CatalogService {
     });
   }
 
+  private async legacyCompatibilityHistory(
+    transaction: Prisma.TransactionClient,
+    actor: AuthenticatedActor,
+    row: Awaited<ReturnType<CatalogRepository["createCompatibility"]>>,
+    action: string,
+  ) {
+    await transaction.productCompatibilityHistory.create({
+      data: {
+        compatibilityId: row.id,
+        actorUserId: actor.userId,
+        action,
+        version: row.version,
+        snapshot: JSON.parse(JSON.stringify(row)) as Prisma.InputJsonObject,
+      },
+    });
+  }
   async createCompatibility(
     actor: AuthenticatedActor,
     productId: string,
     input: CompatibilityCreateInput,
     context: RequestSecurityContext,
   ) {
-    return this.productChildMutation(actor, productId, context, "CREATE", (transaction) =>
-      this.repository.createCompatibility(productId, input, transaction),
+    return this.productChildMutation(
+      actor,
+      productId,
+      context,
+      "CREATE",
+      async (transaction) => {
+        const created = await this.repository.createCompatibility(
+          productId,
+          input,
+          transaction,
+        );
+        const row = await transaction.productCompatibility.update({
+          where: { id: created.id },
+          data: { createdByUserId: actor.userId, updatedByUserId: actor.userId },
+        });
+        await this.legacyCompatibilityHistory(
+          transaction,
+          actor,
+          row,
+          "CREATE_LEGACY_DRAFT",
+        );
+        return row;
+      },
     );
   }
   async updateCompatibility(
@@ -345,15 +389,40 @@ export class CatalogService {
       async (transaction) => {
         const existing = await transaction.productCompatibility.findFirst({
           where: { id, productId },
-          select: { yearFrom: true, yearTo: true },
         });
         if (!existing) throw catalogResourceNotFound();
+        if (existing.vehicleModelId !== null || existing.reviewStatus !== "DRAFT")
+          throw catalogConflict(
+            "Use the reviewed fitment workspace to change or retire this rule",
+          );
         const yearFrom =
           input.yearFrom === undefined ? existing.yearFrom : input.yearFrom;
         const yearTo = input.yearTo === undefined ? existing.yearTo : input.yearTo;
         if (yearFrom !== null && yearTo !== null && yearFrom > yearTo)
           throw catalogConflict("Compatibility end year must not precede its start year");
-        return this.repository.updateCompatibility(productId, id, input, transaction);
+        if (
+          !(await transaction.productCompatibilityHistory.findFirst({
+            where: { compatibilityId: id },
+          }))
+        )
+          await this.legacyCompatibilityHistory(
+            transaction,
+            actor,
+            existing,
+            "LEGACY_CAPTURE",
+          );
+        await this.repository.updateCompatibility(productId, id, input, transaction);
+        const row = await transaction.productCompatibility.update({
+          where: { id },
+          data: { updatedByUserId: actor.userId, version: { increment: 1 } },
+        });
+        await this.legacyCompatibilityHistory(
+          transaction,
+          actor,
+          row,
+          "EDIT_LEGACY_DRAFT",
+        );
+        return row;
       },
     );
   }
@@ -363,8 +432,46 @@ export class CatalogService {
     id: string,
     context: RequestSecurityContext,
   ) {
-    await this.productChildMutation(actor, productId, context, "DELETE", (transaction) =>
-      this.repository.deleteCompatibility(productId, id, transaction),
+    await this.productChildMutation(
+      actor,
+      productId,
+      context,
+      "DELETE",
+      async (transaction) => {
+        const existing = await transaction.productCompatibility.findFirst({
+          where: { id, productId },
+        });
+        if (!existing) throw catalogResourceNotFound();
+        if (existing.vehicleModelId !== null || existing.reviewStatus !== "DRAFT")
+          throw catalogConflict("Use the reviewed fitment workspace to retire this rule");
+        if (
+          !(await transaction.productCompatibilityHistory.findFirst({
+            where: { compatibilityId: id },
+          }))
+        )
+          await this.legacyCompatibilityHistory(
+            transaction,
+            actor,
+            existing,
+            "LEGACY_CAPTURE",
+          );
+        const row = await transaction.productCompatibility.update({
+          where: { id },
+          data: {
+            reviewStatus: "RETIRED",
+            fingerprint: null,
+            updatedByUserId: actor.userId,
+            version: { increment: 1 },
+          },
+        });
+        await this.legacyCompatibilityHistory(
+          transaction,
+          actor,
+          row,
+          "RETIRE_LEGACY_DRAFT",
+        );
+        return row;
+      },
     );
   }
   async createImage(

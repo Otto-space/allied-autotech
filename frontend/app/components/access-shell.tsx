@@ -55,9 +55,9 @@ export function AccessShell({
         </Link>
         <div className="login-story">
           <h2>
-            Built on Trust,
+            Built on trust
             <br />
-            Driven by Quality<span>.</span>
+            driven by quality
           </h2>
           <p>Vehicle care, parts and your account — in one place.</p>
         </div>

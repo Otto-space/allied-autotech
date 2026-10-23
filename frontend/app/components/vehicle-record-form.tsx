@@ -1,4 +1,6 @@
 "use client";
+import { CountryField } from "./country-field";
+import { vehicleLabel } from "@/lib/vehicle-discovery";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
@@ -33,6 +35,8 @@ const fields = [
   ["year", "Model year", 4],
   ["trim", "Trim (optional)", 80],
   ["mileageKm", "Mileage (optional, km)", 8],
+  ["engineCapacityCc", "Engine capacity (optional, cc)", 5],
+  ["features", "Recorded features (optional, comma separated)", 3239],
   ["engineSize", "Engine size (optional)", 40],
   ["color", "Colour (optional)", 40],
   ["doors", "Doors (optional)", 2],
@@ -113,6 +117,10 @@ export function VehicleRecordForm({
                 bodyType: "Body type",
                 driveType: "Drive type",
                 engineSize: "Engine size",
+                manufactureCountryCode: "Final assembly country",
+                powertrain: "Powertrain",
+                engineCapacityCc: "Engine capacity (cc)",
+                features: "Recorded features",
                 color: "Colour",
                 doors: "Doors",
                 seats: "Seats",
@@ -132,7 +140,16 @@ export function VehicleRecordForm({
                   ? formatStockInstant(String(value))
                   : key === "mileageKm"
                     ? `${Number(value).toLocaleString("en-NG")} km`
-                    : String(value).replaceAll("_", " "),
+                    : Array.isArray(value)
+                      ? value.join(", ") || "Not recorded"
+                      : [
+                            "manufactureCountryCode",
+                            "powertrain",
+                            "condition",
+                            "driveType",
+                          ].includes(key)
+                        ? vehicleLabel(String(value))
+                        : String(value).replaceAll("_", " "),
         })),
       ],
       onConfirmed: () => {
@@ -260,6 +277,37 @@ export function VehicleRecordForm({
                   )}
                 </div>
               ))}
+            <div className="field">
+              <label htmlFor="vehicle-record-country">
+                Final assembly country (optional)
+              </label>
+              <Controller
+                name="manufactureCountryCode"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <CountryField
+                      id="vehicle-record-country"
+                      value={field.value}
+                      onChange={field.onChange}
+                      inputRef={field.ref}
+                      onBlur={field.onBlur}
+                      invalid={!!fieldState.error}
+                      describedBy="vehicle-record-country-hint"
+                    />
+                    {fieldState.error && (
+                      <p className="field-error" role="alert">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </>
+                )}
+              />
+              <small id="vehicle-record-country-hint">
+                Use documented final assembly country. Leave blank when unknown; do not
+                infer it from the brand or import route.
+              </small>
+            </div>
             {Object.entries(vehicleEnums).map(([name, options]) => (
               <Controller
                 key={name}
@@ -270,6 +318,7 @@ export function VehicleRecordForm({
                     "fuelType",
                     "bodyType",
                     "driveType",
+                    "powertrain",
                   ])
                   .parse(name)}
                 control={form.control}
@@ -296,7 +345,7 @@ export function VehicleRecordForm({
                       {name !== "condition" && <option value="">Not set</option>}
                       {options.map((value) => (
                         <option key={value} value={value}>
-                          {value.replaceAll("_", " ")}
+                          {vehicleLabel(value)}
                         </option>
                       ))}
                     </select>

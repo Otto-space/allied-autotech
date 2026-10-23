@@ -130,7 +130,7 @@ export default function AboutPage() {
             <div className="about-brand">
               <Brand />
             </div>
-            <h2 id="about-principles-title">Built on Trust, Driven by Quality.</h2>
+            <h2 id="about-principles-title">Built on trust driven by quality</h2>
             <p>
               Inspect carefully. Diagnose the issue. Explain the next step. Our approach
               keeps practical expertise and clear communication at the centre of vehicle

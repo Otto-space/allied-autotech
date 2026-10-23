@@ -27,6 +27,13 @@ async function fixture() {
         model: i % 2 ? "Coupe" : "Sedan",
         year: 2020 + (i % 3),
         acquisitionCostKobo: 10n,
+        mileageKm: i === 0 || i === 7 ? null : Math.floor(i / 2) * 10000,
+        condition: (["USED", "NEW", "FOREIGN_USED", "LOCALLY_USED"] as const)[i % 4],
+        manufactureCountryCode: i < 4 ? "DE" : "CN",
+        powertrain: i === 2 ? "PHEV" : "HEV",
+        fuelType: "HYBRID",
+        engineCapacityCc: i < 4 ? 1800 : 2500,
+        features: i < 4 ? ["Sunroof"] : [],
       },
     });
     const listing = await prisma.vehicleListing.create({
@@ -133,7 +140,15 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         `Vehicle discovery volume: 10000 listings; inventory/count ${inventoryMs.toFixed(1)}ms; first options + complete 100-make traversal + model options ${(performance.now() - optionStart).toFixed(1)}ms.\n`,
       );
     }, 60000);
-    it.each(["newest", "price_asc", "price_desc", "year_desc"] as const)(
+    it.each([
+      "newest",
+      "price_asc",
+      "price_desc",
+      "year_desc",
+      "year_asc",
+      "mileage_asc",
+      "mileage_desc",
+    ] as const)(
       "traverses tied %s values completely and counts the filtered public dataset",
       async (sort) => {
         const { prefix, rows } = await fixture();
@@ -149,15 +164,27 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           cursor = response.nextCursor;
         } while (cursor);
         const expected = rows.slice(0, 8).sort((a, b) => {
+          if (sort === "mileage_asc" || sort === "mileage_desc") {
+            const direction = sort === "mileage_asc" ? 1 : -1;
+            if (a.vehicle.mileageKm === null && b.vehicle.mileageKm !== null) return 1;
+            if (b.vehicle.mileageKm === null && a.vehicle.mileageKm !== null) return -1;
+            return (
+              (a.vehicle.mileageKm !== null && b.vehicle.mileageKm !== null
+                ? (a.vehicle.mileageKm - b.vehicle.mileageKm) * direction
+                : 0) || a.id.localeCompare(b.id) * direction
+            );
+          }
           const primary =
             sort === "newest"
               ? b.createdAt.getTime() - a.createdAt.getTime()
-              : sort === "year_desc"
-                ? b.vehicle.year - a.vehicle.year
+              : sort === "year_desc" || sort === "year_asc"
+                ? (b.vehicle.year - a.vehicle.year) * (sort === "year_asc" ? -1 : 1)
                 : Number(a.priceKobo - b.priceKobo) * (sort === "price_asc" ? 1 : -1);
           return (
             primary ||
-            (sort !== "price_asc" ? b.id.localeCompare(a.id) : a.id.localeCompare(b.id))
+            (sort !== "price_asc" && sort !== "year_asc"
+              ? b.id.localeCompare(a.id)
+              : a.id.localeCompare(b.id))
           );
         });
         expect(seen).toEqual(expected.map((row) => row.id));
@@ -176,6 +203,63 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).toHaveLength(2);
       },
     );
+    it("filters real attributes before counting/paging and keeps legacy unknown values distinct", async () => {
+      const { prefix, rows } = await fixture();
+      for (const condition of ["NEW", "FOREIGN_USED", "LOCALLY_USED", "USED"]) {
+        const result = await page({ search: prefix, condition, limit: 1 });
+        expect(result.totalMatches).toBe(2);
+        expect(result.items[0]!.vehicle.condition).toBe(condition);
+      }
+      expect(
+        (await page({ search: prefix, manufactureRegion: "EUROPE" })).totalMatches,
+      ).toBe(4);
+      expect(
+        (await page({ search: prefix, manufactureCountryCode: "CN" })).totalMatches,
+      ).toBe(4);
+      expect(
+        (await page({ search: prefix, powertrain: "PHEV" })).items.map((r) => r.id),
+      ).toEqual([rows[2]!.id]);
+      expect(
+        (await page({ search: prefix, fuelType: "HYBRID", powertrain: "HEV" }))
+          .totalMatches,
+      ).toBe(7);
+      expect(
+        (
+          await page({
+            search: prefix,
+            minEngineCapacityCc: 2000,
+            maxEngineCapacityCc: 2500,
+          })
+        ).totalMatches,
+      ).toBe(4);
+      expect(
+        (await page({ search: prefix, feature: "Sunroof", maxMileageKm: 10000 }))
+          .totalMatches,
+      ).toBe(3);
+      expect(
+        (await page({ search: prefix, minYear: 2021, maxYear: 2021 })).totalMatches,
+      ).toBe(3);
+      const first = await page({ search: prefix, manufactureRegion: "EUROPE", limit: 1 });
+      expect(
+        (
+          await request(app).get(path).query({
+            search: prefix,
+            manufactureCountryCode: "CN",
+            cursor: first.nextCursor,
+          })
+        ).status,
+      ).toBe(422);
+      for (const invalid of [
+        { manufactureCountryCode: "ZZ" },
+        { manufactureCountryCode: "CN", manufactureRegion: "EUROPE" },
+        { minYear: 2025, maxYear: 2018 },
+        { minMileageKm: -1 },
+        { powertrain: "HYBRID" },
+        { model: "Sedan" },
+      ]) {
+        expect((await request(app).get(path).query(invalid)).status).toBe(422);
+      }
+    });
     it("continues after its anchor is removed and binds cursors to sort and filters", async () => {
       const { prefix } = await fixture();
       const first = await page({ search: prefix, limit: 2 });

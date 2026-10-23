@@ -62879,6 +62879,221 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Trim validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "trim",
+            "in": "query",
+            "description": "Trim used to constrain this request.",
+            "example": "synthetic-trim"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NEW",
+                "USED",
+                "FOREIGN_USED",
+                "LOCALLY_USED"
+              ],
+              "description": "Condition validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "condition",
+            "in": "query",
+            "description": "Condition used to constrain this request.",
+            "example": "NEW"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": false,
+            "name": "manufactureCountryCode",
+            "in": "query",
+            "description": "Manufacture Country Code used to constrain this request.",
+            "example": "synthetic-manufacturecountrycode"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EUROPE"
+              ],
+              "description": "Manufacture Region validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "manufactureRegion",
+            "in": "query",
+            "description": "Manufacture Region used to constrain this request.",
+            "example": "EUROPE"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BEV",
+                "HEV",
+                "PHEV",
+                "ICE"
+              ],
+              "description": "Powertrain validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "powertrain",
+            "in": "query",
+            "description": "Powertrain used to constrain this request.",
+            "example": "BEV"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FWD",
+                "RWD",
+                "AWD",
+                "FOUR_WD",
+                "OTHER"
+              ],
+              "description": "Drive Type validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "driveType",
+            "in": "query",
+            "description": "Drive Type used to constrain this request.",
+            "example": "FWD"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Year validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minYear",
+            "in": "query",
+            "description": "Min Year used to constrain this request.",
+            "example": "synthetic-minyear"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Year validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxYear",
+            "in": "query",
+            "description": "Max Year used to constrain this request.",
+            "example": "synthetic-maxyear"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Mileage Km validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minMileageKm",
+            "in": "query",
+            "description": "Min Mileage Km used to constrain this request.",
+            "example": "synthetic-minmileagekm"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Mileage Km validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxMileageKm",
+            "in": "query",
+            "description": "Max Mileage Km used to constrain this request.",
+            "example": "synthetic-maxmileagekm"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Engine Capacity Cc validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minEngineCapacityCc",
+            "in": "query",
+            "description": "Min Engine Capacity Cc used to constrain this request.",
+            "example": "synthetic-minenginecapacitycc"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Engine Capacity Cc validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxEngineCapacityCc",
+            "in": "query",
+            "description": "Max Engine Capacity Cc used to constrain this request.",
+            "example": "synthetic-maxenginecapacitycc"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Seats validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "seats",
+            "in": "query",
+            "description": "Seats used to constrain this request.",
+            "example": "synthetic-seats"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "Color validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "color",
+            "in": "query",
+            "description": "Color used to constrain this request.",
+            "example": "synthetic-color"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Feature validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "feature",
+            "in": "query",
+            "description": "Feature used to constrain this request.",
+            "example": "synthetic-feature"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Inspected validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "inspected",
+            "in": "query",
+            "description": "Inspected used to constrain this request.",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
               "enum": [
                 "SEDAN",
                 "SUV",
@@ -62980,7 +63195,10 @@
                 "newest",
                 "price_asc",
                 "price_desc",
-                "year_desc"
+                "year_desc",
+                "year_asc",
+                "mileage_asc",
+                "mileage_desc"
               ],
               "default": "newest",
               "description": "Sort validated by this operation's strict request contract."
@@ -63154,6 +63372,42 @@
                                   "condition": {
                                     "type": "string",
                                     "description": "Condition validated by this operation's strict request contract."
+                                  },
+                                  "manufactureCountryCode": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                                  },
+                                  "powertrain": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "enum": [
+                                      "BEV",
+                                      "HEV",
+                                      "PHEV",
+                                      "ICE",
+                                      null
+                                    ],
+                                    "description": "Powertrain validated by this operation's strict request contract."
+                                  },
+                                  "engineCapacityCc": {
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ],
+                                    "description": "Engine Capacity Cc validated by this operation's strict request contract."
+                                  },
+                                  "features": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "description": "Features Item validated by this operation's strict request contract."
+                                    },
+                                    "description": "Features validated by this operation's strict request contract."
                                   },
                                   "bodyType": {
                                     "type": [
@@ -63976,6 +64230,221 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Trim validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "trim",
+            "in": "query",
+            "description": "Trim used to constrain this request.",
+            "example": "synthetic-trim"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NEW",
+                "USED",
+                "FOREIGN_USED",
+                "LOCALLY_USED"
+              ],
+              "description": "Condition validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "condition",
+            "in": "query",
+            "description": "Condition used to constrain this request.",
+            "example": "NEW"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": false,
+            "name": "manufactureCountryCode",
+            "in": "query",
+            "description": "Manufacture Country Code used to constrain this request.",
+            "example": "synthetic-manufacturecountrycode"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EUROPE"
+              ],
+              "description": "Manufacture Region validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "manufactureRegion",
+            "in": "query",
+            "description": "Manufacture Region used to constrain this request.",
+            "example": "EUROPE"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BEV",
+                "HEV",
+                "PHEV",
+                "ICE"
+              ],
+              "description": "Powertrain validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "powertrain",
+            "in": "query",
+            "description": "Powertrain used to constrain this request.",
+            "example": "BEV"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FWD",
+                "RWD",
+                "AWD",
+                "FOUR_WD",
+                "OTHER"
+              ],
+              "description": "Drive Type validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "driveType",
+            "in": "query",
+            "description": "Drive Type used to constrain this request.",
+            "example": "FWD"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Year validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minYear",
+            "in": "query",
+            "description": "Min Year used to constrain this request.",
+            "example": "synthetic-minyear"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Year validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxYear",
+            "in": "query",
+            "description": "Max Year used to constrain this request.",
+            "example": "synthetic-maxyear"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Mileage Km validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minMileageKm",
+            "in": "query",
+            "description": "Min Mileage Km used to constrain this request.",
+            "example": "synthetic-minmileagekm"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Mileage Km validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxMileageKm",
+            "in": "query",
+            "description": "Max Mileage Km used to constrain this request.",
+            "example": "synthetic-maxmileagekm"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Engine Capacity Cc validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minEngineCapacityCc",
+            "in": "query",
+            "description": "Min Engine Capacity Cc used to constrain this request.",
+            "example": "synthetic-minenginecapacitycc"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Engine Capacity Cc validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxEngineCapacityCc",
+            "in": "query",
+            "description": "Max Engine Capacity Cc used to constrain this request.",
+            "example": "synthetic-maxenginecapacitycc"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Seats validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "seats",
+            "in": "query",
+            "description": "Seats used to constrain this request.",
+            "example": "synthetic-seats"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "Color validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "color",
+            "in": "query",
+            "description": "Color used to constrain this request.",
+            "example": "synthetic-color"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Feature validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "feature",
+            "in": "query",
+            "description": "Feature used to constrain this request.",
+            "example": "synthetic-feature"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Inspected validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "inspected",
+            "in": "query",
+            "description": "Inspected used to constrain this request.",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
               "enum": [
                 "SEDAN",
                 "SUV",
@@ -64077,7 +64546,10 @@
                 "newest",
                 "price_asc",
                 "price_desc",
-                "year_desc"
+                "year_desc",
+                "year_asc",
+                "mileage_asc",
+                "mileage_desc"
               ],
               "default": "newest",
               "description": "Sort validated by this operation's strict request contract."
@@ -65154,6 +65626,42 @@
                                       "condition": {
                                         "type": "string",
                                         "description": "Condition validated by this operation's strict request contract."
+                                      },
+                                      "manufactureCountryCode": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ],
+                                        "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                                      },
+                                      "powertrain": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ],
+                                        "enum": [
+                                          "BEV",
+                                          "HEV",
+                                          "PHEV",
+                                          "ICE",
+                                          null
+                                        ],
+                                        "description": "Powertrain validated by this operation's strict request contract."
+                                      },
+                                      "engineCapacityCc": {
+                                        "type": [
+                                          "integer",
+                                          "null"
+                                        ],
+                                        "description": "Engine Capacity Cc validated by this operation's strict request contract."
+                                      },
+                                      "features": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "description": "Features Item validated by this operation's strict request contract."
+                                        },
+                                        "description": "Features validated by this operation's strict request contract."
                                       },
                                       "bodyType": {
                                         "type": [
@@ -66312,6 +66820,221 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Trim validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "trim",
+            "in": "query",
+            "description": "Trim used to constrain this request.",
+            "example": "synthetic-trim"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NEW",
+                "USED",
+                "FOREIGN_USED",
+                "LOCALLY_USED"
+              ],
+              "description": "Condition validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "condition",
+            "in": "query",
+            "description": "Condition used to constrain this request.",
+            "example": "NEW"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": false,
+            "name": "manufactureCountryCode",
+            "in": "query",
+            "description": "Manufacture Country Code used to constrain this request.",
+            "example": "synthetic-manufacturecountrycode"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EUROPE"
+              ],
+              "description": "Manufacture Region validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "manufactureRegion",
+            "in": "query",
+            "description": "Manufacture Region used to constrain this request.",
+            "example": "EUROPE"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "BEV",
+                "HEV",
+                "PHEV",
+                "ICE"
+              ],
+              "description": "Powertrain validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "powertrain",
+            "in": "query",
+            "description": "Powertrain used to constrain this request.",
+            "example": "BEV"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FWD",
+                "RWD",
+                "AWD",
+                "FOUR_WD",
+                "OTHER"
+              ],
+              "description": "Drive Type validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "driveType",
+            "in": "query",
+            "description": "Drive Type used to constrain this request.",
+            "example": "FWD"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Year validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minYear",
+            "in": "query",
+            "description": "Min Year used to constrain this request.",
+            "example": "synthetic-minyear"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Year validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxYear",
+            "in": "query",
+            "description": "Max Year used to constrain this request.",
+            "example": "synthetic-maxyear"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Mileage Km validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minMileageKm",
+            "in": "query",
+            "description": "Min Mileage Km used to constrain this request.",
+            "example": "synthetic-minmileagekm"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Mileage Km validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxMileageKm",
+            "in": "query",
+            "description": "Max Mileage Km used to constrain this request.",
+            "example": "synthetic-maxmileagekm"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Min Engine Capacity Cc validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "minEngineCapacityCc",
+            "in": "query",
+            "description": "Min Engine Capacity Cc used to constrain this request.",
+            "example": "synthetic-minenginecapacitycc"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Max Engine Capacity Cc validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "maxEngineCapacityCc",
+            "in": "query",
+            "description": "Max Engine Capacity Cc used to constrain this request.",
+            "example": "synthetic-maxenginecapacitycc"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{1,8}$",
+              "description": "Seats validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "seats",
+            "in": "query",
+            "description": "Seats used to constrain this request.",
+            "example": "synthetic-seats"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "Color validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "color",
+            "in": "query",
+            "description": "Color used to constrain this request.",
+            "example": "synthetic-color"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Feature validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "feature",
+            "in": "query",
+            "description": "Feature used to constrain this request.",
+            "example": "synthetic-feature"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ],
+              "description": "Inspected validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "inspected",
+            "in": "query",
+            "description": "Inspected used to constrain this request.",
+            "example": "true"
+          },
+          {
+            "schema": {
+              "type": "string",
               "enum": [
                 "SEDAN",
                 "SUV",
@@ -66413,7 +67136,10 @@
                 "newest",
                 "price_asc",
                 "price_desc",
-                "year_desc"
+                "year_desc",
+                "year_asc",
+                "mileage_asc",
+                "mileage_desc"
               ],
               "default": "newest",
               "description": "Sort validated by this operation's strict request contract."
@@ -66827,7 +67553,9 @@
                     "type": "string",
                     "enum": [
                       "NEW",
-                      "USED"
+                      "USED",
+                      "FOREIGN_USED",
+                      "LOCALLY_USED"
                     ],
                     "default": "USED",
                     "description": "Condition validated by this operation's strict request contract."
@@ -66851,6 +67579,47 @@
                       null
                     ],
                     "description": "Body Type validated by this operation's strict request contract."
+                  },
+                  "manufactureCountryCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "powertrain": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "BEV",
+                      "HEV",
+                      "PHEV",
+                      "ICE",
+                      null
+                    ],
+                    "description": "Powertrain validated by this operation's strict request contract."
+                  },
+                  "engineCapacityCc": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 30000,
+                    "description": "Engine Capacity Cc validated by this operation's strict request contract."
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "description": "Features Item validated by this operation's strict request contract."
+                    },
+                    "maxItems": 40,
+                    "description": "Features validated by this operation's strict request contract."
                   },
                   "engineSize": {
                     "type": [
@@ -67582,7 +68351,9 @@
                     "type": "string",
                     "enum": [
                       "NEW",
-                      "USED"
+                      "USED",
+                      "FOREIGN_USED",
+                      "LOCALLY_USED"
                     ],
                     "default": "USED",
                     "description": "Condition validated by this operation's strict request contract."
@@ -67606,6 +68377,47 @@
                       null
                     ],
                     "description": "Body Type validated by this operation's strict request contract."
+                  },
+                  "manufactureCountryCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "powertrain": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "BEV",
+                      "HEV",
+                      "PHEV",
+                      "ICE",
+                      null
+                    ],
+                    "description": "Powertrain validated by this operation's strict request contract."
+                  },
+                  "engineCapacityCc": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 30000,
+                    "description": "Engine Capacity Cc validated by this operation's strict request contract."
+                  },
+                  "features": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "description": "Features Item validated by this operation's strict request contract."
+                    },
+                    "maxItems": 40,
+                    "description": "Features validated by this operation's strict request contract."
                   },
                   "engineSize": {
                     "type": [
@@ -72575,6 +73387,3721 @@
         },
         "operationId": "postStaffVehiclesByVehicleIdDocumentsByDocumentIdAccess",
         "description": "Authorize private document download. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/public/fitment/makes": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: makes",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: makes. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Search validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "search",
+            "in": "query",
+            "description": "Search used to constrain this request.",
+            "example": "synthetic-search"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30,
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: makes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: makes.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: makes",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicFitmentMakes",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/public/fitment/models": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: models",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: models. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the make resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "makeId",
+            "in": "query",
+            "description": "Make Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Search validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "search",
+            "in": "query",
+            "description": "Search used to constrain this request.",
+            "example": "synthetic-search"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30,
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: models.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: models.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: models",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicFitmentModels",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/public/fitment/years": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: years",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: years. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the model resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "modelId",
+            "in": "query",
+            "description": "Model Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: years.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: years.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: years",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicFitmentYears",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/public/fitment/products/{productId}": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: productFitment",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: productFitment. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the product resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "productId",
+            "in": "path",
+            "description": "Identifier selecting the product resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the vehicle make resource; ownership is resolved server-side."
+            },
+            "required": false,
+            "name": "vehicleMakeId",
+            "in": "query",
+            "description": "Vehicle Make Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "vehicleModelId",
+            "in": "query",
+            "description": "Vehicle Model Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}$",
+              "description": "Year validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "year",
+            "in": "query",
+            "description": "Year used to constrain this request.",
+            "example": "synthetic-year"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Trim validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "trim",
+            "in": "query",
+            "description": "Trim used to constrain this request.",
+            "example": "synthetic-trim"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": false,
+            "name": "engineCode",
+            "in": "query",
+            "description": "Engine Code used to constrain this request.",
+            "example": "synthetic-enginecode"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Market validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "market",
+            "in": "query",
+            "description": "Market used to constrain this request.",
+            "example": "synthetic-market"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Position validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "position",
+            "in": "query",
+            "description": "Position used to constrain this request.",
+            "example": "synthetic-position"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Brake System validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "brakeSystem",
+            "in": "query",
+            "description": "Brake System used to constrain this request.",
+            "example": "synthetic-brakesystem"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Brake Diameter Mm validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "brakeDiameterMm",
+            "in": "query",
+            "description": "Brake Diameter Mm used to constrain this request.",
+            "example": "synthetic-brakediametermm"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Body Type validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "bodyType",
+            "in": "query",
+            "description": "Body Type used to constrain this request.",
+            "example": "synthetic-bodytype"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Transmission validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "transmission",
+            "in": "query",
+            "description": "Transmission used to constrain this request.",
+            "example": "synthetic-transmission"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Generation validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "generation",
+            "in": "query",
+            "description": "Generation used to constrain this request.",
+            "example": "synthetic-generation"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": false,
+            "name": "chassisCode",
+            "in": "query",
+            "description": "Chassis Code used to constrain this request.",
+            "example": "synthetic-chassiscode"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: productFitment.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "VERIFIED_FIT",
+                            "NEEDS_VERIFICATION",
+                            "NOT_COMPATIBLE",
+                            "UNKNOWN"
+                          ],
+                          "description": "Requested or filtered lifecycle state from the documented enum."
+                        },
+                        "scope": {
+                          "type": "string",
+                          "enum": [
+                            "MODEL",
+                            "UNIVERSAL"
+                          ],
+                          "description": "Scope validated by this operation's strict request contract."
+                        },
+                        "message": {
+                          "type": "string",
+                          "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                        },
+                        "missingQualifiers": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "enum": [
+                              "trim",
+                              "engineCode",
+                              "market",
+                              "position",
+                              "brakeSystem",
+                              "brakeDiameterMm",
+                              "bodyType",
+                              "transmission",
+                              "generation",
+                              "chassisCode"
+                            ],
+                            "description": "Missing Qualifiers Item validated by this operation's strict request contract."
+                          },
+                          "description": "Missing Qualifiers validated by this operation's strict request contract."
+                        },
+                        "matchedRuleIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "description": "Matched Rule Ids Item validated by this operation's strict request contract."
+                          },
+                          "description": "Matched Rule Ids validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "message",
+                        "missingQualifiers",
+                        "matchedRuleIds"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: productFitment",
+                  "data": {
+                    "status": "VERIFIED_FIT",
+                    "scope": "MODEL",
+                    "message": "synthetic-message",
+                    "missingQualifiers": [
+                      "trim"
+                    ],
+                    "matchedRuleIds": [
+                      "00000000-0000-4000-8000-000000000001"
+                    ]
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicFitmentProductsByProductId",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/access": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: access",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: access. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: access.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: access.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: access",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getStaffFitmentAccess",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/products": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: products",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: products. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Search validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "search",
+            "in": "query",
+            "description": "Search used to constrain this request.",
+            "example": "synthetic-search"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30,
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: products.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: products.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: products",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getStaffFitmentProducts",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/rules": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: rules",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: rules. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the product resource; ownership is resolved server-side."
+            },
+            "required": false,
+            "name": "productId",
+            "in": "query",
+            "description": "Product Id used to constrain this request.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DRAFT",
+                "PENDING",
+                "APPROVED",
+                "REJECTED",
+                "RETIRED"
+              ],
+              "description": "Review Status validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "reviewStatus",
+            "in": "query",
+            "description": "Review Status used to constrain this request.",
+            "example": "DRAFT"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: rules.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: rules.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: rules",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getStaffFitmentRules",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/products/{productId}/rules/{ruleId}/history": {
+      "get": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: history",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: history. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the product resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "productId",
+            "in": "path",
+            "description": "Identifier selecting the product resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the rule resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "ruleId",
+            "in": "path",
+            "description": "Identifier selecting the rule resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: history.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Cursor-paginated result for: Vehicle catalogue and reviewed parts fitment: history.",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "description": "Authorized resource projections for this page.",
+                          "items": {
+                            "type": "object",
+                            "description": "Safe item projection returned by Vehicle catalogue and reviewed parts fitment: history.",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "description": "Public or authorized resource identifier."
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "Current server-owned lifecycle state when applicable."
+                              }
+                            },
+                            "additionalProperties": true
+                          }
+                        },
+                        "nextCursor": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uuid",
+                          "description": "Cursor for the next page, or null/omitted when exhausted."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: history",
+                  "data": {
+                    "items": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000001",
+                        "status": "synthetic-status"
+                      }
+                    ],
+                    "nextCursor": "00000000-0000-4000-8000-000000000001"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getStaffFitmentProductsByProductIdRulesByRuleIdHistory",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/makes": {
+      "post": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: createMake",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createMake. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Name validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "name": "synthetic-name"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: createMake.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: createMake.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: createMake",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffFitmentMakes",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/models": {
+      "post": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: createModel",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createModel. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "makeId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "Identifier of the make resource; ownership is resolved server-side."
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Name validated by this operation's strict request contract."
+                  },
+                  "yearFrom": {
+                    "type": "integer",
+                    "minimum": 1886,
+                    "maximum": 2200,
+                    "description": "Year From validated by this operation's strict request contract."
+                  },
+                  "yearTo": {
+                    "type": "integer",
+                    "minimum": 1886,
+                    "maximum": 2200,
+                    "description": "Year To validated by this operation's strict request contract."
+                  },
+                  "sourceReference": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "Source Reference validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "makeId",
+                  "name",
+                  "yearFrom",
+                  "yearTo",
+                  "sourceReference"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "makeId": "00000000-0000-4000-8000-000000000001",
+                "name": "synthetic-name",
+                "yearFrom": 1886,
+                "yearTo": 1886,
+                "sourceReference": "synthetic-sourcereference"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: createModel.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: createModel.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: createModel",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffFitmentModels",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/products/{productId}/rules": {
+      "post": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: createRule",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: createRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the product resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "productId",
+            "in": "path",
+            "description": "Identifier selecting the product resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "MODEL",
+                      "UNIVERSAL"
+                    ],
+                    "default": "MODEL",
+                    "description": "Scope validated by this operation's strict request contract."
+                  },
+                  "vehicleModelId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid",
+                    "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                  },
+                  "branchId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid",
+                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                  },
+                  "yearFrom": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1886,
+                    "maximum": 2200,
+                    "description": "Year From validated by this operation's strict request contract."
+                  },
+                  "yearTo": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1886,
+                    "maximum": 2200,
+                    "description": "Year To validated by this operation's strict request contract."
+                  },
+                  "effect": {
+                    "type": "string",
+                    "enum": [
+                      "INCLUDE",
+                      "EXCLUDE"
+                    ],
+                    "default": "INCLUDE",
+                    "description": "Effect validated by this operation's strict request contract."
+                  },
+                  "safetyCritical": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Safety Critical validated by this operation's strict request contract."
+                  },
+                  "allVariantsConfirmed": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "All Variants Confirmed validated by this operation's strict request contract."
+                  },
+                  "requiredQualifiers": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "trim",
+                        "engineCode",
+                        "market",
+                        "position",
+                        "brakeSystem",
+                        "brakeDiameterMm",
+                        "bodyType",
+                        "transmission",
+                        "generation",
+                        "chassisCode"
+                      ],
+                      "description": "Required Qualifiers Item validated by this operation's strict request contract."
+                    },
+                    "maxItems": 10,
+                    "default": [],
+                    "description": "Required Qualifiers validated by this operation's strict request contract."
+                  },
+                  "trim": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Trim validated by this operation's strict request contract."
+                  },
+                  "engineCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "market": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Market validated by this operation's strict request contract."
+                  },
+                  "position": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Position validated by this operation's strict request contract."
+                  },
+                  "brakeSystem": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake System validated by this operation's strict request contract."
+                  },
+                  "brakeDiameterMm": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                  },
+                  "bodyType": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Body Type validated by this operation's strict request contract."
+                  },
+                  "transmission": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Transmission validated by this operation's strict request contract."
+                  },
+                  "generation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Generation validated by this operation's strict request contract."
+                  },
+                  "chassisCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "sourceReference": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "Source Reference validated by this operation's strict request contract."
+                  },
+                  "evidenceNotes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "notes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: createRule.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: createRule.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: createRule",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffFitmentProductsByProductIdRules",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/products/{productId}/rules/{ruleId}": {
+      "put": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: updateRule",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: updateRule. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the product resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "productId",
+            "in": "path",
+            "description": "Identifier selecting the product resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the rule resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "ruleId",
+            "in": "path",
+            "description": "Identifier selecting the rule resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "MODEL",
+                      "UNIVERSAL"
+                    ],
+                    "default": "MODEL",
+                    "description": "Scope validated by this operation's strict request contract."
+                  },
+                  "vehicleModelId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid",
+                    "description": "Identifier of the vehicle model resource; ownership is resolved server-side."
+                  },
+                  "branchId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid",
+                    "description": "Identifier of the branch resource; ownership is resolved server-side."
+                  },
+                  "yearFrom": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1886,
+                    "maximum": 2200,
+                    "description": "Year From validated by this operation's strict request contract."
+                  },
+                  "yearTo": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1886,
+                    "maximum": 2200,
+                    "description": "Year To validated by this operation's strict request contract."
+                  },
+                  "effect": {
+                    "type": "string",
+                    "enum": [
+                      "INCLUDE",
+                      "EXCLUDE"
+                    ],
+                    "default": "INCLUDE",
+                    "description": "Effect validated by this operation's strict request contract."
+                  },
+                  "safetyCritical": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Safety Critical validated by this operation's strict request contract."
+                  },
+                  "allVariantsConfirmed": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "All Variants Confirmed validated by this operation's strict request contract."
+                  },
+                  "requiredQualifiers": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "trim",
+                        "engineCode",
+                        "market",
+                        "position",
+                        "brakeSystem",
+                        "brakeDiameterMm",
+                        "bodyType",
+                        "transmission",
+                        "generation",
+                        "chassisCode"
+                      ],
+                      "description": "Required Qualifiers Item validated by this operation's strict request contract."
+                    },
+                    "maxItems": 10,
+                    "default": [],
+                    "description": "Required Qualifiers validated by this operation's strict request contract."
+                  },
+                  "trim": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Trim validated by this operation's strict request contract."
+                  },
+                  "engineCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "market": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Market validated by this operation's strict request contract."
+                  },
+                  "position": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Position validated by this operation's strict request contract."
+                  },
+                  "brakeSystem": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake System validated by this operation's strict request contract."
+                  },
+                  "brakeDiameterMm": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Brake Diameter Mm validated by this operation's strict request contract."
+                  },
+                  "bodyType": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Body Type validated by this operation's strict request contract."
+                  },
+                  "transmission": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Transmission validated by this operation's strict request contract."
+                  },
+                  "generation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Generation validated by this operation's strict request contract."
+                  },
+                  "chassisCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                  },
+                  "sourceReference": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "description": "Source Reference validated by this operation's strict request contract."
+                  },
+                  "evidenceNotes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "notes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  }
+                },
+                "required": [
+                  "expectedVersion"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedVersion": 0
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: updateRule.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: updateRule.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: updateRule",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "putStaffFitmentProductsByProductIdRulesByRuleId",
+        "x-access-boundary": "mfa-verified-staff",
+        "x-required-roles": [
+          "STAFF",
+          "ADMIN",
+          "SUPER_ADMIN"
+        ],
+        "x-csrf-required": true,
+        "x-idempotency-required": false
+      }
+    },
+    "/staff/fitment/products/{productId}/rules/{ruleId}/transitions": {
+      "post": {
+        "tags": [
+          "Parts fitment"
+        ],
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "summary": "Vehicle catalogue and reviewed parts fitment: transition",
+        "description": "Make/model/year identifies candidates only. Exact fit requires approved evidence, matching required technical qualifiers and no possible approved exclusion. Public reads omit draft/rejected rules. Staff requests revalidate current MFA, assignment and branch scope in a transaction. Sales/Operations author; Workshop/Quality or the owner review; authors and last editors cannot approve their own rules. Mutations record immutable version history. Stale versions and duplicate semantic rules conflict. Legacy rules remain draft until normalized and reviewed. No sale stock, checkout, inventory quantities or workflow completion is changed. Vehicle catalogue and reviewed parts fitment: transition. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the product resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "productId",
+            "in": "path",
+            "description": "Identifier selecting the product resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identifier of the rule resource; ownership is resolved server-side."
+            },
+            "required": true,
+            "name": "ruleId",
+            "in": "path",
+            "description": "Identifier selecting the rule resource.",
+            "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 32,
+              "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+            },
+            "required": true,
+            "name": "x-csrf-token",
+            "in": "header",
+            "description": "Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.",
+            "example": "synthetic-token-value-not-a-real-secret"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "SUBMIT",
+                      "APPROVE",
+                      "REJECT",
+                      "RETIRE"
+                    ],
+                    "description": "Action validated by this operation's strict request contract."
+                  },
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
+                  "note": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                  }
+                },
+                "required": [
+                  "action",
+                  "expectedVersion",
+                  "note"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "action": "SUBMIT",
+                "expectedVersion": 0,
+                "note": "synthetic-note"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success: Vehicle catalogue and reviewed parts fitment: transition.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ],
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "description": "Authorized response projection for: Vehicle catalogue and reviewed parts fitment: transition.",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Public or authorized resource identifier."
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "Current server-owned lifecycle state when applicable."
+                        }
+                      },
+                      "additionalProperties": true
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        },
+                        "serverTime": {
+                          "type": "string",
+                          "description": "ISO 8601 timestamp interpreted and validated by the server."
+                        }
+                      },
+                      "required": [
+                        "requestId",
+                        "serverTime"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Vehicle catalogue and reviewed parts fitment: transition",
+                  "data": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "status": "synthetic-status"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required for staff routes"
+          },
+          "403": {
+            "description": "Current MFA, branch or responsibility does not permit this action"
+          },
+          "404": {
+            "description": "Record is unavailable in this scope"
+          },
+          "409": {
+            "description": "Stale version, duplicate rule or invalid review transition"
+          },
+          "422": {
+            "description": "Invalid fields, vehicle relationship or incomplete evidence"
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postStaffFitmentProductsByProductIdRulesByRuleIdTransitions",
         "x-access-boundary": "mfa-verified-staff",
         "x-required-roles": [
           "STAFF",
@@ -103160,6 +107687,9 @@
             "schema": {
               "type": "string",
               "enum": [
+                "FITMENT_MAKE",
+                "FITMENT_MODEL",
+                "PRODUCT_FITMENT",
                 "USER",
                 "BRANCH",
                 "PRIVILEGED_INVITATION",
@@ -103197,7 +107727,7 @@
             "name": "entityType",
             "in": "query",
             "description": "Entity Type used to constrain this request.",
-            "example": "USER"
+            "example": "FITMENT_MAKE"
           },
           {
             "schema": {
@@ -103325,6 +107855,9 @@
                               "entityType": {
                                 "type": "string",
                                 "enum": [
+                                  "FITMENT_MAKE",
+                                  "FITMENT_MODEL",
+                                  "PRODUCT_FITMENT",
                                   "USER",
                                   "BRANCH",
                                   "PRIVILEGED_INVITATION",
@@ -103478,7 +108011,7 @@
                         "id": "00000000-0000-4000-8000-000000000001",
                         "userId": "00000000-0000-4000-8000-000000000001",
                         "action": "READ",
-                        "entityType": "USER",
+                        "entityType": "FITMENT_MAKE",
                         "entityId": "synthetic-entityid",
                         "requestId": "synthetic-requestid",
                         "oldValues": "synthetic-oldvalues",

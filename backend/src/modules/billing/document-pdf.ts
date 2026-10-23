@@ -132,7 +132,7 @@ export function renderFinancialPdf(
       );
       text(document.issuer.name, left, y, 255, 22);
       text(
-        "Built on Trust, Driven by Quality.",
+        "Built on trust driven by quality",
         left,
         y + height(document.issuer.name, 255, 22) + 8,
         255,

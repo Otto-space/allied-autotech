@@ -16,14 +16,22 @@ import { vehicleJsonSafe } from "./vehicles.types.js";
 
 const positionSchema = z.object({ id: z.uuid(), value: z.string().max(32) }).strict();
 function valueOf(
-  row: { createdAt: Date; priceKobo: bigint; vehicle: { year: number } },
+  row: {
+    createdAt: Date;
+    priceKobo: bigint;
+    vehicle: { year: number; mileageKm: number | null };
+  },
   sort: VehicleDiscoveryQuery["sort"],
 ) {
   return sort === "newest"
     ? row.createdAt.toISOString()
-    : sort === "year_desc"
+    : sort === "year_desc" || sort === "year_asc"
       ? String(row.vehicle.year)
-      : row.priceKobo.toString();
+      : sort === "mileage_asc" || sort === "mileage_desc"
+        ? row.vehicle.mileageKm === null
+          ? "unknown"
+          : String(row.vehicle.mileageKm)
+        : row.priceKobo.toString();
 }
 function afterPosition(
   position: z.infer<typeof positionSchema>,
@@ -37,13 +45,31 @@ function afterPosition(
       OR: [{ createdAt: { lt: at } }, { createdAt: at, id: { lt: position.id } }],
     };
   }
-  if (sort === "year_desc") {
+  if (sort === "mileage_asc" || sort === "mileage_desc") {
+    const comparison = sort === "mileage_asc" ? "gt" : "lt";
+    if (position.value === "unknown")
+      return { vehicle: { mileageKm: null }, id: { [comparison]: position.id } };
+    if (!/^\d{1,8}$/.test(position.value) || Number(position.value) > 10000000)
+      throw invalidCatalogueCursor();
+    const mileageKm = Number(position.value);
+    return {
+      OR: [
+        { vehicle: { mileageKm: { [comparison]: mileageKm } } },
+        { vehicle: { mileageKm: null } },
+        { vehicle: { mileageKm }, id: { [comparison]: position.id } },
+      ],
+    };
+  }
+  if (sort === "year_desc" || sort === "year_asc") {
     if (!/^\d{4}$/.test(position.value)) throw invalidCatalogueCursor();
     const year = Number(position.value);
     return {
       OR: [
-        { vehicle: { year: { lt: year } } },
-        { vehicle: { year }, id: { lt: position.id } },
+        { vehicle: { year: sort === "year_asc" ? { gt: year } : { lt: year } } },
+        {
+          vehicle: { year },
+          id: sort === "year_asc" ? { gt: position.id } : { lt: position.id },
+        },
       ],
     };
   }

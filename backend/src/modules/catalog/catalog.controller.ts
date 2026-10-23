@@ -284,7 +284,7 @@ export class CatalogController {
       value.compatibilityId,
       context(req),
     );
-    res.status(200).json(successResponse("Compatibility deleted", req.id));
+    res.status(200).json(successResponse("Compatibility retired", req.id));
   };
   createImage = async (req: Request, res: Response) => {
     res

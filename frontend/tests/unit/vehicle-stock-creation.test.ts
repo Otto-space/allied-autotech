@@ -37,6 +37,9 @@ describe("stock creation safety and projection", () => {
       model: "Camry",
       year: "2022",
       mileageKm: "0",
+      features: "Sunroof, Rear camera",
+      manufactureCountryCode: "JP",
+      powertrain: "HEV",
       acquisitionPrice: "99999999999999.99",
       acquiredAt: "2026-10-17T10:00",
     });
@@ -57,6 +60,9 @@ describe("stock creation safety and projection", () => {
     expect(body.acquisitionCostKobo).toBe("9999999999999999");
     expect(body.mileageKm).toBe(0);
     expect(parseCreatedStock(row, body, role).id).toBe(row.id);
+    expect(() =>
+      parseCreatedStock({ ...row, features: ["Sunroof"] }, body, role),
+    ).toThrow();
   });
   it("rejects mismatched results, populated new records and Staff acquisition leaks", () => {
     const values = recordSchema.parse({

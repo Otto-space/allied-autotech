@@ -147,6 +147,8 @@ export class ProductDiscoveryRepository {
       Prisma.sql`p."isActive" = true AND c."isActive" = true`,
       Prisma.sql`${column} IS NOT NULL AND ${column} <> ''`,
     ];
+    if (compatibility)
+      clauses.push(Prisma.sql`v."reviewStatus" = 'APPROVED' AND v."effect" = 'INCLUDE'`);
     if (query.categoryId) clauses.push(Prisma.sql`c."id" = ${query.categoryId}::uuid`);
     if (query.make)
       clauses.push(

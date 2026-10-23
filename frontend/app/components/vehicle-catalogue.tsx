@@ -131,6 +131,9 @@ export function VehicleCatalogue({
                 <option value="price_asc">Price: low to high</option>
                 <option value="price_desc">Price: high to low</option>
                 <option value="year_desc">Newest model year</option>
+                <option value="year_asc">Oldest model year</option>
+                <option value="mileage_asc">Mileage: low to high</option>
+                <option value="mileage_desc">Mileage: high to low</option>
               </select>
               <ChevronDown size={16} aria-hidden="true" />
             </div>
@@ -182,7 +185,12 @@ export function VehicleCatalogue({
                   className="vehicle-chip"
                   aria-label={`Remove ${label}`}
                   title={label}
-                  onClick={() => update((next) => next.delete(key))}
+                  onClick={() =>
+                    update((next) => {
+                      next.delete(key);
+                      if (key === "make") next.delete("model");
+                    })
+                  }
                 >
                   <span>{label}</span>
                   <X size={14} aria-hidden="true" />
@@ -295,6 +303,15 @@ export function VehicleCatalogue({
                         </dd>
                       </div>
                     </dl>
+                    <p className="vehicle-card-specification">
+                      {vehicleLabel(listing.vehicle.condition)}
+                      {listing.vehicle.powertrain
+                        ? ` ? ${vehicleLabel(listing.vehicle.powertrain)}`
+                        : ""}
+                      {listing.vehicle.manufactureCountryCode
+                        ? ` ? Assembled in ${vehicleLabel(listing.vehicle.manufactureCountryCode)}`
+                        : ""}
+                    </p>
                     <div className="vehicle-card-location">
                       <MapPin size={15} aria-hidden="true" />
                       <span>

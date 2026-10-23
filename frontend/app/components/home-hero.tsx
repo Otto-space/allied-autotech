@@ -7,8 +7,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const slides = [
   {
-    title: "Built on Trust,",
-    emphasis: "Driven by Quality.",
+    title: "Built on trust ",
+    emphasis: "driven by quality",
     description:
       "Professional diagnostics, maintenance and repairs, with clear advice and careful workmanship at every step.",
     action: "Book a Service",

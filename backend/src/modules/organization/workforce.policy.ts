@@ -230,6 +230,7 @@ export async function enforceWorkforceBoundary(
     path === "/api/v1/staff/profile" ||
     isPersonalNotificationPath(path) ||
     path.startsWith("/api/v1/staff/workforce/") ||
+    path.startsWith("/api/v1/staff/fitment/") ||
     path === "/api/v1/staff/workforce" ||
     path.startsWith("/api/v1/admin/workforce/")
   )

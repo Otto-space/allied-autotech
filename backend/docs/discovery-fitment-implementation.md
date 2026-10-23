@@ -1,0 +1,106 @@
+# Discovery and fitment implementation
+
+Implementation branch: `feat/discovery-fitment-20261023`, in the dedicated
+`allied-discovery-fitment-20261023` worktree. Base: merged release `8968a1a1`
+plus the support-email rollout evidence from `952178f0`. Existing workspace
+changes and release worktrees are preserved. No production deployment is in scope.
+
+## Implementation sequence
+
+1. Extend vehicle records, server filtering, contracts and public/staff controls:
+   condition, final assembly country, distinct powertrain, existing specifications,
+   validated ranges and stable pagination. Preserve unknown legacy values.
+2. Extend the existing parts catalogue and compatibility records with normalized
+   vehicle identity, explicit qualifiers, evidence, approval and immutable history.
+   Build the customer parts finder and staff author/reviewer workflows together.
+3. Reuse the customer garage for saved search configurations and the existing
+   support enquiry flow for assistance. Keep collection-only fulfilment explicit.
+4. Connect authorized notification targets to sidebar navigation, contextual arrival
+   and recipient-scoped read acknowledgement after successful record rendering.
+5. Update active branding copy; verify contracts, migration replay, database safety,
+   permissions, unit/integration coverage and desktop/mobile browser behavior.
+
+## Non-negotiable semantics
+
+- `USED` remains unspecified used condition. It is never relabelled locally used.
+- Manufacturing origin records final assembly country. Neither make nor import
+  country supplies it. The country list uses ISO codes and UN M49 regions.
+- Fuel, powertrain and drivetrain are independent; legacy hybrid does not imply
+  plug-in hybrid. Missing specifications stay unknown.
+- Make/model/year narrows fitment candidates; it does not prove fit. Public rules
+  require approval, evidence and the applicable technical qualifiers. Explicit
+  exclusions take precedence. Legacy compatibility rows start unreviewed.
+- All catalogue eligibility filtering happens in PostgreSQL before pagination.
+- Reading a notification never completes the underlying business task. Lists,
+  failed loads and unrelated records must not acknowledge it.
+- Migrations are forward and additive. Only newly created, verified isolated
+  `_ci`/`_test` databases may be used for database verification.
+
+## Verification evidence
+
+Implementation and verification are in progress. Historical release test counts
+are not evidence for this branch. Record actual commands and results here as each
+layer is completed. No real customer data, production write or production rollout
+is authorized by this implementation task.
+
+Country reference: [UN M49](https://unstats.un.org/unsd/methodology/m49/overview/),
+retrieved 23 October 2026. The ISO Taiwan code is included independently of the
+UN regional table. Frontend and backend ship the same reviewed reference snapshot.
+
+### Vehicle layer evidence
+
+- Prisma client generation and 63-migration empty replay passed on the verified
+  private PostgreSQL 18 cluster at localhost:63888. Schema comparison and
+  `db:check` passed. Subsequent fitment migration work requires a new full replay.
+- Vehicle discovery plus missing-column guard integration: 15 passed. This covers
+  all seven sort orders, ties, null mileage last, exact counts, signed cursor
+  binding, 10,000 synthetic listings, assembly regions, condition and powertrain.
+- Frontend full unit suite: 145 files, 969 tests passed after the vehicle changes.
+  Both TypeScript projects and targeted vehicle lint passed at that checkpoint.
+- New Playwright desktop (1440px) and mobile (390px) workflows passed, with no page
+  errors, horizontal overflow or axe violations in the filter panel. Validation,
+  focus, assembly shortcuts, powertrain, ranges, sorting and back/forward checked.
+  Screenshots are in the temporary Playwright output directory, outside the repo.
+  Browser-plugin tools were unavailable; the existing Playwright/Edge setup was used.
+- A mid-interaction full-page screenshot disturbed Edge's non-modal dialog state;
+  viewport screenshots preserve the normal interaction and are used for this test.
+
+These results do not certify the unfinished parts fitment and notification work.
+
+### Fitment foundation evidence and remaining work
+
+- The forward 64th migration replayed on a second newly created private `_ci`
+  database; schema comparison and `db:check` passed. It adds draft review defaults,
+  normalized makes/models, scoped rule metadata, evidence, independent-review
+  constraints, unique semantic fingerprints and append-only history. No existing
+  compatibility row is promoted, guessed or deleted. The migration is now applied
+  in this isolated target and must not be edited; fixes require another migration.
+- Thirteen engine unit tests and four authenticated HTTP integration scenarios
+  passed. The latter exercise real PostgreSQL constraints/history protection,
+  delegated Operations authoring, Workshop review, branch/MFA/CSRF restrictions,
+  self-review rejection, duplicates, stale edits, public draft visibility,
+  qualifier uncertainty, exclusion precedence and SQL/presentation agreement.
+- New routes are under `/public/fitment` and `/staff/fitment`. The managed workforce
+  boundary permits only this newly guarded module in addition to existing paths.
+- Legacy catalogue public projections and vehicle facets now omit unapproved rules.
+  Existing discovery fixtures asserting legacy draft visibility must be updated to
+  represent the new approved-evidence semantics; the whole backend suite is pending.
+- The new staff/public parts screens, model-bound catalogue search/count/paging,
+  product/category attribute controls, saved configuration flow, notification navigation/read acknowledgement and final
+  branding/browser/build checks remain required. No claim of full completion.
+- Non-critical/universal scope requires an explicitly recorded non-braking part
+  type. Unclassified parts retain conservative critical handling. Technical review
+  of actual manufacturer evidence remains an operational responsibility; no broad
+  external fitment dataset or fake production catalogue has been inserted.
+
+Follow-up: five fitment HTTP scenarios plus the 13 engine cases and the real
+missing-column guard passed (19 tests). Legacy compatibility writes now record
+actors/version history, draft removal retires the record, and the old routes reject
+changes to normalized or reviewed rules. Public legacy projections/facets exclude
+exclusion rules as well as unapproved rows. The modern decision endpoint retains
+exclusions so they override broader approved inclusion evidence.
+
+Withdrawal authority: either a current scoped author or technical reviewer may
+retire a rule. Retirement removes the verified claim while preserving its history;
+it does not grant authority to approve or edit the rule. Tests cover technical
+reviewer retirement separately from authoring permission.

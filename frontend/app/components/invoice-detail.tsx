@@ -306,7 +306,7 @@ function InvoiceSheet({ document }: { document: InvoiceDocument }) {
       <header className="invoice-paper-header">
         <div>
           <p className="invoice-issuer">{document.issuer.name}</p>
-          <p className="invoice-tagline">Built on Trust, Driven by Quality.</p>
+          <p className="invoice-tagline">Built on trust driven by quality</p>
         </div>
         <div>
           <span>Invoice</span>

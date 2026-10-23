@@ -127,8 +127,8 @@ export async function PublicHome() {
                 You Can Trust.
               </h2>
               <p>
-                Built on Trust, Driven by Quality. Our principles shape the way we care
-                for your vehicle and the way we work with you.
+                Built on trust driven by quality. Our principles shape the way we care for
+                your vehicle and the way we work with you.
               </p>
               <TrustPrinciples />
               <Link className="text-link" href="/about#principles">

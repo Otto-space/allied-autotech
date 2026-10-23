@@ -1,3 +1,4 @@
+import { registerFitmentOpenApi } from "../modules/fitment/fitment.openapi.js";
 import { OpenApiGeneratorV31, OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 
 import { registerIdentityOpenApi } from "../modules/identity/identity.openapi.js";
@@ -49,6 +50,7 @@ export function createOpenApiDocument(options: OpenApiDocumentOptions) {
   registerPromotionsOpenApi(registry);
   registerBillingOpenApi(registry);
   registerVehiclesOpenApi(registry);
+  registerFitmentOpenApi(registry);
   registerVehicleSalesOpenApi(registry);
   registerPaymentsOpenApi(registry);
   registerResendWebhookOpenApi(registry);

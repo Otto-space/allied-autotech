@@ -438,6 +438,15 @@ enum FuelType {
 enum VehicleCondition {
   NEW
   USED
+  FOREIGN_USED
+  LOCALLY_USED
+}
+
+enum Powertrain {
+  BEV
+  HEV
+  PHEV
+  ICE
 }
 
 enum BodyType {
@@ -494,6 +503,9 @@ enum AuditAction {
 }
 
 enum AuditEntityType {
+  FITMENT_MAKE
+  FITMENT_MODEL
+  PRODUCT_FITMENT
   USER
   BRANCH
   PRIVILEGED_INVITATION
@@ -559,15 +571,19 @@ enum OutboxStatus {
 }
 
 model User {
+  fitmentCreated    ProductCompatibility[]        @relation("FitmentCreated")
+  fitmentEdited     ProductCompatibility[]        @relation("FitmentEdited")
+  fitmentReviewed   ProductCompatibility[]        @relation("FitmentReviewed")
+  fitmentHistory    ProductCompatibilityHistory[]
   pushSubscriptions PushSubscription[]
   workforceAccess   WorkforceAccess?
-  mediaUploads      MediaUpload[]    @relation("MediaUploadActor")
-  ownedMediaUploads MediaUpload[]    @relation("MediaUploadOwner")
-  id                String           @id @default(uuid()) @db.Uuid
-  email             String           @unique @db.Citext
+  mediaUploads      MediaUpload[]                 @relation("MediaUploadActor")
+  ownedMediaUploads MediaUpload[]                 @relation("MediaUploadOwner")
+  id                String                        @id @default(uuid()) @db.Uuid
+  email             String                        @unique @db.Citext
   passwordHash      String
-  role              UserRole         @default(CUSTOMER)
-  status            UserStatus       @default(ACTIVE)
+  role              UserRole                      @default(CUSTOMER)
+  status            UserStatus                    @default(ACTIVE)
 
   emailVerifiedAt     DateTime?
   passwordChangedAt   DateTime?
@@ -644,21 +660,21 @@ model User {
 
 model Session {
   pushSubscriptions PushSubscription[]
-  id            String    @id @default(uuid()) @db.Uuid
-  userId        String    @db.Uuid
-  tokenHash     String    @unique @db.VarChar(128)
-  csrfTokenHash String?   @db.Char(64)
-  expiresAt     DateTime
-  idleExpiresAt DateTime  @default(now())
-  lastUsedAt    DateTime?
-  lastRotatedAt DateTime  @default(now())
-  revokedAt     DateTime?
-  mfaRequired   Boolean   @default(false)
-  mfaVerifiedAt DateTime?
-  ipAddress     String?   @db.Inet
-  userAgent     String?   @db.Text
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                String             @id @default(uuid()) @db.Uuid
+  userId            String             @db.Uuid
+  tokenHash         String             @unique @db.VarChar(128)
+  csrfTokenHash     String?            @db.Char(64)
+  expiresAt         DateTime
+  idleExpiresAt     DateTime           @default(now())
+  lastUsedAt        DateTime?
+  lastRotatedAt     DateTime           @default(now())
+  revokedAt         DateTime?
+  mfaRequired       Boolean            @default(false)
+  mfaVerifiedAt     DateTime?
+  ipAddress         String?            @db.Inet
+  userAgent         String?            @db.Text
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   mfaChallenges MfaChallenge[]
@@ -853,20 +869,21 @@ model CustomerProfile {
 }
 
 model Branch {
+  fitmentRules         ProductCompatibility[]
   workforceAssignments WorkforceAssignment[]
-  id                   String                @id @default(uuid()) @db.Uuid
-  code                 String                @unique @db.Citext
+  id                   String                 @id @default(uuid()) @db.Uuid
+  code                 String                 @unique @db.Citext
   name                 String
-  phone                String?               @db.VarChar(32)
-  email                String?               @db.Citext
+  phone                String?                @db.VarChar(32)
+  email                String?                @db.Citext
   address              String
   city                 String
   state                String
-  country              String                @default("Nigeria")
-  timezone             String                @default("Africa/Lagos") @db.VarChar(64)
-  isActive             Boolean               @default(true)
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  country              String                 @default("Nigeria")
+  timezone             String                 @default("Africa/Lagos") @db.VarChar(64)
+  isActive             Boolean                @default(true)
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
 
   staff                 StaffProfile[]
   enquiries             Enquiry[]
@@ -908,6 +925,19 @@ model PrivilegedInvitation {
 }
 
 model CustomerVehicle {
+  nickname           String?         @db.VarChar(80)
+  defaultSlot        Int?
+  vehicleModelId     String?         @db.Uuid
+  vehicleModel       VehicleModel?   @relation(fields: [vehicleModelId], references: [id], onDelete: Restrict)
+  trim               String?         @db.VarChar(100)
+  engineCode         String?         @db.VarChar(100)
+  market             String?         @db.VarChar(100)
+  brakeSystem        String?         @db.VarChar(100)
+  brakeDiameterMm    String?         @db.VarChar(100)
+  bodyType           String?         @db.VarChar(100)
+  transmission       String?         @db.VarChar(100)
+  generation         String?         @db.VarChar(100)
+  chassisCode        String?         @db.VarChar(100)
   mediaVersion       Int             @default(0)
   mediaImages        ResourceImage[]
   id                 String          @id @default(uuid()) @db.Uuid
@@ -925,6 +955,7 @@ model CustomerVehicle {
   customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   bookings Booking[]
 
+  @@unique([customerId, defaultSlot])
   @@index([customerId])
   @@index([registrationNumber])
   @@index([make, model])
@@ -1192,36 +1223,43 @@ model WorkOrderItem {
 }
 
 model Category {
-  id          String   @id @default(uuid()) @db.Uuid
+  parentId    String?    @db.Uuid
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Category[] @relation("CategoryHierarchy")
+  id          String     @id @default(uuid()) @db.Uuid
   name        String
-  slug        String   @unique
+  slug        String     @unique
   description String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   products Product[]
 
+  @@index([parentId])
   @@index([isActive])
 }
 
 model Product {
-  mediaVersion           Int      @default(0)
-  id                     String   @id @default(uuid()) @db.Uuid
-  categoryId             String   @db.Uuid
+  condition              ProductCondition?
+  classification         ProductClassification?
+  productType            String?                @db.VarChar(80)
+  mediaVersion           Int                    @default(0)
+  id                     String                 @id @default(uuid()) @db.Uuid
+  categoryId             String                 @db.Uuid
   name                   String
-  slug                   String   @unique
-  sku                    String   @unique
+  slug                   String                 @unique
+  sku                    String                 @unique
   brand                  String?
-  manufacturerPartNumber String?  @unique
+  manufacturerPartNumber String?                @unique
   description            String?
   priceKobo              BigInt
   compareAtPriceKobo     BigInt?
-  currency               String   @default("NGN") @db.Char(3)
-  isActive               Boolean  @default(true)
-  featured               Boolean  @default(false)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  currency               String                 @default("NGN") @db.Char(3)
+  isActive               Boolean                @default(true)
+  featured               Boolean                @default(false)
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
 
   category        Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   images          ProductImage[]
@@ -1235,6 +1273,7 @@ model Product {
   reviews         Review[]
   compatibilities ProductCompatibility[]
 
+  @@index([condition, classification])
   @@index([categoryId, isActive])
   @@index([name])
   @@index([brand])
@@ -1242,18 +1281,55 @@ model Product {
 }
 
 model ProductCompatibility {
-  id        String   @id @default(uuid()) @db.Uuid
-  productId String   @db.Uuid
-  make      String
-  model     String?
-  yearFrom  Int?
-  yearTo    Int?
-  notes     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  vehicleModelId       String?                       @db.Uuid
+  vehicleModel         VehicleModel?                 @relation(fields: [vehicleModelId], references: [id], onDelete: Restrict)
+  branchId             String?                       @db.Uuid
+  branch               Branch?                       @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  scope                FitmentScope                  @default(MODEL)
+  effect               FitmentEffect                 @default(INCLUDE)
+  reviewStatus         FitmentReviewStatus           @default(DRAFT)
+  safetyCritical       Boolean                       @default(true)
+  allVariantsConfirmed Boolean                       @default(false)
+  requiredQualifiers   String[]                      @default([])
+  trim                 String?                       @db.VarChar(100)
+  engineCode           String?                       @db.VarChar(100)
+  market               String?                       @db.VarChar(100)
+  position             String?                       @db.VarChar(100)
+  brakeSystem          String?                       @db.VarChar(100)
+  brakeDiameterMm      String?                       @db.VarChar(100)
+  bodyType             String?                       @db.VarChar(100)
+  transmission         String?                       @db.VarChar(100)
+  generation           String?                       @db.VarChar(100)
+  chassisCode          String?                       @db.VarChar(100)
+  sourceReference      String?                       @db.VarChar(500)
+  evidenceNotes        String?                       @db.VarChar(2000)
+  reviewNote           String?                       @db.VarChar(1000)
+  createdByUserId      String?                       @db.Uuid
+  createdBy            User?                         @relation("FitmentCreated", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  updatedByUserId      String?                       @db.Uuid
+  updatedBy            User?                         @relation("FitmentEdited", fields: [updatedByUserId], references: [id], onDelete: Restrict)
+  reviewedByUserId     String?                       @db.Uuid
+  reviewedBy           User?                         @relation("FitmentReviewed", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+  reviewedAt           DateTime?
+  submittedAt          DateTime?
+  version              Int                           @default(0)
+  fingerprint          String?                       @db.Char(64)
+  history              ProductCompatibilityHistory[]
+  id                   String                        @id @default(uuid()) @db.Uuid
+  productId            String                        @db.Uuid
+  make                 String
+  model                String?
+  yearFrom             Int?
+  yearTo               Int?
+  notes                String?
+  createdAt            DateTime                      @default(now())
+  updatedAt            DateTime                      @updatedAt
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  @@unique([productId, fingerprint])
+  @@index([vehicleModelId, reviewStatus, yearFrom, yearTo])
+  @@index([productId, reviewStatus, effect])
   @@index([productId])
   @@index([make, model])
 }
@@ -1829,32 +1905,36 @@ model PaymentReconciliationItem {
 }
 
 model Vehicle {
-  id                  String           @id @default(uuid()) @db.Uuid
-  branchId            String           @db.Uuid
-  stockNumber         String           @unique @db.VarChar(40)
-  make                String
-  model               String
-  trim                String?
-  year                Int
-  mileageKm           Int?
-  transmission        Transmission?
-  fuelType            FuelType?
-  condition           VehicleCondition @default(USED)
-  bodyType            BodyType?
-  engineSize          String?
-  driveType           DriveType?
-  color               String?
-  doors               Int?
-  seats               Int?
-  vin                 String?          @unique @db.VarChar(17)
-  chassisNumber       String?          @unique @db.VarChar(80)
-  registrationNumber  String?
-  acquisitionCostKobo BigInt?
-  acquisitionCurrency String           @default("NGN") @db.Char(3)
-  acquiredAt          DateTime?
-  version             Int              @default(0)
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
+  id                     String           @id @default(uuid()) @db.Uuid
+  branchId               String           @db.Uuid
+  stockNumber            String           @unique @db.VarChar(40)
+  make                   String
+  model                  String
+  trim                   String?
+  year                   Int
+  mileageKm              Int?
+  transmission           Transmission?
+  fuelType               FuelType?
+  condition              VehicleCondition @default(USED)
+  bodyType               BodyType?
+  manufactureCountryCode String?          @db.Char(2)
+  powertrain             Powertrain?
+  engineCapacityCc       Int?
+  features               String[]         @default([])
+  engineSize             String?
+  driveType              DriveType?
+  color                  String?
+  doors                  Int?
+  seats                  Int?
+  vin                    String?          @unique @db.VarChar(17)
+  chassisNumber          String?          @unique @db.VarChar(80)
+  registrationNumber     String?
+  acquisitionCostKobo    BigInt?
+  acquisitionCurrency    String           @default("NGN") @db.Char(3)
+  acquiredAt             DateTime?
+  version                Int              @default(0)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
 
   branch           Branch                   @relation(fields: [branchId], references: [id], onDelete: Restrict)
   listings         VehicleListing[]
@@ -1865,6 +1945,8 @@ model Vehicle {
   @@index([branchId])
   @@index([make, model])
   @@index([year])
+  @@index([manufactureCountryCode, powertrain, condition])
+  @@index([mileageKm, id])
   @@index([createdAt], map: "Vehicle_overview_created_idx")
 }
 
@@ -2388,16 +2470,17 @@ model Notification {
 }
 
 model PushSubscription {
-  id String @id @default(uuid()) @db.Uuid
-  userId String @db.Uuid
-  sessionId String @db.Uuid
-  endpointHash String @unique @db.Char(64)
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @db.Uuid
+  sessionId             String    @db.Uuid
+  endpointHash          String    @unique @db.Char(64)
   encryptedSubscription Json
-  disabledAt DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  disabledAt            DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session               Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
   @@index([userId, disabledAt])
   @@index([sessionId])
 }
@@ -2758,4 +2841,76 @@ model MediaCleanupJob {
   createdAt     DateTime  @default(now())
 
   @@index([completedAt, availableAt])
+}
+
+enum ProductCondition {
+  NEW
+  USED
+  REFURBISHED
+}
+
+enum ProductClassification {
+  GENUINE_OEM
+  AFTERMARKET
+}
+
+enum FitmentReviewStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  RETIRED
+}
+
+enum FitmentScope {
+  MODEL
+  UNIVERSAL
+}
+
+enum FitmentEffect {
+  INCLUDE
+  EXCLUDE
+}
+
+model VehicleMake {
+  id        String         @id @default(uuid()) @db.Uuid
+  name      String         @db.VarChar(100)
+  key       String         @unique @db.VarChar(100)
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  models    VehicleModel[]
+}
+
+model VehicleModel {
+  id               String                 @id @default(uuid()) @db.Uuid
+  makeId           String                 @db.Uuid
+  name             String                 @db.VarChar(100)
+  key              String                 @db.VarChar(100)
+  yearFrom         Int
+  yearTo           Int
+  isActive         Boolean                @default(true)
+  sourceReference  String                 @db.VarChar(500)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  make             VehicleMake            @relation(fields: [makeId], references: [id], onDelete: Restrict)
+  compatibilities  ProductCompatibility[]
+  customerVehicles CustomerVehicle[]
+
+  @@unique([makeId, key])
+}
+
+model ProductCompatibilityHistory {
+  id              String               @id @default(uuid()) @db.Uuid
+  compatibilityId String               @db.Uuid
+  actorUserId     String               @db.Uuid
+  action          String               @db.VarChar(40)
+  version         Int
+  snapshot        Json
+  createdAt       DateTime             @default(now())
+  compatibility   ProductCompatibility @relation(fields: [compatibilityId], references: [id], onDelete: Restrict)
+  actor           User                 @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@unique([compatibilityId, version])
+  @@index([createdAt, id])
 }

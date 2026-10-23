@@ -47,6 +47,16 @@ const listing = (n: number): ReturnType<typeof parseListings>["items"][number] =
   },
 });
 async function fixture(page: Page) {
+  await page.route("**/api/v1/auth/session", (route) =>
+    route.fulfill({
+      status: 401,
+      json: {
+        success: false,
+        error: { code: "UNAUTHORIZED" },
+        meta: { requestId: "anonymous-ui-fixture" },
+      },
+    }),
+  );
   const state = {
     status: 200,
     empty: false,
@@ -625,3 +635,79 @@ test("cards preserve zero values, missing specifications, report truth and long 
     page.locator(".vehicle-buying-guide").getByRole("link", { name: "Ask our team" }),
   ).toHaveAttribute("href", "/contact");
 });
+
+for (const width of [1440, 390]) {
+  test(`origin, powertrain and range filters at ${width}px`, async ({
+    page,
+  }, testInfo) => {
+    await page.setViewportSize({ width, height: 900 });
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    const state = await fixture(page);
+    const field = (name: string) => page.getByLabel(name, { exact: true });
+    const apply = () => page.getByRole("button", { name: "Apply filters" }).click();
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    await field("Vehicle condition").selectOption("FOREIGN_USED");
+    await page.getByRole("button", { name: "South Korea", exact: true }).click();
+    await field("Powertrain").selectOption("PHEV");
+    await field("Year from").fill("2024");
+    await field("Year to").fill("2018");
+    await apply();
+    await expect(
+      page.getByText("Maximum must be at least the minimum.", { exact: true }),
+    ).toBeVisible();
+    await expect(field("Year to")).toBeFocused();
+    await field("Year from").fill("2018");
+    await field("Year to").fill("2024");
+    await field("Mileage to (km)").fill("75000");
+    await page.screenshot({
+      path: testInfo.outputPath(`vehicle-filters-${width}.png`),
+      fullPage: false,
+    });
+    await apply();
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("manufactureCountryCode"))
+      .toBe("KR");
+    for (const [key, value] of [
+      ["condition", "FOREIGN_USED"],
+      ["powertrain", "PHEV"],
+      ["minYear", "2018"],
+      ["maxYear", "2024"],
+      ["maxMileageKm", "75000"],
+    ])
+      expect(state.requests.at(-1)?.searchParams.get(key)).toBe(value);
+    await field("Sort by").selectOption("mileage_asc");
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("sort"))
+      .toBe("mileage_asc");
+    await page.goBack();
+    await expect(page).not.toHaveURL(/sort=/);
+    await page.goForward();
+    await expect(page).toHaveURL(/sort=mileage_asc/);
+    await page.getByRole("button", { name: /^Filters/ }).click();
+    await page.getByRole("button", { name: "Europe", exact: true }).click();
+    await expect(field("Final assembly country")).toHaveValue("");
+    await field("Final assembly country").fill("Imaginary country");
+    await apply();
+    await expect(
+      page.getByText("Choose a country from the suggestions or clear the field.", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await field("Final assembly country").fill("Germany");
+    expect(
+      (await new AxeBuilder({ page }).include("#vehicle-filter-panel").analyze())
+        .violations,
+    ).toEqual([]);
+    await apply();
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("manufactureCountryCode"))
+      .toBe("DE");
+    expect(
+      await page
+        .locator("body")
+        .evaluate((node) => node.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    expect(errors).toEqual([]);
+  });
+}

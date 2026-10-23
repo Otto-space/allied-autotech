@@ -1,4 +1,6 @@
 "use client";
+import { CountryField } from "./country-field";
+import { vehicleLabel } from "@/lib/vehicle-discovery";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -286,6 +288,27 @@ function CreationWorkspace({
               : `${body.mileageKm.toLocaleString("en-NG")} km`,
         },
         { label: "Transmission", value: human(body.transmission) },
+        {
+          label: "Final assembly country",
+          value: body.manufactureCountryCode
+            ? vehicleLabel(body.manufactureCountryCode)
+            : "Not recorded",
+        },
+        {
+          label: "Powertrain",
+          value: body.powertrain ? vehicleLabel(body.powertrain) : "Not recorded",
+        },
+        {
+          label: "Engine capacity (cc)",
+          value:
+            body.engineCapacityCc == null
+              ? "Not recorded"
+              : String(body.engineCapacityCc),
+        },
+        {
+          label: "Recorded features",
+          value: body.features?.join(", ") || "Not recorded",
+        },
         { label: "Fuel type", value: human(body.fuelType) },
         { label: "Body type", value: human(body.bodyType) },
         { label: "Drive type", value: human(body.driveType) },
@@ -545,6 +568,8 @@ type TextField =
   | "year"
   | "trim"
   | "mileageKm"
+  | "engineCapacityCc"
+  | "features"
   | "engineSize"
   | "color"
   | "doors"
@@ -634,10 +659,7 @@ function CreationForm({
           {name !== "condition" && <option value="">Not set</option>}
           {vehicleEnums[name].map((value) => (
             <option key={value} value={value}>
-              {value
-                .replaceAll("_", " ")
-                .toLowerCase()
-                .replace(/^./, (c) => c.toUpperCase())}
+              {vehicleLabel(value)}
             </option>
           ))}
         </select>
@@ -677,6 +699,10 @@ function CreationForm({
           "fuelType",
           "bodyType",
           "driveType",
+          "manufactureCountryCode",
+          "powertrain",
+          "engineCapacityCc",
+          "features",
           "engineSize",
           "color",
           "doors",
@@ -740,7 +766,40 @@ function CreationForm({
           <>
             {input("mileageKm", "Mileage (optional, km)", 8)}
             {select("transmission", "Transmission")}
+            {select("powertrain", "Powertrain")}
             {select("fuelType", "Fuel type")}
+            <div className="field">
+              <label htmlFor="vehicle-record-manufactureCountryCode">
+                Final assembly country (optional)
+              </label>
+              <Controller
+                name="manufactureCountryCode"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <>
+                    <CountryField
+                      id="vehicle-record-manufactureCountryCode"
+                      value={field.value}
+                      onChange={field.onChange}
+                      inputRef={field.ref}
+                      onBlur={field.onBlur}
+                      invalid={!!fieldState.error}
+                      describedBy="vc-country-hint"
+                    />
+                    {fieldState.error && (
+                      <p role="alert" className="field-error">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </>
+                )}
+              />
+              <small id="vc-country-hint">
+                Use documented final assembly country. Leave unknown origin blank.
+              </small>
+            </div>
+            {input("engineCapacityCc", "Engine capacity (optional, cc)", 5)}
+            {input("features", "Recorded features (optional, comma separated)", 3239)}
             {select("bodyType", "Body type")}
             {select("driveType", "Drive type")}
             {input("engineSize", "Engine size (optional)", 40)}

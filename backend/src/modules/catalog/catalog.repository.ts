@@ -60,6 +60,8 @@ export const productSelect = {
       model: true,
       yearFrom: true,
       yearTo: true,
+      reviewStatus: true,
+      effect: true,
       notes: true,
     },
     orderBy: { id: "asc" as const },
@@ -110,6 +112,7 @@ export function productWhere(
       : {
           compatibilities: {
             some: {
+              ...(activeOnly ? { reviewStatus: "APPROVED", effect: "INCLUDE" } : {}),
               ...(query.make === undefined
                 ? {}
                 : { make: { equals: literalPattern(query.make), mode: "insensitive" } }),
@@ -319,9 +322,6 @@ export class CatalogRepository {
       ...(input.notes === undefined ? {} : { notes: input.notes }),
     };
     return client.productCompatibility.update({ where: { id, productId }, data });
-  }
-  deleteCompatibility(productId: string, id: string, client: DatabaseClient) {
-    return client.productCompatibility.delete({ where: { id, productId } });
   }
 
   async createImage(productId: string, input: ImageCreateInput, client: DatabaseClient) {

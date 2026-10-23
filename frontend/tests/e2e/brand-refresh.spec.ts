@@ -223,7 +223,7 @@ test("hero keyboard, slide links, optional playback and marquee pause work", asy
   await page.goto("/");
   const hero = page.getByRole("region", { name: "Explore Allied AutoTech" });
   await expect(hero.getByRole("heading", { level: 1 })).toHaveText(
-    "Built on Trust,Driven by Quality.",
+    "Built on trust driven by quality",
   );
   await hero.getByRole("button", { name: "Next slide", exact: true }).click();
   await expect(hero.getByRole("link", { name: "Explore Vehicles" })).toHaveAttribute(
