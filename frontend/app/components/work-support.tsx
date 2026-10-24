@@ -183,7 +183,11 @@ function SupportWorkspace({
             busy={busy}
             navigate={navigate}
           />
-          <div className="wsu-applied-filters" aria-label="Applied support filters">
+          <div
+            className="wsu-applied-filters"
+            role="group"
+            aria-label="Applied support filters"
+          >
             {["status", "type", "priority", "branchId", "assignedStaffId"]
               .filter((key) => filters.has(key))
               .map((key) => {

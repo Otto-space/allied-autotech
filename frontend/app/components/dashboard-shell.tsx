@@ -76,15 +76,17 @@ export function DashboardShell({
     parseWorkforceAccess,
   );
   useWorkforceRefresh(workforce.refresh, workforce.data);
-  const verifiedWorkforce =
+  // Retain a mounted workspace while a fresh check is pending. It stays hidden
+  // and inert until verified; failures and scope changes still discard it.
+  const retainedWorkforce =
     session?.workforceManaged &&
     !workforce.error &&
     !workforce.refreshError &&
-    !workforce.loading &&
     workforce.data?.managed &&
     workforce.data.userId === session.user.id
       ? workforce.data
       : undefined;
+  const verifiedWorkforce = !workforce.loading ? retainedWorkforce : undefined;
   const grants = useResource(
     session?.user.role === "STAFF" && !session.workforceManaged ? "/staff/profile" : null,
     parseOwnStaffProfile,
@@ -557,46 +559,54 @@ export function DashboardShell({
                 value={session.user.role === "STAFF" ? grants : null}
               >
                 {session.workforceManaged ? (
-                  verifiedWorkforce ? (
-                    pathname === "/admin/security" ||
-                    pathname === "/admin/notifications" ? (
-                      children
-                    ) : (
-                      <WorkforceWorkspace
-                        key={JSON.stringify([
-                          verifiedWorkforce.version,
-                          verifiedWorkforce.assignments.map((a) => a.id),
-                        ])}
-                        access={verifiedWorkforce}
-                        refreshAccess={workforce.refresh}
-                      />
-                    )
-                  ) : (
-                    <>
-                      {workforce.error || workforce.refreshError ? (
-                        <>
-                          <h1>Work access unavailable</h1>
-                          <Feedback message={workforce.error || workforce.refreshError} />
-                          <p>
-                            We could not verify your current responsibilities. Retry
-                            before continuing with work records.
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <h1>Checking work access</h1>
-                          <p role="status">Checking current responsibility access…</p>
-                        </>
-                      )}
-                      <button
-                        className="button secondary"
-                        onClick={workforce.refresh}
-                        disabled={workforce.loading}
-                      >
-                        Retry access check
-                      </button>
-                    </>
-                  )
+                  <>
+                    {retainedWorkforce && (
+                      <div hidden={!verifiedWorkforce} inert={!verifiedWorkforce}>
+                        {pathname === "/admin/security" ||
+                        pathname === "/admin/notifications" ? (
+                          children
+                        ) : (
+                          <WorkforceWorkspace
+                            key={JSON.stringify([
+                              retainedWorkforce.userId,
+                              retainedWorkforce.version,
+                              retainedWorkforce.assignments.map((a) => a.id),
+                            ])}
+                            access={retainedWorkforce}
+                            refreshAccess={workforce.refresh}
+                          />
+                        )}
+                      </div>
+                    )}
+                    {!verifiedWorkforce && (
+                      <>
+                        {workforce.error || workforce.refreshError ? (
+                          <>
+                            <h1>Work access unavailable</h1>
+                            <Feedback
+                              message={workforce.error || workforce.refreshError}
+                            />
+                            <p>
+                              We could not verify your current responsibilities. Retry
+                              before continuing with work records.
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <h1>Checking work access</h1>
+                            <p role="status">Checking current responsibility access…</p>
+                          </>
+                        )}
+                        <button
+                          className="button secondary"
+                          onClick={workforce.refresh}
+                          disabled={workforce.loading}
+                        >
+                          Retry access check
+                        </button>
+                      </>
+                    )}
+                  </>
                 ) : (
                   children
                 )}

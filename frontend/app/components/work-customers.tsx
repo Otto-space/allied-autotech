@@ -125,7 +125,11 @@ function CustomerWorkspace() {
       ) : (
         <>
           <CustomerFilters key={filters.toString()} params={filters} busy={busy} />
-          <div className="wc-applied-filters" aria-label="Applied customer filters">
+          <div
+            className="wc-applied-filters"
+            role="group"
+            aria-label="Applied customer filters"
+          >
             {["search", "status", "verified"]
               .filter((key) => filters.has(key))
               .map((key) => {

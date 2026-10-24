@@ -192,3 +192,57 @@ test("removing a care branch also clears its staff constraint while keeping stat
   expect(params.has("assignedStaffId")).toBe(false);
   await expect(page.locator("#wsu-records")).toBeFocused();
 });
+
+test("pending access hides managed work, retains a draft on success and discards it on scope change", async ({
+  page,
+}) => {
+  const { workforceEnquiriesFixture, enquiryFixtureId } =
+    await import("../fixtures/workforce-enquiries");
+  const f = await workforceEnquiriesFixture(page);
+  let hold = false;
+  let release: (() => void) | undefined;
+  await page.route("**/api/v1/staff/workforce/access", async (route) => {
+    if (hold)
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+    await route.fallback();
+  });
+  await page.goto("/admin/workforce/enquiries?selected=" + enquiryFixtureId(1));
+  await expect(
+    page.getByRole("button", { name: "Review reply", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByLabel("Message", { exact: true })
+    .fill("Keep this reply while access is checked.");
+  hold = true;
+  await page.getByRole("button", { name: "Refresh enquiries", exact: true }).click();
+  try {
+    await expect(
+      page.getByRole("heading", { name: "Checking work access", exact: true }),
+    ).toBeVisible();
+    await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
+      "Keep this reply while access is checked.",
+    );
+    await expect(page.getByLabel("Message", { exact: true })).not.toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Review reply", exact: true }),
+    ).toHaveCount(0);
+  } finally {
+    hold = false;
+    release?.();
+  }
+  await expect(
+    page.getByRole("button", { name: "Review reply", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
+    "Keep this reply while access is checked.",
+  );
+  f.base.access.version++;
+  await page.getByRole("button", { name: "Refresh enquiries", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "Review reply", exact: true }),
+  ).toBeEnabled();
+  await expect(page.getByLabel("Message", { exact: true })).toHaveValue("");
+  expect(f.writes).toHaveLength(0);
+});

@@ -808,7 +808,7 @@ test("product cards distinguish real comparison prices, compatibility and missin
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
   await expect(page.locator(".product-guidance")).toContainText(
-    "Your cart does not reserve stock",
+    "does not reserve stock.",
   );
   await page.screenshot({
     path: path.join(os.tmpdir(), "shop-oct-card-edge-cases.png"),
