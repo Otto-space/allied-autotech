@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -123,6 +124,13 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
       </header>
       <Feedback message={invoice.error ?? invoice.refreshError} />
       {invoice.loading && <p role="status">Checking invoice…</p>}
+      {current &&
+        !invoice.loading &&
+        !invoice.refreshing &&
+        !invoice.error &&
+        !invoice.refreshError && (
+          <NotificationRecordContext resourceType="INVOICE" resourceId={current.id} />
+        )}
       {current && (
         <>
           <WorkflowProgress workflow="invoice" status={current.status} />

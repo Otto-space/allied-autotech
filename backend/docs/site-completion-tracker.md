@@ -496,3 +496,15 @@ session-race browser checks passed. The current frontend full unit suite passes
 occurred. The feature branch still requires notification navigation/read-after-
 display, public subcategory controls, the final filter audit and release-wide
 verification. Existing provider-origin support-email acceptance is unchanged.
+
+Notification checkpoint - 24 October 2026: server-authorized destinations, scoped
+sidebar navigation, an attention queue and read-after-display are implemented.
+Exact workforce booking/payment views and validated support-message anchors
+cover off-page records. Eight private PostgreSQL HTTP scenarios plus five
+workforce boundary cases passed; the full frontend unit checkpoint passed 979
+tests. A clean run passed 25 notification/payment browser regressions, with
+existing sorting, financial confirmation focus and uncertain-result recovery
+preserved. No new migration, production write, push or deployment occurred.
+Public subcategory controls, the remaining vehicle-filter audit and final full-
+scope verification are the next items. Provider-origin support-email acceptance
+remains a separate pending item.

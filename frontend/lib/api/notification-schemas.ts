@@ -21,9 +21,24 @@ export const notificationCategories = [
   "OPERATIONAL",
   "MARKETING",
 ] as const;
+export const notificationDestinationSchema = z.object({
+  section: z.string().regex(/^\/(?:dashboard|admin)(?:\/[a-z-]+)+$/),
+  href: z.string().refine((href) => {
+    if (!/^\/(?:dashboard|admin)\//.test(href) || /[\\\u0000-\u0020]/.test(href))
+      return false;
+    try {
+      const url = new URL(href, "https://allied.invalid");
+      return url.origin === "https://allied.invalid" && !url.pathname.includes("%");
+    } catch {
+      return false;
+    }
+  }, "Invalid internal notification destination"),
+  label: z.string().min(1).max(80),
+});
 const timestamp = z.iso.datetime({ offset: true });
 export const notificationSchema = z.object({
   id: z.uuid(),
+  destination: notificationDestinationSchema.nullable().optional(),
   type: z.enum(notificationTypes),
   category: z.enum(notificationCategories),
   title: z.string().min(1).max(160),
@@ -38,6 +53,16 @@ export const notificationSchema = z.object({
 export type InboxNotification = z.infer<typeof notificationSchema>;
 export const notificationSummarySchema = z
   .object({
+    destinations: z
+      .array(
+        z.object({
+          section: notificationDestinationSchema.shape.section,
+          count: z.number().int().positive(),
+          recordCount: z.number().int().positive(),
+          href: notificationDestinationSchema.shape.href,
+        }),
+      )
+      .optional(),
     unreadCount: z.number().int().nonnegative().safe(),
     groups: z.array(
       z.object({
@@ -48,6 +73,14 @@ export const notificationSummarySchema = z
       }),
     ),
   })
+  .refine(
+    (summary) =>
+      !summary.destinations ||
+      (new Set(summary.destinations.map((d) => d.section)).size ===
+        summary.destinations.length &&
+        summary.destinations.every((d) => d.recordCount <= d.count) &&
+        summary.destinations.reduce((sum, d) => sum + d.count, 0) <= summary.unreadCount),
+  )
   .refine(
     (summary) =>
       summary.unreadCount === summary.groups.reduce((sum, group) => sum + group.count, 0),

@@ -32,7 +32,8 @@ export class ManualRefundsService {
     private readonly storage: ObjectStoragePort = objectStorage,
   ) {}
 
-  private async scope(
+  // Reused by notification target resolution; this grants no execution authority.
+  async scope(
     tx: Prisma.TransactionClient,
     actor: AuthenticatedActor,
     administratorInspection = false,

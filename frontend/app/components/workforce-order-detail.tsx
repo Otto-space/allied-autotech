@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -372,6 +373,7 @@ export function WorkforceOrderDetail({
       )}
       {row && (
         <>
+          <NotificationRecordContext resourceType="ORDER" resourceId={row.id} />
           <header className="wfc-detail-heading">
             <div>
               <h2 ref={title} tabIndex={-1}>

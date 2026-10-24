@@ -70,6 +70,7 @@ export function workforceComplaintsQuery(input: URLSearchParams) {
     "_trail",
     "selected",
     "messageCursor",
+    "messageId",
     "_messageTrail",
   ];
   const params = new URLSearchParams();
@@ -89,7 +90,7 @@ export function workforceComplaintsQuery(input: URLSearchParams) {
   if (q) params.set("q", q);
   if (priority) params.set("priority", priority);
   if (status) params.set("status", status);
-  for (const name of ["cursor", "selected", "messageCursor"]) {
+  for (const name of ["cursor", "selected", "messageCursor", "messageId"]) {
     const value = input.get(name);
     if (value !== null) {
       if (!z.uuid().safeParse(value).success) invalid = true;
@@ -117,12 +118,21 @@ export function workforceComplaintsQuery(input: URLSearchParams) {
     }
   }
   if (
-    (input.has("messageCursor") || input.has("_messageTrail")) &&
+    (input.has("messageCursor") ||
+      input.has("_messageTrail") ||
+      input.has("messageId")) &&
     !params.has("selected")
   )
     invalid = true;
+  if (params.has("messageId") && params.has("messageCursor")) invalid = true;
   const api = new URLSearchParams(params);
-  for (const name of ["_trail", "selected", "messageCursor", "_messageTrail"])
+  for (const name of [
+    "_trail",
+    "selected",
+    "messageCursor",
+    "_messageTrail",
+    "messageId",
+  ])
     api.delete(name);
   api.set("limit", "25");
   return { params, invalid, path: invalid ? null : `/staff/workforce/complaints?${api}` };

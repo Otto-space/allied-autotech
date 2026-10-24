@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { BrowserPushSettings } from "./browser-push-settings";
+import { NotificationAttentionQueue } from "./notification-attention-queue";
 import { NotificationArrival } from "./notification-arrival";
 import Link from "next/link";
 import {
@@ -343,6 +344,7 @@ export function AccountNotificationInbox({
     <section className="cn-inbox" aria-labelledby="inbox-title">
       <Suspense fallback={<p role="status">Opening notification…</p>}>
         <NotificationArrival role={role} />
+        <NotificationAttentionQueue role={role} />
       </Suspense>
       <div className="cn-inbox-heading">
         <h2 id="inbox-title">Inbox</h2>

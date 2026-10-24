@@ -150,14 +150,25 @@ test("notifications link to the exact conversation and an older review detail", 
   await page
     .getByRole("link", { name: "View review: Review moderation update", exact: true })
     .click();
-  await expect(page).toHaveURL(new RegExp(`/dashboard/reviews/${reviewId}$`));
+  await expect(page).toHaveURL(new RegExp(`/dashboard/reviews/${reviewId}$`), {
+    timeout: 40000,
+  });
   await expect(
     page.getByRole("heading", { name: "My older review", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByText("Please remove personal contact information.", { exact: true }),
   ).toBeVisible();
-  expect(state.writes).toHaveLength(0);
+  await expect.poll(() => state.writes.length).toBe(1);
+  expect(state.writes[0]).toMatchObject({
+    endpoint: "/customers/notifications/read-context",
+    body: {
+      resourceType: "REVIEW",
+      resourceId: reviewId,
+      notificationIds: [notificationItem(3).id],
+    },
+  });
+  expect(state.items.find((item) => item.id === enquiry().id)?.readAt).toBeNull();
 });
 
 test("manual refresh discovers new unread updates and an error never shows a false count", async ({

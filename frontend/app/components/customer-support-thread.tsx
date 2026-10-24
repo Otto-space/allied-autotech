@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 
 import { WorkflowProgress } from "./status-progress";
@@ -242,6 +243,17 @@ export function CustomerSupportThread({
         />
       )}
       {detail.loading && <p role="status">Checking support record…</p>}
+      {record && !detailUnavailable && (
+        <NotificationRecordContext
+          resourceType={kind === "enquiries" ? "ENQUIRY" : "COMPLAINT"}
+          resourceId={record.id}
+          supportMessageIds={
+            !messages.loading && !messages.error && !messages.refreshError
+              ? messages.data?.items.map((message) => message.id)
+              : []
+          }
+        />
+      )}
       {record && (
         <div className="ct-grid">
           <div className="ct-conversation-column">

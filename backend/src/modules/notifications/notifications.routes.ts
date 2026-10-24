@@ -9,6 +9,9 @@ import { pushSubscriptionSchema } from "./push.schemas.js";
 import { successResponse } from "../../common/http/api-response.js";
 import {
   notificationListQuerySchema,
+  notificationAttentionQuerySchema,
+  notificationContextQuerySchema,
+  notificationContextReadSchema,
   notificationParamsSchema,
   notificationsEmptyBodySchema,
   notificationsEmptyQuerySchema,
@@ -70,6 +73,25 @@ function routes(): Router {
     "/summary",
     validate({ query: notificationsEmptyQuerySchema }),
     controller.summary,
+  );
+  router.get(
+    "/attention",
+    validate({ query: notificationAttentionQuerySchema }),
+    controller.attention,
+  );
+  router.get(
+    "/context",
+    validate({ query: notificationContextQuerySchema }),
+    controller.context,
+  );
+  router.post(
+    "/read-context",
+    requireCsrf,
+    validate({
+      body: notificationContextReadSchema,
+      query: notificationsEmptyQuerySchema,
+    }),
+    controller.readContext,
   );
   router.post(
     "/read-all",

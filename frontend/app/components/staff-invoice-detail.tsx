@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -473,6 +474,9 @@ function InvoiceWorkspace({
           </li>
         </ol>
       </nav>
+      {current && !invoice.loading && !invoice.refreshing && !invoiceError && (
+        <NotificationRecordContext resourceType="INVOICE" resourceId={current.id} />
+      )}
       <header className="wid-heading">
         <div>
           <h1>{current?.invoiceNumber ?? "Invoice details"}</h1>

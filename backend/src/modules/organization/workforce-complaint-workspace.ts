@@ -47,7 +47,7 @@ export async function readWorkforceComplaint(
   access: WorkforceSnapshot,
   id: string,
   branchIds: string[],
-  query: { limit: number; cursor?: string | undefined },
+  query: { limit: number; cursor?: string | undefined; messageId?: string | undefined },
 ) {
   // Serialize the current revision and history with customer/legacy message writers.
   await tx.$queryRaw`SELECT "id" FROM "Complaint" WHERE "id" = ${id}::uuid FOR SHARE`;
@@ -64,9 +64,10 @@ export async function readWorkforceComplaint(
     },
   });
   if (!row) workforceNotFound();
-  if (query.cursor) {
+  const anchor = query.messageId ?? query.cursor;
+  if (anchor) {
     const cursor = await tx.supportMessage.findFirst({
-      where: { id: query.cursor, complaintId: id, visibility: "CUSTOMER" },
+      where: { id: anchor, complaintId: id, visibility: "CUSTOMER" },
       select: { id: true },
     });
     if (!cursor) workforceNotFound();
@@ -76,7 +77,7 @@ export async function readWorkforceComplaint(
     where: { complaintId: id, visibility: "CUSTOMER" },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: query.limit + 1,
-    ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+    ...(anchor ? { cursor: { id: anchor }, skip: query.messageId ? 0 : 1 } : {}),
     select: {
       id: true,
       kind: true,

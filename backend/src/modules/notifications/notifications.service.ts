@@ -1,3 +1,12 @@
+import { resolveNotificationTargets } from "./notification-targets.js";
+import { notificationSelect } from "./notifications.repository.js";
+import { lockWorkforce } from "../organization/workforce-access.service.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
+import type {
+  NotificationAttentionQuery,
+  NotificationContextQuery,
+  NotificationContextRead,
+} from "./notifications.schemas.js";
 import { withTransactionRetry } from "../../common/database/transaction-retry.js";
 import { writePreferenceReceipt } from "./preference-write.js";
 import { randomUUID } from "node:crypto";
@@ -170,30 +179,211 @@ export class NotificationsService {
 
   async list(actor: AuthenticatedActor, query: NotificationListQuery) {
     assertNotificationActor(actor);
-    return notificationPage(await this.repository.list(actor.userId, query), query.limit);
+    return this.database.$transaction(
+      async (tx) => {
+        if (
+          query.cursor &&
+          !(await this.repository.owned(query.cursor, actor.userId, tx))
+        )
+          throw notificationNotFound();
+        const rows = await this.repository.list(actor.userId, query, tx);
+        const targets = await resolveNotificationTargets(tx, actor, rows);
+        return notificationPage(
+          rows.map((row) => ({ ...row, destination: targets.get(row.id) ?? null })),
+          query.limit,
+        );
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
   }
   async detail(actor: AuthenticatedActor, id: string) {
     assertNotificationActor(actor);
-    const item = await this.repository.owned(id, actor.userId, this.database);
-    if (!item || (item.expiresAt && item.expiresAt <= new Date()))
-      throw notificationNotFound();
-    return item;
+    return this.database.$transaction(
+      async (tx) => {
+        const item = await this.repository.owned(id, actor.userId, tx);
+        if (!item || (item.expiresAt && item.expiresAt <= new Date()))
+          throw notificationNotFound();
+        const targets = await resolveNotificationTargets(tx, actor, [item]);
+        return { ...item, destination: targets.get(id) ?? null };
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
   }
-
+  private unreadReferences(userId: string, tx: Transaction) {
+    return tx.notification.findMany({
+      where: {
+        userId,
+        readAt: null,
+        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      },
+      select: {
+        id: true,
+        resourceType: true,
+        resourceId: true,
+        supportMessageId: true,
+        type: true,
+        category: true,
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    });
+  }
   async summary(actor: AuthenticatedActor) {
     assertNotificationActor(actor);
-    const groups = (await this.repository.unreadGroups(actor.userId)).map(
-      ({ resourceType, type, category, _count }) => ({
-        resourceType,
-        type,
-        category,
-        count: _count._all,
-      }),
+    return this.database.$transaction(
+      async (tx) => {
+        const rows = await this.unreadReferences(actor.userId, tx);
+        const targets = await resolveNotificationTargets(tx, actor, rows);
+        const grouped = new Map<
+          string,
+          {
+            resourceType: string | null;
+            type: (typeof rows)[number]["type"];
+            category: (typeof rows)[number]["category"];
+            count: number;
+          }
+        >();
+        const sections = new Map<
+          string,
+          { section: string; count: number; records: Set<string>; first: string }
+        >();
+        for (const row of rows) {
+          const key = JSON.stringify([row.resourceType, row.type, row.category]);
+          const group = grouped.get(key) ?? {
+            resourceType: row.resourceType,
+            type: row.type,
+            category: row.category,
+            count: 0,
+          };
+          group.count++;
+          grouped.set(key, group);
+          const target = targets.get(row.id);
+          if (!target || !row.resourceType || !row.resourceId) continue;
+          const section = sections.get(target.section) ?? {
+            section: target.section,
+            count: 0,
+            records: new Set<string>(),
+            first: row.id,
+          };
+          section.count++;
+          section.records.add(`${row.resourceType.toUpperCase()}:${row.resourceId}`);
+          sections.set(target.section, section);
+        }
+        const inbox =
+          actor.role === "CUSTOMER" ? "/dashboard/notifications" : "/admin/notifications";
+        return {
+          unreadCount: rows.length,
+          groups: [...grouped.values()],
+          destinations: [...sections.values()].map((s) => ({
+            section: s.section,
+            count: s.count,
+            recordCount: s.records.size,
+            href:
+              s.records.size === 1
+                ? `${inbox}?notification=${s.first}`
+                : `${inbox}?attention=${encodeURIComponent(s.section)}`,
+          })),
+        };
+      },
+      { isolationLevel: "RepeatableRead" },
     );
-    return {
-      unreadCount: groups.reduce((total, group) => total + group.count, 0),
-      groups,
-    };
+  }
+  async attention(actor: AuthenticatedActor, query: NotificationAttentionQuery) {
+    assertNotificationActor(actor);
+    return this.database.$transaction(
+      async (tx) => {
+        const rows = await this.unreadReferences(actor.userId, tx);
+        const targets = await resolveNotificationTargets(tx, actor, rows);
+        const matching = rows.filter((r) => targets.get(r.id)?.section === query.section);
+        const offset = query.cursor
+          ? matching.findIndex((r) => r.id === query.cursor) + 1
+          : 0;
+        if (query.cursor && offset === 0) throw notificationNotFound();
+        const ids = matching.slice(offset, offset + query.limit + 1).map((r) => r.id);
+        const page = ids.length
+          ? await tx.notification.findMany({
+              where: { userId: actor.userId, id: { in: ids } },
+              select: notificationSelect,
+              orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            })
+          : [];
+        return notificationPage(
+          page.map((r) => ({ ...r, destination: targets.get(r.id)! })),
+          query.limit,
+        );
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
+  async context(actor: AuthenticatedActor, query: NotificationContextQuery) {
+    assertNotificationActor(actor);
+    return this.database.$transaction(
+      async (tx) => {
+        const target = await resolveNotificationTargets(tx, actor, [
+          { ...query, id: "target", supportMessageId: null },
+        ]);
+        if (!target.has("target")) throw notificationNotFound();
+        const rows = await tx.notification.findMany({
+          where: {
+            userId: actor.userId,
+            resourceType: { equals: query.resourceType, mode: "insensitive" },
+            resourceId: query.resourceId,
+            ...(query.messageIds
+              ? {
+                  AND: [
+                    {
+                      OR: [
+                        { supportMessageId: null },
+                        { supportMessageId: { in: query.messageIds } },
+                      ],
+                    },
+                  ],
+                }
+              : {}),
+            readAt: null,
+            OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          },
+          select: notificationSelect,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          take: 101,
+        });
+        const page = rows.slice(0, 100);
+        const targets = await resolveNotificationTargets(tx, actor, page);
+        return {
+          hasMore: rows.length > 100,
+          items: page
+            .filter((r) => targets.has(r.id))
+            .map((r) => ({ ...r, destination: targets.get(r.id)! })),
+        };
+      },
+      { isolationLevel: "RepeatableRead" },
+    );
+  }
+  async readContext(actor: AuthenticatedActor, body: NotificationContextRead) {
+    assertNotificationActor(actor);
+    return this.database.$transaction(async (tx) => {
+      if (actor.role !== "CUSTOMER") {
+        await lockWorkforce(tx);
+        await lockAccessActor(tx, actor);
+      }
+      const rows = await tx.notification.findMany({
+        where: {
+          userId: actor.userId,
+          resourceType: { equals: body.resourceType, mode: "insensitive" },
+          resourceId: body.resourceId,
+          id: { in: body.notificationIds },
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        select: notificationSelect,
+      });
+      const targets = await resolveNotificationTargets(tx, actor, rows);
+      if (rows.length !== body.notificationIds.length || targets.size !== rows.length)
+        throw notificationNotFound();
+      const changed = await tx.notification.updateMany({
+        where: { userId: actor.userId, id: { in: body.notificationIds }, readAt: null },
+        data: { readAt: new Date() },
+      });
+      return { updated: changed.count };
+    });
   }
 
   async markRead(actor: AuthenticatedActor, id: string) {

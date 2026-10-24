@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -304,6 +305,12 @@ function SaleWorkspace({
       <header className="wi-header">
         <div>
           <h1>{current?.vehicleListing.title ?? "Vehicle purchase"}</h1>
+          {current && !busy && !error && (
+            <NotificationRecordContext
+              resourceType="VEHICLE_TRANSACTION"
+              resourceId={current.id}
+            />
+          )}
           {current && (
             <p>
               {current.transactionNumber} · Customer: {current.customerName}

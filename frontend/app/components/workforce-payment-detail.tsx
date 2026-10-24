@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import { useEffect, useRef } from "react";
 import { useResource } from "@/lib/api/use-resource";
@@ -74,6 +75,7 @@ export function WorkforcePaymentDetail({
           Checking the selected payment…
         </p>
       )}
+      {row && <NotificationRecordContext resourceType="PAYMENT" resourceId={row.id} />}
       {row && (
         <>
           <header className="wfc-detail-heading">

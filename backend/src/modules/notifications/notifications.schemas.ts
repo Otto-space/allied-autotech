@@ -33,6 +33,14 @@ export const notificationListQuerySchema = z
   .strict();
 export const notificationParamsSchema = z.object({ notificationId: z.uuid() }).strict();
 export const notificationSummarySchema = z.object({
+  destinations: z.array(
+    z.object({
+      section: z.string(),
+      count: z.number().int().positive(),
+      recordCount: z.number().int().positive(),
+      href: z.string(),
+    }),
+  ),
   unreadCount: z.number().int().nonnegative().safe(),
   groups: z.array(
     z.object({
@@ -78,3 +86,75 @@ export const preferenceWriteResponseSchema = z.object({
   appliedVersion: z.number().int().positive(),
   replayed: z.boolean(),
 });
+
+export const notificationTargetSchema = z.object({
+  section: z.string(),
+  href: z.string(),
+  label: z.string(),
+});
+export const notificationContextQuerySchema = z
+  .object({
+    resourceType: z.enum([
+      "BOOKING",
+      "WORKFORCE_JOB",
+      "ORDER",
+      "PAYMENT",
+      "INVOICE",
+      "VEHICLE_TRANSACTION",
+      "ENQUIRY",
+      "COMPLAINT",
+      "REVIEW",
+      "REFUND",
+      "DISPUTE",
+    ]),
+    resourceId: z.uuid(),
+    messageIds: z
+      .string()
+      .max(1900)
+      .transform((value) => value.split(","))
+      .pipe(z.array(z.uuid()).min(1).max(50))
+      .optional(),
+  })
+  .strict();
+export const notificationContextReadSchema = notificationContextQuerySchema
+  .omit({ messageIds: true })
+  .extend({
+    notificationIds: z
+      .array(z.uuid())
+      .min(1)
+      .max(100)
+      .refine((ids) => new Set(ids).size === ids.length),
+  });
+export const notificationAttentionQuerySchema = z
+  .object({
+    section: z.enum([
+      "/dashboard/bookings",
+      "/dashboard/orders",
+      "/dashboard/payments",
+      "/dashboard/invoices",
+      "/dashboard/vehicle-transactions",
+      "/dashboard/support",
+      "/dashboard/reviews",
+      "/admin/bookings",
+      "/admin/orders",
+      "/admin/payments",
+      "/admin/invoices",
+      "/admin/vehicle-sales",
+      "/admin/support",
+      "/admin/refunds",
+      "/admin/payment-disputes",
+      "/admin/payment-disputes/work",
+      "/admin/workforce/jobs",
+      "/admin/workforce/bookings",
+      "/admin/workforce/orders",
+      "/admin/workforce/enquiries",
+      "/admin/workforce/complaints",
+      "/admin/workforce/finance",
+    ]),
+    cursor: z.uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(25),
+  })
+  .strict();
+export type NotificationContextQuery = z.infer<typeof notificationContextQuerySchema>;
+export type NotificationContextRead = z.infer<typeof notificationContextReadSchema>;
+export type NotificationAttentionQuery = z.infer<typeof notificationAttentionQuerySchema>;

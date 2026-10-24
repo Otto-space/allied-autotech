@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback } from "react";
@@ -100,6 +101,16 @@ export function VehicleTransactionDetail({ transactionId }: { transactionId: str
           </Link>
         </section>
       )}
+      {current &&
+        !transaction.loading &&
+        !transaction.refreshing &&
+        !transaction.error &&
+        !transaction.refreshError && (
+          <NotificationRecordContext
+            resourceType="VEHICLE_TRANSACTION"
+            resourceId={current.id}
+          />
+        )}
       {current && (
         <>
           <WorkflowProgress workflow="vehicle" status={current.status} />

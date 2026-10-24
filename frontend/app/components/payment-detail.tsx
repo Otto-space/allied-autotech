@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -300,6 +301,13 @@ export function PaymentDetail({ paymentId }: { paymentId: string }) {
           Checking payment status…
         </p>
       )}
+      {current &&
+        !payment.loading &&
+        !payment.refreshing &&
+        !payment.error &&
+        !payment.refreshError && (
+          <NotificationRecordContext resourceType="PAYMENT" resourceId={current.id} />
+        )}
       {current && (
         <div className="payment-layout" data-compact={!!unavailable || uncertain}>
           <div className="payment-overview">

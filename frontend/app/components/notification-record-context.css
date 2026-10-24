@@ -1,0 +1,46 @@
+.notification-record-context {
+  margin: 1rem 0;
+  padding: 1rem 1.125rem;
+  border: 1px solid #b9cbd2;
+  border-inline-start: 4px solid #176373;
+  border-radius: 0.75rem;
+  background: #f1f8fa;
+  color: #17313a;
+  overflow-wrap: anywhere;
+}
+.notification-record-context:focus-visible {
+  outline: 3px solid #176373;
+  outline-offset: 3px;
+}
+.notification-record-context p {
+  margin: 0.45rem 0;
+}
+.notification-record-context .notification-context-state {
+  font-size: 0.875rem;
+}
+.notification-record-context a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #124f62;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.cn-attention > p > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.cn-attention h2:focus-visible {
+  outline: 3px solid #176373;
+  outline-offset: 3px;
+}
+
+.wp-payment[data-selected="true"] {
+  border-color: #176373;
+}
+.wp-payment[tabindex="-1"]:focus-visible {
+  outline: 3px solid #176373;
+  outline-offset: 3px;
+}

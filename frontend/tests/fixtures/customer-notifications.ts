@@ -126,6 +126,23 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         }
         return reply(route, { unreadCount: unread.length, groups: [...groups.values()] });
       }
+      if (endpoint === `${base}/context`) {
+        const messageIds = url.searchParams.get("messageIds")?.split(",");
+        return reply(route, {
+          hasMore: false,
+          items: state.items.filter(
+            (row) =>
+              !row.readAt &&
+              row.resourceType?.toUpperCase() === url.searchParams.get("resourceType") &&
+              row.resourceId === url.searchParams.get("resourceId") &&
+              (!messageIds ||
+                !row.supportMessageId ||
+                messageIds.includes(row.supportMessageId)),
+          ),
+        });
+      }
+      const owned = state.items.find((row) => endpoint === `${base}/${row.id}`);
+      if (owned) return reply(route, owned);
       if (state.malformed) return reply(route, { items: [{}] });
       const selected = (
         state.paginate && url.searchParams.has("cursor")
@@ -212,6 +229,21 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         appliedVersion: saved.version,
         replayed: false,
       });
+    }
+    if (endpoint === `${base}/read-context`) {
+      const body = request.postDataJSON();
+      let updated = 0;
+      for (const row of state.items)
+        if (
+          body.notificationIds.includes(row.id) &&
+          row.resourceType?.toUpperCase() === body.resourceType &&
+          row.resourceId === body.resourceId &&
+          !row.readAt
+        ) {
+          row.readAt = time;
+          updated++;
+        }
+      return reply(route, { updated });
     }
     if (endpoint.endsWith("/read-all")) {
       const updated = state.items.filter((row) => !row.readAt).length;

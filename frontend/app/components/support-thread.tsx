@@ -34,9 +34,10 @@ export function SupportThread({
       />
     );
   }
-  return <StaffSupportThread kind={kind} id={id} staff={staff} />;
+  return <StaffSupportThread kind={kind} id={id} staff={staff} messageId={messageId} />;
 }
 function StaffSupportThread({
+  messageId,
   kind,
   id,
   staff,
@@ -44,6 +45,7 @@ function StaffSupportThread({
   kind: SupportKind;
   id: string;
   staff: boolean;
+  messageId?: string;
 }) {
   const base = `/${staff ? "staff" : "customers"}/support/${kind}/${id}`;
   const parse = useCallback(
@@ -192,6 +194,7 @@ function StaffSupportThread({
             />
           )}
           <SupportMessages
+            messageId={messageId}
             key={base}
             refreshKey={messageRevision}
             record={record}

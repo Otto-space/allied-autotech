@@ -229,3 +229,62 @@ production deployment ran.
 Notifications, explicit public subcategory controls, the remaining multi-select/
 facet requirement audit, full backend regression, production build and final
 least-privilege/staging acceptance remain required before full completion.
+
+### Notification context implementation (23 October 2026)
+
+The existing owned inbox, manual read operations, summary refresh and broadcast
+channel are extended with server-resolved destinations. No arbitrary stored URL
+is used. Current customer ownership, staff branch, workforce action/assignment,
+finance scope and dispute/refund grants are checked before exposing an action.
+Queries batch resource identities by kind and avoid a lookup per notification.
+Sidebar counts use only accessible targets; the personal inbox/bell retain own
+legacy notices for manual management. Security notices retain their account link.
+
+One distinct unread record directs through the owned notification resolver to its
+record. Multiple records open a paged Needs attention queue with individual links
+and an explicit full-page route. Expand-only sidebar parents remain expanders;
+collapsed groups retain their indicators. An inaccessible or unresolvable notice
+remains manageable in the inbox without an invented record link.
+
+The new context/read-context operations accept an exact allowlisted resource and
+explicit owned notification IDs. They recheck current access, expiry and support
+message membership/visibility. Read writes are idempotent and preserve the first
+read time. They never update order, booking, support or payment business status.
+Staff acknowledgement serializes with existing identity/responsibility changes.
+
+Successful record views mount a contextual banner and acknowledge only after it
+is displayed in a visible tab. Conversation notices additionally wait for the
+actual message element to enter view. Loading, errors, mismatched records,
+generic lists, expansion controls, aborted navigation and session changes do not
+acknowledge. Read failure leaves the record usable with a scoped retry. Existing
+broadcast/focus refresh updates sidebar/bell counts across tabs.
+
+Exact workforce booking details and an independent staff selected-payment read
+close two existing off-page navigation gaps. Workforce and legacy staff support
+views accept validated message anchors and load the real history page rather than
+searching only the current list. Optional visible-message IDs find older related
+notices beyond the first 100 updates; bounded batches handle large unread sets.
+
+Current verification: eight authenticated PostgreSQL HTTP scenarios and five
+workforce personal-boundary cases passed together on the verified private native
+PostgreSQL `_ci` target. They cover recipient/record isolation, concurrent
+idempotency, unchanged business status, CSRF, expiry, independent message reads,
+private/mismatched message denial, staff branch/assignment projection,
+reassignment revocation, exact older-message navigation and 130-notice batches.
+The full frontend unit suite passed 146 files / 979 tests. OpenAPI validation and
+route coverage passed for 347 paths / 407 operations plus four infrastructure
+routes. The notification browser scenarios passed across focused runs, including
+mobile/desktop, cross-tab, failed/mismatched loads and message-visibility gates.
+A clean 24 October run passed all 25 selected notification/payment regressions,
+including list order, on-page/off-page focus, single-flight approval, retained
+drafts, competing decisions and uncertain refund recovery. The selected payment
+keeps its list position and refreshes its independent read after an action;
+automatic focus occurs once per selection, preserving receipt focus afterward.
+Changed-file frontend lint and TypeScript passed. Secret guard passed for 2974
+non-ignored files. These checkpoint results are not a whole-project release
+verification.
+
+No new migration, shared database write, production send, push or deployment ran
+for this checkpoint. Public subcategory controls, the final vehicle facet/multi-
+select audit, whole-backend regression, full production checks and final staging/
+least-privilege instructions remain required for the complete requested task.

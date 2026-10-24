@@ -3,6 +3,10 @@ import { z } from "zod";
 import { pushSubscriptionSchema } from "./push.schemas.js";
 import {
   notificationListQuerySchema,
+  notificationTargetSchema,
+  notificationContextQuerySchema,
+  notificationContextReadSchema,
+  notificationAttentionQuerySchema,
   notificationSummarySchema,
   notificationParamsSchema,
   preferenceUpdateBodySchema,
@@ -21,6 +25,7 @@ const inboxPage = z.object({
   items: z.array(
     z.object({
       id: z.uuid(),
+      destination: notificationTargetSchema.nullable(),
       type: z.string(),
       category: z.string(),
       title: z.string(),
@@ -39,6 +44,69 @@ const csrf = z.object({ "x-csrf-token": z.string().min(32) });
 
 export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
   for (const prefix of ["/customers/notifications", "/staff/notifications"] as const) {
+    for (const [suffix, query, data, summary] of [
+      [
+        "attention",
+        notificationAttentionQuerySchema,
+        inboxPage,
+        "List unread updates with currently authorized targets in one sidebar section",
+      ],
+      [
+        "context",
+        notificationContextQuerySchema,
+        z.object({ items: inboxPage.shape.items, hasMore: z.boolean() }),
+        "Read own unread updates for one currently authorized record without marking them read",
+      ],
+    ] as const)
+      registry.registerPath({
+        method: "get",
+        path: `${prefix}/${suffix}`,
+        tags: ["Notifications"],
+        summary,
+        security: [{ sessionCookie: [] }],
+        request: { query: query as never },
+        responses: {
+          "200": {
+            description:
+              "Recipient and current target access checked; no read or business status changes",
+            content: { "application/json": { schema: response.extend({ data }) } },
+          },
+          "404": { description: "Target or cursor unavailable" },
+        },
+      });
+    registry.registerPath({
+      method: "post",
+      path: `${prefix}/read-context`,
+      tags: ["Notifications"],
+      summary:
+        "Idempotently acknowledge displayed notifications for one authorized record",
+      description:
+        "Called only after the record and relevant message are displayed. Every supplied ID must belong to this recipient and exact target, be unexpired and still accessible. Repeated calls do not change the original read time. Does not change any business status. Manual individual and bulk read operations remain available.",
+      security: [{ sessionCookie: [] }],
+      request: {
+        headers: csrf as never,
+        body: {
+          required: true,
+          content: { "application/json": { schema: notificationContextReadSchema } },
+        },
+      },
+      responses: {
+        "200": {
+          description: "Confirmed number newly read",
+          content: {
+            "application/json": {
+              schema: response.extend({
+                data: z.object({ updated: z.number().int().nonnegative() }),
+              }),
+            },
+          },
+        },
+        "404": {
+          description:
+            "A supplied notification or its current target is unavailable; no read changes applied",
+        },
+      },
+    });
     registry.registerPath({
       method: "get",
       path: `${prefix}/{notificationId}`,

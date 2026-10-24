@@ -49,7 +49,7 @@ export async function readWorkforceEnquiry(
   access: WorkforceSnapshot,
   id: string,
   scope: Prisma.EnquiryWhereInput,
-  query: { limit: number; cursor?: string | undefined },
+  query: { limit: number; cursor?: string | undefined; messageId?: string | undefined },
 ) {
   // Customer and staff message writers lock this parent row. Read the record,
   // latest-message precondition and history page from one consistent revision.
@@ -59,9 +59,10 @@ export async function readWorkforceEnquiry(
     select: workforceEnquirySelect,
   });
   if (!row) workforceNotFound();
-  if (query.cursor) {
+  const anchor = query.messageId ?? query.cursor;
+  if (anchor) {
     const cursor = await tx.supportMessage.findFirst({
-      where: { id: query.cursor, enquiryId: id, visibility: "CUSTOMER" },
+      where: { id: anchor, enquiryId: id, visibility: "CUSTOMER" },
       select: { id: true },
     });
     if (!cursor) workforceNotFound();
@@ -71,7 +72,7 @@ export async function readWorkforceEnquiry(
     where: { enquiryId: id, visibility: "CUSTOMER" },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take: query.limit + 1,
-    ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
+    ...(anchor ? { cursor: { id: anchor }, skip: query.messageId ? 0 : 1 } : {}),
     select: {
       id: true,
       kind: true,

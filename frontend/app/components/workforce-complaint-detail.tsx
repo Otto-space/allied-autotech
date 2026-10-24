@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 import { SupportEmailDeliverySummary } from "./support-email-delivery";
 import { WorkflowProgress } from "./status-progress";
@@ -64,6 +65,7 @@ export function WorkforceComplaintDetail({
   const cursor = params.get("messageCursor"),
     api = new URLSearchParams({ limit: "25" });
   if (cursor) api.set("cursor", cursor);
+  else if (params.get("messageId")) api.set("messageId", params.get("messageId")!);
   const record = useResource(
     denied ? null : `/staff/workforce/complaints/${id}?${api}`,
     parseWorkforceComplaint,
@@ -308,6 +310,7 @@ export function WorkforceComplaintDetail({
           );
     const target = new URLSearchParams(params);
     target.delete("messageCursor");
+    target.delete("messageId");
     target.delete("_messageTrail");
     if (next.has("cursor")) target.set("messageCursor", next.get("cursor")!);
     if (next.has("_trail")) target.set("_messageTrail", next.get("_trail")!);
@@ -400,6 +403,11 @@ export function WorkforceComplaintDetail({
       )}
       {row && (
         <>
+          <NotificationRecordContext
+            resourceType="COMPLAINT"
+            resourceId={row.id}
+            supportMessageIds={row.messages.items.map((message) => message.id)}
+          />
           <header className="wfc-detail-heading">
             <div>
               <h2 ref={title} tabIndex={-1}>
@@ -479,7 +487,11 @@ export function WorkforceComplaintDetail({
               <ol className="wfc-messages">
                 {[...row.messages.items].reverse().map((entry) => (
                   <li key={entry.id}>
-                    <SupportTimelineEntry entry={entry} staff />
+                    <SupportTimelineEntry
+                      entry={entry}
+                      staff
+                      highlighted={entry.id === params.get("messageId")}
+                    />
                   </li>
                 ))}
               </ol>

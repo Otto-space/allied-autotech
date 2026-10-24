@@ -44,6 +44,11 @@ export const workforceListSchema = z.strictObject({
   limit: z.coerce.number().int().min(1).max(50).default(25),
   cursor: z.uuid().optional(),
 });
+export const workforceMessageQuerySchema = workforceListSchema
+  .extend({ messageId: z.uuid().optional() })
+  .refine((query) => !(query.cursor && query.messageId), {
+    message: "Choose a message anchor or a page cursor",
+  });
 export const workforceJobsQuerySchema = workforceListSchema.extend({
   q: z
     .string()
@@ -415,6 +420,11 @@ export function workforceResponseSchema(action: string): z.ZodType {
       return pageOf(workforceJobResponseSchema).extend({
         generatedAt: timestamp,
         access: workforceOwnResponseSchema,
+      });
+    case "booking":
+      return bookingRow.extend({
+        access: workforceOwnResponseSchema,
+        generatedAt: timestamp,
       });
     case "bookings":
       return pageOf(bookingRow).extend({

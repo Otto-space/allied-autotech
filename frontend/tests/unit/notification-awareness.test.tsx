@@ -5,7 +5,10 @@ import {
   customerNotificationDestination,
   notificationNavigationCounts,
 } from "@/lib/notifications/destinations";
-import { notificationSummarySchema } from "@/lib/api/notification-schemas";
+import {
+  notificationSummarySchema,
+  notificationDestinationSchema,
+} from "@/lib/api/notification-schemas";
 import {
   useNotificationSummary,
   announceNotificationChange,
@@ -90,6 +93,50 @@ describe("notification destinations", () => {
         category: "OPERATIONAL",
       }),
     ).toBeNull();
+  });
+  it("uses authoritative current target counts and does not revive a revoked destination", () => {
+    const scoped = {
+      ...summary,
+      destinations: [
+        {
+          section: "/dashboard/bookings",
+          count: 1,
+          recordCount: 1,
+          href: `/dashboard/notifications?notification=${id}`,
+        },
+      ],
+    };
+    expect(notificationNavigationCounts(scoped, true)).toEqual({
+      "/dashboard/notifications": 130,
+      "/dashboard/bookings": 1,
+    });
+    expect(
+      customerNotificationDestination({
+        resourceType: "BOOKING",
+        resourceId: id,
+        category: "TRANSACTIONAL",
+        destination: null,
+      }),
+    ).toBeNull();
+    expect(
+      notificationSummarySchema.safeParse({
+        ...scoped,
+        destinations: [{ ...scoped.destinations[0], recordCount: 2 }],
+      }).success,
+    ).toBe(false);
+    for (const href of [
+      "https://example.test/path",
+      "//example.test/path",
+      "/admin/../%2f%2fexample.test",
+      "/admin/\\example.test",
+    ])
+      expect(
+        notificationDestinationSchema.safeParse({
+          section: "/dashboard/bookings",
+          href,
+          label: "View",
+        }).success,
+      ).toBe(false);
   });
   it("rejects inconsistent and negative counts; includes unknown records only in the bell", () => {
     expect(

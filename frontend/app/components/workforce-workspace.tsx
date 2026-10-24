@@ -14,6 +14,7 @@ import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { WorkforceAccessPanel } from "./workforce-access-panel";
 import { WorkforceOverview } from "./workforce-overview";
+import { WorkforceBookingDetail } from "./workforce-booking-detail";
 import { WorkforceBookings } from "./workforce-bookings";
 import { WorkforceEnquiries } from "./workforce-enquiries";
 import { WorkforceComplaints } from "./workforce-complaints";
@@ -36,6 +37,16 @@ export function WorkforceWorkspace({
     return <WorkforceOverview access={access} refreshAccess={refreshAccess} />;
   if (path === "/admin/workforce/access" && access.canManageAssignments)
     return <WorkforceAccessLookup canInvite={access.canInviteAdmins} />;
+  const bookingId = /^\/admin\/workforce\/bookings\/([0-9a-f-]+)$/.exec(path)?.[1];
+  if (bookingId && access.permissions.includes("BOOKINGS_READ"))
+    return (
+      <WorkforceBookingDetail
+        key={`${access.userId}:${bookingId}`}
+        id={bookingId}
+        access={access}
+        refreshAccess={refreshAccess}
+      />
+    );
   const id = /^\/admin\/workforce\/jobs\/([0-9a-f-]+)$/.exec(path)?.[1];
   if (id && access.permissions.includes("JOBS_READ"))
     return (

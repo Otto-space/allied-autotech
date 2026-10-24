@@ -47,6 +47,7 @@ export function WorkforceEnquiries({
   function select(id?: string) {
     const params = new URLSearchParams(query.params);
     params.delete("messageCursor");
+    params.delete("messageId");
     params.delete("_messageTrail");
     if (id) params.set("selected", id);
     else params.delete("selected");

@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -703,6 +704,9 @@ function HandlingWorkspace({
               </button>
             </div>
           </section>
+          {row && !selected.loading && !selected.refreshing && !selectedError && (
+            <NotificationRecordContext resourceType="DISPUTE" resourceId={row.id} />
+          )}
           {selectedId && (
             <section
               className="wh-detail"

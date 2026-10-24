@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -184,6 +185,50 @@ function PaymentWorkspace({
     selected = query.params.get("selected"),
     selectedAttempt = query.params.get("attempt"),
     disabled = busy || !!error || !!pending || protectedUnavailable || query.invalid;
+  const selectedRecord = useResource(
+    !protectedUnavailable && !query.invalid && selected
+      ? `/staff/payments/${selected}`
+      : null,
+    parseWorkPayment,
+  );
+  const selectionMismatch = !!selectedRecord.data && selectedRecord.data.id !== selected;
+  const selectedPayment = selectionMismatch
+    ? undefined
+    : selectedRecord.data &&
+        inspected?.id === selectedRecord.data.id &&
+        Date.parse(inspected.updatedAt) >= Date.parse(selectedRecord.data.updatedAt)
+      ? inspected
+      : selectedRecord.data;
+  const selectedInList = !!rows?.some((row) => row.id === selected);
+  const selectedElementId = selected
+    ? `${selectedInList ? "payment-record" : "payment-selected"}-${selected}`
+    : undefined;
+  const selectedReady =
+    !!selectedPayment &&
+    !selectedRecord.loading &&
+    !selectedRecord.refreshing &&
+    !selectedRecord.error &&
+    !selectedRecord.refreshError &&
+    !selectionMismatch;
+  const focusedSelection = useRef<string | null>(null);
+  useEffect(() => {
+    if (!selected) {
+      focusedSelection.current = null;
+      return;
+    }
+    if (!selectedReady || !selectedElementId || focusedSelection.current === selected)
+      return;
+    const element = document.getElementById(selectedElementId);
+    if (!element) return;
+    focusedSelection.current = selected;
+    element.scrollIntoView({ block: "nearest", behavior: "instant" });
+    element.focus({ preventScroll: true });
+  }, [selected, selectedReady, selectedElementId]);
+  function refreshPayments() {
+    records.refresh();
+    selectedRecord.refresh();
+  }
+
   useEffect(() => {
     if (proposal || protectedUnavailable || !focusResult.current) return;
     let live = true;
@@ -290,7 +335,7 @@ function PaymentWorkspace({
             a = latest.attempts.find((a) => a.id === change.attemptId);
           if (paymentSnapshot(latest) !== snapshot) {
             setInspected(latest);
-            records.refresh();
+            refreshPayments();
             throw notSent();
           }
           if (
@@ -363,7 +408,7 @@ function PaymentWorkspace({
           setPending(undefined);
           setRetained(null);
           setTone("success");
-          records.refresh();
+          refreshPayments();
         } catch (e) {
           const submitted = sent;
           if (e instanceof ApiError && [401, 403, 404].includes(e.status)) deny();
@@ -428,7 +473,7 @@ function PaymentWorkspace({
       setMessage(
         "Current payment loaded. No change was resent; this read does not prove the original request outcome. Affected manual-decision fields were replaced only after reconciliation.",
       );
-      records.refresh();
+      refreshPayments();
     } catch (e) {
       if (e instanceof ApiError && [401, 403, 404].includes(e.status)) deny();
       if (active.current) {
@@ -499,7 +544,7 @@ function PaymentWorkspace({
       setMessage(
         "Original refund request located with its exact actor, attempt, amount and reason. No request was resent. Its current status is shown below.",
       );
-      records.refresh();
+      refreshPayments();
     } catch (e) {
       if (e instanceof ApiError && [401, 403, 404].includes(e.status)) deny();
       if (active.current) {
@@ -521,7 +566,7 @@ function PaymentWorkspace({
     try {
       await freshAccess(c.signal);
       setUnavailable(false);
-      records.refresh();
+      refreshPayments();
     } catch (e) {
       if (e instanceof ApiError && [401, 403, 404].includes(e.status)) deny();
       setTone("error");
@@ -561,7 +606,7 @@ function PaymentWorkspace({
       setMessage(
         "Your manual reconciliation was acknowledged. Current payment facts were loaded; the original request outcome was not automatically proven. No change was resent.",
       );
-      records.refresh();
+      refreshPayments();
     } catch (e) {
       if (e instanceof ApiError && [401, 403, 404].includes(e.status)) deny();
       setTone("error");
@@ -607,7 +652,7 @@ function PaymentWorkspace({
             className="button secondary"
             disabled={busy || !!proposal}
             onClick={() =>
-              protectedUnavailable ? void restoreQueue() : records.refresh()
+              protectedUnavailable ? void restoreQueue() : refreshPayments()
             }
           >
             <RefreshCw size={16} aria-hidden="true" />
@@ -803,7 +848,7 @@ function PaymentWorkspace({
               <button
                 className="button secondary"
                 disabled={busy || !!proposal}
-                onClick={records.refresh}
+                onClick={refreshPayments}
               >
                 Retry payment records
               </button>
@@ -830,13 +875,86 @@ function PaymentWorkspace({
               </button>
             </section>
           )}
+          {selected && (
+            <section className="wp-current" aria-label="Selected payment record">
+              <h2>Selected payment</h2>
+              <p>This record is loaded independently of the list filters.</p>
+              <button
+                className="button secondary"
+                disabled={navigationDisabled}
+                onClick={() => {
+                  const next = new URLSearchParams(query.params);
+                  next.delete("selected");
+                  next.delete("attempt");
+                  navigate(next);
+                }}
+              >
+                Close selected payment
+              </button>
+              <Feedback
+                message={
+                  selectedRecord.error ||
+                  selectedRecord.refreshError ||
+                  (selectionMismatch
+                    ? "The returned payment does not match the selected record. Refresh to try again."
+                    : undefined)
+                }
+              />
+              {(selectedRecord.loading || selectedRecord.refreshing) && (
+                <p role="status">Checking selected payment...</p>
+              )}
+              {!selectedRecord.loading &&
+                !selectedRecord.refreshing &&
+                !selectedRecord.error &&
+                !selectedRecord.refreshError &&
+                !selectionMismatch &&
+                selectedPayment && (
+                  <>
+                    <NotificationRecordContext
+                      resourceType="PAYMENT"
+                      resourceId={selectedPayment.id}
+                      targetElementId={selectedElementId}
+                    />
+                    {!selectedInList && (
+                      <PaymentCard
+                        recordElementId={selectedElementId}
+                        highlighted
+                        payment={selectedPayment}
+                        selected={selectedAttempt}
+                        disabled={disabled}
+                        navigationDisabled={navigationDisabled}
+                        generation={generation}
+                        receiptAttempt={receipt?.paymentAttemptId}
+                        recovery={
+                          pending &&
+                          pending !== "unknown" &&
+                          pending.operation === "refund" &&
+                          pending.paymentId === selectedPayment.id
+                            ? pending
+                            : undefined
+                        }
+                        recoveryDisabled={
+                          busy || !!error || protectedUnavailable || query.invalid
+                        }
+                        choose={(attemptId) => choose(selected, attemptId)}
+                        review={review}
+                        denyAccess={deny}
+                      />
+                    )}
+                  </>
+                )}
+            </section>
+          )}
           <div className="wp-records">
             {rows?.map((payment) => (
               <PaymentCard
                 key={payment.id}
-                payment={payment}
+                payment={
+                  payment.id === selected && selectedPayment ? selectedPayment : payment
+                }
                 selected={selected === payment.id ? selectedAttempt : null}
-                disabled={disabled}
+                highlighted={payment.id === selected && selectedReady}
+                disabled={disabled || (payment.id === selected && !selectedReady)}
                 navigationDisabled={navigationDisabled}
                 generation={generation}
                 receiptAttempt={receipt?.paymentAttemptId}
@@ -887,37 +1005,41 @@ function PaymentWorkspace({
               Next
             </button>
           </nav>
-          {inspected && !rows?.some((r) => r.id === inspected.id) && (
-            <section className="wp-current">
-              <h2>Current payment outside this page</h2>
-              <p>This current read is independent of the selected collection filters.</p>
-              <PaymentCard
-                payment={inspected}
-                disabled
-                navigationDisabled
-                selected={
-                  pending && pending !== "unknown" && pending.operation === "refund"
-                    ? pending.attemptId
-                    : null
-                }
-                recovery={
-                  pending &&
-                  pending !== "unknown" &&
-                  pending.operation === "refund" &&
-                  pending.paymentId === inspected.id
-                    ? pending
-                    : undefined
-                }
-                recoveryDisabled={
-                  busy || !!error || protectedUnavailable || query.invalid
-                }
-                generation={generation}
-                choose={() => {}}
-                review={review}
-                denyAccess={deny}
-              />
-            </section>
-          )}
+          {inspected &&
+            inspected.id !== selected &&
+            !rows?.some((r) => r.id === inspected.id) && (
+              <section className="wp-current">
+                <h2>Current payment outside this page</h2>
+                <p>
+                  This current read is independent of the selected collection filters.
+                </p>
+                <PaymentCard
+                  payment={inspected}
+                  disabled
+                  navigationDisabled
+                  selected={
+                    pending && pending !== "unknown" && pending.operation === "refund"
+                      ? pending.attemptId
+                      : null
+                  }
+                  recovery={
+                    pending &&
+                    pending !== "unknown" &&
+                    pending.operation === "refund" &&
+                    pending.paymentId === inspected.id
+                      ? pending
+                      : undefined
+                  }
+                  recoveryDisabled={
+                    busy || !!error || protectedUnavailable || query.invalid
+                  }
+                  generation={generation}
+                  choose={() => {}}
+                  review={review}
+                  denyAccess={deny}
+                />
+              </section>
+            )}
         </>
       )}
       {proposal && !protectedUnavailable && (
@@ -939,6 +1061,8 @@ function Fact({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 function PaymentCard({
+  highlighted = false,
+  recordElementId,
   payment: p,
   selected,
   disabled,
@@ -951,6 +1075,8 @@ function PaymentCard({
   choose,
   review,
 }: {
+  highlighted?: boolean;
+  recordElementId?: string;
   payment: WorkPayment;
   selected: string | null;
   disabled: boolean;
@@ -964,7 +1090,13 @@ function PaymentCard({
   review: (offer: MutationProposal) => void;
 }) {
   return (
-    <section className="wi-card wp-payment" aria-labelledby={`payment-${p.id}`}>
+    <section
+      id={recordElementId ?? `payment-record-${p.id}`}
+      tabIndex={-1}
+      data-selected={highlighted || undefined}
+      className="wi-card wp-payment"
+      aria-labelledby={`payment-${p.id}`}
+    >
       <header className="wp-record-header">
         <div>
           <h2 id={`payment-${p.id}`} tabIndex={-1}>

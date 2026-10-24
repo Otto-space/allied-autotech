@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 import { useCallback } from "react";
 import { useResource } from "@/lib/api/use-resource";
@@ -7,6 +8,7 @@ import { Feedback } from "./feedback";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { SupportReplyForm } from "./support-reply-form";
 export function SupportMessages({
+  messageId,
   record,
   base,
   staff,
@@ -16,6 +18,7 @@ export function SupportMessages({
   onUncertain,
 }: {
   record: SupportRecord;
+  messageId?: string;
   base: string;
   staff: boolean;
   disabled: boolean;
@@ -34,13 +37,20 @@ export function SupportMessages({
     [staff, pagination.cursor],
   );
   const messages = useResource(
-    `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : ""}`,
+    `${base}/messages?limit=50${pagination.cursor ? `&cursor=${pagination.cursor}` : messageId ? `&messageId=${messageId}` : ""}`,
     parse,
     undefined,
     { refreshKey },
   );
   return (
     <>
+      {!disabled && !messages.loading && !messages.error && !messages.refreshError && (
+        <NotificationRecordContext
+          resourceType={record.kind === "enquiries" ? "ENQUIRY" : "COMPLAINT"}
+          resourceId={record.id}
+          supportMessageIds={messages.data?.items.map((message) => message.id)}
+        />
+      )}
       <section className="detail-section" aria-labelledby="support-messages-title">
         <h2 id="support-messages-title">Messages</h2>
         <p>
@@ -63,7 +73,12 @@ export function SupportMessages({
         <div className="support-message-list">
           {!messages.error &&
             messages.data?.items.map((item) => (
-              <SupportTimelineEntry key={item.id} entry={item} staff={staff} />
+              <SupportTimelineEntry
+                key={item.id}
+                entry={item}
+                staff={staff}
+                highlighted={item.id === messageId}
+              />
             ))}
         </div>
         <CursorPagination

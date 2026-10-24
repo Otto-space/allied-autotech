@@ -30,7 +30,10 @@ import { parseWorkforceAccess } from "@/lib/api/workforce-schemas";
 import { workforceNavigation } from "@/lib/workforce-navigation";
 import { WorkforceWorkspace, useWorkforceRefresh } from "./workforce-workspace";
 import { useNotificationSummary } from "@/lib/notifications/use-notification-summary";
-import { notificationNavigationCounts } from "@/lib/notifications/destinations";
+import {
+  notificationNavigationCounts,
+  notificationNavigationLinks,
+} from "@/lib/notifications/destinations";
 import { NotificationBadge } from "./notification-badge";
 import { NotificationAccessContext } from "@/lib/notifications/access-context";
 const SessionContext = createContext<SessionState | null>(null);
@@ -324,6 +327,7 @@ export function DashboardShell({
           <DashboardNavigation
             collapsed={sidebarCollapsed}
             unreadCounts={unreadLinks}
+            unreadLinks={notificationNavigationLinks(notifications?.data)}
             onExpand={() => setSidebarCollapsed(false)}
             groups={navigation}
             pathname={pathname}
@@ -368,6 +372,7 @@ export function DashboardShell({
           <DashboardNavigation
             groups={navigation}
             unreadCounts={unreadLinks}
+            unreadLinks={notificationNavigationLinks(notifications?.data)}
             pathname={pathname}
             onNavigate={() => setMenuPath(null)}
             label={audience === "staff" ? "Administration" : "Customer dashboard"}

@@ -6351,6 +6351,166 @@ Success: HTTP 201.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/customers/notifications/attention`
+
+- Operation ID: `getCustomersNotificationsAttention`
+- Purpose: List unread updates with currently authorized targets in one sidebar section. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `section` | query | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes | Section used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List unread updates with currently authorized targets in one sidebar section",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/customers/notifications/context`
+
+- Operation ID: `getCustomersNotificationsContext`
+- Purpose: Read own unread updates for one currently authorized record without marking them read. Access boundary: authenticated-customer. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `resourceType` | query | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type used to constrain this request. |
+| `resourceId` | query | string (uuid) | Yes | Resource Id used to constrain this request. |
+| `messageIds` | query | string | No | Message Ids used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read own unread updates for one currently authorized record without marking them read",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "hasMore": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/customers/notifications/read-context`
+
+- Operation ID: `postCustomersNotificationsReadContext`
+- Purpose: Called only after the record and relevant message are displayed. Every supplied ID must belong to this recipient and exact target, be unexpired and still accessible. Repeated calls do not change the original read time. Does not change any business status. Manual individual and bulk read operations remain available. Idempotently acknowledge displayed notifications for one authorized record. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: CUSTOMER
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `resourceType` | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type validated by this operation's strict request contract. |
+| `resourceId` | string (uuid) | Yes | Identifier of the resource resource; ownership is resolved server-side. |
+| `notificationIds` | array<string (uuid)> | Yes | Notification Ids validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "resourceType": "BOOKING",
+  "resourceId": "00000000-0000-4000-8000-000000000001",
+  "notificationIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently acknowledge displayed notifications for one authorized record",
+  "data": {
+    "updated": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 A supplied notification or its current target is unavailable; no read changes applied; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/customers/notifications/{notificationId}`
 
 - Operation ID: `getCustomersNotificationsByNotificationId`
@@ -6374,6 +6534,11 @@ Success: HTTP 200.
   "message": "Read one owned unexpired notification",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
     "type": "synthetic-type",
     "category": "synthetic-category",
     "title": "synthetic-title",
@@ -6518,6 +6683,14 @@ Success: HTTP 200.
   "success": true,
   "message": "Count all own unexpired unread notifications by related resource",
   "data": {
+    "destinations": [
+      {
+        "section": "synthetic-section",
+        "count": 1,
+        "recordCount": 1,
+        "href": "synthetic-href"
+      }
+    ],
     "unreadCount": 0,
     "groups": [
       {
@@ -6565,6 +6738,11 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
         "type": "synthetic-type",
         "category": "synthetic-category",
         "title": "synthetic-title",
@@ -12190,6 +12368,166 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 The requested resource is not available.; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/notifications/attention`
+
+- Operation ID: `getStaffNotificationsAttention`
+- Purpose: List unread updates with currently authorized targets in one sidebar section. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `section` | query | /dashboard/bookings / /dashboard/orders / /dashboard/payments / /dashboard/invoices / /dashboard/vehicle-transactions / /dashboard/support / /dashboard/reviews / /admin/bookings / /admin/orders / /admin/payments / /admin/invoices / /admin/vehicle-sales / /admin/support / /admin/refunds / /admin/payment-disputes / /admin/payment-disputes/work / /admin/workforce/jobs / /admin/workforce/bookings / /admin/workforce/orders / /admin/workforce/enquiries / /admin/workforce/complaints / /admin/workforce/finance | Yes | Section used to constrain this request. |
+| `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "List unread updates with currently authorized targets in one sidebar section",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "nextCursor": "00000000-0000-4000-8000-000000000001"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### GET `/staff/notifications/context`
+
+- Operation ID: `getStaffNotificationsContext`
+- Purpose: Read own unread updates for one currently authorized record without marking them read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `resourceType` | query | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type used to constrain this request. |
+| `resourceId` | query | string (uuid) | Yes | Resource Id used to constrain this request. |
+| `messageIds` | query | string | No | Message Ids used to constrain this request. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Read own unread updates for one currently authorized record without marking them read",
+  "data": {
+    "items": [
+      {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
+        "type": "synthetic-type",
+        "category": "synthetic-category",
+        "title": "synthetic-title",
+        "message": "synthetic-message",
+        "resourceType": "synthetic-resourcetype",
+        "resourceId": "synthetic-resourceid",
+        "supportMessageId": "00000000-0000-4000-8000-000000000001",
+        "readAt": "2030-01-15T10:00:00.000Z",
+        "expiresAt": "2030-01-15T10:00:00.000Z",
+        "createdAt": "2030-01-15T10:00:00.000Z"
+      }
+    ],
+    "hasMore": true
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 Target or cursor unavailable; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
+### POST `/staff/notifications/read-context`
+
+- Operation ID: `postStaffNotificationsReadContext`
+- Purpose: Called only after the record and relevant message are displayed. Every supplied ID must belong to this recipient and exact target, be unexpired and still accessible. Repeated calls do not change the original read time. Does not change any business status. Manual individual and bulk read operations remain available. Idempotently acknowledge displayed notifications for one authorized record. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Required in `X-CSRF-Token`
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `resourceType` | BOOKING / WORKFORCE_JOB / ORDER / PAYMENT / INVOICE / VEHICLE_TRANSACTION / ENQUIRY / COMPLAINT / REVIEW / REFUND / DISPUTE | Yes | Resource Type validated by this operation's strict request contract. |
+| `resourceId` | string (uuid) | Yes | Identifier of the resource resource; ownership is resolved server-side. |
+| `notificationIds` | array<string (uuid)> | Yes | Notification Ids validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "resourceType": "BOOKING",
+  "resourceId": "00000000-0000-4000-8000-000000000001",
+  "notificationIds": [
+    "00000000-0000-4000-8000-000000000001"
+  ]
+}
+```
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Idempotently acknowledge displayed notifications for one authorized record",
+  "data": {
+    "updated": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 The actor is not authorized for this resource or action.; 404 A supplied notification or its current target is unavailable; no read changes applied; 409 The request conflicts with current state or idempotency.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/notifications/{notificationId}`
 
 - Operation ID: `getStaffNotificationsByNotificationId`
@@ -12213,6 +12551,11 @@ Success: HTTP 200.
   "message": "Read one owned unexpired notification",
   "data": {
     "id": "00000000-0000-4000-8000-000000000001",
+    "destination": {
+      "section": "synthetic-section",
+      "href": "synthetic-href",
+      "label": "synthetic-label"
+    },
     "type": "synthetic-type",
     "category": "synthetic-category",
     "title": "synthetic-title",
@@ -12357,6 +12700,14 @@ Success: HTTP 200.
   "success": true,
   "message": "Count all own unexpired unread notifications by related resource",
   "data": {
+    "destinations": [
+      {
+        "section": "synthetic-section",
+        "count": 1,
+        "recordCount": 1,
+        "href": "synthetic-href"
+      }
+    ],
     "unreadCount": 0,
     "groups": [
       {
@@ -12404,6 +12755,11 @@ Success: HTTP 200.
     "items": [
       {
         "id": "00000000-0000-4000-8000-000000000001",
+        "destination": {
+          "section": "synthetic-section",
+          "href": "synthetic-href",
+          "label": "synthetic-label"
+        },
         "type": "synthetic-type",
         "category": "synthetic-category",
         "title": "synthetic-title",
@@ -15166,6 +15522,93 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/staff/workforce/bookings/{id}`
+
+- Operation ID: `getStaffWorkforceBookingsById`
+- Purpose: Explicit enrollment required for operational queues. Current assignments, branch, field projections and state are enforced in a transaction. Access changes require MFA, current password, target/version review and an owner-configured delegation envelope. No financial execution, exports or collection release authority is conferred by a title. Responsibility-based workspace: booking. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: STAFF, ADMIN, SUPER_ADMIN
+- Authentication: Opaque session cookie
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Responsibility-based workspace: booking",
+  "data": {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "branchId": "00000000-0000-4000-8000-000000000001",
+    "branch": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "name": "synthetic-name"
+    },
+    "vehicle": {
+      "make": "synthetic-make",
+      "model": "synthetic-model",
+      "year": "synthetic-year",
+      "registrationNumber": "synthetic-registrationnumber"
+    },
+    "scheduledAt": "2030-01-15T10:00:00.000Z",
+    "status": "synthetic-status",
+    "version": 0,
+    "service": {
+      "name": "synthetic-name"
+    },
+    "customer": {
+      "firstName": "synthetic-firstname",
+      "lastName": "synthetic-lastname",
+      "phone": "+2348000000000"
+    },
+    "access": {
+      "managed": true,
+      "userId": "00000000-0000-4000-8000-000000000001",
+      "staffId": "00000000-0000-4000-8000-000000000001",
+      "position": "CEO_MD",
+      "department": "synthetic-department",
+      "version": 0,
+      "assignments": [
+        {
+          "id": "00000000-0000-4000-8000-000000000001",
+          "userId": "00000000-0000-4000-8000-000000000001",
+          "template": "OPERATIONS",
+          "branchId": "00000000-0000-4000-8000-000000000001",
+          "scope": "BRANCH",
+          "temporary": true,
+          "startsAt": "2030-01-15T10:00:00.000Z",
+          "expiresAt": "2030-01-15T10:00:00.000Z",
+          "reason": "synthetic-reason",
+          "assignedByUserId": "00000000-0000-4000-8000-000000000001",
+          "createdAt": "2030-01-15T10:00:00.000Z",
+          "revokedAt": "2030-01-15T10:00:00.000Z",
+          "revokedByUserId": "00000000-0000-4000-8000-000000000001",
+          "revocationReason": "synthetic-revocationreason"
+        }
+      ],
+      "permissions": [
+        "synthetic-permissions-item"
+      ],
+      "canManageAssignments": true,
+      "canInviteAdmins": true,
+      "serverTime": "2030-01-15T10:00:00.000Z"
+    },
+    "generatedAt": "2030-01-15T10:00:00.000Z"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 401 A valid session and required assurance are missing.; 403 Current access does not permit this request; 404 Record unavailable in permitted scope; 409 Stale version or invalid state; 422 Invalid fields; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/staff/workforce/enquiries/{id}`
 
 - Operation ID: `getStaffWorkforceEnquiriesById`
@@ -15182,6 +15625,7 @@ Parameters:
 | `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -15939,6 +16383,7 @@ Parameters:
 | `id` | path | string (uuid) | Yes | Identifier selecting the id resource. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
+| `messageId` | query | string (uuid) | No | Message Id used to constrain this request. |
 
 Success: HTTP 200.
 

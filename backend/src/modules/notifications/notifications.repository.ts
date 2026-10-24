@@ -20,21 +20,13 @@ export const notificationSelect = {
 export class NotificationsRepository {
   constructor(private readonly database: PrismaClient = prisma) {}
 
-  unreadGroups(userId: string) {
-    return this.database.notification.groupBy({
-      by: ["resourceType", "type", "category"],
-      where: {
-        userId,
-        readAt: null,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-      },
-      _count: { _all: true },
-    });
-  }
-
-  list(userId: string, query: NotificationListQuery) {
+  list(
+    userId: string,
+    query: NotificationListQuery,
+    client: DatabaseClient = this.database,
+  ) {
     const now = new Date();
-    return this.database.notification.findMany({
+    return client.notification.findMany({
       where: {
         userId,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],

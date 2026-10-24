@@ -1,3 +1,4 @@
+import { enquiryScope } from "./workforce-enquiry-scope.js";
 import {
   enqueueSupportCustomerUpdate,
   supportEmailDeliveries,
@@ -38,6 +39,7 @@ import type {
   workforceOrdersQuerySchema,
   workforceFinanceQuerySchema,
   workforceListSchema,
+  workforceMessageQuerySchema,
   workforceJobsQuerySchema,
   workforceBookingsQuerySchema,
   workforceEnquiriesQuerySchema,
@@ -115,23 +117,6 @@ function pagination(query: z.infer<typeof workforceListSchema>) {
     take: query.limit + 1,
     orderBy: { id: "asc" as const },
     ...(query.cursor ? { where: { id: { gt: query.cursor } } } : {}),
-  };
-}
-function enquiryScope(snapshot: WorkforceSnapshot): Prisma.EnquiryWhereInput {
-  const assignments = snapshot.assignments.filter((a) =>
-    ["CUSTOMER_SERVICE", "SALES_SUPERVISOR", "SALES_CASHIER"].includes(a.template),
-  );
-  if (!assignments.length) workforceDenied();
-  return {
-    OR: assignments.map((a) => ({
-      branchId: a.branchId,
-      ...(a.template === "CUSTOMER_SERVICE"
-        ? {}
-        : { type: { in: ["PRODUCT", "VEHICLE"] as ("PRODUCT" | "VEHICLE")[] } }),
-      ...(a.scope === "ASSIGNED"
-        ? { assignedStaffId: snapshot.staffId ?? "00000000-0000-0000-0000-000000000000" }
-        : {}),
-    })),
   };
 }
 
@@ -350,6 +335,37 @@ export class WorkforceWorkService {
         access,
         generatedAt: new Date().toISOString(),
       };
+    });
+  }
+  booking(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
+    return this.run(actor, async (tx, access) => {
+      const row = await tx.booking.findFirst({
+        where: { AND: [{ id }, bookingScope(access, "BOOKINGS_READ")] },
+        select: {
+          id: true,
+          branchId: true,
+          scheduledAt: true,
+          status: true,
+          version: true,
+          service: { select: { name: true } },
+          customer: { select: { firstName: true, lastName: true, phone: true } },
+          branch: { select: { id: true, name: true } },
+          vehicle: {
+            select: { make: true, model: true, year: true, registrationNumber: true },
+          },
+        },
+      });
+      if (!row) workforceNotFound();
+      await audit(
+        tx,
+        actor,
+        context,
+        "BOOKING",
+        id,
+        { workforceAction: "BOOKING_DETAIL" },
+        true,
+      );
+      return { ...row, access, generatedAt: new Date().toISOString() };
     });
   }
   job(actor: AuthenticatedActor, id: string, context: RequestSecurityContext) {
@@ -705,7 +721,7 @@ export class WorkforceWorkService {
   enquiry(
     actor: AuthenticatedActor,
     id: string,
-    query: z.infer<typeof workforceListSchema>,
+    query: z.infer<typeof workforceMessageQuerySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {
@@ -774,7 +790,7 @@ export class WorkforceWorkService {
   complaint(
     actor: AuthenticatedActor,
     id: string,
-    query: z.infer<typeof workforceListSchema>,
+    query: z.infer<typeof workforceMessageQuerySchema>,
     context: RequestSecurityContext,
   ) {
     return this.run(actor, async (tx, access) => {

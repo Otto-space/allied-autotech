@@ -192,6 +192,9 @@ function isPersonalNotificationPath(path: string): boolean {
   return (
     path === "/api/v1/staff/notifications" ||
     path === "/api/v1/staff/notifications/summary" ||
+    path === "/api/v1/staff/notifications/attention" ||
+    path === "/api/v1/staff/notifications/context" ||
+    path === "/api/v1/staff/notifications/read-context" ||
     path === "/api/v1/staff/notifications/push" ||
     /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
       path,

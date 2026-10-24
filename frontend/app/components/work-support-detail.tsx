@@ -1,4 +1,5 @@
 "use client";
+import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
@@ -641,6 +642,13 @@ function ThreadHistory({
   }
   return (
     <>
+      {!blocked && !query.invalid && (
+        <NotificationRecordContext
+          resourceType={record.kind === "enquiries" ? "ENQUIRY" : "COMPLAINT"}
+          resourceId={record.id}
+          supportMessageIds={messages.data?.items.map((message) => message.id)}
+        />
+      )}
       <section className="wi-card" id="conversation-messages">
         <div className="wst-message-header">
           <h2>Messages</h2>
@@ -697,7 +705,12 @@ function ThreadHistory({
               !messages.data.items.length && <p>No conversation updates on this page.</p>}
             <div className="wst-messages">
               {messages.data?.items.map((m) => (
-                <SupportTimelineEntry key={m.id} entry={m} staff />
+                <SupportTimelineEntry
+                  key={m.id}
+                  entry={m}
+                  staff
+                  highlighted={m.id === query.params.get("messageId")}
+                />
               ))}
             </div>
             <nav className="wi-pagination" aria-label="Conversation messages pages">

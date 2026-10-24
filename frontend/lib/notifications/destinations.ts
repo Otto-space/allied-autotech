@@ -99,10 +99,11 @@ function staffResource(type: string | null, access: StaffNotificationAccess) {
 export function staffNotificationDestination(
   item: Pick<
     InboxNotification,
-    "resourceType" | "resourceId" | "category" | "supportMessageId"
+    "resourceType" | "resourceId" | "category" | "supportMessageId" | "destination"
   >,
   access: StaffNotificationAccess,
 ) {
+  if (item.destination !== undefined) return item.destination;
   const resource = staffResource(item.resourceType, access);
   if (resource && uuid.test(item.resourceId ?? "")) {
     const support =
@@ -120,9 +121,10 @@ export function staffNotificationDestination(
 export function customerNotificationDestination(
   item: Pick<
     InboxNotification,
-    "resourceType" | "resourceId" | "category" | "supportMessageId"
+    "resourceType" | "resourceId" | "category" | "supportMessageId" | "destination"
   >,
 ) {
+  if (item.destination !== undefined) return item.destination;
   const resource = customerResources[item.resourceType?.toUpperCase() ?? ""];
   if (resource && uuid.test(item.resourceId ?? ""))
     return {
@@ -142,6 +144,22 @@ export function notificationNavigationCounts(
   const counts: Record<string, number> = {
     [customer ? "/dashboard/notifications" : "/admin/notifications"]: summary.unreadCount,
   };
+  if (summary.destinations) {
+    const securityCount = summary.groups
+      .filter((group) => !group.resourceType && group.category === "SECURITY")
+      .reduce((sum, group) => sum + group.count, 0);
+    if (securityCount)
+      counts[customer ? "/dashboard/security" : "/admin/security"] = securityCount;
+    for (const destination of summary.destinations) {
+      if (
+        customer
+          ? destination.section.startsWith("/dashboard/")
+          : access?.links.includes(destination.section)
+      )
+        counts[destination.section] = destination.count;
+    }
+    return counts;
+  }
   for (const group of summary.groups) {
     const section =
       (customer
@@ -157,4 +175,10 @@ export function notificationNavigationCounts(
     if (section) counts[section] = (counts[section] ?? 0) + group.count;
   }
   return counts;
+}
+
+export function notificationNavigationLinks(summary: NotificationSummary | undefined) {
+  return Object.fromEntries(
+    (summary?.destinations ?? []).map((item) => [item.section, item.href]),
+  );
 }
