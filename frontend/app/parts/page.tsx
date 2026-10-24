@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ChevronRight, ArrowUpRight, CarFront, FileSearch, MapPin } from "lucide-react";
 import { business } from "@/lib/business";
 import { productApiPath } from "@/lib/product-discovery";
+import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PartsCatalogue } from "../components/parts-catalogue";
@@ -46,6 +47,7 @@ export default async function PartsPage({
     await listingPath(searchParams),
     parseProductDiscovery,
   );
+  const enquiriesOnly = browseEnquiriesOnly();
   return (
     <>
       <SiteHeader />
@@ -106,7 +108,7 @@ export default async function PartsPage({
               <h2>Find the right fit.</h2>
               <p>
                 Check the product specifications and listed vehicle compatibility before
-                purchase.
+                {enquiriesOnly ? " contacting our team." : " purchase."}
               </p>
               <ul>
                 {(
@@ -124,7 +126,9 @@ export default async function PartsPage({
                     [
                       MapPin,
                       "Check branch availability",
-                      "Review the listed branch availability before choosing a quantity. Your cart does not reserve stock.",
+                      enquiriesOnly
+                        ? "Ask our team to confirm availability at your preferred branch. Browsing does not reserve stock."
+                        : "Review the listed branch availability before choosing a quantity. Your cart does not reserve stock.",
                     ],
                   ] as const
                 ).map(([Icon, title, copy]) => (

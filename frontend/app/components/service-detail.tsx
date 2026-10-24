@@ -548,9 +548,9 @@ export function ServiceDetail({
                 <div className="sd-preparation">
                   <h3>What to tell us</h3>
                   <ul>
-                    <li>When the concern occurs.</li>
-                    <li>Warning lights or changes you have noticed.</li>
-                    <li>Relevant service history.</li>
+                    <li>Your vehicle&apos;s make, model and year.</li>
+                    <li>The work you need or any symptoms you have noticed.</li>
+                    <li>Relevant service history or previous advice.</li>
                   </ul>
                 </div>
                 <div className="sd-help">

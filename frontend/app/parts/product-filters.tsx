@@ -353,7 +353,7 @@ export function ProductFilters({
             ))}
             <p className="product-fitment-note">
               Compatibility follows the listed fitment details. Check the product
-              specifications before purchase.
+              specifications before choosing a product.
             </p>
           </div>
           <div className="product-filter-actions">
