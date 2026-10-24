@@ -62,13 +62,6 @@
   min-height: 44px;
   margin-top: -8px;
 }
-.dashboard .dashboard-content .work-support .wsu-reference {
-  font-size: 12px;
-  color: #405566;
-  margin: 4px 0 0;
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-}
 .wsu-badges {
   display: flex;
   align-items: start;
@@ -149,4 +142,34 @@
   .wsu-groups dd {
     margin: 0;
   }
+}
+
+.wsu-filter-intro {
+  margin: 0 0 18px;
+  color: #405566;
+  max-width: 80ch;
+}
+.wsu-applied-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wsu-applied-filters:empty {
+  display: none;
+}
+.wsu-applied-filters .button.secondary {
+  border-color: #93adbd;
+  background: #edf4f8;
+  color: #075579;
+}
+.wsu-applied-filters svg {
+  flex-shrink: 0;
+}
+.work-support .text-link {
+  color: #075579;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.work-support .text-link:hover {
+  color: #a12318;
 }

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, RefreshCw } from "lucide-react";
+import { ChevronRight, RefreshCw, X } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import {
   enquiryTypes,
@@ -22,6 +22,7 @@ import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { AdminBranchPicker } from "./admin-branch-picker";
 import { StaffPicker } from "./staff-picker";
 import { Feedback } from "./feedback";
+import { RecordReferences } from "./record-references";
 export function WorkSupport() {
   const session = useAccountSession();
   if (!session) return null;
@@ -182,12 +183,45 @@ function SupportWorkspace({
             busy={busy}
             navigate={navigate}
           />
+          <div className="wsu-applied-filters" aria-label="Applied support filters">
+            {["status", "type", "priority", "branchId", "assignedStaffId"]
+              .filter((key) => filters.has(key))
+              .map((key) => {
+                const title =
+                  key === "branchId"
+                    ? "Branch filter"
+                    : key === "assignedStaffId"
+                      ? "Assigned staff filter"
+                      : `${key === "type" ? "Type" : key === "priority" ? "Priority" : "Status"}: ${supportLabel(filters.get(key)!)}`;
+                return (
+                  <button
+                    type="button"
+                    className="button secondary"
+                    key={key}
+                    disabled={busy}
+                    aria-label={`Remove ${title}`}
+                    onClick={() => {
+                      const next = new URLSearchParams(filters);
+                      next.delete(key);
+                      if (key === "branchId") next.delete("assignedStaffId");
+                      navigate(next);
+                      document
+                        .getElementById("wsu-records")
+                        ?.focus({ preventScroll: true });
+                    }}
+                  >
+                    {title}
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                );
+              })}
+          </div>
           {role === "STAFF" && (
             <p className="wi-scope">Showing support records for your assigned branch.</p>
           )}
           <section aria-labelledby="wsu-records">
             <div className="wi-band">
-              <h2 id="wsu-records">
+              <h2 id="wsu-records" tabIndex={-1}>
                 {query.kind === "enquiries" ? "Enquiry records" : "Complaint records"}
               </h2>
               {data && <span>{data.items.length} records on this page</span>}
@@ -307,6 +341,9 @@ function SupportFilters({
     >
       <fieldset disabled={busy}>
         <legend className="sr-only">Support filters</legend>
+        <p className="wsu-filter-intro">
+          Choose a status or colleague, then apply. Open the subject to read and respond.
+        </p>
         <div className="wsu-filter-grid">
           <div className="field">
             <label htmlFor="support-status-filter">Record status</label>
@@ -419,9 +456,6 @@ function SupportCard({ record: r }: { record: SupportRecord }) {
               {r.subject}
             </Link>
           </h3>
-          <p className="wsu-reference">
-            Reference: {r.id} · Version {r.version}
-          </p>
         </div>
         <div className="wsu-badges">
           <span className="status" data-status={r.status}>
@@ -443,14 +477,12 @@ function SupportCard({ record: r }: { record: SupportRecord }) {
                 ? `${r.branch.name} (${r.branch.code})`
                 : "Unassigned branch",
             },
-            { label: "Branch reference", value: r.branchId ?? "Not recorded" },
             {
               label: "Assigned staff",
               value: r.assignedStaff
                 ? `${r.assignedStaff.firstName} ${r.assignedStaff.lastName}`
                 : "Unassigned",
             },
-            { label: "Staff reference", value: r.assignedStaffId ?? "Not recorded" },
           ].map((f) => (
             <div key={f.label}>
               <dt>{f.label}</dt>
@@ -463,7 +495,6 @@ function SupportCard({ record: r }: { record: SupportRecord }) {
             { label: "Contact", value: r.contact?.name },
             { label: "Email", value: r.contact?.email },
             { label: "Phone", value: r.contact?.phone },
-            { label: "Customer profile reference", value: r.contact?.customerId },
           ].map((f) => (
             <div key={f.label}>
               <dt>{f.label}</dt>
@@ -486,6 +517,22 @@ function SupportCard({ record: r }: { record: SupportRecord }) {
         <strong>Message preview</strong>
         <p>{r.text.length > 240 ? `${r.text.slice(0, 240)}…` : r.text}</p>
       </div>
+      <RecordReferences>
+        <dl>
+          {[
+            ["Support reference", r.id],
+            ["Version", String(r.version)],
+            ["Branch reference", r.branchId],
+            ["Staff reference", r.assignedStaffId],
+            ["Customer profile reference", r.contact?.customerId],
+          ].map(([title, value]) => (
+            <div key={title}>
+              <dt>{title}</dt>
+              <dd>{value || "Not recorded"}</dd>
+            </div>
+          ))}
+        </dl>
+      </RecordReferences>
     </article>
   );
 }

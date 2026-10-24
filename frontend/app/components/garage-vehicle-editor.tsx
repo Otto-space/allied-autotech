@@ -152,6 +152,14 @@ export function GarageVehicleEditor({
   }
   function field(name: keyof GarageFields, label: string, required = false) {
     const issue = form.formState.errors[name];
+    const hints: Partial<Record<keyof GarageFields, string>> = {
+      make: "The manufacturer, for example Toyota or Honda.",
+      model: "The model name, for example Corolla or Accord.",
+      year: "Use the model year shown on your vehicle documents.",
+      registrationNumber: "Enter the number plate as shown on your vehicle.",
+      mileageKm: "Enter the odometer reading in kilometres. Leave blank if unknown.",
+    };
+    const hint = hints[name];
     return (
       <div
         className={`garage-field${name === "vin" ? " garage-field-wide" : ""}`}
@@ -184,7 +192,10 @@ export function GarageVehicleEditor({
           aria-required={required}
           aria-invalid={!!issue}
           aria-describedby={
-            [name === "vin" ? "garage-vin-hint" : "", issue ? `garage-${name}-error` : ""]
+            [
+              name === "vin" || hint ? `garage-${name}-hint` : "",
+              issue ? `garage-${name}-error` : "",
+            ]
               .filter(Boolean)
               .join(" ") || undefined
           }
@@ -197,6 +208,11 @@ export function GarageVehicleEditor({
             },
           })}
         />
+        {hint && (
+          <p id={`garage-${name}-hint`} className="garage-hint">
+            {hint}
+          </p>
+        )}
         {name === "vin" && (
           <p id="garage-vin-hint" className="garage-hint">
             The 17-character vehicle identification number on your vehicle or registration
@@ -235,10 +251,23 @@ export function GarageVehicleEditor({
             </div>
           )}
           <fieldset disabled={busy || uncertain} className="garage-fields">
+            <legend>Vehicle details</legend>
+            <div className="garage-field-grid">
+              {field("make", "Make", true)}
+              {field("model", "Model", true)}
+              {field("year", "Year", true)}
+            </div>
+          </fieldset>
+          <fieldset disabled={busy || uncertain} className="garage-fields">
             <legend>Your saved configuration</legend>
             <div className="garage-field">
               <label htmlFor="garage-nickname">Nickname (optional)</label>
+              <p id="garage-nickname-hint" className="garage-hint">
+                A name you recognise, such as Family car. It does not change the vehicle
+                model.
+              </p>
               <input
+                aria-describedby="garage-nickname-hint"
                 id="garage-nickname"
                 name="nickname"
                 value={nickname}
@@ -255,14 +284,6 @@ export function GarageVehicleEditor({
               />
               Use as my default vehicle for parts searches
             </label>
-          </fieldset>
-          <fieldset disabled={busy || uncertain} className="garage-fields">
-            <legend>Vehicle details</legend>
-            <div className="garage-field-grid">
-              {field("make", "Make", true)}
-              {field("model", "Model", true)}
-              {field("year", "Year", true)}
-            </div>
           </fieldset>
           <fieldset disabled={busy || uncertain} className="garage-fields">
             <legend>Parts search configuration (optional)</legend>

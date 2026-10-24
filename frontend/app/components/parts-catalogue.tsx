@@ -151,11 +151,6 @@ export function PartsCatalogue({
                 : `${(products.data?.totalMatches ?? 0).toLocaleString("en-NG")} matching product${products.data?.totalMatches === 1 ? "" : "s"} · ${products.data?.items.length ?? 0} product${products.data?.items.length === 1 ? "" : "s"} on this page`}
           </p>
         </div>
-        <FindPartsForCar
-          query={vehicleQuery}
-          enquiryQuery={params.toString()}
-          update={update}
-        />
         {invalid && (
           <p className="notice">
             Some filters in this link were invalid and have been ignored. Review the
@@ -262,6 +257,11 @@ export function PartsCatalogue({
             </p>
           </fieldset>
         )}
+        <FindPartsForCar
+          query={vehicleQuery}
+          enquiryQuery={params.toString()}
+          update={update}
+        />
       </div>
       {mismatchedCategory && (
         <p className="notice" role="status">

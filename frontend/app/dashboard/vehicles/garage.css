@@ -72,8 +72,9 @@
   align-items: center;
   gap: 16px;
   padding: 20px 24px;
-  background: #01121a;
-  color: white;
+  background: #eef3f6;
+  color: #24485c;
+  border-left: 3px solid #24485c;
   border-radius: 8px;
   margin-bottom: 20px;
 }
@@ -84,10 +85,10 @@
   font-size: 18px;
   line-height: 1.45;
   margin: 0 0 4px;
-  color: white;
+  color: #01121a;
 }
 .dashboard .dashboard-content .customer-garage .garage-guidance p {
-  color: #d1dbe2;
+  color: #435563;
   margin: 0;
 }
 .garage-toolbar {
@@ -187,13 +188,22 @@
     sans-serif;
   background: transparent;
   border: 0;
-  color: #01121a;
+  color: #075579;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
 }
 .garage-text-action:hover {
   background: #f0f4f7;
+}
+.garage-destructive-action {
+  color: #a12318;
+  text-decoration: none;
+}
+.garage-destructive-action:hover {
+  background: #fff0ed;
 }
 .garage-text-action:disabled {
   opacity: 0.5;
@@ -208,7 +218,7 @@
   flex-wrap: wrap;
 }
 .garage-footer a {
-  color: #01121a;
+  color: #075579;
   font-weight: 700;
   text-decoration: underline;
   display: inline-flex;
@@ -489,6 +499,7 @@
   }
   .garage-heading-actions {
     flex-wrap: wrap;
+    width: 100%;
   }
   .garage-footer {
     display: grid;

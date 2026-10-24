@@ -31,8 +31,8 @@ export function FindPartsForCar({
         <div>
           <h3 id="parts-car-title">Find parts for my car</h3>
           <p>
-            Choose your vehicle, then a parts category below. Make, model and year
-            identify candidates; technical details confirm fitment.
+            Choose your vehicle, then find matching parts. Make, model and year identify
+            candidates; technical details confirm fitment.
           </p>
         </div>
         <Link href={partsEnquiryHref(new URLSearchParams(enquiryQuery ?? query))}>

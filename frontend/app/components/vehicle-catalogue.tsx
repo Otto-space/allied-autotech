@@ -139,6 +139,10 @@ export function VehicleCatalogue({
             </div>
           </div>
         </div>
+        <p className="vehicle-search-guidance">
+          Search by listing title or vehicle details. Use Filters for condition, price and
+          specifications; choose Apply filters to update the results.
+        </p>
         <fieldset className="vehicle-body-shortcuts">
           <legend>Body type</legend>
           <div>

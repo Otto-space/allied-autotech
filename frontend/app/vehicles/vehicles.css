@@ -1026,3 +1026,11 @@
   font-weight: 400;
   margin-top: 3px;
 }
+
+.vehicle-search-guidance {
+  margin: 14px 0 0;
+  max-width: 75ch;
+  color: var(--vehicle-muted);
+  font-size: 13px;
+  line-height: 1.65;
+}

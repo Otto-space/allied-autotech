@@ -1127,8 +1127,8 @@
 /* Vehicle selection and reviewed fitment remain part of the existing shop. */
 .parts-car-finder {
   padding: 20px 0;
-  margin-bottom: 20px;
-  border-block: 1px solid var(--product-border, #d4dbe4);
+  margin: 24px 0 0;
+  border-top: 1px solid var(--product-border, #d4dbe4);
 }
 .parts-car-heading {
   display: flex;

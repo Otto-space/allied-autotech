@@ -704,3 +704,17 @@
     justify-self: start;
   }
 }
+
+.workforce-enquiries .wfe-breadcrumb a {
+  color: #075579;
+  text-decoration: underline;
+}
+.workforce-enquiries button[aria-pressed="true"] {
+  background: #e7f1f6;
+  border-color: #075579;
+  color: #075579;
+  box-shadow: inset 3px 0 #075579;
+}
+.workforce-enquiries .wfe-filters {
+  border-top: 3px solid #24485c;
+}

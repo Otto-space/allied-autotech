@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, RefreshCw } from "lucide-react";
+import { ChevronRight, RefreshCw, X } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import {
   customerDefaults,
@@ -14,6 +14,7 @@ import {
 import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
+import { RecordReferences } from "./record-references";
 export function WorkCustomers() {
   const session = useAccountSession();
   if (!session) return null;
@@ -124,9 +125,44 @@ function CustomerWorkspace() {
       ) : (
         <>
           <CustomerFilters key={filters.toString()} params={filters} busy={busy} />
+          <div className="wc-applied-filters" aria-label="Applied customer filters">
+            {["search", "status", "verified"]
+              .filter((key) => filters.has(key))
+              .map((key) => {
+                const title =
+                  key === "search"
+                    ? "Customer search"
+                    : key === "status"
+                      ? `Status: ${filters.get(key)!.toLowerCase()}`
+                      : `Email: ${filters.get(key) === "true" ? "verified" : "not verified"}`;
+                return (
+                  <button
+                    type="button"
+                    className="button secondary"
+                    key={key}
+                    disabled={busy}
+                    aria-label={`Remove ${title}`}
+                    onClick={() => {
+                      const next = new URLSearchParams(filters);
+                      next.delete(key);
+                      if (key === "search") next.delete("field");
+                      navigate(next);
+                      document
+                        .getElementById("wc-records")
+                        ?.focus({ preventScroll: true });
+                    }}
+                  >
+                    {title}
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                );
+              })}
+          </div>
           <section aria-labelledby="wc-records">
             <div className="wi-band">
-              <h2 id="wc-records">Customer records</h2>
+              <h2 id="wc-records" tabIndex={-1}>
+                Customer records
+              </h2>
               {data && (
                 <span>
                   {data.items.length} {data.items.length === 1 ? "customer" : "customers"}{" "}
@@ -246,19 +282,40 @@ function CustomerFilters({ params, busy }: { params: URLSearchParams; busy: bool
     >
       <fieldset disabled={busy}>
         <legend className="sr-only">Customer filters</legend>
+        <p className="wc-filter-intro">
+          Choose how to search, then apply your filters. Open a customer name to review
+          their details.
+        </p>
         <div className="wi-filter-grid wc-filter-grid">
           <div className="field wc-search">
             <label htmlFor="customer-search">Search customers</label>
             <input
               id="customer-search"
+              type="search"
+              inputMode={
+                draft.field === "phone"
+                  ? "tel"
+                  : draft.field === "email"
+                    ? "email"
+                    : "text"
+              }
               value={draft.search}
               maxLength={120}
-              aria-describedby="wc-search-hint"
+              aria-describedby={
+                error ? "wc-search-hint wc-search-error" : "wc-search-hint"
+              }
               aria-invalid={!!error}
-              onChange={(e) => setDraft({ ...draft, search: e.target.value })}
+              onChange={(e) => {
+                setDraft({ ...draft, search: e.target.value });
+                setError("");
+              }}
             />
             <p id="wc-search-hint" className="field-hint">
-              Name, email or phone prefix; use a complete customer ID.
+              {draft.field === "id"
+                ? "Paste the complete customer ID; partial IDs cannot be searched."
+                : draft.field === "phone"
+                  ? "Start with at least 3 phone digits, including the country code when recorded."
+                  : `Enter at least 2 characters from the start of the ${draft.field}. Search is not case-sensitive.`}
             </p>
           </div>
           {(
@@ -318,7 +375,9 @@ function CustomerFilters({ params, busy }: { params: URLSearchParams; busy: bool
             </div>
           ))}
         </div>
-        <Feedback message={error} />
+        <div id="wc-search-error">
+          <Feedback message={error} />
+        </div>
         <div className="wi-filter-actions">
           <button className="button" type="submit">
             Search customers
@@ -354,7 +413,9 @@ function CustomerRecord({ customer: r }: { customer: WorkCustomer }) {
               {name}
             </Link>
           </h3>
-          <p className="wc-reference">Profile reference: {r.id}</p>
+          <RecordReferences label="Profile reference">
+            <p className="wc-reference">{r.id}</p>
+          </RecordReferences>
         </div>
       </div>
       <dl>

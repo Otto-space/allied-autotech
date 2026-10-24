@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { advancedProductKeys, validProductText } from "@/lib/product-discovery";
 import { ProductNameField } from "./product-name-field";
@@ -183,19 +184,7 @@ export function ProductFilters({
             close();
             return;
           }
-          if (event.key !== "Tab" || !event.currentTarget.matches(":modal")) return;
-          const controls = event.currentTarget.querySelectorAll<HTMLElement>(
-            "button:not(:disabled), input:not(:disabled), select:not(:disabled)",
-          );
-          const first = controls[0],
-            last = controls[controls.length - 1];
-          if (event.shiftKey && document.activeElement === first) {
-            event.preventDefault();
-            last?.focus();
-          } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault();
-            first?.focus();
-          }
+          if (event.currentTarget.matches(":modal")) containDialogFocus(event);
         }}
         onClick={(event) => {
           if (event.target !== event.currentTarget) return;
@@ -263,7 +252,9 @@ export function ProductFilters({
           <div className="product-filter-header">
             <div>
               <h3 id="product-filter-heading">Filter products</h3>
-              <p>Refine your search. All fields are optional.</p>
+              <p>
+                Choose any details you know, then apply. Blank fields match any value.
+              </p>
             </div>
             <button
               type="button"
@@ -364,15 +355,22 @@ export function ProductFilters({
                       aria-describedby={
                         errors[key]
                           ? `product-filter-${key}-error`
-                          : key === "year"
-                            ? "product-year-hint"
-                            : undefined
+                          : key.endsWith("Kobo")
+                            ? `product-filter-${key}-hint`
+                            : key === "year"
+                              ? "product-year-hint"
+                              : undefined
                       }
                       onChange={(e) => {
                         setValues((v) => ({ ...v, [key]: e.target.value }));
                         setErrors((v) => ({ ...v, [key]: "" }));
                       }}
                     />
+                  )}
+                  {key.endsWith("Kobo") && (
+                    <small id={`product-filter-${key}-hint`}>
+                      Naira, for example 25000 or 25000.50. Leave blank for no limit.
+                    </small>
                   )}
                   {key === "year" && (
                     <small id="product-year-hint">

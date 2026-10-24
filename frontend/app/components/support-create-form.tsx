@@ -293,7 +293,7 @@ export function SupportCreateForm({
       className={isDashboard ? "cc-form" : "detail-section"}
       aria-labelledby="support-create-heading"
     >
-      <h2 id="support-create-heading">
+      <h2 id="support-create-heading" tabIndex={isDashboard ? -1 : undefined}>
         {kind === "enquiries" ? "Send an enquiry" : "Raise a complaint"}
       </h2>
       <p>
@@ -684,8 +684,17 @@ export function SupportCreateForm({
               maxLength={160}
               {...form.register("subject")}
               aria-invalid={!!form.formState.errors.subject}
-              aria-describedby="support-subject-error"
+              aria-describedby={
+                isDashboard
+                  ? "support-subject-hint support-subject-error"
+                  : "support-subject-error"
+              }
             />
+            {isDashboard && (
+              <p id="support-subject-hint" className="cc-field-help">
+                A short summary helps the team recognise your request.
+              </p>
+            )}
             <p id="support-subject-error" className="field-error">
               {form.formState.errors.subject?.message}
             </p>
@@ -701,8 +710,19 @@ export function SupportCreateForm({
               maxLength={4000}
               {...form.register("message")}
               aria-invalid={!!form.formState.errors.message}
-              aria-describedby="support-opening-error"
+              aria-describedby={
+                isDashboard
+                  ? "support-opening-hint support-opening-error"
+                  : "support-opening-error"
+              }
             />
+            {isDashboard && (
+              <p id="support-opening-hint" className="cc-field-help">
+                {kind === "enquiries"
+                  ? "Include the vehicle or part details and what you need help with."
+                  : "Explain what happened, when it happened and how you would like us to help."}
+              </p>
+            )}
             <p id="support-opening-error" className="field-error">
               {form.formState.errors.message?.message}
             </p>

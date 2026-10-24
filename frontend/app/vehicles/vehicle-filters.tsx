@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { containDialogFocus } from "@/lib/dialog-focus";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
 import { CountryField } from "../components/country-field";
 import { countryCodes, europeanCountryCodes } from "@/lib/reference/countries";
@@ -282,19 +283,7 @@ export function VehicleFilters({
         className="vehicle-filter-panel"
         aria-labelledby="vehicle-filter-heading"
         onKeyDown={(event) => {
-          if (event.key !== "Tab" || !event.currentTarget.matches(":modal")) return;
-          const controls = event.currentTarget.querySelectorAll<HTMLElement>(
-            "button:not(:disabled), input:not(:disabled), select:not(:disabled), a[href]",
-          );
-          const first = controls[0];
-          const last = controls[controls.length - 1];
-          if (event.shiftKey && document.activeElement === first) {
-            event.preventDefault();
-            last?.focus();
-          } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault();
-            first?.focus();
-          }
+          if (event.currentTarget.matches(":modal")) containDialogFocus(event);
         }}
         onClose={() => {
           setOpen(false);
@@ -317,7 +306,9 @@ export function VehicleFilters({
           <div className="vehicle-filter-header">
             <div>
               <h3 id="vehicle-filter-heading">Filter vehicles</h3>
-              <p>Refine your search. All fields are optional.</p>
+              <p>
+                Choose any details you know, then apply. Blank fields match any value.
+              </p>
             </div>
             <button
               type="button"
@@ -553,15 +544,22 @@ export function VehicleFilters({
                           aria-describedby={
                             errors[key]
                               ? `filter-${key}-error`
-                              : ["make", "model"].includes(key)
+                              : key.endsWith("Kobo")
                                 ? `filter-${key}-hint`
-                                : undefined
+                                : ["make", "model"].includes(key)
+                                  ? `filter-${key}-hint`
+                                  : undefined
                           }
                           onChange={(e) => {
                             setValues((v) => ({ ...v, [key]: e.target.value }));
                             setErrors((v) => ({ ...v, [key]: "" }));
                           }}
                         />
+                      )}
+                      {key.endsWith("Kobo") && (
+                        <small id={`filter-${key}-hint`}>
+                          Naira, for example 4500000. Leave blank for no limit.
+                        </small>
                       )}
                       {["make", "model"].includes(key) && (
                         <small id={`filter-${key}-hint`}>

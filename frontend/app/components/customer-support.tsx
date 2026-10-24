@@ -228,6 +228,7 @@ export function CustomerSupport({ userId }: { userId: string }) {
           <label htmlFor="support-record-kind">Record category</label>
           <select
             id="support-record-kind"
+            aria-describedby="support-kind-help"
             value={kind}
             disabled={reviewOpen}
             onChange={(event) =>
@@ -238,10 +239,20 @@ export function CustomerSupport({ userId }: { userId: string }) {
             <option value="complaints">Complaints</option>
           </select>
         </div>
-        <a href="#support-list-heading">
-          View your records <ArrowRight size={16} aria-hidden="true" />
-        </a>
+        <nav className="cc-jump-links" aria-label="Customer care tasks">
+          <a href="#support-create-heading">
+            Write a request <ArrowRight size={16} aria-hidden="true" />
+          </a>
+          <a href="#support-list-heading">
+            View your records <ArrowRight size={16} aria-hidden="true" />
+          </a>
+        </nav>
       </div>
+      <p className="cc-kind-help" id="support-kind-help">
+        {kind === "enquiries"
+          ? "Ask about a service, part or vehicle. For an existing request, open its record and reply there."
+          : "Tell us about a problem and the outcome you need. For an existing complaint, reply in its record."}
+      </p>
       <SupportCategory
         key={kind}
         userId={userId}

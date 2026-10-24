@@ -1,0 +1,41 @@
+.record-references {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.record-references summary {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 44px;
+  padding-block: 12px;
+  color: #075579;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.record-references summary:hover {
+  color: #a12318;
+}
+.record-references summary:focus-visible {
+  outline: 2px solid #075579;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+.record-references > div {
+  padding: 0 0 10px;
+}
+.record-references dl {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+.record-references dt {
+  font-size: 12px;
+  color: #405566;
+}
+.record-references dd {
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}

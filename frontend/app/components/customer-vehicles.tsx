@@ -116,7 +116,10 @@ export function CustomerVehicles() {
         <CarFront size={24} aria-hidden="true" />
         <div>
           <h2>Ready for your next workshop visit</h2>
-          <p>Keep your vehicle details up to date. Add photos from Manage photos.</p>
+          <p>
+            Save make, model and year, then add photos or set up parts search. Our team
+            still needs to confirm part compatibility.
+          </p>
         </div>
       </aside>
       <Feedback
@@ -288,7 +291,7 @@ export function CustomerVehicles() {
                   Edit details
                 </button>
                 <button
-                  className="garage-text-action"
+                  className="garage-text-action garage-destructive-action"
                   disabled={blocked}
                   onClick={() => open({ mode: "remove", vehicle })}
                 >
