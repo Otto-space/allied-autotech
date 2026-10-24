@@ -114,8 +114,9 @@ test("every currently restricted customer route preserves the enquiry launch bou
       maxRedirects: 0,
     });
     expect(response.status()).toBe(307);
-    expect(new URL(response.headers().location).pathname).toBe("/contact");
-    expect(new URL(response.headers().location).hash).toBe("#enquiry");
+    const target = new URL(response.headers().location, response.url());
+    expect(target.pathname).toBe("/contact");
+    expect(target.hash).toBe("#enquiry");
   }
   await page.goto("/dashboard/cart");
   await expect(page).toHaveURL(/\/contact#enquiry$/);

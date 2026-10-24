@@ -811,3 +811,51 @@ and created/removed no Docker images, containers or volumes. Existing runtime,
 backup, payment-disabled, enquiry-only and collection policies remain in force.
 All earlier Item 6 staff-media/real-publication and operational decisions retain
 their recorded scope. Other worktrees' pending audit/copy edits were preserved.
+
+
+## Current frontend handoff - dashboards and managed workforce, 24 October 2026
+
+The owner's page-by-page UI directive is now applied to the dashboard/workforce
+review queue. All 83 customer/work route entries were inspected, with a per-page
+evidence index and managed-workforce subpage index in
+frontend/docs/UI_UX_QUALITY_REGISTER.md. The reproducible selection is
+frontend/tests/quality/dashboard-pages.txt. Source review, synthetic rendered
+samples, intentionally restricted launch pages and actual live acceptance remain
+distinct; this is not a claim of exhaustive role/state or WCAG acceptance.
+
+Current frontend release worktree:
+C:/Users/PC/.codex/worktrees/allied-dashboard-quality-20261024; branch
+feat/dashboard-workforce-quality-20261024; runtime implementation 7e522931
+(pushed). Vercel dpl_42w1rg4PojUn7a81eD4KrrRVnaW2 is READY. Both main and www
+aliases were independently verified on it at 20:57:29 UTC / 21:57:29 Lagos.
+Frontend rollback: dpl_5bJRSphwZTktgFmz9jM3reZ1Hipx. Backend remains ACTIVE
+5c1ea9a7-6211-46d2-995f-c45e504bf9e9. Recheck actual provider state before
+choosing source for the next change.
+
+The batch removes stale work navigation/content after unverifiable workforce
+access, provides legacy capability retry and clear session states, contains
+mobile drawer focus, fixes repeated workflow landmarks, adds a staff-directory
+path for responsibility management, and repairs review-detail retry/heading
+hierarchy. No permission, business policy, schema or API contract was broadened.
+
+Local lint/types/format/production build and 988 unit tests passed. The selected
+production-build matrix covered 167 distinct scenarios across 82 suites: 164
+initial passes, three corrected findings/test assumptions and a fresh-build 6/6
+targeted recheck. Initial runner trace collisions, restricted-route test setup,
+relative redirect parsing, stale booking-link assertions and Next.js streaming
+not-found semantics are documented in the register. Existing overview baseline
+was 75/75. No final selected case is left skipped or unresolved; real-directory
+API acceptance remains explicitly outside the fixture pass. GitHub frontend
+release, database-safety and secret checks passed for runtime implementation.
+Rendered verification used the local optimized build; published acceptance here
+is provider READY and both actual alias IDs, not real authenticated operations.
+
+Provider preflight confirmed the database online with eight managed backups,
+latest 24 October 05:22:10 UTC; same-day separate restore evidence was reviewed.
+No local/production DB command, migration, new backup/restore, staff enrollment,
+responsibility assignment or real financial action was made. GitHub DB checks
+used isolated CI. Docker resources and warm caches were retained; no Docker
+resource was created/deleted and dependencies were reused. Task-owned previews
+were stopped. Payments and deferred customer transaction routes remain disabled.
+Original main-checkout edits and all other worktrees were preserved. Item 6's
+settled media/real-catalogue and operational decisions keep their existing scope.

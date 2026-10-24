@@ -8,12 +8,23 @@ test("review detail offers recovery after a background read failure", async ({
   page,
 }) => {
   const state = await customerReviewsFixture(page);
+  Object.assign(state.rows[0], {
+    status: "REJECTED",
+    moderationNote: "Synthetic moderation reason",
+    moderatedAt: "2026-10-24T19:00:00.000Z",
+  });
   await page.goto(`/dashboard/reviews/${state.rows[0].id}`);
   await expect(
     page.getByRole("heading", { name: "Review update", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByText("Synthetic customer feedback", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Isolated review", level: 2 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Moderation update", level: 3 }),
   ).toBeVisible();
   state.failList = true;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));

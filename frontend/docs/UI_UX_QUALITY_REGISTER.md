@@ -238,7 +238,7 @@ The source inventory and state checklist above continue to apply.
 
 ### Per-page review index
 
-`R` means a rendered fixture sample selected for final verification, **not every
+`R` means a passed rendered fixture sample from the completed run/rechecks, **not every
 possible state**. `L` means the intentionally restricted launch boundary is
 checked using HTTP redirects, plus the rendered enquiry destination; the hidden
 financial page is not accepted or enabled. `F` is the non-indexed missing-page fallback (Next.js may return 200 once streaming has begun). Each test
@@ -370,8 +370,64 @@ HTTP checks plus one rendered destination. No launch restriction was removed.
 The isolated real-directory integration test remains unrun; the browser customer
 directory fixture suite supplies the page sample, not real API acceptance.
 
-Pending final results: production build, page-pass outcome, final screenshots,
-release checks, actual publication identity and remaining gaps.
+Completed verification: full frontend lint and the affected-file lint recheck,
+production build/TypeScript, formatting and **988 unit tests in 147 files** passed.
+The committed page matrix exercised **167 distinct scenarios across 82 suites**.
+The first production-build matrix returned 164 passes and three failures: the
+standalone review's heading-order defect, an assertion assuming every Next.js
+not-found response must be HTTP 404, and a test parsing a relative Location header
+without a base URL. The heading hierarchy was fixed; the two tests now verify the
+actual documented framework/redirect contracts. A fresh final build and targeted
+**6/6 rechecks passed**, including list/detail review accessibility, background
+recovery, scoped booking detail, every restricted customer path and the
+non-indexed missing page. All 167 selected scenarios are covered by the completed
+run and rechecks; this is not described as one clean uninterrupted run. No skips
+or flaky retries occurred in that selected matrix. The earlier isolated real-API
+skip remains explicitly outside this acceptance.
+
+The new responsibility entry was checked at 320/390/768/1024/1440; 390 and 1440
+screenshots and axe checks passed. Managed-access error/retry was rendered at
+390/1440, and customer/admin/managed drawer focus containment and Escape were
+verified. The shared Help helper's 15 production-build scenarios passed. The
+existing page suites provide further responsive, disclosure, table, form review
+and state checks; exact selected titles are in the committed test list. A final focused console probe at 390/1440 verified the responsibility page URL,
+Administration title, meaningful H1, directory action and mobile Escape: no page
+exceptions or unexpected console errors; one deliberately unavailable optional
+notification fixture (503) per viewport was explained. These are synthetic local
+browser checks, not real staff capability certification or full WCAG conformance. Artifacts: `%TEMP%/allied-dashboard-quality-20261024`;
+images `%TEMP%/workforce-entry-390.png`, `workforce-entry-1440.png`,
+`dashboard-access-STAFF-error.png` and `dashboard-access-ADMIN-error.png` were
+visually inspected. Existing layouts/brand, field values and policy were retained.
+
+Implementation **`7e522931f53f271ce8a47b6e925f41c5cad48747`** is pushed.
+[Frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40131516363),
+[database safety](https://github.com/Otto-space/allied-autotech/actions/runs/40131516437)
+and [secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40131516367)
+all passed for that implementation, including the CI production dependency audit.
+Follow-up test-receipt clarifications do not change deployed runtime code.
+
+Vercel **`dpl_42w1rg4PojUn7a81eD4KrrRVnaW2`** is READY. Both
+`alliedautotech.com` and `www.alliedautotech.com` independently resolved to that
+exact deployment at **20:57:29 UTC (21:57:29 Lagos), 24 October 2026**. The
+candidate was built without domain assignment, then promoted after final checks;
+both domains were first verified still on the expected preceding release.
+Rollback frontend: `dpl_5bJRSphwZTktgFmz9jM3reZ1Hipx`. Backend remains ACTIVE
+`5c1ea9a7-6211-46d2-995f-c45e504bf9e9`. Current release source/worktree is
+`allied-dashboard-quality-20261024`, not the older main checkout. Post-publication
+verification here is provider READY and alias identity; rendered acceptance used
+the local optimized build. No real authenticated live customer/staff acceptance
+or operational/financial action was performed.
+
+Provider preflight at 20:52 UTC confirmed the backend ACTIVE with no pending
+release, database online and eight managed backups, latest 24 October 05:22:10
+UTC. Same-day managed encryption/retention/PITR and the prior separate 86-table
+restore receipt were reviewed. No local or production database command, schema
+change, migration, new backup or restore was run in this frontend cycle. GitHub's
+database-safety job uses its isolated CI environment. No Docker image, container,
+volume or builder was created/removed; completion inspection retained the 13
+existing containers, all 14 volumes, 10.3GB images and 4.398GB reusable builder
+cache. Frontend dependencies were reused through a junction; no new installation.
+No disk-recovery claim is made. Task-owned preview servers were stopped afterward.
 
 Continue future cycles from this page index: revisit concrete failures first,
 then expand state/role coverage on the next relevant page. Real screen-reader,
