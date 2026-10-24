@@ -37,3 +37,11 @@ Make every change professional, complete and reviewable.
   Report exactly which safety checks and restore tests ran; never promise zero risk.
 
 See `backend/docs/database-safety.md` for the supported workflow.
+
+## Site completion continuity
+
+For ongoing site-completion work, read `backend/docs/site-completion-tracker.md`
+first. Maintain its current item, evidence, outstanding decisions and constraints.
+Work through items individually; do not repeat settled approvals or treat an
+optional feature as a launch requirement. Check the recorded release worktree and
+current deployment before choosing source for a change.

@@ -8,6 +8,7 @@ See [support timeline release evidence](support-timeline.md#live-release--22-oct
 for the current matching frontend/backend deployments and additive migration.
 Earlier release records below remain historical evidence.
 
+
 The dashboard bell shows the account's total unread notifications, capped visually
 at `99+`. Screen readers receive the full count. Customer sidebar links show counts
 for their related records; closed groups and the collapsed sidebar show a dot.
@@ -125,6 +126,7 @@ should confirm one reply on their existing test conversation. No old messages ar
 resent. Browser push remains outside this release. Private access, disabled live
 payments and existing hosting capacity are preserved; no additional resource or
 subscription was purchased. These checks do not promise zero risk.
+
 
 ## Release verification — 22 October 2026
 

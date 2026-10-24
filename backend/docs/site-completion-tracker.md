@@ -37,15 +37,19 @@ This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.
 
-- Current frontend source: `C:/Users/PC/.codex/worktrees/allied-saved-items-20261023`,
-  commit `6e5f9782f4c94ebfdf6521aeae28ef6eb7960462`.
+- Current frontend and backend source: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`.
+  Frontend commit `098b580c` includes gallery release `ad550f7c`, the newer
+  brand update and the dashboard `/shop` correction. Backend remains on the
+  gallery API release from `ad550f7c`.
+
 - Earlier accounts/enquiries release source: `C:/Users/PC/.codex/worktrees/allied-admin-redesign-20261022`;
   detailed release record there: `backend/docs/accounts-and-enquiries-release.md`.
 - Comprehensive policy evidence: `C:/Users/PC/.codex/worktrees/allied-launch-final-20261022/backend/docs/public-launch-policy-decisions.md`
 - Provider/operational gaps there: `backend/docs/public-enquiry-privacy-review.md`
-- Current backend observed: `43fd747e-310d-44f7-b267-9f4a96301a7c` (ACTIVE).
-  This changed independently during Item 4; this task did not deploy the backend.
-- Current frontend observed: `dpl_5S3aHcQdBgDxoU5bX8raZ1Ttgce2` (READY), promoted
+- Current backend observed: `92fb65ee-dfc7-4a81-9124-92f4913574c7` (ACTIVE),
+  API-only image change from gallery release commit `ad550f7c` for Item 6.
+- Current frontend observed: `dpl_GaG2tZE9e7YbQ1U2pSq7LnHGxUcS` (READY), assigned
+
   to the main domain on 23 October 2026. Recheck before changing production.
 
 ## Sequential work queue
@@ -54,30 +58,83 @@ Only mark an item complete with evidence and its limitations. Separate technical
 work from owner decisions and optional additions. Move to useful independent work
 if an item requires an owner decision; retain the pending item explicitly.
 
-| Item | Work and acceptance requirement                                                                                                                                                   | Status                                                                                                                                                           |
-| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify current public registration, contact/visit controls, privacy, anonymous access and paid-route restrictions on desktop/mobile; record exact scope                           | Complete for anonymous scope; verified 23 October 2026 Nigeria time                                                                                              |
-| 2    | Establish a staff support/email procedure: visible replies versus notes, delivery status, mailbox recipient checks, failed-message follow-up, manual recording of mailbox replies | Guide complete; Newworld group access/send-as, backup and staff walkthrough pending                                                                              |
-| 3    | Account and support email acceptance: verification/reset/expired links, guest and registered replies, preferences and failures                                                    | Complete for controlled acceptance scope, 23 October 2026; 36 isolated checks and hosted recipient acceptance passed                                             |
-| 4    | Separate product favourites and vehicle saving from paid-action restrictions                                                                                                      | Implemented and deployed; local checks and live anonymous smoke passed; real-record acceptance deferred to Item 6 catalogue publication                          |
-| 5    | Improve email delivery evidence and failure handling; distinguish provider acceptance from inbox delivery                                                                         | In progress: case-level retry evidence and signed Resend provider-event correlation implemented locally; production configuration and release acceptance pending |
-| 6    | Catalogue and media acceptance: real content, stock visibility, profile/garage/product/service/vehicle upload ownership and replacement                                           | Pending; avoid altering real content for tests                                                                                                                   |
-| 7    | Actual staff permissions, support coverage, moderators, incident backup and provider-account recovery                                                                             | Pending technical checks plus owner/staff participation                                                                                                          |
-| 8    | Approved retention procedures, privacy requests, holds, mailbox/export copies and device encryption evidence                                                                      | Pending implementation/procedures; no destructive automation                                                                                                     |
-| 9    | Provider-contract and overseas-processing assessment                                                                                                                              | Open; notice approval does not close assessment; Google CDPA acceptance already reported, Resend clarification not resolved                                      |
-| 10   | Media recovery, backup/restore schedule, monitoring and alert ownership                                                                                                           | Pending; existing DB backups and prior separate restore evidence exist                                                                                           |
-| 11   | Delivery zones/fees/timing and external courier fee collector                                                                                                                     | Owner decision pending                                                                                                                                           |
-| 12   | Cancellation/returns, refund clock, invoice publication and financial duties                                                                                                      | Owner decisions and operational setup pending; VAT treatment already settled                                                                                     |
-| 13   | Workshop capacity/calendars and inspection allocation rules                                                                                                                       | Owner decisions pending; customer-care opening hours are not capacity approval                                                                                   |
-| 14   | Versioned vehicle reservation agreement and deposit/hold/balance/refund rules                                                                                                     | Owner approval pending; draft 70%/two-hour values are not approved                                                                                               |
-| 15   | Paystack configuration, sandbox tests, reconciliation/refund/late-payment tests and authorised live cutover                                                                       | Credentials/policies pending; purchase-enquiry mode remains                                                                                                      |
-| 16   | Full agreed-scope acceptance: mobile/accessibility, drafts, permissions, transaction journeys, staff training, rollback and recorded sign-off                                     | Pending earlier dependencies                                                                                                                                     |
+| Item | Work and acceptance requirement | Status |
+| --- | --- | --- |
+| 1 | Verify current public registration, contact/visit controls, privacy, anonymous access and paid-route restrictions on desktop/mobile; record exact scope | Complete for anonymous scope; verified 23 October 2026 Nigeria time |
+| 2 | Establish a staff support/email procedure: visible replies versus notes, delivery status, mailbox recipient checks, failed-message follow-up, manual recording of mailbox replies | Guide complete; Newworld group access/send-as, backup and staff walkthrough pending |
+| 3 | Account and support email acceptance: verification/reset/expired links, guest and registered replies, preferences and failures | Complete for controlled acceptance scope, 23 October 2026; 36 isolated checks and hosted recipient acceptance passed |
+| 4 | Separate product favourites and vehicle saving from paid-action restrictions | Implemented and deployed; local checks and live anonymous smoke passed; real-record acceptance deferred to Item 6 catalogue publication |
+| 5 | Improve email delivery evidence and failure handling; distinguish provider acceptance from inbox delivery | Complete for controlled live Support-email acceptance, 23 October 2026; user confirms the test worked; inbox placement/read receipt is outside provider evidence |
+| 6 | Catalogue and media acceptance: real content, stock visibility, profile/garage/product/service/vehicle upload ownership and replacement | In progress: signed-in live list/detail garage galleries accepted after custom-domain correction; public empty states, one real service image, profile-photo and garage upload lifecycle verified. Staff media and real product/vehicle publication remain open until approved content exists |
+| 7 | Actual staff permissions, support coverage, moderators, incident backup and provider-account recovery | Pending technical checks plus owner/staff participation |
+| 8 | Approved retention procedures, privacy requests, holds, mailbox/export copies and device encryption evidence | Pending implementation/procedures; no destructive automation |
+| 9 | Provider-contract and overseas-processing assessment | Open; notice approval does not close assessment; Google CDPA acceptance already reported, Resend clarification not resolved |
+| 10 | Media recovery, backup/restore schedule, monitoring and alert ownership | Pending; existing DB backups and prior separate restore evidence exist |
+| 11 | Delivery zones/fees/timing and external courier fee collector | Owner decision pending |
+| 12 | Cancellation/returns, refund clock, invoice publication and financial duties | Owner decisions and operational setup pending; VAT treatment already settled |
+| 13 | Workshop capacity/calendars and inspection allocation rules | Owner decisions pending; customer-care opening hours are not capacity approval |
+| 14 | Versioned vehicle reservation agreement and deposit/hold/balance/refund rules | Owner approval pending; draft 70%/two-hour values are not approved |
+| 15 | Paystack configuration, sandbox tests, reconciliation/refund/late-payment tests and authorised live cutover | Credentials/policies pending; purchase-enquiry mode remains |
+| 16 | Full agreed-scope acceptance: mobile/accessibility, drafts, permissions, transaction journeys, staff training, rollback and recorded sign-off | Pending earlier dependencies |
+
 
 Optional additions are browser push, SMS, marketing and automatic mailbox-to-case
 synchronisation. Do not make those mandatory or buy services without an agreed need.
 Marketing additionally requires consent/content/unsubscribe approval.
 
 ## Current session evidence
+
+23 October 2026 audit follow-up: the user requested a comprehensive site/role QA
+pass, beginning with P0 payment, refund and session boundaries. The current
+release worktree remains `allied-email-evidence-20261023` at `098b580c` before
+the uncommitted audit-report/test-fixture changes. Initial read-only production
+checks found live/ready 200, anonymous payment/session endpoints 401, and no
+horizontal overflow on eight core public routes at 320px. `/shop` now redirects
+to `/parts`. Two backend focused Vitest runs passed (34 and 18 tests, with a
+repeated file); local Help/search and corrected sign-in/MFA browser fixtures
+passed (2 and 5 cases). No isolated database, live provider, authenticated-role
+or full responsive acceptance had been run at that initial checkpoint. The reports at
+`C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023/docs/qa/` are
+explicitly in progress. No production deployment or database write occurred.
+This audit does not close Item 6 or change the settled browse/enquiries mode.
+The published Tyre Change detail was also inspected read-only at 390px; its
+generic preparation advice has a small local copy correction in the release
+worktree. The header-session fixture now matches the current Sign in label
+and workforce MFA step; five focused browser cases pass. Two Help search
+fixture cases pass. Targeted ESLint, Prettier and frontend TypeScript checks
+pass. No production rollout was made.
+The later read-only public responsive sweep covered eight core routes plus the
+published Tyre Change detail at nine requested widths (81 combinations):
+main H1 present and no document-level horizontal overflow in all. This was a
+rendering smoke check; interactive responsive states still need review.
+P0 isolated financial verification was attempted in a fresh localhost-only
+PostgreSQL 17 Docker database `aat_p0_16286610bc_test` after host/port/name/test
+environment confirmation. All 62 migrations replayed with no Prisma schema
+difference. The focused Vitest run returned one passing suite, two failing
+suites, 22 passing tests, four failing and six skipped. `work-payments` could
+not pass its direct-host guard because Docker NAT reports the server's internal
+`172.17.0.2:5432` rather than client `127.0.0.1:55432`. Three large
+reconciliation tests timed out; one later mocked-failure assertion resolved
+unexpectedly. This does not establish a production financial defect or close
+the P0 gate. The test container was stopped/removed. See `docs/qa/TEST_RESULTS.md`
+in the release worktree. No application database was written.
+A fresh second isolated Docker database `aat_reconcile_2cb84e43_test` replayed
+all 62 migrations with a clean schema comparison. The previously failing
+mocked reconciliation persistence-failure case passed alone (1 pass, 15
+name-filter skips), narrowing the mixed-run failure to order/timing effects.
+The Docker NAT target guard and three large-batch timeouts remain open. The
+second disposable container was stopped and removed after the test.
+The local frontend production build passed after the small copy/fixture changes,
+including TypeScript, 77 static-page generation steps and standalone postbuild.
+This does not verify deployment or close the full frontend regression gate.
+A third newly created isolated Docker database `aat_refunds_8626fc8c_test` on
+localhost port 55434 replayed all 62 migrations with no schema difference.
+Four refund suites passed 49/49 tests with one worker and a 30-second timeout.
+The disposable container was stopped and removed. This supports the tested
+refund boundaries, but the Docker NAT payment-suite guard, three reconciliation
+large-batch timeouts, provider settlement and authenticated role checks remain
+open. No application database was written and no production release was made.
+
 
 Item 1 completed on 23 October 2026 Nigeria time. Item 2 documentation is now
 complete; its staff access/coverage acceptance remains pending as recorded below.
@@ -445,6 +502,151 @@ secret locally. Provider-origin event receipt and staff case-view acceptance
 still require a post-release controlled Support reply; older untagged emails
 cannot acquire provider-event evidence retroactively. No additional purchase.
 
+The user replied "Everything works" after being asked to send one controlled
+customer-visible reply from the existing registered-customer test case, check
+receipt at the test Gmail alias, and inspect the provider event in the Support
+case. Record this as user-reported live acceptance of that path on 23 October
+2026. The exact case reference, provider label and event time were not copied
+into this tracker, so do not claim a specific delivered/bounced outcome from
+independent observation. The successful synthetic signature tests, deployment
+state and user acceptance close Item 5's agreed controlled scope. Provider
+acceptance, recipient-server delivery, inbox placement and reading remain
+distinct facts; the site does not claim an inbox/read receipt. Item 6 is next.
+
+## Item 6 initial inventory — 23 October 2026
+
+Read-only production API checks returned HTTP 200 for services, products and
+vehicles. The services page has one published item, Tyre Change, with a WebP
+image; a GET of its public image returned HTTP 200 and `image/webp` (72,782
+declared bytes). Its public fields include descriptions, duration, image alt
+text and `QUOTE_REQUIRED` pricing. No service category is attached; this is a
+content-organization choice to review during catalogue acceptance. Public
+products and vehicles each returned zero items. No
+catalogue/media record was written, and no listing was invented. These checks
+establish current publication and image availability only; they do not verify
+private profile/garage media ownership, replacement, stock visibility after
+publication or customer save/reload/remove on a real product or vehicle.
+
+The owner confirmed on 23 October 2026 that neither a real product nor a real
+vehicle is ready for public listing. Do not invent a product or vehicle to fill
+the catalogue. At 390-pixel mobile width, the live Parts and Vehicles pages
+both showed their intended no-listings messages, contact action and disabled
+pagination. The Vehicles page also passed a desktop visual check. The public
+Services page displayed Tyre Change, its image and quote-required treatment on
+mobile. Two read-only anonymous requests to the private customer-photo and
+service-admin image-content routes returned HTTP 401. The browser checks made
+no production write or email request.
+
+These checks do not establish that authenticated owners can upload, replace or
+remove profile/garage images through deployed Spaces, or that staff can manage
+the real service image. Product/vehicle image, stock and save controls need
+real owner-approved records before production acceptance. Existing isolated
+managed-media tests use injected storage; they do not prove the deployed Spaces
+upload/CORS path. Keep Item 6 open for those checks. The intentional empty
+product/vehicle catalogues are not a launch defect while the business has no
+approved listings.
+
+Two neutral 256-pixel PNG fixtures were prepared under the main checkout's
+ignored `output/playwright/item6-media-fixtures/` directory. The test customer
+was asked to check production profile-photo upload, persistence after reload,
+replacement and manual removal using those fixtures. The user reported on
+23 October 2026 that all four steps worked in the existing test customer
+account. This is user-reported live acceptance of that account's profile-photo
+path, including deployed upload/storage, browser reload, replacement and
+removal. It does not establish cross-account privacy or the separate garage,
+service, product and vehicle write paths. The removed test photo is no longer
+attached in the application; provider backup and cleanup timing were not
+independently measured.
+
+The next controlled live check uses the same test customer account to create a
+clearly labelled private garage vehicle, attach both synthetic images, reload,
+then manually remove the images and test vehicle. This does not create a public
+marketplace listing. The user reported that creation, both uploads, persistence
+and manual cleanup worked. They also found that `/dashboard/vehicles` showed
+only the generic car icon after upload, while the detail page rendered the
+photos. Item 6 remains open until that list defect and the requested larger,
+slide-style photo view are verified in the current production release.
+
+The gallery release `ad550f7c` fixes the cause: the owned-vehicle list now
+projects each vehicle's private image URLs, ordered by cover/sort position,
+without exposing storage keys. The customer vehicle cards now show a larger
+photo stage with previous/next controls; the vehicle detail page has a larger
+gallery with thumbnails. The old icon remains only as the empty or failed-image
+fallback. No marketplace listing was created and no database schema changed.
+An isolated PostgreSQL `_test` database replayed all 62 migrations with no
+schema difference, and the focused garage-media integration tests passed 8/8.
+The gallery Playwright scenario passed at desktop and mobile sizes, including
+reload, thumbnail navigation, no horizontal overflow and accessibility checks.
+The frontend and backend production builds and targeted lint passed; the full
+frontend lint command still reports 10 unrelated existing errors in the support
+email component and an older review-rendering script.
+
+The DigitalOcean API release changed only the API image digest after checking
+the latest managed backup, app-only database firewall and successful separate
+restore rehearsal. The deployment's read-only database safety job and service
+deployment succeeded. API deployment `92fb65ee-dfc7-4a81-9124-92f4913574c7`
+is ACTIVE. Vercel preview `dpl_A2aTb4j58zUGQNn2b1czA19Wn7Qi` responded
+successfully, then production deployment `dpl_2DeoDPFfxv7BTGMdkQunCQVPEwB4`
+became READY and was assigned to alliedautotech.com. Anonymous live requests
+returned 200 for the frontend and public services, and 401 for the private
+garage API. The user was asked to repeat the photo/card gallery check in the
+existing test customer account, because they had already removed its photos
+and test vehicle. Keep Item 6 open for that live authenticated visual check,
+staff image acceptance and future approved real product/vehicle listings.
+
+## Dashboard Browse parts / missing-page correction — 23 October 2026
+
+The owner identified the exact broken journey: Dashboard → Overview → Latest
+order → Browse parts opened `/shop`, which returned the generic site 404. Live
+HTTP confirmed `/shop` was 404 while `/parts` was 200. The dashboard action now
+targets `/parts`, and old `/shop` links receive a permanent redirect to `/parts`.
+The generic 404 page now includes the site header and footer, a clear explanation,
+branded mark and working recovery links. Missing routes still return HTTP 404.
+
+The change was committed as `e3d99983` on the older release source, then
+cherry-picked as `098b580c` onto the newer gallery release `ad550f7c` after a
+concurrent deployment was detected. The first 404 deployment temporarily
+superseded the gallery frontend. The combined deployment
+`dpl_GaG2tZE9e7YbQ1U2pSq7LnHGxUcS` was promoted to alliedautotech.com; its
+source contains `ad550f7c`. Vercel reports READY and the custom domain resolves
+to the combined deployment. The previous gallery deployment
+`dpl_2DeoDPFfxv7BTGMdkQunCQVPEwB4` remains the rollback target for gallery
+behavior, though it lacks the 404 fix.
+
+Local production builds and targeted lint/formatting passed. The exact dashboard
+empty-order click passed in an isolated customer browser fixture. The anonymous
+live route suite passed 3/3 against the final domain at 390px and 1440px:
+`/shop` reaches `/parts`, missing routes remain 404, the site chrome renders and
+the Help Centre recovery link navigates. No authenticated production customer
+record, email or database write was made for this correction. Provider API
+inspection before the frontend rollout found the managed database online and
+seven backups, latest 23 October 05:22:11 UTC. The existing separate managed
+PITR restore rehearsal was verified from its recorded receipt; it predates the
+final production recovery and was not repeated for this frontend-only release.
+Item 6's authenticated gallery acceptance and other media checks remain open.
+
+The customer then reported that private garage photos persisted on Manage photos
+but the list and detail pages still showed the old car icon under
+`mike.saviour08@gmail.com`. A fresh Vercel inspect and alias listing found both
+custom domains pointed to `dpl_HWtHz6Wv6TEZrpBZGreHRhu8Zy6L` from
+`e3d99983`, which does not contain gallery commit `7dbc863f`. This occurred
+after the earlier promotion report, so READY status and the deploy command's
+alias message were not enough to establish the current live source. The newer
+READY deployment `dpl_GaG2tZE9e7YbQ1U2pSq7LnHGxUcS` comes from `098b580c`;
+Git ancestry confirms it includes the gallery and 404 fixes. The main and www
+aliases were explicitly re-assigned to it. A fresh Vercel inspect resolved the
+main domain to that deployment; the main pages returned 200 and www redirected
+to the main domain. The customer was asked to refresh the existing photo-bearing
+vehicle on both pages. Future frontend releases must verify each custom
+domain's actual deployment ID after concurrent deployments settle.
+
+After that alias correction, the customer refreshed both pages in the account
+with the persisted private test photos and confirmed that the list and detail
+galleries work. This closes the specific old-icon/gallery defect for the live
+customer journey. Item 6 remains open for staff-managed image acceptance and
+future real product/marketplace vehicle publication and stock checks; no fake
+public listings should be created.
+
 ## Requested discovery and fitment implementation - 23 October 2026
 
 The user requested implementation of the pasted vehicle/parts discovery, reviewed
@@ -529,3 +731,13 @@ acceptance passed all 90 scenarios without failures, skips or flaky results.
 Backend full-suite verification and production source/recovery checks remain in
 progress. Preserve the newer live garage gallery and independent documentation.
 Existing support-email provider-origin acceptance remains separately pending.
+
+
+
+Release continuity correction - 24 October 2026: the newer main tracker records
+user acceptance of Item 5 and the live garage gallery fix. Those accepted paths
+remain settled. Earlier discovery checkpoints referring to provider acceptance as
+pending are historical and superseded by that evidence. Item 6 staff-managed
+images and future real catalogue publication remain separate from this release.
+The combined feature source includes garage `7dbc863f`, gallery merge `ad550f7c`,
+navigation recovery `098b580c` and support procedure documentation `71ce089f`.
