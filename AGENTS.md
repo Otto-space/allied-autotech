@@ -45,3 +45,17 @@ first. Maintain its current item, evidence, outstanding decisions and constraint
 Work through items individually; do not repeat settled approvals or treat an
 optional feature as a launch requirement. Check the recorded release worktree and
 current deployment before choosing source for a change.
+
+## Standing UI and UX quality responsibility
+
+Read `frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md` completely
+and use `frontend/docs/UI_UX_QUALITY_REGISTER.md` for current scope and evidence.
+Own frontend, interaction, accessibility and product quality in future relevant
+tasks. Work in finite, reviewable cycles: reproduce the highest-impact verified
+journey problem, preserve business truth and permissions, improve existing
+components, verify rendered interactions and relevant states, and update coverage
+and the prioritized backlog. Use WCAG 2.2 AA as the target; distinguish automated,
+manual, mocked and hosted evidence and mark inaccessible/untested states explicitly.
+Preserve working functionality, approved brand/policy and unrelated edits. Do not
+invent data, expand transactions, redesign good interfaces without evidence, or
+treat this directive as independent authority for publication or real transactions.

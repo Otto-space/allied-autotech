@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { HelpCentre } from "../components/help-centre";
 import "./help.css";
-import { catalogueOnly } from "@/lib/public-launch";
+import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
 import { CatalogueHelp } from "../components/catalogue-help";
 export async function generateMetadata({
   searchParams,
@@ -15,7 +15,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   return publicPageMetadata(
     "Help centre",
-    catalogueOnly()
+    browseEnquiriesOnly()
       ? "Help with Allied AutoTech vehicle care, products, vehicles and contacting our Port Harcourt workshop."
       : "Help with Allied AutoTech service bookings, payments, account access and finding our Port Harcourt workshop.",
     "/help",
@@ -47,7 +47,11 @@ export default async function HelpPage({
               </ol>
             </nav>
             <h1>Help, when you need it.</h1>
-            <p>Find your next step, from booking a visit to checking a payment.</p>
+            <p>
+              {browseEnquiriesOnly()
+                ? "Find services, check parts compatibility and plan a workshop visit."
+                : "Find your next step, from booking a visit to checking a payment."}
+            </p>
           </div>
         </header>
         <HelpCentre

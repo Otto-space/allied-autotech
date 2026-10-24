@@ -280,8 +280,12 @@ test("server-rendered search and topic selection work without JavaScript", async
     await page.goto("/help");
     await page.getByLabel("Search help topics").fill("MFA");
     await page.getByRole("button", { name: "Search", exact: true }).click();
-    await expect(page.locator(".help-answers details")).toHaveCount(1);
-    await page.locator("summary").click();
+    // Both setup and lost-authenticator recovery are published MFA articles.
+    await expect(page.locator(".help-answers summary")).toHaveText([
+      faqs.find((faq) => faq.id === "account-security")!.question,
+      faqs.find((faq) => faq.id === "lost-authenticator")!.question,
+    ]);
+    await page.locator(".help-answers summary").first().click();
     await expect(
       page.getByRole("link", { name: "Read article", exact: false }),
     ).toBeVisible();

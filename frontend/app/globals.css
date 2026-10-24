@@ -2479,6 +2479,14 @@ address {
   background: #07142299;
 }
 
+.support-dialog .notice .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--brand-red-dark);
+}
+
 .mutation-review[open] {
   display: flex;
   flex-direction: column;

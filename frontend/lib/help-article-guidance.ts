@@ -1,10 +1,14 @@
+import { browseEnquiriesOnly } from "./public-launch";
+
 // Preparation notes supplement the approved FAQ answer; they do not define new
 // submission requirements, availability, policy terms or account permissions.
 export const helpArticleGuidance: Record<string, readonly string[]> = {
   "booking-a-service": [
     "The vehicle you want to book in",
     "The service you need and the issue you have noticed",
-    "Your preferred date and an available appointment time",
+    browseEnquiriesOnly()
+      ? "Your preferred visit date, for the team to review before confirming an appointment"
+      : "Your preferred date and an available appointment time",
   ],
   "visit-the-workshop": [
     "The confirmed landmark: beside Kilimanjaro on Stadium Road",
@@ -16,11 +20,17 @@ export const helpArticleGuidance: Record<string, readonly string[]> = {
     "Your existing request reference, if you have one",
     "Relevant vehicle, service or product details",
   ],
-  "pending-payments": [
-    "Your order or payment reference",
-    "The status currently shown in your account",
-    "When you attempted the payment",
-  ],
+  "pending-payments": browseEnquiriesOnly()
+    ? [
+        "The product, service or vehicle you want to discuss",
+        "An existing enquiry reference, if you have one",
+        "Your questions about pricing or workshop collection",
+      ]
+    : [
+        "Your order or payment reference",
+        "The status currently shown in your account",
+        "When you attempted the payment",
+      ],
   "recover-your-account": [
     "The email address used for your account",
     "Access to that email inbox",
@@ -39,7 +49,7 @@ export const helpArticleGuidance: Record<string, readonly string[]> = {
   "shop-and-collection": [
     "Your vehicle make, model and year",
     "The product or manufacturer part number, if known",
-    "The listed compatibility and branch availability",
+    "The fitment result and any engine, trim or technical details that still need checking",
   ],
   "vehicle-inspections": [
     "The vehicle listing you want to inspect",

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { CircleHelp, MessageCircle, X } from "lucide-react";
 import { answerFaq, business, faqs } from "@/lib/business";
+import { HelpAccountAction } from "./help-account-action";
 import { SESSION_CHANGED } from "@/lib/api/client";
 export function SupportWidget() {
   const pathname = usePathname();
@@ -101,7 +102,27 @@ export function SupportWidget() {
         className="support-dialog"
         ref={dialog}
         aria-labelledby="support-title"
-        onClose={() => trigger.current?.focus()}
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const controls = Array.from(
+            event.currentTarget.querySelectorAll<HTMLElement>(
+              "a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]",
+            ),
+          ).filter((element) => element.tabIndex >= 0 && element.getClientRects().length);
+          const first = controls[0];
+          const last = controls.at(-1);
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first?.focus();
+          }
+        }}
+        onClose={() => {
+          setAnswer(undefined);
+          trigger.current?.focus();
+        }}
       >
         <div className="dialog-header">
           <div>
@@ -161,13 +182,35 @@ export function SupportWidget() {
                 {answer?.answer ??
                   "I don’t have an approved answer to that question. Please contact Allied AutoTech for help."}
               </p>
-              <a
-                className="text-link"
-                href={answer?.href ?? business.whatsapp}
-                onClick={() => dialog.current?.close()}
-              >
-                {answer?.action ?? "Message Allied AutoTech"} →
-              </a>
+              {answer?.href.startsWith("/dashboard/") ? (
+                <HelpAccountAction
+                  key={answer.id}
+                  href={answer.href}
+                  action={answer.action}
+                  compact
+                  onNavigate={() => dialog.current?.close()}
+                />
+              ) : (
+                <Link
+                  className="text-link"
+                  href={answer?.href ?? business.whatsapp}
+                  onClick={() => dialog.current?.close()}
+                  {...((answer?.href ?? business.whatsapp).startsWith("https://")
+                    ? {
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        "aria-label": `${answer?.action ?? "Message Allied AutoTech"} (opens in a new tab)`,
+                      }
+                    : {})}
+                >
+                  {answer?.action ?? "Message Allied AutoTech"}{" "}
+                  <span aria-hidden="true">
+                    {(answer?.href ?? business.whatsapp).startsWith("https://")
+                      ? "\u2197"
+                      : "\u2192"}
+                  </span>
+                </Link>
+              )}
             </div>
           )}
         </div>

@@ -1,0 +1,156 @@
+# UI and UX quality register
+
+Updated 24 October 2026. This is the ongoing quality register, not an assertion
+that every route or state has passed review. Work proceeds in finite batches.
+
+## Standing responsibility and source
+
+Read the complete [29-section directive](Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md)
+and root `AGENTS.md` before relevant work. The original supplied file is preserved
+byte-for-byte, SHA-256 `3dd72b1af1f2c3e36162db1ddf089fb7fbad9fc39b1244c3e9902663202831d9`.
+Future frontend contributors own interaction, accessibility, content, layout,
+responsive behaviour, performance and recovery quality as part of their task.
+Update this register when evidence or scope changes; regenerate the inventory
+when routes or interaction surfaces change. Do not open a new audit document for
+every small change or redesign an already effective interface without evidence.
+
+The authoritative release source was `af9d8b94`, worktree
+`allied-discovery-fitment-20261023`. The first cycle uses branch
+`feat/continuous-ui-quality-20261024` in `allied-ui-quality-20261024`, based on
+that exact source. The older main checkout and independent audit/copy edits
+were preserved. Live baseline was Vercel `dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr`;
+recheck both custom-domain deployment IDs before publication. Existing
+site-completion decisions remain in `backend/docs/site-completion-tracker.md`.
+The already authorized deployment does not enable payments or other real
+operational actions. Current launch mode is `browse_enquiries`, workshop
+collection only; no fabricated stock, fitment evidence, products or vehicles.
+
+## Route, role and state inventory
+
+[Machine-readable source inventory](ui-quality-inventory.json) lists all 104
+`app/**/page.tsx` route patterns, dynamic segments, role families and 294 source
+files with form, table, disclosure, select, file input, dialog, feedback or
+boundary signals. Regenerate with `node scripts/ui-quality-inventory.mjs` from
+`frontend`. These are source signals, not proofs that a route exposes a control,
+has a specific permission or handles a state. Imported components and runtime
+configuration must be followed during each focused review. Legacy
+`redesign-route-audit.md` and `docs/page-quality/` retain historical context;
+they do not substitute for current rendered evidence.
+
+| Route family                                     | Required role/context                                            | State checklist for each relevant journey                                                                                                                                                                              | Current rendered coverage                                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Public home, about, contact, reviews, privacy    | Anonymous, then signed-in navigation                             | Initial, meaningful content, empty/missing content, contact form validation/pending/success/error, navigation and enquiry recovery                                                                                     | Hosted initial home/about/contact sampled; reviews/privacy/form submission not reviewed this cycle             |
+| Services, parts, vehicles and dynamic details    | Anonymous, customer/work browsing; current launch mode           | Loading, populated, empty catalogue, filtered no match, partial data, filter reset/URL/back navigation, unknown/unverified/incompatible/verified fitment, unavailable detail, enquiry validation/pending/error/success | Hosted list initial state sampled; actual result correctness and detail/state coverage not reviewed this cycle |
+| Help index and `/help/[slug]`                    | Anonymous, customer, staff, admin, super admin                   | Search/no match/topic/reset, article/unknown slug, native disclosure, role-aware actions, pending identity, expired/failed/malformed identity, retry and stale session                                                 | Focus of cycle 1; exact test evidence below                                                                    |
+| Authentication and invitation routes             | Anonymous; valid/invalid/expired token; MFA pending/verified     | Validation, pending, duplicate/expired submission, server/offline error, success, session expiry, safe redirect and recovery                                                                                           | Hosted login initial state only; no real sign-in or invitation accepted                                        |
+| `/dashboard/**` customer workspace               | Synthetic customer first; actual customer acceptance separately  | Loading, populated/empty/partial, sorting/filtering/pagination, validation, pending/success/error, stale data, denied/expired session, upload recovery, keyboard dialogs                                               | Route source inventoried; no private dashboard data accessed in this cycle                                     |
+| `/admin/**`, workforce and nested work details   | Each permitted capability, staff/admin/super admin, denied roles | Dense tables, column priorities, filters, drawers/dialogs, destructive confirmation, pending/success/error, conflicts/stale updates, denied/expired session, audit evidence                                            | Route source inventoried; real capability acceptance and operational actions not performed                     |
+| `/payments/complete` and legacy financial routes | Existing transaction context only, providers disabled            | Unknown/cancelled/pending/failed/completed status, refresh/retry/idempotency, safe recovery, never imply successful settlement from browser return                                                                     | Source inventoried; no financial transaction or payment enabled                                                |
+
+For each selected route test the relevant states above at narrow phone (320 and
+390), tablet (768), compact desktop (1024), wide desktop (1440), short viewport,
+keyboard, reduced motion and text enlargement. A non-applicable state needs a
+reason; an inaccessible state stays untested rather than being counted as passed.
+Permissions are server-enforced; a mocked role-aware link does not certify an
+operational capability or backend authorization.
+
+Shared surface inventory: SiteHeader desktop/mobile menu and account navigation;
+SupportWidget Quick Help modal and persistent mobile support controls; HelpCentre
+search, topics, disclosures and no-match recovery; HelpAccountAction identity
+loading/error/retry; catalogue filters and fitment selection; saved-item toggles;
+DashboardShell navigation; operational forms, tables, uploads, dialogs and feedback.
+Their source locations are searchable in the inventory. Only the explicitly
+recorded surfaces below were interacted with in this cycle.
+
+## Cycle 1: Help guidance and account recovery
+
+Priority is user harm and journey obstruction, then frequency and reuse.
+
+| ID     | Priority and verified problem                                                                               | Before evidence                                                                                       | Implemented acceptance condition                                                                                                                                                                                                         |
+| ------ | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI-001 | P1: Parts Help told enquiry-only customers to review fulfilment and pay at checkout; Quick Help repeated it | Hosted `/help/shop-and-collection` and Quick Help at 390px, `help-before.json` and before screenshots | Shared FAQ explains verified versus unknown fitment, enquiry, workshop collection, no online checkout and no stock reservation; payment/booking preparation and Help intro respect launch mode                                           |
+| UI-002 | P2: Quick Help emitted raw customer dashboard links even anonymously or in a work session                   | Hosted MFA answer returned `/dashboard/security`; shared resolver existed but was bypassed            | Use the existing role-aware action component: anonymous sign-in continuation, customer destination, work security destination or customer-only explanation; pending identity exposes no stale shortcut; failed/malformed check has retry |
+| UI-003 | P2: Modal answer could remain after closing, even though identity may change before reuse                   | Source-confirmed persistent answer state; no claim of a reproduced security exposure                  | Clear answer on close, preserve typed question, restore trigger focus; session-change event discards sensitive drafts/answer as before; external fallback states new-tab behaviour                                                       |
+
+The first browser pass additionally reproduced a 4.37:1 answer-link contrast
+failure against the notice background (UI-004, P2) and focus leaving the modal
+at a keyboard boundary (UI-005, P2). The existing darker brand-red token restores
+contrast; scoped answer actions retain 44px targets. Explicit forward/reverse Tab
+wrapping complements native modal behaviour. These are measured fixes within the
+Help journey, not a site-wide accessibility claim.
+
+Reused the existing FAQ source, role resolver, dialog, Link/button styles and
+article action logic. Article imports retain a compatibility export of the shared
+component. No new dependency, typography, token, layout system, permission,
+backend route, database schema, catalogue record or operational policy was added.
+The approved Quicksand/Nippo typography, red/navy/white palette and logo remain.
+
+### Evidence and verification
+
+Browser plugin not available in this session; existing Playwright with installed
+Microsoft Edge is the fallback. No browser or dependency download was required.
+Hosted baseline: 8 anonymous routes (`/`, `/services`, `/parts`, `/vehicles`,
+`/about`, `/contact`, `/help`, `/login`) at 1440 and 320, 16/16 HTTP 200 with
+meaningful H1, no horizontal overflow, no unnamed visible fields or `href="#"`.
+This is initial-state sampling, not full journey/accessibility acceptance.
+Anonymous session requests generated expected 401 console entries on some
+routes; these are not silently described as a clean console. No page exceptions
+were collected. No customer records, real message or form submission was used.
+
+Local verification status is recorded after the finite batch below. Browser
+identities are synthetic intercepts of `GET /api/v1/auth/session`; they do not
+connect tests to an application database. The local preview has no backend origin.
+Evidence receipts and before/after images are outside the repository in
+`%TEMP%/allied-ui-cycle-20261024`; browser output uses the repository Playwright
+temporary output directory. Screenshot names from the focused suite start
+`%TEMP%/help-launch-article-` and `help-launch-quick-`.
+
+Verification so far: full frontend lint, TypeScript and formatting passed;
+147 unit files / **988 tests passed**. All 59 existing Help/article regression
+scenarios passed across the initial run and explicit rechecks, plus the adjacent
+anonymous-session draft-preservation scenario. The first full-mode run had 57
+passes and two failures: one development chunk-load failure disappeared on a
+fresh-server recheck; one outdated no-JavaScript search assertion expected only
+one MFA article despite the published recovery article. The test now verifies
+both named articles and the no-JavaScript journey passes. Recheck: 3/3 passed.
+The initial enquiry suite passed 14/14. The final expanded 15-scenario suite,
+including reverse Tab, unobscured focus and actual sign-in-link navigation, will
+be run against the production build before publication. Build/publication pending.
+
+Production preflight: provider inspection at 19:53 UTC confirmed the unchanged
+ACTIVE backend deployment `5c1ea9a7-6211-46d2-995f-c45e504bf9e9`, no pending
+backend deployment, database online and eight managed backups, latest
+`2026-10-24T05:22:10Z`. The release review's same-day encrypted managed backup,
+seven-day retention/PITR evidence and actual separate 86-table archive restore
+rehearsal were reviewed. This frontend-only cycle ran **no database commands,
+writes, migrations, new backup or restore rehearsal**. No Docker image, container
+or volume was created or removed. Completion review retained the 13 existing
+containers and all volumes, 10.3GB images and 4.398GB reusable build cache.
+Dependencies were reused through a worktree junction, with no npm installation.
+No space-recovery claim is made for this UI cycle.
+
+Accessibility target is WCAG 2.2 AA. Relevant checks include
+[status announcements](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html),
+[focus not obscured](https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html)
+and [modal keyboard/focus behaviour](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
+Automated axe checks and keyboard sampling do not prove full conformance.
+Screen-reader speech, real mobile keyboards, hardware assistive technology,
+every translated/long-data condition and every authenticated route remain untested.
+
+## Prioritized next cycles and completion boundaries
+
+| Order                   | Next bounded review                                                                                                        | Status / required evidence                                                                                                                                                                                  | Owner / stop condition                                                                                                                   |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 1                       | Public fitment/search/detail to enquiry, including truthful unavailable/unknown states                                     | Source inventory exists; prior release fixtures are historical, not a current live full-path audit. Use approved isolated fixtures, not fake public stock. Preserve the independent pending Parts copy work | Next relevant frontend contributor; reproduce and repair one coherent verified journey, test narrow/wide/state recovery, update register |
+| 2                       | Customer workspace navigation, saved garage/photos and support across expired/failed sessions                              | No private data accessed this cycle. Existing owner-confirmed gallery acceptance stays settled; do not reopen it without regression evidence                                                                | Next customer-workspace task; synthetic states then authorized real acceptance only where needed                                         |
+| 3                       | Staff capability navigation and dense data: permitted/denied, empty, partial, filter, stale conflict, retry                | Inventory only. The Help work-role link resolver is reused, not certification of every staff support capability                                                                                             | Next workforce task; representative capabilities and keyboard/table review, no real operational changes for QA                           |
+| 4                       | Wider marketing forms, screen reader/text enlargement, real mobile keyboard and performance measurements                   | Initial snapshots are insufficient for form submission, complete WCAG or Core Web Vitals claims. Measure before changing layout or bundles                                                                  | Next relevant frontend task; one demonstrated issue at a time, preserve visual hierarchy and business truth                              |
+| Separate existing queue | Staff media and approved real catalogue publication, payment-provider/financial acceptance and operational owner decisions | Remain in site-completion tracker; not reopened or relabelled launch blockers by this directive                                                                                                             | Existing recorded owners and approvals                                                                                                   |
+
+Each future cycle: confirm current live source and independent edits; inspect the
+real journey and component dependencies; select verified high-impact failures;
+define acceptance states; implement with existing conventions; check keyboard,
+responsive layout, content and recovery; run proportionate regressions; record
+evidence and remaining gaps; publish only under existing authorization. End the
+cycle when the selected acceptance criteria and handoff are complete. Unreviewed
+routes stay visible in the inventory instead of extending work indefinitely.

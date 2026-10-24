@@ -83,8 +83,9 @@ export const faqs = [
     id: "policies-and-opening-hours",
     category: "Contact and location",
     question: "What are your hours, warranties and refund policies?",
-    answer:
-      "Contact Allied AutoTech for the policy that applies to your request. Current booking terms are shown before you submit, and any payment or refund status is available in your account.",
+    answer: browseEnquiriesOnly()
+      ? `Customer care is available ${business.customerCareHours}. Contact Allied AutoTech for the warranty or refund terms that apply to your request. Our team confirms workshop appointments separately.`
+      : "Contact Allied AutoTech for the policy that applies to your request. Current booking terms are shown before you submit, and any payment or refund status is available in your account.",
     keywords: "hours open closing warranty guarantee refund policy returns",
     href: business.whatsapp,
     action: "Ask Allied AutoTech",
@@ -103,8 +104,9 @@ export const faqs = [
     id: "shop-and-collection",
     category: "Shop and collection",
     question: "How do I order the right part?",
-    answer:
-      "Open a product to review its listed compatibility and branch availability. Ask our team if your vehicle is not listed. Review quantities, fulfilment options and the total at checkout. Adding an item to your cart does not reserve stock.",
+    answer: browseEnquiriesOnly()
+      ? "Use Find Parts for My Car to choose your vehicle and review the fitment result. Make, model and year identify candidates; only a verified fit confirms the recorded specifications match. If compatibility is unknown or needs verification, ask our team before choosing a part. Send a product enquiry to discuss fitment, availability and collection from the workshop. Online checkout is not available, and an enquiry does not reserve stock."
+      : "Use Find Parts for My Car and review the product's fitment result and branch availability. If compatibility is unknown or needs verification, ask our team before choosing a part. New orders are for collection from the workshop only. Review quantities and the total at checkout. Adding an item to your cart does not reserve stock.",
     keywords: "shop parts product compatibility cart collection delivery order stock",
     href: "/parts",
     action: "Browse the shop",
