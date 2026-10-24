@@ -81,7 +81,16 @@ export function pendingMigrations(
 
 /** Conservative gate; it is not a substitute for reviewing migration SQL. */
 export function assertNonDestructiveMigration(sql: string): void {
-  const text = sql.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/--[^\r\n]*/g, " ");
+  const text = sql
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/--[^\r\n]*/g, " ")
+    // Registering a statement trigger for TRUNCATE does not execute TRUNCATE.
+    // Recognize only complete, argument-free DDL. Executable commands and
+    // function bodies still pass through the destructive-operation checks.
+    .replace(
+      /\bCREATE\s+TRIGGER\s+(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s+(?:BEFORE|AFTER)\s+TRUNCATE\s+ON\s+(?:(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s*\.\s*)?(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s+FOR\s+EACH\s+STATEMENT\s+EXECUTE\s+FUNCTION\s+(?:(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s*\.\s*)?(?:"(?:[^";]|"")+"|[a-z_][a-z0-9_]*)\s*\(\s*\)\s*;/gi,
+      " ",
+    );
   if (
     /\b(?:DROP\s+(?:TABLE|DATABASE|SCHEMA|TYPE)|DROP\s+(?:COLUMN\s+)?(?:IF\s+EXISTS\s+)?\w+\s+CASCADE|TRUNCATE\b|DELETE\s+FROM|ALTER\s+COLUMN\b|DROP\s+COLUMN\b|DO\s+\$|EXECUTE\s+(?:FORMAT\b|['"]))/i.test(
       text,

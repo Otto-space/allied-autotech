@@ -21,7 +21,7 @@ describe("customer vehicle API response", () => {
     };
     expect(
       parseCustomerVehicles({ vehicles: [vehicle], nextCursor: vehicle.id }),
-    ).toEqual({ items: [vehicle], nextCursor: vehicle.id });
+    ).toEqual({ items: [{ ...vehicle, images: [] }], nextCursor: vehicle.id });
   });
 
   it("rejects malformed responses instead of treating them as an empty garage", () => {
@@ -35,6 +35,7 @@ describe("customer vehicle API response", () => {
     model: "Corolla",
     year: 2018,
     nickname: "Private personal nickname",
+    images: [],
     registrationNumber: "SYNTHETIC-REG",
     vin: "JTDBR32E720012345",
     color: null,

@@ -155,6 +155,20 @@ describe("forward migration history and SQL review gates", () => {
   ])("refuses unsafe pending SQL %s", (sql) => {
     expect(() => assertNonDestructiveMigration(sql)).toThrow("potentially destructive");
   });
+  const truncateProtection =
+    'CREATE TRIGGER "ProductCompatibilityHistory_no_truncate" BEFORE TRUNCATE ON "ProductCompatibilityHistory" FOR EACH STATEMENT EXECUTE FUNCTION protect_fitment_history();';
+  it("allows a complete protective truncate-trigger declaration", () => {
+    expect(() => assertNonDestructiveMigration(truncateProtection)).not.toThrow();
+  });
+  it.each([
+    `${truncateProtection} TRUNCATE "ProductCompatibilityHistory";`,
+    `TRUNCATE users; ${truncateProtection}`,
+    `CREATE FUNCTION protect_fitment_history() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN DELETE FROM users; RETURN NULL; END $$; ${truncateProtection}`,
+    "CREATE TRIGGER unsafe BEFORE TRUNCATE ON users FOR EACH STATEMENT EXECUTE FUNCTION handler('TRUNCATE users');",
+    'CREATE TRIGGER "unsafe; TRUNCATE users" BEFORE TRUNCATE ON users FOR EACH STATEMENT EXECUTE FUNCTION handler();',
+  ])("keeps destructive operations blocked alongside trigger DDL %s", (sql) => {
+    expect(() => assertNonDestructiveMigration(sql)).toThrow("potentially destructive");
+  });
   it("allows additive changes and harmless commented examples", () => {
     expect(() =>
       assertNonDestructiveMigration(
