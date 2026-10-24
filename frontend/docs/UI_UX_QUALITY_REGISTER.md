@@ -434,3 +434,124 @@ then expand state/role coverage on the next relevant page. Real screen-reader,
 real-device keyboard and real authenticated operational acceptance remain open.
 Unexercised combinations are not counted as complete. The deferred transaction
 pages retain their launch gates. Preserve the separately settled Item 6 queue.
+
+## Cycle 3: Shop, Vehicles, My Vehicles and Customer Care
+
+Completed batch: runtime implementation `1aacb6af5ffbe72c23e1f0f7d35b78fadf5f4447`,
+branch/worktree `feat/catalogue-care-ux-20261024` /
+`C:/Users/PC/.codex/worktrees/allied-catalogue-care-ux-20261024`.
+The starting live dashboard release was checked through both provider aliases.
+The separately published `5e7deb6a` copy clarification and its deployment receipt
+were preserved before preparing this batch. Production advanced to
+`dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` during development; this batch includes
+that runtime source. Main-checkout application code and unrelated worktrees
+were not edited. The original directive is unchanged.
+
+The flow under review is catalogue search and filtering -> selected item or
+vehicle context -> saved vehicle / care request -> permitted customer or staff
+conversation and recovery. Browser plugin not available: existing Playwright
+and installed Edge are used, with synthetic accounts and intercepted API calls.
+No live customer records, messages, financial actions or database writes are
+needed for this frontend review.
+
+| Surface and role                                                        | Observed issue and implementation                                                                                                                                                                                                    | Acceptance for this batch                                                                                                                                            |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/parts`, public/customer browsing                                      | Phone search followed a large vehicle form. Put search, category and sort first; retain the visible fitment workflow and unknown-compatibility truth. Add currency guidance and reuse visible-control modal focus handling.          | Search, category hierarchy, individual resets, fitment, price validation, history and phone/desktop drawers remain usable.                                           |
+| `/vehicles`, public/customer browsing                                   | Search and advanced Apply behaviour needed clearer explanation; price inputs needed guidance. Reuse modal keyboard containment.                                                                                                      | Search/sort/body shortcuts, condition/origin/powertrain/range filters, error recovery and URL history retain their contracts.                                        |
+| `/dashboard/vehicles`, customer                                         | Optional preferences preceded required identity; generic actions and removal looked alike. Put required make/model/year first, associate field guidance, distinguish navigation/removal, shorten guidance and stretch phone actions. | Add/edit/cancel/remove, focus return, duplicate/unknown outcome guards, pagination and saved fitment are preserved.                                                  |
+| `/dashboard/vehicles/[vehicleId]`, customer                             | Adjacent gallery and saved-vehicle path must retain working behaviour.                                                                                                                                                               | Fixture gallery/upload/recovery, ownership and narrow layout checks; real storage acceptance is separate.                                                            |
+| `/dashboard/support`, customer                                          | Existing records competed with a long form; privacy guidance occupied half the form grid. Add task anchors, category-specific explanations, associated subject/message help, blue navigation and a full-width privacy note.          | Task jumps retain a draft; review/send/cancel and uncertain-outcome recovery remain authoritative.                                                                   |
+| `/dashboard/support/[kind]/[supportId]`, customer                       | Preserve conversation continuity and reply safeguards.                                                                                                                                                                               | Empty/loading/error/stale/closed, exact reply, draft/recovery, keyboard confirmation and responsive checks.                                                          |
+| `/admin/customers`, admin/super admin                                   | Phone filters consumed a screen; full reference IDs distracted from identity. Improve responsive filter rows, prefix instructions/input modes, removable applied constraints and expandable references.                              | Remove one constraint without losing others; search applies explicitly; reference disclosure works by keyboard; staff remain denied.                                 |
+| `/admin/customers/[customerId]`, admin/super admin                      | Adjacent activity and link styles must remain coherent.                                                                                                                                                                              | Role gate, activity collections, paging/history, errors and responsive records retain their behaviour.                                                               |
+| `/admin/support` and nested details, staff/admin/super admin            | Dense reference metadata competed with contact/message details. Move reference facts into a native disclosure, strengthen navigation affordances and add removable applied filters.                                                  | Staff branch scope remains enforced; removing branch also clears dependent assignee; records, review/reply and recovery remain functional.                           |
+| `/admin/workforce/enquiries` and `/complaints`, permitted managed roles | Selected conversation and navigation needed stronger, consistent affordances.                                                                                                                                                        | Selected buttons have text/pressed state plus visible colour/border treatment; scoped search, queue/detail, assignment/reply and conflict handling remain unchanged. |
+
+Priority P1: the expanded managed-care run exposed a shared access-refresh
+regression. A manual refresh marks the access resource loading; the previous
+render branch unmounted the workspace and discarded drafts and success feedback.
+Keep the same workspace mounted, hidden and inert while verification is pending.
+Successful verification preserves the draft; failed verification still removes
+work content, and a different actor/access version/assignment key discards it.
+A held-response regression verifies all three states without issuing writes.
+Priority P2: the catalogue, guidance, field ordering, link/action affordances,
+record density and responsive filter improvements in the table above.
+
+Reproducible selected matrix: `tests/quality/catalogue-care-pages.txt`, **385
+distinct scenarios across 22 suites**, including adjacent managed overview,
+bookings, jobs/detail, orders and finance samples after the shared-shell fix.
+The initial optimized-build run was **349 passed / 10 failed** across 359 cases:
+five managed-refresh failures shared the lifecycle defect above; four upload
+cases used a test storage host excluded by the local preview allowlist; one
+Shop assertion expected cart wording superseded by the preserved enquiry-mode
+copy release. No storage or authorization guard was weakened. The local-only
+preview was configured for the intercepted `media.example.test` host, and the
+Shop assertion now checks the stock-reservation warning common to both modes.
+
+All **11 critical rechecks passed**. A fresh optimized browse-enquiries build then
+passed **179/179 final browser checks**, with zero skips/flaky cases, including
+all ten originally failed cases, all 13 new interaction checks, role/access
+recovery, real launch redirects, gallery uploads/retry/cancel, scope changes,
+managed assignment/replies and adjacent pages. The stored coverage receipt
+compares the actual passed-case union against the 385-case matrix: **385 covered,
+zero missing**. This is combined evidence from the initial run and final
+rechecks, not a claim of one clean 385-test invocation.
+
+Page identity, meaningful content, no framework overlay, page-error checks,
+screenshots, responsive/reflow, keyboard interactions and automated axe checks
+passed in the selected fixtures. Representative widths were 320, 360, 375, 390,
+430, 768, 1024, 1280, 1440 and 1536; work-record tests also sampled 1920.
+Short viewports and reduced-motion states were exercised by the existing suites.
+Before/after screenshots were viewed for hierarchy, control layout, guidance,
+action colours and reference disclosure. Final phone actions use the full row;
+wide customer filters share one row; required vehicle identity precedes optional
+preferences; privacy guidance spans the care form. Approved assets, brand fonts,
+pricing, compatibility truth, permissions and collection-only launch policy remain.
+
+Local full lint/types, **147 files / 988 unit tests**, optimized browse-mode build
+and whole-frontend formatting passed. Final changed-source lint and the final
+optimized build/type compilation passed after the shared-shell fix. The initial
+combined check was stopped after passing the launch-specific build mode into
+multi-mode configuration unit tests; standard unit environment and browse-mode
+build environment were separated, with no guard change. Vite's existing
+config-loader warning remains informational.
+
+Runtime implementation is pushed. [Frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40137427563)
+and [secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40137427542)
+passed for `1aacb6af`, including the CI production dependency audit. The unchanged
+backend passed [isolated database safety](https://github.com/Otto-space/allied-autotech/actions/runs/40136214469)
+at preceding UI commit `c3f4076f`; the frontend-only follow-up did not trigger a new
+backend job. No local/shared/production database checks or writes were run.
+
+Vercel **`dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB`** is READY. Both
+`alliedautotech.com` and `www.alliedautotech.com` independently resolved to that
+exact deployment at **22:17:35 UTC (23:17:35 Lagos), 24 October 2026**. Each was
+freshly checked on the expected copy release before promotion. The earlier
+`c3f4076f` candidate was never promoted; the final candidate includes the refresh
+fix. Immediate frontend rollback is `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ`;
+preceding dashboard release `dpl_42w1rg4PojUn7a81eD4KrrRVnaW2` remains available.
+Backend stays ACTIVE `5c1ea9a7-6211-46d2-995f-c45e504bf9e9`, no pending release.
+Published acceptance here is provider READY/alias identity. Rendered acceptance
+used the local optimized build, not real authenticated production operations.
+
+Immediately before promotion, read-only provider preflight confirmed the database
+online, eight managed backups and latest `2026-10-24T05:22:10Z`. Existing managed
+encryption/seven-day retention/PITR and the same-day separate 86-table logical
+restore receipt were reviewed. No new dump, restore, migration or DB command was
+run in this UI cycle. Payments remain disabled. Dependencies were reused through
+a junction; no package installation or Docker build/removal was needed. Existing
+32 images (10.3GB), 13 stopped containers, 14 volumes and 4.398GB warm cache were
+retained. Docker reclamation by this cycle was 0 bytes; host C: free space was
+13,973,557,248 bytes at 22:21:15 UTC. No disk-recovery claim is made.
+Task-owned preview port 3155 was verified closed.
+
+Artifacts remain outside source: `%TEMP%/allied-catalogue-care-*.log/json`,
+`scope-before-*`, `scope-review-*`, `scope-final-*`, public catalogue captures,
+and `scope-final-vehicle-form-390.png`. Coverage is fixture-based; no full WCAG
+certification, real screen-reader/mobile-keyboard certification, real object
+storage acceptance or real authenticated production transaction is claimed.
+Unexercised combinations remain open. The original directive SHA-256 still
+matches its recorded bytes. Preserve the settled Item 6 queue and owner decisions.
+Future separate reviews can pair price-range fields more closely in the Shop
+advanced grid and follow the header-session fixture/customer-toast items recorded
+by the preceding copy audit; those do not reopen the settled launch scope.

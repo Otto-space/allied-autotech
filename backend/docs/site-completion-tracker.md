@@ -888,3 +888,43 @@ header/auth runtime code was untouched. Follow up on the fixture and the
 customer toast separately. No real authenticated role journey or live provider
 transaction was claimed for this release. Item 6 and owner/operational
 dependencies remain open.
+
+
+24 October 2026, 23:17 Lagos - scoped catalogue/customer-care design release:
+runtime `1aacb6af5ffbe72c23e1f0f7d35b78fadf5f4447` on
+`C:/Users/PC/.codex/worktrees/allied-catalogue-care-ux-20261024`, branch
+`feat/catalogue-care-ux-20261024`. This is the current frontend release source.
+It includes the separate copy release and receipt; the older main checkout was
+not deployed. Vercel `dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB` is READY and
+both main/www domains independently resolved to it at 22:17:35 UTC. Rollback
+frontend is `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ`; backend remains ACTIVE
+`5c1ea9a7-6211-46d2-995f-c45e504bf9e9`.
+
+Shop search precedes fitment tools; catalogue filter/price guidance is clearer.
+My Vehicles starts its form with required identity and has clearer navigation
+and removal styles. Customer Care has task anchors, associated writing guidance
+and a full-width privacy note. Customer and care records have responsive filter
+rows, removable constraints, readable blue links and expandable reference facts.
+The customer directory remains admin/super-admin only; staff retain their scoped
+care/managed queues. Broader testing also fixed lost managed-workforce drafts and
+success feedback during access refresh: pending work stays mounted but hidden
+and inert; failure or a changed responsibility scope still discards it.
+
+Local 988 unit tests plus lint/types/build/format passed. Initial browser matrix:
+349 passed/10 failed; five refresh-lifecycle failures were repaired, four upload
+failures corrected a local fixture-host setting and one Shop assertion was
+aligned with the existing enquiry-mode copy. All 11 critical rechecks and the
+fresh-build 179/179 final checks passed. The passed-case union covers all 385
+distinct selected scenarios across 22 suites; it is not a single clean 385-case
+run. Final implementation frontend CI/secret checks passed; unchanged backend
+safety passed isolated CI on the preceding UI commit. Full evidence, matrix and
+remaining manual/real-role limits are in the central quality register.
+
+Read-only preflight confirmed database online/eight managed backups (latest
+24 October 05:22:10 UTC); existing encrypted retention/PITR and separate restore
+receipts were reviewed. No local/production DB command, migration, new backup
+or restore, real message or financial action was performed. Production verification
+was provider READY/actual alias identity; browser checks used local synthetic
+fixtures. Payments stay disabled. Dependencies and Docker resources were retained;
+preview port 3155 stopped. Original main-checkout edits remain untouched except
+the guarded documentation handoff. Item 6 and owner dependencies retain scope.
