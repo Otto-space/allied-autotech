@@ -66,11 +66,11 @@ recorded surfaces below were interacted with in this cycle.
 
 Priority is user harm and journey obstruction, then frequency and reuse.
 
-| ID     | Priority and verified problem                                                                               | Before evidence                                                                                       | Implemented acceptance condition                                                                                                                                                                                                         |
-| ------ | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| UI-001 | P1: Parts Help told enquiry-only customers to review fulfilment and pay at checkout; Quick Help repeated it | Hosted `/help/shop-and-collection` and Quick Help at 390px, `help-before.json` and before screenshots | Shared FAQ explains verified versus unknown fitment, enquiry, workshop collection, no online checkout and no stock reservation; payment/booking preparation and Help intro respect launch mode                                           |
-| UI-002 | P2: Quick Help emitted raw customer dashboard links even anonymously or in a work session                   | Hosted MFA answer returned `/dashboard/security`; shared resolver existed but was bypassed            | Use the existing role-aware action component: anonymous sign-in continuation, customer destination, work security destination or customer-only explanation; pending identity exposes no stale shortcut; failed/malformed check has retry |
-| UI-003 | P2: Modal answer could remain after closing, even though identity may change before reuse                   | Source-confirmed persistent answer state; no claim of a reproduced security exposure                  | Clear answer on close, preserve typed question, restore trigger focus; session-change event discards sensitive drafts/answer as before; external fallback states new-tab behaviour                                                       |
+| ID     | Priority and verified problem                                                                               | Before evidence                                                                                                      | Implemented acceptance condition                                                                                                                                                                                                         |
+| ------ | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| UI-001 | P1: Parts Help told enquiry-only customers to review fulfilment and pay at checkout; Quick Help repeated it | Hosted `/help/shop-and-collection` and Quick Help at 390px, `help-before.json` and before screenshots                | Shared FAQ explains verified versus unknown fitment, enquiry, workshop collection, no online checkout and no stock reservation; payment/booking preparation and Help intro respect launch mode                                           |
+| UI-002 | P2: Quick Help emitted raw customer dashboard links even anonymously or in a work session                   | Anonymous hosted MFA answer returned `/dashboard/security`; unconditional source bypassed the work-role resolver too | Use the existing role-aware action component: anonymous sign-in continuation, customer destination, work security destination or customer-only explanation; pending identity exposes no stale shortcut; failed/malformed check has retry |
+| UI-003 | P2: Modal answer could remain after closing, even though identity may change before reuse                   | Source-confirmed persistent answer state; no claim of a reproduced security exposure                                 | Clear answer on close, preserve typed question, restore trigger focus; session-change event discards sensitive drafts/answer as before; external fallback states new-tab behaviour                                                       |
 
 The first browser pass additionally reproduced a 4.37:1 answer-link contrast
 failure against the notice background (UI-004, P2) and focus leaving the modal
@@ -105,7 +105,7 @@ Evidence receipts and before/after images are outside the repository in
 temporary output directory. Screenshot names from the focused suite start
 `%TEMP%/help-launch-article-` and `help-launch-quick-`.
 
-Verification so far: full frontend lint, TypeScript and formatting passed;
+Completed cycle verification: full frontend lint, TypeScript and formatting passed;
 147 unit files / **988 tests passed**. All 59 existing Help/article regression
 scenarios passed across the initial run and explicit rechecks, plus the adjacent
 anonymous-session draft-preservation scenario. The first full-mode run had 57
@@ -113,9 +113,17 @@ passes and two failures: one development chunk-load failure disappeared on a
 fresh-server recheck; one outdated no-JavaScript search assertion expected only
 one MFA article despite the published recovery article. The test now verifies
 both named articles and the no-JavaScript journey passes. Recheck: 3/3 passed.
-The initial enquiry suite passed 14/14. The final expanded 15-scenario suite,
-including reverse Tab, unobscured focus and actual sign-in-link navigation, will
-be run against the production build before publication. Build/publication pending.
+The initial enquiry suite passed 14/14. The final expanded enquiry suite passed
+**15/15 against the optimized production build**, including reverse Tab,
+unobscured focus and actual anonymous sign-in-link navigation. The build and
+postbuild passed. Across the completed runs, 75 distinct browser scenarios passed
+(59 Help/article + one adjacent header draft + 15 current-launch scenarios).
+Five current-launch viewport cases had zero axe violations in the checked tags,
+no page exceptions or unexpected console errors, meaningful page title/H1, no
+framework error overlay and no horizontal overflow. Expected anonymous session
+401 responses were explicitly allowed. Mobile/desktop production-build
+screenshots were visually inspected, including the keyboard-focused answer link.
+These local role/session responses are fixtures; publication identity follows below.
 
 Production preflight: provider inspection at 19:53 UTC confirmed the unchanged
 ACTIVE backend deployment `5c1ea9a7-6211-46d2-995f-c45e504bf9e9`, no pending
@@ -128,6 +136,35 @@ or volume was created or removed. Completion review retained the 13 existing
 containers and all volumes, 10.3GB images and 4.398GB reusable build cache.
 Dependencies were reused through a worktree junction, with no npm installation.
 No space-recovery claim is made for this UI cycle.
+
+### Published release and handoff
+
+Implementation commit **`bd0ac141af2700429cb78ef1c109bbcde61b1465`** is pushed
+on `feat/continuous-ui-quality-20261024`. GitHub's
+[frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40127992888),
+[database safety](https://github.com/Otto-space/allied-autotech/actions/runs/40127992877)
+and [redacted secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40127992866)
+all passed for that implementation. The CI production dependency audit step
+also passed; dependencies were unchanged in this batch.
+
+Vercel production **`dpl_5bJRSphwZTktgFmz9jM3reZ1Hipx`** is READY. Both
+`alliedautotech.com` and `www.alliedautotech.com` independently resolved through
+provider inspection to that exact deployment at **20:08:48 UTC, 24 October 2026**.
+The candidate was built without domain assignment, then promoted only after the
+release checks passed and both aliases were confirmed still on the expected old
+release. Backend deployment remains `5c1ea9a7-6211-46d2-995f-c45e504bf9e9`.
+Frontend rollback is `dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr`; no backend rollback
+or schema change is part of this frontend release.
+
+Current frontend release worktree is
+`C:/Users/PC/.codex/worktrees/allied-ui-quality-20261024`. The original directive,
+register, source inventory/generator, byte-preservation attributes and concise
+AGENTS guidance were also handed off to the main project folder without replacing
+its independent edits. Only the new handoff was appended to the site tracker.
+Post-publication acceptance here is provider READY/domain identity; rendered QA
+was against the local optimized production build. No new authenticated live
+customer/staff acceptance or live transaction is claimed. This finite cycle is
+complete; the prioritized next-cycle list below remains explicitly open.
 
 Accessibility target is WCAG 2.2 AA. Relevant checks include
 [status announcements](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html),

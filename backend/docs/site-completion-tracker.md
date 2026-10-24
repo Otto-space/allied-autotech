@@ -773,3 +773,41 @@ than treated as passes. Bounded Docker cleanup removed only the never-deployed
 were retained. See discovery-fitment-release-review.md for exact evidence and
 remaining acceptance limits. Item 6 and other settled operational decisions keep
 their current scope; this feature rollout does not close the whole site queue.
+
+
+## Current frontend handoff - UI quality cycle 1, 24 October 2026
+
+The standing 29-section UI/UX directive is preserved byte-for-byte in
+frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md, referenced by
+AGENTS.md. frontend/docs/UI_UX_QUALITY_REGISTER.md owns scope, source inventory,
+coverage evidence, remaining gaps and future finite review cycles. Inventory:
+104 route patterns (14 public, 7 authentication, 25 customer, 58 work) and 294
+interaction/boundary source files; source discovery is not rendered acceptance.
+
+Current frontend release worktree is
+C:/Users/PC/.codex/worktrees/allied-ui-quality-20261024, branch
+feat/continuous-ui-quality-20261024, implementation bd0ac141 (pushed), based on
+the prior af9d8b94 release. Vercel dpl_5bJRSphwZTktgFmz9jM3reZ1Hipx is READY;
+both alliedautotech.com and www.alliedautotech.com were separately verified on
+that ID at 20:08:48 UTC. Rollback frontend: dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr.
+Backend remains ACTIVE 5c1ea9a7-6211-46d2-995f-c45e504bf9e9. Recheck provider
+state before selecting source for another release.
+
+The batch corrects parts Help for enquiry/collection mode and reviewed fitment,
+aligns booking/payment preparation, and reuses role-aware Help actions in Quick
+Help with loading/error/retry, focus wrapping/restoration and contrast fixes.
+Full frontend lint/types/format/build passed; 988 unit tests and 75 distinct
+browser scenarios passed across the documented runs/rechecks, including 15/15
+against the optimized enquiry-mode production build. Release GitHub frontend,
+database-safety and secret-guard checks passed. Initial dev chunk-loading and
+outdated MFA-search test failures/rechecks are recorded honestly in the register.
+Rendered QA was local production-build plus hosted baseline; final live release
+was verified by provider READY and both domain IDs, not real private actions.
+
+Provider preflight confirmed the database online, eight managed backups (latest
+24 October 05:22:10 UTC) and the same-day prior restore evidence was reviewed.
+This frontend cycle ran no database commands/writes, migration, backup or restore,
+and created/removed no Docker images, containers or volumes. Existing runtime,
+backup, payment-disabled, enquiry-only and collection policies remain in force.
+All earlier Item 6 staff-media/real-publication and operational decisions retain
+their recorded scope. Other worktrees' pending audit/copy edits were preserved.
