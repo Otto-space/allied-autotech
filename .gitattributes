@@ -1,2 +1,4 @@
 # Linux container entrypoints must retain executable Unix shebangs on Windows.
 backend/docker/*.sh text eol=lf
+# Preserve the supplied standing directive byte-for-byte on every checkout.
+frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md -text
