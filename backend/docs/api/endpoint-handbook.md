@@ -2969,7 +2969,18 @@ Success: HTTP 200.
         "color": "synthetic-color",
         "mileageKm": "synthetic-mileagekm",
         "createdAt": "2030-01-15T10:00:00.000Z",
-        "updatedAt": "2030-01-15T10:00:00.000Z"
+        "updatedAt": "2030-01-15T10:00:00.000Z",
+        "images": [
+          {
+            "id": "00000000-0000-4000-8000-000000000001",
+            "url": "https://example.test/continue",
+            "altText": "synthetic-alttext",
+            "sortOrder": 1,
+            "isPrimary": true,
+            "width": 1,
+            "height": 1
+          }
+        ]
       }
     ],
     "nextCursor": "00000000-0000-4000-8000-000000000001"

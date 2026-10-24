@@ -81,10 +81,17 @@ test("an empty account has clear next actions without invented progress", async 
   await expect(
     page.getByRole("link", { name: "Manage garage", exact: true }),
   ).toHaveAttribute("href", "/dashboard/vehicles");
+  const browseParts = page.getByRole("link", { name: "Browse parts", exact: true });
+  await expect(browseParts).toHaveAttribute("href", "/parts");
   await expect(page.locator(".care-timeline")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "View payment", exact: true })).toHaveCount(
     0,
   );
+  await browseParts.click();
+  await expect(page).toHaveURL(/\/parts$/);
+  await expect(
+    page.getByRole("heading", { name: "We couldn’t find that page." }),
+  ).toHaveCount(0);
 });
 
 for (const mode of ["missingCare", "malformedCare", "wrongScope", "error"])

@@ -23,6 +23,7 @@ import {
 } from "@/lib/customer-garage";
 import { GarageVehicleEditor } from "./garage-vehicle-editor";
 import { GarageRemoveDialog } from "./garage-remove-dialog";
+import { GaragePhotoCarousel } from "./garage-photo-carousel";
 import { Feedback } from "./feedback";
 
 type Dialog =
@@ -217,9 +218,10 @@ export function CustomerVehicles() {
               key={vehicle.id}
               aria-labelledby={`garage-title-${vehicle.id}`}
             >
-              <div className="garage-car-icon">
-                <CarFront size={24} aria-hidden="true" />
-              </div>
+              <GaragePhotoCarousel
+                images={vehicle.images}
+                vehicleName={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+              />
               <div className="garage-record-info">
                 <h2 id={`garage-title-${vehicle.id}`}>
                   {vehicle.year} {vehicle.make} {vehicle.model}

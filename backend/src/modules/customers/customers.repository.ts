@@ -135,12 +135,24 @@ export class CustomersRepository {
     return this.database.customerVehicle
       .findMany({
         where: { customerId: profile.id, ...(defaultOnly ? { defaultSlot: 1 } : {}) },
-        select: vehicleSelect,
+        select: {
+          ...vehicleSelect,
+          mediaImages: {
+            select: resourceImageSelect,
+            orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+            take: 12,
+          },
+        },
         orderBy: { id: "asc" },
         take: limit + 1,
         ...(cursor === undefined ? {} : { cursor: { id: cursor }, skip: 1 }),
       })
-      .then((rows) => rows.map(projectSavedVehicle));
+      .then((rows) =>
+        rows.map(({ mediaImages, ...vehicle }) => ({
+          ...projectSavedVehicle(vehicle),
+          images: mediaImages.map((image) => projectResourceImage(image)),
+        })),
+      );
   }
 
   vehicle(userId: string, vehicleId: string, client: DatabaseClient = this.database) {

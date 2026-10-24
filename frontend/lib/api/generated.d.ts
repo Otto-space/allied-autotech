@@ -12964,7 +12964,18 @@ export interface operations {
                      *             "color": "synthetic-color",
                      *             "mileageKm": "synthetic-mileagekm",
                      *             "createdAt": "2030-01-15T10:00:00.000Z",
-                     *             "updatedAt": "2030-01-15T10:00:00.000Z"
+                     *             "updatedAt": "2030-01-15T10:00:00.000Z",
+                     *             "images": [
+                     *               {
+                     *                 "id": "00000000-0000-4000-8000-000000000001",
+                     *                 "url": "https://example.test/continue",
+                     *                 "altText": "synthetic-alttext",
+                     *                 "sortOrder": 1,
+                     *                 "isPrimary": true,
+                     *                 "width": 1,
+                     *                 "height": 1
+                     *               }
+                     *             ]
                      *           }
                      *         ],
                      *         "nextCursor": "00000000-0000-4000-8000-000000000001"
@@ -13072,6 +13083,26 @@ export interface operations {
                                  * @description ISO 8601 timestamp interpreted and validated by the server.
                                  */
                                 updatedAt: string;
+                                /** @description Images validated by this operation's strict request contract. */
+                                images: {
+                                    /**
+                                     * Format: uuid
+                                     * @description Identifier of the id resource; ownership is resolved server-side.
+                                     */
+                                    id: string;
+                                    /** @description HTTPS location validated against the operation's server-side allowlist. */
+                                    url: string;
+                                    /** @description Alt Text validated by this operation's strict request contract. */
+                                    altText: string | null;
+                                    /** @description Sort Order validated by this operation's strict request contract. */
+                                    sortOrder: number;
+                                    /** @description Boolean control for is primary; authorization is still enforced server-side. */
+                                    isPrimary: boolean;
+                                    /** @description Width validated by this operation's strict request contract. */
+                                    width: number;
+                                    /** @description Height validated by this operation's strict request contract. */
+                                    height: number;
+                                }[];
                             }[];
                             /**
                              * Format: uuid

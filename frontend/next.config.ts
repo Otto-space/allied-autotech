@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  async redirects() {
+    return [{ source: "/shop", destination: "/parts", permanent: true }];
+  },
   async rewrites() {
     const origin = backendOrigin();
     return [

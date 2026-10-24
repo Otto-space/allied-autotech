@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { savedVehicleQualifierKeys } from "../parts-fitment";
 import { branchRef, money } from "./commerce-schemas";
+import { profilePhotoSchema } from "./profile-schemas";
 const image = z.object({
   id: z.string().uuid(),
   url: z.string(),
@@ -96,6 +97,7 @@ export const customerVehicleSchema = z.object({
   vin: z.string().nullable(),
   color: z.string().nullable(),
   mileageKm: z.number().nullable(),
+  images: z.array(profilePhotoSchema).max(12).default([]),
 });
 export type CustomerVehicle = z.infer<typeof customerVehicleSchema>;
 export const parseCustomerVehicles = (value: unknown) =>

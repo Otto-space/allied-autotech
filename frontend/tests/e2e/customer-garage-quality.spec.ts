@@ -1,6 +1,92 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import os from "node:os";
+import path from "node:path";
 import { garageFixture, garageId } from "../fixtures/customer-garage";
+
+test("owned garage photos appear as a usable slideshow on list and detail", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  const state = await garageFixture(page);
+  const vehicle = state.records[0]!;
+  vehicle.images = [
+    {
+      id: garageId(101),
+      url: `/api/v1/customers/media/images/${garageId(101)}`,
+      altText: "Front view",
+      sortOrder: 0,
+      isPrimary: true,
+      width: 256,
+      height: 256,
+    },
+    {
+      id: garageId(102),
+      url: `/api/v1/customers/media/images/${garageId(102)}`,
+      altText: "Side view",
+      sortOrder: 1,
+      isPrimary: false,
+      width: 256,
+      height: 256,
+    },
+  ];
+  await page.route("**/api/v1/customers/media/images/*", (route) => {
+    const side = route.request().url().includes(garageId(102));
+    return route.fulfill({
+      contentType: "image/svg+xml",
+      body: `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><rect width="256" height="256" fill="${side ? "#28795b" : "#1d5687"}"/><text x="40" y="132" fill="white" font-size="32">${side ? "SIDE" : "FRONT"}</text></svg>`,
+    });
+  });
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/dashboard/vehicles");
+  const card = page.locator(".garage-record").first();
+  await expect(card.getByRole("img", { name: "Front view" })).toBeVisible();
+  await expect(card.getByText("Photo 1 of 2")).toBeVisible();
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-garage-carousel-list-desktop.png"),
+    fullPage: true,
+  });
+  await card.getByRole("button", { name: /Next photo/ }).click();
+  await expect(card.getByRole("img", { name: "Side view" })).toBeVisible();
+  await expect(card.getByText("Photo 2 of 2")).toBeVisible();
+  await page.reload();
+  await expect(card.getByRole("img", { name: "Front view" })).toBeVisible();
+  await card.getByRole("link", { name: /Manage photos/ }).click();
+  const gallery = page.getByRole("region", { name: /photo gallery/ });
+  await expect(gallery.getByRole("img", { name: "Front view" })).toBeVisible();
+  await gallery.getByRole("button", { name: "Show photo 2 of 2" }).click();
+  await expect(gallery.getByRole("img", { name: "Side view" })).toBeVisible();
+  await expect(gallery.getByText("Photo 2 of 2")).toBeVisible();
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-garage-carousel-detail-desktop.png"),
+    fullPage: true,
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await gallery.getByRole("button", { name: /Previous photo/ }).click();
+  await expect(gallery.getByRole("img", { name: "Front view" })).toBeVisible();
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-garage-carousel-detail-mobile.png"),
+    fullPage: true,
+  });
+  await page.getByRole("link", { name: "Back to your vehicles" }).click();
+  await expect(card.getByRole("img", { name: "Front view" })).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-garage-carousel-list-mobile.png"),
+    fullPage: true,
+  });
+  expect(
+    (await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze())
+      .violations,
+  ).toEqual([]);
+  expect(errors).toEqual([]);
+});
 
 test("desktop footer link stays clear of the floating support control", async ({
   page,
@@ -12,6 +98,7 @@ test("desktop footer link stays clear of the floating support control", async ({
     .locator(".garage-footer")
     .getByRole("link", { name: "Contact support" });
   await expect(support).toBeVisible();
+  await support.scrollIntoViewIfNeeded();
   expect(
     await support.evaluate((element) => {
       const bounds = element.getBoundingClientRect();

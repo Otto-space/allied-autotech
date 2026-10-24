@@ -28,6 +28,15 @@ export interface CustomerVehicleProjection {
   vin: string | null;
   color: string | null;
   mileageKm: number | null;
+  images: readonly {
+    id: string;
+    url: string;
+    altText: string | null;
+    sortOrder: number;
+    isPrimary: boolean;
+    width: number;
+    height: number;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
