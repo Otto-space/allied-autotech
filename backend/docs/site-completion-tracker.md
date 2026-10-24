@@ -37,10 +37,10 @@ This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.
 
-- Current implementation/release source: `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`,
-  branch `feat/discovery-fitment-20261023`, verified code `7bb485b8`.
-  Backend images are from `59d5141b`; frontend deployment source is `e2143b56`.
-  Later differences are release/test fixtures only; runtime source was compared.
+- Current frontend release source: `C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`,
+  commit `5e7deb6a` based on dashboard-quality release `d5269cb3`.
+  Backend runtime remains the verified discovery/fitment release; its source is
+  `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`.
 - Previous release and ongoing separate audit worktree: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`,
   committed gallery/navigation source `098b580c`. Preserve its independent pending
   audit/copy changes and merge them against the new release before any future rollout.
@@ -50,8 +50,8 @@ or deployment; never deploy the older checkout merely because it is the cwd.
 - Provider/operational gaps there: `backend/docs/public-enquiry-privacy-review.md`
 - Current backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE),
   all four verified images; read-only predeploy passed and 64 migrations compatible.
-- Current frontend observed: `dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr` (READY), assigned
-  to both main and www domains on 24 October 2026. Recheck before future changes.
+- Current frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
+  assigned to both main and www domains on 24 October 2026. Recheck before changes.
 - Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
   worktree. Earlier release pointers/checkpoints below describe their historical state.
 
@@ -859,3 +859,32 @@ resource was created/deleted and dependencies were reused. Task-owned previews
 were stopped. Payments and deferred customer transaction routes remain disabled.
 Original main-checkout edits and all other worktrees were preserved. Item 6's
 settled media/real-catalogue and operational decisions keep their existing scope.
+
+24 October evening audit/copy release: the live source advanced during this audit
+from `af9d8b94` to dashboard-quality `d5269cb3`. The two customer-facing copy
+fixes were cherry-picked onto that newer source as `5e7deb6a`; no older frontend
+was promoted over it. The final branch is
+`C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`.
+Vercel production deployment `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` built READY
+with automatic custom-domain promotion paused. Protected deployment checks
+confirmed enquiry-mode Parts copy and a published service detail's preparation
+copy. After promotion, both `alliedautotech.com` and
+`www.alliedautotech.com` independently resolved to that exact deployment.
+Public main-domain Parts and service pages returned 200 with the expected copy.
+Backend remains `5c1ea9a7-6211-46d2-995f-c45e504bf9e9`; no schema,
+application-database, payment-provider or message action was made. Payments
+remain disabled in browse/enquiries mode. The preceding dashboard deployment
+`dpl_42w1rg4PojUn7a81eD4KrrRVnaW2` is the immediate frontend rollback
+candidate, subject to the normal compatibility check.
+
+The audit's financial suites passed 49 refund and 22 payment/reconciliation
+tests on separate disposable isolated databases, but those were run against
+the older audit worktree and do not replace the newer dashboard release's
+recorded CI or provider settlement acceptance. An attempted full
+`header-session.spec.ts` run on the newer source passed 6/19 and exposed
+stale fixture assumptions around extra Help session probes and one success
+toast. That fixture change was excluded from the production copy release;
+header/auth runtime code was untouched. Follow up on the fixture and the
+customer toast separately. No real authenticated role journey or live provider
+transaction was claimed for this release. Item 6 and owner/operational
+dependencies remain open.
