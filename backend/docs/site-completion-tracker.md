@@ -37,20 +37,23 @@ This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.
 
-- Current frontend and backend source: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`.
-  Frontend commit `098b580c` includes gallery release `ad550f7c`, the newer
-  brand update and the dashboard `/shop` correction. Backend remains on the
-  gallery API release from `ad550f7c`.
-
+- Current implementation/release source: `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`,
+  branch `feat/discovery-fitment-20261023`, verified code `7bb485b8`.
+  Backend images are from `59d5141b`; frontend deployment source is `e2143b56`.
+  Later differences are release/test fixtures only; runtime source was compared.
+- Previous release and ongoing separate audit worktree: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`,
+  committed gallery/navigation source `098b580c`. Preserve its independent pending
+  audit/copy changes and merge them against the new release before any future rollout.
 - Earlier accounts/enquiries release source: `C:/Users/PC/.codex/worktrees/allied-admin-redesign-20261022`;
   detailed release record there: `backend/docs/accounts-and-enquiries-release.md`.
 - Comprehensive policy evidence: `C:/Users/PC/.codex/worktrees/allied-launch-final-20261022/backend/docs/public-launch-policy-decisions.md`
 - Provider/operational gaps there: `backend/docs/public-enquiry-privacy-review.md`
-- Current backend observed: `92fb65ee-dfc7-4a81-9124-92f4913574c7` (ACTIVE),
-  API-only image change from gallery release commit `ad550f7c` for Item 6.
-- Current frontend observed: `dpl_GaG2tZE9e7YbQ1U2pSq7LnHGxUcS` (READY), assigned
-
-  to the main domain on 23 October 2026. Recheck before changing production.
+- Current backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE),
+  all four verified images; read-only predeploy passed and 64 migrations compatible.
+- Current frontend observed: `dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr` (READY), assigned
+  to both main and www domains on 24 October 2026. Recheck before future changes.
+- Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
+  worktree. Earlier release pointers/checkpoints below describe their historical state.
 
 ## Sequential work queue
 
@@ -58,25 +61,24 @@ Only mark an item complete with evidence and its limitations. Separate technical
 work from owner decisions and optional additions. Move to useful independent work
 if an item requires an owner decision; retain the pending item explicitly.
 
-| Item | Work and acceptance requirement | Status |
-| --- | --- | --- |
-| 1 | Verify current public registration, contact/visit controls, privacy, anonymous access and paid-route restrictions on desktop/mobile; record exact scope | Complete for anonymous scope; verified 23 October 2026 Nigeria time |
-| 2 | Establish a staff support/email procedure: visible replies versus notes, delivery status, mailbox recipient checks, failed-message follow-up, manual recording of mailbox replies | Guide complete; Newworld group access/send-as, backup and staff walkthrough pending |
-| 3 | Account and support email acceptance: verification/reset/expired links, guest and registered replies, preferences and failures | Complete for controlled acceptance scope, 23 October 2026; 36 isolated checks and hosted recipient acceptance passed |
-| 4 | Separate product favourites and vehicle saving from paid-action restrictions | Implemented and deployed; local checks and live anonymous smoke passed; real-record acceptance deferred to Item 6 catalogue publication |
-| 5 | Improve email delivery evidence and failure handling; distinguish provider acceptance from inbox delivery | Complete for controlled live Support-email acceptance, 23 October 2026; user confirms the test worked; inbox placement/read receipt is outside provider evidence |
-| 6 | Catalogue and media acceptance: real content, stock visibility, profile/garage/product/service/vehicle upload ownership and replacement | In progress: signed-in live list/detail garage galleries accepted after custom-domain correction; public empty states, one real service image, profile-photo and garage upload lifecycle verified. Staff media and real product/vehicle publication remain open until approved content exists |
-| 7 | Actual staff permissions, support coverage, moderators, incident backup and provider-account recovery | Pending technical checks plus owner/staff participation |
-| 8 | Approved retention procedures, privacy requests, holds, mailbox/export copies and device encryption evidence | Pending implementation/procedures; no destructive automation |
-| 9 | Provider-contract and overseas-processing assessment | Open; notice approval does not close assessment; Google CDPA acceptance already reported, Resend clarification not resolved |
-| 10 | Media recovery, backup/restore schedule, monitoring and alert ownership | Pending; existing DB backups and prior separate restore evidence exist |
-| 11 | Delivery zones/fees/timing and external courier fee collector | Owner decision pending |
-| 12 | Cancellation/returns, refund clock, invoice publication and financial duties | Owner decisions and operational setup pending; VAT treatment already settled |
-| 13 | Workshop capacity/calendars and inspection allocation rules | Owner decisions pending; customer-care opening hours are not capacity approval |
-| 14 | Versioned vehicle reservation agreement and deposit/hold/balance/refund rules | Owner approval pending; draft 70%/two-hour values are not approved |
-| 15 | Paystack configuration, sandbox tests, reconciliation/refund/late-payment tests and authorised live cutover | Credentials/policies pending; purchase-enquiry mode remains |
-| 16 | Full agreed-scope acceptance: mobile/accessibility, drafts, permissions, transaction journeys, staff training, rollback and recorded sign-off | Pending earlier dependencies |
-
+| Item | Work and acceptance requirement                                                                                                                                                   | Status                                                                                                                                                                                                                                                                                        |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | Verify current public registration, contact/visit controls, privacy, anonymous access and paid-route restrictions on desktop/mobile; record exact scope                           | Complete for anonymous scope; verified 23 October 2026 Nigeria time                                                                                                                                                                                                                           |
+| 2    | Establish a staff support/email procedure: visible replies versus notes, delivery status, mailbox recipient checks, failed-message follow-up, manual recording of mailbox replies | Guide complete; Newworld group access/send-as, backup and staff walkthrough pending                                                                                                                                                                                                           |
+| 3    | Account and support email acceptance: verification/reset/expired links, guest and registered replies, preferences and failures                                                    | Complete for controlled acceptance scope, 23 October 2026; 36 isolated checks and hosted recipient acceptance passed                                                                                                                                                                          |
+| 4    | Separate product favourites and vehicle saving from paid-action restrictions                                                                                                      | Implemented and deployed; local checks and live anonymous smoke passed; real-record acceptance deferred to Item 6 catalogue publication                                                                                                                                                       |
+| 5    | Improve email delivery evidence and failure handling; distinguish provider acceptance from inbox delivery                                                                         | Complete for controlled live Support-email acceptance, 23 October 2026; user confirms the test worked; inbox placement/read receipt is outside provider evidence                                                                                                                              |
+| 6    | Catalogue and media acceptance: real content, stock visibility, profile/garage/product/service/vehicle upload ownership and replacement                                           | In progress: signed-in live list/detail garage galleries accepted after custom-domain correction; public empty states, one real service image, profile-photo and garage upload lifecycle verified. Staff media and real product/vehicle publication remain open until approved content exists |
+| 7    | Actual staff permissions, support coverage, moderators, incident backup and provider-account recovery                                                                             | Pending technical checks plus owner/staff participation                                                                                                                                                                                                                                       |
+| 8    | Approved retention procedures, privacy requests, holds, mailbox/export copies and device encryption evidence                                                                      | Pending implementation/procedures; no destructive automation                                                                                                                                                                                                                                  |
+| 9    | Provider-contract and overseas-processing assessment                                                                                                                              | Open; notice approval does not close assessment; Google CDPA acceptance already reported, Resend clarification not resolved                                                                                                                                                                   |
+| 10   | Media recovery, backup/restore schedule, monitoring and alert ownership                                                                                                           | Pending; existing DB backups and prior separate restore evidence exist                                                                                                                                                                                                                        |
+| 11   | Delivery zones/fees/timing and external courier fee collector                                                                                                                     | Owner decision pending                                                                                                                                                                                                                                                                        |
+| 12   | Cancellation/returns, refund clock, invoice publication and financial duties                                                                                                      | Owner decisions and operational setup pending; VAT treatment already settled                                                                                                                                                                                                                  |
+| 13   | Workshop capacity/calendars and inspection allocation rules                                                                                                                       | Owner decisions pending; customer-care opening hours are not capacity approval                                                                                                                                                                                                                |
+| 14   | Versioned vehicle reservation agreement and deposit/hold/balance/refund rules                                                                                                     | Owner approval pending; draft 70%/two-hour values are not approved                                                                                                                                                                                                                            |
+| 15   | Paystack configuration, sandbox tests, reconciliation/refund/late-payment tests and authorised live cutover                                                                       | Credentials/policies pending; purchase-enquiry mode remains                                                                                                                                                                                                                                   |
+| 16   | Full agreed-scope acceptance: mobile/accessibility, drafts, permissions, transaction journeys, staff training, rollback and recorded sign-off                                     | Pending earlier dependencies                                                                                                                                                                                                                                                                  |
 
 Optional additions are browser push, SMS, marketing and automatic mailbox-to-case
 synchronisation. Do not make those mandatory or buy services without an agreed need.
@@ -134,7 +136,6 @@ The disposable container was stopped and removed. This supports the tested
 refund boundaries, but the Docker NAT payment-suite guard, three reconciliation
 large-batch timeouts, provider settlement and authenticated role checks remain
 open. No application database was written and no production release was made.
-
 
 Item 1 completed on 23 October 2026 Nigeria time. Item 2 documentation is now
 complete; its staff access/coverage acceptance remains pending as recorded below.
@@ -505,8 +506,7 @@ cannot acquire provider-event evidence retroactively. No additional purchase.
 The user replied "Everything works" after being asked to send one controlled
 customer-visible reply from the existing registered-customer test case, check
 receipt at the test Gmail alias, and inspect the provider event in the Support
-case. Record this as user-reported live acceptance of that path on 23 October
-2026. The exact case reference, provider label and event time were not copied
+case. Record this as user-reported live acceptance of that path on 23 October 2026. The exact case reference, provider label and event time were not copied
 into this tracker, so do not claim a specific delivered/bounced outcome from
 independent observation. The successful synthetic signature tests, deployment
 state and user acceptance close Item 5's agreed controlled scope. Provider
@@ -722,7 +722,6 @@ fresh audit findings. The full requirement/release review is in
 or deployment occurred. Existing provider-origin support-email acceptance remains
 separate and pending.
 
-
 Production release authorization - 24 October 2026: the user explicitly requested
 production deployment after completion. The final frontend production pipeline
 passed 985 tests plus lint/types/build/format; both production dependency audits
@@ -732,8 +731,6 @@ Backend full-suite verification and production source/recovery checks remain in
 progress. Preserve the newer live garage gallery and independent documentation.
 Existing support-email provider-origin acceptance remains separately pending.
 
-
-
 Release continuity correction - 24 October 2026: the newer main tracker records
 user acceptance of Item 5 and the live garage gallery fix. Those accepted paths
 remain settled. Earlier discovery checkpoints referring to provider acceptance as
@@ -741,3 +738,38 @@ pending are historical and superseded by that evidence. Item 6 staff-managed
 images and future real catalogue publication remain separate from this release.
 The combined feature source includes garage `7dbc863f`, gallery merge `ad550f7c`,
 navigation recovery `098b580c` and support procedure documentation `71ce089f`.
+
+## Discovery/fitment production release - 24 October 2026
+
+The requested vehicle/parts discovery, category hierarchy, independently reviewed
+fitment, owned saved configurations, collection policy, scoped notification
+navigation/read-after-display and active slogan changes are implemented and live.
+The user explicitly authorized production deployment after verification. Final
+backend acceptance passed 1,422 tests (156 intentional fixture/owner/queue skips);
+frontend checks passed 985 tests plus lint/types/build/format; all 168 combined
+browser scenarios passed without failures, skips or flaky results. Both production
+dependency audits report zero vulnerabilities. Pushed GitHub frontend, database-
+safety and secret-guard checks passed.
+
+A new empty localhost-only _ci target replayed all 64 migrations. A fresh production
+archive was actually restored into another new _ci database (86 tables), then the
+two additive migrations rehearsed from 62 to 64 with existing rows preserved. The
+protected production runner created/verified another fresh backup, applied only
+the reviewed migrations, passed db:check and runtime privilege/schema verification,
+and restored the app-only firewall. No staging data or existing grants changed.
+
+Backend deployment 5c1ea9a7-6211-46d2-995f-c45e504bf9e9 is ACTIVE with 16/16
+successful steps and all four pinned digests verified. Eight live backend GET
+checks passed. Vercel dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr is READY and separately
+verified on both custom domains. Keep the previous compatible app releases and
+backups; review newly used enum values before a code rollback. No database
+downgrade/reset or provider/payment activation is part of this release.
+
+The service index fixture now supplies its own unrelated catalogue baseline rather
+than depending on test order; all final backend tests passed on another new target.
+Legacy provisioned harnesses remain explicitly gated, with skips reported rather
+than treated as passes. Bounded Docker cleanup removed only the never-deployed
+032fe09c API image; current/rollback images, all containers/volumes and warm caches
+were retained. See discovery-fitment-release-review.md for exact evidence and
+remaining acceptance limits. Item 6 and other settled operational decisions keep
+their current scope; this feature rollout does not close the whole site queue.

@@ -35,6 +35,9 @@ migration replay and domain integration tests remain required.
 databases it also refuses potentially destructive pending SQL, including table/column
 removal, truncate, deletes, top-level updates, type conversions and dynamic SQL.
 This conservative gate does not replace human SQL review or sandbox arbitrary SQL.
+It recognizes complete, argument-free statement-trigger declarations for TRUNCATE
+as DDL that can protect a table. This does not permit executing TRUNCATE or
+destructive SQL in the trigger function or adjacent statements.
 
 Before pending migrations, it creates a custom-format PostgreSQL backup outside the
 repository, checks the archive database name with `pg_restore --list`, records its

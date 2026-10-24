@@ -2,11 +2,12 @@
 
 Review branch: `feat/discovery-fitment-20261023`. Implementation is isolated in
 `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`.
-This implements the pasted requirements as application changes. The user explicitly
-authorized production deployment on 24 October 2026, after verification. No PDF
-conversion is involved. The main checkout and its independent work remain
-untouched. See [checkpoint evidence](discovery-fitment-implementation.md) for the
-chronological validation record. Final validation is being completed below.
+Implemented and deployed to [alliedautotech.com](https://alliedautotech.com) on
+24 October 2026 after the user's explicit production authorization. This is an
+application implementation, with no PDF conversion. The main checkout's application
+code and independent edits are preserved; its tracker receives only an appended
+release handoff. See [checkpoint evidence](discovery-fitment-implementation.md)
+for the chronological record and the final verified release below.
 
 ## Requirement coverage
 
@@ -88,74 +89,177 @@ visible quotation marks and allowing intentional CommonJS imports in .cjs utilit
 Browser fixtures now wait for the settled initial search URL, use the reviewed
 fitment UI, and follow keyboard focus through the new subcategory control.
 
-## Validation record
+## Final validation
 
-- Fresh local PostgreSQL 18 target: `127.0.0.1:63888`,
-  `allied_release_20261024171300_0c3c71d20c25_ci`, NODE_ENV=test, matching TEST_DB_NAME,
-  SSL disabled only for the loopback private cluster. Actual server address, port,
-  database, cluster directory and initial empty state were verified before replay.
-- Full 64-migration empty replay, schema comparison and `npm run db:check`: passed
-  on 24 October 2026. This is isolated verification, not a staging migration.
-- Full backend regression: pending final result.
-- Runtime role/schema/CRUD and privilege checks: pending final result. The test
-  creates a new transaction-local role/grants and rolls everything back; it does
-  not change existing runtime or migration grants.
-- Frontend production pipeline: passed lint, route types/TypeScript, 146 files /
-  985 tests, optimized Next.js 16.4.3 build and formatting. Frontend and backend
-  production dependency audits each report zero vulnerabilities.
-- Final vehicle/shop/fitment/garage/notification browser run: 90 passed, zero
-  failed, skipped or flaky scenarios. Synthetic browser requests are intercepted; server correctness/authorization is tested separately
+- Final new PostgreSQL 18 target: `127.0.0.1:63888`,
+  `allied_release_20261024182516_6bef5322f5d7_ci`. Actual server identity, port,
+  database and private cluster directory were verified, with zero public tables
+  before replay. `NODE_ENV=test`, matching `TEST_DB_NAME`, loopback-only SSL
+  disablement and the required empty-database confirmation were explicit.
+- All 64 migrations replayed from empty; Prisma schema comparison and `db:check`
+  passed. The client was regenerated and backend/API/worker images built.
+- Full backend: **179 files passed, 37 skipped; 1,422 tests passed, 156 skipped,
+  zero failures**, across 216 files / 1,578 tests. Skipped provisioning, historical
+  workspace-fixture, singleton-owner and empty-queue cases were not executed.
+  See [the fixture gates](../tests/helpers/database.md).
+- Frontend: **146 files / 985 tests passed**, plus full lint, route types,
+  TypeScript, optimized Next.js 16.4.3 build and formatting. A merged Markdown
+  formatting issue was fixed and the complete formatting check passed afterward;
+  the pushed frontend's full GitHub release workflow also passed.
+- Final combined browser acceptance: **168 passed, zero failed, skipped or flaky**.
+  This covers vehicle/shop filters, category hierarchy, fitment staff/customer
+  workflows, saved configurations, garage galleries, notifications, financial
+  recovery and missing-page navigation. Screenshots were reviewed. Synthetic
+  browser requests were intercepted; server authorization was tested separately
   against real isolated PostgreSQL.
-- Earlier completed checkpoints include 25 clean notification/payment browser
-  regressions, 39 collection scenarios across focused runs, scoped fitment staff
-  author/reviewer scenarios and saved-garage ownership/race/browser checks. Exact
-  checkpoint counts and limitations are in the implementation evidence document.
+- Runtime-role integration passed: a newly created transaction-local role exercised
+  schema probes and ordinary CRUD, with no ownership/DDL/TRUNCATE/admin privileges.
+  Its role, grants and records were rolled back and removal verified. Existing
+  runtime grants were not changed.
+- Release configuration and actual image checks: **41 passed**. The exact migration
+  image also passed isolated empty replay, schema/history checks, separate restore,
+  pending-migration rejection and real drift rejection. No cloud restore is claimed
+  by that container test.
+- OpenAPI validates **347 paths**; coverage matches **407 operations plus four
+  infrastructure routes**. Frontend API types are regenerated.
+- Both installed production dependency audits report **zero vulnerabilities**.
+  Development-only dependencies are outside that audit result. The local secret
+  guard passed for 2,994 non-ignored files; the pushed repository guard passed too.
 
-The shared backend suite deliberately gates singleton-owner provisioning and empty
-operational queue/scan scenarios; do not describe intentional skips as executed.
-See [isolated verification instructions](../tests/helpers/database.md). No deployed
-provider delivery, staging runtime permissions, off-device backup setup, PITR or
-restore rehearsal has been certified by these local checks.
+The service-search plan fixture now provides its own unrelated 10,000-row baseline
+alongside its 10,000 searched records. This removes reliance on other test files
+running first, while preserving the normal planner and the actual index-use
+assertion. PostgreSQL legitimately chose a 5.7 ms sequential scan on the earlier
+smaller fixture; the final independent fixture used all three search indexes.
+See [PostgreSQL EXPLAIN guidance](https://www.postgresql.org/docs/current/using-explain.html).
+Complete backend runs use a new isolated database because several legacy fixtures
+intentionally retain their synthetic records after their suite ends.
 
-## Authorized production release sequence
+The migration guard recognizes complete, argument-free `CREATE TRIGGER ... BEFORE/
+AFTER TRUNCATE ... EXECUTE FUNCTION ...()` declarations as protective DDL. Actual
+TRUNCATE, destructive statements beside the declaration, destructive function
+bodies and dynamic execution remain blocked. All 27 focused migration-safety tests
+and the final complete backend suite passed. No applied SQL or migration ledger
+was rewritten to resolve this false positive.
 
-1. Review this branch against the current backend/frontend release sources and
-   resolve independent intervening changes before choosing release commits. Preserve
-   the ongoing site-completion tracker and support-email acceptance work.
-2. Use the verified production target through the local/release secret store; confirm
-   actual host, port, database and environment. Use separate least-privilege runtime,
-   migration and backup credentials. Review real grants rather than copying test
-   privileges or using the local migration administrator for application traffic.
-3. Before any shared rollout, verify automated encrypted off-device backups,
-   retention/PITR where supported, and rehearse a restore into a separate database.
-   Record recovery point/time and the reviewed forward/recovery plan. These were
-   not performed for this local feature. A local dump or archive listing is
-   insufficient evidence.
-4. Re-run complete empty replay and relevant regressions on a new isolated target
-   for the exact release commit. Regenerate Prisma/API types and build frontend,
-   backend and workers. Review the two additive migrations and SQL-only controls.
-5. Use only `npm run db:migrate` with reviewed pending migrations and verified fresh
-   backup/history checks. Stop on wrong target, drift, checksum/history/backup or
-   verification failure. Never reset, db push, resolve, restore over data or edit
-   an applied migration to bypass failure. Diagnose and fix forward.
-6. Run `npm run db:check` against the intended target and verify schema reads and
-   necessary operations using the actual runtime/worker roles. They must not own
-   tables/database or have DDL, TRUNCATE, superuser or role-creation privileges.
-   Promote matching API/workers before frontend, preserving existing release gates.
-7. Have scoped staff enter real assembly/specification information and a reviewed
-   catalogue source. Demonstrate an author and an independent technical reviewer
-   with actual manufacturer evidence before publishing any Corolla/brake-pad claim.
-   Synthetic Toyota Corolla 2018 examples prove behavior only, not real suitability.
-8. Smoke-test public and signed-in search, garage isolation, scoped staff actions,
-   collection policy, notification arrivals/counts and historical document reads on
-   desktop/mobile. Observe logs and read-only verification. Roll application code
-   back only when compatible; database correction remains a reviewed forward action.
+GitHub outcomes:
 
-No new owner decision is needed to keep unknown data unknown or to retain the
-existing launch/payment/provider policy. Operational owners still need to supply
-and review genuine catalogue evidence, actual release credentials/permissions and
-backup/restore acceptance. Existing support-email/provider acceptance is separate.
-Production deployment is explicitly authorized after the required gates pass.
-External messages, live payments, purchases and destructive database operations
-are outside this authorization. The deployment record below must reflect actual
-provider results before the release is described as live.
+- [Backend database safety, including the original real missing-column test](https://github.com/Otto-space/allied-autotech/actions/runs/40120672528): success on `7bb485b8`.
+- [Frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40119714283): success on `e2143b56`.
+- [Repository secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40120672523): success.
+
+## Production release - 24 October 2026
+
+The verified source is `7bb485b8a3cd72039ff25f0f83c9a53ab9f90e48`, pushed on
+`feat/discovery-fitment-20261023`. Backend images were built from clean
+`59d5141b965d20ae625df678b523992648d46322`; the later backend changes are limited
+to two release/test fixtures excluded from the image context. Frontend deployment
+source is `e2143b56992ba8afda1100921cac94e2f0cc855a`; the later commit changes only
+a backend test. Runtime source equivalence was checked before production writes.
+The newer live gallery, branding, missing-page and support-procedure work was
+merged rather than overwritten.
+
+### Database and recovery gates
+
+The actual target was confirmed as
+`allied-autotech-staging-db-do-user-44970995-0.k.db.ondigitalocean.com:25060/allied_autotech_production`,
+with `NODE_ENV=production` and strict certificate/hostname verification. The managed
+server's historical staging name does not identify the selected database: production
+and staging remain separate databases. Staging data was not modified.
+
+Actual separate runtime, migrator and backup roles authenticated successfully.
+Runtime ownership, schema CREATE, TRUNCATE, superuser, role-creation, database-
+creation and RLS-bypass checks were false. API and both workers use the restricted
+runtime role; the migration job uses the migrator. Existing grants were preserved.
+
+The provider API listed eight daily managed backups at preflight; the latest,
+`2026-10-24T05:22:10Z`, was confirmed again before rollout. Managed encryption,
+seven-day retention/PITR and the earlier separate managed restore receipt were
+reviewed against the [provider's backup features](https://docs.digitalocean.com/products/databases/postgresql/details/features/)
+and [restore procedure](https://docs.digitalocean.com/products/databases/postgresql/how-to/restore-from-backups/).
+No new paid restore cluster was created for this release.
+
+A fresh dedicated-role production archive was actually restored into the newly
+created isolated `allied_restore_20261024_cecc5293004d_ci` database on
+`127.0.0.1:63888`. All **86 restored tables** and prior migration history matched;
+the two forward migrations rehearsed successfully from 62 to 64, with existing row
+counts preserved. This is a logical archive restore rehearsal, not a new managed
+PITR restoration. The source was not written during that rehearsal.
+
+Immediately before the production migration, a new dedicated-backup-role archive
+and exact-target SHA-256 receipt were created and verified in protected durable
+storage. Only `npm run db:migrate` applied the two reviewed additive migrations.
+It completed at `2026-10-24T18:44:22.402Z` with all 64 migrations compatible.
+The subsequent `npm run db:check`, live zero-business-row Prisma schema probe,
+runtime privilege checks and new-table SELECT/INSERT permission checks passed.
+Existing business row counts were preserved. No production CRUD fixture was used.
+The original app-only database firewall was restored and verified at
+`2026-10-24T18:44:24.811Z`. No reset, truncate, restore-over-live, history resolution
+or existing grant change was performed.
+
+### Application promotion and observed checks
+
+DigitalOcean deployment **`5c1ea9a7-6211-46d2-995f-c45e504bf9e9` is ACTIVE**, with **16/16 successful
+steps**, its read-only predeploy database check successful and all four immutable
+image digests verified:
+
+| Component       | Digest                                                                    |
+| --------------- | ------------------------------------------------------------------------- |
+| api             | `sha256:0b1f97679c40f23c7f17295fa9f72a8d139844a83920f6c19ea766197376c517` |
+| identity-worker | `sha256:481c287a4c40ccf255e024181c8cff941aa8e1795cacba8a880ac4ce1a08744c` |
+| general-worker  | `sha256:15da59954819498a037ee756816c36394cd484aca23c8547db1f8396cfc2e970` |
+| migrate         | `sha256:4e5db5a7cb6305cad035bb444b7be92f6f3bc5a7871a4c508dd51bdc2d54082b` |
+
+Only those four digests changed in the app specification. Component sizes, existing
+secrets, launch policy, provider settings and deployment safeguards were preserved.
+No new recurring resource or subscription was purchased.
+
+Eight live backend GET checks passed: liveness/readiness, normalized fitment makes,
+root categories, product discovery and the combined multi-condition/multi-powertrain
+vehicle query returned 200; anonymous owned-garage and staff-fitment reads returned 401. No production business fixture, order or external message was created for
+verification.
+
+Vercel deployment **`dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr` is READY**. It was built with
+automatic custom-domain promotion disabled, then promoted after the database/API/
+worker checks. Separate management-API inspections confirmed that both
+`alliedautotech.com` and `www.alliedautotech.com` resolve to this exact deployment.
+This verifies provider state and domain assignment; it is not a fresh authenticated
+hosted UI walkthrough. The 168 browser scenarios are the isolated rendered tests
+recorded above.
+
+### Recovery and remaining operational acceptance
+
+Retain the previous backend deployment `92fb65ee-dfc7-4a81-9124-92f4913574c7`,
+previous frontend `dpl_GaG2tZE9e7YbQ1U2pSq7LnHGxUcS`, protected backups and private
+receipts. Stop promotion on failed verification; diagnose and fix forward. An
+application rollback requires checking compatibility with records and enum values
+created after this release. Keep the additive schema and never reset, delete or
+resolve history to downgrade it. Any destructive recovery needs separate exact-
+target authorization and a successful separate rehearsal.
+
+Staff still supply genuine assembly/specification data and manufacturer fitment
+evidence. An author and independent technical reviewer must approve actual rules;
+synthetic Corolla/brake examples do not establish real suitability. The accepted
+Support-email and garage-gallery paths in the main tracker remain settled. Site
+completion Item 6's staff-managed media and future real catalogue publication, and
+the other operational/policy items, retain their recorded scope and status. Paid
+checkout/providers remain under the existing browsing-and-enquiries launch policy.
+
+### Bounded local Docker cleanup
+
+The current deployment and its two preceding successful deployments were reviewed
+from the provider. Nine distinct component digests were protected. The sole removed
+reference was the task-created, never-deployed API build
+`allied-autotech-api:032fe09cd5516ec47fe495353a30837521c9eb80`, superseded by the
+verified release. Its identity/revision, sole tag, lack of container references and
+absence from active worktree HEADs were rechecked immediately before native
+`docker image rm`, without force.
+
+Unique local images changed from **33 to 32**.
+Rounded Docker image usage remained 10.3 GB because useful layers are shared.
+Host C: free space measured **18,965,118,976 bytes before** and
+**18,964,123,648 bytes after**; no physical-space reclamation is
+claimed from that change. All **13 containers and 14 volumes** retained their
+identities; all nine protected image digests were reverified. Warm caches, useful
+base/tool images, backups and other worktrees' resources were retained. The user's
+independent Docker-hygiene edits were preserved.

@@ -317,3 +317,38 @@ patched dependencies are being installed only in this feature worktree. Existing
 shared dependency targets are preserved. Final audit/build/regression results will
 be recorded after completion. See discovery-fitment-release-review.md for the full
 requirement matrix, change manifest and data-preserving staging sequence.
+
+## Discovery/fitment production release - 24 October 2026
+
+The requested vehicle/parts discovery, category hierarchy, independently reviewed
+fitment, owned saved configurations, collection policy, scoped notification
+navigation/read-after-display and active slogan changes are implemented and live.
+The user explicitly authorized production deployment after verification. Final
+backend acceptance passed 1,422 tests (156 intentional fixture/owner/queue skips);
+frontend checks passed 985 tests plus lint/types/build/format; all 168 combined
+browser scenarios passed without failures, skips or flaky results. Both production
+dependency audits report zero vulnerabilities. Pushed GitHub frontend, database-
+safety and secret-guard checks passed.
+
+A new empty localhost-only _ci target replayed all 64 migrations. A fresh production
+archive was actually restored into another new _ci database (86 tables), then the
+two additive migrations rehearsed from 62 to 64 with existing rows preserved. The
+protected production runner created/verified another fresh backup, applied only
+the reviewed migrations, passed db:check and runtime privilege/schema verification,
+and restored the app-only firewall. No staging data or existing grants changed.
+
+Backend deployment 5c1ea9a7-6211-46d2-995f-c45e504bf9e9 is ACTIVE with 16/16
+successful steps and all four pinned digests verified. Eight live backend GET
+checks passed. Vercel dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr is READY and separately
+verified on both custom domains. Keep the previous compatible app releases and
+backups; review newly used enum values before a code rollback. No database
+downgrade/reset or provider/payment activation is part of this release.
+
+The service index fixture now supplies its own unrelated catalogue baseline rather
+than depending on test order; all final backend tests passed on another new target.
+Legacy provisioned harnesses remain explicitly gated, with skips reported rather
+than treated as passes. Bounded Docker cleanup removed only the never-deployed
+032fe09c API image; current/rollback images, all containers/volumes and warm caches
+were retained. See discovery-fitment-release-review.md for exact evidence and
+remaining acceptance limits. Item 6 and other settled operational decisions keep
+their current scope; this feature rollout does not close the whole site queue.
