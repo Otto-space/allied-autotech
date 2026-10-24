@@ -28443,6 +28443,19 @@
             "in": "query",
             "description": "Parent Id used to constrain this request.",
             "example": "00000000-0000-4000-8000-000000000001"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "Search validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "search",
+            "in": "query",
+            "description": "Search used to constrain this request.",
+            "example": "synthetic-search"
           }
         ],
         "responses": {
@@ -66423,6 +66436,32 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter."
+            },
+            "required": false,
+            "description": "Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter.",
+            "name": "conditions",
+            "in": "query",
+            "example": "NEW,FOREIGN_USED"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter."
+            },
+            "required": false,
+            "description": "Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.",
+            "name": "powertrains",
+            "in": "query",
+            "example": "HEV,PHEV"
+          },
+          {
+            "schema": {
+              "type": "string",
               "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
             },
             "required": false,
@@ -67770,6 +67809,32 @@
             "in": "query",
             "description": "Condition used to constrain this request.",
             "example": "NEW"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter."
+            },
+            "required": false,
+            "description": "Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter.",
+            "name": "conditions",
+            "in": "query",
+            "example": "NEW,FOREIGN_USED"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter."
+            },
+            "required": false,
+            "description": "Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.",
+            "name": "powertrains",
+            "in": "query",
+            "example": "HEV,PHEV"
           },
           {
             "schema": {
@@ -70360,6 +70425,32 @@
             "in": "query",
             "description": "Condition used to constrain this request.",
             "example": "NEW"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter."
+            },
+            "required": false,
+            "description": "Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter.",
+            "name": "conditions",
+            "in": "query",
+            "example": "NEW,FOREIGN_USED"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter."
+            },
+            "required": false,
+            "description": "Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.",
+            "name": "powertrains",
+            "in": "query",
+            "example": "HEV,PHEV"
           },
           {
             "schema": {

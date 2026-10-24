@@ -1,3 +1,4 @@
+import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js";
 import { WorkforceWorkService } from "../../src/modules/organization/workforce-work.service.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { randomUUID } from "node:crypto";
@@ -20,14 +21,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       otherStaff: AuthenticatedActor;
     let branchId: string, customerId: string;
     beforeAll(async () => {
-      // This suite only accepts its newly provisioned local test namespace.
-      expect(env.NODE_ENV).toBe("test");
-      expect(env.DB_HOST).toBe("127.0.0.1");
-      expect(env.DB_NAME).toMatch(/^aat_support_progress_[a-f0-9]+_test$/);
-      const [target] = await prisma.$queryRaw<
-        { database: string }[]
-      >`SELECT current_database() AS database`;
-      expect(target?.database).toBe(env.DB_NAME);
+      await assertIsolatedLoopbackDatabase();
       const branch = await prisma.branch.create({
         data: {
           code: randomUUID().slice(0, 8),

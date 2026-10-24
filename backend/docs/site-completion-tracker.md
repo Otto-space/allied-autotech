@@ -508,3 +508,24 @@ preserved. No new migration, production write, push or deployment occurred.
 Public subcategory controls, the remaining vehicle-filter audit and final full-
 scope verification are the next items. Provider-origin support-email acceptance
 remains a separate pending item.
+
+Discovery final-verification checkpoint - 24 October 2026: explicit category and
+subcategory controls and multiple vehicle conditions/powertrains are implemented
+locally. Root/child filtering, resets, history and mobile/desktop hierarchy checks
+passed at the checkpoint. A fresh private empty _ci database replayed all 64
+migrations; schema comparison and db:check passed. The full backend/browser/build
+verification remains in progress, including patched dependency installation after
+fresh audit findings. The full requirement/release review is in
+`discovery-fitment-release-review.md`; no push, shared database write, provider send
+or deployment occurred. Existing provider-origin support-email acceptance remains
+separate and pending.
+
+
+Production release authorization - 24 October 2026: the user explicitly requested
+production deployment after completion. The final frontend production pipeline
+passed 985 tests plus lint/types/build/format; both production dependency audits
+report zero vulnerabilities. Final discovery/fitment/garage/notification browser
+acceptance passed all 90 scenarios without failures, skips or flaky results.
+Backend full-suite verification and production source/recovery checks remain in
+progress. Preserve the newer live garage gallery and independent documentation.
+Existing support-email provider-origin acceptance remains separately pending.

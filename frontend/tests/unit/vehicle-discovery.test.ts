@@ -81,3 +81,33 @@ describe("vehicle discovery contract", () => {
     ).toBe(false);
   });
 });
+
+describe("multiple vehicle selections", () => {
+  it("canonicalizes selected values and preserves older single-choice links", () => {
+    const result = normalizeVehicleQuery(
+      new URLSearchParams({ conditions: "FOREIGN_USED,NEW", powertrains: "PHEV,HEV" }),
+    );
+    expect(result.invalid).toBe(false);
+    expect(result.params.get("conditions")).toBe("NEW,FOREIGN_USED");
+    expect(result.params.get("powertrains")).toBe("HEV,PHEV");
+    expect(
+      normalizeVehicleQuery(new URLSearchParams("condition=USED&powertrain=HEV")).invalid,
+    ).toBe(false);
+  });
+  it.each([
+    "conditions=NEW,NEW",
+    "conditions=NEW,UNKNOWN",
+    "powertrains=HEV,UNKNOWN",
+    "powertrains=HEV&powertrains=PHEV",
+  ])("reports malformed selections: %s", (query) => {
+    expect(normalizeVehicleQuery(new URLSearchParams(query)).invalid).toBe(true);
+  });
+  it("flags conflicting legacy selections while keeping the explicit multiple selection", () => {
+    const result = normalizeVehicleQuery(
+      new URLSearchParams("condition=NEW&conditions=USED,FOREIGN_USED"),
+    );
+    expect(result.invalid).toBe(true);
+    expect(result.params.has("condition")).toBe(false);
+    expect(result.params.get("conditions")).toBe("USED,FOREIGN_USED");
+  });
+});

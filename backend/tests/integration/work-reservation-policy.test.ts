@@ -11,7 +11,11 @@ import { reservationWorkspaceResponse } from "../../src/modules/policies/reserva
 const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 }),
   root = "/api/v1/admin/policies",
   url = root + "/reservation-terms/current";
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "reservation policy workspace",
   () => {
     const sessions: string[] = [],

@@ -399,6 +399,7 @@ Parameters:
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
 | `rootOnly` | query | true / false | No | Root Only used to constrain this request. |
 | `parentId` | query | string (uuid) | No | Parent Id used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -1054,6 +1055,8 @@ Parameters:
 | `year` | query | string | No | Year used to constrain this request. |
 | `trim` | query | string | No | Trim used to constrain this request. |
 | `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
+| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
 | `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
 | `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
 | `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
@@ -1217,6 +1220,8 @@ Parameters:
 | `year` | query | integer | No | Year used to constrain this request. |
 | `trim` | query | string | No | Trim used to constrain this request. |
 | `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
+| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
 | `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
 | `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
 | `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |
@@ -9085,6 +9090,8 @@ Parameters:
 | `year` | query | integer | No | Year used to constrain this request. |
 | `trim` | query | string | No | Trim used to constrain this request. |
 | `condition` | query | NEW / USED / FOREIGN_USED / LOCALLY_USED | No | Condition used to constrain this request. |
+| `conditions` | query | string | No | Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter. |
+| `powertrains` | query | string | No | Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter. |
 | `manufactureCountryCode` | query | string | No | Manufacture Country Code used to constrain this request. |
 | `manufactureRegion` | query | EUROPE | No | Manufacture Region used to constrain this request. |
 | `powertrain` | query | BEV / HEV / PHEV / ICE | No | Powertrain used to constrain this request. |

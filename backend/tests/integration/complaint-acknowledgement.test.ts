@@ -204,14 +204,16 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .post(`/api/v1/staff/support/complaints/${closed.id}/acknowledge`)
         .set(first.headers)
         .send(body);
-      expect(closedReply.status).toBe(200);
-      expect(closedReply.body.data).toMatchObject({
+      expect(closedReply.status).toBe(409);
+      expect(
+        await prisma.complaint.findUniqueOrThrow({ where: { id: closed.id } }),
+      ).toMatchObject({
         id: closed.id,
         status: "CLOSED",
         resolution: closed.resolution,
-        acknowledgedAt: expect.any(String),
-        resolvedAt: closed.resolvedAt!.toISOString(),
-        closedAt: closed.closedAt!.toISOString(),
+        acknowledgedAt: null,
+        resolvedAt: closed.resolvedAt,
+        closedAt: closed.closedAt,
       });
     });
   },

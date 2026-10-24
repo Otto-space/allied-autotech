@@ -47,6 +47,28 @@ export const documentParamsSchema = z
   .object({ vehicleId: uuid, documentId: uuid })
   .strict();
 
+const enumSelections = <T extends string>(options: readonly T[]) =>
+  z
+    .string()
+    .min(1)
+    .max(100)
+    .describe(
+      `Comma-separated distinct choices: ${options.join(", ")}. Matches any selected choice; do not combine with the singular filter.`,
+    )
+    .transform((value) => value.split(","))
+    .pipe(
+      z
+        .array(z.enum(options as [T, ...T[]]))
+        .min(1)
+        .max(options.length),
+    )
+    .refine(
+      (values) => new Set(values).size === values.length,
+      "Choose each option only once",
+    )
+    .transform((values) => options.filter((option) => values.includes(option)))
+    .optional();
+
 export const publicVehicleListQuerySchema = z
   .object({
     cursor: uuid.optional(),
@@ -57,6 +79,8 @@ export const publicVehicleListQuerySchema = z
     year: z.coerce.number().int().min(1886).max(2200).optional(),
     trim: clean(80).optional(),
     condition: z.enum(["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"]).optional(),
+    conditions: enumSelections(["NEW", "USED", "FOREIGN_USED", "LOCALLY_USED"] as const),
+    powertrains: enumSelections(["BEV", "HEV", "PHEV", "ICE"] as const),
     manufactureCountryCode: countryCode.optional(),
     manufactureRegion: z.literal("EUROPE").optional(),
     powertrain: z.enum(["BEV", "HEV", "PHEV", "ICE"]).optional(),
@@ -111,6 +135,17 @@ export const publicVehicleListQuerySchema = z
     { path: ["maxPriceKobo"], message: "Must be at least minPriceKobo" },
   )
   .superRefine((v, ctx) => {
+    for (const [single, multiple] of [
+      ["condition", "conditions"],
+      ["powertrain", "powertrains"],
+    ] as const) {
+      if (v[single] && v[multiple])
+        ctx.addIssue({
+          code: "custom",
+          path: [multiple],
+          message: `Use either ${single} or ${multiple}`,
+        });
+    }
     for (const [minimum, maximum] of [
       ["minYear", "maxYear"],
       ["minMileageKm", "maxMileageKm"],

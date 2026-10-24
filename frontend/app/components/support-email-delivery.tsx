@@ -58,7 +58,7 @@ export function SupportEmailDeliverySummary({
       <h2 id="support-email-title">Customer email delivery</h2>
       <p>
         Saving a reply and sending its email are separate steps. Sent means the email
-        provider accepted it for processing. A "delivered" event confirms the
+        provider accepted it for processing. A &quot;delivered&quot; event confirms the
         recipient&apos;s mail server accepted it; inbox placement and reading remain
         unconfirmed.
       </p>

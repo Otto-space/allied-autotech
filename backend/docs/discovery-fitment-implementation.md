@@ -288,3 +288,32 @@ No new migration, shared database write, production send, push or deployment ran
 for this checkpoint. Public subcategory controls, the final vehicle facet/multi-
 select audit, whole-backend regression, full production checks and final staging/
 least-privilege instructions remain required for the complete requested task.
+
+### Category hierarchy and multiple vehicle selections - 24 October 2026
+
+Public category controls now use the existing category collection API with root,
+parent and literal prefix search. Root products and active children are included;
+a child selection is constrained to its stated parent. The client clears child
+and cursor state when changing parents, supports legacy category links, separate
+readable chips, keyboard sequencing and mobile layouts. A real PostgreSQL hierarchy
+scenario passed alongside the 12 existing product-discovery cases (the hierarchy
+scenario was rerun with an appropriate fixture/request timeout). Desktop/mobile
+hierarchy browser checks and category keyboard/retry coverage passed at this
+checkpoint. Remaining legacy browser expectations are being refreshed for the
+reviewed fitment UI; no complete final browser-suite pass is claimed yet.
+
+Vehicle conditions and powertrains support bounded distinct multiple selections,
+OR within each field and AND across other filters. Singular links remain supported.
+Individual choices have removable chips. Make/model changes clear obsolete trim.
+New database scenarios cover combined selections, validation and explicit assembly
+countries/BEV/ICE. Final full-suite results remain pending.
+
+A fresh empty private PostgreSQL 18 database at localhost:63888,
+`allied_release_20261024161409_18e1b1eca829_ci`, was verified before the complete
+64-migration replay. Schema comparison and db:check passed; the full serial backend
+suite then began against that target. No application/staging database was used.
+The fresh production audit discovered Next.js/Zod and backend transitive advisories;
+patched dependencies are being installed only in this feature worktree. Existing
+shared dependency targets are preserved. Final audit/build/regression results will
+be recorded after completion. See discovery-fitment-release-review.md for the full
+requirement matrix, change manifest and data-preserving staging sequence.

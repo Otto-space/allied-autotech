@@ -147,6 +147,78 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Product discovery API and database",
   () => {
     afterAll(() => prisma.$disconnect());
+    it("scopes root and child categories without bypassing other filters", async () => {
+      const f = await fixture();
+      const child = await prisma.category.create({
+        data: {
+          name: `${f.prefix}-Child`,
+          slug: `${f.prefix.toLowerCase()}-child`,
+          parentId: f.category.id,
+        },
+      });
+      const hiddenChild = await prisma.category.create({
+        data: {
+          name: `${f.prefix}-HiddenChild`,
+          slug: `${f.prefix.toLowerCase()}-hidden-child`,
+          parentId: f.category.id,
+          isActive: false,
+        },
+      });
+      await prisma.product.update({
+        where: { id: f.rows[0]!.id },
+        data: { categoryId: child.id },
+      });
+      await prisma.product.update({
+        where: { id: f.rows[1]!.id },
+        data: { categoryId: hiddenChild.id },
+      });
+      expect((await page({ categoryId: f.category.id })).totalMatches).toBe(7);
+      expect((await page({ parentCategoryId: f.category.id })).totalMatches).toBe(7);
+      const exact = await page({ parentCategoryId: f.category.id, categoryId: child.id });
+      expect(exact.items.map((row) => row.id)).toEqual([f.rows[0]!.id]);
+      expect(
+        (await page({ parentCategoryId: f.hidden.id, categoryId: child.id }))
+          .totalMatches,
+      ).toBe(0);
+      expect(
+        (
+          await page({
+            parentCategoryId: f.category.id,
+            categoryId: child.id,
+            search: "NoSuchProduct",
+          })
+        ).totalMatches,
+      ).toBe(0);
+      expect(
+        (await page({ categoryId: f.category.id, availability: "in_stock" }))
+          .totalMatches,
+      ).toBe(1);
+      const brands = await facets({ field: "brand", categoryId: f.category.id });
+      expect(brands.items).toHaveLength(2);
+      const categories = await request(app)
+        .get("/api/v1/public/catalog/categories")
+        .query({ parentId: f.category.id, search: `${f.prefix}-C` });
+      expect(categories.status, JSON.stringify(categories.body)).toBe(200);
+      expect(categories.body.data.items.map((row: { id: string }) => row.id)).toEqual([
+        child.id,
+      ]);
+      const roots = await request(app)
+        .get("/api/v1/public/catalog/categories")
+        .query({ rootOnly: true, search: f.prefix });
+      expect(roots.status).toBe(200);
+      expect(roots.body.data.items.map((row: { id: string }) => row.id)).toEqual([
+        f.category.id,
+      ]);
+      await prisma.category.update({
+        where: { id: f.category.id },
+        data: { isActive: false },
+      });
+      expect((await page({ categoryId: child.id })).totalMatches).toBe(0);
+      const hidden = await request(app)
+        .get("/api/v1/public/catalog/categories")
+        .query({ parentId: f.category.id });
+      expect(hidden.body.data.items).toEqual([]);
+    }, 30000);
     it.each(["newest", "name", "price_asc", "price_desc"] as const)(
       "traverses %s ties, exact totals, visibility and legacy links",
       async (sort) => {

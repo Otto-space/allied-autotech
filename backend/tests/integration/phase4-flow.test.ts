@@ -217,7 +217,8 @@ describe.skipIf(!runDatabaseTests)("Phase 4 catalogue, cart, and inventory flow"
         sort,
       });
       expect(products.status).toBe(200);
-      expect(products.body.data.items).toHaveLength(1);
+      // Legacy authoring remains draft until independent evidence review.
+      expect(products.body.data.items).toHaveLength(0);
     }
     const adminCategories = await request(app)
       .get("/api/v1/admin/catalog/categories?isActive=true")

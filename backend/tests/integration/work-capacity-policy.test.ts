@@ -10,7 +10,11 @@ import { sessionCookieName } from "../../src/common/security/cookies.js";
 import { capacityWorkspaceResponse } from "../../src/modules/policies/capacity-policy-workspace.js";
 const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 }),
   root = "/api/v1/admin/policies";
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "branch capacity policy workspace",
   () => {
     const sessions: string[] = [],

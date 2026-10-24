@@ -7,6 +7,7 @@ export const branchRef = z.object({
   name: z.string(),
 });
 export const categorySchema = z.object({
+  parentId: z.uuid().nullable().optional(),
   id: z.string().uuid(),
   name: z.string(),
   slug: z.string(),

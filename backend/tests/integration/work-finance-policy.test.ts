@@ -13,7 +13,11 @@ import {
 } from "../../src/modules/policies/finance-policy-workspace.js";
 const app = createApp({ checkReadiness: async () => undefined }),
   root = "/api/v1/staff/finance-policy";
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "financial policy current workspace",
   () => {
     type Actor = { id: string; headers: Record<string, string> };

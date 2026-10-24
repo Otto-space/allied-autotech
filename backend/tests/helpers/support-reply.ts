@@ -24,6 +24,7 @@ export async function supportReplyFixture(kind: ReplyKind) {
         create: {
           email: `${randomUUID()}@example.test`,
           role: "STAFF",
+          emailVerifiedAt: new Date(),
           passwordHash: "unusable-synthetic-fixture",
         },
       },

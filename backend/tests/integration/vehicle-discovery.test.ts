@@ -67,6 +67,69 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Vehicle discovery API and database",
   () => {
     afterAll(() => prisma.$disconnect());
+    it("combines multiple conditions and powertrains with other attributes", async () => {
+      const f = await fixture();
+      const chosen = await page({
+        search: f.prefix,
+        conditions: "FOREIGN_USED,NEW",
+        powertrains: "PHEV,HEV",
+        manufactureCountryCode: "DE",
+      });
+      expect(new Set(chosen.items.map((row) => row.id))).toEqual(
+        new Set([f.rows[1]!.id, f.rows[2]!.id]),
+      );
+      expect(chosen.totalMatches).toBe(2);
+      expect(
+        (
+          await page({
+            search: f.prefix,
+            conditions: "FOREIGN_USED,NEW",
+            powertrains: "HEV",
+          })
+        ).totalMatches,
+      ).toBe(3);
+      for (const query of [
+        { conditions: "NEW,NEW" },
+        { powertrains: "HEV,UNKNOWN" },
+        { condition: "NEW", conditions: "NEW" },
+        { powertrain: "HEV", powertrains: "HEV,PHEV" },
+        { conditions: ["NEW", "USED"] },
+      ]) {
+        const result = await request(app).get(path).query(query);
+        expect(result.status, JSON.stringify(result.body)).toBe(422);
+      }
+    }, 30000);
+    it("uses recorded assembly countries and distinguishes fully electric from combustion", async () => {
+      const f = await fixture();
+      const countries = ["CN", "JP", "KR", "NG", "DE", "GB", "US"];
+      for (const [index, country] of countries.entries()) {
+        await prisma.vehicle.update({
+          where: { id: f.rows[index]!.vehicle.id },
+          data: {
+            manufactureCountryCode: country,
+            powertrain: index === 0 ? "BEV" : "ICE",
+          },
+        });
+      }
+      await prisma.vehicle.update({
+        where: { id: f.rows[7]!.vehicle.id },
+        data: { manufactureCountryCode: null, powertrain: null },
+      });
+      for (const [index, country] of countries.entries()) {
+        const result = await page({ search: f.prefix, manufactureCountryCode: country });
+        expect(result.items.map((row) => row.id)).toEqual([f.rows[index]!.id]);
+      }
+      expect(
+        (await page({ search: f.prefix, manufactureRegion: "EUROPE" })).totalMatches,
+      ).toBe(2);
+      expect(
+        (await page({ search: f.prefix, powertrain: "BEV" })).items.map((row) => row.id),
+      ).toEqual([f.rows[0]!.id]);
+      expect((await page({ search: f.prefix, powertrain: "ICE" })).totalMatches).toBe(6);
+      expect(
+        (await page({ search: f.prefix, powertrains: "BEV,ICE" })).totalMatches,
+      ).toBe(7);
+    }, 30000);
     it("keeps page and count consistent when inventory changes between the two reads", async () => {
       const { prefix, rows } = await fixture();
       let changed = false;

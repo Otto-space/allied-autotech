@@ -27940,6 +27940,11 @@ export interface operations {
                  * @example 00000000-0000-4000-8000-000000000001
                  */
                 parentId?: string;
+                /**
+                 * @description Search used to constrain this request.
+                 * @example synthetic-search
+                 */
+                search?: string;
             };
             header?: never;
             path?: never;
@@ -55834,6 +55839,16 @@ export interface operations {
                  */
                 condition?: "NEW" | "USED" | "FOREIGN_USED" | "LOCALLY_USED";
                 /**
+                 * @description Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter.
+                 * @example NEW,FOREIGN_USED
+                 */
+                conditions?: string;
+                /**
+                 * @description Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.
+                 * @example HEV,PHEV
+                 */
+                powertrains?: string;
+                /**
                  * @description Manufacture Country Code used to constrain this request.
                  * @example synthetic-manufacturecountrycode
                  */
@@ -56531,6 +56546,16 @@ export interface operations {
                  * @example NEW
                  */
                 condition?: "NEW" | "USED" | "FOREIGN_USED" | "LOCALLY_USED";
+                /**
+                 * @description Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter.
+                 * @example NEW,FOREIGN_USED
+                 */
+                conditions?: string;
+                /**
+                 * @description Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.
+                 * @example HEV,PHEV
+                 */
+                powertrains?: string;
                 /**
                  * @description Manufacture Country Code used to constrain this request.
                  * @example synthetic-manufacturecountrycode
@@ -58316,6 +58341,16 @@ export interface operations {
                  * @example NEW
                  */
                 condition?: "NEW" | "USED" | "FOREIGN_USED" | "LOCALLY_USED";
+                /**
+                 * @description Comma-separated distinct choices: NEW, USED, FOREIGN_USED, LOCALLY_USED. Matches any selected choice; do not combine with the singular filter.
+                 * @example NEW,FOREIGN_USED
+                 */
+                conditions?: string;
+                /**
+                 * @description Comma-separated distinct choices: BEV, HEV, PHEV, ICE. Matches any selected choice; do not combine with the singular filter.
+                 * @example HEV,PHEV
+                 */
+                powertrains?: string;
                 /**
                  * @description Manufacture Country Code used to constrain this request.
                  * @example synthetic-manufacturecountrycode

@@ -105,7 +105,8 @@ const labels: Record<string, string> = {
   fuelType: "Fuel type",
   featured: "Featured listings",
   trim: "Trim (exact name)",
-  condition: "Vehicle condition",
+  conditions: "Vehicle condition",
+  powertrains: "Powertrain Technology",
   manufactureCountryCode: "Final assembly country",
   manufactureRegion: "Final assembly region",
   powertrain: "Powertrain",
@@ -139,7 +140,15 @@ export function VehicleFilters({
     return Object.fromEntries(
       advancedVehicleKeys.map((key) => [
         key,
-        key.endsWith("Kobo") ? koboToInput(params.get(key)) : (params.get(key) ?? ""),
+        key.endsWith("Kobo")
+          ? koboToInput(params.get(key))
+          : key === "conditions"
+            ? (params.get("conditions") ?? params.get("condition") ?? "")
+            : key === "powertrains"
+              ? (params.get("powertrains") ?? params.get("powertrain") ?? "")
+              : ["condition", "powertrain"].includes(key)
+                ? ""
+                : (params.get(key) ?? ""),
       ]),
     );
   }
@@ -360,7 +369,7 @@ export function VehicleFilters({
                   "make",
                   "model",
                   "trim",
-                  "condition",
+                  "conditions",
                   "manufactureCountryCode",
                   "manufactureRegion",
                 ],
@@ -381,7 +390,7 @@ export function VehicleFilters({
                 "Specifications",
                 [
                   "bodyType",
-                  "powertrain",
+                  "powertrains",
                   "fuelType",
                   "transmission",
                   "driveType",
@@ -400,8 +409,53 @@ export function VehicleFilters({
                 <div className="vehicle-filter-fields">
                   {(keys as string[]).map((key) => (
                     <div className="vehicle-field" key={key}>
-                      <label htmlFor={`filter-${key}`}>{labels[key]}</label>
-                      {key === "make" || key === "model" ? (
+                      {!["conditions", "powertrains"].includes(key) && (
+                        <label htmlFor={`filter-${key}`}>{labels[key]}</label>
+                      )}
+                      {key === "conditions" || key === "powertrains" ? (
+                        <fieldset className="vehicle-multiple-options">
+                          <legend>{labels[key]}</legend>
+                          <p>Choose any that apply. Leave all unchecked for any.</p>
+                          {vehicleChoices[
+                            key === "conditions" ? "condition" : "powertrain"
+                          ].map((option) => (
+                            <label key={option}>
+                              <input
+                                type="checkbox"
+                                checked={values[key].split(",").includes(option)}
+                                onChange={(event) =>
+                                  setValues((previous) => {
+                                    const selected = new Set(
+                                      previous[key].split(",").filter(Boolean),
+                                    );
+                                    if (event.target.checked) selected.add(option);
+                                    else selected.delete(option);
+                                    return {
+                                      ...previous,
+                                      [key]: [...selected].join(","),
+                                    };
+                                  })
+                                }
+                              />
+                              <span>
+                                {vehicleLabel(option)}
+                                {key === "powertrains" && (
+                                  <small>
+                                    {
+                                      {
+                                        BEV: "Runs on battery power.",
+                                        HEV: "Combines an engine and electric motor.",
+                                        PHEV: "Can charge externally.",
+                                        ICE: "Uses petrol or diesel combustion.",
+                                      }[option as "BEV" | "HEV" | "PHEV" | "ICE"]
+                                    }
+                                  </small>
+                                )}
+                              </span>
+                            </label>
+                          ))}
+                        </fieldset>
+                      ) : key === "make" || key === "model" ? (
                         <VehicleNameField
                           kind={key}
                           value={values[key]}
@@ -411,7 +465,9 @@ export function VehicleFilters({
                             setValues((previous) => ({
                               ...previous,
                               [key]: value,
-                              ...(key === "make" ? { model: "" } : {}),
+                              ...(key === "make"
+                                ? { model: "", trim: "" }
+                                : { trim: "" }),
                             }))
                           }
                         />

@@ -7,7 +7,11 @@ import { prisma } from "../../src/config/database.js";
 import { env } from "../../src/config/env.js";
 import { hashToken } from "../../src/common/security/session-tokens.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
-it.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+it.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "verifies remaining demotion rejections without replaying completed account changes",
   async () => {
     const [actual] = await prisma.$queryRaw<

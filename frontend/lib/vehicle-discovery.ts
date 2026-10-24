@@ -38,6 +38,8 @@ export const advancedVehicleKeys = [
   "year",
   "trim",
   "condition",
+  "conditions",
+  "powertrains",
   "manufactureCountryCode",
   "manufactureRegion",
   "powertrain",
@@ -70,10 +72,20 @@ export function normalizeVehicleQuery(input: URLSearchParams) {
   for (const key of [...vehicleFilterKeys, "sort", "cursor"] as const) {
     const raw = input.get(key);
     if (!raw) continue;
-    const value = raw.trim();
+    let value = raw.trim();
+    if (input.getAll(key).length > 1) invalid = true;
     if (!value) continue;
     let valid = true;
-    if (["search", "make", "model", "trim", "color", "feature"].includes(key))
+    if (key === "conditions" || key === "powertrains") {
+      const choices: readonly string[] =
+        vehicleChoices[key === "conditions" ? "condition" : "powertrain"];
+      const selected = value.split(",");
+      valid =
+        selected.length <= choices.length &&
+        new Set(selected).size === selected.length &&
+        selected.every((option) => choices.includes(option));
+      value = choices.filter((option) => selected.includes(option)).join(",");
+    } else if (["search", "make", "model", "trim", "color", "feature"].includes(key))
       valid =
         value.length <= (key === "search" ? 100 : key === "color" ? 40 : 80) &&
         !/[\x00-\x1f\x7f]/.test(value);
@@ -101,6 +113,15 @@ export function normalizeVehicleQuery(input: URLSearchParams) {
     if (valid) {
       if (key !== "sort" || value !== "newest") params.set(key, value);
     } else invalid = true;
+  }
+  for (const [single, multiple] of [
+    ["condition", "conditions"],
+    ["powertrain", "powertrains"],
+  ]) {
+    if (params.has(single) && params.has(multiple)) {
+      params.delete(single);
+      invalid = true;
+    }
   }
   const min = params.get("minPriceKobo"),
     max = params.get("maxPriceKobo");

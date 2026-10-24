@@ -9,7 +9,11 @@ import { hashToken } from "../../src/common/security/session-tokens.js";
 import { sessionCookieName } from "../../src/common/security/cookies.js";
 import { workforceResponseSchema } from "../../src/modules/organization/workforce.schemas.js";
 const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
-describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
+const provisionedWorkspaceAcceptanceChecksEnabled =
+  process.env.RUN_DATABASE_TESTS === "true" &&
+  process.env.RUN_PROVISIONED_WORKSPACE_TESTS === "true";
+
+describe.skipIf(!provisionedWorkspaceAcceptanceChecksEnabled)(
   "managed finance workspace",
   () => {
     const evidence = process.env.WORKFORCE_FINANCE_EVIDENCE!,

@@ -155,6 +155,8 @@ async function fixture(page: Page) {
   });
   await page.goto("/vehicles");
   await page.getByRole("searchbox", { name: "Search vehicles" }).fill("QA");
+  await expect(page).toHaveURL(/search=QA/);
+  await expect.poll(() => state.requests.at(-1)?.searchParams.get("search")).toBe("QA");
   await expect(
     page.getByRole("status").filter({ hasText: "3 vehicles on this page" }),
   ).toBeVisible();
@@ -524,9 +526,12 @@ test("native concept dimensions and complete section captures", async ({ page })
     path: path.join(os.tmpdir(), "vehicles-quality-native-inventory.png"),
   });
   await page.getByRole("button", { name: /^Filters/ }).click();
-  await page
-    .getByRole("dialog")
-    .screenshot({ path: path.join(os.tmpdir(), "vehicles-quality-native-panel.png") });
+  await expect(page.getByRole("dialog")).toBeVisible();
+  // A viewport capture preserves the native non-modal dialog dimensions.
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "vehicles-quality-native-panel.png"),
+    fullPage: false,
+  });
   await page.getByRole("button", { name: "Close filters" }).click();
   await page.locator(".lifestyle-section").screenshot({
     path: path.join(os.tmpdir(), "vehicles-quality-native-lifestyle.png"),
@@ -647,9 +652,11 @@ for (const width of [1440, 390]) {
     const field = (name: string) => page.getByLabel(name, { exact: true });
     const apply = () => page.getByRole("button", { name: "Apply filters" }).click();
     await page.getByRole("button", { name: /^Filters/ }).click();
-    await field("Vehicle condition").selectOption("FOREIGN_USED");
+    await page.getByRole("checkbox", { name: "Foreign used", exact: true }).check();
+    await page.getByRole("checkbox", { name: "Brand new", exact: true }).check();
     await page.getByRole("button", { name: "South Korea", exact: true }).click();
-    await field("Powertrain").selectOption("PHEV");
+    await page.getByRole("checkbox", { name: /Plug-in hybrid/ }).check();
+    await page.getByRole("checkbox", { name: /^Hybrid/ }).check();
     await field("Year from").fill("2024");
     await field("Year to").fill("2018");
     await apply();
@@ -669,8 +676,8 @@ for (const width of [1440, 390]) {
       .poll(() => state.requests.at(-1)?.searchParams.get("manufactureCountryCode"))
       .toBe("KR");
     for (const [key, value] of [
-      ["condition", "FOREIGN_USED"],
-      ["powertrain", "PHEV"],
+      ["conditions", "NEW,FOREIGN_USED"],
+      ["powertrains", "HEV,PHEV"],
       ["minYear", "2018"],
       ["maxYear", "2024"],
       ["maxMileageKm", "75000"],
@@ -708,6 +715,15 @@ for (const width of [1440, 390]) {
         .locator("body")
         .evaluate((node) => node.scrollWidth <= window.innerWidth),
     ).toBe(true);
+    await page
+      .getByRole("button", { name: "Remove Condition: Brand new", exact: true })
+      .click();
+    await expect
+      .poll(() => state.requests.at(-1)?.searchParams.get("conditions"))
+      .toBe("FOREIGN_USED");
+    await expect(
+      page.getByRole("button", { name: "Remove Condition: Foreign used", exact: true }),
+    ).toBeVisible();
     expect(errors).toEqual([]);
   });
 }

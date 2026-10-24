@@ -4,6 +4,9 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: false,
+    // Real PostgreSQL flows and cryptographic fixture setup exceed unit-test limits.
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
     setupFiles: ["./tests/setup/environment.ts"],
     include: ["tests/**/*.test.ts"],
     coverage: {

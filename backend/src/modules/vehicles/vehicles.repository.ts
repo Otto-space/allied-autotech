@@ -147,13 +147,21 @@ export function vehicleAttributeWhere(
     ...(query.trim === undefined
       ? {}
       : { trim: { equals: literalPattern(query.trim), mode: "insensitive" } }),
-    ...(query.condition === undefined ? {} : { condition: query.condition }),
+    ...(query.conditions
+      ? { condition: { in: query.conditions } }
+      : query.condition === undefined
+        ? {}
+        : { condition: query.condition }),
     ...(query.manufactureCountryCode
       ? { manufactureCountryCode: query.manufactureCountryCode }
       : query.manufactureRegion
         ? { manufactureCountryCode: { in: [...europeanCountryCodes] } }
         : {}),
-    ...(query.powertrain === undefined ? {} : { powertrain: query.powertrain }),
+    ...(query.powertrains
+      ? { powertrain: { in: query.powertrains } }
+      : query.powertrain === undefined
+        ? {}
+        : { powertrain: query.powertrain }),
     ...(query.driveType === undefined ? {} : { driveType: query.driveType }),
     ...(query.minYear === undefined && query.maxYear === undefined
       ? {}

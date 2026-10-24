@@ -62,7 +62,9 @@ const categoryPageFields = {
   rootOnly: optionalBoolean,
   parentId: z.uuid().optional(),
 };
-export const categoryListQuerySchema = z.object(categoryPageFields).strict();
+export const categoryListQuerySchema = z
+  .object({ ...categoryPageFields, search: cleanText(120).optional() })
+  .strict();
 export const adminCategoryListQuerySchema = z
   .object({
     ...categoryPageFields,

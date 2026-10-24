@@ -37,7 +37,11 @@ import {
   ProductSearch,
   type UpdateProductQuery,
 } from "../parts/product-filters";
-import { ProductCategory, useProductCategories } from "../parts/product-category";
+import {
+  ProductCategory,
+  useProductCategories,
+  useProductCategory,
+} from "../parts/product-category";
 import { Feedback } from "./feedback";
 import { PublicMedia } from "./public-media";
 
@@ -60,7 +64,19 @@ export function PartsCatalogue({
       revalidateOnMount: false,
     },
   );
-  const categories = useProductCategories(params.get("categoryId") ?? "");
+  const categoryId = params.get("categoryId") ?? "";
+  const category = useProductCategory(categoryId);
+  const rootId = params.get("parentCategoryId") ?? category.data?.parentId ?? categoryId;
+  const childId =
+    params.has("parentCategoryId") || category.data?.parentId ? categoryId : "";
+  const categories = useProductCategories(rootId, "", true, { rootOnly: true });
+  const subcategories = useProductCategories(childId, "", !!rootId, { parentId: rootId });
+  const mismatchedCategory = !!(
+    childId &&
+    params.has("parentCategoryId") &&
+    category.data &&
+    category.data.parentId !== rootId
+  );
   const categoryShortcuts = categories.items.slice(0, 3);
   if (
     categories.selected &&
@@ -153,11 +169,28 @@ export function PartsCatalogue({
             update={update}
           />
           <ProductCategory
-            value={params.get("categoryId") ?? ""}
+            value={rootId}
             categories={categories}
+            scope={{ rootOnly: true }}
             onChange={(id) =>
               update((next) => {
                 next.delete("categoryId");
+                next.delete("parentCategoryId");
+                if (id) next.set("categoryId", id);
+              })
+            }
+          />
+          <ProductCategory
+            key={rootId}
+            title="Subcategory"
+            value={childId}
+            categories={subcategories}
+            scope={{ parentId: rootId }}
+            disabled={!rootId}
+            onChange={(id) =>
+              update((next) => {
+                next.delete("categoryId");
+                if (rootId) next.set("parentCategoryId", rootId);
                 if (id) next.set("categoryId", id);
               })
             }
@@ -194,8 +227,13 @@ export function PartsCatalogue({
               <button
                 type="button"
                 aria-label="All product categories"
-                aria-pressed={!params.has("categoryId")}
-                onClick={() => update((next) => next.delete("categoryId"))}
+                aria-pressed={!rootId}
+                onClick={() =>
+                  update((next) => {
+                    next.delete("categoryId");
+                    next.delete("parentCategoryId");
+                  })
+                }
               >
                 All products
               </button>
@@ -205,8 +243,13 @@ export function PartsCatalogue({
                   type="button"
                   title={item.name}
                   aria-label={`Category: ${item.name}`}
-                  aria-pressed={params.get("categoryId") === item.id}
-                  onClick={() => update((next) => next.set("categoryId", item.id))}
+                  aria-pressed={rootId === item.id}
+                  onClick={() =>
+                    update((next) => {
+                      next.delete("parentCategoryId");
+                      next.set("categoryId", item.id);
+                    })
+                  }
                 >
                   <span>{item.name}</span>
                 </button>
@@ -220,6 +263,12 @@ export function PartsCatalogue({
           </fieldset>
         )}
       </div>
+      {mismatchedCategory && (
+        <p className="notice" role="status">
+          The selected subcategory does not belong to this category. Choose a subcategory
+          or remove it.
+        </p>
+      )}
       {params.has("vehicleModelId") &&
         !products.loading &&
         !products.error &&
@@ -253,21 +302,23 @@ export function PartsCatalogue({
             {selected.map((key) => {
               const value = params.get(key)!;
               const label =
-                key === "categoryId"
-                  ? `Category: ${categories.selected?.name ?? (categories.selectedError ? "Unavailable category" : "Loading…")}`
-                  : key === "featured"
-                    ? value === "true"
-                      ? "Featured only"
-                      : "Non-featured only"
-                    : key === "minPriceKobo"
-                      ? `Minimum price: ${formatKobo(value)}`
-                      : key === "maxPriceKobo"
-                        ? `Maximum price: ${formatKobo(value)}`
-                        : key === "availability"
-                          ? value === "in_stock"
-                            ? "In stock"
-                            : "Out of stock"
-                          : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
+                key === "parentCategoryId"
+                  ? `Category: ${categories.selected?.name ?? "Loading category"}`
+                  : key === "categoryId"
+                    ? `${childId ? "Subcategory" : "Category"}: ${(childId ? subcategories.selected : categories.selected)?.name ?? (category.error ? "Unavailable category" : "Loading category")}`
+                    : key === "featured"
+                      ? value === "true"
+                        ? "Featured only"
+                        : "Non-featured only"
+                      : key === "minPriceKobo"
+                        ? `Minimum price: ${formatKobo(value)}`
+                        : key === "maxPriceKobo"
+                          ? `Maximum price: ${formatKobo(value)}`
+                          : key === "availability"
+                            ? value === "in_stock"
+                              ? "In stock"
+                              : "Out of stock"
+                            : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
               return (
                 <button
                   type="button"
@@ -278,6 +329,7 @@ export function PartsCatalogue({
                   onClick={() =>
                     update((next) => {
                       next.delete(key);
+                      if (key === "parentCategoryId") next.delete("categoryId");
                       if (key === "make") next.delete("model");
                     })
                   }

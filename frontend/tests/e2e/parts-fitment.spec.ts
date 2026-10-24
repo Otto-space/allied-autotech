@@ -108,6 +108,7 @@ async function fixture(page: Page) {
             ? [{ value: categoryId, label: "Brake pads" }]
             : [],
       });
+    if (path.endsWith("/public/catalog/categories")) return ok({ items: [category] });
     if (path.endsWith(`/public/catalog/categories/${categoryId}`)) return ok(category);
     if (path.endsWith("/public/catalog/products/discovery")) {
       state.requests.push(url);

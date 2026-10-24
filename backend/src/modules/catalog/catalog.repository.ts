@@ -90,8 +90,38 @@ export function productWhere(
   activeOnly: boolean,
 ): Prisma.ProductWhereInput {
   const selection = selectionFromQuery(query);
+  const categories: Prisma.ProductWhereInput[] = [];
+  if (query.categoryId)
+    categories.push(
+      activeOnly && !query.parentCategoryId
+        ? {
+            OR: [
+              { categoryId: query.categoryId },
+              { category: { parentId: query.categoryId } },
+            ],
+          }
+        : { categoryId: query.categoryId },
+    );
+  if (query.parentCategoryId)
+    categories.push(
+      activeOnly
+        ? {
+            OR: [
+              { categoryId: query.parentCategoryId },
+              { category: { parentId: query.parentCategoryId } },
+            ],
+          }
+        : { category: { parentId: query.parentCategoryId } },
+    );
+  if (activeOnly && query.parentCategoryId && query.categoryId)
+    categories.push({ category: { parentId: query.parentCategoryId } });
   return {
-    ...(selection ? fitmentProductWhere(selection, query.fitment === "verified") : {}),
+    AND: [
+      ...(selection
+        ? [fitmentProductWhere(selection, query.fitment === "verified")]
+        : []),
+      ...categories,
+    ],
     ...(query.condition ? { condition: query.condition } : {}),
     ...(query.classification ? { classification: query.classification } : {}),
     ...(query.productType
@@ -99,19 +129,14 @@ export function productWhere(
           productType: { equals: literalPattern(query.productType), mode: "insensitive" },
         }
       : {}),
-    ...(query.parentCategoryId ? { category: { parentId: query.parentCategoryId } } : {}),
     ...(activeOnly
       ? {
           isActive: true,
-          category: {
-            ...activeCategoryWhere,
-            ...(query.parentCategoryId ? { parentId: query.parentCategoryId } : {}),
-          },
+          category: activeCategoryWhere,
         }
       : "isActive" in query && query.isActive !== undefined
         ? { isActive: query.isActive }
         : {}),
-    ...(query.categoryId === undefined ? {} : { categoryId: query.categoryId }),
     ...(query.brand === undefined
       ? {}
       : { brand: { equals: literalPattern(query.brand), mode: "insensitive" } }),
@@ -195,7 +220,7 @@ export class CatalogRepository {
           : query.parentId
             ? { parentId: query.parentId }
             : {}),
-        ...(!activeOnly && "search" in query && query.search
+        ...("search" in query && query.search
           ? {
               name: {
                 startsWith: query.search.replace(/[\\%_]/g, "\\$&"),

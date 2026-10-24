@@ -166,37 +166,53 @@ export function VehicleCatalogue({
       <div className="vehicle-active-filters" aria-label="Active vehicle filters">
         {selected.length ? (
           <>
-            {selected.map((key) => {
-              const value = params.get(key)!;
-              const label =
-                key === "search"
-                  ? `Search: ${value}`
-                  : key.endsWith("Kobo")
-                    ? `${key === "minPriceKobo" ? "From" : "Up to"} ${formatKobo(value)}`
-                    : key === "featured"
-                      ? value === "true"
-                        ? "Featured only"
-                        : "Non-featured only"
-                      : `${vehicleLabel(key === "bodyType" ? "Body" : key === "fuelType" ? "Fuel" : key)}: ${["make", "model", "year"].includes(key) ? value : vehicleLabel(value)}`;
-              return (
-                <button
-                  type="button"
-                  key={key}
-                  className="vehicle-chip"
-                  aria-label={`Remove ${label}`}
-                  title={label}
-                  onClick={() =>
-                    update((next) => {
-                      next.delete(key);
-                      if (key === "make") next.delete("model");
-                    })
-                  }
-                >
-                  <span>{label}</span>
-                  <X size={14} aria-hidden="true" />
-                </button>
-              );
-            })}
+            {selected
+              .flatMap((key) =>
+                ["conditions", "powertrains"].includes(key)
+                  ? params
+                      .get(key)!
+                      .split(",")
+                      .map((value) => ({ key, value }))
+                  : [{ key, value: params.get(key)! }],
+              )
+              .map(({ key, value }) => {
+                const label =
+                  key === "search"
+                    ? `Search: ${value}`
+                    : key.endsWith("Kobo")
+                      ? `${key === "minPriceKobo" ? "From" : "Up to"} ${formatKobo(value)}`
+                      : key === "featured"
+                        ? value === "true"
+                          ? "Featured only"
+                          : "Non-featured only"
+                        : `${vehicleLabel(key === "bodyType" ? "Body" : key === "fuelType" ? "Fuel" : key === "conditions" ? "Condition" : key === "powertrains" ? "Powertrain Technology" : key)}: ${["make", "model", "year"].includes(key) ? value : vehicleLabel(value)}`;
+                return (
+                  <button
+                    type="button"
+                    key={`${key}:${value}`}
+                    className="vehicle-chip"
+                    aria-label={`Remove ${label}`}
+                    title={label}
+                    onClick={() =>
+                      update((next) => {
+                        if (["conditions", "powertrains"].includes(key)) {
+                          const remaining = next
+                            .get(key)!
+                            .split(",")
+                            .filter((option) => option !== value);
+                          if (remaining.length) next.set(key, remaining.join(","));
+                          else next.delete(key);
+                        } else next.delete(key);
+                        if (key === "make") next.delete("model");
+                        if (key === "make" || key === "model") next.delete("trim");
+                      })
+                    }
+                  >
+                    <span>{label}</span>
+                    <X size={14} aria-hidden="true" />
+                  </button>
+                );
+              })}
             <button type="button" className="vehicle-clear" onClick={clear}>
               Clear all
             </button>
