@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { useAccountSession } from "./dashboard-shell";
 import { WorkforceAccessPanel } from "./workforce-access-panel";
 import { Feedback } from "./feedback";
@@ -8,7 +9,13 @@ export function WorkforceEntry() {
   const [userId, setUserId] = useState("");
   if (session?.user.role !== "SUPER_ADMIN")
     return (
-      <Feedback message="Responsibility workspace access requires enrollment or an owner access review." />
+      <>
+        <h1>Responsibility management unavailable</h1>
+        <Feedback message="Responsibility workspace access requires enrollment or an owner access review." />
+        <Link className="button secondary" href="/admin">
+          Return to overview
+        </Link>
+      </>
     );
   return (
     <>
@@ -16,6 +23,15 @@ export function WorkforceEntry() {
       <p>
         Review a verified staff account before changing its responsibilities. Workforce
         positions do not create employees or accounts.
+      </p>
+      <p>
+        Use the staff directory to find a verified account and open its responsibility
+        details. You can also review an account below if you already have its reference.
+      </p>
+      <p>
+        <Link className="button secondary" href="/admin/staff">
+          Find a staff account
+        </Link>
       </p>
       <form
         onSubmit={(event) => {

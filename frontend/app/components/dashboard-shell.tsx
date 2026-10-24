@@ -36,6 +36,7 @@ import {
 } from "@/lib/notifications/destinations";
 import { NotificationBadge } from "./notification-badge";
 import { NotificationAccessContext } from "@/lib/notifications/access-context";
+import { containDialogFocus } from "@/lib/dialog-focus";
 const SessionContext = createContext<SessionState | null>(null);
 const StaffPermissionContext = createContext<ReturnType<
   typeof useResource<ReturnType<typeof parseOwnStaffProfile>>
@@ -78,6 +79,8 @@ export function DashboardShell({
   const verifiedWorkforce =
     session?.workforceManaged &&
     !workforce.error &&
+    !workforce.refreshError &&
+    !workforce.loading &&
     workforce.data?.managed &&
     workforce.data.userId === session.user.id
       ? workforce.data
@@ -88,6 +91,7 @@ export function DashboardShell({
   );
   const navigationCapabilities =
     !grants.error &&
+    !grants.refreshError &&
     !grants.loading &&
     grants.data?.id === session?.user.id &&
     grants.data?.role === "STAFF" &&
@@ -254,6 +258,7 @@ export function DashboardShell({
         <div className="container empty">
           {error ? (
             <>
+              <h1>Dashboard access unavailable</h1>
               <Feedback message={error} tone={passwordChanged ? "success" : "error"} />
               <button
                 className="button"
@@ -272,7 +277,10 @@ export function DashboardShell({
               </p>
             </>
           ) : (
-            "Verifying your session…"
+            <>
+              <h1>Opening your dashboard</h1>
+              <p role="status">Verifying your session…</p>
+            </>
           )}
         </div>
       </main>
@@ -349,6 +357,7 @@ export function DashboardShell({
         ref={mobileDialog}
         className="dashboard-drawer"
         aria-label="Dashboard navigation"
+        onKeyDown={containDialogFocus}
         onCancel={() => setMenuPath(null)}
         onClick={(event) => {
           if (event.target === event.currentTarget) {
@@ -528,6 +537,20 @@ export function DashboardShell({
               </nav>
             )}
           <Feedback message={error} />
+          {session.user.role === "STAFF" &&
+            !session.workforceManaged &&
+            (grants.error || grants.refreshError) && (
+              <section aria-label="Work access check">
+                <Feedback message="We could not verify your current work permissions. Work page links are unavailable until you retry." />
+                <button
+                  className="button secondary"
+                  onClick={grants.refresh}
+                  disabled={grants.loading}
+                >
+                  Retry work permissions
+                </button>
+              </section>
+            )}
           <SessionContext.Provider value={session}>
             <NotificationAccessContext.Provider value={notificationAccess}>
               <StaffPermissionContext.Provider
@@ -550,9 +573,26 @@ export function DashboardShell({
                     )
                   ) : (
                     <>
-                      <Feedback message={workforce.error} />
-                      <p role="status">Checking current responsibility access…</p>
-                      <button className="button secondary" onClick={workforce.refresh}>
+                      {workforce.error || workforce.refreshError ? (
+                        <>
+                          <h1>Work access unavailable</h1>
+                          <Feedback message={workforce.error || workforce.refreshError} />
+                          <p>
+                            We could not verify your current responsibilities. Retry
+                            before continuing with work records.
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <h1>Checking work access</h1>
+                          <p role="status">Checking current responsibility access…</p>
+                        </>
+                      )}
+                      <button
+                        className="button secondary"
+                        onClick={workforce.refresh}
+                        disabled={workforce.loading}
+                      >
                         Retry access check
                       </button>
                     </>

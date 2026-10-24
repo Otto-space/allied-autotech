@@ -59,3 +59,7 @@ manual, mocked and hosted evidence and mark inaccessible/untested states explici
 Preserve working functionality, approved brand/policy and unrelated edits. Do not
 invent data, expand transactions, redesign good interfaces without evidence, or
 treat this directive as independent authority for publication or real transactions.
+
+For dashboard and managed-workforce work, follow the per-page index and state
+coverage in the quality register and `frontend/tests/quality/dashboard-pages.txt`.
+Keep source-only, launch-restricted, mocked and real acceptance distinct.

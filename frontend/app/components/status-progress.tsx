@@ -23,8 +23,9 @@ export function WorkflowProgress({
   status: string;
 }) {
   return (
-    <section
+    <div
       className="workflow-progress"
+      role="group"
       aria-label={`${statusLabel(workflow)} progress`}
     >
       <p className="workflow-progress-heading">
@@ -48,6 +49,6 @@ export function WorkflowProgress({
         only the current stage is confirmed here. Use recorded dates and history to check
         completed actions.
       </p>
-    </section>
+    </div>
   );
 }

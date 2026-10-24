@@ -17,7 +17,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440])
     await page.setViewportSize({ width, height: 1000 });
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    await ready(page);
+    const state = await ready(page);
     await expect(
       page.getByRole("heading", { name: "Bookings", exact: true, level: 1 }),
     ).toBeVisible();
@@ -28,7 +28,15 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440])
     await expect(
       page.locator(".wfb-status").filter({ hasText: "Confirmed" }).first(),
     ).toBeVisible();
-    await expect(page.locator(".wfb-results a")).toHaveCount(0);
+    const links = page.locator(".wfb-results a");
+    await expect(links).toHaveCount(25);
+    expect(
+      await links.evaluateAll((items) => items.map((item) => item.getAttribute("href"))),
+    ).toEqual(
+      state.bookings
+        .slice(0, 25)
+        .map((booking) => `/admin/workforce/bookings/${booking.id}`),
+    );
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);

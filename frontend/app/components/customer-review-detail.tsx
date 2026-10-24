@@ -33,10 +33,10 @@ function OwnedReview({ reviewId }: { reviewId: string }) {
       {!record.loading && !record.error && !record.refreshError && review && (
         <>
           <NotificationRecordContext resourceType="REVIEW" resourceId={review.id} />
-          <CustomerReview review={review} />
+          <CustomerReview review={review} headingLevel={2} />
         </>
       )}
-      {record.error && (
+      {(record.error || record.refreshError) && (
         <button className="button secondary" onClick={record.refresh}>
           Try again
         </button>

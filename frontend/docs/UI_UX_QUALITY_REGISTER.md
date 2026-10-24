@@ -191,3 +191,190 @@ responsive layout, content and recovery; run proportionate regressions; record
 evidence and remaining gaps; publish only under existing authorization. End the
 cycle when the selected acceptance criteria and handoff are complete. Unreviewed
 routes stay visible in the inventory instead of extending work indefinitely.
+
+## Dashboard and managed workforce cycle - 24 October 2026
+
+The owner explicitly moved the next review to **all dashboards and managed
+workforce, page by page**. This supersedes the earlier next-cycle ordering for
+this task. Source starts from released `00a53eb2`, Vercel
+`dpl_5bJRSphwZTktgFmz9jM3reZ1Hipx`, verified READY before branching. Worktree:
+`C:/Users/PC/.codex/worktrees/allied-dashboard-quality-20261024`, branch
+`feat/dashboard-workforce-quality-20261024`. Existing main-checkout and other
+worktree edits were preserved. No backend, database, role or launch-policy change
+is part of this cycle.
+
+All 83 customer/work route entries were inspected individually, following their
+component imports. The table is a per-page evidence index, not an exhaustive
+role/state cross-product or authenticated production acceptance. Existing
+page-specific fixture suites were reused; effective layouts were retained rather
+than repainted. The catch-all expands into the separate managed journeys below.
+The source inventory and state checklist above continue to apply.
+
+### Verified changes
+
+- **DASH-001 / P1:** Failed background workforce-access checks retained prior
+  work navigation/content. Reproduced for managed STAFF and ADMIN. Unverified
+  access now withdraws work content/links, gives an explicit unavailable state
+  and retries safely. Legacy staff capability links also withdraw when their
+  permission refresh fails, with a visible retry. Server authorization is
+  unchanged; this is fail-closed UI, not a claim of a server data exposure.
+- **DASH-002 / P2:** Dashboard drawers let Tab leave the modal boundary.
+  Reproduced on the released customer shell. Customer/admin/managed drawers now
+  share the already tested Help focus-containment helper, preserve Escape and
+  restore the opener. Initial session verification now has a named page and
+  announced pending state; unavailable session checks have a clear heading.
+- **DASH-003 / P2:** Multiple inspection cards emitted indistinguishable
+  `Inspection progress` landmarks (axe `landmark-unique`). Compact workflow
+  progress is now an accessible group within its record, preserving stage text
+  and visual design. Representative shared consumers are included in the pass.
+- **DASH-004 / P2:** Owner responsibility management depended on knowing a raw
+  staff reference. The existing staff-directory route is now offered prominently;
+  reference lookup remains available. Unauthorized entry has a named explanation
+  and a return path. No user enrollment, assignment or permission is changed.
+- **DASH-005 / P2:** Customer review detail hid its content on a background read
+  failure but had no Retry button. Browser reproduction confirmed the missing
+  recovery. Retry now handles both foreground and background failures. Standalone review titles now start at h2, with moderation at h3, while list cards retain their h3/h4 hierarchy and visual styles. A direct
+  detail/state test verifies recovery without submitting feedback.
+
+### Per-page review index
+
+`R` means a rendered fixture sample selected for final verification, **not every
+possible state**. `L` means the intentionally restricted launch boundary is
+checked using HTTP redirects, plus the rendered enquiry destination; the hidden
+financial page is not accepted or enabled. `F` is the non-indexed missing-page fallback (Next.js may return 200 once streaming has begun). Each test
+basename below is under `frontend/tests/e2e/` with `.spec.ts`. Final outcome and
+selected cases are recorded below after verification.
+
+| Route                                             | Evidence suite                   | Review scope                                                      |
+| ------------------------------------------------- | -------------------------------- | ----------------------------------------------------------------- |
+| `/admin/[resource]`                               | `dashboard-page-recovery`        | F: Non-indexed missing page; named resources have dedicated pages |
+| `/admin/audit`                                    | `work-audit`                     | R: Rendered fixture sample                                        |
+| `/admin/booking-capacity`                         | `booking-capacity`               | R: Rendered fixture sample                                        |
+| `/admin/booking-slots`                            | `work-slots`                     | R: Rendered fixture sample                                        |
+| `/admin/bookings/[bookingId]`                     | `work-booking-detail-quality`    | R: Rendered fixture sample                                        |
+| `/admin/bookings`                                 | `work-bookings-quality`          | R: Rendered fixture sample                                        |
+| `/admin/branches`                                 | `work-branches`                  | R: Rendered fixture sample                                        |
+| `/admin/categories/[categoryId]`                  | `work-product-category-detail`   | R: Rendered fixture sample                                        |
+| `/admin/categories`                               | `work-product-categories`        | R: Rendered fixture sample                                        |
+| `/admin/complaint-policy`                         | `work-complaint-policy`          | R: Rendered fixture sample                                        |
+| `/admin/customers/[customerId]`                   | `work-customer-detail`           | R: Rendered fixture sample                                        |
+| `/admin/customers`                                | `work-customers`                 | R: Rendered fixture sample                                        |
+| `/admin/delivery-policy`                          | `delivery-policy`                | R: Rendered fixture sample                                        |
+| `/admin/dispute-policy`                           | `work-dispute-policy`            | R: Rendered fixture sample                                        |
+| `/admin/finance-policy`                           | `work-finance-policy`            | R: Rendered fixture sample                                        |
+| `/admin/fitment`                                  | `parts-fitment-workspace`        | R: Rendered fixture sample                                        |
+| `/admin/inspections`                              | `work-inspections`               | R: Rendered fixture sample                                        |
+| `/admin/inventory/[inventoryId]`                  | `work-inventory-detail`          | R: Rendered fixture sample                                        |
+| `/admin/inventory`                                | `work-inventory`                 | R: Rendered fixture sample                                        |
+| `/admin/invoices/[invoiceId]`                     | `work-invoice-detail`            | R: Rendered fixture sample                                        |
+| `/admin/invoices`                                 | `work-invoices`                  | R: Rendered fixture sample                                        |
+| `/admin/notifications`                            | `work-notifications`             | R: Rendered fixture sample                                        |
+| `/admin/orders/[orderId]/aftercare`               | `work-aftercare`                 | R: Rendered fixture sample                                        |
+| `/admin/orders/[orderId]`                         | `work-order-detail`              | R: Rendered fixture sample                                        |
+| `/admin/orders`                                   | `work-orders`                    | R: Rendered fixture sample                                        |
+| `/admin`                                          | `work-overview-quality`          | R: Rendered fixture sample                                        |
+| `/admin/payment-disputes`                         | `work-payment-disputes`          | R: Rendered fixture sample                                        |
+| `/admin/payment-disputes/work`                    | `work-dispute-handling`          | R: Rendered fixture sample                                        |
+| `/admin/payment-exceptions`                       | `work-payment-exceptions`        | R: Rendered fixture sample                                        |
+| `/admin/payments`                                 | `work-payments`                  | R: Rendered fixture sample                                        |
+| `/admin/privacy`                                  | `work-privacy`                   | R: Rendered fixture sample                                        |
+| `/admin/processing-jobs`                          | `work-processing-jobs`           | R: Rendered fixture sample                                        |
+| `/admin/products/[productId]`                     | `work-product-detail`            | R: Rendered fixture sample                                        |
+| `/admin/products`                                 | `work-products`                  | R: Rendered fixture sample                                        |
+| `/admin/promotions/[promotionId]`                 | `promotion-detail`               | R: Rendered fixture sample                                        |
+| `/admin/promotions/new`                           | `promotion-create`               | R: Rendered fixture sample                                        |
+| `/admin/promotions`                               | `work-promotions`                | R: Rendered fixture sample                                        |
+| `/admin/refund-timing`                            | `refund-timing`                  | R: Rendered fixture sample                                        |
+| `/admin/refunds`                                  | `work-refunds`                   | R: Rendered fixture sample                                        |
+| `/admin/reservation-terms`                        | `work-reservation-policy`        | R: Rendered fixture sample                                        |
+| `/admin/retention-policy`                         | `work-retention-policy`          | R: Rendered fixture sample                                        |
+| `/admin/reviews`                                  | `work-review-moderation`         | R: Rendered fixture sample                                        |
+| `/admin/security`                                 | `admin-security-quality`         | R: Rendered fixture sample                                        |
+| `/admin/service-categories/[categoryId]`          | `work-category-detail`           | R: Rendered fixture sample                                        |
+| `/admin/service-categories`                       | `work-categories`                | R: Rendered fixture sample                                        |
+| `/admin/services/[serviceId]`                     | `work-service-detail`            | R: Rendered fixture sample                                        |
+| `/admin/services`                                 | `work-services`                  | R: Rendered fixture sample                                        |
+| `/admin/staff/[staffUserId]`                      | `work-staff-detail`              | R: Rendered fixture sample                                        |
+| `/admin/staff/invite`                             | `work-staff-invitations`         | R: Rendered fixture sample                                        |
+| `/admin/staff`                                    | `work-staff-directory`           | R: Rendered fixture sample                                        |
+| `/admin/support/[kind]/[supportId]`               | `work-support-detail`            | R: Rendered fixture sample                                        |
+| `/admin/support`                                  | `work-support`                   | R: Rendered fixture sample                                        |
+| `/admin/vehicle-sales/[transactionId]`            | `work-vehicle-sale-detail`       | R: Rendered fixture sample                                        |
+| `/admin/vehicle-sales`                            | `work-vehicle-sales`             | R: Rendered fixture sample                                        |
+| `/admin/vehicles/[vehicleId]`                     | `work-vehicle-detail`            | R: Rendered fixture sample                                        |
+| `/admin/vehicles/new`                             | `work-vehicle-create`            | R: Rendered fixture sample                                        |
+| `/admin/vehicles`                                 | `work-vehicle-stock`             | R: Rendered fixture sample                                        |
+| `/admin/workforce/[[...section]]`                 | `dashboard-access-quality`       | R: Owner entry and denied state; managed subpages below           |
+| `/dashboard/bookings/[bookingId]`                 | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/bookings`                             | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/cart`                                 | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/inspections`                          | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/invoices/[invoiceId]`                 | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/invoices`                             | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/notifications`                        | `customer-notifications-quality` | R: Rendered fixture sample                                        |
+| `/dashboard/orders/[orderId]/aftercare`           | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/orders/[orderId]`                     | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/orders`                               | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard`                                      | `customer-overview-quality`      | R: Rendered fixture sample                                        |
+| `/dashboard/payments/[paymentId]`                 | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/payments`                             | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/privacy`                              | `customer-privacy-quality`       | R: Rendered fixture sample                                        |
+| `/dashboard/profile`                              | `customer-profile-quality`       | R: Rendered fixture sample                                        |
+| `/dashboard/reviews/[reviewId]`                   | `dashboard-page-recovery`        | R: Rendered fixture sample                                        |
+| `/dashboard/reviews`                              | `customer-reviews-quality`       | R: Rendered fixture sample                                        |
+| `/dashboard/saved`                                | `saved-items-quality`            | R: Rendered fixture sample                                        |
+| `/dashboard/security`                             | `customer-security-quality`      | R: Rendered fixture sample                                        |
+| `/dashboard/support/[kind]/[supportId]`           | `customer-care-detail-quality`   | R: Rendered fixture sample                                        |
+| `/dashboard/support`                              | `customer-care-quality`          | R: Rendered fixture sample                                        |
+| `/dashboard/vehicle-transactions/[transactionId]` | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/vehicle-transactions`                 | `dashboard-access-quality`       | L: Launch redirect; financial/booking UI deferred                 |
+| `/dashboard/vehicles/[vehicleId]`                 | `garage-photos-quality`          | R: Rendered fixture sample                                        |
+| `/dashboard/vehicles`                             | `customer-garage-quality`        | R: Rendered fixture sample                                        |
+
+### Managed workforce journeys within the catch-all
+
+| Journey                                                     | Evidence suite                                      | Review scope                                                                                    |
+| ----------------------------------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `/admin` and `/admin/workforce`                             | `workforce-overview`                                | All eight responsibility templates, counters, no grants, expiry, revoked/error access and alias |
+| `/admin/workforce/jobs`                                     | `workforce-jobs`, `workforce-access`                | Queue, narrow/wide layout, permitted destinations                                               |
+| `/admin/workforce/jobs/[id]`                                | `workforce-job-detail`                              | Assigned job detail and technical-update controls in fixtures                                   |
+| `/admin/workforce/bookings`                                 | `workforce-bookings`                                | Readable scoped records and real detail destinations                                            |
+| `/admin/workforce/bookings/[id]`                            | `dashboard-page-recovery`                           | Direct scoped detail, refresh failure and retry; no legacy booking fetch                        |
+| `/admin/workforce/enquiries`                                | `workforce-enquiries`                               | Scoped queue, layout and accessibility samples                                                  |
+| `/admin/workforce/complaints`                               | `workforce-complaints`                              | Scoped queue, layout and accessibility samples                                                  |
+| `/admin/workforce/orders`                                   | `workforce-orders`                                  | Order-progress workspace samples; no real fulfillment commitment                                |
+| `/admin/workforce/finance`                                  | `workforce-finance`                                 | Payment-record reading samples; no live financial action                                        |
+| `/admin/workforce/access`, staff responsibility forms       | `dashboard-access-quality`, `work-staff-workforce`  | Owner/denied entry and existing enrollment/assignment review fixtures                           |
+| `/admin/security`, `/admin/notifications` for managed staff | `admin-security-quality`, `workforce-notifications` | Personal tools and responsibility-aware notification samples                                    |
+
+### Verification record and continuation
+
+Final page-pass command from `frontend`:
+`npx --no-install playwright test --test-list tests/quality/dashboard-pages.txt --workers=2`.
+The committed selection is reproducible; it includes direct recovery cases and
+Help regressions for the shared dialog helper. Test records are synthetic browser
+intercepts against localhost, with no configured backend origin. Live customer
+records, staff accounts, assignments and financial/operational actions were not
+used. Browser plugin not available; installed Edge/Playwright was reused.
+
+Baseline overviews: 75/75 passed before changes. The broad initial sample had
+100 passes, one isolated-real-API test skipped and five failures: two test trace
+folder collisions (QA runners accidentally shared an output folder), the actual
+inspection landmark defect, and two outdated assertions expecting zero managed
+booking links. Runner output folders were separated; assertions now verify the
+25 permitted detail URLs instead of treating the shipped feature as a defect.
+The separately attempted customer financial cases correctly redirected under the
+limited launch; that attempt was stopped and replaced with explicit launch-boundary
+checks. A slow repeated full Contact navigation test was replaced by per-route
+HTTP checks plus one rendered destination. No launch restriction was removed.
+The isolated real-directory integration test remains unrun; the browser customer
+directory fixture suite supplies the page sample, not real API acceptance.
+
+Pending final results: production build, page-pass outcome, final screenshots,
+release checks, actual publication identity and remaining gaps.
+
+Continue future cycles from this page index: revisit concrete failures first,
+then expand state/role coverage on the next relevant page. Real screen-reader,
+real-device keyboard and real authenticated operational acceptance remain open.
+Unexercised combinations are not counted as complete. The deferred transaction
+pages retain their launch gates. Preserve the separately settled Item 6 queue.

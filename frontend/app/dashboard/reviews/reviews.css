@@ -203,7 +203,7 @@
   font-size: 12px;
   margin: 10px 0 4px;
 }
-.dashboard .dashboard-content .cr-record h3 {
+.dashboard .dashboard-content .cr-record .cr-record-title {
   font-size: 16px;
   line-height: 1.5;
   margin: 0 0 6px;
@@ -233,7 +233,7 @@
   border-left: 2px solid #bdcbd5;
   font-size: 13px;
 }
-.cr-moderation h4 {
+.cr-moderation .cr-moderation-title {
   font-size: 13px;
   margin: 0;
 }
