@@ -1356,42 +1356,6 @@ subsequent edits are evidence and the E2E fixture correction only. C: postflight
 29.54 GiB free; current/rollback images, warm cache, databases/backups and other
 tasks retained. No broad prune, duplicate install/worktree or image archive.
 
-## Cycle 10: Customers and Customer Care — 25 October 2026
-
-Current bounded implementation: `feat/customers-care-20261025` in the reused
-`allied-shop-vehicles-r2-20261025` worktree. Released notification source
-`17bc43fc` was merged after live-provider verification; other worktrees and the
-main checkout's edits are preserved. Home, Shop/Vehicles and financial layouts
-remain outside this cycle.
-
-Acceptance contract and backend evidence: `backend/docs/customers-care-20261025.md`.
-Actual surfaces: Admin/Super Admin `/admin/customers` and details, legacy
-`/admin/support` and case routes, managed Customer Service enquiry/complaint
-workspaces, customer `/dashboard/support` and conversations. Existing page-index
-entries remain applicable; no new dashboard route or capability is invented.
-
-Implemented: semantic customer/care tables, scoped search and cursor state,
-copy success/failure/manual selection, reviewed real account transitions/session
-revocation/audit, conversation-first layout with retained public/internal controls
-and drafts, scoped per-operator delivery dismissal, and five semantic state tones.
-Managed contact projection is limited to Customer Care responsibility readers;
-sales-only readers keep their earlier field boundary. Dismissal grants no retry.
-
-Fixture captures and browser receipts are outside the repository under
-`%TEMP%/allied-customers-care-20261025/` and
-`%TEMP%/allied-customers-care-hosted/`. Before/after are synthetic role records,
-not production customer data. Browser plugin unavailable; installed Edge/Playwright
-is used. Clipboard writes are instrumented success/failure callbacks, without
-reading the clipboard. Touch and zoom evidence is emulated, not a physical-device
-or full screen-reader certification.
-
-The earlier hosted run passed 11/15 scenarios. It found phone overflow caused by
-absolute assistive labels escaping the table's scroll containing block, and a
-1366px filter-grid override. Both are fixed in source and await final compiled
-acceptance. Earlier fixture envelope/ambiguous-selector failures were corrected;
-they are not counted as product regressions. Final checks and release evidence
-will follow; this checkpoint does not certify production rollout.
-
 ## Cycle 9: Product compatibility concurrent edits — 25 October 2026
 
 Route `/admin/products`, administrator product detail editor. Another editor could
@@ -1423,3 +1387,67 @@ separate screenshot timed out under concurrent checks. Both cases and the mobile
 write-time conflict passed after the final rebuild (3/3 focused), with no new
 horizontal overflow or automated accessibility violation. Hosted authenticated
 acceptance remains open.
+
+## Cycle 10: Customers and Customer Care - released 25 October 2026
+
+Backend source dc0322f0; final frontend fd19aabc in the reused allied-shop-vehicles-r2-20261025 worktree,
+branch feat/customers-care-20261025. Live backend 9ed4a4f2-683a-41f2-ab43-39673783a4a5
+ACTIVE; frontend dpl_BVUgeibwBeTL3EvTZPiiCM9nMNgf READY on main/www at 19:44 UTC.
+Notification source 17bc43fc and concurrently released compatibility source 313c4f9c
+were merged and reverified; the release guard stopped when production changed.
+Other worktrees/main edits are preserved. Home, finance and broader redesign remain
+outside this cycle; only the shared semantic status presentation crosses dashboards.
+
+Actual routes: Admin/Super Admin /admin/customers and details, legacy /admin/support
+and case routes, managed Customer Service enquiry/complaint workspaces, customer
+/dashboard/support and conversations. Existing per-page index entries remain valid.
+Implemented genuine compact tables, visible details, labelled server search/filter/
+cursor return state, copy controls with reserved space/focus/touch/manual fallback,
+real reviewed account transitions/session revocation/audit, conversation-first care,
+public/internal audience separation, retained drafts and per-operator notice dismissal.
+Managed contact projection and dismissal retain exact responsibility/case scope;
+sales-only readers gain no contact fields, suspension or provider permissions.
+
+Locked Next 16.4.3 CI passed 1,024 units plus lint/types/format/build and production
+audit (zero production vulnerabilities). Backend safety CI passed full empty replay
+and schema checks at 71 migrations, the real missing-column guard and permission/
+mutation flows. Final merged-source real isolated PostgreSQL/HTTP suite: 55/55 across
+six files including the existing compatibility fix. Four non-root image contracts
+passed on the task fixture. Route/OpenAPI coverage remains 415 operations/355 paths.
+
+Final compiled Edge candidate: 15/15 new customer/care cases and 19/19 complete
+customer-detail cases passed; 13/13 compatibility
+editor cases passed on the merged predecessor. The final detail-only batch removes
+stretched secondary panels and garage payment fields, corrects the synthetic garage
+fixture and refreshes matching before/after captures. Conversation regression run passed 60/61; the disclosure shortcut
+was corrected and all six focused role/audience/outage/responsive cases passed on the
+rebuilt source. All 61 distinct cases therefore passed across the full run and rerun,
+not in one all-green run. The table wrapper/assistive-label containment issue and
+1366px grid override were fixed. Responsive 360/390/768/1024/1440, 1366x768 desktop,
+200% reflow emulation, keyboard, contrast, scoped Axe and normal-flow console/runtime
+checks passed. Broader backend run failures were investigated and resolved in focused
+reruns; exact counts and caveats are in backend/docs/customers-care-20261025.md.
+
+Forward migration 20261025170000_support_delivery_notice_dismissal applied through
+the protected runner after a fresh verified production backup. Separate actual restore
+rehearsal preserved all 89 original table hashes and migration ledger through 70-to-71.
+Live db:check/history/checksums, least privilege, backup SELECT, readiness and eight
+worker heartbeats passed. No existing grants changed. Temporary database IP access
+and owned hosted-review keys were removed. Twelve real read-only post-promotion
+journeys passed on both domains; no real customer was suspended, replied to or had
+a notice dismissed for acceptance.
+
+Synthetic before/after table, detail and care captures: %TEMP%/allied-customers-care-20261025/.
+Browser receipts: %TEMP%/allied-customers-care-hosted/, allied-customers-care-regressions/
+and allied-customers-care-compatibility/. Live smoke: %TEMP%/allied-customers-care-live/.
+UI mutations use HTTP fixtures; API integration uses real isolated PostgreSQL. No OS
+clipboard read; write outcomes are instrumented. Touch/zoom are emulated. Physical
+on-screen keyboard/devices, full screen-reader, every shared-status consumer and
+operational authenticated real-role acceptance remain unverified. Recovery was a
+logical archive restore, not a new managed physical PITR cluster. These limitations
+and broader site-completion Item 6 remain open; no perfection claim.
+
+Only the owned auto-remove tmpfs fixture and eight superseded local candidate tags
+were removed. All 14 volume identities, protected native fixtures/restores/backups,
+current/rollback/base/tool images and other tasks were retained; no broad prune.
+Postflight C: 28.77 GiB free at measurement; no machine-wide reserve guarantee.
