@@ -56,8 +56,8 @@ unrelated technician, public/internal messages, old/new failure attempts.
 
 ## Implementation and compatibility
 
-Runtime backend/image source: `bbb2633b588bba562bad665fbd9642f51d621439`.
-Frontend runtime source: `7795bb66e1db3cc1e94a04fdca16b40b3fadda5f`.
+Runtime backend/image source: `dc0322f0fd68df99c45971ea325036dc397e2b2f`.
+Frontend source: `fd19aabc9d0a0843857821cf2eb12651f2ce505c` (final detail-only batch).
 Subsequent commits extend fixtures and evidence; runtime source equality is checked
 before rollout. Existing notification, Shop/Vehicles, home and launch restrictions
 are preserved. No application data, existing grants or applied migrations changed.
@@ -75,18 +75,19 @@ failed/blocked red; closed/inactive/unknown slate. Provider accepted remains blu
 delivery is green only with an actual observation. Account and email-verification
 states remain separate. This changes shared presentation, not unrelated layouts.
 
-## Verification evidence before promotion
+## Verification evidence
 
-- [Frontend locked release CI](https://github.com/Otto-space/allied-autotech/actions/runs/40223805013):
+- [Frontend locked release CI](https://github.com/Otto-space/allied-autotech/actions/runs/40227020772):
   1,024 tests / 155 files, lint, types, formatting, production build (Next 16.4.3)
   and production dependency audit passed; production audit found zero vulnerabilities.
   The install reports development dependency findings; zero is not a whole-tree claim.
-- [Backend database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40221688018):
+- [Backend database safety CI](https://github.com/Otto-space/allied-autotech/actions/runs/40225766324):
   full 71-migration replay, `db:check`, types/scripts/lint, 60 database safety units,
   the real missing-column guard case, seven public-enquiry checks, 58 catalogue/
   vehicle checks and 46 customer/auth/care integration checks passed.
-- Local exact-loopback restricted-runtime customer/auth/care integration rerun:
-  **46 passed / five files**. These use real isolated PostgreSQL and HTTP requests,
+- Local final merged-source exact-loopback restricted-runtime integration rerun:
+  **55 passed / six files** (46 customer/auth/care plus nine compatibility cases).
+  These use real isolated PostgreSQL and HTTP requests,
   including suspension/session/audit races, current target role, scoped dismissal,
   per-operator persistence, stale batches and 425 provider observations for one email.
 - Broad local backend run: 1,470 passed, ten failed, 154 skipped / 227 files.
@@ -100,13 +101,31 @@ states remain separate. This changes shared presentation, not unrelated layouts.
 - All four immutable API/identity-worker/general-worker/migration images run as
   non-root and passed generated-client, live-schema/native-module or migration-check
   contracts against the new isolated Docker PostgreSQL target; remote digests pushed.
-- Protected compiled candidate `dpl_CZSje9b6GVx8SdQAxmCQgEP67TNd`:
+- Protected compiled candidate `dpl_BVUgeibwBeTL3EvTZPiiCM9nMNgf`:
   **15/15** new Edge browser scenarios passed. Real rendered table/copy/menu,
   directory return state, Admin/Super Admin review, delivery failure/history/reload,
   separate creation drafts, scoped managed CS and responsive states were exercised
   with isolated HTTP fixtures. Normal scenarios had no console/runtime errors;
   scoped Axe checks and measured badge contrast passed. Main/www were not promoted
   by creating the candidate. Each temporary review key was revoked afterward.
+- Conversation regression run on the earlier candidate: **60/61** passed. The
+  remaining old assertion assumed technical details were always expanded. The
+  Details shortcut was corrected to open its disclosure, and all six focused
+  role/audience/outage/responsive checks passed on rebuilt source. Thus all 61
+  distinct conversation regressions passed across the full run and focused rerun;
+  this is not a claimed single 61/61 run. Customer/care code was preserved by the
+  subsequent compatibility-only merge. On final merged source the additional
+  **13/13** compatibility editor browser scenarios passed, including stale writes,
+  draft recovery, safe preflight retry, mobile layout and accessibility.
+- Final detail-only batch: **19/19** complete customer-detail browser cases passed,
+  including Admin/Super Admin facts, Staff denial, malformed/mismatched responses,
+  independent activity scopes/paging, outages, garage context, foreign currencies
+  and seven responsive widths with Axe checks. The closed address disclosure no
+  longer stretches to the contact card's height; garage rows never render payment
+  fields. The original generic fixture incorrectly supplied order data for the
+  Garage tab. It now supplies a garage-shaped record, and the predecessor baseline
+  was recaptured with that same synthetic fixture before the final after captures.
+  All 15 new acceptance cases also passed again on this final compiled candidate.
 
 ## Recovery and safety evidence
 
@@ -137,5 +156,62 @@ are emulated; physical devices, an actual on-screen keyboard, complete screen-re
 testing and authenticated operational real-role acceptance remain unverified.
 These results do not certify every dashboard consumer or close site-completion Item 6.
 
-Production migration and promotion remain pending until final conversation regression
-checks and live release gates finish. The release receipt below will record outcomes.
+## Production release — 25 October 2026, final frontend 19:44 UTC
+
+Live on [www.alliedautotech.com](https://www.alliedautotech.com) and the apex domain:
+
+- Frontend **`dpl_BVUgeibwBeTL3EvTZPiiCM9nMNgf`**, READY, both aliases verified.
+- Backend **`9ed4a4f2-683a-41f2-ab43-39673783a4a5`**, ACTIVE, no pending rollout.
+- All four images use source `dc0322f0`; the final frontend uses `fd19aabc`, whose
+  backend runtime is identical. Later evidence commits do not change runtime code.
+  Immutable API / identity / general / migrate
+  manifest digests respectively:
+  `c14b184fdafb9bf7199a765e27241488466b9dff6a24d00ae79ed23e3ff70008`,
+  `c24e74af61245e0c381d82fc1855921b02e70a2266579a3d1b50579ea8fed813`,
+  `d1d793db0020233090f1bd6f3a84c2a3c5dd18ece6ee4333bfce175bed5ffdbc`,
+  `6f5260f3d060dac0dd8ea81d2110374d57b5ceaf82b8e69579014f7044cfa303`
+  (all `sha256:`).
+
+The guarded migration completed at 19:21 UTC after a fresh verified backup. Live
+history/schema checks and all 71 checksums passed. Runtime remains non-owner with
+no schema CREATE, TRUNCATE, superuser, role/database creation or bypass-RLS rights;
+the new table has the existing reviewed DML defaults, and backup SELECT is verified.
+No grants were changed. Separate migration and backup identities were used.
+Temporary exact-IP access was removed and the original app-only firewall verified
+after both migration and postcheck. Eight worker heartbeats and API readiness passed;
+the unauthenticated directory returns 401. Predeploy remains a read-only database gate.
+
+During release, the guard detected independently released compatibility source
+`313c4f9c` (backend `634b9110-8ad0-455e-ad7d-48cd9ee35681`). It stopped before
+overwriting that release. The fix was merged, contracts regenerated, four new
+images built/checked/pushed and the merged candidate accepted before promotion.
+The additive schema was unchanged, so no second production migration was needed.
+The first local wrapper preflight also stopped on a receipt filename mismatch
+before any SQL/firewall operation; the correct retained rehearsal receipt was used.
+
+Post-promotion Edge smoke passed **12 read-only journeys** on main/www at 390/1440px:
+home, parts, vehicles, customer-directory and support authentication redirects.
+No unexpected console/runtime errors or page overflow; no production fixture,
+account-status change, reply or dismissal was performed. Receipts/screenshots:
+`%TEMP%/allied-customers-care-live/`. Authenticated real-role acceptance retains
+the limitation above; anonymous redirects are not evidence for those workflows.
+
+Rollback resources are retained: immediate predecessor backend `634b9110` uses
+the compatibility API `bf2d62fe...` with notification workers/checker `345847d5`;
+pre-care frontend `dpl_GDqL1pgfFbWtb7avvNGGW8Zu3bNH`. The initial care frontend
+`dpl_JAEZULBoPpBYEhTSywcqCSVYVWig` is the immediate frontend rollback. The earlier notification backend
+`1876e3d1` and frontend `dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3`, plus the R2 recovery
+resources, also remain. A rollback must retain migration 71 and a **71-aware
+predeploy checker**: older 70-migration checkers correctly reject unknown history.
+Review compatibility and revert the frontend before an API lacking these new
+endpoints. Do not drop the acknowledgement table, edit history or restore over live.
+
+Docker completion review removed only the owned, connection-free, auto-remove
+tmpfs PostgreSQL fixture and eight local tags for four superseded, never-released
+`bbb2633b` candidate images. Their remote images/receipts are retained. Docker totals
+changed from 55 to 51 images (12.03 to 11.99 GB), 14 to 13 containers; all 14 volume
+identities and warm caches/current/rollback/base/tool/other-task resources remain.
+Host space decreased about 34.3 MiB during that measurement; logical Docker cleanup
+is **not** a claim of physical host-space recovery. Postflight C: was 28.77 GiB free,
+above the 20 GiB reserve at that point. No broad prune, duplicate install/worktree,
+image archive, backup deletion or machine-wide space guarantee.

@@ -1391,3 +1391,50 @@ mobile screenshot timed out under concurrent checks. The repeat rule now allows
 retry only when no write was sent and disables it once a write has been attempted.
 The preflight, write-time conflict and mobile accessibility cases all passed on
 the rebuilt final source. No synthetic customer or catalogue data was published.
+
+
+## Customers and Customer Care production release - 25 October 2026, 19:32 UTC
+
+Runtime source dc0322f0fd68df99c45971ea325036dc397e2b2f, branch
+feat/customers-care-20261025 in C:/Users/PC/.codex/worktrees/allied-shop-vehicles-r2-20261025.
+Backend 9ed4a4f2-683a-41f2-ab43-39673783a4a5 ACTIVE; frontend
+ dpl_JAEZULBoPpBYEhTSywcqCSVYVWig READY on main/www. Preserves notification
+release 17bc43fc and the concurrent compatibility correction 313c4f9c: production
+change was detected, then merged and artifacts rebuilt before promotion.
+
+Actual customer tables/details, authorised audited suspension/reactivation with
+session enforcement, conversation-first Customer Care, retained audience/drafts,
+operator-local persistent notice dismissal and shared semantic tones are released.
+Protected migration/backup/db:check succeeded at 71; all checksums, runtime least
+privilege, backup SELECT and eight worker heartbeats verified. No existing grants
+changed, no real customer mutation used for acceptance, temporary DB firewall access
+removed. Separate actual logical restore rehearsal preserved 89 original tables and
+ledger through 70-to-71; nine managed backups reviewed. Not a new physical PITR test.
+
+Final merged CI green: 1,024 frontend units, production audit zero, backend migration/
+safety and secret checks. Real isolated combined API suite 55/55; compiled fixtures
+15/15 care and 13/13 compatibility; 61 conversation regressions across full run and
+focused rerun. Twelve real read-only journeys passed on both domains. Evidence and
+screenshots: backend/docs/customers-care-20261025.md and UI quality Cycle 10 in the
+release worktree; fixture/real/physical evidence limits are explicit. Operational
+real-role, native clipboard/device/screen-reader acceptance and broader Item 6 remain
+open. Homepage and broader redesign were excluded. Production keeps browse/enquiries
+restrictions. Rollback retains schema 71 and requires a 71-aware migration checker.
+
+Owned Docker tmpfs fixture and superseded candidate tags removed; all 14 volume
+identities, backups, current/rollback/tool/base images and other tasks retained.
+C: postflight 28.77 GiB free at measurement. Existing main-checkout content was
+preserved by append-only continuity updates; no unrelated source was overwritten.
+
+
+25 October 2026, 19:44 UTC - final customer-detail refinement released.
+Frontend fd19aabc9d0a0843857821cf2eb12651f2ce505c /
+dpl_BVUgeibwBeTL3EvTZPiiCM9nMNgf is READY on main/www; backend remains
+9ed4a4f2-683a-41f2-ab43-39673783a4a5 at dc0322f0, with verified migration 71.
+Collapsed address/reference panels now retain their natural height; garage activity
+omits payment fields. The garage-shaped fixture and matching predecessor captures
+were corrected. All 19 customer-detail and 15 new acceptance browser cases passed
+on the final compiled candidate; final locked CI passed 1,024 units, types/lint/
+format/build and zero production audit findings. No further backend/schema change.
+Live read-only smoke and the prior fixture/real-role/device/recovery limitations
+are recorded in the release evidence doc and UI quality Cycle 10.

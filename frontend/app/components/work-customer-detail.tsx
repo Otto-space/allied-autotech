@@ -391,7 +391,7 @@ function ActivityRecord({
           </div>
         </dl>
       )}
-      {r.amountKobo !== null && (
+      {kind !== "vehicles" && r.amountKobo !== null && (
         <dl>
           <div>
             <dt>Recorded amount</dt>
