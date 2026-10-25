@@ -173,6 +173,7 @@ export class IdentityService {
     }
 
     await this.database.$transaction(async (tx) => {
+      await this.lockMfaAccount(tx, token.userId);
       const consumed = await tx.emailVerificationToken.updateMany({
         where: { id: token.id, usedAt: null, revokedAt: null, expiresAt: { gt: now } },
         data: { usedAt: now },

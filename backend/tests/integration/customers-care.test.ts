@@ -9,7 +9,14 @@ import { assertIsolatedLoopbackDatabase } from "../helpers/isolated-database.js"
 describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
   "Customers and Customer Care contracts",
   () => {
-    const app = createApp({ checkReadiness: async () => undefined, rateLimit: 10000 });
+    const app = createApp({
+      checkReadiness: async () => undefined,
+      rateLimit: 10000,
+      trustProxyHops: 1,
+    });
+    // A suite-owned benchmark-range IP keeps real login throttles independent
+    // from other fixtures; no throttle records are cleared or safeguards disabled.
+    const fixtureIp = `198.18.${parseInt(randomUUID().slice(0, 2), 16)}.${parseInt(randomUUID().slice(0, 2), 16)}`;
     let f: Awaited<ReturnType<typeof workforceFixture>>,
       admin: Awaited<ReturnType<Awaited<ReturnType<typeof workforceFixture>>["account"]>>,
       owner: Awaited<ReturnType<Awaited<ReturnType<typeof workforceFixture>>["session"]>>;
@@ -79,6 +86,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).toBe("ACCOUNT_SUSPENDED");
         const login = await request(app)
           .post("/api/v1/auth/login")
+          .set("X-Forwarded-For", fixtureIp)
           .set("Origin", "http://localhost:3000")
           .send({ email: target.user.email, password: fixturePassword });
         expect(login.status).toBe(401);
@@ -123,6 +131,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           (
             await request(app)
               .post("/api/v1/auth/login")
+              .set("X-Forwarded-For", fixtureIp)
               .set("Origin", "http://localhost:3000")
               .send({ email: target.user.email, password: fixturePassword })
           ).status,
@@ -153,6 +162,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         change(target.user.profile!.id, admin.headers),
         request(app)
           .post("/api/v1/auth/login")
+          .set("X-Forwarded-For", fixtureIp)
           .set("Origin", "http://localhost:3000")
           .send({ email: target.user.email, password: fixturePassword }),
       ]);
@@ -205,6 +215,41 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         .send({ notices: [{ id: row.id, revision: item.noticeRevision }] });
       expect(result.status).toBe(200);
       expect(result.body.data.items[0].noticeDismissed).toBe(true);
+    });
+    it("searches only permitted case subjects/original text and retains branch scope", async () => {
+      const term = randomUUID().replaceAll("-", "");
+      const row = await prisma.enquiry.create({
+        data: {
+          branchId: f.home.id,
+          name: "Synthetic",
+          email: "scope@example.test",
+          type: "GENERAL",
+          subject: term,
+          message: "Synthetic original zebra request",
+        },
+      });
+      const found = await request(app)
+        .get("/api/v1/staff/support/enquiries")
+        .query({ q: term + " zebra" })
+        .set(admin.headers);
+      expect(found.status).toBe(200);
+      expect(found.body.data.items.map((i: { id: string }) => i.id)).toEqual([row.id]);
+      expect(
+        (
+          await request(app)
+            .get("/api/v1/staff/support/enquiries")
+            .query({ q: term, branchId: f.other.id })
+            .set(admin.headers)
+        ).body.data.items,
+      ).toEqual([]);
+      expect(
+        (
+          await request(app)
+            .get("/api/v1/staff/support/enquiries")
+            .query({ q: "x" })
+            .set(admin.headers)
+        ).status,
+      ).toBe(422);
     });
     async function delivery(id: string) {
       return prisma.outboxEvent.create({

@@ -261,6 +261,13 @@ export const customerReviewListQuerySchema = z
 export const staffEnquiryListQuerySchema = z
   .object({
     ...page,
+    q: z
+      .string()
+      .trim()
+      .min(2)
+      .max(120)
+      .regex(/^[^\u0000-\u001f\u007f]*$/)
+      .optional(),
     branchId: uuid.optional(),
     type: z
       .enum(["GENERAL", "PRODUCT", "VEHICLE", "SERVICE", "BOOKING", "QUOTATION"])
@@ -272,6 +279,13 @@ export const staffEnquiryListQuerySchema = z
 export const staffComplaintListQuerySchema = z
   .object({
     ...page,
+    q: z
+      .string()
+      .trim()
+      .min(2)
+      .max(120)
+      .regex(/^[^\u0000-\u001f\u007f]*$/)
+      .optional(),
     branchId: uuid.optional(),
     status: z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]).optional(),
     priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),

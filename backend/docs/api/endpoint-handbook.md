@@ -12115,6 +12115,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `q` | query | string | No | Q used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `type` | query | GENERAL / PRODUCT / VEHICLE / SERVICE / BOOKING / QUOTATION | No | Type used to constrain this request. |
 | `status` | query | OPEN / IN_PROGRESS / RESOLVED / CLOSED | No | Status used to constrain this request. |
@@ -12293,6 +12294,7 @@ Parameters:
 | --- | --- | --- | --- | --- |
 | `cursor` | query | string (uuid) | No | Opaque cursor returned by the preceding page. |
 | `limit` | query | integer | No | Maximum number of records to return, bounded by the API. |
+| `q` | query | string | No | Q used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `status` | query | OPEN / INVESTIGATING / RESOLVED / CLOSED | No | Status used to constrain this request. |
 | `priority` | query | LOW / MEDIUM / HIGH / URGENT | No | Priority used to constrain this request. |

@@ -106143,6 +106143,20 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 2,
+              "maxLength": 120,
+              "pattern": "^[^\\u0000-\\u001f\\u007f]*$",
+              "description": "Q validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "q",
+            "in": "query",
+            "description": "Q used to constrain this request.",
+            "example": "synthetic-q"
+          },
+          {
+            "schema": {
+              "type": "string",
               "format": "uuid",
               "description": "Identifier of the branch resource; ownership is resolved server-side."
             },
@@ -107428,6 +107442,20 @@
             "in": "query",
             "description": "Maximum number of records to return, bounded by the API.",
             "example": 1
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 120,
+              "pattern": "^[^\\u0000-\\u001f\\u007f]*$",
+              "description": "Q validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "q",
+            "in": "query",
+            "description": "Q used to constrain this request.",
+            "example": "synthetic-q"
           },
           {
             "schema": {

@@ -5,7 +5,7 @@ import { AppError } from "../../common/errors/app-error.js";
 import { z } from "zod";
 import { env } from "../../config/env.js";
 import { encryptNotificationPayload } from "../../common/security/mfa-encryption.js";
-import type { Prisma } from "../../generated/prisma/client.js";
+import { Prisma } from "../../generated/prisma/client.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import { renderNotificationEmail } from "../notifications/notification-delivery.templates.js";
 
@@ -104,8 +104,9 @@ export async function dismissSupportDeliveryNotices(
   const input = supportDeliveryDismissSchema.parse(body);
   // Serialize with worker updates; provider revisions arriving afterwards remain
   // new notices. Lock only explicitly reviewed delivery records, in stable order.
-  for (const key of input.notices.map((n) => n.id).sort())
-    await tx.$queryRaw`SELECT "id" FROM "OutboxEvent" WHERE "id" = ${key}::uuid FOR UPDATE`;
+  await tx.$queryRaw(
+    Prisma.sql`SELECT "id" FROM "OutboxEvent" WHERE "id" IN (${Prisma.join(input.notices.map((n) => n.id).sort().map((key) => Prisma.sql`${key}::uuid`))}) AND "aggregateId" = ${id} AND "aggregateType" = ${supportCustomerEmailAggregate} AND "eventType" = ${supportCustomerEmailEvent} ORDER BY "id" FOR UPDATE`,
+  );
   const page = await supportEmailDeliveries(tx, id, userId);
   for (const notice of input.notices) {
     const item = page.items.find((i) => i.id === notice.id);

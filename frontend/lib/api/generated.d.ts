@@ -84563,6 +84563,11 @@ export interface operations {
                  */
                 limit?: number;
                 /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
+                /**
                  * @description Branch Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -85588,6 +85593,11 @@ export interface operations {
                  * @example 1
                  */
                 limit?: number;
+                /**
+                 * @description Q used to constrain this request.
+                 * @example synthetic-q
+                 */
+                q?: string;
                 /**
                  * @description Branch Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001

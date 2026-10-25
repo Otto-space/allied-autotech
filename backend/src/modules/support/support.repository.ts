@@ -534,6 +534,13 @@ export class SupportRepository {
   listStaffEnquiries(query: StaffEnquiryListQuery, branchId: string | null) {
     return this.database.enquiry.findMany({
       where: {
+        AND: (query.q?.split(/\s+/).filter(Boolean) ?? []).map((term) => {
+          const text = {
+            contains: term.replace(/[\\%_]/g, "\\$&"),
+            mode: "insensitive" as const,
+          };
+          return { OR: [{ subject: text }, { message: text }] };
+        }),
         ...(branchId ? { branchId } : query.branchId ? { branchId: query.branchId } : {}),
         ...(query.type ? { type: query.type } : {}),
         ...(query.status ? { status: query.status } : {}),
@@ -556,6 +563,13 @@ export class SupportRepository {
   listStaffComplaints(query: StaffComplaintListQuery, branchId: string | null) {
     return this.database.complaint.findMany({
       where: {
+        AND: (query.q?.split(/\s+/).filter(Boolean) ?? []).map((term) => {
+          const text = {
+            contains: term.replace(/[\\%_]/g, "\\$&"),
+            mode: "insensitive" as const,
+          };
+          return { OR: [{ subject: text }, { description: text }] };
+        }),
         ...(branchId ? { branchId } : query.branchId ? { branchId: query.branchId } : {}),
         ...(query.status ? { status: query.status } : {}),
         ...(query.priority ? { priority: query.priority } : {}),
