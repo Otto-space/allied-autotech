@@ -3,6 +3,7 @@ import {
   publishedCompatibilitySchema,
 } from "../fitment/fitment.schemas.js";
 import { z } from "zod";
+import { recordedProductFields, productFamilySchema } from "./product-family.js";
 import { mediaConfirmSchema } from "../media/media.schemas.js";
 export const productImageConfirmSchema = mediaConfirmSchema
   .extend({
@@ -25,6 +26,7 @@ export const productImageResponseSchema = z.object({
 const timestamp = z.iso.datetime({ offset: true });
 const money = z.string().regex(/^(?:0|[1-9][0-9]*)$/u);
 export const productResponseSchema = z.object({
+  ...recordedProductFields,
   fitment: fitmentDecisionSchema.optional(),
   condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
   classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).nullable().optional(),
@@ -45,6 +47,7 @@ export const productResponseSchema = z.object({
   createdAt: timestamp,
   updatedAt: timestamp,
   category: z.object({
+    family: productFamilySchema.nullable().optional(),
     id: z.uuid(),
     name: z.string(),
     slug: z.string(),

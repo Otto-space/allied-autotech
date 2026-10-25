@@ -1,5 +1,11 @@
 import { qualifiersShape, qualifierKeys } from "../fitment/fitment.schemas.js";
 import { z } from "zod";
+import {
+  productFamilySchema,
+  oilGradeSchema,
+  recordedProductFields,
+  validRecordedProduct,
+} from "./product-family.js";
 
 const cleanText = (maximum: number) =>
   z
@@ -74,6 +80,7 @@ export const adminCategoryListQuerySchema = z
   .strict();
 export const categoryCreateBodySchema = z
   .object({
+    family: productFamilySchema.nullable().optional(),
     name: cleanText(120),
     slug,
     description: nullableText(2_000),
@@ -83,6 +90,7 @@ export const categoryCreateBodySchema = z
   .strict();
 export const categoryUpdateBodySchema = z
   .object({
+    family: productFamilySchema.nullable().optional(),
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     name: cleanText(120).optional(),
     slug: slug.optional(),
@@ -96,7 +104,7 @@ export const categoryUpdateBodySchema = z
     "At least one field is required",
   );
 
-export const productListQuerySchema = z
+export const productListQueryBase = z
   .object({
     ...pageFields,
     categoryId: z.uuid().optional(),
@@ -104,6 +112,9 @@ export const productListQuerySchema = z
     condition: z.enum(["NEW", "USED", "REFURBISHED"]).optional(),
     classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).optional(),
     productType: cleanText(80).optional(),
+    family: productFamilySchema.optional(),
+    oilViscosityGrade: oilGradeSchema.optional(),
+    packVolumeMl: z.coerce.number().int().min(1).max(1000000).optional(),
     vehicleMakeId: z.uuid().optional(),
     vehicleModelId: z.uuid().optional(),
     fitment: z.enum(["candidates", "verified"]).optional(),
@@ -116,37 +127,57 @@ export const productListQuerySchema = z
     featured: optionalBoolean,
     sort: z.enum(["newest", "name", "price_asc", "price_desc"]).default("newest"),
   })
-  .strict()
-  .superRefine((value, context) => {
-    if (value.vehicleModelId && value.year === undefined)
-      context.addIssue({
-        code: "custom",
-        path: ["year"],
-        message: "Choose a model year",
-      });
-    if (
-      !value.vehicleModelId &&
-      (value.vehicleMakeId ||
-        value.fitment ||
-        qualifierKeys.some((key) => value[key] !== undefined))
-    )
-      context.addIssue({
-        code: "custom",
-        path: ["vehicleModelId"],
-        message: "Choose a vehicle model before checking fitment",
-      });
-    if (value.vehicleModelId && (value.make || value.model))
-      context.addIssue({
-        code: "custom",
-        path: ["vehicleModelId"],
-        message: "Use either a catalogue vehicle or legacy name filters",
-      });
-  });
+  .strict();
+export function checkProductQuery(
+  value: Omit<z.infer<typeof productListQueryBase>, "sort">,
+  context: z.RefinementCtx,
+) {
+  if (
+    value.family !== "ENGINE_OIL" &&
+    (value.oilViscosityGrade || value.packVolumeMl !== undefined)
+  )
+    context.addIssue({
+      code: "custom",
+      path: ["family"],
+      message: "Choose engine oil before filtering by grade or pack volume",
+    });
+  if (value.family === "ENGINE_OIL" && (value.condition || value.classification))
+    context.addIssue({
+      code: "custom",
+      path: ["family"],
+      message: "Condition and parts classification do not apply to engine oil",
+    });
+  if (value.vehicleModelId && value.year === undefined)
+    context.addIssue({
+      code: "custom",
+      path: ["year"],
+      message: "Choose a model year",
+    });
+  if (
+    !value.vehicleModelId &&
+    (value.vehicleMakeId ||
+      value.fitment ||
+      qualifierKeys.some((key) => value[key] !== undefined))
+  )
+    context.addIssue({
+      code: "custom",
+      path: ["vehicleModelId"],
+      message: "Choose a vehicle model before checking fitment",
+    });
+  if (value.vehicleModelId && (value.make || value.model))
+    context.addIssue({
+      code: "custom",
+      path: ["vehicleModelId"],
+      message: "Use either a catalogue vehicle or legacy name filters",
+    });
+}
+export const productListQuerySchema = productListQueryBase.superRefine(checkProductQuery);
 export const adminProductListQuerySchema = productListQuerySchema.safeExtend({
   isActive: optionalBoolean,
 });
 
 const productFields = {
+  ...recordedProductFields,
   categoryId: z.uuid(),
   condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
   classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).nullable().optional(),
@@ -173,12 +204,17 @@ const validPrices = (value: {
 export const productCreateBodySchema = z
   .object(productFields)
   .strict()
+  .refine(validRecordedProduct, {
+    path: ["family"],
+    message: "Use only fields appropriate to the selected product family",
+  })
   .refine(validPrices, {
     path: ["compareAtPriceKobo"],
     message: "Must not be below the selling price",
   });
 export const productUpdateBodySchema = z
   .object({
+    ...recordedProductFields,
     expectedUpdatedAt: z.iso.datetime({ offset: true, precision: 3 }).optional(),
     categoryId: productFields.categoryId.optional(),
     condition: productFields.condition,

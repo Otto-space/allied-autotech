@@ -989,7 +989,11 @@ export class SupportService {
     } else if (input.type === "SERVICE") {
       if ((await this.repository.activeService(input.serviceId, transaction)) === null)
         throw supportNotFound();
-    } else if (input.type === "VEHICLE") {
+    } else if (
+      input.type === "VEHICLE" &&
+      input.vehicleEnquiryIntent !== "REQUIREMENTS"
+    ) {
+      if (!input.vehicleListingId) throw supportNotFound();
       const listing = await this.repository.activeListing(
         input.vehicleListingId,
         transaction,
@@ -1052,6 +1056,10 @@ export class SupportService {
       return requested;
     }
     const branches = await this.repository.activeBranches(transaction);
+    if (branches.length === 0)
+      throw supportConflict(
+        "No active workshop is configured to handle this request. Contact our team for help.",
+      );
     if (branches.length !== 1) throw supportBranchRequired();
     return branches[0]!.id;
   }

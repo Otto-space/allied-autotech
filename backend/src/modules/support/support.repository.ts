@@ -43,6 +43,7 @@ const enquiryBaseSelect = {
   bookingId: true,
   quoteId: true,
   vehicleListingId: true,
+  vehicleEnquiryIntent: true,
   assignedStaffId: true,
   resolvedAt: true,
   closedAt: true,
@@ -250,7 +251,12 @@ export class SupportRepository {
           ? { productId: input.productId }
           : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
+        ...(input.type === "VEHICLE"
+          ? {
+              vehicleListingId: input.vehicleListingId ?? null,
+              vehicleEnquiryIntent: input.vehicleEnquiryIntent ?? "LISTING",
+            }
+          : {}),
       },
       select: { id: true, status: true, createdAt: true },
     });
@@ -275,7 +281,12 @@ export class SupportRepository {
         phone: customer.phone,
         ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
+        ...(input.type === "VEHICLE"
+          ? {
+              vehicleListingId: input.vehicleListingId ?? null,
+              vehicleEnquiryIntent: input.vehicleEnquiryIntent ?? "LISTING",
+            }
+          : {}),
         ...(input.type === "BOOKING" ? { bookingId: input.bookingId } : {}),
         ...(input.type === "QUOTATION" ? { quoteId: input.quoteId } : {}),
       },

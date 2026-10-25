@@ -26918,6 +26918,295 @@
         "x-idempotency-required": false
       }
     },
+    "/public/catalog/products/options": {
+      "get": {
+        "tags": [
+          "Catalogue"
+        ],
+        "summary": "Published product choices within the applied search scope",
+        "description": "Bounded public brand/family/product-type/recorded oil grade/pack-volume choices. scope is a URLSearchParams-encoded validated product-discovery query (maximum 6000 characters); sort, paging and page size are excluded. All active publication/category/availability/fitment/price/search constraints apply, except the requested facet is relaxed. Family also relaxes dependent condition/classification/type/oil fields. Brand case/whitespace variants share a normalized key with a recorded display label. No page-derived counts are returned. Options are ordered by their stable stored value (numeric volume); authenticated cursors bind complete scope/field/prefix state. Old /facets remains compatible. Unknown specifications do not become choices or approvals. Published product choices within the applied search scope. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "brand",
+                "family",
+                "productType",
+                "oilViscosityGrade",
+                "packVolumeMl"
+              ],
+              "description": "Field validated by this operation's strict request contract."
+            },
+            "required": true,
+            "name": "field",
+            "in": "query",
+            "description": "Field used to constrain this request.",
+            "example": "brand"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 6000,
+              "default": "",
+              "description": "Scope validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "scope",
+            "in": "query",
+            "description": "Scope used to constrain this request.",
+            "example": "synthetic-scope"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 120,
+              "description": "Search validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "search",
+            "in": "query",
+            "description": "Search used to constrain this request.",
+            "example": "synthetic-search"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 80,
+              "maxLength": 1024,
+              "pattern": "^[A-Za-z0-9_-]+$",
+              "description": "Opaque cursor returned by the previous page."
+            },
+            "required": false,
+            "name": "cursor",
+            "in": "query",
+            "description": "Opaque cursor returned by the preceding page.",
+            "example": "synthetic-cursor"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^(?:[1-9]|[1-4][0-9]|50)$",
+              "default": "20",
+              "description": "Maximum page size, subject to the documented server bound."
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return, bounded by the API.",
+            "example": "synthetic-limit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success: Published product choices within the applied search scope.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Success validated by this operation's strict request contract."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Plain-text business context; HTML is not accepted or rendered as trusted markup."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 120,
+                                "description": "Value validated by this operation's strict request contract."
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 120,
+                                "description": "Label validated by this operation's strict request contract."
+                              }
+                            },
+                            "required": [
+                              "value",
+                              "label"
+                            ],
+                            "description": "Items Item validated by this operation's strict request contract."
+                          },
+                          "maxItems": 50,
+                          "description": "Items validated by this operation's strict request contract."
+                        },
+                        "nextCursor": {
+                          "type": "string",
+                          "minLength": 80,
+                          "maxLength": 1024,
+                          "pattern": "^[A-Za-z0-9_-]+$",
+                          "description": "Next Cursor validated by this operation's strict request contract."
+                        }
+                      },
+                      "required": [
+                        "items"
+                      ],
+                      "description": "Data validated by this operation's strict request contract."
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "requestId": {
+                          "type": "string",
+                          "description": "Identifier of the request resource; ownership is resolved server-side."
+                        }
+                      },
+                      "required": [
+                        "requestId"
+                      ],
+                      "description": "Meta validated by this operation's strict request contract."
+                    }
+                  },
+                  "required": [
+                    "success",
+                    "message",
+                    "data",
+                    "meta"
+                  ],
+                  "description": "Response validated by this operation's strict request contract."
+                },
+                "example": {
+                  "success": true,
+                  "message": "Published product choices within the applied search scope",
+                  "data": {
+                    "items": [
+                      {
+                        "value": "synthetic-value",
+                        "label": "synthetic-label"
+                      }
+                    ],
+                    "nextCursor": "synthetic-nextcursor"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request is malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The request is malformed.",
+                  "error": {
+                    "code": "BAD_REQUEST"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "One or more request fields are invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "One or more request fields are invalid.",
+                  "error": {
+                    "code": "VALIDATION_FAILED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The route-specific request limit was exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "The route-specific request limit was exceeded.",
+                  "error": {
+                    "code": "RATE_LIMITED"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected error occurred; no sensitive detail is disclosed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                  "error": {
+                    "code": "INTERNAL_ERROR"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                  "error": {
+                    "code": "DATABASE_UNAVAILABLE"
+                  },
+                  "meta": {
+                    "requestId": "req_0000000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getPublicCatalogProductsOptions",
+        "x-access-boundary": "public",
+        "x-required-roles": [
+          "PUBLIC"
+        ],
+        "x-csrf-required": false,
+        "x-idempotency-required": false
+      }
+    },
     "/public/catalog/products/discovery": {
       "get": {
         "tags": [
@@ -27030,6 +27319,45 @@
             "in": "query",
             "description": "Product Type used to constrain this request.",
             "example": "synthetic-producttype"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "REPLACEMENT_PART",
+                "ENGINE_OIL"
+              ],
+              "description": "Family validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "family",
+            "in": "query",
+            "description": "Family used to constrain this request.",
+            "example": "REPLACEMENT_PART"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "oilViscosityGrade",
+            "in": "query",
+            "description": "Oil Viscosity Grade used to constrain this request.",
+            "example": "synthetic-oilviscositygrade"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "description": "Pack Volume Ml validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "packVolumeMl",
+            "in": "query",
+            "description": "Pack Volume Ml used to constrain this request.",
+            "example": 1
           },
           {
             "schema": {
@@ -27283,19 +27611,19 @@
             "schema": {
               "type": "string",
               "enum": [
+                "best_match",
                 "newest",
                 "name",
                 "price_asc",
                 "price_desc"
               ],
-              "default": "newest",
               "description": "Sort validated by this operation's strict request contract."
             },
             "required": false,
             "name": "sort",
             "in": "query",
             "description": "Sort used to constrain this request.",
-            "example": "newest"
+            "example": "best_match"
           },
           {
             "schema": {
@@ -27361,6 +27689,34 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "family": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "REPLACEMENT_PART",
+                                  "ENGINE_OIL",
+                                  null
+                                ],
+                                "description": "Family validated by this operation's strict request contract."
+                              },
+                              "oilViscosityGrade": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                              },
+                              "packVolumeMl": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 1,
+                                "maximum": 1000000,
+                                "description": "Pack Volume Ml validated by this operation's strict request contract."
+                              },
                               "fitment": {
                                 "type": "object",
                                 "properties": {
@@ -27540,6 +27896,18 @@
                               "category": {
                                 "type": "object",
                                 "properties": {
+                                  "family": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "enum": [
+                                      "REPLACEMENT_PART",
+                                      "ENGINE_OIL",
+                                      null
+                                    ],
+                                    "description": "Family validated by this operation's strict request contract."
+                                  },
                                   "id": {
                                     "type": "string",
                                     "format": "uuid",
@@ -29050,6 +29418,45 @@
           {
             "schema": {
               "type": "string",
+              "enum": [
+                "REPLACEMENT_PART",
+                "ENGINE_OIL"
+              ],
+              "description": "Family validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "family",
+            "in": "query",
+            "description": "Family used to constrain this request.",
+            "example": "REPLACEMENT_PART"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "oilViscosityGrade",
+            "in": "query",
+            "description": "Oil Viscosity Grade used to constrain this request.",
+            "example": "synthetic-oilviscositygrade"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "description": "Pack Volume Ml validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "packVolumeMl",
+            "in": "query",
+            "description": "Pack Volume Ml used to constrain this request.",
+            "example": 1
+          },
+          {
+            "schema": {
+              "type": "string",
               "format": "uuid",
               "description": "Identifier of the vehicle make resource; ownership is resolved server-side."
             },
@@ -29339,6 +29746,34 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "family": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "REPLACEMENT_PART",
+                                  "ENGINE_OIL",
+                                  null
+                                ],
+                                "description": "Family validated by this operation's strict request contract."
+                              },
+                              "oilViscosityGrade": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                              },
+                              "packVolumeMl": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 1,
+                                "maximum": 1000000,
+                                "description": "Pack Volume Ml validated by this operation's strict request contract."
+                              },
                               "fitment": {
                                 "type": "object",
                                 "properties": {
@@ -29518,6 +29953,18 @@
                               "category": {
                                 "type": "object",
                                 "properties": {
+                                  "family": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "enum": [
+                                      "REPLACEMENT_PART",
+                                      "ENGINE_OIL",
+                                      null
+                                    ],
+                                    "description": "Family validated by this operation's strict request contract."
+                                  },
                                   "id": {
                                     "type": "string",
                                     "format": "uuid",
@@ -30150,6 +30597,34 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "family": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "REPLACEMENT_PART",
+                            "ENGINE_OIL",
+                            null
+                          ],
+                          "description": "Family validated by this operation's strict request contract."
+                        },
+                        "oilViscosityGrade": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                        },
+                        "packVolumeMl": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 1,
+                          "maximum": 1000000,
+                          "description": "Pack Volume Ml validated by this operation's strict request contract."
+                        },
                         "fitment": {
                           "type": "object",
                           "properties": {
@@ -30329,6 +30804,18 @@
                         "category": {
                           "type": "object",
                           "properties": {
+                            "family": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "REPLACEMENT_PART",
+                                "ENGINE_OIL",
+                                null
+                              ],
+                              "description": "Family validated by this operation's strict request contract."
+                            },
                             "id": {
                               "type": "string",
                               "format": "uuid",
@@ -33222,6 +33709,18 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "family": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "REPLACEMENT_PART",
+                      "ENGINE_OIL",
+                      null
+                    ],
+                    "description": "Family validated by this operation's strict request contract."
+                  },
                   "name": {
                     "type": "string",
                     "minLength": 1,
@@ -33266,6 +33765,7 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
+                "family": "REPLACEMENT_PART",
                 "name": "synthetic-name",
                 "slug": "synthetic-slug",
                 "description": "synthetic-description",
@@ -33860,6 +34360,18 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "family": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "REPLACEMENT_PART",
+                      "ENGINE_OIL",
+                      null
+                    ],
+                    "description": "Family validated by this operation's strict request contract."
+                  },
                   "expectedUpdatedAt": {
                     "type": "string",
                     "format": "date-time",
@@ -33904,6 +34416,7 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
+                "family": "REPLACEMENT_PART",
                 "expectedUpdatedAt": "2030-01-15T10:00:00.000Z",
                 "name": "synthetic-name",
                 "slug": "synthetic-slug",
@@ -34281,6 +34794,45 @@
           {
             "schema": {
               "type": "string",
+              "enum": [
+                "REPLACEMENT_PART",
+                "ENGINE_OIL"
+              ],
+              "description": "Family validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "family",
+            "in": "query",
+            "description": "Family used to constrain this request.",
+            "example": "REPLACEMENT_PART"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "oilViscosityGrade",
+            "in": "query",
+            "description": "Oil Viscosity Grade used to constrain this request.",
+            "example": "synthetic-oilviscositygrade"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000,
+              "description": "Pack Volume Ml validated by this operation's strict request contract."
+            },
+            "required": false,
+            "name": "packVolumeMl",
+            "in": "query",
+            "description": "Pack Volume Ml used to constrain this request.",
+            "example": 1
+          },
+          {
+            "schema": {
+              "type": "string",
               "format": "uuid",
               "description": "Identifier of the vehicle make resource; ownership is resolved server-side."
             },
@@ -34585,6 +35137,34 @@
                           "items": {
                             "type": "object",
                             "properties": {
+                              "family": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "REPLACEMENT_PART",
+                                  "ENGINE_OIL",
+                                  null
+                                ],
+                                "description": "Family validated by this operation's strict request contract."
+                              },
+                              "oilViscosityGrade": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                              },
+                              "packVolumeMl": {
+                                "type": [
+                                  "integer",
+                                  "null"
+                                ],
+                                "minimum": 1,
+                                "maximum": 1000000,
+                                "description": "Pack Volume Ml validated by this operation's strict request contract."
+                              },
                               "fitment": {
                                 "type": "object",
                                 "properties": {
@@ -34764,6 +35344,18 @@
                               "category": {
                                 "type": "object",
                                 "properties": {
+                                  "family": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "enum": [
+                                      "REPLACEMENT_PART",
+                                      "ENGINE_OIL",
+                                      null
+                                    ],
+                                    "description": "Family validated by this operation's strict request contract."
+                                  },
                                   "id": {
                                     "type": "string",
                                     "format": "uuid",
@@ -35428,6 +36020,34 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "family": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "REPLACEMENT_PART",
+                      "ENGINE_OIL",
+                      null
+                    ],
+                    "description": "Family validated by this operation's strict request contract."
+                  },
+                  "oilViscosityGrade": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                  },
+                  "packVolumeMl": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 1000000,
+                    "description": "Pack Volume Ml validated by this operation's strict request contract."
+                  },
                   "categoryId": {
                     "type": "string",
                     "format": "uuid",
@@ -35585,6 +36205,34 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "family": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "REPLACEMENT_PART",
+                            "ENGINE_OIL",
+                            null
+                          ],
+                          "description": "Family validated by this operation's strict request contract."
+                        },
+                        "oilViscosityGrade": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                        },
+                        "packVolumeMl": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 1,
+                          "maximum": 1000000,
+                          "description": "Pack Volume Ml validated by this operation's strict request contract."
+                        },
                         "fitment": {
                           "type": "object",
                           "properties": {
@@ -35764,6 +36412,18 @@
                         "category": {
                           "type": "object",
                           "properties": {
+                            "family": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "REPLACEMENT_PART",
+                                "ENGINE_OIL",
+                                null
+                              ],
+                              "description": "Family validated by this operation's strict request contract."
+                            },
                             "id": {
                               "type": "string",
                               "format": "uuid",
@@ -36445,6 +37105,34 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "family": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "REPLACEMENT_PART",
+                            "ENGINE_OIL",
+                            null
+                          ],
+                          "description": "Family validated by this operation's strict request contract."
+                        },
+                        "oilViscosityGrade": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                        },
+                        "packVolumeMl": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 1,
+                          "maximum": 1000000,
+                          "description": "Pack Volume Ml validated by this operation's strict request contract."
+                        },
                         "fitment": {
                           "type": "object",
                           "properties": {
@@ -36624,6 +37312,18 @@
                         "category": {
                           "type": "object",
                           "properties": {
+                            "family": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "REPLACEMENT_PART",
+                                "ENGINE_OIL",
+                                null
+                              ],
+                              "description": "Family validated by this operation's strict request contract."
+                            },
                             "id": {
                               "type": "string",
                               "format": "uuid",
@@ -37302,6 +38002,34 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "family": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "REPLACEMENT_PART",
+                      "ENGINE_OIL",
+                      null
+                    ],
+                    "description": "Family validated by this operation's strict request contract."
+                  },
+                  "oilViscosityGrade": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                  },
+                  "packVolumeMl": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 1000000,
+                    "description": "Pack Volume Ml validated by this operation's strict request contract."
+                  },
                   "expectedUpdatedAt": {
                     "type": "string",
                     "format": "date-time",
@@ -37448,6 +38176,34 @@
                     "data": {
                       "type": "object",
                       "properties": {
+                        "family": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "REPLACEMENT_PART",
+                            "ENGINE_OIL",
+                            null
+                          ],
+                          "description": "Family validated by this operation's strict request contract."
+                        },
+                        "oilViscosityGrade": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "description": "Oil Viscosity Grade validated by this operation's strict request contract."
+                        },
+                        "packVolumeMl": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 1,
+                          "maximum": 1000000,
+                          "description": "Pack Volume Ml validated by this operation's strict request contract."
+                        },
                         "fitment": {
                           "type": "object",
                           "properties": {
@@ -37627,6 +38383,18 @@
                         "category": {
                           "type": "object",
                           "properties": {
+                            "family": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "enum": [
+                                "REPLACEMENT_PART",
+                                "ENGINE_OIL",
+                                null
+                              ],
+                              "description": "Family validated by this operation's strict request contract."
+                            },
                             "id": {
                               "type": "string",
                               "format": "uuid",
@@ -66784,8 +67552,20 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^[1-9][0-9]{0,15}$",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,15}$",
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                }
+              ],
               "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
             },
             "required": false,
@@ -66796,8 +67576,20 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^[1-9][0-9]{0,15}$",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,15}$",
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                }
+              ],
               "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
             },
             "required": false,
@@ -66810,6 +67602,7 @@
             "schema": {
               "type": "string",
               "enum": [
+                "best_match",
                 "newest",
                 "price_asc",
                 "price_desc",
@@ -66818,14 +67611,13 @@
                 "mileage_asc",
                 "mileage_desc"
               ],
-              "default": "newest",
               "description": "Sort validated by this operation's strict request contract."
             },
             "required": false,
             "name": "sort",
             "in": "query",
             "description": "Sort used to constrain this request.",
-            "example": "newest"
+            "example": "best_match"
           }
         ],
         "responses": {
@@ -68161,8 +68953,20 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^[1-9][0-9]{0,15}$",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,15}$",
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                }
+              ],
               "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
             },
             "required": false,
@@ -68173,8 +68977,20 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^[1-9][0-9]{0,15}$",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,15}$",
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                }
+              ],
               "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
             },
             "required": false,
@@ -70777,8 +71593,20 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^[1-9][0-9]{0,15}$",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,15}$",
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                }
+              ],
               "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
             },
             "required": false,
@@ -70789,8 +71617,20 @@
           },
           {
             "schema": {
-              "type": "string",
-              "pattern": "^[1-9][0-9]{0,15}$",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "0"
+                  ],
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[1-9][0-9]{0,15}$",
+                  "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                }
+              ],
               "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
             },
             "required": false,
@@ -97413,7 +98253,7 @@
           "Support"
         ],
         "summary": "Submit a public enquiry",
-        "description": "Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Apply the compatible public-unlisted-parts constraint migration, then deploy this API change before enabling the matching generic Product handoff in the frontend. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
+        "description": "Public PRODUCT enquiries may omit productId. VEHICLE accepts vehicleEnquiryIntent LISTING with a current public vehicleListingId, or explicit REQUIREMENTS without a listing. Legacy vehicle requests with a listing normalize to LISTING. Invalid/private references never downgrade to REQUIREMENTS. Listing branch is authoritative; requirements use an explicit active public branch or the sole active branch, otherwise 409 requests a choice. Existing branch/assignment/workforce queue scope applies. Deploy compatible forward migrations and API before enabling handoffs. Other source, validation, rate-limit and submission safeguards remain unchanged. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.",
         "security": [],
         "requestBody": {
           "required": true,
@@ -97649,6 +98489,14 @@
                         ],
                         "description": "Type validated by this operation's strict request contract."
                       },
+                      "vehicleEnquiryIntent": {
+                        "type": "string",
+                        "enum": [
+                          "LISTING",
+                          "REQUIREMENTS"
+                        ],
+                        "description": "Vehicle Enquiry Intent validated by this operation's strict request contract."
+                      },
                       "vehicleListingId": {
                         "type": "string",
                         "format": "uuid",
@@ -97660,8 +98508,7 @@
                       "message",
                       "name",
                       "email",
-                      "type",
-                      "vehicleListingId"
+                      "type"
                     ],
                     "additionalProperties": false,
                     "description": "Request Body validated by this operation's strict request contract."
@@ -99435,6 +100282,14 @@
                         ],
                         "description": "Type validated by this operation's strict request contract."
                       },
+                      "vehicleEnquiryIntent": {
+                        "type": "string",
+                        "enum": [
+                          "LISTING",
+                          "REQUIREMENTS"
+                        ],
+                        "description": "Vehicle Enquiry Intent validated by this operation's strict request contract."
+                      },
                       "vehicleListingId": {
                         "type": "string",
                         "format": "uuid",
@@ -99444,8 +100299,7 @@
                     "required": [
                       "subject",
                       "message",
-                      "type",
-                      "vehicleListingId"
+                      "type"
                     ],
                     "additionalProperties": false,
                     "description": "Request Body validated by this operation's strict request contract."
@@ -99744,6 +100598,18 @@
                           ],
                           "format": "uuid",
                           "description": "Identifier of the vehicle listing resource; ownership is resolved server-side."
+                        },
+                        "vehicleEnquiryIntent": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "LISTING",
+                            "REQUIREMENTS",
+                            null
+                          ],
+                          "description": "Vehicle Enquiry Intent validated by this operation's strict request contract."
                         }
                       },
                       "required": [
@@ -99766,7 +100632,8 @@
                         "serviceId",
                         "bookingId",
                         "quoteId",
-                        "vehicleListingId"
+                        "vehicleListingId",
+                        "vehicleEnquiryIntent"
                       ],
                       "description": "Data validated by this operation's strict request contract."
                     },
@@ -99823,7 +100690,8 @@
                     "serviceId": "00000000-0000-4000-8000-000000000001",
                     "bookingId": "00000000-0000-4000-8000-000000000001",
                     "quoteId": "00000000-0000-4000-8000-000000000001",
-                    "vehicleListingId": "00000000-0000-4000-8000-000000000001"
+                    "vehicleListingId": "00000000-0000-4000-8000-000000000001",
+                    "vehicleEnquiryIntent": "LISTING"
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -152931,6 +153799,18 @@
                           "type": "string",
                           "description": "Type validated by this operation's strict request contract."
                         },
+                        "vehicleEnquiryIntent": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "LISTING",
+                            "REQUIREMENTS",
+                            null
+                          ],
+                          "description": "Vehicle Enquiry Intent validated by this operation's strict request contract."
+                        },
                         "assignedStaffId": {
                           "type": [
                             "string",
@@ -153379,6 +154259,7 @@
                         "subject",
                         "message",
                         "type",
+                        "vehicleEnquiryIntent",
                         "assignedStaffId",
                         "access",
                         "generatedAt",
@@ -153437,6 +154318,7 @@
                     "subject": "synthetic-subject",
                     "message": "synthetic-message",
                     "type": "synthetic-type",
+                    "vehicleEnquiryIntent": "LISTING",
                     "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                     "access": {
                       "managed": true,
@@ -156179,6 +157061,18 @@
                                 "type": "string",
                                 "description": "Type validated by this operation's strict request contract."
                               },
+                              "vehicleEnquiryIntent": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "LISTING",
+                                  "REQUIREMENTS",
+                                  null
+                                ],
+                                "description": "Vehicle Enquiry Intent validated by this operation's strict request contract."
+                              },
                               "assignedStaffId": {
                                 "type": [
                                   "string",
@@ -156200,6 +157094,7 @@
                               "subject",
                               "message",
                               "type",
+                              "vehicleEnquiryIntent",
                               "assignedStaffId"
                             ],
                             "description": "Items Item validated by this operation's strict request contract."
@@ -156480,6 +157375,7 @@
                         "subject": "synthetic-subject",
                         "message": "synthetic-message",
                         "type": "synthetic-type",
+                        "vehicleEnquiryIntent": "LISTING",
                         "assignedStaffId": "00000000-0000-4000-8000-000000000001"
                       }
                     ],

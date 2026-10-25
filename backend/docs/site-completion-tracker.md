@@ -785,7 +785,6 @@ were retained. See discovery-fitment-release-review.md for exact evidence and
 remaining acceptance limits. Item 6 and other settled operational decisions keep
 their current scope; this feature rollout does not close the whole site queue.
 
-
 ## Current frontend handoff - UI quality cycle 1, 24 October 2026
 
 The standing 29-section UI/UX directive is preserved byte-for-byte in
@@ -822,7 +821,6 @@ and created/removed no Docker images, containers or volumes. Existing runtime,
 backup, payment-disabled, enquiry-only and collection policies remain in force.
 All earlier Item 6 staff-media/real-publication and operational decisions retain
 their recorded scope. Other worktrees' pending audit/copy edits were preserved.
-
 
 ## Current frontend handoff - dashboards and managed workforce, 24 October 2026
 
@@ -938,7 +936,6 @@ was provider READY/actual alias identity; browser checks used local synthetic
 fixtures. Payments stay disabled. Dependencies and Docker resources were retained;
 preview port 3155 stopped. Original main-checkout edits remain untouched except
 the guarded documentation handoff. Item 6 and owner dependencies retain scope.
-
 
 25 October 2026 - Home/Parts/Vehicles implementation checkpoint (not released):
 `C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, branch
@@ -1100,7 +1097,7 @@ The active production deployment was checked immediately before updating:
 only the API digest, preserving the existing encrypted secrets, browse/enquiry
 launch mode, disabled payment modes, two worker digests and the migration-job
 digest/read-only `db:check` command. Schema-only app-spec validation passed;
-the provider's full *new-app proposal* validation rejected already-encrypted
+the provider's full _new-app proposal_ validation rejected already-encrypted
 secret references, so it was not used as an existing-app update gate. The
 existing-app update succeeded. Deployment `f9239c36` is ACTIVE with successful
 build/deploy/component steps, including the predeploy migration job; all four
@@ -1118,3 +1115,23 @@ tests, but are still awaiting a live staff QA account for hosted acceptance.
 The prior `da8e5b3a` deployment and its four component images remain rollback
 evidence; the superseded `f0062282` image was not deployed. No Docker cache,
 container, volume or image was removed during this release.
+
+25 October 2026 - Shop/Vehicles revision 2 implementation is IN PROGRESS in
+C:/Users/PC/.codex/worktrees/allied-shop-vehicles-r2-20261025, branch
+feat/shop-vehicles-r2-20261025, based on merged current source b45513f1.
+Provider reads confirmed restored frontend dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU
+READY and staff-filter backend f9239c36-d4b7-4ef0-b8ba-479cda926a13 ACTIVE.
+This is not a release receipt. Other worktree edits remain intact.
+Contracts and the acceptance checklist are in backend/docs/shop-vehicles-search-r2.md.
+Isolated loopback PostgreSQL uses task-owned tmpfs storage, no application data.
+69 forward migrations replayed with no Prisma difference; 67-migration db:check
+passed before search extension. Vehicle intent/persistence/queue and product
+family checks passed (22 focused checks); search/discovery regressions passed
+33 checks, including a 10,000-listing fixture. New scoped product choices plus
+search/domain checks passed 15 checks. Frontend transfer/draft and adjacent units
+passed 52 checks; admin helpers passed 31 checks. These are separate runs, not
+one complete final matrix. Browser acceptance and final release checks remain
+pending. No production database command, migration, seed, enquiry or deployment.
+Owner's new 20 GiB disk reserve is enforced before substantial operations;
+small checks use a documented 0.25 GiB estimate above the reserve. No new package
+installation/image build/pull; existing dependencies and cached postgres:18 reused.

@@ -1,4 +1,8 @@
 import { activeCategoryWhere, activeProductWhere } from "./catalog-visibility.js";
+import {
+  productSearchWhere,
+  normalizeSearch,
+} from "../../common/security/catalogue-search.js";
 import { publishedFitmentSelect } from "../fitment/fitment.projection.js";
 import { fitmentProductWhere, selectionFromQuery } from "../fitment/fitment.engine.js";
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
@@ -26,6 +30,7 @@ import type {
 type DatabaseClient = PrismaClient | Prisma.TransactionClient;
 
 export const categorySelect = {
+  family: true,
   id: true,
   name: true,
   slug: true,
@@ -37,6 +42,9 @@ export const categorySelect = {
 } satisfies Prisma.CategorySelect;
 
 export const productSelect = {
+  family: true,
+  oilViscosityGrade: true,
+  packVolumeMl: true,
   mediaVersion: true,
   id: true,
   name: true,
@@ -86,8 +94,9 @@ export const productSelect = {
 
 const literalPattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 export function productWhere(
-  query: ProductListQuery | AdminProductListQuery,
+  query: Omit<ProductListQuery, "sort"> | Omit<AdminProductListQuery, "sort">,
   activeOnly: boolean,
+  wordSearch = false,
 ): Prisma.ProductWhereInput {
   const selection = selectionFromQuery(query);
   const categories: Prisma.ProductWhereInput[] = [];
@@ -116,6 +125,9 @@ export function productWhere(
   if (activeOnly && query.parentCategoryId && query.categoryId)
     categories.push({ category: { parentId: query.parentCategoryId } });
   return {
+    ...(query.family ? { family: query.family } : {}),
+    ...(query.oilViscosityGrade ? { oilViscosityGrade: query.oilViscosityGrade } : {}),
+    ...(query.packVolumeMl !== undefined ? { packVolumeMl: query.packVolumeMl } : {}),
     AND: [
       ...(selection
         ? [fitmentProductWhere(selection, query.fitment === "verified")]
@@ -139,23 +151,27 @@ export function productWhere(
         : {}),
     ...(query.brand === undefined
       ? {}
-      : { brand: { equals: literalPattern(query.brand), mode: "insensitive" } }),
+      : wordSearch
+        ? { brandKey: normalizeSearch(query.brand) }
+        : { brand: { equals: literalPattern(query.brand), mode: "insensitive" } }),
     ...(query.featured === undefined ? {} : { featured: query.featured }),
     ...(query.search === undefined
       ? {}
-      : {
-          OR: [
-            { name: { contains: literalPattern(query.search), mode: "insensitive" } },
-            { sku: { contains: literalPattern(query.search), mode: "insensitive" } },
-            { brand: { contains: literalPattern(query.search), mode: "insensitive" } },
-            {
-              manufacturerPartNumber: {
-                contains: literalPattern(query.search),
-                mode: "insensitive",
+      : wordSearch
+        ? productSearchWhere(query.search)
+        : {
+            OR: [
+              { name: { contains: literalPattern(query.search), mode: "insensitive" } },
+              { sku: { contains: literalPattern(query.search), mode: "insensitive" } },
+              { brand: { contains: literalPattern(query.search), mode: "insensitive" } },
+              {
+                manufacturerPartNumber: {
+                  contains: literalPattern(query.search),
+                  mode: "insensitive",
+                },
               },
-            },
-          ],
-        }),
+            ],
+          }),
     ...(selection ||
     (query.make === undefined && query.model === undefined && query.year === undefined)
       ? {}
@@ -186,7 +202,7 @@ export function productWhere(
 }
 
 export function productOrder(
-  sort: ProductListQuery["sort"],
+  sort: ProductListQuery["sort"] | "best_match",
 ): Prisma.ProductOrderByWithRelationInput[] {
   switch (sort) {
     case "name":
@@ -246,6 +262,7 @@ export class CatalogRepository {
   createCategory(input: CategoryCreateInput, client: DatabaseClient) {
     return client.category.create({
       data: {
+        family: input.family ?? null,
         name: input.name,
         slug: input.slug,
         isActive: input.isActive,
@@ -263,6 +280,7 @@ export class CatalogRepository {
     client: DatabaseClient,
   ) {
     const data: Prisma.CategoryUncheckedUpdateInput = {
+      ...(input.family === undefined ? {} : { family: input.family }),
       updatedAt,
       ...(input.parentId === undefined ? {} : { parentId: input.parentId }),
       ...(input.name === undefined ? {} : { name: input.name }),
@@ -301,6 +319,9 @@ export class CatalogRepository {
     return client.product.create({
       data: {
         categoryId: input.categoryId,
+        family: input.family ?? null,
+        oilViscosityGrade: input.oilViscosityGrade ?? null,
+        packVolumeMl: input.packVolumeMl ?? null,
         condition: input.condition ?? null,
         classification: input.classification ?? null,
         productType: input.productType ?? null,
@@ -328,6 +349,11 @@ export class CatalogRepository {
     client: DatabaseClient,
   ) {
     const data: Prisma.ProductUncheckedUpdateInput = {
+      ...(input.family === undefined ? {} : { family: input.family }),
+      ...(input.oilViscosityGrade === undefined
+        ? {}
+        : { oilViscosityGrade: input.oilViscosityGrade }),
+      ...(input.packVolumeMl === undefined ? {} : { packVolumeMl: input.packVolumeMl }),
       updatedAt,
       ...(input.condition === undefined ? {} : { condition: input.condition }),
       ...(input.classification === undefined
