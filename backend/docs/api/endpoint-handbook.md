@@ -1620,7 +1620,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### POST `/public/support/enquiries`
 
 - Operation ID: `postPublicSupportEnquiries`
-- Purpose: Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Deploy this compatible API change before enabling the matching generic Product handoff in the frontend. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Apply the compatible public-unlisted-parts constraint migration, then deploy this API change before enabling the matching generic Product handoff in the frontend. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required

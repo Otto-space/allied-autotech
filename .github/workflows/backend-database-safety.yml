@@ -2,9 +2,19 @@ name: Backend database safety
 
 on:
   push:
-    paths: ["backend/**", "AGENTS.md", ".github/workflows/backend-database-safety.yml"]
+    paths:
+      [
+        "backend/**",
+        "AGENTS.md",
+        ".github/workflows/backend-database-safety.yml",
+      ]
   pull_request:
-    paths: ["backend/**", "AGENTS.md", ".github/workflows/backend-database-safety.yml"]
+    paths:
+      [
+        "backend/**",
+        "AGENTS.md",
+        ".github/workflows/backend-database-safety.yml",
+      ]
   workflow_dispatch:
 
 permissions:
@@ -60,3 +70,8 @@ jobs:
           RUN_DATABASE_TESTS: "true"
           RUN_DATABASE_SAFETY_TESTS: "true"
         run: npx --no-install vitest run tests/integration/database-schema-safety.test.ts --maxWorkers=1
+      - name: Verify unlisted public parts enquiries against isolated PostgreSQL
+        env:
+          TEST_DB_NAME: allied_autotech_schema_ci
+          RUN_DATABASE_TESTS: "true"
+        run: npx --no-install vitest run tests/integration/public-unlisted-parts-enquiry.test.ts tests/unit/public-parts-enquiry.test.ts --maxWorkers=1
