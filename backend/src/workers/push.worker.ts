@@ -94,6 +94,7 @@ export class PushWorker {
         endpoint,
         JSON.stringify({
           notificationId: notification.id,
+          endpointHash: subscription.endpointHash,
           audience: subscription.user.role === "CUSTOMER" ? "customer" : "staff",
         }),
         {

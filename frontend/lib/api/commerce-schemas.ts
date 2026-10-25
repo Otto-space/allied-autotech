@@ -1,5 +1,6 @@
 import { fitmentDecisionSchema, fitmentQualifierKeys } from "../parts-fitment";
 import { z } from "zod";
+import { productFamily, recordedProductFields } from "../product-family";
 export const money = z.string().regex(/^\d+$/);
 export const branchRef = z.object({
   id: z.string().uuid(),
@@ -7,6 +8,7 @@ export const branchRef = z.object({
   name: z.string(),
 });
 export const categorySchema = z.object({
+  family: productFamily.nullable().optional(),
   parentId: z.uuid().nullable().optional(),
   id: z.string().uuid(),
   name: z.string(),
@@ -14,6 +16,7 @@ export const categorySchema = z.object({
   description: z.string().nullable(),
 });
 export const productSchema = z.object({
+  ...recordedProductFields,
   fitment: fitmentDecisionSchema.optional(),
   condition: z.enum(["NEW", "USED", "REFURBISHED"]).nullable().optional(),
   classification: z.enum(["GENUINE_OEM", "AFTERMARKET"]).nullable().optional(),

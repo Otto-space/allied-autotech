@@ -118,8 +118,8 @@ function DisputeOverview({
               <ChevronRight size={15} aria-hidden="true" />
             </Link>
           )}
-          <Link className="text-link" href="/admin/operations">
-            Back to operations
+          <Link className="text-link" href="/admin">
+            Back to overview
           </Link>
         </div>
       </header>

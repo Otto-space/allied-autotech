@@ -1,9 +1,11 @@
 import { renderBrandEmail } from "../../common/email/brand-template.js";
 import { randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
+import { AppError } from "../../common/errors/app-error.js";
 import { z } from "zod";
 import { env } from "../../config/env.js";
 import { encryptNotificationPayload } from "../../common/security/mfa-encryption.js";
-import type { Prisma } from "../../generated/prisma/client.js";
+import { Prisma } from "../../generated/prisma/client.js";
 import { enqueueNotification } from "../notifications/notifications.service.js";
 import { renderNotificationEmail } from "../notifications/notification-delivery.templates.js";
 
@@ -38,6 +40,12 @@ const reasons = [
   "RETRY_EXHAUSTED",
 ] as const;
 export const supportEmailDeliverySchema = z.object({
+  noticeRevision: z
+    .string()
+    .regex(/^[a-f0-9]{64}$/)
+    .optional(),
+  noticeEligible: z.boolean().optional(),
+  noticeDismissed: z.boolean().optional(),
   id: z.uuid(),
   status: z.enum(["QUEUED", "SENDING", "SENT", "RETRYING", "FAILED", "NOT_SENT"]),
   reason: z.enum(reasons).nullable(),
@@ -53,6 +61,74 @@ export const supportEmailDeliverySchema = z.object({
 export const supportEmailDeliveryPageSchema = z.object({
   items: z.array(supportEmailDeliverySchema).max(20),
 });
+export const supportDeliveryDismissSchema = z
+  .object({
+    notices: z
+      .array(
+        z.object({ id: z.uuid(), revision: z.string().regex(/^[a-f0-9]{64}$/) }).strict(),
+      )
+      .min(1)
+      .max(20),
+  })
+  .strict()
+  .refine(
+    (v) => new Set(v.notices.map((n) => n.id)).size === v.notices.length,
+    "Duplicate delivery notice",
+  );
+
+export function deliveryNoticeRevision(item: {
+  status: string;
+  reason: string | null;
+  attempts: number;
+  providerStatus: string | null;
+  providerUpdatedAt: string | null;
+}) {
+  return createHash("sha256")
+    .update(
+      JSON.stringify([
+        item.status,
+        item.reason,
+        item.attempts,
+        item.providerStatus,
+        item.providerUpdatedAt,
+      ]),
+    )
+    .digest("hex");
+}
+export async function dismissSupportDeliveryNotices(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  id: string,
+  body: unknown,
+) {
+  const input = supportDeliveryDismissSchema.parse(body);
+  // Serialize with worker updates; provider revisions arriving afterwards remain
+  // new notices. Lock only explicitly reviewed delivery records, in stable order.
+  await tx.$queryRaw(
+    Prisma.sql`SELECT "id" FROM "OutboxEvent" WHERE "id" IN (${Prisma.join(
+      input.notices
+        .map((n) => n.id)
+        .sort()
+        .map((key) => Prisma.sql`${key}::uuid`),
+    )}) AND "aggregateId" = ${id} AND "aggregateType" = ${supportCustomerEmailAggregate} AND "eventType" = ${supportCustomerEmailEvent} ORDER BY "id" FOR UPDATE`,
+  );
+  const page = await supportEmailDeliveries(tx, id, userId);
+  for (const notice of input.notices) {
+    const item = page.items.find((i) => i.id === notice.id);
+    if (!item?.noticeEligible || item.noticeRevision !== notice.revision)
+      throw new AppError({
+        code: "CONFLICT",
+        statusCode: 409,
+        message:
+          "A delivery notice changed or is unavailable. Refresh and review visible notices.",
+      });
+  }
+  await tx.supportDeliveryNoticeDismissal.createMany({
+    data: input.notices.map((n) => ({ userId, deliveryId: n.id, revision: n.revision })),
+    skipDuplicates: true,
+  });
+  return supportEmailDeliveries(tx, id, userId);
+}
 
 // Caller holds the conversation lock/version check. This outbox entry and the
 // message/status change commit together; a rollback cannot send an email.
@@ -163,7 +239,11 @@ export function renderSupportCustomerEmail(
   });
 }
 
-export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: string) {
+export async function supportEmailDeliveries(
+  tx: Prisma.TransactionClient,
+  id: string,
+  userId?: string,
+) {
   const rows = await tx.outboxEvent.findMany({
     where: {
       aggregateType: supportCustomerEmailAggregate,
@@ -182,17 +262,14 @@ export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: s
       availableAt: true,
     },
   });
+  // One latest observation per delivery. A noisy provider record must not evict
+  // another delivery's known failure from a shared arbitrary event limit.
   const outcomeRows = rows.length
-    ? await tx.outboxEvent.findMany({
-        where: {
-          aggregateType: supportEmailProviderOutcomeAggregate,
-          eventType: supportEmailProviderOutcomeEvent,
-          aggregateId: { in: rows.map((row) => row.id) },
-        },
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        take: 400,
-        select: { aggregateId: true, createdAt: true, payload: true },
-      })
+    ? await tx.$queryRaw<
+        { aggregateId: string; createdAt: Date; payload: Prisma.JsonValue }[]
+      >(
+        Prisma.sql`SELECT DISTINCT ON ("aggregateId") "aggregateId", "createdAt", "payload" FROM "OutboxEvent" WHERE "aggregateType" = ${supportEmailProviderOutcomeAggregate} AND "eventType" = ${supportEmailProviderOutcomeEvent} AND "aggregateId" IN (${Prisma.join(rows.map((r) => r.id))}) AND "payload"->>'type' IN ('email.delivered','email.delivery_delayed','email.bounced','email.complained','email.failed','email.suppressed') ORDER BY "aggregateId", "createdAt" DESC, "id" DESC`,
+      )
     : [];
   const outcomes = new Map<string, { type: string; at: Date }>();
   for (const row of outcomeRows) {
@@ -211,40 +288,61 @@ export async function supportEmailDeliveries(tx: Prisma.TransactionClient, id: s
     )
       outcomes.set(row.aggregateId, { type, at: row.createdAt });
   }
+  const items = rows.map((row) => ({
+    id: row.id,
+    status:
+      row.status === "PUBLISHED"
+        ? "SENT"
+        : row.status === "PROCESSING"
+          ? "SENDING"
+          : row.status === "FAILED"
+            ? "RETRYING"
+            : row.status === "DEAD_LETTER"
+              ? [
+                  "CHANNEL_DISABLED",
+                  "CONSENT_WITHDRAWN",
+                  "NO_RECIPIENT",
+                  "SUPPORT_REPLY_ADDRESS_MISSING",
+                ].includes(row.lastError ?? "")
+                ? "NOT_SENT"
+                : "FAILED"
+              : "QUEUED",
+    reason:
+      reasons.find((r) => r === row.lastError) ??
+      (row.lastError ? "SUPPORT_EMAIL_FAILED" : null),
+    createdAt: row.createdAt.toISOString(),
+    sentAt: row.publishedAt?.toISOString() ?? null,
+    attempts: row.attempts,
+    nextRetryAt: row.status === "FAILED" ? row.availableAt.toISOString() : null,
+    providerStatus:
+      outcomes
+        .get(row.id)
+        ?.type.replace("email.", "")
+        .replace("delivery_delayed", "delayed")
+        .toUpperCase() ?? null,
+    providerUpdatedAt: outcomes.get(row.id)?.at.toISOString() ?? null,
+  }));
+  const dismissed =
+    userId && rows.length
+      ? await tx.supportDeliveryNoticeDismissal.findMany({
+          where: { userId, deliveryId: { in: rows.map((r) => r.id) } },
+          select: { deliveryId: true, revision: true },
+        })
+      : [];
+  const keys = new Set(dismissed.map((r) => `${r.deliveryId}:${r.revision}`));
   return {
-    items: rows.map((row) => ({
-      id: row.id,
-      status:
-        row.status === "PUBLISHED"
-          ? "SENT"
-          : row.status === "PROCESSING"
-            ? "SENDING"
-            : row.status === "FAILED"
-              ? "RETRYING"
-              : row.status === "DEAD_LETTER"
-                ? [
-                    "CHANNEL_DISABLED",
-                    "CONSENT_WITHDRAWN",
-                    "NO_RECIPIENT",
-                    "SUPPORT_REPLY_ADDRESS_MISSING",
-                  ].includes(row.lastError ?? "")
-                  ? "NOT_SENT"
-                  : "FAILED"
-                : "QUEUED",
-      reason:
-        reasons.find((r) => r === row.lastError) ??
-        (row.lastError ? "SUPPORT_EMAIL_FAILED" : null),
-      createdAt: row.createdAt.toISOString(),
-      sentAt: row.publishedAt?.toISOString() ?? null,
-      attempts: row.attempts,
-      nextRetryAt: row.status === "FAILED" ? row.availableAt.toISOString() : null,
-      providerStatus:
-        outcomes
-          .get(row.id)
-          ?.type.replace("email.", "")
-          .replace("delivery_delayed", "delayed")
-          .toUpperCase() ?? null,
-      providerUpdatedAt: outcomes.get(row.id)?.at.toISOString() ?? null,
-    })),
+    items: items.map((item) => {
+      const noticeRevision = deliveryNoticeRevision(item);
+      return {
+        ...item,
+        noticeRevision,
+        noticeEligible:
+          ["FAILED", "NOT_SENT", "RETRYING"].includes(item.status) ||
+          ["DELAYED", "BOUNCED", "COMPLAINED", "FAILED", "SUPPRESSED"].includes(
+            item.providerStatus ?? "",
+          ),
+        noticeDismissed: keys.has(`${item.id}:${noticeRevision}`),
+      };
+    }),
   };
 }

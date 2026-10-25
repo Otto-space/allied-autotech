@@ -571,19 +571,20 @@ enum OutboxStatus {
 }
 
 model User {
-  fitmentCreated    ProductCompatibility[]        @relation("FitmentCreated")
-  fitmentEdited     ProductCompatibility[]        @relation("FitmentEdited")
-  fitmentReviewed   ProductCompatibility[]        @relation("FitmentReviewed")
-  fitmentHistory    ProductCompatibilityHistory[]
-  pushSubscriptions PushSubscription[]
-  workforceAccess   WorkforceAccess?
-  mediaUploads      MediaUpload[]                 @relation("MediaUploadActor")
-  ownedMediaUploads MediaUpload[]                 @relation("MediaUploadOwner")
-  id                String                        @id @default(uuid()) @db.Uuid
-  email             String                        @unique @db.Citext
-  passwordHash      String
-  role              UserRole                      @default(CUSTOMER)
-  status            UserStatus                    @default(ACTIVE)
+  supportNoticeDismissals SupportDeliveryNoticeDismissal[]
+  fitmentCreated          ProductCompatibility[]           @relation("FitmentCreated")
+  fitmentEdited           ProductCompatibility[]           @relation("FitmentEdited")
+  fitmentReviewed         ProductCompatibility[]           @relation("FitmentReviewed")
+  fitmentHistory          ProductCompatibilityHistory[]
+  pushSubscriptions       PushSubscription[]
+  workforceAccess         WorkforceAccess?
+  mediaUploads            MediaUpload[]                    @relation("MediaUploadActor")
+  ownedMediaUploads       MediaUpload[]                    @relation("MediaUploadOwner")
+  id                      String                           @id @default(uuid()) @db.Uuid
+  email                   String                           @unique @db.Citext
+  passwordHash            String
+  role                    UserRole                         @default(CUSTOMER)
+  status                  UserStatus                       @default(ACTIVE)
 
   emailVerifiedAt     DateTime?
   passwordChangedAt   DateTime?
@@ -1222,17 +1223,23 @@ model WorkOrderItem {
   @@index([productId])
 }
 
+enum ProductFamily {
+  REPLACEMENT_PART
+  ENGINE_OIL
+}
+
 model Category {
-  parentId    String?    @db.Uuid
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
-  children    Category[] @relation("CategoryHierarchy")
-  id          String     @id @default(uuid()) @db.Uuid
+  family      ProductFamily?
+  parentId    String?        @db.Uuid
+  parent      Category?      @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Category[]     @relation("CategoryHierarchy")
+  id          String         @id @default(uuid()) @db.Uuid
   name        String
-  slug        String     @unique
+  slug        String         @unique
   description String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   products Product[]
 
@@ -1241,6 +1248,14 @@ model Category {
 }
 
 model Product {
+  brandKey               String?                @db.Text
+  searchCore             String                 @default("") @db.Text
+  searchDocument         String                 @default("") @db.Text
+  searchNames            String[]               @default([])
+  searchIdentifiers      String[]               @default([])
+  family                 ProductFamily?
+  oilViscosityGrade      String?                @db.VarChar(12)
+  packVolumeMl           Int?
   condition              ProductCondition?
   classification         ProductClassification?
   productType            String?                @db.VarChar(80)
@@ -1274,6 +1289,10 @@ model Product {
   compatibilities ProductCompatibility[]
 
   @@index([condition, classification])
+  @@index([family, isActive])
+  @@index([brandKey, categoryId], map: "Product_brand_key_category_idx")
+  @@index([searchDocument(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_search_document_idx")
+  @@index([searchIdentifiers], type: Gin, map: "Product_search_identifiers_idx")
   @@index([categoryId, isActive])
   @@index([name])
   @@index([brand])
@@ -1951,23 +1970,26 @@ model Vehicle {
 }
 
 model VehicleListing {
-  id          String               @id @default(uuid()) @db.Uuid
-  vehicleId   String               @db.Uuid
-  branchId    String               @db.Uuid
-  title       String
-  slug        String               @unique
-  priceKobo   BigInt
-  currency    String               @default("NGN") @db.Char(3)
-  description String?
-  status      VehicleListingStatus @default(DRAFT)
-  featured    Boolean              @default(false)
-  publishedAt DateTime?
-  reservedAt  DateTime?
-  soldAt      DateTime?
-  archivedAt  DateTime?
-  version     Int                  @default(0)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  searchCore     String               @default("") @db.Text
+  searchDocument String               @default("") @db.Text
+  searchNames    String[]             @default([])
+  id             String               @id @default(uuid()) @db.Uuid
+  vehicleId      String               @db.Uuid
+  branchId       String               @db.Uuid
+  title          String
+  slug           String               @unique
+  priceKobo      BigInt
+  currency       String               @default("NGN") @db.Char(3)
+  description    String?
+  status         VehicleListingStatus @default(DRAFT)
+  featured       Boolean              @default(false)
+  publishedAt    DateTime?
+  reservedAt     DateTime?
+  soldAt         DateTime?
+  archivedAt     DateTime?
+  version        Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   vehicle          Vehicle               @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
   branch           Branch                @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -1980,6 +2002,7 @@ model VehicleListing {
   @@index([branchId, status])
   @@index([vehicleId])
   @@index([status, priceKobo])
+  @@index([searchDocument(ops: raw("gin_trgm_ops"))], type: Gin, map: "VehicleListing_search_document_idx")
   @@index([status, priceKobo, id], map: "VehicleListing_discovery_price_asc_idx")
   @@index([status, createdAt(sort: Desc), id(sort: Desc)], map: "VehicleListing_discovery_newest_idx")
   @@index([featured, status])
@@ -2246,28 +2269,34 @@ model Review {
   @@index([moderatedByUserId])
 }
 
+enum VehicleEnquiryIntent {
+  LISTING
+  REQUIREMENTS
+}
+
 model Enquiry {
-  id               String        @id @default(uuid()) @db.Uuid
-  customerId       String?       @db.Uuid
-  branchId         String?       @db.Uuid
-  productId        String?       @db.Uuid
-  serviceId        String?       @db.Uuid
-  bookingId        String?       @db.Uuid
-  quoteId          String?       @db.Uuid
-  vehicleListingId String?       @db.Uuid
-  assignedStaffId  String?       @db.Uuid
-  type             EnquiryType
-  status           EnquiryStatus @default(OPEN)
-  subject          String
-  message          String
-  name             String
-  email            String        @db.Citext
-  phone            String?       @db.VarChar(32)
-  resolvedAt       DateTime?
-  closedAt         DateTime?
-  version          Int           @default(0)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                   String                @id @default(uuid()) @db.Uuid
+  customerId           String?               @db.Uuid
+  branchId             String?               @db.Uuid
+  productId            String?               @db.Uuid
+  serviceId            String?               @db.Uuid
+  bookingId            String?               @db.Uuid
+  quoteId              String?               @db.Uuid
+  vehicleListingId     String?               @db.Uuid
+  vehicleEnquiryIntent VehicleEnquiryIntent?
+  assignedStaffId      String?               @db.Uuid
+  type                 EnquiryType
+  status               EnquiryStatus         @default(OPEN)
+  subject              String
+  message              String
+  name                 String
+  email                String                @db.Citext
+  phone                String?               @db.VarChar(32)
+  resolvedAt           DateTime?
+  closedAt             DateTime?
+  version              Int                   @default(0)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   customer             CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
   branch               Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -2544,20 +2573,21 @@ model IdempotencyRecord {
 }
 
 model OutboxEvent {
-  id            String       @id @default(uuid()) @db.Uuid
-  eventId       String       @unique @db.Uuid
-  aggregateType String       @db.VarChar(100)
-  aggregateId   String       @db.VarChar(120)
-  eventType     String       @db.VarChar(120)
-  payload       Json
-  status        OutboxStatus @default(PENDING)
-  attempts      Int          @default(0)
-  availableAt   DateTime     @default(now())
-  lockedAt      DateTime?
-  publishedAt   DateTime?
-  lastError     String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  supportNoticeDismissals SupportDeliveryNoticeDismissal[]
+  id                      String                           @id @default(uuid()) @db.Uuid
+  eventId                 String                           @unique @db.Uuid
+  aggregateType           String                           @db.VarChar(100)
+  aggregateId             String                           @db.VarChar(120)
+  eventType               String                           @db.VarChar(120)
+  payload                 Json
+  status                  OutboxStatus                     @default(PENDING)
+  attempts                Int                              @default(0)
+  availableAt             DateTime                         @default(now())
+  lockedAt                DateTime?
+  publishedAt             DateTime?
+  lastError               String?
+  createdAt               DateTime                         @default(now())
+  updatedAt               DateTime                         @updatedAt
 
   notificationDelivery NotificationDelivery?
 
@@ -2566,6 +2596,18 @@ model OutboxEvent {
 }
 
 // Append-only versions: approval creates a new version, never changes old terms.
+model SupportDeliveryNoticeDismissal {
+  userId     String      @db.Uuid
+  deliveryId String      @db.Uuid
+  revision   String      @db.Char(64)
+  createdAt  DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delivery   OutboxEvent @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, deliveryId, revision])
+  @@index([deliveryId])
+}
+
 model BusinessPolicyVersion {
   vehicleReservations                   VehicleTransaction[] @relation("VehicleReservationTerms")
   id                                    String               @id @default(uuid()) @db.Uuid

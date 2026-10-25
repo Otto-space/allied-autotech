@@ -69,7 +69,7 @@ const enumSelections = <T extends string>(options: readonly T[]) =>
     .transform((values) => options.filter((option) => values.includes(option)))
     .optional();
 
-export const publicVehicleListQuerySchema = z
+export const publicVehicleListQueryBase = z
   .object({
     cursor: uuid.optional(),
     limit: z.coerce.number().int().min(1).max(50).default(20),
@@ -112,8 +112,8 @@ export const publicVehicleListQuerySchema = z
     transmission: z.enum(["AUTOMATIC", "MANUAL", "CVT", "OTHER"]).optional(),
     fuelType: z.enum(["PETROL", "DIESEL", "HYBRID", "ELECTRIC", "OTHER"]).optional(),
     featured: optionalBoolean,
-    minPriceKobo: kobo.optional(),
-    maxPriceKobo: kobo.optional(),
+    minPriceKobo: z.union([z.literal("0"), kobo]).optional(),
+    maxPriceKobo: z.union([z.literal("0"), kobo]).optional(),
     sort: z
       .enum([
         "newest",
@@ -126,69 +126,74 @@ export const publicVehicleListQuerySchema = z
       ])
       .default("newest"),
   })
-  .strict()
-  .refine(
-    (value) =>
-      value.minPriceKobo === undefined ||
-      value.maxPriceKobo === undefined ||
-      BigInt(value.minPriceKobo) <= BigInt(value.maxPriceKobo),
-    { path: ["maxPriceKobo"], message: "Must be at least minPriceKobo" },
+  .strict();
+export function checkPublicVehicleQuery(
+  v: Omit<z.infer<typeof publicVehicleListQueryBase>, "sort">,
+  ctx: z.RefinementCtx,
+) {
+  if (
+    v.minPriceKobo !== undefined &&
+    v.maxPriceKobo !== undefined &&
+    BigInt(v.minPriceKobo) > BigInt(v.maxPriceKobo)
   )
-  .superRefine((v, ctx) => {
-    for (const [single, multiple] of [
-      ["condition", "conditions"],
-      ["powertrain", "powertrains"],
-    ] as const) {
-      if (v[single] && v[multiple])
-        ctx.addIssue({
-          code: "custom",
-          path: [multiple],
-          message: `Use either ${single} or ${multiple}`,
-        });
-    }
-    for (const [minimum, maximum] of [
-      ["minYear", "maxYear"],
-      ["minMileageKm", "maxMileageKm"],
-      ["minEngineCapacityCc", "maxEngineCapacityCc"],
-    ] as const) {
-      if (
-        v[minimum] !== undefined &&
-        v[maximum] !== undefined &&
-        v[minimum]! > v[maximum]!
-      )
-        ctx.addIssue({
-          code: "custom",
-          path: [maximum],
-          message: `Must be at least ${minimum}`,
-        });
-    }
-    if (v.model && !v.make)
+    ctx.addIssue({
+      code: "custom",
+      path: ["maxPriceKobo"],
+      message: "Must be at least minPriceKobo",
+    });
+  for (const [single, multiple] of [
+    ["condition", "conditions"],
+    ["powertrain", "powertrains"],
+  ] as const) {
+    if (v[single] && v[multiple])
       ctx.addIssue({
         code: "custom",
-        path: ["model"],
-        message: "Choose a make before a model",
+        path: [multiple],
+        message: `Use either ${single} or ${multiple}`,
       });
-    if (
-      v.year !== undefined &&
-      ((v.minYear !== undefined && v.year < v.minYear) ||
-        (v.maxYear !== undefined && v.year > v.maxYear))
-    )
+  }
+  for (const [minimum, maximum] of [
+    ["minYear", "maxYear"],
+    ["minMileageKm", "maxMileageKm"],
+    ["minEngineCapacityCc", "maxEngineCapacityCc"],
+  ] as const) {
+    if (v[minimum] !== undefined && v[maximum] !== undefined && v[minimum]! > v[maximum]!)
       ctx.addIssue({
         code: "custom",
-        path: ["year"],
-        message: "Year conflicts with the selected range",
+        path: [maximum],
+        message: `Must be at least ${minimum}`,
       });
-    if (
-      v.manufactureRegion &&
-      v.manufactureCountryCode &&
-      !(europeanCountryCodes as readonly string[]).includes(v.manufactureCountryCode)
-    )
-      ctx.addIssue({
-        code: "custom",
-        path: ["manufactureCountryCode"],
-        message: "Country is outside Europe",
-      });
-  });
+  }
+  if (v.model && !v.make)
+    ctx.addIssue({
+      code: "custom",
+      path: ["model"],
+      message: "Choose a make before a model",
+    });
+  if (
+    v.year !== undefined &&
+    ((v.minYear !== undefined && v.year < v.minYear) ||
+      (v.maxYear !== undefined && v.year > v.maxYear))
+  )
+    ctx.addIssue({
+      code: "custom",
+      path: ["year"],
+      message: "Year conflicts with the selected range",
+    });
+  if (
+    v.manufactureRegion &&
+    v.manufactureCountryCode &&
+    !(europeanCountryCodes as readonly string[]).includes(v.manufactureCountryCode)
+  )
+    ctx.addIssue({
+      code: "custom",
+      path: ["manufactureCountryCode"],
+      message: "Country is outside Europe",
+    });
+}
+export const publicVehicleListQuerySchema = publicVehicleListQueryBase.superRefine(
+  checkPublicVehicleQuery,
+);
 export const staffVehicleListQuerySchema = publicVehicleListQuerySchema
   .safeExtend({
     sort: z

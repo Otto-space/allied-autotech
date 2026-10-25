@@ -7,6 +7,7 @@ import {
 import { requireCsrf } from "../../common/middleware/csrf.js";
 import { validate } from "../../common/middleware/validate.js";
 import { CatalogController } from "./catalog.controller.js";
+import { productOptionQuerySchema } from "./product-options.schemas.js";
 import {
   productDiscoveryQuerySchema,
   productFacetQuerySchema,
@@ -39,6 +40,11 @@ import {
 export function createPublicCatalogRouter(): Router {
   const router = Router();
   const controller = new CatalogController();
+  router.get(
+    "/products/options",
+    validate({ query: productOptionQuerySchema }),
+    controller.publicOptions,
+  );
   router.get(
     "/products/discovery",
     validate({ query: productDiscoveryQuerySchema }),

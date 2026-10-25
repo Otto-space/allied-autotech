@@ -13,6 +13,9 @@ import { appendAuditEvent } from "../audit/audit.service.js";
 import { catalogConflict, catalogResourceNotFound } from "./catalog.errors.js";
 import { assertCatalogueAdministrator, assertCustomer } from "./catalog.policy.js";
 import { CatalogRepository } from "./catalog.repository.js";
+import { ProductOptionsRepository } from "./product-options.repository.js";
+import type { ProductOptionQuery } from "./product-options.schemas.js";
+import { validRecordedProduct } from "./product-family.js";
 import {
   projectProductImage,
   type ProductImageRecord,
@@ -159,6 +162,11 @@ export class CatalogService {
   publicFacets(query: ProductFacetQuery) {
     return new ProductDiscoveryRepository(this.database).facets(query);
   }
+  async publicOptions(query: ProductOptionQuery) {
+    const selection = selectionFromQuery(query.criteria);
+    if (selection) await new FitmentService(this.database).validateSelection(selection);
+    return new ProductOptionsRepository(this.database).options(query);
+  }
   async publicProduct(id: string) {
     const product = await this.repository.product(id, true);
     if (product === null) throw catalogResourceNotFound();
@@ -237,6 +245,68 @@ export class CatalogService {
       );
   }
 
+  private async assertCategoryFamily(
+    transaction: Prisma.TransactionClient,
+    category: {
+      id?: string;
+      family: "ENGINE_OIL" | "REPLACEMENT_PART" | null;
+      parentId: string | null;
+    },
+  ) {
+    const parent = category.parentId
+      ? await this.repository.category(category.parentId, false, transaction)
+      : null;
+    if (parent?.family && category.family && parent.family !== category.family)
+      throw catalogConflict("Choose the same product family as the parent category");
+    const effective = category.family ?? parent?.family ?? null;
+    if (!category.id) return;
+    const children = await transaction.category.findMany({
+      where: { parentId: category.id },
+      select: { id: true, family: true },
+    });
+    if (effective && children.some((child) => child.family && child.family !== effective))
+      throw catalogConflict("Review subcategory families before changing this category");
+    const scopes = [
+      { id: category.id, family: effective },
+      ...children.map((child) => ({ id: child.id, family: child.family ?? effective })),
+    ];
+    const constrained = scopes.flatMap((scope) =>
+      scope.family
+        ? [
+            {
+              categoryId: scope.id,
+              OR: [{ family: null }, { family: { not: scope.family } }],
+            },
+          ]
+        : [],
+    );
+    if (
+      constrained.length &&
+      (await transaction.product.count({ where: { OR: constrained } }))
+    )
+      throw catalogConflict(
+        "Review existing product families before changing this category",
+      );
+  }
+
+  private async assertRecordedProduct(
+    transaction: Prisma.TransactionClient,
+    product: Parameters<typeof validRecordedProduct>[0],
+    category: {
+      family: "ENGINE_OIL" | "REPLACEMENT_PART" | null;
+      parentId: string | null;
+    },
+  ) {
+    if (!validRecordedProduct(product))
+      throw catalogConflict("Use only fields appropriate to the selected product family");
+    const parent = category.parentId
+      ? await this.repository.category(category.parentId, false, transaction)
+      : null;
+    const family = category.family ?? parent?.family;
+    if (family && product.family !== family)
+      throw catalogConflict("Choose the product family required by this category");
+  }
+
   async createCategory(
     actor: AuthenticatedActor,
     input: CategoryCreateInput,
@@ -250,6 +320,10 @@ export class CatalogService {
         input.parentId ?? null,
         input.isActive,
       );
+      await this.assertCategoryFamily(transaction, {
+        family: input.family ?? null,
+        parentId: input.parentId ?? null,
+      });
       const category = await this.repository.createCategory(input, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -292,6 +366,11 @@ export class CatalogService {
         input.isActive ?? existing.isActive,
         id,
       );
+      await this.assertCategoryFamily(transaction, {
+        id,
+        family: input.family === undefined ? existing.family : input.family,
+        parentId: input.parentId === undefined ? existing.parentId : input.parentId,
+      });
       if (
         input.isActive === false &&
         existing.isActive &&
@@ -352,6 +431,7 @@ export class CatalogService {
       );
       if (category === null) throw catalogResourceNotFound();
       if (input.isActive) await this.assertProductCategoryActive(transaction, category);
+      await this.assertRecordedProduct(transaction, input, category);
       const product = await this.repository.createProduct(input, transaction);
       await appendAuditEvent(transaction, {
         actorUserId: actor.userId,
@@ -396,9 +476,15 @@ export class CatalogService {
       if (category === null) throw catalogResourceNotFound();
       const nextActive = input.isActive ?? existing.isActive;
       if (nextActive) await this.assertProductCategoryActive(transaction, category);
+      await this.assertRecordedProduct(transaction, { ...existing, ...input }, category);
       if (
-        input.productType !== undefined &&
-        input.productType !== existing.productType &&
+        ((input.productType !== undefined &&
+          input.productType !== existing.productType) ||
+          (input.family !== undefined && input.family !== existing.family) ||
+          (input.oilViscosityGrade !== undefined &&
+            input.oilViscosityGrade !== existing.oilViscosityGrade) ||
+          (input.packVolumeMl !== undefined &&
+            input.packVolumeMl !== existing.packVolumeMl)) &&
         (await transaction.productCompatibility.count({
           where: { productId: id, reviewStatus: "APPROVED" },
         }))

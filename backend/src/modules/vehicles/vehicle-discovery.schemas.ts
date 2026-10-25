@@ -1,6 +1,10 @@
 import { z } from "zod";
+import { validSearch } from "../../common/security/catalogue-search.js";
 import { catalogueCursorSchema } from "../../common/security/catalogue-cursors.js";
-import { publicVehicleListQuerySchema } from "./vehicles.schemas.js";
+import {
+  publicVehicleListQueryBase,
+  checkPublicVehicleQuery,
+} from "./vehicles.schemas.js";
 import { savedVehicleListingSchema } from "./saved-vehicle.schemas.js";
 
 const pageSize = z
@@ -8,16 +12,41 @@ const pageSize = z
   .regex(/^(?:[1-9]|[1-4][0-9]|50)$/)
   .default("20")
   .transform(Number);
-export const vehicleDiscoveryQuerySchema = publicVehicleListQuerySchema.safeExtend({
-  cursor: z.union([z.uuid(), catalogueCursorSchema]).optional(),
-  limit: pageSize,
-  year: z
-    .string()
-    .regex(/^\d{4}$/)
-    .transform(Number)
-    .pipe(z.number().int().min(1886).max(2200))
-    .optional(),
-});
+export const vehicleDiscoveryQuerySchema = publicVehicleListQueryBase
+  .extend({
+    sort: z
+      .enum([
+        "best_match",
+        "newest",
+        "price_asc",
+        "price_desc",
+        "year_desc",
+        "year_asc",
+        "mileage_asc",
+        "mileage_desc",
+      ])
+      .optional(),
+    cursor: z.union([z.uuid(), catalogueCursorSchema]).optional(),
+    limit: pageSize,
+    year: z
+      .string()
+      .regex(/^\d{4}$/)
+      .transform(Number)
+      .pipe(z.number().int().min(1886).max(2200))
+      .optional(),
+  })
+  .superRefine(checkPublicVehicleQuery)
+  .refine((q) => !q.search || validSearch(q.search), {
+    path: ["search"],
+    message: "Use between 1 and 20 searchable words or codes",
+  })
+  .transform((q) => ({
+    ...q,
+    sort:
+      q.sort === "best_match" && !q.search
+        ? ("newest" as const)
+        : (q.sort ?? (q.search ? ("best_match" as const) : ("newest" as const))),
+  }));
 export type VehicleDiscoveryQuery = z.infer<typeof vehicleDiscoveryQuerySchema>;
 export const vehicleDiscoveryPageSchema = z.object({
   items: z.array(savedVehicleListingSchema).max(50),

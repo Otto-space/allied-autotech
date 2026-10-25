@@ -156,6 +156,9 @@ for (const width of [1440, 390])
     booking.mode = "normal";
     booking.held?.();
     await expect(page.locator(".booking-appointment")).toBeVisible();
+    await page
+      .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+      .click();
     await expect(
       page.getByRole("region", { name: "Related record updates" }),
     ).toContainText("Displayed updates marked as read");
@@ -209,17 +212,20 @@ test("multiple records have individual links, no reads on the queue, and a norma
   await queue
     .getByRole("link", { name: "View update: Booking update 1", exact: true })
     .click();
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect(
     page.getByRole("region", { name: "Related record updates" }),
   ).toContainText("Displayed updates marked as read");
   expect(data.items[1].readAt).toBeNull();
   expect(data.writes.flatMap((body) => body.notificationIds)).toEqual([data.items[0].id]);
   await expect(
-    page.getByRole("link", { name: "Open notifications, 1 unread", exact: true }),
+    page.getByRole("button", { name: "Open notifications, 1 unread", exact: true }),
   ).toBeVisible();
 });
 
-test("a generic list does not acknowledge updates; an independent exact record visit does", async ({
+test("neither a list nor an independent exact visit reads updates until explicitly requested", async ({
   page,
 }) => {
   await bookingDetailFixture(page);
@@ -229,6 +235,10 @@ test("a generic list does not acknowledge updates; an independent exact record v
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   expect(data.writes).toEqual([]);
   await page.goto(recordPath);
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => data.writes.length).toBe(1);
   await page.reload();
   await expect(page.locator(".booking-appointment")).toBeVisible();
@@ -256,6 +266,9 @@ test("an uncertain read keeps the record usable and retries only the same relate
   data.failRead = true;
   await notifications(page, data);
   await page.goto(recordPath);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect(
     page.getByRole("region", { name: "Related record updates" }),
   ).toContainText("read status could not be saved");
@@ -312,6 +325,10 @@ test("a conversation notice waits for its actual message to load and be visible"
   support.releaseMessages.splice(0).forEach((release) => release());
   await expect(page.locator(`#support-entry-${messageId}`)).toBeVisible();
   await page.locator(`#support-entry-${messageId}`).scrollIntoViewIfNeeded();
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => data.writes.length).toBe(1);
   expect(data.writes[0].notificationIds).toEqual([row.id]);
   expect(support.writes).toEqual([]);
@@ -329,10 +346,14 @@ test("another tab refreshes its unread count after the exact record is read", as
   await notifications(second, data);
   await second.goto("/dashboard/notifications");
   await expect(
-    second.getByRole("link", { name: "Open notifications, 1 unread", exact: true }),
+    second.getByRole("button", { name: "Open notifications, 1 unread", exact: true }),
   ).toBeVisible();
   await page.bringToFront();
   await page.goto(recordPath);
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => data.items[0].readAt).not.toBeNull();
   await second.bringToFront();
   await expect(second.locator(".dashboard-icon-link .notification-badge")).toHaveCount(0);
@@ -375,6 +396,10 @@ test("a scoped workforce booking opens independently of the queue page", async (
   await expect(page.getByRole("region", { name: "Booking appointment" })).toContainText(
     row.service.name,
   );
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => data.writes.length).toBe(1);
   expect(data.writes[0].resourceId).toBe(row.id);
   expect(
@@ -426,6 +451,10 @@ test("the active staff conversation view loads the exact message before acknowle
   await page.goto(href);
   await expect(page.locator(`#support-entry-${message.id}`)).toBeVisible();
   await page.locator(`#support-entry-${message.id}`).scrollIntoViewIfNeeded();
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => data.writes.length).toBe(1);
   expect(anchorRead).toBe(true);
   expect(data.writes[0].notificationIds).toEqual([row.id]);
@@ -453,6 +482,10 @@ test("a staff payment outside the loaded list is displayed before its notice is 
   await page.goto(note.destination!.href);
   const selected = page.getByRole("region", { name: "Selected payment record" });
   await expect(selected).toContainText(payment.paymentNumber);
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => data.writes.length).toBe(1);
   expect(payment.status).toBe("REQUIRES_REVIEW");
   expect(data.writes[0].notificationIds).toEqual([note.id]);
@@ -511,6 +544,10 @@ test("an on-page payment keeps list order and its actual record receives focus b
   await page.goto(note.destination!.href);
   const target = page.locator(`#payment-record-${payment.id}`);
   await expect(target).toBeInViewport();
+  expect(data.writes).toEqual([]);
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => data.writes.length).toBe(1);
   await expect(page.locator(".wp-records > .wp-payment")).toHaveCount(25);
   await expect(page.locator(".wp-records > .wp-payment").first()).toContainText(

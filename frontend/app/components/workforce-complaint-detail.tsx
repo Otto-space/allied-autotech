@@ -1,4 +1,6 @@
 "use client";
+import "./care-workspace.css";
+import { CopyableValue } from "./copyable-value";
 import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 import { SupportEmailDeliverySummary } from "./support-email-delivery";
@@ -429,13 +431,17 @@ export function WorkforceComplaintDetail({
               Close selection
             </button>
           </header>
-          <WorkflowProgress workflow="complaint" status={row.status} />
-          <SupportEmailDeliverySummary
-            page={row.emailDeliveries}
-            loading={busy}
-            error={failure}
-            onRefresh={record.refresh}
-          />
+          <div className="care-context">
+            <strong>
+              {row.contact?.name || "Customer identity not available in this scope"}
+            </strong>
+            {row.contact && (
+              <CopyableValue value={row.contact.email} label="Copy customer email" />
+            )}
+            <a className="care-next" href="#wfc-body">
+              Write a reply
+            </a>
+          </div>{" "}
           <dl className="wfc-facts">
             <div>
               <dt>Branch</dt>
@@ -596,6 +602,22 @@ export function WorkforceComplaintDetail({
               </section>
             </div>
           </div>
+          <details className="care-secondary">
+            <summary>Workflow and case reference</summary>
+            <CopyableValue value={row.id} label="Copy case reference" />
+            <WorkflowProgress workflow="complaint" status={row.status} />
+          </details>
+          <SupportEmailDeliverySummary
+            dismissPath={
+              row.access.permissions.includes("COMPLAINTS")
+                ? "/staff/workforce/complaints/" + row.id + "/email-deliveries/dismiss"
+                : undefined
+            }
+            page={row.emailDeliveries}
+            loading={busy}
+            error={failure}
+            onRefresh={record.refresh}
+          />
         </>
       )}
       {proposal && (

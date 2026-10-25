@@ -1,4 +1,5 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -235,7 +236,12 @@ export function WorkforceEnquiries({
                       </time>
                     </small>
                   </th>
-                  <td data-label="Type">{enquiryTypeLabels[row.type]}</td>
+                  <td data-label="Customer">
+                    {row.contact?.name || "Not available in this scope"}
+                  </td>
+                  <td data-label="Type">
+                    {enquiryLabel(row.type, row.vehicleEnquiryIntent)}
+                  </td>
                   <td data-label="Branch">{row.branch?.name ?? "Branch not recorded"}</td>
                   <td data-label="Assigned to">{enquiryStaffName(row.assignedStaff)}</td>
                   <td data-label="Status">

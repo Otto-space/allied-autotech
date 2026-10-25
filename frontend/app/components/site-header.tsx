@@ -41,7 +41,7 @@ const sessionSchema = z.object({
 const navigation = [
   { href: "/", label: "Home" },
   { href: "/services", label: "Services" },
-  { href: "/parts", label: "Parts" },
+  { href: "/parts", label: "Shop" },
   { href: "/vehicles", label: "Vehicles" },
   { href: "/about", label: "About" },
   { href: "/help", label: "Help" },

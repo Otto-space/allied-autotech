@@ -80,7 +80,27 @@ export function pendingMigrations(
 }
 
 /** Conservative gate; it is not a substitute for reviewing migration SQL. */
-export function assertNonDestructiveMigration(sql: string): void {
+export function assertNonDestructiveMigration(sql: string, migrationName?: string): void {
+  // Exact, source-reviewed derived-field backfills, with a preservation/rehearsal
+  // plan in docs/shop-vehicles-search-r2.md. No environment flag can approve SQL.
+  // A changed byte or renamed migration must undergo a new review. All ordinary
+  // migration history, target, backup and post-migration checks still apply.
+  const reviewed: Record<string, string> = {
+    "20261025132000_catalogue_word_search":
+      "4740f38e0d45255a3b1c1eaf7977970a07434f87a8f0584f21ce8af4e249e0e1",
+    "20261025133000_catalogue_brand_options":
+      "d097ca56e11f4b044743e3981f58f6dfe25e7904adda337e088116c43ef349db",
+    "20261025134000_preserve_alphabetic_search_codes":
+      "3ea93d2f4a86628b59b81eda9c35048ec6d8e6c6c31a087abd4300c57d131c32",
+  };
+  const approved = migrationName && reviewed[migrationName];
+  if (approved) {
+    if (createHash("sha256").update(sql).digest("hex") !== approved)
+      throw new Error(
+        "Reviewed derived-field migration changed. Stop for a new SQL and preservation-plan review.",
+      );
+    return;
+  }
   const text = sql
     .replace(/\/\*[\s\S]*?\*\//g, " ")
     .replace(/--[^\r\n]*/g, " ")

@@ -23,6 +23,20 @@ const empty = z.strictObject({});
 // Route definitions are shared with OpenAPI, so every new contract is documented.
 export const workforceRouteDefinitions = [
   [
+    "post",
+    "/staff/workforce/enquiries/:id/email-deliveries/dismiss",
+    "enquiryDeliveryDismiss",
+    schemas.supportDeliveryDismissSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
+    "post",
+    "/staff/workforce/complaints/:id/email-deliveries/dismiss",
+    "complaintDeliveryDismiss",
+    schemas.supportDeliveryDismissSchema,
+    schemas.workforceRecordParams,
+  ],
+  [
     "get",
     "/staff/workforce/jobs/:id/assignees",
     "jobAssignees",
@@ -224,6 +238,16 @@ export function createWorkforceRouter(): Router {
       } = req.params as Record<string, string>;
       let data: unknown;
       switch (action) {
+        case "enquiryDeliveryDismiss":
+        case "complaintDeliveryDismiss":
+          data = await work.dismissDeliveryNotices(
+            actor,
+            action === "enquiryDeliveryDismiss" ? "enquiries" : "complaints",
+            id,
+            body,
+            ctx,
+          );
+          break;
         case "jobAssignees":
           data = await work.assignees(
             actor,

@@ -88,6 +88,25 @@ it("hides unavailable customer destinations while preserving staff navigation", 
       .some((link) => link.href === "/dashboard/cart"),
   ).toBe(true);
 });
+it("names saved items independently of unavailable orders in limited releases", () => {
+  for (const mode of ["browse_enquiries", "catalogue"]) {
+    vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
+    const shop = dashboardNavigation("CUSTOMER").find((group) => group.id === "shop");
+    if (mode === "catalogue") expect(shop).toBeUndefined();
+    else {
+      expect(shop?.label).toBe("Saved items");
+      expect(shop?.links.map((link) => link.href)).toEqual(["/dashboard/saved"]);
+    }
+  }
+  vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "full");
+  const shop = dashboardNavigation("CUSTOMER").find((group) => group.id === "shop");
+  expect(shop?.label).toBe("Orders & saved items");
+  expect(shop?.links.map((link) => link.href)).toEqual([
+    "/dashboard/orders",
+    "/dashboard/cart",
+    "/dashboard/saved",
+  ]);
+});
 it("renders product enquiries instead of a cart or purchase form", () => {
   vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", "browse_enquiries");
   const { container } = render(<ProductActions productId="test-product" available />);

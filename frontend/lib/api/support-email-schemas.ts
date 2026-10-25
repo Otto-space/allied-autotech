@@ -4,6 +4,12 @@ export const supportEmailDeliveryPageSchema = z.object({
     .array(
       z.object({
         id: z.uuid(),
+        noticeRevision: z
+          .string()
+          .regex(/^[a-f0-9]{64}$/)
+          .optional(),
+        noticeEligible: z.boolean().optional(),
+        noticeDismissed: z.boolean().optional(),
         status: z.enum(["QUEUED", "SENDING", "SENT", "RETRYING", "FAILED", "NOT_SENT"]),
         reason: z
           .enum([

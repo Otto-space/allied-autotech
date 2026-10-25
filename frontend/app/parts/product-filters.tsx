@@ -3,8 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { containDialogFocus } from "@/lib/dialog-focus";
 import { ChevronDown, Search, SlidersHorizontal, X } from "lucide-react";
-import { advancedProductKeys, validProductText } from "@/lib/product-discovery";
+import {
+  advancedProductKeys,
+  validProductText,
+  clearProductFamilyFilters,
+} from "@/lib/product-discovery";
 import { ProductNameField } from "./product-name-field";
+import { ProductOptionField } from "./product-option-field";
+import { normalizeOilGrade, validOilGrade } from "@/lib/product-family";
 import { koboToInput, nairaToKobo } from "@/lib/format/currency-input";
 
 export type UpdateProductQuery = (change: (params: URLSearchParams) => void) => void;
@@ -61,7 +67,7 @@ export function ProductSearch({
       <input
         id="product-search"
         type="search"
-        placeholder="Name, brand or part number"
+        placeholder="Search engine oil, brake pads, a brand or part number"
         maxLength={100}
         value={text}
         onCompositionStart={() => {
@@ -89,7 +95,10 @@ export function ProductSearch({
 }
 
 const labels: Record<string, string> = {
-  brand: "Brand (exact name)",
+  family: "Product family",
+  oilViscosityGrade: "Recorded viscosity grade",
+  packVolumeMl: "Pack volume",
+  brand: "Brand",
   make: "Vehicle make (exact name)",
   model: "Vehicle model (exact name)",
   year: "Year",
@@ -99,7 +108,7 @@ const labels: Record<string, string> = {
   availability: "Availability",
   condition: "Part condition",
   classification: "OEM / aftermarket",
-  productType: "Product type (exact name)",
+  productType: "Product type",
 };
 
 export function ProductFilters({
@@ -107,8 +116,10 @@ export function ProductFilters({
   count,
   update,
   clear,
+  scope,
 }: {
   query: string;
+  scope: string;
   count: number;
   clear: () => void;
   update: UpdateProductQuery;
@@ -130,6 +141,18 @@ export function ProductFilters({
   const [values, setValues] = useState<Record<string, string>>(readValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [previous, setPrevious] = useState(query);
+  const optionScope = new URLSearchParams(scope);
+  if ((optionScope.get("family") ?? "") !== values.family)
+    clearProductFamilyFilters(optionScope);
+  if (values.family) optionScope.set("family", values.family);
+  else optionScope.delete("family");
+  if (values.family === "ENGINE_OIL") {
+    optionScope.delete("condition");
+    optionScope.delete("classification");
+  } else {
+    optionScope.delete("oilViscosityGrade");
+    optionScope.delete("packVolumeMl");
+  }
   if (previous !== query) {
     setPrevious(query);
     setValues(readValues());
@@ -215,6 +238,10 @@ export function ProductFilters({
             )
               nextErrors.year = "Enter a year between 1886 and 2200.";
             const amounts: Record<string, string> = {};
+            if (values.oilViscosityGrade && !validOilGrade(values.oilViscosityGrade))
+              nextErrors.oilViscosityGrade = "Choose a recorded viscosity grade.";
+            if (values.packVolumeMl && !/^[1-9][0-9]{0,6}$/.test(values.packVolumeMl))
+              nextErrors.packVolumeMl = "Choose a recorded pack volume.";
             for (const key of ["minPriceKobo", "maxPriceKobo"]) {
               if (!values[key].trim()) continue;
               try {
@@ -243,7 +270,13 @@ export function ProductFilters({
               for (const key of advancedProductKeys) {
                 params.delete(key);
                 if (values[key].trim())
-                  params.set(key, amounts[key] ?? values[key].trim());
+                  params.set(
+                    key,
+                    amounts[key] ??
+                      (key === "oilViscosityGrade"
+                        ? normalizeOilGrade(values[key])
+                        : values[key].trim()),
+                  );
               }
             });
             close();
@@ -266,12 +299,94 @@ export function ProductFilters({
             </button>
           </div>
           <div className="product-filter-fields">
+            <fieldset
+              className="product-filter-range"
+              aria-describedby="product-budget-hint"
+            >
+              <legend>Budget (NGN)</legend>
+              <div className="product-budget-fields">
+                {(["minPriceKobo", "maxPriceKobo"] as const).map((key) => (
+                  <div className="product-field" key={key}>
+                    <label htmlFor={`product-filter-${key}`}>
+                      {key === "minPriceKobo" ? "Minimum" : "Maximum"}
+                    </label>
+                    <div className="product-money-input">
+                      <span aria-hidden="true">₦</span>
+                      <input
+                        id={`product-filter-${key}`}
+                        value={values[key]}
+                        maxLength={20}
+                        inputMode="decimal"
+                        aria-invalid={!!errors[key]}
+                        aria-describedby={`product-budget-hint${errors[key] ? ` product-filter-${key}-error` : ""}`}
+                        onChange={(event) => {
+                          setValues((v) => ({ ...v, [key]: event.target.value }));
+                          setErrors((v) => ({ ...v, [key]: "" }));
+                        }}
+                      />
+                    </div>
+                    {errors[key] && (
+                      <p
+                        className="product-field-error"
+                        id={`product-filter-${key}-error`}
+                      >
+                        {errors[key]}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <small id="product-budget-hint">
+                Enter naira; leave either limit blank when it is not needed.
+              </small>
+            </fieldset>
             {advancedProductKeys
-              .filter((key): boolean => !["make", "model", "year"].includes(key))
+              .filter(
+                (key): boolean =>
+                  !["make", "model", "year", "minPriceKobo", "maxPriceKobo"].includes(
+                    key,
+                  ),
+              )
+              .filter((key) =>
+                ["oilViscosityGrade", "packVolumeMl"].includes(key)
+                  ? values.family === "ENGINE_OIL"
+                  : ["condition", "classification"].includes(key)
+                    ? values.family === "REPLACEMENT_PART" ||
+                      (!values.family && !!values[key])
+                    : true,
+              )
               .map((key) => (
                 <div className="product-field" key={key}>
                   <label htmlFor={`product-filter-${key}`}>{labels[key]}</label>
-                  {key === "condition" || key === "classification" ? (
+                  {key === "family" ||
+                  key === "brand" ||
+                  key === "productType" ||
+                  key === "oilViscosityGrade" ||
+                  key === "packVolumeMl" ? (
+                    <ProductOptionField
+                      field={key}
+                      value={values[key]}
+                      scope={optionScope.toString()}
+                      open={open}
+                      error={errors[key]}
+                      onChange={(value) => {
+                        setValues((previous) => ({
+                          ...previous,
+                          [key]: value,
+                          ...(key === "family"
+                            ? {
+                                condition: "",
+                                classification: "",
+                                oilViscosityGrade: "",
+                                packVolumeMl: "",
+                                productType: "",
+                              }
+                            : {}),
+                        }));
+                        setErrors({});
+                      }}
+                    />
+                  ) : key === "condition" || key === "classification" ? (
                     <select
                       id={`product-filter-${key}`}
                       value={values[key]}
@@ -323,7 +438,7 @@ export function ProductFilters({
                       </select>
                       <ChevronDown size={16} aria-hidden="true" />
                     </div>
-                  ) : key === "brand" || key === "make" || key === "model" ? (
+                  ) : key === "make" || key === "model" ? (
                     <ProductNameField
                       kind={key}
                       error={errors[key]}
@@ -343,14 +458,8 @@ export function ProductFilters({
                     <input
                       id={`product-filter-${key}`}
                       value={values[key]}
-                      maxLength={key === "year" ? 4 : key === "productType" ? 80 : 20}
-                      inputMode={
-                        key === "year"
-                          ? "numeric"
-                          : key === "productType"
-                            ? "text"
-                            : "decimal"
-                      }
+                      maxLength={key === "year" ? 4 : 20}
+                      inputMode={key === "year" ? "numeric" : "decimal"}
                       aria-invalid={!!errors[key]}
                       aria-describedby={
                         errors[key]
@@ -389,9 +498,9 @@ export function ProductFilters({
                 </div>
               ))}
             <p className="product-fitment-note">
-              Use Find parts for my car to check a specific configuration. Candidates
-              require technical verification; unknown specifications never confirm
-              fitment.
+              {values.family === "ENGINE_OIL"
+                ? "Grades and pack volumes describe the recorded product. They do not establish manufacturer approval or vehicle suitability."
+                : "Vehicle details can help identify candidates. Reviewed technical evidence is required to confirm compatibility; unknown specifications never confirm fitment."}
             </p>
           </div>
           <div className="product-filter-actions">

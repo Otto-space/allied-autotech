@@ -1,4 +1,5 @@
 import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
+import { vehicleSearchWhere } from "../../common/security/catalogue-search.js";
 import { europeanCountryCodes } from "../../common/reference/countries.js";
 import { prisma } from "../../config/database.js";
 import type {
@@ -134,7 +135,7 @@ function vehicleSelect(includeAcquisition: boolean) {
 
 const literalPattern = (value: string) => value.replace(/[\\%_]/g, "\\$&");
 export function vehicleAttributeWhere(
-  query: Omit<PublicVehicleListQuery, "cursor">,
+  query: Omit<PublicVehicleListQuery, "cursor" | "sort">,
 ): Prisma.VehicleWhereInput {
   return {
     ...(query.make === undefined
@@ -206,7 +207,8 @@ export function vehicleAttributeWhere(
   };
 }
 export function publicWhere(
-  query: Omit<PublicVehicleListQuery, "cursor">,
+  query: Omit<PublicVehicleListQuery, "cursor" | "sort">,
+  wordSearch = false,
 ): Prisma.VehicleListingWhereInput {
   const vehicle = vehicleAttributeWhere(query);
   return {
@@ -228,25 +230,27 @@ export function publicWhere(
         }),
     ...(query.search === undefined
       ? {}
-      : {
-          OR: [
-            { title: { contains: literalPattern(query.search), mode: "insensitive" } },
-            {
-              vehicle: {
-                make: { contains: literalPattern(query.search), mode: "insensitive" },
+      : wordSearch
+        ? vehicleSearchWhere(query.search)
+        : {
+            OR: [
+              { title: { contains: literalPattern(query.search), mode: "insensitive" } },
+              {
+                vehicle: {
+                  make: { contains: literalPattern(query.search), mode: "insensitive" },
+                },
               },
-            },
-            {
-              vehicle: {
-                model: { contains: literalPattern(query.search), mode: "insensitive" },
+              {
+                vehicle: {
+                  model: { contains: literalPattern(query.search), mode: "insensitive" },
+                },
               },
-            },
-          ],
-        }),
+            ],
+          }),
   };
 }
 export function publicOrder(
-  sort: PublicVehicleListQuery["sort"],
+  sort: PublicVehicleListQuery["sort"] | "best_match",
 ): Prisma.VehicleListingOrderByWithRelationInput[] {
   if (sort === "price_asc") return [{ priceKobo: "asc" }, { id: "asc" }];
   if (sort === "price_desc") return [{ priceKobo: "desc" }, { id: "desc" }];

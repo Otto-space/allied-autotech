@@ -1,5 +1,8 @@
 "use client";
+import "./care-workspace.css";
 import Link from "next/link";
+import { rememberCareQueue } from "./care-back-link";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, RefreshCw, X } from "lucide-react";
@@ -17,12 +20,12 @@ import {
   supportPageParams,
   workSupportQuery,
 } from "@/lib/admin/work-support";
-import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
+import { StatusBadge } from "./status-progress";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { AdminBranchPicker } from "./admin-branch-picker";
 import { StaffPicker } from "./staff-picker";
 import { Feedback } from "./feedback";
-import { RecordReferences } from "./record-references";
+
 export function WorkSupport() {
   const session = useAccountSession();
   if (!session) return null;
@@ -188,7 +191,7 @@ function SupportWorkspace({
             role="group"
             aria-label="Applied support filters"
           >
-            {["status", "type", "priority", "branchId", "assignedStaffId"]
+            {["q", "status", "type", "priority", "branchId", "assignedStaffId"]
               .filter((key) => filters.has(key))
               .map((key) => {
                 const title =
@@ -268,10 +271,34 @@ function SupportWorkspace({
                 </p>
               </div>
             )}
-            <div className="wsu-records">
-              {data?.items.map((record) => (
-                <SupportCard key={record.id} record={record} />
-              ))}
+            <div
+              className="care-table-region"
+              role="region"
+              aria-label="Customer care cases"
+              tabIndex={0}
+            >
+              <table className="care-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Assigned to</th>
+                    <th scope="col">Updated</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data?.items.map((record) => (
+                    <SupportCard
+                      key={record.id}
+                      record={record}
+                      returnParams={query.params.toString()}
+                    />
+                  ))}
+                </tbody>
+              </table>
             </div>
             <nav className="wi-pagination" aria-label="Support records pages">
               <button
@@ -320,6 +347,8 @@ function SupportFilters({
   busy: boolean;
   navigate: (p: URLSearchParams) => void;
 }) {
+  const [term, setTerm] = useState(params.get("q") ?? "");
+  const [searchError, setSearchError] = useState<string>();
   const [status, setStatus] = useState(params.get("status") ?? ""),
     [classification, setClassification] = useState(
       params.get(kind === "enquiries" ? "type" : "priority") ?? "",
@@ -333,8 +362,18 @@ function SupportFilters({
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
+        if (
+          term.trim() &&
+          (term.trim().length < 2 || /[\u0000-\u001f\u007f]/.test(term))
+        ) {
+          setSearchError("Enter at least 2 characters without control characters.");
+          document.getElementById("care-search")?.focus();
+          return;
+        }
+        setSearchError(undefined);
         const next = new URLSearchParams();
         if (kind !== "enquiries") next.set("kind", kind);
+        if (term.trim()) next.set("q", term.trim());
         if (status) next.set("status", status);
         if (classification)
           next.set(kind === "enquiries" ? "type" : "priority", classification);
@@ -345,10 +384,28 @@ function SupportFilters({
     >
       <fieldset disabled={busy}>
         <legend className="sr-only">Support filters</legend>
-        <p className="wsu-filter-intro">
-          Choose a status or colleague, then apply. Open the subject to read and respond.
-        </p>
         <div className="wsu-filter-grid">
+          <div className="field">
+            <label htmlFor="care-search">Search cases</label>
+            <input
+              id="care-search"
+              type="search"
+              value={term}
+              maxLength={120}
+              minLength={2}
+              onChange={(event) => {
+                setTerm(event.target.value);
+                setSearchError(undefined);
+              }}
+              aria-invalid={!!searchError}
+              aria-describedby={
+                searchError ? "care-search-hint care-search-error" : "care-search-hint"
+              }
+            />
+            <p id="care-search-hint" className="field-hint">
+              Subject or original request text. At least 2 characters.
+            </p>
+          </div>
           <div className="field">
             <label htmlFor="support-status-filter">Record status</label>
             <select
@@ -413,12 +470,17 @@ function SupportFilters({
           </div>
         </div>
         <div className="wsu-filter-actions">
+          <div id="care-search-error">
+            <Feedback message={searchError} />
+          </div>
           <button className="button">Apply support filters</button>
           <button
             className="button secondary"
             type="button"
             onClick={() => {
               setStatus("");
+              setTerm("");
+              setSearchError(undefined);
               setClassification("");
               setBranch("");
               setAssignee("");
@@ -437,106 +499,54 @@ function SupportFilters({
     </form>
   );
 }
-function SupportCard({ record: r }: { record: SupportRecord }) {
-  const dates = [
-    { label: "Created", value: r.createdAt },
-    { label: "Updated", value: r.updatedAt },
-    { label: "Resolved", value: r.resolvedAt },
-    { label: "Closed", value: r.closedAt },
-    ...(r.kind === "complaints"
-      ? [
-          { label: "Acknowledgement due", value: r.acknowledgementDueAt },
-          { label: "Acknowledged", value: r.acknowledgedAt },
-          { label: "Escalated", value: r.escalatedAt },
-        ]
-      : []),
-  ];
+function SupportCard({
+  record: r,
+  returnParams,
+}: {
+  record: SupportRecord;
+  returnParams: string;
+}) {
+  const session = useAccountSession();
   return (
-    <article className="wsu-record" aria-labelledby={`support-${r.id}`}>
-      <header>
-        <div>
-          <h3 id={`support-${r.id}`}>
-            <Link className="text-link" href={`/admin/support/${r.kind}/${r.id}`}>
-              {r.subject}
-            </Link>
-          </h3>
-        </div>
-        <div className="wsu-badges">
-          <span className="status" data-status={r.status}>
-            {supportLabel(r.status)}
-          </span>
-          <span>
-            {r.kind === "enquiries"
-              ? supportLabel(r.type)
-              : `${supportLabel(r.priority)} priority`}
-          </span>
-        </div>
-      </header>
-      <div className="wsu-groups">
-        <dl>
-          {[
-            {
-              label: "Branch",
-              value: r.branch
-                ? `${r.branch.name} (${r.branch.code})`
-                : "Unassigned branch",
-            },
-            {
-              label: "Assigned staff",
-              value: r.assignedStaff
-                ? `${r.assignedStaff.firstName} ${r.assignedStaff.lastName}`
-                : "Unassigned",
-            },
-          ].map((f) => (
-            <div key={f.label}>
-              <dt>{f.label}</dt>
-              <dd>{f.value}</dd>
-            </div>
-          ))}
-        </dl>
-        <dl>
-          {[
-            { label: "Contact", value: r.contact?.name },
-            { label: "Email", value: r.contact?.email },
-            { label: "Phone", value: r.contact?.phone },
-          ].map((f) => (
-            <div key={f.label}>
-              <dt>{f.label}</dt>
-              <dd>{f.value || "Not recorded"}</dd>
-            </div>
-          ))}
-        </dl>
-        <dl>
-          {dates
-            .filter((d) => d.label === "Created" || d.label === "Updated" || d.value)
-            .map((d) => (
-              <div key={d.label}>
-                <dt>{d.label}</dt>
-                <dd>{formatStockInstant(d.value)}</dd>
-              </div>
-            ))}
-        </dl>
-      </div>
-      <div className="wsu-preview">
-        <strong>Message preview</strong>
-        <p>{r.text.length > 240 ? `${r.text.slice(0, 240)}…` : r.text}</p>
-      </div>
-      <RecordReferences>
-        <dl>
-          {[
-            ["Support reference", r.id],
-            ["Version", String(r.version)],
-            ["Branch reference", r.branchId],
-            ["Staff reference", r.assignedStaffId],
-            ["Customer profile reference", r.contact?.customerId],
-          ].map(([title, value]) => (
-            <div key={title}>
-              <dt>{title}</dt>
-              <dd>{value || "Not recorded"}</dd>
-            </div>
-          ))}
-        </dl>
-      </RecordReferences>
-    </article>
+    <tr className="wsu-record">
+      <td>
+        <strong>{r.subject}</strong>
+      </td>
+      <td>{r.contact?.name || "Contact not recorded"}</td>
+      <td>
+        {r.kind === "enquiries"
+          ? enquiryLabel(r.type, r.vehicleEnquiryIntent)
+          : "Complaint"}
+      </td>
+      <td>
+        <StatusBadge status={r.status} />
+      </td>
+      <td>
+        {r.assignedStaff
+          ? r.assignedStaff.firstName + " " + r.assignedStaff.lastName
+          : "Unassigned"}
+      </td>
+      <td>
+        <time dateTime={r.updatedAt}>
+          {new Intl.DateTimeFormat("en-NG", {
+            dateStyle: "medium",
+            timeStyle: "short",
+            timeZone: "Africa/Lagos",
+          }).format(new Date(r.updatedAt))}
+        </time>
+      </td>
+      <td>
+        <Link
+          className="text-link"
+          href={"/admin/support/" + r.kind + "/" + r.id}
+          onClick={() => {
+            if (session) rememberCareQueue(session.user.id, r.id, r.kind, returnParams);
+          }}
+        >
+          Open case <ChevronRight size={14} aria-hidden="true" />
+          <span className="sr-only"> {r.subject}</span>
+        </Link>
+      </td>
+    </tr>
   );
 }

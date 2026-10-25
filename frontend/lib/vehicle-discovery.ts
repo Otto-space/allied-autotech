@@ -23,6 +23,7 @@ export const vehicleChoices = {
   inspected: ["true", "false"],
   featured: ["true", "false"],
   sort: [
+    "best_match",
     "newest",
     "price_asc",
     "price_desc",
@@ -104,16 +105,17 @@ export function normalizeVehicleQuery(input: URLSearchParams) {
     else if (key === "year" || key === "minYear" || key === "maxYear")
       valid = /^\d{4}$/.test(value) && +value >= 1886 && +value <= 2200;
     else if (key === "minPriceKobo" || key === "maxPriceKobo")
-      valid = /^[1-9]\d{0,15}$/.test(value);
+      valid = /^(?:0|[1-9]\d{0,15})$/.test(value);
     else if (key === "cursor") valid = validCursor(value);
     else
       valid = (
         vehicleChoices[key as keyof typeof vehicleChoices] as readonly string[]
       ).includes(value);
     if (valid) {
-      if (key !== "sort" || value !== "newest") params.set(key, value);
+      params.set(key, value);
     } else invalid = true;
   }
+  if (!params.has("search") && params.get("sort") === "best_match") params.delete("sort");
   for (const [single, multiple] of [
     ["condition", "conditions"],
     ["powertrain", "powertrains"],
@@ -192,7 +194,7 @@ export function nairaToKobo(value: string): string | undefined {
   if (!/^\d{1,14}(\.\d{1,2})?$/.test(clean)) return undefined;
   const [whole, fraction = ""] = clean.split(".");
   const amount = BigInt(whole) * BigInt(100) + BigInt(fraction.padEnd(2, "0"));
-  if (amount <= BigInt(0) || amount > BigInt("9999999999999999")) return undefined;
+  if (amount < BigInt(0) || amount > BigInt("9999999999999999")) return undefined;
   return amount.toString();
 }
 
@@ -223,6 +225,13 @@ export function vehicleLabel(value: string) {
     maxMileageKm: "Mileage to (km)",
     minEngineCapacityCc: "Engine from (cc)",
     maxEngineCapacityCc: "Engine to (cc)",
+    bodyType: "Body type",
+    fuelType: "Fuel type",
+    driveType: "Drive type",
+    powertrains: "Powertrain",
+    inspected: "Published inspection report",
+    feature: "Equipment",
+    productType: "Product type",
   };
   if (labels[value]) return labels[value];
   if (countryCodes.has(value)) return countryName(value);

@@ -570,7 +570,13 @@ for (const visibility of ["INTERNAL", "CUSTOMER"]) {
       page.getByText(/This record has no linked customer account/),
     ).toBeVisible();
     await expect(page.getByText("Isolated reply 14", { exact: true })).toBeVisible();
-    await page.getByLabel("Message visibility").selectOption(visibility);
+    await page
+      .getByRole("radio", {
+        name:
+          visibility === "INTERNAL" ? "Internal staff note" : "Customer-visible reply",
+        exact: true,
+      })
+      .check();
     await page.getByLabel("Reply text").fill("Staff test message");
     await page
       .getByRole("button", {
@@ -583,7 +589,9 @@ for (const visibility of ["INTERNAL", "CUSTOMER"]) {
     await confirm(page);
     await expect(page.locator(".wst-confirmed")).toContainText("Staff test message");
     expect(state.writes[0].body).toEqual({ message: "Staff test message", visibility });
-    await expect(page.getByLabel("Message visibility")).toHaveValue("CUSTOMER");
+    await expect(
+      page.getByRole("radio", { name: "Customer-visible reply", exact: true }),
+    ).toBeChecked();
   });
 }
 for (const kind of ["enquiries", "complaints"]) {

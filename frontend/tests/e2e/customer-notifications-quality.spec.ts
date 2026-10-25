@@ -1,3 +1,4 @@
+import { showNotificationSettings } from "../fixtures/notification-settings";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
@@ -14,6 +15,7 @@ async function ready(page: Page) {
   const state = await notificationsFixture(page);
   await page.goto(route);
   await expect(mark(page)).toBeEnabled();
+  await showNotificationSettings(page);
   return state;
 }
 
@@ -26,6 +28,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
       { ...notificationItem(2), readAt: "2026-10-12T10:00:00Z" },
     ];
     await page.goto(route);
+    await showNotificationSettings(page);
     await expect(mark(page)).toBeEnabled();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -54,10 +57,7 @@ for (const width of [320, 390, 768, 1440])
           .analyze()
       ).violations,
     ).toEqual([]);
-    const opener = page.getByRole("button", {
-      name: "Enable marketing email",
-      exact: true,
-    });
+    const opener = page.getByRole("switch", { name: "Marketing by email", exact: true });
     await opener.click();
     await expect(
       page.getByRole("button", { name: "Go back", exact: true }),
@@ -75,6 +75,12 @@ for (const width of [320, 390, 768, 1440])
 
 test("empty account and filtered empty remain distinct", async ({ page }) => {
   const state = await ready(page);
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("PAYMENT");
   await expect(
     page.getByText("No notifications match this page and filters."),
@@ -119,7 +125,7 @@ test("background stale inbox and preferences lock writes independently", async (
   ).toBeVisible();
   await expect(mark(page)).toBeDisabled();
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
   state.failInbox = false;
   state.failPreferences = true;
@@ -131,7 +137,7 @@ test("background stale inbox and preferences lock writes independently", async (
   ).toBeVisible();
   await expect(mark(page)).toBeEnabled();
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeDisabled();
 });
 
@@ -170,7 +176,7 @@ test("preference recovery reconciles committed result without repeating consent"
 }) => {
   const state = await ready(page);
   state.wrongResponse = true;
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await page.getByRole("button", { name: "Close & review record" }).click();
   // Legacy clients retained only uncertainty; keep that compatibility path covered.
@@ -181,13 +187,14 @@ test("preference recovery reconciles committed result without repeating consent"
     ),
   );
   await page.reload();
+  await showNotificationSettings(page);
   const ack = page.getByRole("button", { name: "I've checked preferences", exact: true });
   await expect(ack).toBeDisabled();
   await page.getByRole("button", { name: "Refresh preferences" }).click();
   await expect(ack).toBeEnabled();
   await ack.click();
   await expect(
-    page.getByRole("button", { name: "Disable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
   expect(state.writes).toHaveLength(1);
 });
@@ -215,7 +222,7 @@ test("storage unavailable prevents both kinds of write", async ({ page }) => {
     inbox(page).getByText(/Your browser could not save the recovery marker/),
   ).toBeVisible();
   expect(state.writes).toHaveLength(0);
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await expect(confirm(page)).toBeDisabled();
   expect(state.writes).toHaveLength(0);
@@ -233,7 +240,7 @@ test("preflight detects a different customer before read or consent", async ({
 
 test("stale data arriving while review is open blocks confirmation", async ({ page }) => {
   const state = await ready(page);
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   state.failPreferences = true;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(
@@ -268,13 +275,14 @@ test("long messages preserve text and short mobile dialog stays scrollable", asy
   state.items[0].title = "W".repeat(160);
   state.items[0].message = "M".repeat(1900);
   await page.goto(route);
+  await showNotificationSettings(page);
   await expect(
     page.getByRole("heading", { name: state.items[0].title, exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
-  await page.getByRole("button", { name: "Enable marketing sms", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by SMS", exact: true }).click();
   await confirm(page).scrollIntoViewIfNeeded();
   await expect(confirm(page)).toBeInViewport();
   expect(

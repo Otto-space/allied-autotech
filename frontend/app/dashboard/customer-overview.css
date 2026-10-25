@@ -45,6 +45,20 @@
 .customer-care {
   margin: 24px 0 36px;
 }
+.overview-release-note {
+  max-width: 80ch;
+  padding: 16px;
+  border-inline-start: 4px solid #091b38;
+  background: #eef3f9;
+}
+.overview-release-note a {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.customer-overview [data-release-unavailable] {
+  cursor: default;
+}
 .care-primary-grid {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);

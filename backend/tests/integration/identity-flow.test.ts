@@ -396,6 +396,17 @@ describe.skipIf(!runDatabaseTests)("database-backed identity flow", () => {
       .set("Origin", origin)
       .send({ token: resetToken, password: finalPassword });
     expect(resetReplay.status).toBe(400);
+    const securityUpdates = await prisma.notification.findMany({
+      where: { userId: user.id, category: "SECURITY" },
+    });
+    expect(
+      securityUpdates.filter((n) => n.title === "Your password changed"),
+    ).toHaveLength(1);
+    expect(
+      securityUpdates.filter((n) => n.title === "Your password was reset"),
+    ).toHaveLength(1);
+    expect(JSON.stringify(securityUpdates)).not.toContain(resetToken);
+    expect(JSON.stringify(securityUpdates)).not.toContain(finalPassword);
 
     const revokedAfterReset = await request(app)
       .get("/api/v1/auth/session")

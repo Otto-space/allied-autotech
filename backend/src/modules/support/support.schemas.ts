@@ -35,6 +35,27 @@ const publicEnquiryFields = {
   email: z.email().trim().toLowerCase().max(254),
   phone,
 } as const;
+const vehicleEnquiryFields = {
+  vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).optional(),
+  vehicleListingId: uuid.optional(),
+};
+function validateVehicleTarget(
+  value: {
+    vehicleEnquiryIntent?: "LISTING" | "REQUIREMENTS" | undefined;
+    vehicleListingId?: string | undefined;
+  },
+  context: z.RefinementCtx,
+) {
+  const requirements = value.vehicleEnquiryIntent === "REQUIREMENTS";
+  if (requirements ? value.vehicleListingId !== undefined : !value.vehicleListingId)
+    context.addIssue({
+      code: "custom",
+      path: ["vehicleListingId"],
+      message: requirements
+        ? "A requirements enquiry must not reference a listing"
+        : "Select a published listing or choose requirements intent",
+    });
+}
 export const publicEnquiryCreateBodySchema = z.discriminatedUnion("type", [
   z.object({ ...publicEnquiryFields, type: z.literal("GENERAL") }).strict(),
   z
@@ -51,9 +72,10 @@ export const publicEnquiryCreateBodySchema = z.discriminatedUnion("type", [
     .object({
       ...publicEnquiryFields,
       type: z.literal("VEHICLE"),
-      vehicleListingId: uuid,
+      ...vehicleEnquiryFields,
     })
-    .strict(),
+    .strict()
+    .superRefine(validateVehicleTarget),
 ]);
 
 const customerEnquiryFields = { ...optionalBranch, subject, message } as const;
@@ -69,9 +91,10 @@ export const customerEnquiryCreateBodySchema = z.discriminatedUnion("type", [
     .object({
       ...customerEnquiryFields,
       type: z.literal("VEHICLE"),
-      vehicleListingId: uuid,
+      ...vehicleEnquiryFields,
     })
-    .strict(),
+    .strict()
+    .superRefine(validateVehicleTarget),
   z
     .object({ ...customerEnquiryFields, type: z.literal("BOOKING"), bookingId: uuid })
     .strict(),
@@ -238,6 +261,20 @@ export const customerReviewListQuerySchema = z
 export const staffEnquiryListQuerySchema = z
   .object({
     ...page,
+    q: z
+      .string()
+      .trim()
+      .min(2)
+      .max(120)
+      .refine(
+        (value) =>
+          [...value].every((c) => {
+            const code = c.codePointAt(0) ?? 0;
+            return code >= 32 && code !== 127;
+          }),
+        "Use plain search text without control characters",
+      )
+      .optional(),
     branchId: uuid.optional(),
     type: z
       .enum(["GENERAL", "PRODUCT", "VEHICLE", "SERVICE", "BOOKING", "QUOTATION"])
@@ -249,6 +286,20 @@ export const staffEnquiryListQuerySchema = z
 export const staffComplaintListQuerySchema = z
   .object({
     ...page,
+    q: z
+      .string()
+      .trim()
+      .min(2)
+      .max(120)
+      .refine(
+        (value) =>
+          [...value].every((c) => {
+            const code = c.codePointAt(0) ?? 0;
+            return code >= 32 && code !== 127;
+          }),
+        "Use plain search text without control characters",
+      )
+      .optional(),
     branchId: uuid.optional(),
     status: z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]).optional(),
     priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),

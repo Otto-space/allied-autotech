@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { browseEnquiriesOnly, restrictedLaunchPage } from "@/lib/public-launch";
 import {
   CalendarDays,
   CarFront,
@@ -17,6 +18,7 @@ function State({ value }: { value: string }) {
   return <span className="care-status">{label(value)}</span>;
 }
 function Action({ href, children }: { href: string; children: React.ReactNode }) {
+  if (browseEnquiriesOnly() && restrictedLaunchPage(href)) return null;
   return (
     <Link className="care-link" href={href}>
       {children}
@@ -114,7 +116,11 @@ export function CustomerCareSummary({ care }: { care: CustomerCare }) {
         </div>
         <section className="care-review">
           <h2>To review</h2>
-          <p>Latest issued quote and open payment request.</p>
+          <p>
+            {browseEnquiriesOnly()
+              ? "Recorded quote and payment information. Online payment is unavailable."
+              : "Latest issued quote and open payment request."}
+          </p>
           <div className="care-review-row">
             <FileText size={22} aria-hidden="true" />
             <div>

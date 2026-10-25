@@ -20,13 +20,15 @@ export class PushService {
   constructor(private readonly database: PrismaClient = prisma) {}
   async status(actor: AuthenticatedActor) {
     assertNotificationActor(actor);
-    const active = await this.database.pushSubscription.count({
+    const active = await this.database.pushSubscription.findMany({
       where: { userId: actor.userId, sessionId: actor.sessionId, disabledAt: null },
+      select: { endpointHash: true },
     });
     return {
       available: pushConfigured(),
       publicKey: pushConfigured() ? env.VAPID_PUBLIC_KEY : null,
-      enabled: active > 0,
+      enabled: active.length > 0,
+      endpointHashes: active.map((subscription) => subscription.endpointHash),
     };
   }
   async subscribe(actor: AuthenticatedActor, body: unknown) {

@@ -1,5 +1,9 @@
 /* Shared status language across public, customer and staff surfaces. Labels and
    an explicit current-stage marker carry meaning independently of colour. */
+[data-status] {
+  --status-ink: #334155;
+  --status-fill: #f1f5f9;
+}
 :is(span, strong, p, dd)[data-status] {
   color: var(--status-ink, #334155) !important;
   background: var(--status-fill, #f1f5f9) !important;
@@ -15,115 +19,7 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
-[data-status="OPEN"],
-[data-status="ENQUIRY"],
-[data-status="REQUESTED"] {
-  --status-ink: #1e40af;
-  --status-fill: #eff6ff;
-}
-[data-status="PENDING"],
-[data-status="QUEUED"],
-[data-status="AWAITING_RESPONSE"] {
-  --status-ink: #854d0e;
-  --status-fill: #fefce8;
-}
-[data-status="CONFIRMED"],
-[data-status="APPROVED"],
-[data-status="ACCEPTED"] {
-  --status-ink: #075985;
-  --status-fill: #f0f9ff;
-}
-[data-status="IN_PROGRESS"],
-[data-status="PROCESSING"],
-[data-status="INVESTIGATING"],
-[data-status="SENDING"] {
-  --status-ink: #6b21a8;
-  --status-fill: #faf5ff;
-}
-[data-status="UNDER_REVIEW"],
-[data-status="REQUIRES_REVIEW"],
-[data-status="NEGOTIATING"],
-[data-status="QUALITY_CHECK"] {
-  --status-ink: #9d174d;
-  --status-fill: #fdf2f8;
-}
-[data-status="READY"],
-[data-status="RESOLVED"],
-[data-status="HANDOVER_PENDING"] {
-  --status-ink: #115e59;
-  --status-fill: #f0fdfa;
-}
-[data-status="COMPLETED"],
-[data-status="SUCCEEDED"],
-[data-status="SUCCESSFUL"],
-[data-status="PAID"],
-[data-status="SENT"],
-[data-status="PUBLISHED"],
-[data-status="WON"] {
-  --status-ink: #166534;
-  --status-fill: #f0fdf4;
-}
-[data-status="CLOSED"],
-[data-status="ARCHIVED"] {
-  --status-ink: #334155;
-  --status-fill: #e2e8f0;
-}
-[data-status="CANCELLED"],
-[data-status="REJECTED"],
-[data-status="VOID"],
-[data-status="LOST"] {
-  --status-ink: #991b1b;
-  --status-fill: #fef2f2;
-}
-[data-status="FAILED"],
-[data-status="DEAD_LETTER"],
-[data-status="NEEDS_ATTENTION"],
-[data-status="NO_SHOW"],
-[data-status="SUSPENDED"] {
-  --status-ink: #9f1239;
-  --status-fill: #fff1f2;
-}
-[data-status="EXPIRED"],
-[data-status="NOT_SENT"],
-[data-status="INACTIVE"],
-[data-status="REVOKED"],
-[data-status="DEACTIVATED"] {
-  --status-ink: #57534e;
-  --status-fill: #f5f5f4;
-}
-[data-status="AWAITING_PARTS"],
-[data-status="AWAITING_DEPOSIT"],
-[data-status="REQUIRES_PAYMENT"],
-[data-status="PAYMENT_PENDING"],
-[data-status="RETRYING"],
-[data-status="APPROVED_PENDING_POLICY"] {
-  --status-ink: #9a3412;
-  --status-fill: #fff7ed;
-}
-[data-status="ISSUED"],
-[data-status="INSPECTION_SCHEDULED"] {
-  --status-ink: #3730a3;
-  --status-fill: #eef2ff;
-}
-[data-status="AVAILABLE"],
-[data-status="ACTIVE"],
-[data-status="INSPECTION_COMPLETED"] {
-  --status-ink: #3f6212;
-  --status-fill: #f7fee7;
-}
-[data-status="RESERVED"],
-[data-status="RESCHEDULED"] {
-  --status-ink: #155e75;
-  --status-fill: #ecfeff;
-}
-[data-status="PARTIALLY_PAID"] {
-  --status-ink: #86198f;
-  --status-fill: #fdf4ff;
-}
-[data-status="SOLD"] {
-  --status-ink: #064e3b;
-  --status-fill: #d1fae5;
-}
+
 .workflow-progress {
   margin: 1rem 0;
   padding: 1rem;
@@ -219,19 +115,90 @@
   }
 }
 
-[data-status="PAID"] {
-  --status-ink: #065f46;
-  --status-fill: #ecfdf5;
+/* Five semantic tones. Provider acceptance (SENT) is informational; CLOSED is neutral.
+   Unknown states inherit the neutral base and always retain their visible label. */
+[data-status="ACTIVE"],
+[data-status="VERIFIED"],
+[data-status="DELIVERED"],
+[data-status="COMPLETED"],
+[data-status="SUCCEEDED"],
+[data-status="SUCCESSFUL"],
+[data-status="PAID"],
+[data-status="RESOLVED"],
+[data-status="WON"],
+[data-status="AVAILABLE"],
+[data-status="INSPECTION_COMPLETED"],
+[data-status="SOLD"] {
+  --status-ink: #166534;
+  --status-fill: #f0fdf4;
 }
-[data-status="RECEIVED"] {
-  --status-ink: #3730a3;
-  --status-fill: #eef2ff;
-}
+[data-status="OPEN"],
+[data-status="ENQUIRY"],
+[data-status="REQUESTED"],
+[data-status="ASSIGNED"],
+[data-status="IN_PROGRESS"],
+[data-status="PROCESSING"],
+[data-status="INVESTIGATING"],
+[data-status="SENDING"],
+[data-status="SENT"],
+[data-status="PUBLISHED"],
+[data-status="CONFIRMED"],
+[data-status="APPROVED"],
+[data-status="ACCEPTED"],
+[data-status="UNDER_REVIEW"],
+[data-status="REQUIRES_REVIEW"],
+[data-status="NEGOTIATING"],
+[data-status="QUALITY_CHECK"],
+[data-status="READY"],
+[data-status="HANDOVER_PENDING"],
+[data-status="ISSUED"],
+[data-status="INSPECTION_SCHEDULED"],
+[data-status="RESERVED"],
+[data-status="RESCHEDULED"],
+[data-status="RECEIVED"],
 [data-status="INSPECTED"] {
-  --status-ink: #6b21a8;
-  --status-fill: #faf5ff;
+  --status-ink: #1e40af;
+  --status-fill: #eff6ff;
 }
+[data-status="PENDING"],
+[data-status="QUEUED"],
+[data-status="AWAITING_RESPONSE"],
+[data-status="DELAYED"],
+[data-status="RETRYING"],
+[data-status="NOT_SENT"],
+[data-status="NEEDS_ATTENTION"],
+[data-status="AWAITING_PARTS"],
+[data-status="AWAITING_DEPOSIT"],
+[data-status="REQUIRES_PAYMENT"],
+[data-status="PAYMENT_PENDING"],
+[data-status="APPROVED_PENDING_POLICY"],
+[data-status="PARTIALLY_PAID"],
 [data-status="ON_HOLD"] {
-  --status-ink: #9a3412;
-  --status-fill: #fff7ed;
+  --status-ink: #854d0e;
+  --status-fill: #fefce8;
+}
+[data-status="SUSPENDED"],
+[data-status="FAILED"],
+[data-status="DEAD_LETTER"],
+[data-status="BOUNCED"],
+[data-status="COMPLAINED"],
+[data-status="SUPPRESSED"],
+[data-status="REJECTED"],
+[data-status="NO_SHOW"],
+[data-status="VOID"] {
+  --status-ink: #991b1b;
+  --status-fill: #fef2f2;
+}
+[data-status="CLOSED"],
+[data-status="INACTIVE"],
+[data-status="DEACTIVATED"],
+[data-status="ARCHIVED"],
+[data-status="EXPIRED"],
+[data-status="NOT_RECORDED"],
+[data-status="UNKNOWN"],
+[data-status="REVOKED"],
+[data-status="CANCELLED"],
+[data-status="LOST"] {
+  --status-ink: #334155;
+  --status-fill: #f1f5f9;
 }

@@ -174,7 +174,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       SELECT gen_random_uuid(), ${branch.id}::uuid, ${prefix} || '-' || n, ${prefix} || '-' || lpad((n % 100)::text, 3, '0'), 'Model-' || ((n / 100) % 20), 2000 + n % 26, now()
       FROM generate_series(1, 10000) n`;
       await prisma.$executeRaw`INSERT INTO "VehicleListing" ("id", "vehicleId", "branchId", "title", "slug", "priceKobo", "status", "publishedAt", "updatedAt")
-      SELECT gen_random_uuid(), v."id", v."branchId", v."make" || ' ' || v."model", lower(v."stockNumber"), 1000000000, 'AVAILABLE', now(), now()
+      SELECT gen_random_uuid(), v."id", v."branchId", ${prefix} || ' ' || v."make" || ' ' || v."model", lower(v."stockNumber"), 1000000000, 'AVAILABLE', now(), now()
       FROM "Vehicle" v WHERE v."branchId" = ${branch.id}::uuid`;
       await prisma.$executeRaw`ANALYZE "Vehicle"`;
       await prisma.$executeRaw`ANALYZE "VehicleListing"`;

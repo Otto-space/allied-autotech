@@ -1,6 +1,9 @@
 import { notifySupportTeam } from "../notifications/team-notifications.js";
+import { enforceWorkforceBoundary } from "../organization/workforce.policy.js";
+import { lockAccessActor } from "../organization/team-access-security.js";
 import {
   enqueueSupportCustomerUpdate,
+  dismissSupportDeliveryNotices,
   supportEmailDeliveries,
 } from "./customer-email.js";
 import {
@@ -561,7 +564,43 @@ export class SupportService {
   ) {
     // Authorize the conversation before reading any delivery metadata.
     await this.staffRecord(actor, kind, id, context);
-    return supportEmailDeliveries(this.database, id);
+    return supportEmailDeliveries(this.database, id, actor.userId);
+  }
+
+  async dismissDeliveryNotices(
+    actor: AuthenticatedActor,
+    kind: "enquiry" | "complaint",
+    id: string,
+    body: unknown,
+    context: RequestSecurityContext,
+  ) {
+    assertSupportOperator(actor);
+    // Managed Customer Service uses the transactional responsibility-scoped API.
+    if (actor.role === "STAFF") throw supportForbidden();
+    return this.database.$transaction(async (tx) => {
+      await lockAccessActor(tx, actor);
+      await enforceWorkforceBoundary(
+        tx,
+        actor,
+        `/api/v1/staff/support/${kind === "enquiry" ? "enquiries" : "complaints"}/${id}/email-deliveries/dismiss`,
+      );
+      const record =
+        kind === "enquiry"
+          ? await this.repository.staffEnquiry(id, tx)
+          : await this.repository.staffComplaint(id, tx);
+      if (!record) throw supportNotFound();
+      await this.assertStaffBranch(actor, record.branchId, tx);
+      const page = await dismissSupportDeliveryNotices(tx, actor.userId, id, body);
+      await appendAuditEvent(tx, {
+        actorUserId: actor.userId,
+        action: "UPDATE",
+        entityType: kind === "enquiry" ? "ENQUIRY" : "COMPLAINT",
+        entityId: id,
+        newValues: { operation: "DISMISS_OWN_DELIVERY_NOTICES" },
+        context,
+      });
+      return page;
+    });
   }
 
   async assign(
@@ -989,7 +1028,11 @@ export class SupportService {
     } else if (input.type === "SERVICE") {
       if ((await this.repository.activeService(input.serviceId, transaction)) === null)
         throw supportNotFound();
-    } else if (input.type === "VEHICLE") {
+    } else if (
+      input.type === "VEHICLE" &&
+      input.vehicleEnquiryIntent !== "REQUIREMENTS"
+    ) {
+      if (!input.vehicleListingId) throw supportNotFound();
       const listing = await this.repository.activeListing(
         input.vehicleListingId,
         transaction,
@@ -1052,6 +1095,10 @@ export class SupportService {
       return requested;
     }
     const branches = await this.repository.activeBranches(transaction);
+    if (branches.length === 0)
+      throw supportConflict(
+        "No active workshop is configured to handle this request. Contact our team for help.",
+      );
     if (branches.length !== 1) throw supportBranchRequired();
     return branches[0]!.id;
   }

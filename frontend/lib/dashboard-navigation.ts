@@ -205,7 +205,7 @@ const operationalGroups: DashboardGroup[] = [
     icon: Settings,
     links: [
       { href: "/admin/security", label: "My account security" },
-      { href: "/admin/notifications", label: "My notifications" },
+      { href: "/admin/notifications", label: "Notifications" },
       {
         href: "/admin/complaint-policy",
         label: "Complaint policy",
@@ -231,6 +231,12 @@ export function dashboardNavigation(
   return (role === "CUSTOMER" ? customerGroups : operationalGroups)
     .map((group) => ({
       ...group,
+      label:
+        role === "CUSTOMER" && group.id === "shop"
+          ? browseEnquiriesOnly()
+            ? "Saved items"
+            : "Orders & saved items"
+          : group.label,
       links: group.links.filter(
         (link) =>
           !(

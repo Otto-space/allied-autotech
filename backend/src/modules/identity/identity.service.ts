@@ -1,3 +1,4 @@
+import { enqueueNotification } from "../notifications/notifications.service.js";
 import { randomUUID } from "node:crypto";
 
 import type { PrismaClient } from "../../generated/prisma/client.js";
@@ -20,6 +21,7 @@ import {
 } from "../../common/security/passwords.js";
 import { generateRecoveryCodes } from "../../common/security/recovery-codes.js";
 import { generateOpaqueToken, hashToken } from "../../common/security/session-tokens.js";
+import { AppError } from "../../common/errors/app-error.js";
 import { normalizeEmail } from "../../common/security/email.js";
 import { createTotpEnrollment, verifyTotp } from "../../common/security/totp.js";
 import {
@@ -171,6 +173,7 @@ export class IdentityService {
     }
 
     await this.database.$transaction(async (tx) => {
+      await this.lockMfaAccount(tx, token.userId);
       const consumed = await tx.emailVerificationToken.updateMany({
         where: { id: token.id, usedAt: null, revokedAt: null, expiresAt: { gt: now } },
         data: { usedAt: now },
@@ -261,6 +264,12 @@ export class IdentityService {
       user.emailVerifiedAt !== null &&
       (user.lockedUntil === null || user.lockedUntil <= now);
 
+    if (passwordValid && user?.status === "SUSPENDED")
+      throw new AppError({
+        code: "ACCOUNT_SUSPENDED",
+        statusCode: 401,
+        message: "Your account is suspended. Contact Customer Care for assistance.",
+      });
     if (!passwordValid || !eligible || user === null) {
       await this.recordFailedLogin(user?.id, throttleHashes, context);
       throw invalidAuthentication();
@@ -497,6 +506,9 @@ export class IdentityService {
     const passwordHash = await hashPassword(password);
     const now = new Date();
     await this.database.$transaction(async (tx) => {
+      // Same identity-first order as suspension; a reset cannot bypass a current
+      // account restriction or deadlock by consuming its token before the user lock.
+      await this.lockMfaAccount(tx, token.userId);
       const consumed = await tx.passwordResetToken.updateMany({
         where: {
           id: token.id,
@@ -540,6 +552,16 @@ export class IdentityService {
           userAgent: safeUserAgent(context.userAgent),
         },
       });
+      await enqueueNotification(tx, {
+        userId: token.userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "Your password was reset",
+        message:
+          "Your password was reset and existing sessions were signed out. If this was not you, review your account security and contact Allied AutoTech.",
+        deduplicationKey: `security:password-reset:${token.id}`,
+        channels: [],
+      });
     });
   }
 
@@ -558,32 +580,44 @@ export class IdentityService {
     }
     const now = new Date();
     const passwordHash = await hashPassword(input.newPassword);
-    await this.database.$transaction([
-      this.database.user.update({
-        where: { id: userId },
-        data: { passwordHash, passwordChangedAt: now },
-      }),
-      this.database.session.updateMany({
-        where: { userId, id: { not: sessionId }, revokedAt: null },
-        data: { revokedAt: now },
-      }),
-      this.database.passwordResetToken.updateMany({
-        where: { userId, usedAt: null, revokedAt: null },
-        data: { revokedAt: now },
-      }),
-      this.database.auditLog.create({
-        data: {
-          userId,
-          action: "UPDATE",
-          entityType: "USER",
-          entityId: userId,
-          requestId: context.requestId,
-          ipAddress: context.ipAddress,
-          userAgent: safeUserAgent(context.userAgent),
-          newValues: { passwordChanged: true, otherSessionsRevoked: true },
-        },
-      }),
-    ]);
+    await this.database.$transaction(async (tx) => {
+      await Promise.all([
+        tx.user.update({
+          where: { id: userId },
+          data: { passwordHash, passwordChangedAt: now },
+        }),
+        tx.session.updateMany({
+          where: { userId, id: { not: sessionId }, revokedAt: null },
+          data: { revokedAt: now },
+        }),
+        tx.passwordResetToken.updateMany({
+          where: { userId, usedAt: null, revokedAt: null },
+          data: { revokedAt: now },
+        }),
+        tx.auditLog.create({
+          data: {
+            userId,
+            action: "UPDATE",
+            entityType: "USER",
+            entityId: userId,
+            requestId: context.requestId,
+            ipAddress: context.ipAddress,
+            userAgent: safeUserAgent(context.userAgent),
+            newValues: { passwordChanged: true, otherSessionsRevoked: true },
+          },
+        }),
+      ]);
+      await enqueueNotification(tx, {
+        userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "Your password changed",
+        message:
+          "Your password was changed and other sessions were signed out. If this was not you, review your account security and contact Allied AutoTech.",
+        deduplicationKey: `security:password-change:${userId}:${now.toISOString()}`,
+        channels: [],
+      });
+    });
     const currentSession = await this.database.session.findFirst({
       where: { id: sessionId, userId, revokedAt: null },
       select: { mfaRequired: true, mfaVerifiedAt: true },
@@ -995,6 +1029,16 @@ export class IdentityService {
           entityId: factorId,
         },
       });
+      await enqueueNotification(tx, {
+        userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "A sign-in method was removed",
+        message:
+          "A multi-factor sign-in method was removed from your account. Review account security if you did not make this change.",
+        deduplicationKey: `security:factor-removed:${factorId}`,
+        channels: [],
+      });
     });
   }
 
@@ -1042,6 +1086,13 @@ export class IdentityService {
 
     await this.database.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${user.id}, 0))`;
+      await tx.$queryRaw`SELECT "id" FROM "User" WHERE "id" = ${user.id}::uuid FOR NO KEY UPDATE`;
+      const current = await tx.user.findUnique({
+        where: { id: user.id },
+        select: { status: true, role: true },
+      });
+      if (!current || current.status !== "ACTIVE" || current.role !== user.role)
+        throw invalidAuthentication();
       const active = await tx.session.findMany({
         where: {
           userId: user.id,

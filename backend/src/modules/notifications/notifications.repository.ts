@@ -55,10 +55,17 @@ export class NotificationsRepository {
     });
   }
 
-  markAllRead(userId: string, client: DatabaseClient) {
+  markUnread(userId: string, id: string, client: DatabaseClient) {
     return client.notification.updateMany({
-      where: { userId, readAt: null },
-      data: { readAt: new Date() },
+      where: { id, userId, readAt: { not: null } },
+      data: { readAt: null },
+    });
+  }
+
+  markAllRead(userId: string, client: DatabaseClient, cutoff = new Date()) {
+    return client.notification.updateMany({
+      where: { userId, readAt: null, createdAt: { lte: cutoff } },
+      data: { readAt: cutoff },
     });
   }
 

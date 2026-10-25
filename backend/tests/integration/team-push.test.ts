@@ -1,4 +1,4 @@
-import { createECDH, randomBytes, randomUUID } from "node:crypto";
+import { createECDH, createHash, randomBytes, randomUUID } from "node:crypto";
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import webpush from "web-push";
@@ -102,7 +102,8 @@ describe.skipIf(process.env.RUN_TEAM_PUSH_TESTS !== "true")(
       if (
         env.NODE_ENV !== "test" ||
         env.DB_HOST !== "127.0.0.1" ||
-        env.DB_NAME !== "allied_team_push_20261023_ci"
+        (env.DB_NAME !== "allied_team_push_20261023_ci" &&
+          !/^allied_notifications_20261025_[a-f0-9]{12}_ci$/.test(env.DB_NAME))
       )
         throw new Error("Requires the isolated team push target");
       const [actual] = await prisma.$queryRaw<
@@ -149,6 +150,15 @@ describe.skipIf(process.env.RUN_TEAM_PUSH_TESTS !== "true")(
           .set(actor.headers)
           .expect(200);
         expect(status.body.data).toMatchObject({ available: true, enabled: true });
+        expect(status.body.data.endpointHashes).toEqual([
+          createHash("sha256").update(sub.endpoint).digest("hex"),
+        ]);
+        expect(JSON.stringify(status.body)).not.toContain(sub.endpoint);
+        const otherStatus = await request(app)
+          .get(`${other.base}/push`)
+          .set(other.headers)
+          .expect(200);
+        expect(otherStatus.body.data.endpointHashes).toEqual([]);
         expect(JSON.stringify(status.body)).not.toContain(env.VAPID_PRIVATE_KEY);
         await request(app)
           .put(`${other.base}/push`)
@@ -189,6 +199,59 @@ describe.skipIf(process.env.RUN_TEAM_PUSH_TESTS !== "true")(
         .set(actor.headers)
         .send({ ...subscription(), keys: { p256dh: "invalid", auth: "invalid" } })
         .expect(422);
+    });
+    it("reports the current endpoint and keeps another session's device enabled", async () => {
+      const first = await account("SUPER_ADMIN"),
+        second = await account("SUPER_ADMIN");
+      expect(first.user.id).toBe(second.user.id);
+      const retired = subscription(),
+        current = subscription(),
+        otherDevice = subscription();
+      await request(app)
+        .put(`${first.base}/push`)
+        .set(first.headers)
+        .send(retired)
+        .expect(200);
+      await request(app)
+        .put(`${first.base}/push`)
+        .set(first.headers)
+        .send(current)
+        .expect(200);
+      await request(app)
+        .put(`${second.base}/push`)
+        .set(second.headers)
+        .send(otherDevice)
+        .expect(200);
+      const currentStatus = await request(app)
+        .get(`${first.base}/push`)
+        .set(first.headers)
+        .expect(200);
+      expect(currentStatus.body.data.endpointHashes).toEqual([
+        createHash("sha256").update(current.endpoint).digest("hex"),
+      ]);
+      await request(app)
+        .delete(`${first.base}/push`)
+        .set(first.headers)
+        .send({})
+        .expect(200);
+      const disabled = await request(app)
+        .get(`${first.base}/push`)
+        .set(first.headers)
+        .expect(200);
+      expect(disabled.body.data).toMatchObject({ enabled: false, endpointHashes: [] });
+      const retained = await request(app)
+        .get(`${second.base}/push`)
+        .set(second.headers)
+        .expect(200);
+      expect(retained.body.data).toMatchObject({
+        enabled: true,
+        endpointHashes: [createHash("sha256").update(otherDevice.endpoint).digest("hex")],
+      });
+      await request(app)
+        .delete(`${second.base}/push`)
+        .set(second.headers)
+        .send({})
+        .expect(200);
     });
     it("sends only generic alerts, cancels revoked-session deliveries and retires expired endpoints", async () => {
       const actor = await account("CUSTOMER");

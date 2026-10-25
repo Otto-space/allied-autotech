@@ -1,4 +1,6 @@
 "use client";
+import "./care-workspace.css";
+import { StatusBadge } from "./status-progress";
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
@@ -76,16 +78,19 @@ function SupportCategory({
         />
       )}
       <div className="cc-layout">
-        <SupportCreateForm
-          kind={kind}
-          presentation="dashboard"
-          userId={userId}
-          guard={guard}
-          onReviewChange={reviewChanged}
-          locked={guard.pending}
-          onUncertain={() => {}}
-          onSaved={(id) => router.push(`/dashboard/support/${kind}/${id}`)}
-        />
+        <details className="care-create">
+          <summary>{kind === "enquiries" ? "New enquiry" : "Make a complaint"}</summary>
+          <SupportCreateForm
+            kind={kind}
+            presentation="dashboard"
+            userId={userId}
+            guard={guard}
+            onReviewChange={reviewChanged}
+            locked={guard.pending}
+            onUncertain={() => {}}
+            onSaved={(id) => router.push(`/dashboard/support/${kind}/${id}`)}
+          />
+        </details>
         <section
           className="cc-history"
           aria-labelledby="support-list-heading"
@@ -162,33 +167,48 @@ function SupportCategory({
             </div>
           )}
           {!records.loading && !records.error && (
-            <div className="cc-records">
-              {records.data?.items.map((record) => (
-                <article
-                  className="cc-record"
-                  key={record.id}
-                  aria-labelledby={`support-${record.id}`}
-                >
-                  <div className="cc-record-top">
-                    <h3 id={`support-${record.id}`}>
-                      <Link href={`/dashboard/support/${kind}/${record.id}`}>
-                        {record.subject}
-                        <ChevronRight size={18} aria-hidden="true" />
-                      </Link>
-                    </h3>
-                    <span className="cc-status" data-status={record.status}>
-                      {label(record.status)}
-                    </span>
-                  </div>
-                  <p>{record.branch?.name ?? "Unassigned branch"}</p>
-                  {record.kind === "complaints" && (
-                    <p>Priority: {label(record.priority)}</p>
-                  )}
-                  <time dateTime={record.createdAt}>
-                    {formatBusinessDate(record.createdAt)}
-                  </time>
-                </article>
-              ))}
+            <div
+              className="care-table-region"
+              role="region"
+              aria-label="Your customer care requests"
+              tabIndex={0}
+            >
+              <table className="care-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Updated</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.data?.items.map((record) => (
+                    <tr className="cc-record" key={record.id}>
+                      <td>{record.subject}</td>
+                      <td>{kind === "enquiries" ? "Enquiry" : "Complaint"}</td>
+                      <td>
+                        <StatusBadge status={record.status} />
+                      </td>
+                      <td>
+                        <time dateTime={record.updatedAt}>
+                          {formatBusinessDate(record.updatedAt)}
+                        </time>
+                      </td>
+                      <td>
+                        <Link
+                          className="text-link"
+                          href={"/dashboard/support/" + kind + "/" + record.id}
+                        >
+                          View <ChevronRight size={16} aria-hidden="true" />
+                          <span className="sr-only"> {record.subject}</span>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
           <CursorPagination
@@ -240,7 +260,13 @@ export function CustomerSupport({ userId }: { userId: string }) {
           </select>
         </div>
         <nav className="cc-jump-links" aria-label="Customer care tasks">
-          <a href="#support-create-heading">
+          <a
+            href="#support-create-heading"
+            onClick={() => {
+              const details = document.querySelector(".care-create");
+              if (details instanceof HTMLDetailsElement) details.open = true;
+            }}
+          >
             Write a request <ArrowRight size={16} aria-hidden="true" />
           </a>
           <a href="#support-list-heading">

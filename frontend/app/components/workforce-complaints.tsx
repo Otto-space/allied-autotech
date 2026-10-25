@@ -229,6 +229,9 @@ export function WorkforceComplaints({
                       </time>
                     </small>
                   </th>
+                  <td data-label="Customer">
+                    {row.contact?.name || "Not available in this scope"}
+                  </td>
                   <td data-label="Priority">
                     <span className={`wfc-status is-${row.priority.toLowerCase()}`}>
                       {complaintPriorityLabels[row.priority]}

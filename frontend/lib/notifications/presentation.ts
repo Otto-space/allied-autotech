@@ -1,0 +1,21 @@
+const labels: Record<string, string> = {
+  BOOKING: "Service visits",
+  QUOTATION: "Quotations",
+  WORK_ORDER: "Workshop jobs",
+  ORDER: "Orders",
+  PAYMENT: "Payments",
+  REFUND: "Refunds",
+  DISPUTE: "Payment disputes",
+  INSPECTION: "Vehicle inspections",
+  VEHICLE_TRANSACTION: "Vehicle purchases",
+  ENQUIRY: "Enquiries",
+  COMPLAINT: "Complaints",
+  REVIEW: "Reviews",
+  PROMOTION: "Offers",
+  SYSTEM: "Account updates",
+  SECURITY: "Account security",
+  TRANSACTIONAL: "Transactions",
+  OPERATIONAL: "Service updates",
+  MARKETING: "Marketing",
+};
+export const notificationLabel = (value: string) => labels[value] ?? "Account updates";

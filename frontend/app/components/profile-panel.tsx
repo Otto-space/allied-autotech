@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ChevronDown,
   ChevronRight,
-  LockKeyhole,
   RefreshCw,
   ShieldCheck,
   FileText,
@@ -457,8 +456,8 @@ function ProfileIdentity({ profile }: { profile: Profile }) {
         <p>{profile.user.email}</p>
       </div>
       <p className="cp-private">
-        <LockKeyhole size={16} aria-hidden="true" />
-        Your photo is private and visible only to you.
+        Approved public reviews show your profile first and last name and current photo,
+        if added.
       </p>
     </div>
   );

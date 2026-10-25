@@ -37,10 +37,15 @@ This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.
 
-- Current frontend release source: `C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`,
-  commit `5e7deb6a` based on dashboard-quality release `d5269cb3`.
-  Backend runtime remains the verified discovery/fitment release; its source is
-  `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`.
+- Current frontend/backend runtime source: `345847d5`, branch
+  `feat/notifications-experience-20261025` in
+  `C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025`.
+  On 25 October 2026 the notification release replaced Shop/Vehicles R2 while
+  preserving its 70 migrations, preferred Home, reviews, audit fixes and enquiry
+  behaviour. Frontend main/www: `dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3` (READY);
+  backend: `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` (ACTIVE).
+  Recheck provider state before further changes. Full notification evidence:
+  `backend/docs/notifications-experience-20261025.md` in that worktree.
 - Previous release and ongoing separate audit worktree: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`,
   committed gallery/navigation source `098b580c`. Preserve its independent pending
   audit/copy changes and merge them against the new release before any future rollout.
@@ -48,10 +53,21 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   detailed release record there: `backend/docs/accounts-and-enquiries-release.md`.
 - Comprehensive policy evidence: `C:/Users/PC/.codex/worktrees/allied-launch-final-20261022/backend/docs/public-launch-policy-decisions.md`
 - Provider/operational gaps there: `backend/docs/public-enquiry-privacy-review.md`
-- Current backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE),
-  all four verified images; read-only predeploy passed and 64 migrations compatible.
+- Backend observed on 25 October 09:07 UTC:
+  `f9239c36-d4b7-4ef0-b8ba-479cda926a13` (ACTIVE), API image from
+  `ff42b0e2cf1b4c0b5907d928b2bad21c52d0d9d2`. The other component
+  images remain on the verified `2fc02baf` release. The immediately preceding
+  deployment was `da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9`.
 - Current frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
   assigned to both main and www domains on 24 October 2026. Recheck before changes.
+- Current stock-query integration worktree:
+  `C:/Users/PC/.codex/worktrees/allied-staff-vehicle-current-20261025`,
+  branch `fix/staff-vehicle-filters-current-20261025`, based on the newly
+  active `2fc02baf`. Its `ff42b0e2` API change is deployed. The prior
+  `f0062282` stock audit branch is preserved;
+  its image was not promoted after the concurrent deployment changed the
+  production source. Authenticated production staff-filter acceptance remains
+  open; local isolated integration tests and live anonymous boundary passed.
 - Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
   worktree. Earlier release pointers/checkpoints below describe their historical state.
 
@@ -774,7 +790,6 @@ were retained. See discovery-fitment-release-review.md for exact evidence and
 remaining acceptance limits. Item 6 and other settled operational decisions keep
 their current scope; this feature rollout does not close the whole site queue.
 
-
 ## Current frontend handoff - UI quality cycle 1, 24 October 2026
 
 The standing 29-section UI/UX directive is preserved byte-for-byte in
@@ -811,7 +826,6 @@ and created/removed no Docker images, containers or volumes. Existing runtime,
 backup, payment-disabled, enquiry-only and collection policies remain in force.
 All earlier Item 6 staff-media/real-publication and operational decisions retain
 their recorded scope. Other worktrees' pending audit/copy edits were preserved.
-
 
 ## Current frontend handoff - dashboards and managed workforce, 24 October 2026
 
@@ -889,7 +903,6 @@ customer toast separately. No real authenticated role journey or live provider
 transaction was claimed for this release. Item 6 and owner/operational
 dependencies remain open.
 
-
 24 October 2026, 23:17 Lagos - scoped catalogue/customer-care design release:
 runtime `1aacb6af5ffbe72c23e1f0f7d35b78fadf5f4447` on
 `C:/Users/PC/.codex/worktrees/allied-catalogue-care-ux-20261024`, branch
@@ -928,7 +941,6 @@ was provider READY/actual alias identity; browser checks used local synthetic
 fixtures. Payments stay disabled. Dependencies and Docker resources were retained;
 preview port 3155 stopped. Original main-checkout edits remain untouched except
 the guarded documentation handoff. Item 6 and owner dependencies retain scope.
-
 
 25 October 2026 - Home/Parts/Vehicles implementation checkpoint (not released):
 `C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, branch
@@ -1059,46 +1071,319 @@ superseded .next build output as blocked by policy; 143,481,750 bytes remain,
 plus 451,146,323 bytes of useful warm cache. No deletion workaround was used.
 The homepage correction is complete; broader manual acceptance and settled Item 6
 keep their existing scope.
+25 October stock-query audit: `GET /staff/vehicles` accepted featured,
+price-bound and year/mileage sort parameters but ignored them. The isolated
+worktree now applies listing filters to the same stored listing (including
+history), rejects price sorting and incompatible unlisted combinations, and
+uses deterministic cursor sorting for newest/year/mileage. Its stock UI has
+not changed. TypeScript, full backend lint/format, route coverage (407
+operations), generated OpenAPI validation (347 paths), and 3/3 focused
+integration tests passed after clean migration replay in a new
+`aat_stock_*_test` PostgreSQL database on the earlier `c3f4076f` base. The
+disposable database container was removed. A separate deployment then made
+`2fc02baf` and deployment `da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9` active;
+its newer migration and support changes were not in that test image. The stock
+fix was reapplied to that exact source. On the combined source, TypeScript,
+full lint/format, 407-operation route coverage, regenerated 347-path OpenAPI,
+clean isolated migration replay and all 3 stock integration tests passed. The
+first combined run stopped at a stale generated OpenAPI artifact; it was
+regenerated before the passing isolated rerun. Both task-created test database
+containers were removed. The previous stock image was pushed to the existing
+registry but not deployed. No application database was written by this stock
+audit. Item 6 remains open for real catalogue publication and authenticated
+staff acceptance.
 
-25 October 2026 - staff vehicle stock query release integrated into this source:
-The backend fix on commit `ff42b0e2` was tested on the `2fc02baf` backend base
-with full type/lint/format, 407-operation route coverage, 347-path OpenAPI,
-an empty isolated migration replay and 3/3 focused stock integration cases.
-It was pushed as image digest
+25 October stock-query release: commit `ff42b0e2` was pushed on the current
+backend source. Its `linux/amd64` API image was pushed under its immutable
+revision tag with registry digest
 `sha256:6ceab2563f0f15dc6b877aac02de89542113e98f5079c9d85803b383a7bbafb3`.
-DigitalOcean deployment `f9239c36-d4b7-4ef0-b8ba-479cda926a13` is ACTIVE;
-only the API digest changed. The two workers and read-only predeploy job retained
-the previous `2fc02baf` digests. Provider build/deploy/component steps passed;
-live API readiness, public products and public vehicles returned 200, and
-anonymous staff vehicles returned 401. The 25 October managed backup and earlier
-separate restore rehearsal were reviewed; this API-only release did not apply a
-migration or write application data. Hosted authenticated staff-filter acceptance
-is still open. Item 6 remains open for real catalogue publication.
+The active production deployment was checked immediately before updating:
+`da8e5b3a` was ACTIVE with no deployment in progress. The new app spec changed
+only the API digest, preserving the existing encrypted secrets, browse/enquiry
+launch mode, disabled payment modes, two worker digests and the migration-job
+digest/read-only `db:check` command. Schema-only app-spec validation passed;
+the provider's full _new-app proposal_ validation rejected already-encrypted
+secret references, so it was not used as an existing-app update gate. The
+existing-app update succeeded. Deployment `f9239c36` is ACTIVE with successful
+build/deploy/component steps, including the predeploy migration job; all four
+image digests were verified after promotion.
 
-25 October 2026 - legacy product compatibility concurrency correction in progress:
-implementation source `C:/Users/PC/.codex/worktrees/allied-compatibility-concurrency-20261025`,
-branch `fix/compatibility-concurrency-20261025`, integrating the verified homepage
-source `a69b4397` and stock-query source `ff42b0e2`. The API's administrator
-compatibility update and retirement now optionally require the child's current
-version and compare it inside the existing product mutation lock. New editor
-clients always supply the version; versionless old responses cannot be edited or
-retired by that editor. Public product fields remain limited. A stale write is a
-409 before mutation/history, and the review disables repeat confirmation while
-retaining the draft for explicit reload. Bare legacy DELETE remains compatible.
+The managed production database's encrypted off-device backup list had a fresh
+25 October 05:22:10 UTC backup. The earlier separate-database production-archive
+restore rehearsal and provider retention/PITR evidence were reviewed; no new
+restore rehearsal was run for this API-only rollout. No application database
+write, migration, grant change or payment change was made by the stock fix.
+Live read-only checks returned 200 for API readiness, public products and public
+vehicles; anonymous `GET /staff/vehicles?sort=year_desc` returned 401. The
+authenticated staff filter combinations were covered by 3/3 isolated integration
+tests, but are still awaiting a live staff QA account for hosted acceptance.
+The prior `da8e5b3a` deployment and its four component images remain rollback
+evidence; the superseded `f0062282` image was not deployed. No Docker cache,
+container, volume or image was removed during this release.
 
-Verification: all 65 migrations replayed in a new isolated loopback `_test`
-PostgreSQL database with no schema diff. Nine focused backend integration cases
-passed against a restricted non-owning role; the concurrent-write case recorded
-one success, one conflict, a single history increment, and stale-retirement
-rejection. No schema change or application database write. Backend typecheck,
-lint, OpenAPI (347 paths), route coverage (407 documented operations), format,
-build and generated client passed. Frontend types, lint and optimized build passed.
-All 13 Edge/Playwright product-editor cases passed locally, including the mobile
-write-time conflict and accessibility checks; the follow-up no-repeat assertion
-passed. Final-source formatting, release identity and deployment checks remain
-open. The temporary test container was removed by Docker `--rm`; useful shared
-images/caches, other tasks' containers, data volumes and existing backups were
-retained. No production mutation, migration or deployment has occurred in this
-correction yet. Hosted authenticated acceptance requires an authorised QA session;
-do not infer it from mocked browser data. Item 6 and the broader site goal remain
-open.
+25 October 2026 - Shop/Vehicles revision 2 implementation is IN PROGRESS in
+C:/Users/PC/.codex/worktrees/allied-shop-vehicles-r2-20261025, branch
+feat/shop-vehicles-r2-20261025, based on merged current source b45513f1.
+Provider reads confirmed restored frontend dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU
+READY and staff-filter backend f9239c36-d4b7-4ef0-b8ba-479cda926a13 ACTIVE.
+This is not a release receipt. Other worktree edits remain intact.
+Contracts and the acceptance checklist are in backend/docs/shop-vehicles-search-r2.md.
+Isolated loopback PostgreSQL uses task-owned tmpfs storage, no application data.
+69 forward migrations replayed with no Prisma difference; 67-migration db:check
+passed before search extension. Vehicle intent/persistence/queue and product
+family checks passed (22 focused checks); search/discovery regressions passed
+33 checks, including a 10,000-listing fixture. New scoped product choices plus
+search/domain checks passed 15 checks. Frontend transfer/draft and adjacent units
+passed 52 checks; admin helpers passed 31 checks. These are separate runs, not
+one complete final matrix. Browser acceptance and final release checks remain
+pending. No production database command, migration, seed, enquiry or deployment.
+Owner's new 20 GiB disk reserve is enforced before substantial operations;
+small checks use a documented 0.25 GiB estimate above the reserve. No new package
+installation/image build/pull; existing dependencies and cached postgres:18 reused.
+
+25 October 2026 - audit action/correctness batch in progress:
+Reused allied-home-restoration-20261025 on fix/audit-actions-20261025; merge
+b45513f1 preserves both the preferred homepage and the current ff42b0e2 backend
+vehicle fix. Live main/www still resolve to dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU;
+DigitalOcean remains ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13. Fully read the
+25 October audit and implemented A01-A07: saved-item navigation, valid finance
+return destination, release-aware overview links and historical summaries,
+verified review/profile-photo disclosures, shared utility actions, and persistent
+support reply audience. No commerce restriction, permission, media access or
+sending safeguard changed. No new production deployment, application database
+write, migration, backup/restore, real message/policy/transaction, Docker build,
+dependency installation or copied editor profile. Main uncommitted edits remain.
+Acceptance/check results and the exact finite checkpoint are in Cycle 6 of the
+release worktree's frontend/docs/UI_UX_QUALITY_REGISTER.md. Finish the outstanding
+checks before treating this batch as complete; do not expand into A08-A15 or
+redesign the restored homepage without a verified journey problem.
+
+25 October 2026 - audit A01-A07 local batch completed:
+All 996 frontend tests (149 files), lint, route type generation/TypeScript,
+formatting, optimized webpack build and standalone preparation passed. The
+31-case responsive matrix plus focused navigation, permission, saved-fitment,
+support recovery, validation, short-screen/doubled-text and console regressions
+passed after the documented fixture/output-directory corrections. Six backend
+portrait unit tests passed on identical reviewed media/test code without any DB
+write. Coverage and evidence are recorded in Cycle 6; this is local fixture
+acceptance, not real authenticated operations, physical-device or hosted-release
+acceptance. A08-A15 remain the next finite backlog. The preferred Home, public
+reviews, removed /demo, backend ff42b0e2 and all security/commerce boundaries are
+preserved. Production main/www and API were not changed by this batch.
+
+The owner's new fixed 20 GiB C: reserve is enforced at task preflights. Check
+chain was stopped when the instruction arrived and restarted with 0.25 GiB
+small-check allowances and a separately justified 1 GiB warm-build allowance.
+The build preflight passed at 24.52 GiB free against a 21 GiB threshold. No
+Docker resource, duplicate worktree/dependency installation or editor profile
+was created. Only a resolved 1,581,764-byte task diagnostic trace was removed;
+current build/cache, source, records, backups and other tasks were retained.
+
+25 October 2026, 12:13 Lagos - audit A01-A07 frontend promoted:
+Owner-authorised runtime e9f48ef525b80cc215f340015b0553e5b1e3af73 is READY on
+Vercel dpl_5vyykAdQnDsAshfCKRU9KNkePJgb. Actual main/www aliases independently
+matched at 11:13:48 UTC. Frontend/database-safety/secret CI passed on the runtime;
+test-only 8b5fe871 fixes production absence of the development error portal, with
+its frontend/secret CI also passing and no runtime-input difference. Hosted
+optimized acceptance passed 34/34 isolated audit scenarios and 9/9 real-data
+public candidate checks. All 9 production public scenarios subsequently passed, plus 3 live Privacy/restriction checks on main/www, with zero page exceptions; expected anonymous-session 401 and intentional demo 404 remain distinct.
+Backend remains ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13 / ff42b0e2; no image,
+migration, business-data write, permission, policy approval or real message/payment
+was changed. Fresh managed backup inventory and today's separate 89-table,
+65-migration restore receipt were reviewed; no new DB command or restore ran.
+Existing restrictions/protection remain, temporary hosted QA keys were revoked.
+Rollback frontend: dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU. The separate R2 worktree is
+still in progress and must retain the new audit frontend before a later rollout.
+Exact acceptance and limitations: Cycle 6 of the quality register.
+
+Audit rollout completion: additional production checks finished 11:15:50 UTC /
+12:15:50 Lagos. All candidate/production checks passed. Real operational-account
+submissions remain untested; no fabricated data was published. Browsers are closed,
+owned temporary QA keys revoked, existing protection preserved, and final C: reserve
+check passed at 23.83 GiB free. Docker totals unchanged; no task images/volumes,
+local rebuild, dependency copy, additional worktree or editor profile created.
+25 October 2026 — Shop/Vehicles revision 2 is released.
+Authoritative release worktree: C:/Users/PC/.codex/worktrees/allied-shop-vehicles-r2-20261025,
+branch feat/shop-vehicles-r2-20261025. Backend image source 91455d10, ACTIVE
+264c3f8e-324d-42bd-86cb-0dffa2eb9f19; frontend reviewed tree cfba360d, READY
+dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe on main/www. Existing audit/homepage source
+8b5fe871 was merged; the previously deployed audit frontend 5vyykAdQ is retained.
+Unrelated worktree/source edits were preserved. See backend/docs/shop-vehicles-search-r2.md
+and Cycle 7 of frontend/docs/UI_UX_QUALITY_REGISTER.md for complete evidence/limits.
+
+Implemented persisted Vehicle requirements intent, validation/branch routing and
+authorised queue projection; compatible legacy listing/idempotency handling; typed
+replacement-part/engine-oil authoring and filters; cross-field word/code search,
+explicit sort precedence and versioned complete cursors; scoped recorded product
+choices; paired budgets in main/footer Contact and bounded WhatsApp handoffs; both
+drafts retained with Keep/Start/resume and identity/storage-failure protection.
+Category-only emptiness is distinct. No other-family specialist fields, homepage
+restoration or broader dashboard redesign was introduced by this bounded task.
+
+All 70 migrations replayed in a new isolated _ci target and passed db:check. Fresh
+production archive restore into a separate _ci database verified all 89 table hashes/
+counts after UTC normalization; all original values/history survived 65→70. The
+protected production migration used a fresh exact-target backup receipt, then
+history/schema checks passed at 70. Runtime privileges and new-column reads passed;
+no grants changed. The first receipt attempt used runtime credentials for history
+and correctly received a permission denial; read-only follow-up used the separate
+migration role. No repeat migration/repair was performed. Managed backup/PITR/
+encryption/retention evidence was checked; original app-only firewall rules restored.
+
+Backend safety CI 40188786919 passed on its unchanged backend source; frontend CI
+40192109661 and repository secret guard passed on cfba360d. Full frontend units:
+1003/1003 (150 files); lint/type/format/optimized build passed; production dependency
+audit returned zero vulnerabilities. All 18 final hosted fixture cases passed at
+360/390/768/1024/1440, then 2 real read-only cases passed on the candidate and again
+on production at 390/1440. Sampled main-state WCAG scans and console/runtime checks
+passed. Mocked browser submission is distinct from real isolated API persistence;
+no real enquiry, fixture publication, customer message or payment was performed.
+Real authenticated operational queues, physical devices and full screen-reader
+acceptance remain unsampled. Real products/listings/recorded oil/fitment data remain
+business inputs; public catalogues currently return zero records. Item 6 retains
+its publication/operational scope and prior broader quality backlog.
+
+All four deployed image digests match the manifest. The predeploy job remains
+read-only db:check. Rollback retains old application images/frontend, migration 70
+and the updated history-aware migration artifact; never reset/restore application
+data to undo this release. Temporary hosted review keys were revoked, existing
+protection retained, and browser contexts/fixture servers closed. Local Next startup
+was rejected by automatic review; hosted verification completed without retrying
+another local startup method.
+
+Removed only the owned synthetic tmpfs PostgreSQL container e9812340f10b after
+verifying no persistent volumes or other consumers. Docker changed 15→14 containers
+at cleanup; other active tasks were retained. Images 42/11.88GB, volumes14/1.012GB,
+cache96/6.798GB retained; no image/cache/volume prune or unknown-file deletion.
+Kept private backups, native recovery database, current/rollback/base/tool images,
+warm dependencies/builds, source and all unrelated work. Final C: reserve reading
+was approximately 23.74 GiB free, a point-in-time observation rather than an OS quota.
+
+25 October 2026 - notification-only local implementation checkpoint.
+Source branch feat/notifications-experience-20261025 in the reused
+C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025. Initial checkpoint
+04559c7a; released Shop/Vehicles source 71d3f60d merged as 628d6add, preserving its
+70 migrations, Home/audit fixes and catalogue/enquiry behaviour. Other worktrees
+and existing main-checkout edits remain untouched. No notification rollout occurred.
+
+Implemented shared role inbox/settings and header preview, explicit idempotent
+read/unread and cutoff bulk scope, current source/privacy projection, quiet bounded
+foreground reconciliation, precise native-endpoint/session binding, generic push
+payload/deduplication and disabled-channel termination. Added persisted password/
+MFA-removal security inbox events without expanding approved outbound policy.
+API/general worker must precede frontend rollout. Existing permissions and release
+restrictions remain; no real customer message, transaction or published fixture.
+
+Evidence: backend/docs/notifications-experience-20261025.md and Cycle 8 of the UI
+quality register. 70 migrations replayed on a new isolated native loopback _ci
+DB and passed db:check; 477 backend units, 51 isolated integrations, 1,018 full-suite
+frontend units plus 6 final focused device cases, and 155 distinct browser scenarios
+with passing latest outcomes across documented runs. Final backend build/types/
+lint/routes/secret checks and frontend types/format/scoped final lint passed.
+Initial browser failures and corrected assertions remain recorded, not hidden.
+Screenshots: %TEMP%/allied-notifications-cycle-20261025/. Final receipts:
+%TEMP%/allied-notifications-final-20261025/. No claim of real operational-role,
+physical-device, full screen-reader or genuine native transport/click acceptance.
+
+Remaining required checkpoint: optimized frontend build blocked at about 20.95 GiB
+free by the 21 GiB preflight (20 reserve + 1 growth). Manual deletion of four already
+approved redundant installers is pending; automatic review blocked agent deletion.
+The owner completed CapCut uninstall (~5 GiB recovered); Chrome was left untouched.
+Do not retry blocked deletions through another tool or lower the 20 GiB reserve.
+Native Edge subscription probe reported permission granted then AbortError:
+Registration failed - permission denied; no provider send occurred. Existing live
+VAPID configuration was verified read-only, so missing keys are not the prerequisite.
+Installed Next 16.3.8 differs from lock 16.4.3; exact locked CI and optimized hosted
+acceptance remain release checks. Main/www still serve dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe;
+backend ACTIVE 264c3f8e-324d-42bd-86cb-0dffa2eb9f19, no pending rollout.
+
+No Docker resource was created or deleted; retained 42 images, 14 containers,
+14 volumes and 96 cache entries, including the unrelated active compatibility DB.
+Source, histories, secrets, databases/backups and current/rollback resources retained.
+
+25 October 2026 - notification build blocker resolved.
+Owner confirmed manual cleanup; all four approved redundant installer files were
+verified absent (1,147,739,384 measured prior file bytes, approximately 1.07 GiB).
+Both installed extensions and Chrome remain intact. C: passed the 1 GiB build
+preflight at 22.08 GiB free. Optimized frontend build, built-in TypeScript/prerender
+checks and standalone postbuild passed on runtime source 0def5c64. Postbuild free
+space was about 22.04 GiB, above the 20 GiB reserve. Source/worktree remained clean.
+No install, extra worktree, Docker build/resource or application database write.
+See %TEMP%/allied-notifications-final-frontend-build.log and cleanup receipt in
+%TEMP%/allied-notifications-final-20261025/. The previous disk/build blocker is
+resolved. Existing installed Next 16.3.8 differs from lock 16.4.3; exact locked CI
+and optimized hosted browser acceptance remain release checks. Native device
+subscription/delivery/click acceptance retains its documented permission-denied
+limit. No notification production deployment occurred; API/general worker must
+precede frontend rollout. All previous fixture/live evidence distinctions remain.
+
+## Production notification release - 25 October 2026, 17:26 UTC
+
+Notification runtime 345847d5 is deployed: backend 1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a
+ACTIVE; frontend dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3 READY on main/www. API and
+general worker preceded frontend promotion. Home/reviews, R2 and audit fixes,
+permissions, database history at 70 and browse/enquiries restrictions are preserved.
+No production fixture, customer message, transaction, migration or grant change.
+
+Exact locked Next 16.4.3 CI passed: 1,019 frontend units, lint/types/format/build
+and production audit; backend safety and secret CI passed. Nine image checks,
+production read-only db:check, runtime least privilege and current worker heartbeats
+passed. Today's separate 89-table restore and nine managed backups were verified.
+Temporary exact-IP database access and hosted review keys were removed.
+
+155 hosted fixture browser cases passed across 142+13 complete runs, including
+four role families and eight workforce scopes. An outdated opt-in fixture failed
+initially; adding its actual endpoint/hash contract resolved it without app changes.
+Live Edge checks on both domains at 390/1440 passed Home/Reviews, authentication,
+/demo 404, images, wrapping and console/runtime checks; no API writes. Native
+delivery/OS clicks, physical devices, full screen-reader and authenticated real-role
+acceptance remain unverified. Item 6 and broader operational acceptance remain open.
+
+Full release/rollback/evidence details: backend/docs/notifications-experience-20261025.md
+in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d5;
+subsequent edits are evidence and the E2E fixture correction only. C: postflight
+29.54 GiB free; current/rollback images, warm cache, databases/backups and other
+tasks retained. No broad prune, duplicate install/worktree or image archive.
+25 October 2026 — Customers/Customer Care implementation checkpoint.
+Working source feat/customers-care-20261025 in the reused Shop/Vehicles R2 worktree.
+Notification release 17bc43fc merged after main/www and backend provider verification;
+its inbox/push changes are preserved. Other worktrees/main edits are untouched.
+This task covers actual customer tables, reviewed suspension/reactivation, scoped
+Customer Care hierarchy/drafts and per-operator delivery notice dismissal, plus
+shared semantic state presentation. Homepage and broader redesign remain excluded.
+Forward migration 20261025170000_support_delivery_notice_dismissal is committed;
+71 migrations replayed on new isolated targets and restricted runtime db:check passed.
+A fresh production archive restored into a separate local database and protected
+70-to-71 migration preserved original row hashes and ledger. This was a logical
+restore rehearsal, not a new managed PITR cluster. Production migration/promotion
+are pending final CI and compiled responsive acceptance. See the task evidence doc
+and UI quality Cycle 9; do not treat the remaining real-role/device acceptance or
+the broader site-completion Item 6 as completed by mocked role fixtures.
+
+25 October 2026 - legacy product compatibility concurrency correction checkpoint:
+worktree `C:/Users/PC/.codex/worktrees/allied-compatibility-concurrency-20261025`,
+branch `fix/compatibility-concurrency-20261025`, originally based on the verified
+homepage and stock releases and now integrating the newer Customers/Customer Care
+source. The API compares an optional expected child version under the existing
+product mutation lock on legacy compatibility update and retirement. The new editor
+always supplies it; versionless old responses cannot be edited or retired there.
+Public fields stay limited. A stale write returns 409 before mutation/history,
+repeat confirmation is disabled and the draft is retained for explicit reload.
+Bare legacy DELETE remains compatible.
+
+Before the newer-source merge, all 65 then-current migrations replayed in a new
+isolated `_test` PostgreSQL target with no schema diff. Nine focused integration
+cases passed against a restricted non-owning role: concurrent writes yielded one
+success, one conflict and one history increment; stale retirement was rejected.
+No application database was written. Backend typecheck, lint, OpenAPI (347 paths),
+route coverage (407 operations), format and build passed. Frontend types, lint and
+optimized build passed. Thirteen Edge/Playwright editor cases passed locally,
+including mobile conflict, accessibility and draft recovery; a focused follow-up
+verified no repeat confirmation. After integration, all 71 migrations replayed on
+a fresh isolated `_test` target with no schema diff; `db:check` and the nine focused
+cases passed again under a non-owning runtime role. Regenerated OpenAPI and frontend
+types, backend/frontend typecheck, lint and optimized builds passed on the combined
+source (355 API paths, 415 documented operations). The combined rendered editor
+suite and release checks remain open. No production mutation, migration or deployment has
+occurred for this correction yet. Hosted authenticated acceptance needs a real
+authorised QA session. Item 6 and the broader goal remain open.

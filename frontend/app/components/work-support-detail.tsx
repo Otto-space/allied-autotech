@@ -1,8 +1,11 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
+import { CopyableValue } from "./copyable-value";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
+import { CareBackLink } from "./care-back-link";
 import { SupportEmailDelivery } from "./support-email-delivery";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -340,7 +343,9 @@ function ThreadWorkspace({
       <nav className="wi-breadcrumb" aria-label="Breadcrumb">
         <Link href="/admin">Overview</Link>
         <ChevronRight size={14} aria-hidden="true" />
-        <Link href="/admin/support">Customer care</Link>
+        <CareBackLink id={id} kind={kind} branchId={current?.branchId}>
+          Customer care
+        </CareBackLink>
         <ChevronRight size={14} aria-hidden="true" />
         <span aria-current="page">{current?.subject ?? "Conversation"}</span>
       </nav>
@@ -354,7 +359,7 @@ function ThreadWorkspace({
               </span>
               <span>
                 {current.kind === "enquiries"
-                  ? supportLabel(current.type)
+                  ? enquiryLabel(current.type, current.vehicleEnquiryIntent)
                   : `${supportLabel(current.priority)} priority`}
               </span>
             </div>
@@ -369,10 +374,15 @@ function ThreadWorkspace({
             <RefreshCw size={16} aria-hidden="true" />
             Refresh conversation
           </button>
-          <Link className="button secondary" href="/admin/support">
+          <CareBackLink
+            id={id}
+            kind={kind}
+            branchId={current?.branchId}
+            className="button secondary"
+          >
             <ArrowLeft size={16} aria-hidden="true" />
             Back to customer care
-          </Link>
+          </CareBackLink>
         </div>
       </header>
       <Feedback message={message} tone={tone} />
@@ -433,12 +443,43 @@ function ThreadWorkspace({
               </a>
             ))}
           </nav>
-          <WorkflowProgress
-            workflow={kind === "enquiries" ? "enquiry" : "complaint"}
-            status={current.status}
-          />
-          <ThreadFacts record={current} />
-          <SupportEmailDelivery base={base} revision={revision} />
+          <div className="care-context">
+            <strong>{current.contact?.name || "Customer contact not recorded"}</strong>
+            {["ADMIN", "SUPER_ADMIN"].includes(role) && current.contact?.customerId && (
+              <Link
+                className="text-link"
+                href={`/admin/customers/${current.contact.customerId}`}
+              >
+                Customer details
+              </Link>
+            )}
+            <CopyableValue value={current.contact?.email} label="Copy customer email" />
+            <span>
+              Assigned to{" "}
+              {current.assignedStaff
+                ? current.assignedStaff.firstName + " " + current.assignedStaff.lastName
+                : "Unassigned"}
+            </span>
+            <a className="care-next" href="#conversation-reply">
+              {current.status === "CLOSED"
+                ? "Review conversation"
+                : "Write a reply / internal note"}
+            </a>
+          </div>
+          <section className="wi-card">
+            <h2>Original request</h2>
+            <p className="preserve-lines">
+              {current.text.length > 240
+                ? current.text.slice(0, 240) + "…"
+                : current.text}
+            </p>
+            {current.text.length > 240 && (
+              <details>
+                <summary>Read the full original request</summary>
+                <p className="preserve-lines">{current.text}</p>
+              </details>
+            )}
+          </section>
           <div className="wst-workspace">
             <div>
               <ThreadHistory
@@ -471,6 +512,15 @@ function ThreadWorkspace({
               />
             </aside>
           </div>
+          <details className="care-secondary">
+            <summary>Case details, workflow and technical references</summary>
+            <WorkflowProgress
+              workflow={kind === "enquiries" ? "enquiry" : "complaint"}
+              status={current.status}
+            />
+            <ThreadFacts record={current} />
+          </details>
+          <SupportEmailDelivery base={base} revision={revision} />
           {lastReceipt && (
             <section
               className={`wi-card wst-confirmed${lastReceipt.visibility === "INTERNAL" ? " wst-internal" : ""}`}
@@ -547,7 +597,22 @@ function ThreadFacts({ record: r }: { record: SupportRecord }) {
             ].map((f) => (
               <div key={f.label}>
                 <dt>{f.label}</dt>
-                <dd>{f.value}</dd>
+                <dd>
+                  {f.label.toLowerCase().includes("reference") &&
+                  f.value &&
+                  f.value !== "Not recorded" ? (
+                    <CopyableValue
+                      value={f.value}
+                      label={
+                        f.label === "Reference"
+                          ? "Copy case reference"
+                          : `Copy ${f.label.toLowerCase()}`
+                      }
+                    />
+                  ) : (
+                    f.value
+                  )}
+                </dd>
               </div>
             ))}
           </dl>
@@ -563,7 +628,17 @@ function ThreadFacts({ record: r }: { record: SupportRecord }) {
             ].map((f) => (
               <div key={f.label}>
                 <dt>{f.label}</dt>
-                <dd>{f.value || "Not recorded"}</dd>
+                <dd>
+                  {["Email", "Phone", "Customer profile reference"].includes(f.label) &&
+                  f.value ? (
+                    <CopyableValue
+                      value={f.value}
+                      label={`Copy ${f.label.toLowerCase()}`}
+                    />
+                  ) : (
+                    f.value || "Not recorded"
+                  )}
+                </dd>
               </div>
             ))}
           </dl>
@@ -649,6 +724,17 @@ function ThreadHistory({
           supportMessageIds={messages.data?.items.map((message) => message.id)}
         />
       )}
+      <div id="conversation-reply">
+        <SupportReplyForm
+          record={record}
+          staff
+          base={base}
+          disabled={disabled || blocked || query.invalid}
+          onSaved={() => {}}
+          onUncertain={() => {}}
+          onReview={onReview}
+        />
+      </div>
       <section className="wi-card" id="conversation-messages">
         <div className="wst-message-header">
           <h2>Messages</h2>
@@ -736,17 +822,6 @@ function ThreadHistory({
           </>
         )}
       </section>
-      <div id="conversation-reply">
-        <SupportReplyForm
-          record={record}
-          staff
-          base={base}
-          disabled={disabled || blocked || query.invalid}
-          onSaved={() => {}}
-          onUncertain={() => {}}
-          onReview={onReview}
-        />
-      </div>
     </>
   );
 }

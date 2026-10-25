@@ -5,6 +5,22 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
+Current bounded implementation: notifications only, branch
+`feat/notifications-experience-20261025` in the reused
+`allied-home-restoration-20261025` worktree. Customer and work inboxes, bell,
+preview, read/unread state, preferences, device flow, producer privacy and delivery
+reliability are the current cycle. Homepage, catalogue and unrelated dashboards
+remain outside the new implementation scope. Released Shop/Vehicles source
+`71d3f60d` was merged and its 70 migrations and existing behaviour preserved.
+
+Status: deployed on 25 October 2026 from runtime source `345847d5` after locked
+Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
+acceptance remains open.
+See Cycle 8 and [notification contracts/evidence](../../backend/docs/notifications-experience-20261025.md).
+Real authenticated production-role acceptance and genuine native background-push
+transport/click acceptance are not claimed. Cycle 8 retains the released Cycle 7
+catalogue/enquiry behaviour and preferred Home.
+
 Read the complete [29-section directive](Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md)
 and root `AGENTS.md` before relevant work. The original supplied file is preserved
 byte-for-byte, SHA-256 `3dd72b1af1f2c3e36162db1ddf089fb7fbad9fc39b1244c3e9902663202831d9`.
@@ -27,8 +43,8 @@ collection only; no fabricated stock, fitment evidence, products or vehicles.
 
 ## Route, role and state inventory
 
-[Machine-readable source inventory](ui-quality-inventory.json) lists all 105
-`app/**/page.tsx` route patterns, dynamic segments, role families and 296 source
+[Machine-readable source inventory](ui-quality-inventory.json) lists all 104
+`app/**/page.tsx` route patterns, dynamic segments, role families and 320 source
 files with form, table, disclosure, select, file input, dialog, feedback or
 boundary signals. Regenerate with `node scripts/ui-quality-inventory.mjs` from
 `frontend`. These are source signals, not proofs that a route exposes a control,
@@ -976,38 +992,436 @@ inventory and authentic customer reviews remain content inputs, not fixtures to
 publish. Existing broader role/device/manual acceptance and settled Item 6 retain
 their recorded scope; no further redesign is implied by the previous audit.
 
-## Cycle 6: Product compatibility concurrent edits — 25 October 2026
+## Cycle 6: Audit A01–A07 — 25 October 2026
 
-Route `/admin/products`, administrator product detail editor. The reproduced problem
-was a second editor changing a legacy compatibility between the first editor's
-freshness read and write. A read-only preflight could not prevent the older draft
-from overwriting the newer record. The editor now sends the child's version for
-update and retirement; the API checks it under the existing product mutation lock
-and rejects a stale version with 409 before any history or record mutation.
+Scope: the complete 25 October UI/UX audit in Downloads and the supplied implementation
+brief, read before editing. This is finite Batch 1, not acceptance of every route or
+an instruction to redesign Home again. Revalidated both live frontend aliases on
+`dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU` and the backend ACTIVE deployment
+`f9239c36-d4b7-4ef0-b8ba-479cda926a13`. Reused the clean homepage-restoration
+worktree and dependencies/cache on `fix/audit-actions-20261025`; merge `b45513f1`
+combines the preferred Home with the independently released `ff42b0e2` backend fix.
+Only the tracker required conflict resolution, retaining both release receipts.
+Main-checkout uncommitted work is preserved. No additional worktree, dependency
+installation, editor profile, Docker build or application database write was needed.
+
+### Revalidated findings and changes
+
+| ID  | Current evidence and repair                                                                                                                                                                                                                                                                                                                                                                                                                          | Boundary                                                                                                                                                                            |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A01 | Limited-release filtering left the customer group labelled My orders with only Saved items. The group now reads Saved items; full mode reads Orders & saved items and preserves distinct destinations.                                                                                                                                                                                                                                               | Existing route restrictions and staff navigation are unchanged.                                                                                                                     |
+| A02 | Both finance headers still linked to absent /admin/operations. Back to overview now opens the existing /admin route, permitted to the same administrators.                                                                                                                                                                                                                                                                                           | No route or permission was added.                                                                                                                                                   |
+| A03 | Saved-vehicle refresh, paging and retry buttons were unstyled native controls. They now reuse explicit secondary actions; garage management remains an underlined navigation link. Refresh exposes busy/disabled state.                                                                                                                                                                                                                              | Fresh ownership/configuration checks, unknown fitment and URL filtering remain intact.                                                                                              |
+| A04 | Policy contact refresh still used the body-text link class. Both editors now use a shared secondary action, including busy state.                                                                                                                                                                                                                                                                                                                    | Selection, eligibility, review, approval and publication safeguards are retained.                                                                                                   |
+| A05 | The overview still linked to restricted customer booking/order/payment details and advertised booking. It now describes the enquiry release, offers Request a service visit, omits unavailable actions and retains real historical summaries without misleading links. The date preset now reflects its actual range.                                                                                                                                | Full-mode record links and permitted operational access remain. No commerce flag or direct-route restriction changed. Help launch guidance was already mode-aware; it was retained. |
+| A06 | Backend publicReviewer projects trimmed profile first/last name and a review-scoped photo URL. PublicReviewProfiles reads only a currently APPROVED review's current portrait; missing/unapproved/no-photo requests are 404, private/no-store, and do not expose contact details or garage media. The owner-only profile sentence contradicted this. Profile, upload/replacement/removal, review guidance/review confirmation and Privacy now agree. | Disclosure correction based on verified source/tests, not a claim of a confirmed data leak. No public field, storage rule or media permission changed.                              |
+| A07 | Audience remained a dropdown. Native radio choices, audience-specific help and a persistent audience summary now sit beside the editor/review action; the existing confirmation repeats the audience and its consequences.                                                                                                                                                                                                                           | Customer reply form remains customer-only. Single-flight writes, preflight, review/cancel, draft recovery and unknown-outcome locks remain.                                         |
+
+`action.tsx` consolidates the existing brand button foundation into explicit primary,
+secondary, tertiary, danger and navigation variants plus a programmatic selected toggle.
+`docs/ui-actions.md` documents semantics and migration boundaries. Only the named
+consumers migrated; no blanket link-background rule or dependency was introduced.
+The full source census records 1,209 native buttons, 105 native anchors and 58 buttons
+using text-link styling across 283 files. These are review signals, not 1,209 defects.
+The inventory now retains an 18-aspect per-page checklist and evidence record across
+all 104 public/auth/customer/work route patterns; unreviewed aspects remain explicit.
+Shared primitives do not imply acceptance of their untested consumers.
+
+### Acceptance evidence
+
+Browser plugin not available; existing Playwright with installed Edge was used, without
+browser downloads. Local development preview: http://127.0.0.1:3166, launch mode
+browse_enquiries, isolated browser/API fixtures. No production fixture was published.
+Desktop/mobile before screenshots cover overview, support, policy contacts and finance
+headers; after screenshots additionally cover Parts, profile, reviews and Privacy.
+Evidence is outside source at `%TEMP%/allied-audit-actions-20261025/`.
+
+The initial 31-case focused matrix passed: 360/390/768/1024/1440 widths, populated
+customer historical activity, empty/error overview, administrator finance return links,
+Super Admin contact refresh in both policies, saved-vehicle refresh and customer
+profile/review/privacy disclosures. Main-region axe checks, overflow, page identity,
+nonblank content, framework overlay, keyboard radio selection, review audience and
+cancel-without-write assertions passed. Page exceptions were checked in the customer
+and support matrices. The first attempt was stopped after an incomplete Parts fixture
+had no make options and did not open the vehicle-discovery tab; this was a fixture
+setup error, corrected before the passing run, not fictional stock added to the app.
+
+Additional regression: 28/29 selected cases passed initially; the remaining
+wrong-thread case failed only during Playwright trace teardown because two review
+jobs shared the same output directory. The case passed on a sequential, isolated
+rerun. Both saved-configuration workflows passed at 390/1440px; session invalidation
+and late-response protection also passed. One console-health check exposed the
+customer-review fixture's unimplemented notification-summary endpoint (404); an
+explicit isolated zero-summary fixture corrected the setup. No application endpoint
+or permission was changed to silence it. The six-screen console check then passed
+without warnings, errors or page exceptions. Final DOM refinement uses a block
+container for noninteractive metric summaries; the 390px overview and six-screen
+console checks passed again. The additional 320x568 staff check passed empty-message
+validation, associated error text, native radio keyboard operation and doubled-text
+reflow without a write. Local lint, route type generation, TypeScript, all 996 unit
+tests across 149 files and full-project formatting passed. The original combined
+check attempts were stopped during resource contention and when the owner supplied
+the new disk reserve; these are interruptions, not passing gates. Checks were rerun
+sequentially with fresh reserve assertions. The optimized webpack build and standalone postbuild also passed. `/demo` is absent
+from its generated route table. No production deployment or final-source hosted/CI
+acceptance was performed this cycle. Local reused Next is 16.3.8; the lockfile is
+16.4.3, so the normal locked-dependency release gate remains necessary before rollout.
+The six existing backend public-review portrait tests passed, using the main checkout's
+identical media/test source (Git equality checked against this branch). They use mocked
+Prisma/storage and make no database connection or write. No schema generation,
+migration, database safety check, backup/restore, grant change or production transaction
+was required by these disclosure/UI changes.
+
+Limitations: local development evidence is distinct from optimized hosted acceptance.
+Fixtures verify UI states, not real role provisioning or operational readiness. Real
+customer/staff sign-in, real submissions, physical devices, screen-reader speech and
+actual browser zoom remain untested. Text enlargement is a CSS stress test and does
+not certify browser-zoom or full WCAG compliance. No production deployment is implied.
+
+### Next priorities
+
+A08/A09/A12: paired range fields, concise field help and the remaining utility-action
+consumers; A10/A11: compact customer/support queues and genuinely empty dashboards;
+A13/A14: policy edit hierarchy and notifications/helper collisions; A15: policy reading
+hierarchy. Preserve the owner's restored homepage direction. Broader checklist cells,
+protected Privacy/Finance approval forms and real authenticated workforce acceptance
+remain their recorded scope. Optional assistant/tours remain a later product decision.
+
+### Completed checkpoint and disk reserve
+
+Batch 1 (A01?A07) is complete in the local review branch; A08?A15 remain the finite
+next backlog. The 104-route checklist has 12 explicitly scoped page records; all
+other route/aspect cells remain uninspected in this cycle. Source discovery and
+mocked acceptance are distinct from real role/device access. Before/after screenshots
+and the normal/reduced-motion fixture evidence remain outside source; no screenshot,
+trace archive, generated build, credential or synthetic inventory was committed.
+
+The owner's new disk reserve was applied immediately: stopped the earlier check
+chain before building, read and invoked `C:/Users/PC/.codex/scripts/assert-disk-space.ps1`,
+then guarded lint/types/tests with 0.25 GiB allowances (small caches/type output).
+The single warm optimized build passed its separate 21 GiB threshold: fixed 20 GiB
+reserve plus a justified 1 GiB allowance, covering the measured ~451 MB warm cache,
+~392 MB prior dev output and the small reused standalone bundle without a download
+or dependency copy. Free space was 24.52 GiB immediately before that build and stayed
+above the reserve during the measured checks. The checker is a preflight, not an OS
+quota or guarantee about concurrent applications. The final measurement is recorded
+in the completion tracker.
+
+No task Docker resources were created. Reviewed desktop-linux context/builders,
+image/container references and disk totals: 38 images/11.84GB, 14 containers,
+14 volumes/1.012GB and 87 cache entries/6.715GB. The new running PostgreSQL container
+belongs to another active task and was retained. Current, rollback, base/tool,
+other-task and uncertain resources were retained; no broad prune or volume removal
+ran. Removed only this batch's superseded 1,581,764-byte diagnostic trace archive
+after its isolated rerun passed; retained screenshots, small receipts and useful
+current build/cache. Other concurrent free-space changes are not attributed to this
+batch. Earlier explicitly approved folder deletions remain subject to their recorded
+automatic-review rejections; no deletion workaround was used.
+
+### Production rollout — 25 October 2026
+
+Owner explicitly requested production deployment after the local batch checkpoint.
+Runtime `e9f48ef525b80cc215f340015b0553e5b1e3af73` is READY on Vercel
+`dpl_5vyykAdQnDsAshfCKRU9KNkePJgb`. Both actual main/www aliases independently
+matched at 11:13:48 UTC / 12:13:48 Lagos. This is a frontend-only promotion;
+DigitalOcean remains ACTIVE `f9239c36-d4b7-4ef0-b8ba-479cda926a13`, source `ff42b0e2`.
+No backend image, database migration, business-data write or permission change was
+performed. The separate Shop/Vehicles revision-2 worktree remains in progress.
+Future source selection must retain this release's audit fixes rather than deploy
+its older frontend base over them.
+
+Exact runtime-source CI passed: frontend release checks `40186973452`, backend
+safety `40186973448`, secret guard `40186973443`. The locked-dependency hosted
+candidate passed all 34 audit scenarios at 360/390/768/1024/1440px plus short-phone
+validation/doubled-text checks, including zero-warning/error console health. The
+first hosted attempt exposed a development-only test assumption: negated text
+assertions still required Next's development portal to exist. Test-only commit
+`8b5fe871` now asserts zero error portals while correctly accepting their absence.
+Its frontend CI `40187506046` and secret guard `40187506070` passed. This commit
+changes no deployed runtime input; Vercel excludes tests/docs, so the already verified
+candidate was reused without another application build.
+
+All nine real-data candidate checks passed: restored Home at 320/390/768/1024/1440,
+loaded imagery, mobile menu, FAQ, carousel keyboard/touch/pause/play, service/quotation
+links, public reviews and actual /demo 404. Scoped axe checks and page exceptions
+passed. All nine real-data public scenarios passed again on production after promotion, with zero page exceptions. Expected anonymous-session 401 responses and the intentionally visited /demo 404 are recorded separately from application exceptions. The
+34 dashboard scenarios used browser-isolated fixtures against the optimized candidate;
+no fictitious record, real sign-in, reply, policy approval or transaction was submitted.
+Physical devices, screen-reader speech and real authenticated operational acceptance
+retain their stated limits.
+
+Read-only preflight/postflight confirmed the database online, nine automated managed
+backups (latest 05:22:10 UTC), existing encrypted off-device seven-day/PITR safeguards,
+and today's successful 06:48:38 UTC separate 89-table/65-migration restore rehearsal,
+original rows unchanged. No new database command, backup or restore was needed or run
+for this frontend-only release. Backend origin, browse/enquiries mode, disabled private
+testing and existing deployment protection were retained. Temporary hosted QA keys were
+revoked and their absence verified before promotion. Immediate frontend rollback is
+`dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU`; preserve the current backend and migration 65.
+
+Evidence: `%TEMP%/allied-audit-deploy-20261025/` holds scoped preflight/postflight,
+`hosted-suite.json` and `candidate-public/hosted-qa.json` plus desktop/mobile captures.
+Hosted audit screenshots refresh the existing `allied-audit-actions-20261025/after-*`
+files; the before captures remain intact. Production captures use a separate directory.
+
+Production completion: live Privacy copy matched the new profile first/last-name
+and current-photo disclosure on both main and www; the restricted customer Orders
+URL still redirected to Contact. These three additional read-only checks passed
+at 11:15:50 UTC / 12:15:50 Lagos, without writes or page exceptions. All browser
+contexts are closed. Exact-source CI, 34 hosted fixture scenarios, 9 candidate
+public scenarios, 9 production public scenarios and the 3 changed-copy/restriction
+checks are complete. Real-account operational submissions remain untested.
+
+Disk completion: reserve checks passed before CLI upload, browser QA and final
+handoff; final C: free space was 23.83 GiB. No local rebuild, dependency installation,
+image archive, extra worktree or editor profile was created for this rollout.
+Docker remained at 38 images/11.84GB, 14 containers, 14 volumes/1.012GB and 87 cache
+entries/6.715GB. No task-owned redundant Docker resource existed to remove; useful
+current/rollback/other-task resources and evidence were retained. Main-checkout
+uncommitted edits and the independent R2 work remain untouched.
+
+## Cycle 7: Shop, Vehicles and enquiry continuity — 25 October 2026
+
+Bounded revision 2 implementation released. Frontend reviewed tree `cfba360d`,
+READY `dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe` on main/www; backend `91455d10`, ACTIVE
+`264c3f8e-324d-42bd-86cb-0dffa2eb9f19`; database history/schema verified at 70.
+The current audit/homepage source was merged and retained. This cycle does not
+redesign other dashboard pages or complete all broader role/state acceptance.
+
+| Area               | Verified behaviour and evidence                                                                                                                                                    | Limits                                                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Shop               | Broad product language, visible meaningful categories, native mode selection, scoped recorded choices, typed oil grade/ml, family reset, paired NGN budgets, explicit sort/history | Real catalogue still has zero published records; no inferred family/specification backfill                                |
+| Vehicles           | Cross-field make/model search, exact full sort cursor, budget/condition preferences, requirements intent distinct from listing                                                     | Matching/persistence use real isolated PostgreSQL; no real listing or sourcing promise invented                           |
+| Contact            | Both budgets and criteria in editable draft/review, listing reference, Keep/Start preserving both drafts, resume/reload, session separation and storage-failure protection         | Submission is mocked in browser; actual persistence/routing/authorization passed isolated API tests; no real enquiry sent |
+| Catalogue admin    | Grade and explicit ml validation/review/persistence, family/category compatibility, shared other-product authoring preserved                                                       | Browser admin save is a fixture; no live product/category mutation performed                                              |
+| Supporting queues  | New intent projected to authorised queues with existing branch/assignment/template restrictions; readable labels retain legacy listing semantics                                   | No new real authenticated operational sampling; broader dashboard redesign outside scope                                  |
+| Recovery/rendering | Global/category empty versus no match/error, pending/stale searches, invalid budget focus, Escape return, responsive 360–1440                                                      | Edge automation and sampled main-state WCAG scans; no full physical-device/screen-reader certification                    |
+
+Final source checks: 1,003/1,003 frontend units (150 files), lint, TypeScript,
+formatting, optimized production build, zero production audit vulnerabilities;
+backend CI, physical schema-drift rollback test, migration review/history/backup
+checks, isolated domain tests and fresh 65→70 production-archive restore rehearsal.
+All 18 hosted fixture browser cases passed in one final run. Two real public
+read-only cases passed on the candidate and again on production at 390/1440.
+No automated WCAG-tag violation or application error appeared in sampled main
+states. Keyboard validation/modal focus and Escape were automated; full manual
+assistive-technology and operational-role acceptance remain untested.
+
+Visual inspection caught and fixed inherited oversized native radios. Real-data
+inspection caught a generic footer enquiry losing criteria; Contact and bounded
+WhatsApp footer links now follow applied client-side preferences. The category-only
+empty state is explicit. Existing shared support for other products remains;
+new specialist tyre/battery/other-fluid/car-care fields and optional oil approvals
+are deferred pending their business contracts. Never seed fixtures to satisfy
+missing publication data. No checkout/payment/delivery/reservation was enabled.
+
+Manifest: `tests/quality/shop-vehicles-r2.txt`. Full contracts, migration/rollback
+and detailed evidence: `backend/docs/shop-vehicles-search-r2.md`. Screenshots:
+`%TEMP%/allied-shop-vehicles-r2/` (fictional populated fixtures) and
+`%TEMP%/allied-shop-r2-real/` (real empty data/public prefills). Temporary hosted
+review keys were revoked and existing protection retained. Local Next server
+startup was rejected by automatic approval review; hosted validation completed
+without an alternate local startup attempt.
+
+Owned synthetic tmpfs test container was removed after verifying no other consumer.
+Retained current/rollback images, useful caches, all data volumes, source, other
+worktrees, private backups and the native recovery database. No broad prune or
+unknown-file deletion. The 20 GiB reserve passed measured task preflights; final
+reading is in the completion tracker. This does not enforce a machine-wide quota.
+
+Remaining acceptance: real catalogue publication/labels and reviewed fitment are
+business inputs; authenticated live queues and real private detail states remain
+unsampled. Keep prior cycles' broader dashboard/manual backlog and settled Item 6
+scope. No homepage restoration or broader redesign is implied by this release.
+
+## Cycle 8: Notifications across roles - 25 October 2026
+
+Bounded notification-only implementation on `feat/notifications-experience-20261025`.
+Original baseline `0253a651`; checkpoint `04559c7a`, then current released R2 source
+`71d3f60d` merged as `628d6add`. Shared generated contracts were regenerated.
+No current production release, role, customer data or business policy was changed.
+
+| Page/surface                                   | Verified implementation and state scope                                                                                                                                                 | Evidence/limit                                                                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Customer `/dashboard/notifications`            | Focused inbox, optional full-width settings, read/unread, All/Unread/advanced filters, paging, whole-account bulk scope, retry and uncertain-write recovery                             | Populated browser-isolated fixtures; source-record commerce stays launch-restricted                                            |
+| Staff/Admin/Super Admin `/admin/notifications` | Same workspace; own inbox and current managed-access gate, no title-based permission grants                                                                                             | Legacy four-role and represented eight responsibility fixtures; real operational accounts unsampled                            |
+| Shared bell/preview                            | Global count, 99+ display/full accessible count, five frozen recent rows, no read-on-render, retry/empty/error, focus/Escape/outside dismissal                                          | Account/session isolation; no duplicate toast/sound stream                                                                     |
+| Settings                                       | Reviewed switch changes, immutable channel policy, truthful defaults, unavailable SMS/marketing state and deliberate future consent                                                     | Existing preference/idempotency protections retained; no real provider delivery triggered                                      |
+| Source-record context                          | Explicit read of displayed related IDs only, no hover/render/scroll acknowledgement or focus theft; missing/revoked source redaction                                                    | API integration and targeted rendered journeys; restricted full-mode customer commerce remains separately unsampled            |
+| Browser push                                   | Local native subscription AND permission AND server binding, no prompt on mount, device-only off, endpoint/account isolation, bounded persistent ID deduplication and safe inbox clicks | Worker fake-provider + actual handler/storage harness; native Edge subscription probe failed with permission-denied AbortError |
+| Producers/recipients                           | Persisted security events added transactionally; existing branch/assigned/delegated/internal-note boundaries and optional channel policy retained                                       | Isolated real PostgreSQL checks, no fabricated production events or broad escalation                                           |
+
+Post-merge checks already passed: 1,018 frontend unit tests; 477 backend unit tests;
+51 integration cases (42 domain/context/preference/retry/identity + 5 push-provider
+fixtures + 4 ownership/summary). All 70 existing migrations replayed on a new
+isolated `_ci` target with restricted runtime and `db:check`. Backend types, lint,
+format, secret guard and 410 mounted/documented API operations passed. No new
+notification migration is needed. Final frontend checks/browser evidence follow.
+
+Fixtures never certify a real production account, physical device, screen-reader
+speech or native delivery. Native probe used an ephemeral local Edge profile and
+keys: permission reported granted, then subscribe failed with `AbortError:
+Registration failed - permission denied`; no external provider send occurred.
+Production push configuration already exists, confirmed read-only without exposing
+secrets. A supported device/provider delivery and actual OS-click check remains.
+Deploy the compatible push worker before the new service worker/frontend; missing
+endpoint fingerprints intentionally fail closed. No publication in this cycle.
+
+Screenshots: `%TEMP%/allied-notifications-cycle-20261025/` contains four-role
+390/1440 inbox/preview/settings captures plus 360/768/1024 long-content views.
+Final migration/API/browser/native receipts: `%TEMP%/allied-notifications-final-20261025/`.
+Desktop/mobile captures were visually inspected; baseline screenshots were blocked
+before local preview became available, so no manufactured before/after claim.
+Current fixture preview is development mode with reused installed dependencies;
+locked-dependency hosted acceptance is a separate pending release check.
+
+Disk interruption and recovery: browser testing paused when C: fell below the
+mandatory 20 GiB reserve. The approved disposable 1.94 GiB batch was automatically
+rejected and retained. Owner completed CapCut uninstall, independently verified
+about 5 GiB recovered and 21.16 GiB free before resuming a 1 GiB bounded stage.
+Chrome, source, other worktrees, histories, databases, backups and release resources
+were retained. No blanket cache/Docker prune or deletion workaround was used.
+
+Final rendered checkpoint: 155 distinct browser scenarios have passing latest
+outcomes across the recorded runs; this is not one clean full-suite run. The
+147-case run first passed 143: one cold development redirect exceeded its wait and
+passed unchanged on recheck; three old workforce assertions omitted the existing
+Fitment link. Assertions were corrected only for the three already eligible
+templates; all eight workforce scopes then passed. Nine focused context/focus/
+doubled-text/reduced-motion cases passed, including seven permitted source-record
+journeys. All four roles' 390/1440 inbox/preview/settings captures were refreshed
+in an eight-case passing run. Restricted full-mode customer commerce context pages
+remain inaccessible in the current browse/enquiries preview and were not counted
+as passing. Physical-device zoom and full screen-reader speech remain unsampled.
+
+Final device correction: push-status now returns only the current account/session's
+endpoint hashes. A saved binding for an older endpoint cannot make the renewed
+local subscription appear enabled. Six focused device tests passed after this
+correction, including actual SHA-256 comparison and no repeated permission prompt;
+five isolated push API/worker cases passed, including endpoint renewal and keeping
+another session's device enabled. The earlier full frontend suite passed 1,018;
+the six-case focused recheck includes one newly added regression (not 1,024 distinct
+tests). Frontend types and full formatting passed; full lint exposed one unused
+test import, removed and validated along with all subsequently changed source/tests.
+The final endpoint-hash contract/types were regenerated and checked separately.
+
+The optimized frontend build and standalone postbuild now pass on source
+`0def5c64`, using the existing dependencies and `browse_enquiries` configuration.
+It was initially blocked by the mandatory disk preflight. The owner subsequently
+removed all four approved redundant installers (1,147,739,384 measured file bytes,
+about 1.07 GiB); their absence and retention of both installed extensions were
+verified. The 1 GiB build preflight passed with 22.08 GiB free, and the postbuild
+reading was about 22.04 GiB. Chrome was untouched. No dependency install, duplicate
+worktree or Docker resource was needed. The former disk/build blocker is resolved.
+Build log: `%TEMP%/allied-notifications-final-frontend-build.log`; manual-cleanup
+receipt: `%TEMP%/allied-notifications-final-20261025/owner-cleanup-verified.json`.
+
+Installed Next is 16.3.8 versus the lockfile's 16.4.3; exact locked-dependency CI and
+optimized hosted browser acceptance remain release checks. The rendered scenarios
+were verified in the local development preview; this successful optimized build
+does not turn them into production-mode browser evidence. Genuine native delivery
+and OS-click acceptance remain unverified for the device reason above.
+
+Live release was rechecked read-only: main/www still serve
+`dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe`; backend remains ACTIVE
+`264c3f8e-324d-42bd-86cb-0dffa2eb9f19` with no pending rollout.
+No notification deployment was performed. Release API/general worker before the
+frontend, then verify native delivery/clicks on a supported consented test device.
+
+## Production notification release - 25 October 2026, 17:26 UTC
+
+Notification runtime 345847d5 is deployed: backend 1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a
+ACTIVE; frontend dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3 READY on main/www. API and
+general worker preceded frontend promotion. Home/reviews, R2 and audit fixes,
+permissions, database history at 70 and browse/enquiries restrictions are preserved.
+No production fixture, customer message, transaction, migration or grant change.
+
+Exact locked Next 16.4.3 CI passed: 1,019 frontend units, lint/types/format/build
+and production audit; backend safety and secret CI passed. Nine image checks,
+production read-only db:check, runtime least privilege and current worker heartbeats
+passed. Today's separate 89-table restore and nine managed backups were verified.
+Temporary exact-IP database access and hosted review keys were removed.
+
+155 hosted fixture browser cases passed across 142+13 complete runs, including
+four role families and eight workforce scopes. An outdated opt-in fixture failed
+initially; adding its actual endpoint/hash contract resolved it without app changes.
+Live Edge checks on both domains at 390/1440 passed Home/Reviews, authentication,
+/demo 404, images, wrapping and console/runtime checks; no API writes. Native
+delivery/OS clicks, physical devices, full screen-reader and authenticated real-role
+acceptance remain unverified. Item 6 and broader operational acceptance remain open.
+
+Full release/rollback/evidence details: backend/docs/notifications-experience-20261025.md
+in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d5;
+subsequent edits are evidence and the E2E fixture correction only. C: postflight
+29.54 GiB free; current/rollback images, warm cache, databases/backups and other
+tasks retained. No broad prune, duplicate install/worktree or image archive.
+
+# Cycle 9: Customers and Customer Care — 25 October 2026
+
+Current bounded implementation: `feat/customers-care-20261025` in the reused
+`allied-shop-vehicles-r2-20261025` worktree. Released notification source
+`17bc43fc` was merged after live-provider verification; other worktrees and the
+main checkout's edits are preserved. Home, Shop/Vehicles and financial layouts
+remain outside this cycle.
+
+Acceptance contract and backend evidence: `backend/docs/customers-care-20261025.md`.
+Actual surfaces: Admin/Super Admin `/admin/customers` and details, legacy
+`/admin/support` and case routes, managed Customer Service enquiry/complaint
+workspaces, customer `/dashboard/support` and conversations. Existing page-index
+entries remain applicable; no new dashboard route or capability is invented.
+
+Implemented: semantic customer/care tables, scoped search and cursor state,
+copy success/failure/manual selection, reviewed real account transitions/session
+revocation/audit, conversation-first layout with retained public/internal controls
+and drafts, scoped per-operator delivery dismissal, and five semantic state tones.
+Managed contact projection is limited to Customer Care responsibility readers;
+sales-only readers keep their earlier field boundary. Dismissal grants no retry.
+
+Fixture captures and browser receipts are outside the repository under
+`%TEMP%/allied-customers-care-20261025/` and
+`%TEMP%/allied-customers-care-hosted/`. Before/after are synthetic role records,
+not production customer data. Browser plugin unavailable; installed Edge/Playwright
+is used. Clipboard writes are instrumented success/failure callbacks, without
+reading the clipboard. Touch and zoom evidence is emulated, not a physical-device
+or full screen-reader certification.
+
+The earlier hosted run passed 11/15 scenarios. It found phone overflow caused by
+absolute assistive labels escaping the table's scroll containing block, and a
+1366px filter-grid override. Both are fixed in source and await final compiled
+acceptance. Earlier fixture envelope/ambiguous-selector failures were corrected;
+they are not counted as product regressions. Final checks and release evidence
+will follow; this checkpoint does not certify production rollout.
+
+## Cycle 10: Product compatibility concurrent edits — 25 October 2026
+
+Route `/admin/products`, administrator product detail editor. A second editor could
+change a legacy compatibility between the first editor's freshness read and write.
+The older draft could then overwrite the newer record. The editor now sends the
+child's version for update and retirement; the API compares it inside the existing
+product mutation lock and returns 409 before history or record mutation if stale.
 
 The administrator response exposes the child version while public product data
 retains its limited projection. Existing bare DELETE clients remain accepted during
-the transition. If an older response lacks a child version, the new editor disables
-edit/retire and explains that a refresh is needed. A rejected review disables repeat
-confirmation, preserves the draft, refreshes the record, and allows an explicit
-reload to the newest values. The form draft key includes the child version so the
-reload does not restore the obsolete draft from session storage.
+the transition. When an older response lacks a version, the editor disables
+edit/retire and asks for refresh. A rejected review disables repeat confirmation,
+preserves the draft, refreshes the record and offers explicit reload. Including the
+child version in the form draft key prevents reload from restoring obsolete values.
 
-Evidence: all 9 focused isolated PostgreSQL integration tests passed using a new
-`_test` database on 127.0.0.1:55581 with a non-owning runtime role; concurrent
-same-version writes produced one success and one 409, a stale retirement was
-rejected, history advanced once, and admin/public projections were checked. All
-65 migrations replayed on the isolated target with no schema diff; no application
-database was written. All 13 local Edge/Playwright product-extras cases passed,
-including a 320px write-time conflict, draft recovery, no horizontal overflow and
-automated WCAG 2.2 AA rule checks; the one-case follow-up confirmed that a
-rejected confirmation cannot be resent. Frontend/backend types, lint, backend
-formatting and builds passed; final formatting and release checks are tracked in
-the site-completion tracker. The mobile screenshot is
-`%TEMP%/allied-compatibility-conflict-mobile.png`.
+Nine isolated PostgreSQL integration tests passed using a new `_test` database on
+127.0.0.1:55581 with a non-owning runtime role. Concurrent same-version writes
+produced one success and one 409; history advanced once and stale retirement was
+rejected. All 65 then-current migrations replayed without schema diff. Thirteen
+local Edge/Playwright product-extras cases passed, including a 320px conflict,
+draft recovery, no horizontal overflow and automated WCAG 2.2 AA rule checks. A
+focused follow-up verified that a rejected confirmation cannot be resent. Frontend
+and backend types, lint and builds passed on the pre-merge source. The integrated
+source then passed a fresh 71-migration replay, restricted-role `db:check`, nine
+focused backend integration cases, generated contracts, typecheck, lint and
+optimized builds. Its rendered editor suite and hosted release checks remain open.
+The mobile capture is `%TEMP%/allied-compatibility-conflict-mobile.png`.
 
-This is isolated/mock-rendered acceptance, not an authenticated production editor
-session. Real device and screen-reader speech checks remain untested. The
-`browse_enquiries` launch restriction and genuine catalogue content requirements
-are unchanged. The next cycle should use a real authorised admin QA session on the
-matching release and continue the per-page operational backlog.
+These are isolated and fixture-rendered checks, not an authenticated production
+editor session. Real device and screen-reader speech remain untested. The current
+`browse_enquiries` restriction and genuine catalogue content requirements remain.
+The next review should verify an authorised admin QA session on the matching
+release and continue the per-page operations backlog.

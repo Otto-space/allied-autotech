@@ -43,6 +43,7 @@ const enquiryBaseSelect = {
   bookingId: true,
   quoteId: true,
   vehicleListingId: true,
+  vehicleEnquiryIntent: true,
   assignedStaffId: true,
   resolvedAt: true,
   closedAt: true,
@@ -250,7 +251,12 @@ export class SupportRepository {
           ? { productId: input.productId }
           : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
+        ...(input.type === "VEHICLE"
+          ? {
+              vehicleListingId: input.vehicleListingId ?? null,
+              vehicleEnquiryIntent: input.vehicleEnquiryIntent ?? "LISTING",
+            }
+          : {}),
       },
       select: { id: true, status: true, createdAt: true },
     });
@@ -275,7 +281,12 @@ export class SupportRepository {
         phone: customer.phone,
         ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
-        ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
+        ...(input.type === "VEHICLE"
+          ? {
+              vehicleListingId: input.vehicleListingId ?? null,
+              vehicleEnquiryIntent: input.vehicleEnquiryIntent ?? "LISTING",
+            }
+          : {}),
         ...(input.type === "BOOKING" ? { bookingId: input.bookingId } : {}),
         ...(input.type === "QUOTATION" ? { quoteId: input.quoteId } : {}),
       },
@@ -523,6 +534,13 @@ export class SupportRepository {
   listStaffEnquiries(query: StaffEnquiryListQuery, branchId: string | null) {
     return this.database.enquiry.findMany({
       where: {
+        AND: (query.q?.split(/\s+/).filter(Boolean) ?? []).map((term) => {
+          const text = {
+            contains: term.replace(/[\\%_]/g, "\\$&"),
+            mode: "insensitive" as const,
+          };
+          return { OR: [{ subject: text }, { message: text }] };
+        }),
         ...(branchId ? { branchId } : query.branchId ? { branchId: query.branchId } : {}),
         ...(query.type ? { type: query.type } : {}),
         ...(query.status ? { status: query.status } : {}),
@@ -545,6 +563,13 @@ export class SupportRepository {
   listStaffComplaints(query: StaffComplaintListQuery, branchId: string | null) {
     return this.database.complaint.findMany({
       where: {
+        AND: (query.q?.split(/\s+/).filter(Boolean) ?? []).map((term) => {
+          const text = {
+            contains: term.replace(/[\\%_]/g, "\\$&"),
+            mode: "insensitive" as const,
+          };
+          return { OR: [{ subject: text }, { description: text }] };
+        }),
         ...(branchId ? { branchId } : query.branchId ? { branchId: query.branchId } : {}),
         ...(query.status ? { status: query.status } : {}),
         ...(query.priority ? { priority: query.priority } : {}),

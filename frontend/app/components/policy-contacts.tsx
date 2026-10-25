@@ -8,6 +8,7 @@ import { parseCapabilityGrants } from "@/lib/api/capability-schemas";
 import { useResource } from "@/lib/api/use-resource";
 import { CursorPagination, useCursorPage } from "./cursor-pagination";
 import { Feedback } from "./feedback";
+import { ActionButton } from "./action";
 
 type Contacts = ReturnType<typeof parsePolicyContacts>["items"];
 function ContactChoice({
@@ -242,14 +243,15 @@ export function PolicyContacts({
         </p>
       )}
       {paired ? <div className="policy-contact-pair">{contacts}</div> : contacts}
-      <button
+      <ActionButton
         type="button"
-        className="text-link"
-        disabled={record.loading}
+        variant="secondary"
+        disabled={record.loading || record.refreshing}
+        aria-busy={record.loading || record.refreshing}
         onClick={record.refresh}
       >
         Refresh contact directory
-      </button>
+      </ActionButton>
       {(record.data?.nextCursor || pagination.page > 1) && (
         <CursorPagination
           pagination={pagination}

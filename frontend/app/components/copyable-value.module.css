@@ -1,0 +1,76 @@
+.value {
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr) 36px;
+  align-items: center;
+  max-width: 100%;
+  vertical-align: middle;
+  position: relative;
+  gap: 4px;
+}
+.text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: text;
+}
+.copy {
+  width: 36px;
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #075579;
+  background: transparent;
+  cursor: pointer;
+}
+.copy:hover {
+  background: #e6f1f7;
+  border-color: #93adbd;
+}
+.copy:focus-visible {
+  outline: 3px solid #075579;
+  outline-offset: 2px;
+}
+.feedback {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: #334155;
+  white-space: normal;
+}
+.value[data-copy-state="copied"] .feedback {
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  padding: 0 2px;
+  background: white;
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+@media (hover: hover) and (pointer: fine) {
+  .copy {
+    opacity: 0;
+  }
+  .value:hover .copy,
+  .value:focus-within .copy,
+  tr:hover .copy,
+  [data-copy-state="manual"] .copy,
+  [data-copy-state="copied"] .copy {
+    opacity: 1;
+  }
+}
+@media (pointer: coarse) {
+  .copy {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .value {
+    grid-template-columns: minmax(0, 1fr) 44px;
+  }
+}
+[data-copy-state="manual"] .text {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

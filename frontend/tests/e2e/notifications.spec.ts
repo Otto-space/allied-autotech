@@ -1,149 +1,12 @@
-import { test, expect, type Page, type Route } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
-import type {
-  InboxNotification,
-  NotificationPreference,
-} from "@/lib/api/notification-schemas";
+
+import { notificationsFixture as fixture } from "../fixtures/customer-notifications";
+import { showNotificationSettings } from "../fixtures/notification-settings";
 const id = (n: number) => `b3000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const time = "2026-09-17T10:00:00Z";
-const item = (n = 1): InboxNotification => ({
-  id: id(n),
-  title: n === 1 ? "Booking update" : "Older update",
-  message: "Your account has an update.\nReview your booking for current details.",
-  type: "BOOKING",
-  category: "TRANSACTIONAL",
-  resourceType: "Booking",
-  resourceId: id(40),
-  createdAt: time,
-  readAt: null,
-  expiresAt: null,
-});
-const reply = (route: Route, data: unknown) =>
-  route.fulfill({
-    json: {
-      success: true,
-      message: "Isolated response",
-      data,
-      meta: { requestId: "notification-test" },
-    },
-  });
-const fail = (route: Route, status = 503) =>
-  route.fulfill({
-    status,
-    json: {
-      success: false,
-      message: "private server details",
-      error: { code: status === 403 ? "FORBIDDEN" : "SERVICE_UNAVAILABLE" },
-    },
-  });
-async function fixture(page: Page, role = "CUSTOMER") {
-  const state = {
-    role,
-    items: [item()],
-    preferences: [] as NotificationPreference[],
-    failInbox: false,
-    failPreferences: false,
-    malformed: false,
-    unknown: false,
-    wrongResponse: false,
-    deny: false,
-    paginate: false,
-    delay: false,
-    release: undefined as (() => void) | undefined,
-    reads: [] as string[],
-    writes: [] as { endpoint: string; body: Record<string, unknown>; csrf?: string }[],
-  };
-  await page.route("**/api/v1/**", async (route) => {
-    const request = route.request();
-    const url = new URL(request.url());
-    const endpoint = url.pathname.replace("/api/v1", "");
-    if (endpoint === "/auth/session")
-      return reply(route, {
-        id: id(10),
-        user: { id: id(20), role: state.role, email: "notifications@example.test" },
-        mfaRequired: state.role !== "CUSTOMER",
-        mfaVerifiedAt: state.role === "CUSTOMER" ? null : time,
-      });
-    if (endpoint === "/auth/csrf")
-      return reply(route, { csrfToken: "isolated-notification-csrf-".repeat(3) });
-    const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications`;
-    if (!endpoint.startsWith(base)) return fail(route, 403);
-    if (request.method() === "GET") {
-      state.reads.push(endpoint + url.search);
-      if (endpoint.endsWith("/preferences/current"))
-        return state.failPreferences
-          ? fail(route)
-          : reply(route, {
-              immutableCategories: ["SECURITY", "TRANSACTIONAL"],
-              preferences: state.preferences,
-            });
-      if (state.failInbox) return fail(route);
-      if (state.malformed) return reply(route, { items: [{}] });
-      const selected = (
-        state.paginate && url.searchParams.has("cursor") ? [item(2)] : state.items
-      ).filter(
-        (row) =>
-          (!url.searchParams.has("type") || row.type === url.searchParams.get("type")) &&
-          (!url.searchParams.has("category") ||
-            row.category === url.searchParams.get("category")) &&
-          (url.searchParams.get("unreadOnly") !== "true" || !row.readAt),
-      );
-      return reply(route, {
-        items: selected,
-        ...(state.paginate && !url.searchParams.has("cursor")
-          ? { nextCursor: id(1) }
-          : {}),
-      });
-    }
-    state.writes.push({
-      endpoint,
-      body: request.postDataJSON(),
-      csrf: request.headers()["x-csrf-token"],
-    });
-    if (state.delay)
-      await new Promise<void>((resolve) => {
-        state.release = resolve;
-      });
-    if (state.unknown) return route.abort("connectionreset");
-    if (state.deny) return fail(route, 403);
-    if (endpoint.endsWith("/preferences/current")) {
-      const input = request.postDataJSON();
-      const saved: NotificationPreference = {
-        ...input,
-        version: input.expectedVersion + 1,
-        consentedAt: input.category === "MARKETING" && input.enabled ? time : null,
-        updatedAt: time,
-      };
-      state.preferences = [
-        ...state.preferences.filter(
-          (pref) => pref.category !== saved.category || pref.channel !== saved.channel,
-        ),
-        saved,
-      ];
-      return reply(route, {
-        preference: state.wrongResponse
-          ? { ...saved, channel: input.channel === "EMAIL" ? "SMS" : "EMAIL" }
-          : saved,
-        appliedVersion: saved.version,
-        replayed: false,
-      });
-    }
-    if (endpoint.endsWith("/read-all")) {
-      const updated = state.items.filter((row) => !row.readAt).length;
-      state.items = state.items.map((row) => ({ ...row, readAt: time }));
-      return reply(route, state.wrongResponse ? {} : { updated });
-    }
-    const row = state.items.find((row) => endpoint.includes(row.id));
-    if (row) {
-      row.readAt = time;
-      return reply(route, state.wrongResponse ? { ...row, id: id(999) } : row);
-    }
-    return fail(route, 403);
-  });
-  return state;
-}
 const confirm = (page: Page) =>
   page.getByRole("dialog").getByRole("button", { name: "Confirm change", exact: true });
 test("customer inbox filters and cursor pages preserve query scope", async ({ page }) => {
@@ -152,15 +15,27 @@ test("customer inbox filters and cursor pages preserve query scope", async ({ pa
   await page.goto("/dashboard/notifications");
   await expect(page).toHaveTitle(/Notifications/);
   await expect(page.getByRole("heading", { name: "Booking update" })).toBeVisible();
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("BOOKING");
   await page
     .getByLabel("Notification category", { exact: true })
     .selectOption("TRANSACTIONAL");
-  await page.getByLabel("Unread only").check();
+  await page.getByRole("button", { name: "Unread", exact: true }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Older update" })).toBeVisible();
   expect(state.reads.at(-1)).toContain(`cursor=${id(1)}`);
   expect(state.reads.at(-1)).toContain("unreadOnly=true");
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("PAYMENT");
   await expect(
     page.getByText("No notifications match this page and filters."),
@@ -191,6 +66,12 @@ test("mark all explicitly includes hidden records and reports server count", asy
 }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/notifications");
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("PAYMENT");
   await page.getByRole("button", { name: "Mark all read", exact: true }).click();
   await expect(
@@ -208,20 +89,21 @@ test("preferences derive defaults and require explicit marketing consent", async
 }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/notifications");
-  await expect(page.getByRole("article", { name: "Operational email" })).toContainText(
-    "Enabled (default)",
+  await showNotificationSettings(page);
+  await expect(
+    page.getByRole("article", { name: "Service updates by email" }),
+  ).toContainText("On (default)");
+  await expect(page.getByRole("article", { name: "Marketing by email" })).toContainText(
+    "Off (default)",
   );
-  await expect(page.getByRole("article", { name: "Marketing email" })).toContainText(
-    "Disabled (default)",
-  );
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await expect(page.getByText(/you consent to receive marketing/)).toBeVisible();
   await page.getByRole("button", { name: "Go back", exact: true }).click();
   expect(state.writes).toHaveLength(0);
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await expect(
-    page.getByRole("button", { name: "Disable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
   expect(state.writes[0].body).toEqual({
     category: "MARKETING",
@@ -229,12 +111,10 @@ test("preferences derive defaults and require explicit marketing consent", async
     enabled: true,
     expectedVersion: 0,
   });
-  await page
-    .getByRole("button", { name: "Disable operational sms", exact: true })
-    .click();
+  await page.getByRole("switch", { name: "Service updates by SMS", exact: true }).click();
   await confirm(page).click();
   await expect(
-    page.getByRole("button", { name: "Enable operational sms", exact: true }),
+    page.getByRole("switch", { name: "Service updates by SMS", exact: true }),
   ).toBeEnabled();
 });
 test("failed and malformed inbox responses never imply an empty account", async ({
@@ -243,12 +123,13 @@ test("failed and malformed inbox responses never imply an empty account", async 
   const state = await fixture(page);
   state.failInbox = true;
   await page.goto("/dashboard/notifications");
+  await showNotificationSettings(page);
   await expect(
     page.getByRole("region", { name: "Inbox", exact: true }).getByRole("alert"),
   ).toBeVisible();
   await expect(page.getByText("You have no notifications.")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
   state.failInbox = false;
   state.malformed = true;
@@ -265,13 +146,14 @@ test("preference failures never invent enabled defaults", async ({ page }) => {
   const state = await fixture(page);
   state.failPreferences = true;
   await page.goto("/dashboard/notifications");
+  await showNotificationSettings(page);
   await expect(
     page
       .getByRole("region", { name: "Delivery preferences", exact: true })
       .getByRole("alert"),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Mark Booking update as read" }),
@@ -279,7 +161,7 @@ test("preference failures never invent enabled defaults", async ({ page }) => {
   state.failPreferences = false;
   await page.getByRole("button", { name: "Refresh preferences" }).click();
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
 });
 for (const mode of ["unknown", "wrongResponse"] as const)
@@ -301,7 +183,8 @@ test("contradictory preference response never confirms consent or permits replay
   const state = await fixture(page);
   state.wrongResponse = true;
   await page.goto("/dashboard/notifications");
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await showNotificationSettings(page);
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await expect(confirm(page)).toBeDisabled();
   await page.getByRole("button", { name: "Close & review record" }).click();
@@ -310,7 +193,7 @@ test("contradictory preference response never confirms consent or permits replay
   ).toBeVisible();
   await page.getByRole("button", { name: "Refresh preferences" }).click();
   await expect(
-    page.getByRole("button", { name: "Disable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeDisabled();
   expect(state.writes).toHaveLength(1);
 });
@@ -319,17 +202,18 @@ test("staff notifications use only staff routes and expose own-account navigatio
 }) => {
   const state = await fixture(page, "STAFF");
   await page.goto("/admin/notifications");
+  await showNotificationSettings(page);
   await expect(
-    page.getByRole("link", { name: "My notifications", exact: true }),
+    page.getByRole("link", { name: /^Notifications(?:, \d+ unread updates)?$/ }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Mark Booking update as read" }).click();
   await expect(
     page.getByText("Notification marked as read.", { exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Enable marketing sms", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by SMS", exact: true }).click();
   await confirm(page).click();
   await expect(
-    page.getByRole("button", { name: "Disable marketing sms", exact: true }),
+    page.getByRole("switch", { name: "Marketing by SMS", exact: true }),
   ).toBeEnabled();
   expect(state.reads.every((url) => url.startsWith("/staff/notifications"))).toBe(true);
   expect(
@@ -342,7 +226,8 @@ test("account change removes notification content and an in-flight consent revie
   const state = await fixture(page);
   state.delay = true;
   await page.goto("/dashboard/notifications");
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await showNotificationSettings(page);
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await expect.poll(() => state.writes.length).toBe(1);
   await page.evaluate(() => {
@@ -366,6 +251,7 @@ test("mobile inbox and consent dialog are accessible with keyboard focus recover
   await fixture(page);
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto("/dashboard/notifications");
+  await showNotificationSettings(page);
   await expect(page.getByRole("heading", { name: "Booking update" })).toBeVisible();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -381,7 +267,7 @@ test("mobile inbox and consent dialog are accessible with keyboard focus recover
     path: path.join(os.tmpdir(), "allied-notifications-mobile.png"),
     fullPage: true,
   });
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await expect(page.getByRole("button", { name: "Go back", exact: true })).toBeFocused();
   expect(
     (
@@ -395,7 +281,7 @@ test("mobile inbox and consent dialog are accessible with keyboard focus recover
   });
   await page.keyboard.press("Escape");
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeFocused();
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -469,11 +355,12 @@ test("marketing without a recorded consent remains disabled", async ({ page }) =
     },
   ];
   await page.goto("/dashboard/notifications");
+  await showNotificationSettings(page);
   await expect(
-    page.getByRole("article", { name: "Marketing email", exact: true }),
-  ).toContainText("Disabled");
+    page.getByRole("article", { name: "Marketing by email", exact: true }),
+  ).toContainText("Off");
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
   expect(state.writes).toHaveLength(0);
 });

@@ -427,8 +427,8 @@ function ExceptionWorkspace({
           <h1>Payment exceptions</h1>
           <p>Investigate mismatches and unexpected payment events.</p>
         </div>
-        <Link className="text-link" href="/admin/operations">
-          Back to operations
+        <Link className="text-link" href="/admin">
+          Back to overview
         </Link>
       </header>
       {blocked ? (
