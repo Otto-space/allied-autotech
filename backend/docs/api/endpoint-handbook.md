@@ -19208,7 +19208,8 @@ Success: HTTP 200.
             "bodyType": "synthetic-bodytype",
             "transmission": "synthetic-transmission",
             "generation": "synthetic-generation",
-            "chassisCode": "synthetic-chassiscode"
+            "chassisCode": "synthetic-chassiscode",
+            "version": 0
           }
         ],
         "availability": [
@@ -19349,7 +19350,8 @@ Success: HTTP 201.
         "bodyType": "synthetic-bodytype",
         "transmission": "synthetic-transmission",
         "generation": "synthetic-generation",
-        "chassisCode": "synthetic-chassiscode"
+        "chassisCode": "synthetic-chassiscode",
+        "version": 0
       }
     ],
     "availability": [
@@ -19452,7 +19454,8 @@ Success: HTTP 200.
         "bodyType": "synthetic-bodytype",
         "transmission": "synthetic-transmission",
         "generation": "synthetic-generation",
-        "chassisCode": "synthetic-chassiscode"
+        "chassisCode": "synthetic-chassiscode",
+        "version": 0
       }
     ],
     "availability": [
@@ -19586,7 +19589,8 @@ Success: HTTP 200.
         "bodyType": "synthetic-bodytype",
         "transmission": "synthetic-transmission",
         "generation": "synthetic-generation",
-        "chassisCode": "synthetic-chassiscode"
+        "chassisCode": "synthetic-chassiscode",
+        "version": 0
       }
     ],
     "availability": [
@@ -19667,7 +19671,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### PATCH `/admin/catalog/products/{productId}/compatibilities/{compatibilityId}`
 
 - Operation ID: `patchAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId`
-- Purpose: Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Legacy draft compatibility only. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Reviewed fitment rules use the separate technical-review workspace. Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -19685,6 +19689,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
 | `make` | string | No | Make validated by this operation's strict request contract. |
 | `model` | string / null | No | Model validated by this operation's strict request contract. |
 | `yearFrom` | integer / null | No | Year From validated by this operation's strict request contract. |
@@ -19695,6 +19700,7 @@ Synthetic request example:
 
 ```json
 {
+  "expectedVersion": 0,
   "make": "synthetic-make",
   "model": "synthetic-model",
   "yearFrom": "synthetic-yearfrom",
@@ -19724,7 +19730,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/admin/catalog/products/{productId}/compatibilities/{compatibilityId}`
 
 - Operation ID: `deleteAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId`
-- Purpose: Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Retires an unreviewed legacy draft and preserves version history. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -19737,6 +19743,20 @@ Parameters:
 | `productId` | path | string (uuid) | Yes | Identifier selecting the product resource. |
 | `compatibilityId` | path | string (uuid) | Yes | Identifier selecting the compatibility resource. |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedVersion` | integer | No | Last server version observed by the client; stale writes are rejected. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedVersion": 0
+}
+```
 
 Success: HTTP 200.
 

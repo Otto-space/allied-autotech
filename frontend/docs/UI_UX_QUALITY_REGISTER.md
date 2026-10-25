@@ -1355,3 +1355,26 @@ in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d
 subsequent edits are evidence and the E2E fixture correction only. C: postflight
 29.54 GiB free; current/rollback images, warm cache, databases/backups and other
 tasks retained. No broad prune, duplicate install/worktree or image archive.
+
+## Cycle 9: Product compatibility concurrent edits — 25 October 2026
+
+Route `/admin/products`, administrator product detail editor. Another editor could
+change a legacy compatibility between the freshness read and write. The new editor
+sends the child version on update/retirement; the API checks it inside the product
+mutation lock and rejects stale changes with 409 before history or mutation.
+The administrator response exposes the version, while the public projection stays
+limited. An older response without a version disables edit/retire and asks for a
+refresh. A rejected review disables repeat confirmation, keeps the draft and offers
+explicit reload of current values. The draft key includes the child version so
+obsolete session storage does not override that reload.
+
+Nine isolated PostgreSQL integration cases passed under a non-owning runtime role;
+concurrent writes produced one success, one 409 and one history increment. Stale
+retirement was rejected. All 13 Edge/Playwright editor cases passed locally,
+including a 320px write-time conflict, draft recovery, no horizontal overflow and
+automated WCAG 2.2 AA rule checks. A focused follow-up confirmed no duplicate
+confirmation after rejection. The capture is
+`%TEMP%/allied-compatibility-conflict-mobile.png`. Final-source checks and
+hosted release evidence are tracked in the site-completion tracker. This is
+isolated/fixture-rendered evidence, not a real authenticated production editor
+session; physical devices and screen-reader speech remain untested.

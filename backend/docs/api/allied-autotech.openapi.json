@@ -35622,6 +35622,11 @@
                                         "null"
                                       ],
                                       "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                                    },
+                                    "version": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "description": "Version validated by this operation's strict request contract."
                                     }
                                   },
                                   "required": [
@@ -35642,7 +35647,8 @@
                                     "bodyType",
                                     "transmission",
                                     "generation",
-                                    "chassisCode"
+                                    "chassisCode",
+                                    "version"
                                   ],
                                   "description": "Compatibilities Item validated by this operation's strict request contract."
                                 },
@@ -35814,7 +35820,8 @@
                             "bodyType": "synthetic-bodytype",
                             "transmission": "synthetic-transmission",
                             "generation": "synthetic-generation",
-                            "chassisCode": "synthetic-chassiscode"
+                            "chassisCode": "synthetic-chassiscode",
+                            "version": 0
                           }
                         ],
                         "availability": [
@@ -36690,6 +36697,11 @@
                                   "null"
                                 ],
                                 "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Version validated by this operation's strict request contract."
                               }
                             },
                             "required": [
@@ -36710,7 +36722,8 @@
                               "bodyType",
                               "transmission",
                               "generation",
-                              "chassisCode"
+                              "chassisCode",
+                              "version"
                             ],
                             "description": "Compatibilities Item validated by this operation's strict request contract."
                           },
@@ -36867,7 +36880,8 @@
                         "bodyType": "synthetic-bodytype",
                         "transmission": "synthetic-transmission",
                         "generation": "synthetic-generation",
-                        "chassisCode": "synthetic-chassiscode"
+                        "chassisCode": "synthetic-chassiscode",
+                        "version": 0
                       }
                     ],
                     "availability": [
@@ -37590,6 +37604,11 @@
                                   "null"
                                 ],
                                 "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Version validated by this operation's strict request contract."
                               }
                             },
                             "required": [
@@ -37610,7 +37629,8 @@
                               "bodyType",
                               "transmission",
                               "generation",
-                              "chassisCode"
+                              "chassisCode",
+                              "version"
                             ],
                             "description": "Compatibilities Item validated by this operation's strict request contract."
                           },
@@ -37767,7 +37787,8 @@
                         "bodyType": "synthetic-bodytype",
                         "transmission": "synthetic-transmission",
                         "generation": "synthetic-generation",
-                        "chassisCode": "synthetic-chassiscode"
+                        "chassisCode": "synthetic-chassiscode",
+                        "version": 0
                       }
                     ],
                     "availability": [
@@ -38661,6 +38682,11 @@
                                   "null"
                                 ],
                                 "description": "Sensitive single-purpose value; submit once and never log or persist it in browser storage."
+                              },
+                              "version": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "description": "Version validated by this operation's strict request contract."
                               }
                             },
                             "required": [
@@ -38681,7 +38707,8 @@
                               "bodyType",
                               "transmission",
                               "generation",
-                              "chassisCode"
+                              "chassisCode",
+                              "version"
                             ],
                             "description": "Compatibilities Item validated by this operation's strict request contract."
                           },
@@ -38838,7 +38865,8 @@
                         "bodyType": "synthetic-bodytype",
                         "transmission": "synthetic-transmission",
                         "generation": "synthetic-generation",
-                        "chassisCode": "synthetic-chassiscode"
+                        "chassisCode": "synthetic-chassiscode",
+                        "version": 0
                       }
                     ],
                     "availability": [
@@ -39418,6 +39446,7 @@
           "Catalogue"
         ],
         "summary": "Update compatibility",
+        "description": "Legacy draft compatibility only. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Reviewed fitment rules use the separate technical-review workspace. Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -39468,6 +39497,11 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  },
                   "make": {
                     "type": "string",
                     "minLength": 1,
@@ -39515,6 +39549,7 @@
                 "description": "Request Body validated by this operation's strict request contract."
               },
               "example": {
+                "expectedVersion": 0,
                 "make": "synthetic-make",
                 "model": "synthetic-model",
                 "yearFrom": "synthetic-yearfrom",
@@ -39773,7 +39808,6 @@
           }
         },
         "operationId": "patchAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId",
-        "description": "Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "mfa-verified-admin",
         "x-required-roles": [
           "ADMIN",
@@ -39787,6 +39821,7 @@
           "Catalogue"
         ],
         "summary": "Delete compatibility",
+        "description": "Retires an unreviewed legacy draft and preserves version history. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -39830,6 +39865,29 @@
             "example": "synthetic-token-value-not-a-real-secret"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedVersion": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Last server version observed by the client; stale writes are rejected."
+                  }
+                },
+                "default": {},
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedVersion": 0
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success: Delete compatibility.",
@@ -40063,7 +40121,6 @@
           }
         },
         "operationId": "deleteAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId",
-        "description": "Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "mfa-verified-admin",
         "x-required-roles": [
           "ADMIN",

@@ -42,6 +42,7 @@ const productFixture = () => ({
 });
 const compatibility = (): ProductCompatibility => ({
   id: id(3),
+  version: 0,
   make: "Test make",
   model: "Test model",
   yearFrom: 2015,
@@ -71,6 +72,11 @@ const fail = (route: Route, status = 503) =>
     status,
     json: { success: false, error: { code: "DATABASE_UNAVAILABLE" } },
   });
+const conflict = (route: Route) =>
+  route.fulfill({
+    status: 409,
+    json: { success: false, error: { code: "CONFLICT" } },
+  });
 type Write = {
   method: string;
   endpoint: string;
@@ -89,6 +95,7 @@ async function fixture(
     absent: false,
     unknown: false,
     contradictory: false,
+    raceNextCompatibilityWrite: false,
   };
   if (options.compat) state.product.compatibilities = [compatibility()];
   if (options.images) state.product.images = [imageFixture(), imageFixture(5)];
@@ -139,8 +146,21 @@ async function fixture(
         ? "images"
         : null;
     if (!kind) return reply(route, { id: id(1) });
-    if (kind === "images") state.product.mediaVersion += 1;
     const itemId = endpoint.split("/")[6];
+    const body = request.postDataJSON();
+    const previousCompatibility = state.product.compatibilities.find(
+      (item) => item.id === itemId,
+    );
+    if (kind === "compatibilities" && request.method() !== "POST") {
+      if (state.raceNextCompatibilityWrite && previousCompatibility) {
+        state.raceNextCompatibilityWrite = false;
+        previousCompatibility.version = (previousCompatibility.version ?? 0) + 1;
+        previousCompatibility.notes = "Another editor's change";
+        return conflict(route);
+      }
+      if (body.expectedVersion !== previousCompatibility?.version) return conflict(route);
+    }
+    if (kind === "images") state.product.mediaVersion += 1;
     if (request.method() === "DELETE") {
       if (kind === "compatibilities")
         state.product.compatibilities = state.product.compatibilities.filter(
@@ -150,12 +170,18 @@ async function fixture(
         state.product.images = state.product.images.filter((item) => item.id !== itemId);
       return reply(route);
     }
-    const body = request.postDataJSON();
     const record = {
       ...body,
       id: itemId ?? id(30 + state.writes.length),
       createdAt: time,
+      ...(kind === "compatibilities"
+        ? {
+            version:
+              request.method() === "POST" ? 0 : (previousCompatibility?.version ?? 0) + 1,
+          }
+        : {}),
     };
+    if (kind === "compatibilities") delete record.expectedVersion;
     if (kind === "compatibilities") {
       state.product.compatibilities = [
         ...state.product.compatibilities.filter((item) => item.id !== itemId),
@@ -251,13 +277,14 @@ test("compatibility create, complete range update and removal follow actual chil
   ).toBeVisible();
   expect(state.writes.map((write) => write.method)).toEqual(["POST", "PATCH", "DELETE"]);
   expect(state.writes[1].body).toEqual({
+    expectedVersion: 0,
     make: "Test make",
     model: "Test model",
     yearFrom: null,
     yearTo: 2024,
     notes: null,
   });
-  expect(state.writes[2].body).toEqual({});
+  expect(state.writes[2].body).toEqual({ expectedVersion: 1 });
   expect(state.reads).toContain(`/admin/catalog/products/${id(1)}`);
 });
 
@@ -353,6 +380,49 @@ test("child-only changes reject a stale draft even without a product timestamp c
   await expect(page.getByLabel("Final year (optional)")).toHaveValue("2025");
 });
 
+test("a write-time compatibility conflict preserves the draft and offers the latest record on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  const state = await fixture(page, { compat: true });
+  await open(page);
+  await page
+    .getByRole("button", { name: "Edit compatibility for Test make Test model" })
+    .click();
+  await page.getByLabel("Fitment notes (optional)").fill("My unsaved correction");
+  await page.getByRole("button", { name: "Review compatibility", exact: true }).click();
+  state.raceNextCompatibilityWrite = true;
+  await confirm(page).click();
+  await expect(page.getByRole("dialog").getByText(/record has changed/i)).toBeVisible();
+  await expect(confirm(page)).toBeDisabled();
+  expect(state.writes).toHaveLength(1);
+  expect(state.writes[0].body.expectedVersion).toBe(0);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  expect(
+    (
+      await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
+        .analyze()
+    ).violations,
+  ).toEqual([]);
+  await page.screenshot({
+    path: path.join(os.tmpdir(), "allied-compatibility-conflict-mobile.png"),
+  });
+  await page.getByRole("button", { name: "Go back" }).click();
+  await expect(page.getByLabel("Fitment notes (optional)")).toHaveValue(
+    "My unsaved correction",
+  );
+  await expect(
+    page.getByRole("button", { name: "Review compatibility", exact: true }),
+  ).toBeDisabled();
+  await page.getByRole("button", { name: "Reload product editor" }).click();
+  await expect(page.getByLabel("Fitment notes (optional)")).toHaveValue(
+    "Another editor's change",
+  );
+});
+
 test("failed preflight is retryable because no mutation was sent", async ({ page }) => {
   const state = await fixture(page);
   await open(page);
@@ -420,7 +490,12 @@ test("staff cannot read administrator products", async ({ page }) => {
   const state = await fixture(page, { role: "STAFF" });
   await page.goto("/admin/products");
   await expect(page.getByText(/Administrator access is required/)).toBeVisible();
-  expect(state.reads.filter((endpoint) => endpoint !== "/staff/profile")).toEqual([]);
+  expect(
+    state.reads.filter(
+      (endpoint) =>
+        endpoint !== "/staff/profile" && endpoint !== "/staff/notifications/summary",
+    ),
+  ).toEqual([]);
 });
 
 test("basic product edits reject stale prices and preserve the draft for review", async ({

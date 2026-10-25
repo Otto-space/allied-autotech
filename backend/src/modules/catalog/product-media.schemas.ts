@@ -66,3 +66,8 @@ export const productResponseSchema = z.object({
     }),
   ),
 });
+export const adminProductResponseSchema = productResponseSchema.extend({
+  compatibilities: z.array(
+    publishedCompatibilitySchema.extend({ version: z.number().int().nonnegative() }),
+  ),
+});

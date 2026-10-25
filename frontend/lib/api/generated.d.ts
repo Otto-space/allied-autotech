@@ -1708,14 +1708,14 @@ export interface paths {
         post?: never;
         /**
          * Delete compatibility
-         * @description Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Retires an unreviewed legacy draft and preserves version history. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Delete compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         delete: operations["deleteAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId"];
         options?: never;
         head?: never;
         /**
          * Update compatibility
-         * @description Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Legacy draft compatibility only. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Reviewed fitment rules use the separate technical-review workspace. Update compatibility. Access boundary: mfa-verified-admin. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         patch: operations["patchAdminCatalogProductsByProductIdCompatibilitiesByCompatibilityId"];
         trace?: never;
@@ -32609,7 +32609,8 @@ export interface operations {
                      *                 "bodyType": "synthetic-bodytype",
                      *                 "transmission": "synthetic-transmission",
                      *                 "generation": "synthetic-generation",
-                     *                 "chassisCode": "synthetic-chassiscode"
+                     *                 "chassisCode": "synthetic-chassiscode",
+                     *                 "version": 0
                      *               }
                      *             ],
                      *             "availability": [
@@ -32832,6 +32833,8 @@ export interface operations {
                                     generation: string | null;
                                     /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                     chassisCode: string | null;
+                                    /** @description Version validated by this operation's strict request contract. */
+                                    version: number;
                                 }[];
                                 /** @description Availability validated by this operation's strict request contract. */
                                 availability: {
@@ -33171,7 +33174,8 @@ export interface operations {
                      *             "bodyType": "synthetic-bodytype",
                      *             "transmission": "synthetic-transmission",
                      *             "generation": "synthetic-generation",
-                     *             "chassisCode": "synthetic-chassiscode"
+                     *             "chassisCode": "synthetic-chassiscode",
+                     *             "version": 0
                      *           }
                      *         ],
                      *         "availability": [
@@ -33389,6 +33393,8 @@ export interface operations {
                                 generation: string | null;
                                 /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                 chassisCode: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -33671,7 +33677,8 @@ export interface operations {
                      *             "bodyType": "synthetic-bodytype",
                      *             "transmission": "synthetic-transmission",
                      *             "generation": "synthetic-generation",
-                     *             "chassisCode": "synthetic-chassiscode"
+                     *             "chassisCode": "synthetic-chassiscode",
+                     *             "version": 0
                      *           }
                      *         ],
                      *         "availability": [
@@ -33889,6 +33896,8 @@ export interface operations {
                                 generation: string | null;
                                 /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                 chassisCode: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -34239,7 +34248,8 @@ export interface operations {
                      *             "bodyType": "synthetic-bodytype",
                      *             "transmission": "synthetic-transmission",
                      *             "generation": "synthetic-generation",
-                     *             "chassisCode": "synthetic-chassiscode"
+                     *             "chassisCode": "synthetic-chassiscode",
+                     *             "version": 0
                      *           }
                      *         ],
                      *         "availability": [
@@ -34457,6 +34467,8 @@ export interface operations {
                                 generation: string | null;
                                 /** @description Sensitive single-purpose value; submit once and never log or persist it in browser storage. */
                                 chassisCode: string | null;
+                                /** @description Version validated by this operation's strict request contract. */
+                                version: number;
                             }[];
                             /** @description Availability validated by this operation's strict request contract. */
                             availability: {
@@ -34979,7 +34991,19 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedVersion": 0
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion?: number;
+                };
+            };
+        };
         responses: {
             /** @description Success: Delete compatibility. */
             200: {
@@ -35230,6 +35254,7 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "expectedVersion": 0,
                  *       "make": "synthetic-make",
                  *       "model": "synthetic-model",
                  *       "yearFrom": "synthetic-yearfrom",
@@ -35238,6 +35263,8 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /** @description Last server version observed by the client; stale writes are rejected. */
+                    expectedVersion?: number;
                     /** @description Make validated by this operation's strict request contract. */
                     make?: string;
                     /** @description Model validated by this operation's strict request contract. */

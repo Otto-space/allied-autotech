@@ -1344,3 +1344,23 @@ in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d
 subsequent edits are evidence and the E2E fixture correction only. C: postflight
 29.54 GiB free; current/rollback images, warm cache, databases/backups and other
 tasks retained. No broad prune, duplicate install/worktree or image archive.
+
+25 October 2026 - legacy compatibility concurrency release candidate:
+branch `fix/compatibility-release-20261025` applies the isolated compatibility
+correction to the actual 70-migration notification release source, preserving its
+inbox/push, Shop/Vehicles and audit changes. The administrator editor sends the
+child version on compatibility update/retirement; the API checks it under the
+product mutation lock and returns 409 before any stale mutation/history write.
+The draft remains available for explicit reload and duplicate confirmation is
+disabled. Legacy bare DELETE remains compatible; public product fields remain
+limited. No schema change or production database write is needed for this fix.
+
+On the pre-integration source, 65 migrations replayed in an isolated `_test`
+database with no schema diff; nine focused integration tests passed under a
+restricted runtime role, including concurrent writes and stale retirement. The
+13-case local Edge editor suite passed, including 320px conflict, draft recovery,
+no horizontal overflow and automated accessibility checks. The matching source
+then passed a focused no-repeat confirmation test. Final-source verification and
+release evidence follow separately. The independent Customer Care branch with
+unreleased migration 71 is preserved; this candidate does not publish it. Item 6
+and the broader site goal remain open.
