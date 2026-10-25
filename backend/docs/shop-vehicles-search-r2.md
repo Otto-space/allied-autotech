@@ -100,6 +100,43 @@ registry tracks context/choice references only. Start/resume never deletes the
 other form draft. Browser-storage failure is explicit and blocks switching away
 from potentially unsaved work; refresh persistence cannot be guaranteed then.
 
+## Derived-field preservation and rollout plan
+
+The conservative migrator rejects arbitrary UPDATE statements. These three exact
+catalogue SQL files have a source-controlled SHA-256 review entry in that gate,
+identified by migration name and exact LF bytes. There is no environment override.
+Changing any SQL byte or using another name refuses that reviewed exception.
+The exception is limited to the three complete reviewed files; no general UPDATE
+exception is added. Target confirmation, unchanged applied checksums, fresh verified
+backup and final `db:check` remain mandatory.
+
+Review: migration 68 writes new derived search fields via self-assignment; its
+triggers read only public catalogue inputs and assign NEW search fields. Category
+and vehicle triggers refresh derived listing/product fields. Migration 69 writes
+only brandKey from the recorded brand. Migration 70 replaces the token function
+and refreshes the derived documents. No source column, relation, stock, money,
+publication flag, specification, permission, timestamp or customer record is set,
+removed or inferred. The only replaced enquiry check is compatible with existing
+listing references and the existing anonymous unlisted-product allowance.
+
+Before shared rollout: require fresh encrypted off-device backup/retention/PITR
+evidence and an actual separate-database restore rehearsal; apply through the
+protected migrator with a fresh exact-target verified archive receipt. Rehearse
+the populated forward path in a task-created isolated database, comparing hashes
+and counts of every pre-existing non-migration row before/after and after restore,
+excluding only the newly derived fields. Stop on any difference, failed check,
+lock timeout, drift or backup/restore failure. Never reset or auto-resolve history.
+Keep the current application and migration images for recovery; application rollback
+retains the additive schema and updated migration-history-aware job artifact.
+
+Isolated populated rehearsal completed 25 October 11:23 UTC: 67→70 through the
+protected migrator with a fresh verified custom archive. Actual restore into a
+separate newly created `_ci` database matched all original rows. All 225 original
+rows across 88 non-migration tables retained identical hashes/counts after the
+three backfills; `db:check` reported 70 migrations and no schema difference.
+The review gate's 28 unit checks passed, including changed/renamed SQL rejection.
+This uses synthetic isolated data, not a production recovery or rollout receipt.
+
 ## Business data versus code
 
 Real categories/products, recorded oil labels/volumes, actual vehicle listings and

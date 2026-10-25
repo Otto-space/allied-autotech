@@ -39,6 +39,13 @@ It recognizes complete, argument-free statement-trigger declarations for TRUNCAT
 as DDL that can protect a table. This does not permit executing TRUNCATE or
 destructive SQL in the trigger function or adjacent statements.
 
+The three reviewed catalogue-derived-field backfills from 25 October 2026 use
+exact migration-name/SHA-256 entries in this gate. Any changed byte or renamed
+file is refused; there is no environment switch for arbitrary updates. Their
+[preservation and rehearsal plan](shop-vehicles-search-r2.md#derived-field-preservation-and-rollout-plan)
+covers original-row comparison and separate restore rehearsal. This narrow SQL
+review does not waive history, target, fresh backup or final schema checks.
+
 Before pending migrations, it creates a custom-format PostgreSQL backup outside the
 repository, checks the archive database name with `pg_restore --list`, records its
 SHA-256 and exact target in a receipt, and verifies that receipt again before deploy.

@@ -28,7 +28,7 @@ if (history.pending.length) {
   // Initial replay on an empty database cannot remove pre-existing business data.
   if (!history.empty)
     for (const name of history.pending)
-      assertNonDestructiveMigration(history.local.get(name)!.sql);
+      assertNonDestructiveMigration(history.local.get(name)!.sql, name);
   const receipt =
     process.env["DB_SAFE_MIGRATION_BACKUP"] ?? (await createVerifiedBackup());
   verifyBackupReceipt(receipt, process.env);
