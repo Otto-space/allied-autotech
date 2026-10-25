@@ -6,6 +6,15 @@ work in the homepage/audit and other worktrees is retained. Provider inspection
 confirmed frontend `dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU` READY and backend
 `f9239c36-d4b7-4ef0-b8ba-479cda926a13` ACTIVE before implementation.
 
+Released 25 October 2026: backend runtime `91455d10`, deployment
+`264c3f8e-324d-42bd-86cb-0dffa2eb9f19` ACTIVE; frontend reviewed tree `cfba360d`,
+deployment `dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe` READY on main/www. The audit
+release `8b5fe871` was merged without changing its homepage, and the immediately
+preceding live frontend `dpl_5vyykAdQnDsAshfCKRU9KNkePJgb` is retained for rollback.
+This frontend candidate was uploaded immediately before its matching file tree
+was committed; the commit did not change those uploaded runtime files. Backend
+images were built and pushed from a clean recorded checkout.
+
 ## Contracts established before implementation
 
 - Vehicle enquiries: `vehicleEnquiryIntent` is `LISTING` or `REQUIREMENTS`.
@@ -43,32 +52,37 @@ confirmed frontend `dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU` READY and backend
 
 ## Acceptance and evidence
 
-| Batch              | Meaningful fixture acceptance                                                                                                                                            | Status                                                               |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| Vehicle domain     | Both intents, legacy request/receipt replay, illegal combinations, stale/private listing, branch routing, real persistence, branch/assignment/workforce queue boundaries | Passed isolated API/database tests; hosted acceptance pending        |
-| Product data/admin | Typed grade/volume, unknowns, family/category compatibility, published visibility, unchanged other products                                                              | Passed isolated API/database tests; admin browser acceptance pending |
-| Search             | Cross-field Corolla, exclude Camry, oil alias/grade, exact code/suffix, explicit sort, equal-score/price cursors, private exclusion                                      | Passed isolated PostgreSQL integration; hosted acceptance pending    |
-| Handoffs/drafts    | Both budgets, Vehicle requirements, listing reference, review/submission, both conflict choices, resume and identity transitions                                         | Pending                                                              |
-| Rendered quality   | 360/390/768/1024/1440, keyboard, modal focus, empty/no-match/error, history and stale requests                                                                           | Pending                                                              |
+| Batch              | Meaningful fixture acceptance                                                                                                                                            | Status                                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Vehicle domain     | Both intents, legacy request/receipt replay, illegal combinations, stale/private listing, branch routing, real persistence, branch/assignment/workforce queue boundaries | Passed real isolated API/database tests; public hosted handoff passed; real authenticated queue sampling remains unperformed |
+| Product data/admin | Typed grade/volume, unknowns, family/category compatibility, published visibility, unchanged other products                                                              | Passed isolated persistence and hosted mocked admin authoring/review; no real product was created                            |
+| Search             | Cross-field Corolla, exclude Camry, oil alias/grade, exact code/suffix, explicit sort, equal-score/price cursors, private exclusion                                      | Passed isolated PostgreSQL integration and hosted rendering; real public catalogues remain empty                             |
+| Handoffs/drafts    | Both budgets, Vehicle requirements, listing reference, review/submission, both conflict choices, resume and identity transitions                                         | Passed mocked review/submission and draft checks; real editable prefills passed without submission                           |
+| Rendered quality   | 360/390/768/1024/1440, keyboard, modal focus, empty/no-match/category-empty/error, history and stale requests                                                            | 18 hosted fixture cases, 2 real candidate cases, and 2 real production cases passed                                          |
 
 All persistence fixtures require a newly created isolated `_ci` database. External
 mail/SMS/payment delivery stays disabled. No production fixture seed or real enquiry.
 Schema changes require forward migration, generated client, empty replay and
 `db:check`; rollout retains backup/recovery and least-privilege release gates.
 
-25 October implementation checkpoint: all 70 migrations replayed into a newly
+Verification: all 70 migrations replayed into a newly
 created loopback `_ci` target; Prisma reported no difference. Final `db:check`
 passed with 70 migrations. Eight focused backend files passed 57 checks; the
 separately enabled physical missing-column/rollback schema-guard test passed 1/1.
 Backend typecheck/lint passed; route coverage matched 408 mounted operations.
-The frontend optimized build passed using reused Next 16.3.8 dependencies (CI's
-lockfile remains Next 16.4.3). Full frontend units initially passed 997/998: one
-old detail-link expectation needed updating for the revised preference transfer.
-This is not a production or browser acceptance receipt.
+The final frontend production CI passed all 1,003 unit tests, lint, TypeScript,
+formatting and optimized build with the locked Next 16.4.3 release. The local warm
+build used existing Next 16.3.8 dependencies; no dependency installation was made.
+The final production dependency audit returned zero vulnerabilities in every
+severity. Backend CI passed on `3300eb19`; its backend tree is identical to image
+source `91455d10`. Frontend CI passed on `cfba360d`.
 
 Automatic approval review rejected local Next server startup with “blocked by
-policy”. No alternative local startup was attempted. Browser specs are prepared,
-but remain unexecuted until an allowed hosted candidate is available.
+policy”. No alternative local startup was attempted. All rendered acceptance was
+performed on hosted candidates and production using the existing Edge/Playwright
+installation. Screenshots were inspected and the inherited oversized radio style
+was corrected. This is browser automation, not physical-device or screen-reader
+certification.
 
 ## Migration and query implementation
 
@@ -143,3 +157,83 @@ Real categories/products, recorded oil labels/volumes, actual vehicle listings a
 reviewed fitment evidence are business inputs, not invented fixtures to publish.
 New tyre/battery/other-fluid/car-care specialist filters are deferred; existing
 shared support remains. Homepage and broader dashboard redesign are out of scope.
+
+## Production verification and remaining business inputs
+
+The protected migrator applied five forward migrations to the explicitly verified
+production database with a fresh exact-target backup receipt. Final `db:check`
+passed at 70 migrations; all applied SQL checksums and runtime access to new
+columns were checked. Runtime credentials remain non-owner, without CREATE,
+TRUNCATE, superuser, role-creation or database-creation privileges. No grant was
+changed. The initial receipt step correctly hit a runtime-role denial on migration
+history; the follow-up used the separate migration role for history and performed
+read-only runtime checks. It did not reapply or repair migrations.
+
+A fresh production archive was restored into a separate task-created `_ci`
+database. An exported read-only snapshot made the source/archive comparison
+consistent despite normal session/rate-limit/worker activity. All 89 table hashes
+and counts matched after normalizing timestamps to UTC; all original column values
+and existing migration rows were preserved through 65→70 in that isolated restore.
+The managed provider showed nine automated off-device backups, latest 25 October
+05:22:10 UTC. Provider encryption, seven-day retention and PITR were verified
+against its [backup documentation](https://docs.digitalocean.com/products/databases/postgresql/how-to/restore-from-backups/)
+and [encryption model](https://www.digitalocean.com/security/shared-responsibility-model-managed-databases).
+The new rehearsal was a logical production-archive restore, not a newly provisioned
+managed PITR cluster. No claim of zero risk or off-device protection from the local
+archive alone is made. Temporary narrow firewall access was restored after each
+operation and checked against the original app-only rules.
+
+All four immutable API/worker/migration images were checked against the isolated
+schema, then promoted by changing only their digests. The predeploy command stays
+read-only `db:check`. Provider inspection confirms all four deployed digests match
+the recorded manifest. Read-only production API probes returned 200 for readiness,
+product search/options and Vehicle preferences; anonymous staff enquiries returned 401. No real enquiry, customer message, product fixture or payment was submitted.
+
+The final frontend candidate passed 18 fixture browser cases in one complete run:
+360/390/768/1024/1440, recorded oil choices/reset, both budgets, requirements and
+listing intent, review/mock submission, Keep/Start/resume/reload, principal changes,
+storage failure, keyboard error focus/Escape, empty/category-empty/no-match/error,
+loading/stale response and explicit-sort history/reload. Sampled main states had no
+automated WCAG-tag violations or application console/runtime errors. Two additional
+real-data read-only cases passed on the candidate, then both passed again on main
+production at 390/1440. Product/Vehicle footer Contact and bounded WhatsApp drafts
+now follow applied client-side criteria as well as initial URLs.
+
+Evidence: `%TEMP%/allied-shop-r2-hosted/hosted-suite.json`,
+`%TEMP%/allied-shop-r2-live/hosted-suite.json`, public production Playwright output,
+`%TEMP%/allied-shop-vehicles-r2/` and `%TEMP%/allied-shop-r2-real/` screenshots.
+Protected `backend/ops/digitalocean/.private/shop-r2-*.json` receipts retain the
+backup references, restores, checks, manifests, alias inspection and cleanup.
+No secrets, customer rows or archives are committed. Representative parameterized
+eligibility EXPLAIN plans and all four derived-field indexes were inspected on the
+isolated restored schema. Its public catalogues are empty, so those plans do not
+certify volume performance. The earlier isolated 10,000-listing API fixture measured
+71.8ms inventory/count and 218.7ms complete make-option traversal in one local run;
+these are lab measurements, not production service-level promises.
+
+Real products/categories, recorded oil labels and volumes, public listings and
+reviewed fitment data remain business inputs. Authenticated real staff/customer
+queue sampling, physical devices, other browser engines and full manual
+screen-reader acceptance were not performed. Fixture/reference handoffs and real
+API authorization tests cover code behaviour; they do not substitute for those
+operational acceptances. Other-family specialist fields and optional oil
+specifications/approvals remain deferred as described above.
+
+Rollback: retain previous frontend `dpl_5vyykAdQnDsAshfCKRU9KNkePJgb` and preceding
+`dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU`, plus backend `f9239c36`/`da8e5b3a` images.
+An application rollback must retain migration 70 and the updated history-aware
+migration job; do not restore an application database or run an older migration
+artifact over newer history. The additive schema is preserved.
+
+Disk hygiene: removed only owned tmpfs PostgreSQL container `e9812340f10b` after
+verifying ownership, loopback target, no persistent volume, no unknown databases
+and no other consumers. At cleanup Docker containers fell 15→14; concurrent other
+tasks were retained. Images stayed 42/11.88GB, volumes 14/1.012GB, useful cache
+96 entries/6.798GB. No image/cache/volume prune ran. Current/rollback/base/tool
+images, other tasks, warm dependencies, source, private backups and the native
+restore rehearsal were retained. C: measured about 23.78 GiB free before final
+postflight; this is a point-in-time reading, not a machine-wide quota guarantee.
+
+Final disk postflight passed with 23.74 GiB free on C: (20 GiB reserve).
+The earlier 23.78 GiB reading and this later reading are observations during
+concurrent activity, not a claim that Docker cleanup reclaimed Windows disk space.

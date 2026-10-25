@@ -1173,3 +1173,60 @@ The build preflight passed at 24.52 GiB free against a 21 GiB threshold. No
 Docker resource, duplicate worktree/dependency installation or editor profile
 was created. Only a resolved 1,581,764-byte task diagnostic trace was removed;
 current build/cache, source, records, backups and other tasks were retained.
+
+25 October 2026 — Shop/Vehicles revision 2 is released.
+Authoritative release worktree: C:/Users/PC/.codex/worktrees/allied-shop-vehicles-r2-20261025,
+branch feat/shop-vehicles-r2-20261025. Backend image source 91455d10, ACTIVE
+264c3f8e-324d-42bd-86cb-0dffa2eb9f19; frontend reviewed tree cfba360d, READY
+dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe on main/www. Existing audit/homepage source
+8b5fe871 was merged; the previously deployed audit frontend 5vyykAdQ is retained.
+Unrelated worktree/source edits were preserved. See backend/docs/shop-vehicles-search-r2.md
+and Cycle 7 of frontend/docs/UI_UX_QUALITY_REGISTER.md for complete evidence/limits.
+
+Implemented persisted Vehicle requirements intent, validation/branch routing and
+authorised queue projection; compatible legacy listing/idempotency handling; typed
+replacement-part/engine-oil authoring and filters; cross-field word/code search,
+explicit sort precedence and versioned complete cursors; scoped recorded product
+choices; paired budgets in main/footer Contact and bounded WhatsApp handoffs; both
+drafts retained with Keep/Start/resume and identity/storage-failure protection.
+Category-only emptiness is distinct. No other-family specialist fields, homepage
+restoration or broader dashboard redesign was introduced by this bounded task.
+
+All 70 migrations replayed in a new isolated _ci target and passed db:check. Fresh
+production archive restore into a separate _ci database verified all 89 table hashes/
+counts after UTC normalization; all original values/history survived 65→70. The
+protected production migration used a fresh exact-target backup receipt, then
+history/schema checks passed at 70. Runtime privileges and new-column reads passed;
+no grants changed. The first receipt attempt used runtime credentials for history
+and correctly received a permission denial; read-only follow-up used the separate
+migration role. No repeat migration/repair was performed. Managed backup/PITR/
+encryption/retention evidence was checked; original app-only firewall rules restored.
+
+Backend safety CI 40188786919 passed on its unchanged backend source; frontend CI
+40192109661 and repository secret guard passed on cfba360d. Full frontend units:
+1003/1003 (150 files); lint/type/format/optimized build passed; production dependency
+audit returned zero vulnerabilities. All 18 final hosted fixture cases passed at
+360/390/768/1024/1440, then 2 real read-only cases passed on the candidate and again
+on production at 390/1440. Sampled main-state WCAG scans and console/runtime checks
+passed. Mocked browser submission is distinct from real isolated API persistence;
+no real enquiry, fixture publication, customer message or payment was performed.
+Real authenticated operational queues, physical devices and full screen-reader
+acceptance remain unsampled. Real products/listings/recorded oil/fitment data remain
+business inputs; public catalogues currently return zero records. Item 6 retains
+its publication/operational scope and prior broader quality backlog.
+
+All four deployed image digests match the manifest. The predeploy job remains
+read-only db:check. Rollback retains old application images/frontend, migration 70
+and the updated history-aware migration artifact; never reset/restore application
+data to undo this release. Temporary hosted review keys were revoked, existing
+protection retained, and browser contexts/fixture servers closed. Local Next startup
+was rejected by automatic review; hosted verification completed without retrying
+another local startup method.
+
+Removed only the owned synthetic tmpfs PostgreSQL container e9812340f10b after
+verifying no persistent volumes or other consumers. Docker changed 15→14 containers
+at cleanup; other active tasks were retained. Images 42/11.88GB, volumes14/1.012GB,
+cache96/6.798GB retained; no image/cache/volume prune or unknown-file deletion.
+Kept private backups, native recovery database, current/rollback/base/tool images,
+warm dependencies/builds, source and all unrelated work. Final C: reserve reading
+was approximately 23.74 GiB free, a point-in-time observation rather than an OS quota.
