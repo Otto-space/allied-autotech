@@ -7,7 +7,9 @@ Home and audit fixes are retained. The released Shop/Vehicles R2 source `71d3f60
 was merged as `628d6add` after independently checking the current hosted releases.
 Its catalogue/enquiry changes and 70-migration history are retained. Other
 worktrees and the main checkout's unrelated edits remain separate and preserved.
-No publication, real messages, production roles or production fixture writes.
+Implementation used isolated fixtures without real messages, production role
+changes or production fixture writes. The owner subsequently authorized production
+deployment; the release checkpoint below supersedes the earlier local-only status.
 
 ## Contracts and acceptance cases established before implementation
 
@@ -193,3 +195,87 @@ Live release was rechecked read-only: main/www still serve
 `264c3f8e-324d-42bd-86cb-0dffa2eb9f19` with no pending rollout.
 No notification deployment was performed. Release API/general worker before the
 frontend, then verify native delivery/clicks on a supported consented test device.
+
+## Production notification release - 25 October 2026, 17:26 UTC
+
+The owner's explicit production-deployment request was completed. Runtime source
+is `345847d5aed93b40f7e705140020b2193a105b20` on
+`feat/notifications-experience-20261025` in the reused home-restoration worktree.
+DigitalOcean deployment `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` is ACTIVE;
+all four immutable component digests match the release manifest. API/general
+worker were active before frontend promotion. Vercel
+`dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3` is READY and both alliedautotech.com and
+www.alliedautotech.com aliases resolve to it. Only backend image digests changed;
+origins, credentials, permissions, sizes, release restrictions and provider flags
+were preserved. No migration, schema/grant repair, data reset, fixture publication,
+real customer message or transaction was performed.
+
+Release verification:
+
+- Exact-source Frontend release checks 40214560127 passed with locked Next 16.4.3,
+  1,019 units in 153 files, lint/types/format/optimized build and zero production
+  dependency audit findings. Backend database safety 40214560142 and secret guard
+  40214560147 passed. All 70 migrations replayed on the CI-only database.
+- Nine actual-container probes passed: revision/commands/non-root, strict CA
+  bootstrap/rejection, runtime imports, media and document assets. Four-image
+  provenance and existing-app provider proposal validation passed. The ordinary
+  new-app validator rejected encrypted existing-app environment values; validation
+  was correctly rerun as an existing-app proposal, without decrypting/changing them.
+- Optimized hosted fixture browser checks passed: 142 inbox/settings/layout/role
+  cases in one run, then 13 source-context/push/navigation cases in a complete
+  recheck. Coverage includes Customer/Staff/Admin/Super Admin, all eight workforce
+  scopes, 320-1920px, keyboard/focus, reduced motion, doubled text, sampled WCAG
+  states, paging, filtering, uncertain/stale/denied responses and account changes.
+  These are 155 distinct cases across two runs, not authenticated production users.
+- The first 13-case batch passed 12 and found an outdated opt-in fixture: its fake
+  subscription omitted endpoint and its API omitted endpointHashes. Corrected only
+  that E2E fixture to model the current confirmed-binding contract; all 13 then
+  passed. Targeted lint/format and TypeScript passed. No application file changed
+  after the immutable candidate was built; original failure evidence is retained.
+- Actual production read-only db:check passed at 70 through the PRE_DEPLOY job.
+  Runtime role is non-owner, without CREATE/TRUNCATE/admin rights. Read-only SQL
+  verified current identity-outbox, notification-delivery and browser-push
+  heartbeats, no worker error code. Initial local timestamp parsing produced a
+  false stale result; PostgreSQL UTC age calculation confirmed all within 2s.
+  Temporary exact-IP access was removed after every attempt; original app-only
+  firewall was verified restored. No grants or business records changed.
+- Nine managed off-device backups were present, newest 25 October 05:22:10 UTC.
+  Reused today's successful separate logical restore (11:40 UTC, 89 table hashes/
+  counts equal, original rows and ledger retained through 70). Provider encryption,
+  seven-day retention and PITR documentation was rechecked. No new managed PITR
+  cluster was created and this is not a claim of a fresh physical PITR rehearsal.
+- Readiness and six public API reads returned 200; customer/staff notification
+  and device endpoints deny anonymous requests with 401. Live Edge browser checks
+  passed on both domains at 390/1440: Home/Reviews 200, notification sign-in
+  redirect, /demo 404, visible images loaded, no overflow/runtime/unexpected console
+  errors or API writes. Public products/vehicles remain genuinely empty.
+
+Evidence: protected backend/ops/digitalocean/.private/notifications-*.json receipts;
+%TEMP%/allied-notifications-hosted-20261025/ (142),
+%TEMP%/allied-notifications-context-hosted-20261025/ (initial 12/13),
+%TEMP%/allied-notifications-context-recheck-20261025/ (13/13),
+%TEMP%/allied-notifications-production-20261025/ (real public smoke), and
+%TEMP%/allied-notifications-cycle-20261025/ (hosted synthetic role screenshots).
+Fixture images are evidence only; no synthetic inventory/notifications were seeded
+into production. Browser plugin unavailable; installed Edge/Playwright used.
+
+Remaining acceptance: genuine provider-to-device background delivery and OS-alert
+click were not verified (the earlier native probe's subscription was denied).
+Existing live VAPID setup is present; missing keys are not the recorded blocker.
+Physical devices, full manual screen-reader speech and authenticated real-role
+operational acceptance remain unsampled. Current launch restrictions still apply;
+optional push does not close Item 6 or expand transactions, SMS or marketing.
+
+Rollback retains R2 frontend dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe and prior
+dpl_5vyykAdQnDsAshfCKRU9KNkePJgb, backend 264c3f8e and f9239c36 images, and
+older resources until separately reviewed. Keep migration 70 and a compatible
+history-aware migration image. Never downgrade/reset/restore application data
+merely to undo this release.
+
+Disk postflight: 29.54 GiB free on C:, versus 29.58 GiB before the warm image build.
+Kept 46 unique images/11.92GB (four current release images added), 103 cache entries/
+6.885GB, 15 containers (two other-task active containers), and 14 volumes/1.012GB.
+All image-test containers used --rm. Current/rollback images, useful warm caches,
+other worktrees, native test databases, backups, source and histories retained.
+No broad prune, duplicate install/worktree, image archive or unknown-file deletion.
+This disk reading is point-in-time, not an OS quota or machine-wide guarantee.

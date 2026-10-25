@@ -13,11 +13,13 @@ reliability are the current cycle. Homepage, catalogue and unrelated dashboards
 remain outside the new implementation scope. Released Shop/Vehicles source
 `71d3f60d` was merged and its 70 migrations and existing behaviour preserved.
 
-Status: local implementation, available-environment checks and optimized build
-verified; not deployed. Genuine native delivery/click acceptance remains open.
+Status: deployed on 25 October 2026 from runtime source `345847d5` after locked
+Next 16.4.3 CI and optimized hosted acceptance. Genuine native delivery/click
+acceptance remains open.
 See Cycle 8 and [notification contracts/evidence](../../backend/docs/notifications-experience-20261025.md).
 Real authenticated production-role acceptance and genuine native background-push
-transport/click acceptance are not claimed. The released Cycle 7 remains live.
+transport/click acceptance are not claimed. Cycle 8 retains the released Cycle 7
+catalogue/enquiry behaviour and preferred Home.
 
 Read the complete [29-section directive](Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md)
 and root `AGENTS.md` before relevant work. The original supplied file is preserved
@@ -1325,3 +1327,31 @@ Live release was rechecked read-only: main/www still serve
 `264c3f8e-324d-42bd-86cb-0dffa2eb9f19` with no pending rollout.
 No notification deployment was performed. Release API/general worker before the
 frontend, then verify native delivery/clicks on a supported consented test device.
+
+## Production notification release - 25 October 2026, 17:26 UTC
+
+Notification runtime 345847d5 is deployed: backend 1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a
+ACTIVE; frontend dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3 READY on main/www. API and
+general worker preceded frontend promotion. Home/reviews, R2 and audit fixes,
+permissions, database history at 70 and browse/enquiries restrictions are preserved.
+No production fixture, customer message, transaction, migration or grant change.
+
+Exact locked Next 16.4.3 CI passed: 1,019 frontend units, lint/types/format/build
+and production audit; backend safety and secret CI passed. Nine image checks,
+production read-only db:check, runtime least privilege and current worker heartbeats
+passed. Today's separate 89-table restore and nine managed backups were verified.
+Temporary exact-IP database access and hosted review keys were removed.
+
+155 hosted fixture browser cases passed across 142+13 complete runs, including
+four role families and eight workforce scopes. An outdated opt-in fixture failed
+initially; adding its actual endpoint/hash contract resolved it without app changes.
+Live Edge checks on both domains at 390/1440 passed Home/Reviews, authentication,
+/demo 404, images, wrapping and console/runtime checks; no API writes. Native
+delivery/OS clicks, physical devices, full screen-reader and authenticated real-role
+acceptance remain unverified. Item 6 and broader operational acceptance remain open.
+
+Full release/rollback/evidence details: backend/docs/notifications-experience-20261025.md
+in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d5;
+subsequent edits are evidence and the E2E fixture correction only. C: postflight
+29.54 GiB free; current/rollback images, warm cache, databases/backups and other
+tasks retained. No broad prune, duplicate install/worktree or image archive.

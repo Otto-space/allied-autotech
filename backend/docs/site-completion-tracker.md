@@ -37,10 +37,15 @@ This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.
 
-- Current frontend release source: `C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`,
-  commit `5e7deb6a` based on dashboard-quality release `d5269cb3`.
-  Backend runtime remains the verified discovery/fitment release; its source is
-  `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`.
+- Current frontend/backend runtime source: `345847d5`, branch
+  `feat/notifications-experience-20261025` in
+  `C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025`.
+  On 25 October 2026 the notification release replaced Shop/Vehicles R2 while
+  preserving its 70 migrations, preferred Home, reviews, audit fixes and enquiry
+  behaviour. Frontend main/www: `dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3` (READY);
+  backend: `1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a` (ACTIVE).
+  Recheck provider state before further changes. Full notification evidence:
+  `backend/docs/notifications-experience-20261025.md` in that worktree.
 - Previous release and ongoing separate audit worktree: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`,
   committed gallery/navigation source `098b580c`. Preserve its independent pending
   audit/copy changes and merge them against the new release before any future rollout.
@@ -1191,7 +1196,6 @@ Rollback frontend: dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU. The separate R2 worktree is
 still in progress and must retain the new audit frontend before a later rollout.
 Exact acceptance and limitations: Cycle 6 of the quality register.
 
-
 Audit rollout completion: additional production checks finished 11:15:50 UTC /
 12:15:50 Lagos. All candidate/production checks passed. Real operational-account
 submissions remain untested; no fabricated data was published. Browsers are closed,
@@ -1255,7 +1259,6 @@ Kept private backups, native recovery database, current/rollback/base/tool image
 warm dependencies/builds, source and all unrelated work. Final C: reserve reading
 was approximately 23.74 GiB free, a point-in-time observation rather than an OS quota.
 
-
 25 October 2026 - notification-only local implementation checkpoint.
 Source branch feat/notifications-experience-20261025 in the reused
 C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025. Initial checkpoint
@@ -1298,7 +1301,6 @@ No Docker resource was created or deleted; retained 42 images, 14 containers,
 14 volumes and 96 cache entries, including the unrelated active compatibility DB.
 Source, histories, secrets, databases/backups and current/rollback resources retained.
 
-
 25 October 2026 - notification build blocker resolved.
 Owner confirmed manual cleanup; all four approved redundant installer files were
 verified absent (1,147,739,384 measured prior file bytes, approximately 1.07 GiB).
@@ -1314,3 +1316,31 @@ and optimized hosted browser acceptance remain release checks. Native device
 subscription/delivery/click acceptance retains its documented permission-denied
 limit. No notification production deployment occurred; API/general worker must
 precede frontend rollout. All previous fixture/live evidence distinctions remain.
+
+## Production notification release - 25 October 2026, 17:26 UTC
+
+Notification runtime 345847d5 is deployed: backend 1876e3d1-ab99-4e26-8a58-1ea4fcb0d46a
+ACTIVE; frontend dpl_37Wd7HsDbxGiqpaZw8qL1oZuDpG3 READY on main/www. API and
+general worker preceded frontend promotion. Home/reviews, R2 and audit fixes,
+permissions, database history at 70 and browse/enquiries restrictions are preserved.
+No production fixture, customer message, transaction, migration or grant change.
+
+Exact locked Next 16.4.3 CI passed: 1,019 frontend units, lint/types/format/build
+and production audit; backend safety and secret CI passed. Nine image checks,
+production read-only db:check, runtime least privilege and current worker heartbeats
+passed. Today's separate 89-table restore and nine managed backups were verified.
+Temporary exact-IP database access and hosted review keys were removed.
+
+155 hosted fixture browser cases passed across 142+13 complete runs, including
+four role families and eight workforce scopes. An outdated opt-in fixture failed
+initially; adding its actual endpoint/hash contract resolved it without app changes.
+Live Edge checks on both domains at 390/1440 passed Home/Reviews, authentication,
+/demo 404, images, wrapping and console/runtime checks; no API writes. Native
+delivery/OS clicks, physical devices, full screen-reader and authenticated real-role
+acceptance remain unverified. Item 6 and broader operational acceptance remain open.
+
+Full release/rollback/evidence details: backend/docs/notifications-experience-20261025.md
+in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d5;
+subsequent edits are evidence and the E2E fixture correction only. C: postflight
+29.54 GiB free; current/rollback images, warm cache, databases/backups and other
+tasks retained. No broad prune, duplicate install/worktree or image archive.
