@@ -11,6 +11,7 @@ import {
   parseGarageVehicles,
 } from "@/lib/customer-garage";
 import type { CustomerVehicle } from "@/lib/api/vehicle-schemas";
+import { ActionButton, ActionLink } from "./action";
 import { catalogueOnly } from "@/lib/public-launch";
 
 const sessionSchema = z.object({
@@ -104,9 +105,13 @@ function SavedVehicleAccount({
     return (
       <p className="parts-saved-vehicles" role="status">
         Saved vehicles could not be checked.{" "}
-        <button type="button" onClick={() => setRevision((value) => value + 1)}>
+        <ActionButton
+          variant="secondary"
+          type="button"
+          onClick={() => setRevision((value) => value + 1)}
+        >
           Retry saved vehicles
-        </button>
+        </ActionButton>
       </p>
     );
   return actor === null ? (
@@ -235,16 +240,16 @@ function OwnedVehicleChoices({ onUse }: { onUse: (query: URLSearchParams) => voi
             ))}
           </select>
         </div>
-        <button
+        <ActionButton
+          variant="secondary"
           type="button"
-          className="button secondary"
           disabled={blocked || !query}
           aria-busy={busy}
           onClick={() => void apply()}
         >
           {busy ? "Checking vehicle..." : "Use this vehicle"}
-        </button>
-        <Link href="/dashboard/vehicles">Manage saved vehicles</Link>
+        </ActionButton>
+        <ActionLink href="/dashboard/vehicles">Manage saved vehicles</ActionLink>
       </div>
       {vehicles.loading && <p role="status">Loading your saved vehicles...</p>}
       {!vehicles.loading && !vehicles.error && !options.length && (
@@ -262,44 +267,63 @@ function OwnedVehicleChoices({ onUse }: { onUse: (query: URLSearchParams) => voi
       {(vehicles.error || vehicles.refreshError) && (
         <p role="alert">
           Your saved vehicles could not be loaded.{" "}
-          <button type="button" onClick={vehicles.refresh}>
+          <ActionButton variant="secondary" type="button" onClick={vehicles.refresh}>
             Retry vehicle choices
-          </button>
+          </ActionButton>
         </p>
       )}
       {defaults.error && (
         <p role="status">
           Your default vehicle could not be checked. Choose a vehicle from this page or{" "}
-          <button type="button" onClick={defaults.refresh}>
+          <ActionButton variant="secondary" type="button" onClick={defaults.refresh}>
             retry the default
-          </button>
+          </ActionButton>
           .
         </p>
       )}
       <div className="parts-saved-paging">
-        <button
+        <ActionButton
+          variant="secondary"
           type="button"
-          disabled={busy || vehicles.loading}
+          disabled={
+            busy ||
+            vehicles.loading ||
+            vehicles.refreshing ||
+            defaults.loading ||
+            defaults.refreshing
+          }
+          aria-busy={
+            vehicles.loading ||
+            vehicles.refreshing ||
+            defaults.loading ||
+            defaults.refreshing
+          }
           onClick={() => {
             vehicles.refresh();
             defaults.refresh();
           }}
         >
           Refresh saved vehicles
-        </button>
+        </ActionButton>
         {vehicles.data?.nextCursor && (
-          <button
+          <ActionButton
+            variant="secondary"
             type="button"
             disabled={blocked}
             onClick={() => setCursor(vehicles.data!.nextCursor!)}
           >
             Next vehicle choices
-          </button>
+          </ActionButton>
         )}
         {cursor && (
-          <button type="button" disabled={blocked} onClick={() => setCursor("")}>
+          <ActionButton
+            variant="secondary"
+            type="button"
+            disabled={blocked}
+            onClick={() => setCursor("")}
+          >
             First vehicle choices
-          </button>
+          </ActionButton>
         )}
       </div>
     </section>

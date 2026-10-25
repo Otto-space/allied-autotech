@@ -143,3 +143,5 @@ parts-fitment-workspace.spec.ts > staff author, independent reviewer and history
 dashboard-access-quality.spec.ts
 dashboard-page-recovery.spec.ts
 help-launch-quality.spec.ts
+# Cycle 6: audit A01-A07, local isolated fixtures; no real operations acceptance.
+audit-actions.spec.ts

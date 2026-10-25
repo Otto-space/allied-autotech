@@ -936,6 +936,117 @@ button {
   box-shadow: none;
 }
 
+/* Explicit task actions reuse the existing brand button foundation. */
+.button.ui-action {
+  min-height: 44px;
+  padding: 10px 16px;
+  max-width: 100%;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.button.ui-action.tertiary {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+  box-shadow: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.button.ui-action.tertiary:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: var(--line);
+}
+.button.ui-action[aria-pressed="true"] {
+  background: var(--marketplace-blue);
+  border-color: var(--marketplace-blue);
+  color: white;
+  box-shadow: inset 0 -3px 0 white;
+}
+.ui-navigation {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ui-navigation:hover {
+  text-decoration-thickness: 2px;
+}
+:is(.ui-action, .ui-navigation):focus-visible {
+  outline: 3px solid #075bca;
+  outline-offset: 3px;
+}
+[data-release-unavailable] .lucide-arrow-up-right {
+  display: none;
+}
+.support-reply-compose .support-audience {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  border: 1px solid #b7c6d4;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 0 0 20px;
+  min-width: 0;
+}
+.support-reply-compose .support-audience legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+.support-reply-compose .support-audience label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid #b7c6d4;
+  border-radius: 6px;
+  background: white;
+  color: var(--ink);
+  cursor: pointer;
+}
+.support-reply-compose .support-audience label:has(input:checked) {
+  border-color: var(--marketplace-blue);
+  box-shadow: inset 0 0 0 1px var(--marketplace-blue);
+  background: #eef3f9;
+  font-weight: 700;
+}
+.support-reply-compose .support-audience input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  flex: 0 0 20px;
+  margin: 0;
+  accent-color: var(--marketplace-blue);
+}
+.support-reply-compose .support-audience p {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.support-audience-summary {
+  padding: 10px 12px;
+  border-inline-start: 4px solid var(--marketplace-blue);
+  background: #eef3f9;
+}
+@media (max-width: 650px) {
+  .support-reply-compose .support-audience {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button.ui-action {
+    transition: none;
+    transform: none;
+  }
+}
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */

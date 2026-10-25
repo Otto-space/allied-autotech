@@ -81,8 +81,9 @@ export default function PrivacyPage() {
               before a contract where applicable, and legitimate interests in support and
               security, balanced against your rights. Optional fields may be left blank.
               Registration is not marketing consent. Submitted reviews require moderation;
-              approved review text, ratings and your public display name can appear on the
-              website.
+              approved review text, ratings, your profile first and last name and current
+              profile photo (if added) can appear on the website. Changing or removing
+              your profile photo updates the portrait available through approved reviews.
             </p>
           </>
         )}

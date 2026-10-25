@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/support-schemas";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { Feedback } from "./feedback";
+import { ActionButton } from "./action";
 import { forgetThreadFormDraft } from "@/lib/admin/work-support-detail";
 import { useSupportWrite } from "@/lib/support/use-support-write";
 import {
@@ -186,7 +187,7 @@ export function SupportReplyForm({
   }
   return (
     <section
-      className={guard ? "ct-reply ct-panel" : "detail-section"}
+      className={`support-reply-compose ${guard ? "ct-reply ct-panel" : "detail-section"}`}
       aria-labelledby="support-reply-title"
     >
       <h2 id="support-reply-title">
@@ -215,13 +216,25 @@ export function SupportReplyForm({
         >
           <fieldset disabled={disabled || guard?.disabled || (!guard && uncertain)}>
             {staff && (
-              <div className="field">
-                <label htmlFor="support-reply-visibility">Message visibility</label>
-                <select id="support-reply-visibility" {...form.register("visibility")}>
-                  <option value="CUSTOMER">Customer-visible reply</option>
-                  <option value="INTERNAL">Internal staff note</option>
-                </select>
-              </div>
+              <fieldset
+                className="support-audience"
+                aria-describedby="support-audience-hint"
+              >
+                <legend>Message audience</legend>
+                <label>
+                  <input type="radio" value="CUSTOMER" {...form.register("visibility")} />
+                  <span>Customer-visible reply</span>
+                </label>
+                <label>
+                  <input type="radio" value="INTERNAL" {...form.register("visibility")} />
+                  <span>Internal staff note</span>
+                </label>
+                <p id="support-audience-hint">
+                  {visibility === "INTERNAL"
+                    ? "Only authorised staff can read this note. It will not appear in the customer’s conversation."
+                    : "The customer can read this reply. Email or account notifications follow their delivery settings."}
+                </p>
+              </fieldset>
             )}
             <div className="field">
               <label htmlFor="support-reply">Reply text</label>
@@ -231,9 +244,13 @@ export function SupportReplyForm({
                 maxLength={4000}
                 {...form.register("message")}
                 aria-invalid={!!form.formState.errors.message}
-                aria-describedby={
-                  guard ? "support-reply-error support-reply-hint" : "support-reply-error"
-                }
+                aria-describedby={[
+                  "support-reply-error",
+                  guard && "support-reply-hint",
+                  staff && "support-audience-hint",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               />
               <p id="support-reply-error" className="field-error">
                 {form.formState.errors.message?.message}
@@ -244,11 +261,19 @@ export function SupportReplyForm({
                 {messageText.length} / 4000 characters
               </p>
             )}
-            <button type="submit" className="button">
+            {staff && (
+              <p className="support-audience-summary" role="status">
+                Audience:{" "}
+                <strong>
+                  {visibility === "INTERNAL" ? "Staff only" : "Customer-visible"}
+                </strong>
+              </p>
+            )}
+            <ActionButton type="submit">
               {staff && visibility === "INTERNAL"
                 ? "Review internal note"
                 : "Review reply"}
-            </button>
+            </ActionButton>
             {guard && <p className="ct-form-note">Review your message before sending.</p>}
           </fieldset>
         </form>
