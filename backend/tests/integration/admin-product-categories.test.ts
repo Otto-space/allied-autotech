@@ -143,6 +143,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           expect(res.status).toBe(200);
           expect(res.headers["cache-control"]).toBe("private, no-store");
           expect(res.body.data).toEqual({
+            family: null,
             id: row.id,
             name: row.name,
             slug: row.slug,
