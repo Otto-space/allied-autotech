@@ -32,7 +32,12 @@ async function open(p: Page, kind = "complaints", q = "") {
   await expect(messages(p)).toHaveCount(3);
 }
 async function reviewReply(p: Page, visibility = "CUSTOMER") {
-  await p.getByLabel("Message visibility", { exact: true }).selectOption(visibility);
+  await p
+    .getByRole("radio", {
+      name: visibility === "INTERNAL" ? "Internal staff note" : "Customer-visible reply",
+      exact: true,
+    })
+    .check();
   await p
     .getByLabel("Reply text", { exact: true })
     .fill("Reviewed conversation response\nSecond line");

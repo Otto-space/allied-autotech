@@ -231,6 +231,12 @@ export function dashboardNavigation(
   return (role === "CUSTOMER" ? customerGroups : operationalGroups)
     .map((group) => ({
       ...group,
+      label:
+        role === "CUSTOMER" && group.id === "shop"
+          ? browseEnquiriesOnly()
+            ? "Saved items"
+            : "Orders & saved items"
+          : group.label,
       links: group.links.filter(
         (link) =>
           !(

@@ -1135,3 +1135,41 @@ pending. No production database command, migration, seed, enquiry or deployment.
 Owner's new 20 GiB disk reserve is enforced before substantial operations;
 small checks use a documented 0.25 GiB estimate above the reserve. No new package
 installation/image build/pull; existing dependencies and cached postgres:18 reused.
+
+25 October 2026 - audit action/correctness batch in progress:
+Reused allied-home-restoration-20261025 on fix/audit-actions-20261025; merge
+b45513f1 preserves both the preferred homepage and the current ff42b0e2 backend
+vehicle fix. Live main/www still resolve to dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU;
+DigitalOcean remains ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13. Fully read the
+25 October audit and implemented A01-A07: saved-item navigation, valid finance
+return destination, release-aware overview links and historical summaries,
+verified review/profile-photo disclosures, shared utility actions, and persistent
+support reply audience. No commerce restriction, permission, media access or
+sending safeguard changed. No new production deployment, application database
+write, migration, backup/restore, real message/policy/transaction, Docker build,
+dependency installation or copied editor profile. Main uncommitted edits remain.
+Acceptance/check results and the exact finite checkpoint are in Cycle 6 of the
+release worktree's frontend/docs/UI_UX_QUALITY_REGISTER.md. Finish the outstanding
+checks before treating this batch as complete; do not expand into A08-A15 or
+redesign the restored homepage without a verified journey problem.
+
+25 October 2026 - audit A01-A07 local batch completed:
+All 996 frontend tests (149 files), lint, route type generation/TypeScript,
+formatting, optimized webpack build and standalone preparation passed. The
+31-case responsive matrix plus focused navigation, permission, saved-fitment,
+support recovery, validation, short-screen/doubled-text and console regressions
+passed after the documented fixture/output-directory corrections. Six backend
+portrait unit tests passed on identical reviewed media/test code without any DB
+write. Coverage and evidence are recorded in Cycle 6; this is local fixture
+acceptance, not real authenticated operations, physical-device or hosted-release
+acceptance. A08-A15 remain the next finite backlog. The preferred Home, public
+reviews, removed /demo, backend ff42b0e2 and all security/commerce boundaries are
+preserved. Production main/www and API were not changed by this batch.
+
+The owner's new fixed 20 GiB C: reserve is enforced at task preflights. Check
+chain was stopped when the instruction arrived and restarted with 0.25 GiB
+small-check allowances and a separately justified 1 GiB warm-build allowance.
+The build preflight passed at 24.52 GiB free against a 21 GiB threshold. No
+Docker resource, duplicate worktree/dependency installation or editor profile
+was created. Only a resolved 1,581,764-byte task diagnostic trace was removed;
+current build/cache, source, records, backups and other tasks were retained.

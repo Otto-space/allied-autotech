@@ -65,7 +65,7 @@ export function ReviewCreateForm({
     setProposal({
       title: "Submit this review for moderation?",
       description:
-        "Approved reviews are public. Avoid personal contact details or private transaction information in your title and comment. Submitted reviews cannot be edited here.",
+        "Approved reviews show your profile first and last name and current profile photo, if added. Avoid personal contact details or private transaction information in your title and comment. Submitted reviews cannot be edited here.",
       facts: [
         { label: "Experience", value: source?.label ?? reviewLabels[target] },
         { label: "Rating", value: `${values.rating} / 5` },
@@ -114,8 +114,8 @@ export function ReviewCreateForm({
     <section className="cr-form" aria-labelledby="write-review-title">
       <h2 id="write-review-title">Write a review</h2>
       <p className="cr-form-intro">
-        Moderated before public display. Approved reviews show your profile name and
-        photo.
+        Moderated before public display. Approved reviews show your profile first and last
+        name and current profile photo, if added.
       </p>
       <Feedback message={error} toast="Please review the message on this page." />
       <Feedback message={message} tone="success" toast="Review submitted." />

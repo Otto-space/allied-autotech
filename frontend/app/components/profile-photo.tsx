@@ -42,6 +42,10 @@ export function ProfilePhoto({
   }, []);
   return (
     <section className="detail-section" aria-labelledby="profile-photo-title">
+      <p>
+        Your current photo can appear beside your approved public reviews. Replacing or
+        removing it also updates the portrait available through those reviews.
+      </p>
       <Feedback message={message} tone="success" toast={message} />
       <FileUpload
         key={revision}
@@ -70,7 +74,7 @@ export function ProfilePhoto({
                 ? "Replace your profile photo?"
                 : "Save your profile photo?",
               description:
-                "Your current photo stays in place until the new image passes validation.",
+                "Your current photo stays in place until the new image passes validation. The replacement can appear beside your approved public reviews.",
               facts: [{ label: "Selected file", value: selection.name }],
               retrySafely: true,
               retryAfterRejection: false,
@@ -98,7 +102,8 @@ export function ProfilePhoto({
               if (disabled) return;
               review({
                 title: "Remove your profile photo?",
-                description: "Your initials will appear in place of the photo.",
+                description:
+                  "Your initials will appear in place of the photo. The portrait will no longer be available through your approved public reviews.",
                 facts: [],
                 retryAfterRejection: false,
                 onUncertain: refresh,

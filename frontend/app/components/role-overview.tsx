@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, type ComponentProps } from "react";
 import {
   ArrowUpRight,
   CalendarDays,
@@ -24,6 +24,29 @@ import { useAccountSession } from "./dashboard-shell";
 import { OverviewActivity } from "./overview-activity";
 import { CustomerCareSummary } from "./customer-care-summary";
 
+import { browseEnquiriesOnly, restrictedLaunchPage } from "@/lib/public-launch";
+
+function OverviewLink({
+  href,
+  children,
+  className,
+  summaryWhenRestricted,
+  ...props
+}: ComponentProps<typeof Link> & { summaryWhenRestricted?: "block" | "inline" }) {
+  if (browseEnquiriesOnly() && typeof href === "string" && restrictedLaunchPage(href)) {
+    const Summary = summaryWhenRestricted === "block" ? "div" : "span";
+    return summaryWhenRestricted ? (
+      <Summary className={className} data-release-unavailable>
+        {children}
+      </Summary>
+    ) : null;
+  }
+  return (
+    <Link {...props} className={className} href={href}>
+      {children}
+    </Link>
+  );
+}
 const statusLabel = (value: string) => value.toLowerCase().replaceAll("_", " ");
 function Status({ value }: { readonly value: string }) {
   return (
@@ -116,7 +139,8 @@ function SummaryCards({
   return (
     <div className="overview-metrics">
       {cards.map(({ icon: Icon, ...card }, index) => (
-        <Link
+        <OverviewLink
+          summaryWhenRestricted="block"
           prefetch={false}
           className={`overview-metric tint-${index}`}
           key={card.label}
@@ -133,7 +157,7 @@ function SummaryCards({
             {card.note}
             <ArrowUpRight size={15} aria-hidden="true" />
           </span>
-        </Link>
+        </OverviewLink>
       ))}
     </div>
   );
@@ -150,6 +174,7 @@ export function RoleOverview({
   const customer = session?.user.role === "CUSTOMER";
   const administrator =
     session?.user.role === "ADMIN" || session?.user.role === "SUPER_ADMIN";
+  const limited = customer && browseEnquiriesOnly();
   const base = customer ? "/dashboard" : "/admin";
   const [range, setRange] = useState(() => overviewDates(30));
   const [draft, setDraft] = useState(range);
@@ -211,7 +236,7 @@ export function RoleOverview({
       <select
         id="overview-preset"
         value={
-          workDesign
+          workDesign || customerDesign
             ? ([7, 30, 90].find((days) => {
                 const preset = overviewDates(days);
                 return preset.from === range.from && preset.to === range.to;
@@ -226,7 +251,7 @@ export function RoleOverview({
         }}
       >
         <option value="" disabled>
-          {workDesign ? "Custom period" : "Select period"}
+          {workDesign || customerDesign ? "Custom period" : "Select period"}
         </option>
         <option value="7">Last 7 days</option>
         <option value="30">Last 30 days</option>
@@ -249,7 +274,9 @@ export function RoleOverview({
           </h1>
           <p>
             {customer
-              ? "Your bookings, orders and vehicle care at a glance."
+              ? limited
+                ? "Your enquiries, saved items and vehicle care at a glance."
+                : "Your bookings, orders and vehicle care at a glance."
               : administrator && workDesign
                 ? "Organisation-wide activity in your selected period."
                 : visible?.branch
@@ -259,9 +286,9 @@ export function RoleOverview({
         </div>
         <div className="overview-top-actions">
           {customerDesign && (
-            <Link className="button" href="/services">
-              Book a service
-            </Link>
+            <OverviewLink className="button" href="/services">
+              {limited ? "Request a service visit" : "Book a service"}
+            </OverviewLink>
           )}
           {!customerDesign && !workDesign && datePreset}
           <button
@@ -277,6 +304,17 @@ export function RoleOverview({
       </div>
       {customerDesign && (
         <>
+          {limited && (
+            <p className="overview-release-note">
+              Send enquiries and service requests while the team confirms arrangements.
+              Online checkout, paid reservations and payment collection are unavailable.
+              Existing record summaries remain below;{" "}
+              <Link href="/dashboard/support">
+                contact customer care for record details
+              </Link>
+              .
+            </p>
+          )}
           {overviewFeedback}
           {visible?.care && <CustomerCareSummary care={visible.care} />}
           {!visible && !error && (
@@ -401,9 +439,12 @@ export function RoleOverview({
               ) : (
                 <p className="overview-empty">No bookings in this period.</p>
               )}
-              <Link className="text-link overview-panel-link" href={`${base}/bookings`}>
+              <OverviewLink
+                className="text-link overview-panel-link"
+                href={`${base}/bookings`}
+              >
                 View all bookings <ArrowUpRight size={15} aria-hidden="true" />
-              </Link>
+              </OverviewLink>
             </section>
           </div>
           <div className="overview-grid">
@@ -413,9 +454,9 @@ export function RoleOverview({
                   <h2>Recent bookings</h2>
                   <p>Latest five created in the selected period</p>
                 </div>
-                <Link className="text-link" href={`${base}/bookings`}>
+                <OverviewLink className="text-link" href={`${base}/bookings`}>
                   View all
-                </Link>
+                </OverviewLink>
               </div>
               {visible.recentBookings.length ? (
                 <div
@@ -452,13 +493,13 @@ export function RoleOverview({
                             <Status value={booking.status} />
                           </td>
                           <td>
-                            <Link
+                            <OverviewLink
                               className="overview-record-link"
                               href={`${base}/bookings/${booking.id}`}
                               aria-label={`View booking ${booking.id.slice(0, 8)} for ${booking.serviceName}`}
                             >
                               <ArrowUpRight size={18} />
-                            </Link>
+                            </OverviewLink>
                           </td>
                         </tr>
                       ))}
@@ -484,9 +525,12 @@ export function RoleOverview({
                     <li key={order.id}>
                       <Package size={21} aria-hidden="true" />
                       <div>
-                        <Link href={`${base}/orders/${order.id}`}>
+                        <OverviewLink
+                          summaryWhenRestricted="inline"
+                          href={`${base}/orders/${order.id}`}
+                        >
                           {order.orderNumber}
-                        </Link>
+                        </OverviewLink>
                         <small>
                           {overviewMoney(order.totalKobo, order.currency)} · order value
                         </small>
@@ -499,9 +543,12 @@ export function RoleOverview({
               ) : (
                 <p className="overview-empty">No parts orders in this period.</p>
               )}
-              <Link className="text-link overview-panel-link" href={`${base}/orders`}>
+              <OverviewLink
+                className="text-link overview-panel-link"
+                href={`${base}/orders`}
+              >
                 View all orders <ArrowUpRight size={15} aria-hidden="true" />
-              </Link>
+              </OverviewLink>
             </section>
           </div>
           <details className="overview-definitions">
@@ -525,8 +572,9 @@ export function RoleOverview({
             <p>
               Dates run from midnight on the first date through the end of the last date
               in Africa/Lagos. Automatic refresh pauses while hidden or offline and slows
-              after errors. Links open complete permitted record lists; their filters are
-              independent of this overview.
+              after errors. Available links open permitted record lists; their filters are
+              independent of this overview. In an enquiries release, restricted record
+              details remain unavailable online.
             </p>
           </details>
         </>

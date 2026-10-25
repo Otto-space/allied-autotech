@@ -42,8 +42,8 @@ collection only; no fabricated stock, fitment evidence, products or vehicles.
 
 ## Route, role and state inventory
 
-[Machine-readable source inventory](ui-quality-inventory.json) lists all 105
-`app/**/page.tsx` route patterns, dynamic segments, role families and 296 source
+[Machine-readable source inventory](ui-quality-inventory.json) lists all 104
+`app/**/page.tsx` route patterns, dynamic segments, role families and 320 source
 files with form, table, disclosure, select, file input, dialog, feedback or
 boundary signals. Regenerate with `node scripts/ui-quality-inventory.mjs` from
 `frontend`. These are source signals, not proofs that a route exposes a control,
@@ -990,3 +990,129 @@ This completes the owner's focused homepage correction. Further business-approve
 inventory and authentic customer reviews remain content inputs, not fixtures to
 publish. Existing broader role/device/manual acceptance and settled Item 6 retain
 their recorded scope; no further redesign is implied by the previous audit.
+
+## Cycle 6: Audit A01–A07 — 25 October 2026
+
+Scope: the complete 25 October UI/UX audit in Downloads and the supplied implementation
+brief, read before editing. This is finite Batch 1, not acceptance of every route or
+an instruction to redesign Home again. Revalidated both live frontend aliases on
+`dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU` and the backend ACTIVE deployment
+`f9239c36-d4b7-4ef0-b8ba-479cda926a13`. Reused the clean homepage-restoration
+worktree and dependencies/cache on `fix/audit-actions-20261025`; merge `b45513f1`
+combines the preferred Home with the independently released `ff42b0e2` backend fix.
+Only the tracker required conflict resolution, retaining both release receipts.
+Main-checkout uncommitted work is preserved. No additional worktree, dependency
+installation, editor profile, Docker build or application database write was needed.
+
+### Revalidated findings and changes
+
+| ID  | Current evidence and repair                                                                                                                                                                                                                                                                                                                                                                                                                          | Boundary                                                                                                                                                                            |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A01 | Limited-release filtering left the customer group labelled My orders with only Saved items. The group now reads Saved items; full mode reads Orders & saved items and preserves distinct destinations.                                                                                                                                                                                                                                               | Existing route restrictions and staff navigation are unchanged.                                                                                                                     |
+| A02 | Both finance headers still linked to absent /admin/operations. Back to overview now opens the existing /admin route, permitted to the same administrators.                                                                                                                                                                                                                                                                                           | No route or permission was added.                                                                                                                                                   |
+| A03 | Saved-vehicle refresh, paging and retry buttons were unstyled native controls. They now reuse explicit secondary actions; garage management remains an underlined navigation link. Refresh exposes busy/disabled state.                                                                                                                                                                                                                              | Fresh ownership/configuration checks, unknown fitment and URL filtering remain intact.                                                                                              |
+| A04 | Policy contact refresh still used the body-text link class. Both editors now use a shared secondary action, including busy state.                                                                                                                                                                                                                                                                                                                    | Selection, eligibility, review, approval and publication safeguards are retained.                                                                                                   |
+| A05 | The overview still linked to restricted customer booking/order/payment details and advertised booking. It now describes the enquiry release, offers Request a service visit, omits unavailable actions and retains real historical summaries without misleading links. The date preset now reflects its actual range.                                                                                                                                | Full-mode record links and permitted operational access remain. No commerce flag or direct-route restriction changed. Help launch guidance was already mode-aware; it was retained. |
+| A06 | Backend publicReviewer projects trimmed profile first/last name and a review-scoped photo URL. PublicReviewProfiles reads only a currently APPROVED review's current portrait; missing/unapproved/no-photo requests are 404, private/no-store, and do not expose contact details or garage media. The owner-only profile sentence contradicted this. Profile, upload/replacement/removal, review guidance/review confirmation and Privacy now agree. | Disclosure correction based on verified source/tests, not a claim of a confirmed data leak. No public field, storage rule or media permission changed.                              |
+| A07 | Audience remained a dropdown. Native radio choices, audience-specific help and a persistent audience summary now sit beside the editor/review action; the existing confirmation repeats the audience and its consequences.                                                                                                                                                                                                                           | Customer reply form remains customer-only. Single-flight writes, preflight, review/cancel, draft recovery and unknown-outcome locks remain.                                         |
+
+`action.tsx` consolidates the existing brand button foundation into explicit primary,
+secondary, tertiary, danger and navigation variants plus a programmatic selected toggle.
+`docs/ui-actions.md` documents semantics and migration boundaries. Only the named
+consumers migrated; no blanket link-background rule or dependency was introduced.
+The full source census records 1,209 native buttons, 105 native anchors and 58 buttons
+using text-link styling across 283 files. These are review signals, not 1,209 defects.
+The inventory now retains an 18-aspect per-page checklist and evidence record across
+all 104 public/auth/customer/work route patterns; unreviewed aspects remain explicit.
+Shared primitives do not imply acceptance of their untested consumers.
+
+### Acceptance evidence
+
+Browser plugin not available; existing Playwright with installed Edge was used, without
+browser downloads. Local development preview: http://127.0.0.1:3166, launch mode
+browse_enquiries, isolated browser/API fixtures. No production fixture was published.
+Desktop/mobile before screenshots cover overview, support, policy contacts and finance
+headers; after screenshots additionally cover Parts, profile, reviews and Privacy.
+Evidence is outside source at `%TEMP%/allied-audit-actions-20261025/`.
+
+The initial 31-case focused matrix passed: 360/390/768/1024/1440 widths, populated
+customer historical activity, empty/error overview, administrator finance return links,
+Super Admin contact refresh in both policies, saved-vehicle refresh and customer
+profile/review/privacy disclosures. Main-region axe checks, overflow, page identity,
+nonblank content, framework overlay, keyboard radio selection, review audience and
+cancel-without-write assertions passed. Page exceptions were checked in the customer
+and support matrices. The first attempt was stopped after an incomplete Parts fixture
+had no make options and did not open the vehicle-discovery tab; this was a fixture
+setup error, corrected before the passing run, not fictional stock added to the app.
+
+Additional regression: 28/29 selected cases passed initially; the remaining
+wrong-thread case failed only during Playwright trace teardown because two review
+jobs shared the same output directory. The case passed on a sequential, isolated
+rerun. Both saved-configuration workflows passed at 390/1440px; session invalidation
+and late-response protection also passed. One console-health check exposed the
+customer-review fixture's unimplemented notification-summary endpoint (404); an
+explicit isolated zero-summary fixture corrected the setup. No application endpoint
+or permission was changed to silence it. The six-screen console check then passed
+without warnings, errors or page exceptions. Final DOM refinement uses a block
+container for noninteractive metric summaries; the 390px overview and six-screen
+console checks passed again. The additional 320x568 staff check passed empty-message
+validation, associated error text, native radio keyboard operation and doubled-text
+reflow without a write. Local lint, route type generation, TypeScript, all 996 unit
+tests across 149 files and full-project formatting passed. The original combined
+check attempts were stopped during resource contention and when the owner supplied
+the new disk reserve; these are interruptions, not passing gates. Checks were rerun
+sequentially with fresh reserve assertions. The optimized webpack build and standalone postbuild also passed. `/demo` is absent
+from its generated route table. No production deployment or final-source hosted/CI
+acceptance was performed this cycle. Local reused Next is 16.3.8; the lockfile is
+16.4.3, so the normal locked-dependency release gate remains necessary before rollout.
+The six existing backend public-review portrait tests passed, using the main checkout's
+identical media/test source (Git equality checked against this branch). They use mocked
+Prisma/storage and make no database connection or write. No schema generation,
+migration, database safety check, backup/restore, grant change or production transaction
+was required by these disclosure/UI changes.
+
+Limitations: local development evidence is distinct from optimized hosted acceptance.
+Fixtures verify UI states, not real role provisioning or operational readiness. Real
+customer/staff sign-in, real submissions, physical devices, screen-reader speech and
+actual browser zoom remain untested. Text enlargement is a CSS stress test and does
+not certify browser-zoom or full WCAG compliance. No production deployment is implied.
+
+### Next priorities
+
+A08/A09/A12: paired range fields, concise field help and the remaining utility-action
+consumers; A10/A11: compact customer/support queues and genuinely empty dashboards;
+A13/A14: policy edit hierarchy and notifications/helper collisions; A15: policy reading
+hierarchy. Preserve the owner's restored homepage direction. Broader checklist cells,
+protected Privacy/Finance approval forms and real authenticated workforce acceptance
+remain their recorded scope. Optional assistant/tours remain a later product decision.
+
+### Completed checkpoint and disk reserve
+
+Batch 1 (A01?A07) is complete in the local review branch; A08?A15 remain the finite
+next backlog. The 104-route checklist has 12 explicitly scoped page records; all
+other route/aspect cells remain uninspected in this cycle. Source discovery and
+mocked acceptance are distinct from real role/device access. Before/after screenshots
+and the normal/reduced-motion fixture evidence remain outside source; no screenshot,
+trace archive, generated build, credential or synthetic inventory was committed.
+
+The owner's new disk reserve was applied immediately: stopped the earlier check
+chain before building, read and invoked `C:/Users/PC/.codex/scripts/assert-disk-space.ps1`,
+then guarded lint/types/tests with 0.25 GiB allowances (small caches/type output).
+The single warm optimized build passed its separate 21 GiB threshold: fixed 20 GiB
+reserve plus a justified 1 GiB allowance, covering the measured ~451 MB warm cache,
+~392 MB prior dev output and the small reused standalone bundle without a download
+or dependency copy. Free space was 24.52 GiB immediately before that build and stayed
+above the reserve during the measured checks. The checker is a preflight, not an OS
+quota or guarantee about concurrent applications. The final measurement is recorded
+in the completion tracker.
+
+No task Docker resources were created. Reviewed desktop-linux context/builders,
+image/container references and disk totals: 38 images/11.84GB, 14 containers,
+14 volumes/1.012GB and 87 cache entries/6.715GB. The new running PostgreSQL container
+belongs to another active task and was retained. Current, rollback, base/tool,
+other-task and uncertain resources were retained; no broad prune or volume removal
+ran. Removed only this batch's superseded 1,581,764-byte diagnostic trace archive
+after its isolated rerun passed; retained screenshots, small receipts and useful
+current build/cache. Other concurrent free-space changes are not attributed to this
+batch. Earlier explicitly approved folder deletions remain subject to their recorded
+automatic-review rejections; no deletion workaround was used.
