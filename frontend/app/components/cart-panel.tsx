@@ -331,7 +331,14 @@ export function CartPanel() {
           }
           await apiRequest("/customers/cart", {
             method: "DELETE",
-            body: {},
+            body: {
+              expectedItems: current.items.map((item) => ({
+                id: item.id,
+                productId: item.product.id,
+                quantity: item.quantity,
+                unitPriceKobo: item.unitPriceKobo,
+              })),
+            },
             csrf: true,
             signal: controller.signal,
           });

@@ -13,6 +13,7 @@ import type {
 import type {
   AdminCategoryListQuery,
   AdminProductListQuery,
+  CartClearInput,
   CategoryCreateInput,
   CategoryListQuery,
   CategoryUpdateInput,
@@ -401,7 +402,7 @@ export class CatalogController {
     res.status(200).json(successResponse("Cart item removed", req.id));
   };
   clearCart = async (req: Request, res: Response) => {
-    await this.service.clearCart(actor(req));
+    await this.service.clearCart(actor(req), validated<CartClearInput>(res, "body"));
     res.status(200).json(successResponse("Cart cleared", req.id));
   };
 }

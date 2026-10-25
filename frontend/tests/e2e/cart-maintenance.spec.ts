@@ -137,7 +137,16 @@ test("clear cart reviews exact contents and money, sends one CSRF DELETE, then r
     {
       endpoint: "/customers/cart",
       method: "DELETE",
-      body: {},
+      body: {
+        expectedItems: [
+          {
+            id: id(4),
+            productId: product.id,
+            quantity: 2,
+            unitPriceKobo: product.priceKobo,
+          },
+        ],
+      },
       csrf: "isolated-cart-csrf-".repeat(3),
     },
   ]);

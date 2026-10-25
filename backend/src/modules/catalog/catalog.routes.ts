@@ -15,6 +15,7 @@ import {
 import {
   adminCategoryListQuerySchema,
   adminProductListQuerySchema,
+  cartClearBodySchema,
   cartItemBodySchema,
   catalogEmptyBodySchema,
   catalogEmptyQuerySchema,
@@ -131,7 +132,7 @@ export function createCustomerCatalogRouter(): Router {
   router.delete(
     "/cart",
     requireCsrf,
-    validate({ query: catalogEmptyQuerySchema, body: catalogEmptyBodySchema }),
+    validate({ query: catalogEmptyQuerySchema, body: cartClearBodySchema }),
     controller.clearCart,
   );
   return router;

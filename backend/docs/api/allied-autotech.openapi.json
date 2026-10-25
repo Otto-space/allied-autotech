@@ -32801,6 +32801,7 @@
           "Catalogue"
         ],
         "summary": "Clear own cart",
+        "description": "Atomically clears only the reviewed cart items. A changed cart returns 409 without deleting anything; send the item IDs, products, quantities and unit prices from a fresh cart read. Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "security": [
           {
             "sessionCookie": []
@@ -32820,6 +32821,72 @@
             "example": "synthetic-token-value-not-a-real-secret"
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expectedItems": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the id resource; ownership is resolved server-side."
+                        },
+                        "productId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "description": "Identifier of the product resource; ownership is resolved server-side."
+                        },
+                        "quantity": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 1000,
+                          "description": "Quantity validated by this operation's strict request contract."
+                        },
+                        "unitPriceKobo": {
+                          "type": "string",
+                          "pattern": "^(?:0|[1-9][0-9]{0,15})$",
+                          "description": "Integer price in Nigerian kobo; client-calculated values are never authoritative."
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "productId",
+                        "quantity",
+                        "unitPriceKobo"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Expected Items Item validated by this operation's strict request contract."
+                    },
+                    "minItems": 1,
+                    "description": "Expected Items validated by this operation's strict request contract."
+                  }
+                },
+                "required": [
+                  "expectedItems"
+                ],
+                "additionalProperties": false,
+                "description": "Request Body validated by this operation's strict request contract."
+              },
+              "example": {
+                "expectedItems": [
+                  {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "productId": "00000000-0000-4000-8000-000000000001",
+                    "quantity": 1,
+                    "unitPriceKobo": "300000"
+                  }
+                ]
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success: Clear own cart.",
@@ -33033,7 +33100,6 @@
           }
         },
         "operationId": "deleteCustomersCart",
-        "description": "Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.",
         "x-access-boundary": "authenticated-customer",
         "x-required-roles": [
           "CUSTOMER"

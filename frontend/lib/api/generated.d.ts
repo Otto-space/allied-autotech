@@ -1568,7 +1568,7 @@ export interface paths {
         post?: never;
         /**
          * Clear own cart
-         * @description Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Atomically clears only the reviewed cart items. A changed cart returns 409 without deleting anything; send the item IDs, products, quantities and unit prices from a fresh cart read. Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         delete: operations["deleteCustomersCart"];
         options?: never;
@@ -30942,7 +30942,41 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "expectedItems": [
+                 *         {
+                 *           "id": "00000000-0000-4000-8000-000000000001",
+                 *           "productId": "00000000-0000-4000-8000-000000000001",
+                 *           "quantity": 1,
+                 *           "unitPriceKobo": "300000"
+                 *         }
+                 *       ]
+                 *     }
+                 */
+                "application/json": {
+                    /** @description Expected Items validated by this operation's strict request contract. */
+                    expectedItems: {
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the id resource; ownership is resolved server-side.
+                         */
+                        id: string;
+                        /**
+                         * Format: uuid
+                         * @description Identifier of the product resource; ownership is resolved server-side.
+                         */
+                        productId: string;
+                        /** @description Quantity validated by this operation's strict request contract. */
+                        quantity: number;
+                        /** @description Integer price in Nigerian kobo; client-calculated values are never authoritative. */
+                        unitPriceKobo: string;
+                    }[];
+                };
+            };
+        };
         responses: {
             /** @description Success: Clear own cart. */
             200: {

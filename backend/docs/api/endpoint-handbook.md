@@ -3931,7 +3931,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### DELETE `/customers/cart`
 
 - Operation ID: `deleteCustomersCart`
-- Purpose: Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+- Purpose: Atomically clears only the reviewed cart items. A changed cart returns 409 without deleting anything; send the item IDs, products, quantities and unit prices from a fresh cart read. Clear own cart. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
 - Roles: CUSTOMER
 - Authentication: Opaque session cookie
 - CSRF: Required in `X-CSRF-Token`
@@ -3942,6 +3942,27 @@ Parameters:
 | Parameter | Location | Type | Required | Purpose |
 | --- | --- | --- | --- | --- |
 | `x-csrf-token` | header | string | Yes | Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only. |
+
+JSON request fields:
+
+| Field | Type | Required | Purpose |
+| --- | --- | --- | --- |
+| `expectedItems` | array<object> | Yes | Expected Items validated by this operation's strict request contract. |
+
+Synthetic request example:
+
+```json
+{
+  "expectedItems": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "productId": "00000000-0000-4000-8000-000000000001",
+      "quantity": 1,
+      "unitPriceKobo": "300000"
+    }
+  ]
+}
+```
 
 Success: HTTP 200.
 

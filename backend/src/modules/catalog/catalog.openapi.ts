@@ -16,6 +16,7 @@ import {
   adminCategoryListQuerySchema,
   catalogEmptyQuerySchema,
   adminProductListQuerySchema,
+  cartClearBodySchema,
   cartItemBodySchema,
   categoryCreateBodySchema,
   categoryListQuerySchema,
@@ -164,6 +165,9 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "delete",
       path: "/customers/cart",
       summary: "Clear own cart",
+      description:
+        "Atomically clears only the reviewed cart items. A changed cart returns 409 without deleting anything; send the item IDs, products, quantities and unit prices from a fresh cart read.",
+      body: cartClearBodySchema,
       secured: true,
       csrf: true,
     },

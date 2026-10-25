@@ -317,6 +317,22 @@ export const cartItemBodySchema = z
     quantity: z.number().int().min(1).max(1_000),
   })
   .strict();
+export const cartClearBodySchema = z
+  .object({
+    expectedItems: z
+      .array(
+        z
+          .object({
+            id: z.uuid(),
+            productId: z.uuid(),
+            quantity: z.number().int().min(1).max(1_000),
+            unitPriceKobo: kobo,
+          })
+          .strict(),
+      )
+      .min(1),
+  })
+  .strict();
 
 export type CategoryListQuery = z.infer<typeof categoryListQuerySchema>;
 export type AdminCategoryListQuery = z.infer<typeof adminCategoryListQuerySchema>;
@@ -332,3 +348,4 @@ export type ImageCreateInput = z.infer<typeof imageCreateBodySchema>;
 export type ImageUpdateInput = z.infer<typeof imageUpdateBodySchema>;
 export type FavouriteListQuery = z.infer<typeof favouriteListQuerySchema>;
 export type CartItemInput = z.infer<typeof cartItemBodySchema>;
+export type CartClearInput = z.infer<typeof cartClearBodySchema>;

@@ -24,6 +24,7 @@ import { mediaError } from "../media/media.errors.js";
 import type {
   AdminCategoryListQuery,
   AdminProductListQuery,
+  CartClearInput,
   CategoryCreateInput,
   CategoryListQuery,
   CategoryUpdateInput,
@@ -872,11 +873,24 @@ export class CatalogService {
     )
       throw catalogResourceNotFound();
   }
-  async clearCart(actor: AuthenticatedActor) {
+  async clearCart(actor: AuthenticatedActor, input: CartClearInput) {
     assertCustomer(actor);
-    await this.database.$transaction((transaction) =>
-      this.repository.clearCart(actor.userId, transaction),
-    );
+    await this.database.$transaction(async (transaction) => {
+      const cart = await this.repository.cart(actor.userId, transaction);
+      if (cart === null)
+        throw catalogConflict("Your cart changed. Review it again before clearing.");
+      await this.repository.lockCart(cart.id, transaction);
+      const current = await this.repository.cart(actor.userId, transaction);
+      const actual = current?.items.map((item) => ({
+        id: item.id,
+        productId: item.product.id,
+        quantity: item.quantity,
+        unitPriceKobo: item.product.priceKobo.toString(),
+      }));
+      if (JSON.stringify(actual) !== JSON.stringify(input.expectedItems))
+        throw catalogConflict("Your cart changed. Review it again before clearing.");
+      await this.repository.clearCart(actor.userId, transaction);
+    });
   }
 
   private cartView(cart: Awaited<ReturnType<CatalogRepository["cart"]>>) {

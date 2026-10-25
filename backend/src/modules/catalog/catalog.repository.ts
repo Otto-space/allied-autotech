@@ -533,6 +533,9 @@ export class CatalogRepository {
       },
     });
   }
+  async lockCart(id: string, client: DatabaseClient) {
+    await client.$queryRaw`SELECT "id" FROM "Cart" WHERE "id" = ${id}::uuid FOR UPDATE`;
+  }
   async setCartItem(
     userId: string,
     productId: string,
@@ -550,6 +553,7 @@ export class CatalogRepository {
       update: {},
       select: { id: true },
     });
+    await this.lockCart(cart.id, client);
     await client.cartItem.upsert({
       where: { cartId_productId: { cartId: cart.id, productId } },
       create: { cartId: cart.id, productId, quantity },
@@ -558,6 +562,12 @@ export class CatalogRepository {
     return this.cart(userId, client);
   }
   async removeCartItem(userId: string, productId: string, client: DatabaseClient) {
+    const cart = await client.cart.findFirst({
+      where: { customer: { userId } },
+      select: { id: true },
+    });
+    if (cart === null) return false;
+    await this.lockCart(cart.id, client);
     return (
       (
         await client.cartItem.deleteMany({
