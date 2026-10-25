@@ -1,15 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Bell,
-  LogOut,
-  Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
-  UserRound,
-  X,
-} from "lucide-react";
+import { LogOut, Menu, PanelLeftClose, PanelLeftOpen, UserRound, X } from "lucide-react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import {
   apiRequest,
@@ -34,7 +26,7 @@ import {
   notificationNavigationCounts,
   notificationNavigationLinks,
 } from "@/lib/notifications/destinations";
-import { NotificationBadge } from "./notification-badge";
+import { NotificationPreview } from "./notification-preview";
 import { NotificationAccessContext } from "@/lib/notifications/access-context";
 import { containDialogFocus } from "@/lib/dialog-focus";
 const SessionContext = createContext<SessionState | null>(null);
@@ -59,8 +51,6 @@ export function DashboardShell({
   const router = useRouter();
   const pathname = usePathname();
   const [session, setSession] = useState<SessionState | null>(null);
-  const notifications = useNotificationSummary(session);
-  const unreadCount = notifications?.data?.unreadCount ?? 0;
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -87,6 +77,8 @@ export function DashboardShell({
       ? workforce.data
       : undefined;
   const verifiedWorkforce = !workforce.loading ? retainedWorkforce : undefined;
+  const notifications = useNotificationSummary(session && (!session.workforceManaged || verifiedWorkforce) ? session : null);
+  const unreadCount = notifications?.data?.unreadCount ?? 0;
   const grants = useResource(
     session?.user.role === "STAFF" && !session.workforceManaged ? "/staff/profile" : null,
     parseOwnStaffProfile,
@@ -291,7 +283,7 @@ export function DashboardShell({
     <div
       className="dashboard"
       data-sidebar-collapsed={sidebarCollapsed}
-      key={`${session.id}:${session.user.id}:${session.user.role}`}
+      key={`${session.id}:${session.user.id}:${session.user.role}:${pathname}`}
       onKeyDown={(event) => {
         if (event.key === "Escape" && menuOpen) {
           setMenuPath(null);
@@ -403,25 +395,13 @@ export function DashboardShell({
           <DashboardPageSearch groups={navigation} />
           <div className="dashboard-account-controls">
             {(!session.workforceManaged || verifiedWorkforce) && (
-              <Link
-                className="dashboard-icon-link"
-                aria-label={
-                  unreadCount > 0
-                    ? `Open notifications, ${unreadCount} unread`
-                    : notifications?.unavailable
-                      ? "Open notifications, unread status unavailable"
-                      : "Open notifications"
-                }
-                href={
-                  audience === "staff"
-                    ? "/admin/notifications"
-                    : "/dashboard/notifications"
-                }
-                prefetch={false}
-              >
-                <Bell size={19} aria-hidden="true" />
-                <NotificationBadge count={unreadCount} />
-              </Link>
+              <NotificationPreview
+                key={`${session.id}:${session.user.id}:${session.user.role}:${pathname}`}
+                customer={audience === "customer"}
+                count={unreadCount}
+                unavailable={notifications?.unavailable}
+                pending={!notifications}
+              />
             )}
             <Link
               className="dashboard-account-link"

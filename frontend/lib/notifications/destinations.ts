@@ -2,6 +2,7 @@ import type {
   InboxNotification,
   NotificationSummary,
 } from "@/lib/api/notification-schemas";
+import { browseEnquiriesOnly, restrictedLaunchPage } from "@/lib/public-launch";
 
 // Resource identity, not notification type, determines the destination: a refund
 // notification can refer to a booking rather than a refund record.
@@ -124,13 +125,17 @@ export function customerNotificationDestination(
     "resourceType" | "resourceId" | "category" | "supportMessageId" | "destination"
   >,
 ) {
-  if (item.destination !== undefined) return item.destination;
+  const releaseDestination = (target: { href: string; label: string } | null) =>
+    target && browseEnquiriesOnly() && restrictedLaunchPage(target.href.split(/[?#]/)[0])
+      ? { href: "/contact", label: "Contact about this update" }
+      : target;
+  if (item.destination !== undefined) return releaseDestination(item.destination);
   const resource = customerResources[item.resourceType?.toUpperCase() ?? ""];
   if (resource && uuid.test(item.resourceId ?? ""))
-    return {
+    return releaseDestination({
       href: `${resource.detail}/${item.resourceId}${["ENQUIRY", "COMPLAINT"].includes(item.resourceType?.toUpperCase() ?? "") && uuid.test(item.supportMessageId ?? "") ? `?messageId=${item.supportMessageId}#support-entry-${item.supportMessageId}` : ""}`,
       label: resource.label,
-    };
+    });
   if (!item.resourceType && !item.resourceId && item.category === "SECURITY")
     return { href: "/dashboard/security", label: "Review account security" };
   return null;

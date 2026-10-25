@@ -201,7 +201,7 @@ function isPersonalNotificationPath(path: string): boolean {
     ) ||
     path === "/api/v1/staff/notifications/read-all" ||
     path === "/api/v1/staff/notifications/preferences/current" ||
-    /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/read$/.test(
+    /^\/api\/v1\/staff\/notifications\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/(?:read|unread)$/.test(
       path,
     )
   );

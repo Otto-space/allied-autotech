@@ -1,3 +1,4 @@
+import { showNotificationSettings } from "../fixtures/notification-settings";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
@@ -14,6 +15,7 @@ async function ready(page: Page) {
   const state = await notificationsFixture(page, "STAFF");
   await page.goto(route);
   await expect(mark(page)).toBeEnabled();
+  await showNotificationSettings(page);
   return state;
 }
 
@@ -26,6 +28,7 @@ for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
       { ...notificationItem(2), readAt: "2026-10-12T10:00:00Z" },
     ];
     await page.goto(route);
+  await showNotificationSettings(page);
     await expect(mark(page)).toBeEnabled();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -39,7 +42,7 @@ for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
       ),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "My notifications", exact: true }),
+      page.getByRole("heading", { name: "Notifications", exact: true }),
     ).toBeVisible();
   });
 
@@ -54,8 +57,7 @@ for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
           .analyze()
       ).violations,
     ).toEqual([]);
-    const opener = page.getByRole("button", {
-      name: "Enable marketing email",
+    const opener = page.getByRole("switch", { name: "Marketing by email",
       exact: true,
     });
     await opener.click();
@@ -75,6 +77,7 @@ for (const width of [320, 375, 430, 768, 1280, 1440, 1920])
 
 test("empty account and filtered empty remain distinct", async ({ page }) => {
   const state = await ready(page);
+  if (!(await page.locator(".cn-filter-details").evaluate((el) => (el as HTMLDetailsElement).open))) await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("PAYMENT");
   await expect(
     page.getByText("No notifications match this page and filters."),
@@ -119,7 +122,7 @@ test("background stale inbox and preferences lock writes independently", async (
   ).toBeVisible();
   await expect(mark(page)).toBeDisabled();
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
   state.failInbox = false;
   state.failPreferences = true;
@@ -131,7 +134,7 @@ test("background stale inbox and preferences lock writes independently", async (
   ).toBeVisible();
   await expect(mark(page)).toBeEnabled();
   await expect(
-    page.getByRole("button", { name: "Enable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeDisabled();
 });
 
@@ -170,7 +173,7 @@ test("preference recovery reconciles committed result without repeating consent"
 }) => {
   const state = await ready(page);
   state.wrongResponse = true;
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await page.getByRole("button", { name: "Close & review record" }).click();
   // Legacy clients retained only uncertainty; keep that compatibility path covered.
@@ -181,13 +184,14 @@ test("preference recovery reconciles committed result without repeating consent"
     ),
   );
   await page.reload();
+  await showNotificationSettings(page);
   const ack = page.getByRole("button", { name: "I've checked preferences", exact: true });
   await expect(ack).toBeDisabled();
   await page.getByRole("button", { name: "Refresh preferences" }).click();
   await expect(ack).toBeEnabled();
   await ack.click();
   await expect(
-    page.getByRole("button", { name: "Disable marketing email", exact: true }),
+    page.getByRole("switch", { name: "Marketing by email", exact: true }),
   ).toBeEnabled();
   expect(state.writes).toHaveLength(1);
 });
@@ -215,7 +219,7 @@ test("storage unavailable prevents both kinds of write", async ({ page }) => {
     inbox(page).getByText(/Your browser could not save the recovery marker/),
   ).toBeVisible();
   expect(state.writes).toHaveLength(0);
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await expect(confirm(page)).toBeDisabled();
   expect(state.writes).toHaveLength(0);
@@ -231,7 +235,7 @@ test("preflight detects a different account before read", async ({ page }) => {
 
 test("stale data arriving while review is open blocks confirmation", async ({ page }) => {
   const state = await ready(page);
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   state.failPreferences = true;
   await page.evaluate(() => window.dispatchEvent(new Event("online")));
   await expect(
@@ -266,13 +270,14 @@ test("long messages preserve text and short mobile dialog stays scrollable", asy
   state.items[0].title = "W".repeat(160);
   state.items[0].message = "M".repeat(1900);
   await page.goto(route);
+  await showNotificationSettings(page);
   await expect(
     page.getByRole("heading", { name: state.items[0].title, exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
   ).toBe(true);
-  await page.getByRole("button", { name: "Enable marketing sms", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by SMS", exact: true }).click();
   await confirm(page).scrollIntoViewIfNeeded();
   await expect(confirm(page)).toBeInViewport();
   expect(
@@ -361,13 +366,14 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"]) {
     async ({ page }) => {
       const state = await notificationsFixture(page, role);
       await page.goto(route);
+  await showNotificationSettings(page);
       await mark(page).click();
       await expect(
         page.getByText("Notification marked as read.", { exact: true }),
       ).toBeVisible();
       state.dropCommitted = true;
       await page
-        .getByRole("button", { name: "Enable marketing email", exact: true })
+        .getByRole("switch", { name: "Marketing by email", exact: true })
         .click();
       await confirm(page).click();
       await page.getByRole("button", { name: "Close & review record" }).click();
@@ -379,8 +385,9 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"]) {
         version: 2,
       }));
       await page.reload();
+  await showNotificationSettings(page);
       await expect(
-        page.getByRole("button", { name: "Enable marketing email", exact: true }),
+        page.getByRole("switch", { name: "Marketing by email", exact: true }),
       ).toBeDisabled();
       expect(state.writes).toHaveLength(2);
       await page
@@ -395,7 +402,7 @@ for (const role of ["STAFF", "ADMIN", "SUPER_ADMIN"]) {
         .getByRole("button", { name: "Send or recover preference", exact: true })
         .click();
       await expect(
-        page.getByRole("button", { name: "Enable marketing email", exact: true }),
+        page.getByRole("switch", { name: "Marketing by email", exact: true }),
       ).toBeEnabled();
       expect(state.writes).toHaveLength(3);
       expect(state.writes[2].key).toBe(state.writes[1].key);
@@ -419,7 +426,7 @@ test("changed staff role blocks read and preference preflight before transmissio
   await mark(page).click();
   await expect(inbox(page).getByRole("alert")).toBeVisible();
   expect(state.writes).toHaveLength(0);
-  await page.getByRole("button", { name: "Enable marketing email", exact: true }).click();
+  await page.getByRole("switch", { name: "Marketing by email", exact: true }).click();
   await confirm(page).click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
   expect(state.writes).toHaveLength(0);
@@ -435,7 +442,7 @@ test("staff breadcrumb has actual overview navigation and current-page semantics
   await expect(
     trail.getByRole("link", { name: "Overview", exact: true }),
   ).toHaveAttribute("href", "/admin");
-  await expect(trail.locator('[aria-current="page"]')).toHaveText("My notifications");
+  await expect(trail.locator('[aria-current="page"]')).toHaveText("Notifications");
   expect(
     await trail.getByRole("link").evaluate((el) => el.getBoundingClientRect().height),
   ).toBeGreaterThanOrEqual(44);

@@ -27,6 +27,20 @@ const context = (request: Request): RequestSecurityContext => ({
 
 export class NotificationsController {
   constructor(private readonly service: NotificationsService = notificationsService) {}
+  markUnread = async (req: Request, res: Response) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.json(
+      successResponse(
+        "Notification marked as unread",
+        req.id,
+        await this.service.markRead(
+          actor(req),
+          validated<{ notificationId: string }>(res, "params").notificationId,
+          false,
+        ),
+      ),
+    );
+  };
   attention = async (req: Request, res: Response) => {
     res.setHeader("Cache-Control", "private, no-store");
     res.json(

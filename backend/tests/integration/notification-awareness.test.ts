@@ -60,7 +60,8 @@ describe.skipIf(process.env.RUN_NOTIFICATION_AWARENESS_TESTS !== "true")(
     beforeAll(async () => {
       if (
         env.DB_HOST !== "127.0.0.1" ||
-        env.DB_NAME !== "allied_notification_awareness_20261022_ci"
+        (env.DB_NAME !== "allied_notification_awareness_20261022_ci" &&
+          !/^allied_notifications_20261025_[a-f0-9]{12}_ci$/.test(env.DB_NAME))
       )
         throw new Error("Requires the newly created isolated notification test database");
       const target = await prisma.$queryRaw<

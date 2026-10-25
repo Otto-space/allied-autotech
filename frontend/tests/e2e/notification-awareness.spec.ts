@@ -19,7 +19,7 @@ for (const width of [430, 1440])
     state.items = [enquiry(1), enquiry(2)];
     await page.goto(route);
     await expect(
-      page.getByRole("link", { name: "Open notifications, 2 unread", exact: true }),
+      page.getByRole("button", { name: "Open notifications, 2 unread", exact: true }),
     ).toBeVisible();
     if (width < 901) {
       const bell = await page.locator(".dashboard-icon-link").boundingBox();
@@ -47,7 +47,7 @@ for (const width of [430, 1440])
       .getByRole("button", { name: "Mark Enquiry update 1 as read", exact: true })
       .click();
     await expect(
-      page.getByRole("link", { name: "Open notifications, 1 unread", exact: true }),
+      page.getByRole("button", { name: "Open notifications, 1 unread", exact: true }),
     ).toBeVisible();
     await page.getByRole("button", { name: "Mark all read", exact: true }).click();
     await page
@@ -73,7 +73,7 @@ test("large count and collapsed sidebar remain visible without overflow", async 
   state.items = Array.from({ length: 100 }, (_, n) => enquiry(n + 1));
   await page.goto(route);
   await expect(
-    page.getByRole("link", { name: "Open notifications, 100 unread", exact: true }),
+    page.getByRole("button", { name: "Open notifications, 100 unread", exact: true }),
   ).toHaveText("99+");
   await page.getByRole("button", { name: "Collapse sidebar" }).click();
   await expect(
@@ -159,6 +159,8 @@ test("notifications link to the exact conversation and an older review detail", 
   await expect(
     page.getByText("Please remove personal contact information.", { exact: true }),
   ).toBeVisible();
+  expect(state.writes).toEqual([]);
+  await page.getByRole("button", { name: "Mark displayed updates as read", exact: true }).click();
   await expect.poll(() => state.writes.length).toBe(1);
   expect(state.writes[0]).toMatchObject({
     endpoint: "/customers/notifications/read-context",
@@ -181,13 +183,12 @@ test("manual refresh discovers new unread updates and an error never shows a fal
   state.items = [enquiry()];
   await page.getByRole("button", { name: "Refresh inbox", exact: true }).click();
   await expect(
-    page.getByRole("link", { name: "Open notifications, 1 unread", exact: true }),
+    page.getByRole("button", { name: "Open notifications, 1 unread", exact: true }),
   ).toBeVisible();
   state.failInbox = true;
   await page.getByRole("button", { name: "Refresh inbox", exact: true }).click();
   await expect(
-    page.getByRole("link", {
-      name: "Open notifications, unread status unavailable",
+    page.getByRole("button", { name: "Open notifications, unread status unavailable",
       exact: true,
     }),
   ).toBeVisible();

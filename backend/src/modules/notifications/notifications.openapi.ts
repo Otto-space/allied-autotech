@@ -214,9 +214,23 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
       path: `${prefix}/read-all`,
       tags: ["Notifications"],
       summary: "Mark all own notifications as read",
+      description: "Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages.",
       security: [{ sessionCookie: [] }],
       request: { headers: csrf as never },
-      responses: { "200": { description: "Notifications updated" } },
+      responses: { "200": { description: "Notifications updated", content: { "application/json": { schema: response.extend({ data: z.object({ updated: z.number().int().nonnegative(), cutoff: z.iso.datetime() }) }) } } } },
+    });
+    registry.registerPath({
+      method: "post",
+      path: `${prefix}/{notificationId}/unread`,
+      tags: ["Notifications"],
+      summary:
+        "Idempotently mark one owned notification unread without changing its source",
+      security: [{ sessionCookie: [] }],
+      request: { params: notificationParamsSchema as never, headers: csrf as never },
+      responses: {
+        "200": { description: "Owned notification with current authorized projection", content: { "application/json": { schema: response.extend({ data: inboxPage.shape.items.element }) } } },
+        "404": { description: "Notification not owned" },
+      },
     });
     registry.registerPath({
       method: "post",
@@ -225,7 +239,7 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
       summary: "Mark one owned notification as read",
       security: [{ sessionCookie: [] }],
       request: { params: notificationParamsSchema as never, headers: csrf as never },
-      responses: { "200": { description: "Notification updated" } },
+      responses: { "200": { description: "Notification updated", content: { "application/json": { schema: response.extend({ data: inboxPage.shape.items.element }) } } } },
     });
     registry.registerPath({
       method: "get",
@@ -242,6 +256,7 @@ export function registerNotificationsOpenApi(registry: OpenAPIRegistry): void {
               schema: response.extend({
                 data: z.object({
                   immutableCategories: z.array(z.enum(["SECURITY", "TRANSACTIONAL"])),
+                  channels: z.object({ email: z.boolean(), sms: z.boolean(), marketing: z.literal(false) }),
                   preferences: z.array(preferenceResponseSchema),
                 }),
               }),

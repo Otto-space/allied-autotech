@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { BrowserPushSettings } from "./browser-push-settings";
 import { NotificationAttentionQueue } from "./notification-attention-queue";
 import { NotificationArrival } from "./notification-arrival";
@@ -10,7 +10,11 @@ import {
   staffNotificationDestination,
 } from "@/lib/notifications/destinations";
 import { useNotificationAccess } from "@/lib/notifications/access-context";
-import { announceNotificationChange } from "@/lib/notifications/use-notification-summary";
+import {
+  announceNotificationChange,
+  subscribeNotificationChanges,
+} from "@/lib/notifications/use-notification-summary";
+import { notificationLabel as label } from "@/lib/notifications/presentation";
 import { Bell, Check, RefreshCw } from "lucide-react";
 import { ApiError, apiRequest } from "@/lib/api/client";
 import { useResource } from "@/lib/api/use-resource";
@@ -37,7 +41,6 @@ type AccountNotificationProps = {
   userId: string;
   role?: "CUSTOMER" | "STAFF" | "ADMIN" | "SUPER_ADMIN";
 };
-const label = (value: string) => value.toLowerCase().replaceAll("_", " ");
 type WriteGuard = ReturnType<typeof useNotificationWrite>;
 
 function WriteFeedback({
@@ -123,7 +126,7 @@ export function AccountNotificationPreferences({
       description:
         category === "MARKETING" && enabled
           ? "By confirming, you consent to receive marketing messages through this channel. You can turn this preference off later. Marketing delivery is not available yet."
-          : "This changes your preference for future optional messages. It does not recall messages already queued for delivery or change in-app notifications.",
+          : "This changes optional messages before delivery. It does not recall messages already sent or change your in-app inbox.",
       facts: [
         { label: "Category", value: label(category) },
         { label: "Channel", value: channel },
@@ -135,7 +138,7 @@ export function AccountNotificationPreferences({
         setMessage(
           "Delivery preference saved. Message delivery also depends on available contact details and enabled delivery services.",
         );
-        records.refresh();
+        records.revalidate();
       },
     });
   }
@@ -143,10 +146,10 @@ export function AccountNotificationPreferences({
     <section className="cn-preferences" aria-labelledby="notification-preferences-title">
       <header className="cn-preferences-heading">
         <h2 id="notification-preferences-title">Delivery preferences</h2>
-        <p>Choose optional email and SMS updates.</p>
+        <p>Choose optional delivery. Each change is reviewed before it is saved.</p>
       </header>
       <div className="cn-preferences-body">
-        <BrowserPushSettings role={role} />
+        <BrowserPushSettings role={role} userId={userId} />
         <Feedback message={records.error} />
         <Feedback
           message={message}
@@ -167,7 +170,7 @@ export function AccountNotificationPreferences({
                 ? "Original change confirmed. A newer preference is already saved; it has been preserved."
                 : "Preference change confirmed.",
             );
-            records.refresh();
+            records.revalidate();
           }}
         />
         {records.loading && (
@@ -198,7 +201,7 @@ export function AccountNotificationPreferences({
                   (p) => p.category === category && p.channel === channel,
                 );
                 const enabled = preferenceEnabled(category, preference);
-                const title = `${category === "OPERATIONAL" ? "Operational" : "Marketing"} ${channel === "EMAIL" ? "email" : "SMS"}`;
+                const title = `${category === "OPERATIONAL" ? "Service updates by" : "Marketing by"} ${channel === "EMAIL" ? "email" : "SMS"}`;
                 return (
                   <article
                     className="cn-preference"
@@ -208,17 +211,28 @@ export function AccountNotificationPreferences({
                     <div>
                       <h3>{title}</h3>
                       <p>
-                        {enabled ? "Enabled" : "Disabled"}
+                        {enabled ? "On" : "Off"}
                         {!preference ? " (default)" : ""}
+                      </p>
+                      <p>
+                        {category === "MARKETING"
+                          ? "Not sending yet. This records a future preference only."
+                          : records.data?.channels?.[
+                                channel === "EMAIL" ? "email" : "sms"
+                              ] === false
+                            ? "Delivery is currently unavailable. Your preference is still saved."
+                            : "Optional updates about your service and account activity."}
                       </p>
                     </div>
                     <button
                       className="button secondary"
+                      role="switch"
+                      aria-checked={enabled}
                       disabled={guard.disabled}
-                      aria-label={`${enabled ? "Disable" : "Enable"} ${title.toLowerCase()}`}
+                      aria-label={title}
                       onClick={() => review(category, channel, !enabled)}
                     >
-                      {enabled ? "Disable" : "Enable"}
+                      {enabled ? "On" : "Off"}
                     </button>
                   </article>
                 );
@@ -228,7 +242,9 @@ export function AccountNotificationPreferences({
         )}
         <div className="cn-preference-notes">
           <p>
-            Security and transactional messages stay on. In-app updates are unchanged.
+            Required security and transaction messages follow the existing delivery
+            policy. These optional choices do not change them. Your in-app inbox stays
+            available.
           </p>
           <p>Marketing delivery is not available yet. You can record your preference.</p>
           <p>Enabled preferences do not guarantee delivery.</p>
@@ -267,6 +283,17 @@ export function AccountNotificationInbox({
   if (filters.unreadOnly) query.set("unreadOnly", "true");
   if (pagination.cursor) query.set("cursor", pagination.cursor);
   const records = useResource(`${base}?${query}`, parseNotifications);
+  const revalidate = records.revalidate;
+  useEffect(() => subscribeNotificationChanges(userId, revalidate), [userId, revalidate]);
+  const pendingFocus = useRef<{ id: string; read: boolean } | null>(null);
+  useEffect(() => {
+    const desired = pendingFocus.current;
+    if (!desired || records.loading || records.refreshing || !records.data || records.error || records.refreshError) return;
+    const item = records.data.items.find((row) => row.id === desired.id);
+    if (item && !!item.readAt !== desired.read) return;
+    pendingFocus.current = null;
+    (document.getElementById(`notification-action-${desired.id}`) ?? document.getElementById("inbox-title"))?.focus({ preventScroll: true });
+  }, [records.data, records.loading, records.refreshing, records.error, records.refreshError]);
   const guard = useNotificationWrite(userId, "inbox", records, role);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
@@ -278,14 +305,15 @@ export function AccountNotificationInbox({
     setMessage(undefined);
   }
   async function readOne(item: InboxNotification) {
-    if (guard.disabled || proposal || item.readAt) return;
+    if (guard.disabled || proposal) return;
+    const read = !item.readAt;
     setError(undefined);
     setMessage(undefined);
     try {
       await guard.run(async (signal) => {
         const updated = notificationSchema.parse(
           (
-            await apiRequest(`${base}/${item.id}/read`, {
+            await apiRequest(`${base}/${item.id}/${read ? "read" : "unread"}`, {
               method: "POST",
               body: {},
               csrf: true,
@@ -293,13 +321,13 @@ export function AccountNotificationInbox({
             })
           ).data,
         );
-        if (updated.id !== item.id || !updated.readAt)
+        if (updated.id !== item.id || !!updated.readAt !== read)
           throw new Error("Unconfirmed read state");
         return updated;
       });
-      setMessage("Notification marked as read.");
+      setMessage(`Notification marked as ${read ? "read" : "unread"}.`);
+      pendingFocus.current = { id: item.id, read };
       announceNotificationChange(userId);
-      records.refresh();
     } catch (cause) {
       setError(
         cause instanceof ApiError
@@ -347,21 +375,24 @@ export function AccountNotificationInbox({
         <NotificationAttentionQueue role={role} />
       </Suspense>
       <div className="cn-inbox-heading">
-        <h2 id="inbox-title">Inbox</h2>
+        <h2 id="inbox-title" tabIndex={-1}>Inbox</h2>
         <button
           className="button secondary"
           disabled={records.loading || records.refreshing || guard.busy}
           onClick={() => {
             if (guard.pending) clearFilters();
             guard.refresh();
-            announceNotificationChange(userId);
+            announceNotificationChange(userId, false);
           }}
         >
           <RefreshCw size={15} aria-hidden="true" />
           Refresh inbox
         </button>
       </div>
-      <div className="cn-filters">
+      <div className="cn-views" role="group" aria-label="Notification view">
+        {[false, true].map((unreadOnly) => <button key={String(unreadOnly)} className="button secondary" aria-pressed={filters.unreadOnly === unreadOnly} disabled={guard.busy || guard.pending} onClick={() => { setFilters({ ...filters, unreadOnly }); pagination.reset(); setMessage(undefined); }}>{unreadOnly ? "Unread" : "All"}</button>)}
+        <details className="cn-filter-details"><summary>More filters{filters.type || filters.category ? " (active)" : ""}</summary>
+        <div className="cn-filters">
         {(
           [
             { name: "type", title: "Notification type", values: notificationTypes },
@@ -393,19 +424,8 @@ export function AccountNotificationInbox({
             </select>
           </div>
         ))}
-        <label className="check-label">
-          <input
-            type="checkbox"
-            checked={filters.unreadOnly}
-            disabled={guard.busy || guard.pending}
-            onChange={(event) => {
-              setFilters({ ...filters, unreadOnly: event.target.checked });
-              pagination.reset();
-              setMessage(undefined);
-            }}
-          />
-          Unread only
-        </label>
+        </div>
+        </details>
       </div>
       <div className="cn-toolbar">
         <span>{filtered ? "Filtered updates" : "Latest updates"}</span>
@@ -487,7 +507,10 @@ export function AccountNotificationInbox({
                 <h3 id={`notification-${item.id}`}>{item.title}</h3>
                 <p className="cn-message">{item.message}</p>
                 <div className="cn-row-footer">
-                  <time dateTime={item.createdAt}>
+                  <time
+                    dateTime={item.createdAt}
+                    title={formatBusinessDate(item.createdAt)}
+                  >
                     {formatBusinessDate(item.createdAt)}
                   </time>
                   {destination && (
@@ -500,34 +523,37 @@ export function AccountNotificationInbox({
                       {destination.label}
                     </Link>
                   )}
-                  {!item.readAt && (
+                  {
                     <button
                       className="button secondary"
                       disabled={guard.disabled}
-                      aria-label={`Mark ${item.title} as read`}
+                      id={`notification-action-${item.id}`}
+                      aria-label={`Mark ${item.title} as ${item.readAt ? "unread" : "read"}`}
                       onClick={() => void readOne(item)}
                     >
-                      Mark as read
+                      Mark as {item.readAt ? "unread" : "read"}
                     </button>
-                  )}
+                  }
                 </div>
               </article>
             );
           })}
         </div>
       )}
-      <CursorPagination
-        pagination={pagination}
-        nextCursor={!records.error ? records.data?.nextCursor : undefined}
-        disabled={
-          guard.busy ||
-          guard.pending ||
-          records.loading ||
-          records.refreshing ||
-          !!records.refreshError
-        }
-        label="Notification"
-      />
+      {(pagination.page > 1 || records.data?.nextCursor) && (
+        <CursorPagination
+          pagination={pagination}
+          nextCursor={!records.error ? records.data?.nextCursor : undefined}
+          disabled={
+            guard.busy ||
+            guard.pending ||
+            records.loading ||
+            records.refreshing ||
+            !!records.refreshError
+          }
+          label="Notification"
+        />
+      )}
       {proposal && (
         <MutationReview
           proposal={proposal}

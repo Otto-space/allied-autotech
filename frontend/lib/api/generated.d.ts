@@ -3261,7 +3261,7 @@ export interface paths {
         };
         /**
          * List branch vehicle inventory; acquisition costs are administrator-only
-         * @description Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with status. Listing status matches any stored listing on a record, including history. Existing createdAt/ID descending cursor paging is retained. The stock UI uses search, exact make/model, year, branch and listing filters only; inherited public-discovery price/specification/sort parameters require a separate stock-query contract audit. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with listing-specific filters. Status, featured and price bounds must match the same stored listing, including history. Newest, year and mileage sorts use an ID tie-breaker and cursor paging; price sorting is not accepted because a stock record can have multiple historical listing prices. The stock UI currently exposes search, exact make/model, year, branch and listing filters. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
          */
         get: operations["getStaffVehicles"];
         put?: never;
@@ -5247,9 +5247,29 @@ export interface paths {
         put?: never;
         /**
          * Mark all own notifications as read
-         * @description Mark all own notifications as read. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages. Mark all own notifications as read. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postCustomersNotificationsReadAll"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/notifications/{notificationId}/unread": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Idempotently mark one owned notification unread without changing its source
+         * @description Idempotently mark one owned notification unread without changing its source. Access boundary: authenticated-customer. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postCustomersNotificationsByNotificationIdUnread"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5459,9 +5479,29 @@ export interface paths {
         put?: never;
         /**
          * Mark all own notifications as read
-         * @description Mark all own notifications as read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         * @description Marks the whole owned inbox, independent of filters and pagination, through the returned server cutoff. Notifications created after that cutoff remain unread. Does not change business records or send messages. Mark all own notifications as read. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
          */
         post: operations["postStaffNotificationsReadAll"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/notifications/{notificationId}/unread": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Idempotently mark one owned notification unread without changing its source
+         * @description Idempotently mark one owned notification unread without changing its source. Access boundary: mfa-verified-staff. Requires the opaque session cookie. Requires a current session-bound CSRF header. This operation has no idempotency-key contract.
+         */
+        post: operations["postStaffNotificationsByNotificationIdUnread"];
         delete?: never;
         options?: never;
         head?: never;
@@ -58486,7 +58526,7 @@ export interface operations {
                  * @description Sort used to constrain this request.
                  * @example newest
                  */
-                sort?: "newest" | "price_asc" | "price_desc" | "year_desc" | "year_asc" | "mileage_asc" | "mileage_desc";
+                sort?: "newest" | "year_desc" | "year_asc" | "mileage_asc" | "mileage_desc";
                 /**
                  * @description Status used to constrain this request.
                  * @example DRAFT
@@ -88470,8 +88510,8 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Mark all own notifications as read",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "updated": "2030-01-15T10:00:00.000Z",
+                     *         "cutoff": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -88483,22 +88523,20 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            updated: number;
+                            /**
+                             * Format: date-time
+                             * @description Cutoff validated by this operation's strict request contract.
+                             */
+                            cutoff: string;
+                        };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
                             /** @description Identifier of the request resource; ownership is resolved server-side. */
                             requestId: string;
-                        };
-                        /** @description Authorized response projection for: Mark all own notifications as read. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
                         };
                     };
                 };
@@ -88673,6 +88711,299 @@ export interface operations {
             };
         };
     };
+    postCustomersNotificationsByNotificationIdUnread: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the notification resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Idempotently mark one owned notification unread without changing its source. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Idempotently mark one owned notification unread without changing its source",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "destination": {
+                     *           "section": "synthetic-section",
+                     *           "href": "synthetic-href",
+                     *           "label": "synthetic-label"
+                     *         },
+                     *         "type": "synthetic-type",
+                     *         "category": "synthetic-category",
+                     *         "title": "synthetic-title",
+                     *         "message": "synthetic-message",
+                     *         "resourceType": "synthetic-resourcetype",
+                     *         "resourceId": "synthetic-resourceid",
+                     *         "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "readAt": "2030-01-15T10:00:00.000Z",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Destination validated by this operation's strict request contract. */
+                            destination: {
+                                /** @description Section validated by this operation's strict request contract. */
+                                section: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                            } | null;
+                            /** @description Type validated by this operation's strict request contract. */
+                            type: string;
+                            /** @description Category validated by this operation's strict request contract. */
+                            category: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            message: string;
+                            /** @description Resource Type validated by this operation's strict request contract. */
+                            resourceType: string | null;
+                            /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                            resourceId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the support message resource; ownership is resolved server-side.
+                             */
+                            supportMessageId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            readAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Notification not owned */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     postCustomersNotificationsByNotificationIdRead: {
         parameters: {
             query?: never;
@@ -88706,7 +89037,21 @@ export interface operations {
                      *       "message": "Mark one owned notification as read",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "destination": {
+                     *           "section": "synthetic-section",
+                     *           "href": "synthetic-href",
+                     *           "label": "synthetic-label"
+                     *         },
+                     *         "type": "synthetic-type",
+                     *         "category": "synthetic-category",
+                     *         "title": "synthetic-title",
+                     *         "message": "synthetic-message",
+                     *         "resourceType": "synthetic-resourcetype",
+                     *         "resourceId": "synthetic-resourceid",
+                     *         "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "readAt": "2030-01-15T10:00:00.000Z",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -88718,22 +89063,59 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Destination validated by this operation's strict request contract. */
+                            destination: {
+                                /** @description Section validated by this operation's strict request contract. */
+                                section: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                            } | null;
+                            /** @description Type validated by this operation's strict request contract. */
+                            type: string;
+                            /** @description Category validated by this operation's strict request contract. */
+                            category: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            message: string;
+                            /** @description Resource Type validated by this operation's strict request contract. */
+                            resourceType: string | null;
+                            /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                            resourceId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the support message resource; ownership is resolved server-side.
+                             */
+                            supportMessageId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            readAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                        };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
                             /** @description Identifier of the request resource; ownership is resolved server-side. */
                             requestId: string;
-                        };
-                        /** @description Authorized response projection for: Mark one owned notification as read. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
                         };
                     };
                 };
@@ -88952,6 +89334,11 @@ export interface operations {
                      *         "immutableCategories": [
                      *           "SECURITY"
                      *         ],
+                     *         "channels": {
+                     *           "email": "customer@example.test",
+                     *           "sms": true,
+                     *           "marketing": false
+                     *         },
                      *         "preferences": [
                      *           {
                      *             "category": "OPERATIONAL",
@@ -88977,6 +89364,18 @@ export interface operations {
                         data: {
                             /** @description Immutable Categories validated by this operation's strict request contract. */
                             immutableCategories: ("SECURITY" | "TRANSACTIONAL")[];
+                            /** @description Channels validated by this operation's strict request contract. */
+                            channels: {
+                                /** @description Normalized account email address. */
+                                email: boolean;
+                                /** @description Sms validated by this operation's strict request contract. */
+                                sms: boolean;
+                                /**
+                                 * @description Marketing validated by this operation's strict request contract.
+                                 * @enum {boolean}
+                                 */
+                                marketing: false;
+                            };
                             /** @description Preferences validated by this operation's strict request contract. */
                             preferences: {
                                 /**
@@ -91757,8 +92156,8 @@ export interface operations {
                      *       "success": true,
                      *       "message": "Mark all own notifications as read",
                      *       "data": {
-                     *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "updated": "2030-01-15T10:00:00.000Z",
+                     *         "cutoff": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -91770,22 +92169,20 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description ISO 8601 timestamp interpreted and validated by the server. */
+                            updated: number;
+                            /**
+                             * Format: date-time
+                             * @description Cutoff validated by this operation's strict request contract.
+                             */
+                            cutoff: string;
+                        };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
                             /** @description Identifier of the request resource; ownership is resolved server-side. */
                             requestId: string;
-                        };
-                        /** @description Authorized response projection for: Mark all own notifications as read. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
                         };
                     };
                 };
@@ -91960,6 +92357,299 @@ export interface operations {
             };
         };
     };
+    postStaffNotificationsByNotificationIdUnread: {
+        parameters: {
+            query?: never;
+            header: {
+                /**
+                 * @description Session-bound CSRF token obtained from POST /auth/csrf; keep it in memory only.
+                 * @example synthetic-token-value-not-a-real-secret
+                 */
+                "x-csrf-token": string;
+            };
+            path: {
+                /**
+                 * @description Identifier selecting the notification resource.
+                 * @example 00000000-0000-4000-8000-000000000001
+                 */
+                notificationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Idempotently mark one owned notification unread without changing its source. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Idempotently mark one owned notification unread without changing its source",
+                     *       "data": {
+                     *         "id": "00000000-0000-4000-8000-000000000001",
+                     *         "destination": {
+                     *           "section": "synthetic-section",
+                     *           "href": "synthetic-href",
+                     *           "label": "synthetic-label"
+                     *         },
+                     *         "type": "synthetic-type",
+                     *         "category": "synthetic-category",
+                     *         "title": "synthetic-title",
+                     *         "message": "synthetic-message",
+                     *         "resourceType": "synthetic-resourcetype",
+                     *         "resourceId": "synthetic-resourceid",
+                     *         "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "readAt": "2030-01-15T10:00:00.000Z",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Destination validated by this operation's strict request contract. */
+                            destination: {
+                                /** @description Section validated by this operation's strict request contract. */
+                                section: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                            } | null;
+                            /** @description Type validated by this operation's strict request contract. */
+                            type: string;
+                            /** @description Category validated by this operation's strict request contract. */
+                            category: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            message: string;
+                            /** @description Resource Type validated by this operation's strict request contract. */
+                            resourceType: string | null;
+                            /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                            resourceId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the support message resource; ownership is resolved server-side.
+                             */
+                            supportMessageId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            readAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A valid session and required assurance are missing. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A valid session and required assurance are missing.",
+                     *       "error": {
+                     *         "code": "UNAUTHORIZED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The actor is not authorized for this resource or action. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The actor is not authorized for this resource or action.",
+                     *       "error": {
+                     *         "code": "FORBIDDEN"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Notification not owned */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The request conflicts with current state or idempotency. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request conflicts with current state or idempotency.",
+                     *       "error": {
+                     *         "code": "CONFLICT"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     postStaffNotificationsByNotificationIdRead: {
         parameters: {
             query?: never;
@@ -91993,7 +92683,21 @@ export interface operations {
                      *       "message": "Mark one owned notification as read",
                      *       "data": {
                      *         "id": "00000000-0000-4000-8000-000000000001",
-                     *         "status": "synthetic-status"
+                     *         "destination": {
+                     *           "section": "synthetic-section",
+                     *           "href": "synthetic-href",
+                     *           "label": "synthetic-label"
+                     *         },
+                     *         "type": "synthetic-type",
+                     *         "category": "synthetic-category",
+                     *         "title": "synthetic-title",
+                     *         "message": "synthetic-message",
+                     *         "resourceType": "synthetic-resourcetype",
+                     *         "resourceId": "synthetic-resourceid",
+                     *         "supportMessageId": "00000000-0000-4000-8000-000000000001",
+                     *         "readAt": "2030-01-15T10:00:00.000Z",
+                     *         "expiresAt": "2030-01-15T10:00:00.000Z",
+                     *         "createdAt": "2030-01-15T10:00:00.000Z"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -92005,22 +92709,59 @@ export interface operations {
                         success: boolean;
                         /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
                         message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the id resource; ownership is resolved server-side.
+                             */
+                            id: string;
+                            /** @description Destination validated by this operation's strict request contract. */
+                            destination: {
+                                /** @description Section validated by this operation's strict request contract. */
+                                section: string;
+                                /** @description Href validated by this operation's strict request contract. */
+                                href: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                            } | null;
+                            /** @description Type validated by this operation's strict request contract. */
+                            type: string;
+                            /** @description Category validated by this operation's strict request contract. */
+                            category: string;
+                            /** @description Title validated by this operation's strict request contract. */
+                            title: string;
+                            /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                            message: string;
+                            /** @description Resource Type validated by this operation's strict request contract. */
+                            resourceType: string | null;
+                            /** @description Identifier of the resource resource; ownership is resolved server-side. */
+                            resourceId: string | null;
+                            /**
+                             * Format: uuid
+                             * @description Identifier of the support message resource; ownership is resolved server-side.
+                             */
+                            supportMessageId: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            readAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            expiresAt: string | null;
+                            /**
+                             * Format: date-time
+                             * @description ISO 8601 timestamp interpreted and validated by the server.
+                             */
+                            createdAt: string;
+                        };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
                             /** @description Identifier of the request resource; ownership is resolved server-side. */
                             requestId: string;
-                        };
-                        /** @description Authorized response projection for: Mark one owned notification as read. */
-                        data?: {
-                            /**
-                             * Format: uuid
-                             * @description Public or authorized resource identifier.
-                             */
-                            id?: string;
-                            /** @description Current server-owned lifecycle state when applicable. */
-                            status?: string;
-                        } & {
-                            [key: string]: unknown;
                         };
                     };
                 };
@@ -92239,6 +92980,11 @@ export interface operations {
                      *         "immutableCategories": [
                      *           "SECURITY"
                      *         ],
+                     *         "channels": {
+                     *           "email": "customer@example.test",
+                     *           "sms": true,
+                     *           "marketing": false
+                     *         },
                      *         "preferences": [
                      *           {
                      *             "category": "OPERATIONAL",
@@ -92264,6 +93010,18 @@ export interface operations {
                         data: {
                             /** @description Immutable Categories validated by this operation's strict request contract. */
                             immutableCategories: ("SECURITY" | "TRANSACTIONAL")[];
+                            /** @description Channels validated by this operation's strict request contract. */
+                            channels: {
+                                /** @description Normalized account email address. */
+                                email: boolean;
+                                /** @description Sms validated by this operation's strict request contract. */
+                                sms: boolean;
+                                /**
+                                 * @description Marketing validated by this operation's strict request contract.
+                                 * @enum {boolean}
+                                 */
+                                marketing: false;
+                            };
                             /** @description Preferences validated by this operation's strict request contract. */
                             preferences: {
                                 /**

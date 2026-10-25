@@ -102,7 +102,8 @@ describe.skipIf(process.env.RUN_TEAM_PUSH_TESTS !== "true")(
       if (
         env.NODE_ENV !== "test" ||
         env.DB_HOST !== "127.0.0.1" ||
-        env.DB_NAME !== "allied_team_push_20261023_ci"
+        (env.DB_NAME !== "allied_team_push_20261023_ci" &&
+          !/^allied_notifications_20261025_[a-f0-9]{12}_ci$/.test(env.DB_NAME))
       )
         throw new Error("Requires the isolated team push target");
       const [actual] = await prisma.$queryRaw<

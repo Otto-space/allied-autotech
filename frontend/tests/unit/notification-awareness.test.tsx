@@ -12,6 +12,7 @@ import {
 import {
   useNotificationSummary,
   announceNotificationChange,
+  subscribeNotificationChanges,
 } from "@/lib/notifications/use-notification-summary";
 import { apiRequest, SESSION_CHANGED } from "@/lib/api/client";
 import type { SessionState } from "@/lib/api/types";
@@ -157,6 +158,13 @@ describe("notification destinations", () => {
   });
 });
 describe("account-scoped notification status", () => {
+  it("summary-only refresh does not replace an intentional foreground inbox refresh", () => {
+    const listener = vi.fn(); const unsubscribe = subscribeNotificationChanges("one", listener);
+    announceNotificationChange("one", false); expect(listener).not.toHaveBeenCalled();
+    announceNotificationChange("other"); expect(listener).not.toHaveBeenCalled();
+    announceNotificationChange("one"); expect(listener).toHaveBeenCalledTimes(1);
+    unsubscribe();
+  });
   it("does not fetch before sign-in and refreshes after a confirmed read change", async () => {
     vi.mocked(apiRequest).mockResolvedValue({
       success: true,

@@ -1,3 +1,4 @@
+import { enqueueNotification } from "../notifications/notifications.service.js";
 import { randomUUID } from "node:crypto";
 
 import type { PrismaClient } from "../../generated/prisma/client.js";
@@ -540,6 +541,16 @@ export class IdentityService {
           userAgent: safeUserAgent(context.userAgent),
         },
       });
+      await enqueueNotification(tx, {
+        userId: token.userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "Your password was reset",
+        message:
+          "Your password was reset and existing sessions were signed out. If this was not you, review your account security and contact Allied AutoTech.",
+        deduplicationKey: `security:password-reset:${token.id}`,
+        channels: [],
+      });
     });
   }
 
@@ -558,32 +569,44 @@ export class IdentityService {
     }
     const now = new Date();
     const passwordHash = await hashPassword(input.newPassword);
-    await this.database.$transaction([
-      this.database.user.update({
-        where: { id: userId },
-        data: { passwordHash, passwordChangedAt: now },
-      }),
-      this.database.session.updateMany({
-        where: { userId, id: { not: sessionId }, revokedAt: null },
-        data: { revokedAt: now },
-      }),
-      this.database.passwordResetToken.updateMany({
-        where: { userId, usedAt: null, revokedAt: null },
-        data: { revokedAt: now },
-      }),
-      this.database.auditLog.create({
-        data: {
-          userId,
-          action: "UPDATE",
-          entityType: "USER",
-          entityId: userId,
-          requestId: context.requestId,
-          ipAddress: context.ipAddress,
-          userAgent: safeUserAgent(context.userAgent),
-          newValues: { passwordChanged: true, otherSessionsRevoked: true },
-        },
-      }),
-    ]);
+    await this.database.$transaction(async (tx) => {
+      await Promise.all([
+        tx.user.update({
+          where: { id: userId },
+          data: { passwordHash, passwordChangedAt: now },
+        }),
+        tx.session.updateMany({
+          where: { userId, id: { not: sessionId }, revokedAt: null },
+          data: { revokedAt: now },
+        }),
+        tx.passwordResetToken.updateMany({
+          where: { userId, usedAt: null, revokedAt: null },
+          data: { revokedAt: now },
+        }),
+        tx.auditLog.create({
+          data: {
+            userId,
+            action: "UPDATE",
+            entityType: "USER",
+            entityId: userId,
+            requestId: context.requestId,
+            ipAddress: context.ipAddress,
+            userAgent: safeUserAgent(context.userAgent),
+            newValues: { passwordChanged: true, otherSessionsRevoked: true },
+          },
+        }),
+      ]);
+      await enqueueNotification(tx, {
+        userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "Your password changed",
+        message:
+          "Your password was changed and other sessions were signed out. If this was not you, review your account security and contact Allied AutoTech.",
+        deduplicationKey: `security:password-change:${userId}:${now.toISOString()}`,
+        channels: [],
+      });
+    });
     const currentSession = await this.database.session.findFirst({
       where: { id: sessionId, userId, revokedAt: null },
       select: { mfaRequired: true, mfaVerifiedAt: true },
@@ -994,6 +1017,16 @@ export class IdentityService {
           entityType: "MFA_FACTOR",
           entityId: factorId,
         },
+      });
+      await enqueueNotification(tx, {
+        userId,
+        type: "SYSTEM",
+        category: "SECURITY",
+        title: "A sign-in method was removed",
+        message:
+          "A multi-factor sign-in method was removed from your account. Review account security if you did not make this change.",
+        deduplicationKey: `security:factor-removed:${factorId}`,
+        channels: [],
       });
     });
   }

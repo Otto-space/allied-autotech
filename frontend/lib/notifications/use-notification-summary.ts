@@ -8,11 +8,27 @@ import {
 import type { SessionState } from "@/lib/api/types";
 
 const changed = "aat-notifications-changed";
-export function announceNotificationChange(userId: string) {
-  window.dispatchEvent(new CustomEvent(changed, { detail: userId }));
+export function subscribeNotificationChanges(userId: string, listener: () => void) {
+  const updated = (event: Event) => {
+    if (event instanceof CustomEvent && event.detail === userId) listener();
+  };
+  const channel =
+    typeof BroadcastChannel !== "undefined" ? new BroadcastChannel(changed) : null;
+  if (channel)
+    channel.onmessage = (event) => {
+      if (event.data?.userId === userId && event.data?.summaryOnly !== true) listener();
+    };
+  window.addEventListener(changed, updated);
+  return () => {
+    channel?.close();
+    window.removeEventListener(changed, updated);
+  };
+}
+export function announceNotificationChange(userId: string, refreshInbox = true) {
+  window.dispatchEvent(new CustomEvent(changed, { detail: refreshInbox ? userId : { userId, summaryOnly: true } }));
   if (typeof BroadcastChannel !== "undefined") {
     const channel = new BroadcastChannel(changed);
-    channel.postMessage({ userId });
+    channel.postMessage({ userId, ...(!refreshInbox ? { summaryOnly: true } : {}) });
     channel.close();
   }
 }
@@ -32,9 +48,11 @@ export function useNotificationSummary(session: SessionState | null) {
     let active = true;
     let request: AbortController | undefined;
     let lastAttempt = 0;
+    let failures = 0;
+    let nextPoll = 0;
     async function refresh(force = false) {
       if (!active || document.visibilityState === "hidden" || !navigator.onLine) return;
-      if (!force && Date.now() - lastAttempt < 1000) return;
+      if (!force && (Date.now() - lastAttempt < 1000 || Date.now() < nextPoll)) return;
       lastAttempt = Date.now();
       request?.abort();
       const controller = new AbortController();
@@ -42,17 +60,28 @@ export function useNotificationSummary(session: SessionState | null) {
       try {
         const response = await apiRequest(base!, { signal: controller.signal });
         const data = notificationSummarySchema.parse(response.data);
-        if (active && !controller.signal.aborted) setState({ scope: scope!, data });
+        if (active && !controller.signal.aborted) {
+          failures = 0;
+          nextPoll = 0;
+          setState({ scope: scope!, data });
+        }
       } catch {
-        if (active && !controller.signal.aborted)
+        if (active && !controller.signal.aborted) {
+          failures++;
+          nextPoll =
+            Date.now() + Math.min(300_000, 30_000 * 2 ** Math.min(failures - 1, 4));
           setState({ scope: scope!, unavailable: true });
+        }
       }
     }
     const visible = () => {
+      void refresh(true);
+    };
+    const poll = () => {
       void refresh();
     };
     const updated = (event: Event) => {
-      if (event instanceof CustomEvent && event.detail === userId) void refresh(true);
+      if (event instanceof CustomEvent && (event.detail === userId || event.detail?.userId === userId)) void refresh(true);
     };
     const discard = () => {
       active = false;
@@ -66,7 +95,7 @@ export function useNotificationSummary(session: SessionState | null) {
         if (event.data?.userId === userId) void refresh(true);
       };
     void refresh(true);
-    const timer = window.setInterval(visible, 30_000);
+    const timer = window.setInterval(poll, 30_000);
     window.addEventListener("focus", visible);
     window.addEventListener("online", visible);
     window.addEventListener(changed, updated);
