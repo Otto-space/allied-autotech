@@ -52,6 +52,9 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   all four verified images; read-only predeploy passed and 64 migrations compatible.
 - Current frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
   assigned to both main and www domains on 24 October 2026. Recheck before changes.
+- Current stock-query audit worktree: `C:/Users/PC/.codex/worktrees/allied-staff-vehicle-filters-20261024`,
+  branch `fix/staff-vehicle-filters-20261024`, based on `c3f4076f`. Its backend
+  changes are local until release checks and a matching backend rollout complete.
 - Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
   worktree. Earlier release pointers/checkpoints below describe their historical state.
 
@@ -888,3 +891,17 @@ header/auth runtime code was untouched. Follow up on the fixture and the
 customer toast separately. No real authenticated role journey or live provider
 transaction was claimed for this release. Item 6 and owner/operational
 dependencies remain open.
+
+25 October stock-query audit: `GET /staff/vehicles` accepted featured,
+price-bound and year/mileage sort parameters but ignored them. The isolated
+worktree now applies listing filters to the same stored listing (including
+history), rejects price sorting and incompatible unlisted combinations, and
+uses deterministic cursor sorting for newest/year/mileage. Its stock UI has
+not changed. TypeScript, full backend lint/format, route coverage (407
+operations), generated OpenAPI validation (347 paths), and 3/3 focused
+integration tests passed after clean migration replay in a new
+`aat_stock_*_test` PostgreSQL database. The disposable database container was
+removed. No application database or production backend was written. Backend
+promotion still requires the current target's read-only database check,
+backup/restore evidence and deployment verification. Item 6 remains open for
+real catalogue publication and authenticated staff acceptance.
