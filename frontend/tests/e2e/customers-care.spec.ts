@@ -73,16 +73,59 @@ for (const width of [360, 390, 768, 1024, 1440])
     const before = await first.boundingBox();
     await first.getByRole("button", { name: "Copy customer email", exact: true }).focus();
     await page.keyboard.press("Enter");
-    await expect(first.getByRole("status")).toHaveText("Copied");
+    await expect(first.getByRole("status").filter({ hasText: "Copied" })).toHaveText(
+      "Copied",
+    );
     expect(
       await page.evaluate(() => (window as unknown as { lastCopied: string }).lastCopied),
     ).toBe("directory-0@example.test");
     expect(new URL(page.url()).pathname).toBe("/admin/customers");
     expect((await first.boundingBox())!.width).toBe(before!.width);
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-    ).toBe(true);
     await page.screenshot({ path: path.join(shots, `customers-${width}.png`) });
+    const bounds = await page.evaluate(() => ({
+      viewport: innerWidth,
+      scrollX,
+      document: document.documentElement.scrollWidth,
+      offenders: [...document.querySelectorAll("body *")]
+        .filter((el) => {
+          if (
+            el.getBoundingClientRect().right <= innerWidth + 1 ||
+            getComputedStyle(el).clipPath !== "none"
+          )
+            return false;
+          let parent = el.parentElement;
+          while (parent && parent !== document.body) {
+            if (
+              ["auto", "scroll", "hidden", "clip"].includes(
+                getComputedStyle(parent).overflowX,
+              )
+            )
+              return false;
+            parent = parent.parentElement;
+          }
+          return true;
+        })
+        .slice(0, 12)
+        .map((el) => ({
+          tag: el.tagName,
+          class: el.className,
+          x: el.getBoundingClientRect().x,
+          right: el.getBoundingClientRect().right,
+          position: getComputedStyle(el).position,
+        })),
+      parts: [
+        ...document.querySelectorAll(
+          ".dashboard-content,.work-customers,.wc-records,.wi-filters,.wc-filter-grid,.wi-header,.wi-band,.wi-pagination",
+        ),
+      ].map((el) => ({
+        class: el.className,
+        width: el.getBoundingClientRect().width,
+        scroll: el.scrollWidth,
+        min: getComputedStyle(el).minWidth,
+        display: getComputedStyle(el).display,
+      })),
+    }));
+    expect(bounds.document, JSON.stringify(bounds)).toBeLessThanOrEqual(bounds.viewport);
     await workThreadFixture(page);
     await page.goto(`/admin/support/complaints/${bookingId(60000)}`);
     await expect(page.locator(".wst-messages .support-timeline-entry")).toHaveCount(3);
@@ -127,7 +170,9 @@ test("clipboard rejection keeps manual selection and never reports success", asy
   const row = page.locator("tbody tr").first();
   await row.hover();
   await row.getByRole("button", { name: "Copy customer email" }).click();
-  await expect(row.getByRole("status")).toContainText("Copy unavailable");
+  await expect(
+    row.getByRole("status").filter({ hasText: "Copy unavailable" }),
+  ).toContainText("Copy unavailable");
   expect(await page.evaluate(() => getSelection()?.toString())).toBe(
     "directory-0@example.test",
   );
@@ -142,7 +187,12 @@ for (const role of ["ADMIN", "SUPER_ADMIN"])
     let writes = 0;
     await page.route("**/api/v1/auth/csrf", (route) =>
       route.fulfill({
-        json: { success: true, data: { csrfToken: "fixture-token-".repeat(6) } },
+        json: {
+          success: true,
+          message: "Synthetic care response",
+          meta: { requestId: "care-fixture" },
+          data: { csrfToken: "fixture-token-".repeat(6) },
+        },
       }),
     );
     await page.route("**/api/v1/admin/customers/*/account-status", async (route) => {
@@ -154,6 +204,8 @@ for (const role of ["ADMIN", "SUPER_ADMIN"])
       await route.fulfill({
         json: {
           success: true,
+          message: "Synthetic care response",
+          meta: { requestId: "care-fixture" },
           data: {
             customerId: f.customers.records[0].id,
             status: body.status,
@@ -164,6 +216,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"])
     });
     await page.goto("/admin/customers");
     let first = page.locator("tbody tr").first();
+    await first.getByText("Account", { exact: true }).click();
     await first.getByRole("button", { name: /Suspend account/ }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toContainText("financial obligations are preserved");
@@ -176,6 +229,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"])
     first = page.locator("tbody tr").first();
     await expect(first).toContainText("Suspended");
     expect(writes).toBe(1);
+    await first.getByText("Account", { exact: true }).click();
     await first.getByRole("button", { name: /Reactivate account/ }).click();
     await page
       .getByRole("dialog")
@@ -207,7 +261,7 @@ test("directory filters and paging survive explicit detail return and reload", a
     "Synthetic Customer",
   );
   await page.getByRole("link", { name: "Back to customers", exact: true }).click();
-  expect(new URL(page.url()).search).toBe(query);
+  await expect.poll(() => new URL(page.url()).search).toBe(query);
   await page.reload();
   await expect(page.locator("tbody tr")).toHaveCount(3);
 });
@@ -251,7 +305,14 @@ test("persistent delivery dismissal retains failure indicators and resurfaces ch
             ) || item.noticeDismissed,
         }));
       }
-      await route.fulfill({ json: { success: true, data: { items } } });
+      await route.fulfill({
+        json: {
+          success: true,
+          message: "Synthetic care response",
+          meta: { requestId: "care-fixture" },
+          data: { items },
+        },
+      });
     },
   );
   await page.goto(`/admin/support/complaints/${bookingId(60000)}`);
@@ -274,7 +335,11 @@ test("persistent delivery dismissal retains failure indicators and resurfaces ch
   await expect(notices).toBeVisible();
   reject = true;
   await notices.getByRole("button", { name: /Dismiss delivery notice/ }).click();
-  await expect(page.getByRole("alert")).toContainText("could not be confirmed");
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "Delivery notices could not be confirmed" }),
+  ).toContainText("could not be confirmed");
   await expect(notices).toBeVisible();
 });
 
@@ -298,7 +363,8 @@ test("customer creation is focused, drafts survive close/reopen, and staff metad
 test("managed Customer Service keeps scoped conversation and next action ahead of delivery history", async ({
   page,
 }) => {
-  await workforceEnquiriesFixture(page, "CUSTOMER_SERVICE");
+  const state = await workforceEnquiriesFixture(page, "CUSTOMER_SERVICE");
+  state.emailDeliveries.items = [emailNotice() as never];
   await page.goto("/admin/workforce/enquiries?selected=" + enquiryFixtureId(1));
   await expect(
     page.getByRole("heading", { name: "Toyota Corolla inspection", exact: true }),
@@ -310,5 +376,85 @@ test("managed Customer Service keeps scoped conversation and next action ahead o
     page.getByRole("button", { name: "Review reply", exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: /Suspend account/ })).toHaveCount(0);
+  await expect(page.getByText("Synthetic customer", { exact: true })).toBeVisible();
+  const notice = page.getByLabel("Visible delivery notices");
+  await notice.getByRole("button", { name: /Dismiss delivery notice/ }).click();
+  await expect(notice).toHaveCount(0);
+  await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Toyota Corolla inspection", exact: true }),
+  ).toBeVisible();
+  await expect(notice).toHaveCount(0);
+  await expect(page.getByText("1 failed email update", { exact: true })).toBeVisible();
   await page.screenshot({ path: path.join(shots, "managed-care.png") });
+});
+
+test("short desktop, long contacts and 200 percent CSS zoom retain table containment", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  const state = await workCustomersFixture(page);
+  state.customers.records[0].firstName =
+    "Synthetic long customer name with several family names";
+  state.customers.records[0].email = "long.".repeat(20) + "customer@example.test";
+  state.customers.records[0].phone = "";
+  await page.goto("/admin/customers");
+  await expect(page.locator("tbody tr")).toHaveCount(25);
+  await page.screenshot({ path: path.join(shots, "customers-1366-long.png") });
+  const desktop = await page.locator(".wc-filter-grid").evaluate((el) => ({
+    columns: getComputedStyle(el).gridTemplateColumns,
+    height: el.getBoundingClientRect().height,
+  }));
+  expect(
+    (await page.locator("tbody tr").nth(2).boundingBox())!.y,
+    JSON.stringify(desktop),
+  ).toBeLessThan(768);
+  await expect(page.locator("tbody tr").first()).toContainText("Not provided");
+  const tones = await page.locator("tbody tr [data-status]").evaluateAll((nodes) =>
+    nodes.slice(0, 3).map((el) => {
+      const s = getComputedStyle(el);
+      return [s.color, s.backgroundColor];
+    }),
+  );
+  const lum = (rgb: string) => {
+    const values = rgb
+      .match(/\d+/g)!
+      .slice(0, 3)
+      .map(Number)
+      .map((v) => {
+        const c = v / 255;
+        return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+      });
+    return 0.2126 * values[0] + 0.7152 * values[1] + 0.0722 * values[2];
+  };
+  for (const [ink, fill] of tones)
+    expect(
+      (Math.max(lum(ink), lum(fill)) + 0.05) / (Math.min(lum(ink), lum(fill)) + 0.05),
+    ).toBeGreaterThanOrEqual(4.5);
+  await page.screenshot({ path: path.join(shots, "customers-1366-long.png") });
+  await page.evaluate(() => {
+    document.body.style.zoom = "2";
+  });
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+  ).toBe(true);
+  await page.getByRole("region", { name: "Customer results" }).focus();
+  await expect(page.getByRole("region", { name: "Customer results" })).toBeFocused();
+});
+
+test.describe("touch copy discoverability", () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test("copy and account controls are available without hovering", async ({ page }) => {
+    await workCustomersFixture(page);
+    await page.goto("/admin/customers");
+    const first = page.locator("tbody tr").first();
+    const copy = first.getByRole("button", { name: "Copy customer email" });
+    await expect(copy).toHaveCSS("opacity", "1");
+    await first.getByText("Account", { exact: true }).tap();
+    await expect(first.getByRole("button", { name: /Suspend account/ })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(
+      first.getByRole("button", { name: /Suspend account/ }),
+    ).not.toBeVisible();
+  });
 });

@@ -105,7 +105,12 @@ export async function dismissSupportDeliveryNotices(
   // Serialize with worker updates; provider revisions arriving afterwards remain
   // new notices. Lock only explicitly reviewed delivery records, in stable order.
   await tx.$queryRaw(
-    Prisma.sql`SELECT "id" FROM "OutboxEvent" WHERE "id" IN (${Prisma.join(input.notices.map((n) => n.id).sort().map((key) => Prisma.sql`${key}::uuid`))}) AND "aggregateId" = ${id} AND "aggregateType" = ${supportCustomerEmailAggregate} AND "eventType" = ${supportCustomerEmailEvent} ORDER BY "id" FOR UPDATE`,
+    Prisma.sql`SELECT "id" FROM "OutboxEvent" WHERE "id" IN (${Prisma.join(
+      input.notices
+        .map((n) => n.id)
+        .sort()
+        .map((key) => Prisma.sql`${key}::uuid`),
+    )}) AND "aggregateId" = ${id} AND "aggregateType" = ${supportCustomerEmailAggregate} AND "eventType" = ${supportCustomerEmailEvent} ORDER BY "id" FOR UPDATE`,
   );
   const page = await supportEmailDeliveries(tx, id, userId);
   for (const notice of input.notices) {
@@ -257,17 +262,14 @@ export async function supportEmailDeliveries(
       availableAt: true,
     },
   });
+  // One latest observation per delivery. A noisy provider record must not evict
+  // another delivery's known failure from a shared arbitrary event limit.
   const outcomeRows = rows.length
-    ? await tx.outboxEvent.findMany({
-        where: {
-          aggregateType: supportEmailProviderOutcomeAggregate,
-          eventType: supportEmailProviderOutcomeEvent,
-          aggregateId: { in: rows.map((row) => row.id) },
-        },
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        take: 400,
-        select: { aggregateId: true, createdAt: true, payload: true },
-      })
+    ? await tx.$queryRaw<
+        { aggregateId: string; createdAt: Date; payload: Prisma.JsonValue }[]
+      >(
+        Prisma.sql`SELECT DISTINCT ON ("aggregateId") "aggregateId", "createdAt", "payload" FROM "OutboxEvent" WHERE "aggregateType" = ${supportEmailProviderOutcomeAggregate} AND "eventType" = ${supportEmailProviderOutcomeEvent} AND "aggregateId" IN (${Prisma.join(rows.map((r) => r.id))}) AND "payload"->>'type' IN ('email.delivered','email.delivery_delayed','email.bounced','email.complained','email.failed','email.suppressed') ORDER BY "aggregateId", "createdAt" DESC, "id" DESC`,
+      )
     : [];
   const outcomes = new Map<string, { type: string; at: Date }>();
   for (const row of outcomeRows) {

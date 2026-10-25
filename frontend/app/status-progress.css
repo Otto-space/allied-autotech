@@ -1,5 +1,9 @@
 /* Shared status language across public, customer and staff surfaces. Labels and
    an explicit current-stage marker carry meaning independently of colour. */
+[data-status] {
+  --status-ink: #334155;
+  --status-fill: #f1f5f9;
+}
 :is(span, strong, p, dd)[data-status] {
   color: var(--status-ink, #334155) !important;
   background: var(--status-fill, #f1f5f9) !important;

@@ -27,6 +27,8 @@ export const errorCodes = {
   tokenInvalid: "TOKEN_INVALID",
   accountLocked: "ACCOUNT_LOCKED",
   accountSuspended: "ACCOUNT_SUSPENDED",
+  accountAlreadySuspended: "ACCOUNT_ALREADY_SUSPENDED",
+  accountAlreadyActive: "ACCOUNT_ALREADY_ACTIVE",
   forbidden: "FORBIDDEN",
   notFound: "NOT_FOUND",
   conflict: "CONFLICT",

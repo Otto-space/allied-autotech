@@ -313,6 +313,8 @@
                   "TOKEN_INVALID",
                   "ACCOUNT_LOCKED",
                   "ACCOUNT_SUSPENDED",
+                  "ACCOUNT_ALREADY_SUSPENDED",
+                  "ACCOUNT_ALREADY_ACTIVE",
                   "FORBIDDEN",
                   "NOT_FOUND",
                   "CONFLICT",
@@ -106145,7 +106147,6 @@
               "type": "string",
               "minLength": 2,
               "maxLength": 120,
-              "pattern": "^[^\\u0000-\\u001f\\u007f]*$",
               "description": "Q validated by this operation's strict request contract."
             },
             "required": false,
@@ -107448,7 +107449,6 @@
               "type": "string",
               "minLength": 2,
               "maxLength": 120,
-              "pattern": "^[^\\u0000-\\u001f\\u007f]*$",
               "description": "Q validated by this operation's strict request contract."
             },
             "required": false,

@@ -251,6 +251,66 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).status,
       ).toBe(422);
     });
+    it("retains each delivery's latest failure even when another has more than 400 observations", async () => {
+      const row = await prisma.enquiry.create({
+        data: {
+          branchId: f.home.id,
+          name: "Synthetic",
+          email: "noise@example.test",
+          type: "GENERAL",
+          subject: "Synthetic provider history",
+          message: "Synthetic delivery question",
+        },
+      });
+      const failed = await delivery(row.id),
+        noisy = await delivery(row.id),
+        at = new Date();
+      await prisma.outboxEvent.updateMany({
+        where: { id: { in: [failed.id, noisy.id] } },
+        data: { status: "PUBLISHED", lastError: null, publishedAt: at },
+      });
+      await prisma.outboxEvent.createMany({
+        data: [
+          {
+            eventId: randomUUID(),
+            aggregateType: "SupportEmailProviderOutcome",
+            aggregateId: failed.id,
+            eventType: "support.customer-email.provider-outcome",
+            payload: { type: "email.failed" },
+            status: "PUBLISHED",
+            publishedAt: at,
+            createdAt: new Date(at.getTime() - 1000),
+          },
+          ...Array.from({ length: 425 }, (_, n) => ({
+            eventId: randomUUID(),
+            aggregateType: "SupportEmailProviderOutcome",
+            aggregateId: noisy.id,
+            eventType: "support.customer-email.provider-outcome",
+            payload: { type: "email.delivered" },
+            status: "PUBLISHED" as const,
+            publishedAt: at,
+            createdAt: new Date(at.getTime() + n),
+          })),
+        ],
+      });
+      const result = await read(row.id);
+      expect(result.status).toBe(200);
+      expect(
+        result.body.data.items.find((item: { id: string }) => item.id === failed.id),
+      ).toMatchObject({ status: "SENT", providerStatus: "FAILED", noticeEligible: true });
+      expect(
+        result.body.data.items.find((item: { id: string }) => item.id === noisy.id)
+          .providerStatus,
+      ).toBe("DELIVERED");
+      expect(
+        await prisma.outboxEvent.count({
+          where: {
+            aggregateType: "SupportEmailProviderOutcome",
+            aggregateId: { in: [failed.id, noisy.id] },
+          },
+        }),
+      ).toBe(426);
+    });
     async function delivery(id: string) {
       return prisma.outboxEvent.create({
         data: {

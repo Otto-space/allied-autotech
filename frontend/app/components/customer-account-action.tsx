@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, ApiError } from "@/lib/api/client";
 import type { WorkCustomer } from "@/lib/admin/work-customers";
 import { Feedback } from "./feedback";
 
@@ -8,33 +8,71 @@ export function CustomerAccountAction({
   customer,
   disabled = false,
   onChanged,
+  compact = false,
 }: {
   customer: WorkCustomer;
   disabled?: boolean;
   onChanged: () => void;
+  compact?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
-  if (customer.status === "DEACTIVATED") return null;
+  const [review, setReview] = useState<WorkCustomer | null>(null);
+  const menu = useRef<HTMLDetailsElement>(null);
+  const summary = useRef<HTMLElement>(null);
+  if (customer.status === "DEACTIVATED" && !review) return null;
   const action = customer.status === "ACTIVE" ? "Suspend account" : "Reactivate account";
+  const button = (
+    <button
+      type="button"
+      className={`button secondary${customer.status === "ACTIVE" ? " account-danger" : ""}`}
+      disabled={disabled}
+      onClick={() => {
+        if (menu.current) {
+          menu.current.open = false;
+          summary.current?.focus();
+        }
+        setReview({ ...customer });
+      }}
+    >
+      {action}
+      <span className="sr-only">
+        {" "}
+        for {customer.firstName} {customer.lastName}
+      </span>
+    </button>
+  );
   return (
     <>
-      <button
-        type="button"
-        className={`button secondary${customer.status === "ACTIVE" ? " account-danger" : ""}`}
-        disabled={disabled}
-        onClick={() => setOpen(true)}
-      >
-        {action}
-        <span className="sr-only">
-          {" "}
-          for {customer.firstName} {customer.lastName}
-        </span>
-      </button>
-      {open && (
+      {customer.status === "DEACTIVATED" ? null : compact ? (
+        <details
+          ref={menu}
+          className="care-account-menu"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.currentTarget.open = false;
+              summary.current?.focus();
+            }
+          }}
+          onBlur={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget))
+              event.currentTarget.open = false;
+          }}
+        >
+          <summary
+            ref={summary}
+            aria-label={`Account actions for ${customer.firstName} ${customer.lastName}`}
+          >
+            Account
+          </summary>
+          <div className="care-account-menu-popover">{button}</div>
+        </details>
+      ) : (
+        button
+      )}
+      {review && (
         <AccountDialog
-          customer={customer}
-          action={action}
-          onClose={() => setOpen(false)}
+          customer={review}
+          action={review.status === "ACTIVE" ? "Suspend account" : "Reactivate account"}
+          onClose={() => setReview(null)}
           onChanged={onChanged}
         />
       )}
@@ -76,6 +114,7 @@ function AccountDialog({
     if (submitting.current || uncertain) return;
     if (reason.trim().length < 10) {
       setError("Explain the reason in 10–1,000 characters.");
+      document.getElementById("customer-account-reason")?.focus();
       return;
     }
     submitting.current = true;
@@ -103,11 +142,13 @@ function AccountDialog({
         throw new Error("Unexpected result");
       onChanged();
       onClose();
-    } catch {
+    } catch (failure) {
       if (!active.current) return;
       setUncertain(true);
       setError(
-        "The change could not be confirmed. Close this dialog and refresh the customer before reviewing another action.",
+        failure instanceof ApiError && failure.status >= 400 && failure.status < 500
+          ? `${failure.message} Close this dialog and review the current customer.`
+          : "The change could not be confirmed. Close this dialog and refresh the customer before reviewing another action.",
       );
       onChanged();
     } finally {
@@ -118,7 +159,7 @@ function AccountDialog({
   return (
     <dialog
       ref={dialog}
-      className="mutation-dialog"
+      className="support-dialog mutation-review customer-account-dialog"
       aria-labelledby="customer-account-title"
       onCancel={(event) => {
         event.preventDefault();

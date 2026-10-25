@@ -222,6 +222,14 @@ function CustomerWorkspace() {
               tabIndex={0}
             >
               <table className="care-table">
+                <colgroup>
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "22%" }} />
+                </colgroup>
                 <caption className="sr-only">Customers on this page</caption>
                 <thead>
                   <tr>
@@ -506,7 +514,12 @@ function CustomerRecord({
             View details <ChevronRight size={14} aria-hidden="true" />
             <span className="sr-only"> for {name}</span>
           </Link>
-          <CustomerAccountAction customer={r} disabled={disabled} onChanged={onChanged} />
+          <CustomerAccountAction
+            customer={r}
+            disabled={disabled}
+            onChanged={onChanged}
+            compact
+          />
         </div>
       </td>
     </tr>

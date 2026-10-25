@@ -1,6 +1,7 @@
 "use client";
 import "./care-workspace.css";
 import Link from "next/link";
+import { rememberCareQueue } from "./care-back-link";
 import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -190,7 +191,7 @@ function SupportWorkspace({
             role="group"
             aria-label="Applied support filters"
           >
-            {["status", "type", "priority", "branchId", "assignedStaffId"]
+            {["q", "status", "type", "priority", "branchId", "assignedStaffId"]
               .filter((key) => filters.has(key))
               .map((key) => {
                 const title =
@@ -279,7 +280,7 @@ function SupportWorkspace({
               <table className="care-table">
                 <thead>
                   <tr>
-                    <th scope="col">Subject / reference</th>
+                    <th scope="col">Subject</th>
                     <th scope="col">Customer</th>
                     <th scope="col">Type</th>
                     <th scope="col">Status</th>
@@ -290,7 +291,11 @@ function SupportWorkspace({
                 </thead>
                 <tbody>
                   {data?.items.map((record) => (
-                    <SupportCard key={record.id} record={record} />
+                    <SupportCard
+                      key={record.id}
+                      record={record}
+                      returnParams={query.params.toString()}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -342,6 +347,8 @@ function SupportFilters({
   busy: boolean;
   navigate: (p: URLSearchParams) => void;
 }) {
+  const [term, setTerm] = useState(params.get("q") ?? "");
+  const [searchError, setSearchError] = useState<string>();
   const [status, setStatus] = useState(params.get("status") ?? ""),
     [classification, setClassification] = useState(
       params.get(kind === "enquiries" ? "type" : "priority") ?? "",
@@ -355,8 +362,18 @@ function SupportFilters({
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
+        if (
+          term.trim() &&
+          (term.trim().length < 2 || /[\u0000-\u001f\u007f]/.test(term))
+        ) {
+          setSearchError("Enter at least 2 characters without control characters.");
+          document.getElementById("care-search")?.focus();
+          return;
+        }
+        setSearchError(undefined);
         const next = new URLSearchParams();
         if (kind !== "enquiries") next.set("kind", kind);
+        if (term.trim()) next.set("q", term.trim());
         if (status) next.set("status", status);
         if (classification)
           next.set(kind === "enquiries" ? "type" : "priority", classification);
@@ -367,10 +384,28 @@ function SupportFilters({
     >
       <fieldset disabled={busy}>
         <legend className="sr-only">Support filters</legend>
-        <p className="wsu-filter-intro">
-          Choose a status or colleague, then apply. Open the subject to read and respond.
-        </p>
         <div className="wsu-filter-grid">
+          <div className="field">
+            <label htmlFor="care-search">Search cases</label>
+            <input
+              id="care-search"
+              type="search"
+              value={term}
+              maxLength={120}
+              minLength={2}
+              onChange={(event) => {
+                setTerm(event.target.value);
+                setSearchError(undefined);
+              }}
+              aria-invalid={!!searchError}
+              aria-describedby={
+                searchError ? "care-search-hint care-search-error" : "care-search-hint"
+              }
+            />
+            <p id="care-search-hint" className="field-hint">
+              Subject or original request text. At least 2 characters.
+            </p>
+          </div>
           <div className="field">
             <label htmlFor="support-status-filter">Record status</label>
             <select
@@ -435,12 +470,17 @@ function SupportFilters({
           </div>
         </div>
         <div className="wsu-filter-actions">
+          <div id="care-search-error">
+            <Feedback message={searchError} />
+          </div>
           <button className="button">Apply support filters</button>
           <button
             className="button secondary"
             type="button"
             onClick={() => {
               setStatus("");
+              setTerm("");
+              setSearchError(undefined);
               setClassification("");
               setBranch("");
               setAssignee("");
@@ -459,7 +499,14 @@ function SupportFilters({
     </form>
   );
 }
-function SupportCard({ record: r }: { record: SupportRecord }) {
+function SupportCard({
+  record: r,
+  returnParams,
+}: {
+  record: SupportRecord;
+  returnParams: string;
+}) {
+  const session = useAccountSession();
   return (
     <tr className="wsu-record">
       <td>
@@ -489,7 +536,13 @@ function SupportCard({ record: r }: { record: SupportRecord }) {
         </time>
       </td>
       <td>
-        <Link className="text-link" href={"/admin/support/" + r.kind + "/" + r.id}>
+        <Link
+          className="text-link"
+          href={"/admin/support/" + r.kind + "/" + r.id}
+          onClick={() => {
+            if (session) rememberCareQueue(session.user.id, r.id, r.kind, returnParams);
+          }}
+        >
           Open case <ChevronRight size={14} aria-hidden="true" />
           <span className="sr-only"> {r.subject}</span>
         </Link>

@@ -266,7 +266,14 @@ export const staffEnquiryListQuerySchema = z
       .trim()
       .min(2)
       .max(120)
-      .regex(/^[^\u0000-\u001f\u007f]*$/)
+      .refine(
+        (value) =>
+          [...value].every((c) => {
+            const code = c.codePointAt(0) ?? 0;
+            return code >= 32 && code !== 127;
+          }),
+        "Use plain search text without control characters",
+      )
       .optional(),
     branchId: uuid.optional(),
     type: z
@@ -284,7 +291,14 @@ export const staffComplaintListQuerySchema = z
       .trim()
       .min(2)
       .max(120)
-      .regex(/^[^\u0000-\u001f\u007f]*$/)
+      .refine(
+        (value) =>
+          [...value].every((c) => {
+            const code = c.codePointAt(0) ?? 0;
+            return code >= 32 && code !== 127;
+          }),
+        "Use plain search text without control characters",
+      )
       .optional(),
     branchId: uuid.optional(),
     status: z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]).optional(),

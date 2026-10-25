@@ -1355,3 +1355,39 @@ in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d
 subsequent edits are evidence and the E2E fixture correction only. C: postflight
 29.54 GiB free; current/rollback images, warm cache, databases/backups and other
 tasks retained. No broad prune, duplicate install/worktree or image archive.
+
+# Cycle 9: Customers and Customer Care — 25 October 2026
+
+Current bounded implementation: `feat/customers-care-20261025` in the reused
+`allied-shop-vehicles-r2-20261025` worktree. Released notification source
+`17bc43fc` was merged after live-provider verification; other worktrees and the
+main checkout's edits are preserved. Home, Shop/Vehicles and financial layouts
+remain outside this cycle.
+
+Acceptance contract and backend evidence: `backend/docs/customers-care-20261025.md`.
+Actual surfaces: Admin/Super Admin `/admin/customers` and details, legacy
+`/admin/support` and case routes, managed Customer Service enquiry/complaint
+workspaces, customer `/dashboard/support` and conversations. Existing page-index
+entries remain applicable; no new dashboard route or capability is invented.
+
+Implemented: semantic customer/care tables, scoped search and cursor state,
+copy success/failure/manual selection, reviewed real account transitions/session
+revocation/audit, conversation-first layout with retained public/internal controls
+and drafts, scoped per-operator delivery dismissal, and five semantic state tones.
+Managed contact projection is limited to Customer Care responsibility readers;
+sales-only readers keep their earlier field boundary. Dismissal grants no retry.
+
+Fixture captures and browser receipts are outside the repository under
+`%TEMP%/allied-customers-care-20261025/` and
+`%TEMP%/allied-customers-care-hosted/`. Before/after are synthetic role records,
+not production customer data. Browser plugin unavailable; installed Edge/Playwright
+is used. Clipboard writes are instrumented success/failure callbacks, without
+reading the clipboard. Touch and zoom evidence is emulated, not a physical-device
+or full screen-reader certification.
+
+The earlier hosted run passed 11/15 scenarios. It found phone overflow caused by
+absolute assistive labels escaping the table's scroll containing block, and a
+1366px filter-grid override. Both are fixed in source and await final compiled
+acceptance. Earlier fixture envelope/ambiguous-selector failures were corrected;
+they are not counted as product regressions. Final checks and release evidence
+will follow; this checkpoint does not certify production rollout.

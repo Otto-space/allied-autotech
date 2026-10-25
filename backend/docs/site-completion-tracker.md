@@ -1344,3 +1344,18 @@ in the reused allied-home-restoration-20261025 worktree. Runtime remains 345847d
 subsequent edits are evidence and the E2E fixture correction only. C: postflight
 29.54 GiB free; current/rollback images, warm cache, databases/backups and other
 tasks retained. No broad prune, duplicate install/worktree or image archive.
+25 October 2026 — Customers/Customer Care implementation checkpoint.
+Working source feat/customers-care-20261025 in the reused Shop/Vehicles R2 worktree.
+Notification release 17bc43fc merged after main/www and backend provider verification;
+its inbox/push changes are preserved. Other worktrees/main edits are untouched.
+This task covers actual customer tables, reviewed suspension/reactivation, scoped
+Customer Care hierarchy/drafts and per-operator delivery notice dismissal, plus
+shared semantic state presentation. Homepage and broader redesign remain excluded.
+Forward migration 20261025170000_support_delivery_notice_dismissal is committed;
+71 migrations replayed on new isolated targets and restricted runtime db:check passed.
+A fresh production archive restored into a separate local database and protected
+70-to-71 migration preserved original row hashes and ledger. This was a logical
+restore rehearsal, not a new managed PITR cluster. Production migration/promotion
+are pending final CI and compiled responsive acceptance. See the task evidence doc
+and UI quality Cycle 9; do not treat the remaining real-role/device acceptance or
+the broader site-completion Item 6 as completed by mocked role fixtures.

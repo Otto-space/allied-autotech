@@ -17,7 +17,7 @@ import {
   type CustomerActivity,
   type CustomerCollection,
 } from "@/lib/admin/work-customer-detail";
-import { formatStockInstant } from "@/lib/admin/work-vehicle-detail";
+import { formatBusinessDate } from "@/lib/format/date";
 import { useAccountSession, useOwnStaffPermissions } from "./dashboard-shell";
 import { Feedback } from "./feedback";
 import { CopyableValue } from "./copyable-value";
@@ -121,7 +121,14 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
       <header className="wi-header">
         <div>
           <h1>{name}</h1>
-          {r && <StatusBadge status={r.status} />}
+          {r && (
+            <div className="care-row-actions">
+              <StatusBadge status={r.status} />
+              <StatusBadge status={r.emailVerified ? "VERIFIED" : "PENDING"}>
+                {r.emailVerified ? "Email verified" : "Email not verified"}
+              </StatusBadge>
+            </div>
+          )}
         </div>
         <div className="wcd-actions">
           {r && (
@@ -170,7 +177,7 @@ function CustomerDetailWorkspace({ id }: { id: string }) {
                   ["Phone", r.phone],
                   ["Email verification", r.emailVerified ? "Verified" : "Not verified"],
                   ["Phone verification", r.phoneVerified ? "Verified" : "Not verified"],
-                  ["Registered", formatStockInstant(r.createdAt)],
+                  ["Registered", formatBusinessDate(r.createdAt)],
                 ].map(([label, value]) => (
                   <div key={label}>
                     <dt>{label}</dt>
@@ -360,7 +367,10 @@ function ActivityRecord({
 }) {
   const href = customerActivityHref(kind, r.id);
   return (
-    <article className="wcd-record" aria-labelledby={`activity-${r.id}`}>
+    <article
+      className={`wcd-record${kind === "vehicles" ? " wcd-garage-record" : ""}`}
+      aria-labelledby={`activity-${r.id}`}
+    >
       <div>
         <h3 id={`activity-${r.id}`}>
           {href ? (
@@ -392,7 +402,11 @@ function ActivityRecord({
       <dl>
         <div>
           <dt>Created</dt>
-          <dd>{formatStockInstant(r.createdAt)}</dd>
+          <dd>
+            <time dateTime={r.createdAt} title={r.createdAt}>
+              {formatBusinessDate(r.createdAt)}
+            </time>
+          </dd>
         </div>
       </dl>
     </article>

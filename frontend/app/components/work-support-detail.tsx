@@ -5,6 +5,7 @@ import { SupportTimelineEntry } from "./support-timeline-entry";
 import { CopyableValue } from "./copyable-value";
 import { WorkflowProgress } from "./status-progress";
 import Link from "next/link";
+import { CareBackLink } from "./care-back-link";
 import { SupportEmailDelivery } from "./support-email-delivery";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -342,7 +343,9 @@ function ThreadWorkspace({
       <nav className="wi-breadcrumb" aria-label="Breadcrumb">
         <Link href="/admin">Overview</Link>
         <ChevronRight size={14} aria-hidden="true" />
-        <Link href="/admin/support">Customer care</Link>
+        <CareBackLink id={id} kind={kind} branchId={current?.branchId}>
+          Customer care
+        </CareBackLink>
         <ChevronRight size={14} aria-hidden="true" />
         <span aria-current="page">{current?.subject ?? "Conversation"}</span>
       </nav>
@@ -371,10 +374,15 @@ function ThreadWorkspace({
             <RefreshCw size={16} aria-hidden="true" />
             Refresh conversation
           </button>
-          <Link className="button secondary" href="/admin/support">
+          <CareBackLink
+            id={id}
+            kind={kind}
+            branchId={current?.branchId}
+            className="button secondary"
+          >
             <ArrowLeft size={16} aria-hidden="true" />
             Back to customer care
-          </Link>
+          </CareBackLink>
         </div>
       </header>
       <Feedback message={message} tone={tone} />
@@ -437,6 +445,14 @@ function ThreadWorkspace({
           </nav>
           <div className="care-context">
             <strong>{current.contact?.name || "Customer contact not recorded"}</strong>
+            {["ADMIN", "SUPER_ADMIN"].includes(role) && current.contact?.customerId && (
+              <Link
+                className="text-link"
+                href={`/admin/customers/${current.contact.customerId}`}
+              >
+                Customer details
+              </Link>
+            )}
             <CopyableValue value={current.contact?.email} label="Copy customer email" />
             <span>
               Assigned to{" "}
@@ -581,7 +597,22 @@ function ThreadFacts({ record: r }: { record: SupportRecord }) {
             ].map((f) => (
               <div key={f.label}>
                 <dt>{f.label}</dt>
-                <dd>{f.value}</dd>
+                <dd>
+                  {f.label.toLowerCase().includes("reference") &&
+                  f.value &&
+                  f.value !== "Not recorded" ? (
+                    <CopyableValue
+                      value={f.value}
+                      label={
+                        f.label === "Reference"
+                          ? "Copy case reference"
+                          : `Copy ${f.label.toLowerCase()}`
+                      }
+                    />
+                  ) : (
+                    f.value
+                  )}
+                </dd>
               </div>
             ))}
           </dl>
@@ -597,7 +628,17 @@ function ThreadFacts({ record: r }: { record: SupportRecord }) {
             ].map((f) => (
               <div key={f.label}>
                 <dt>{f.label}</dt>
-                <dd>{f.value || "Not recorded"}</dd>
+                <dd>
+                  {["Email", "Phone", "Customer profile reference"].includes(f.label) &&
+                  f.value ? (
+                    <CopyableValue
+                      value={f.value}
+                      label={`Copy ${f.label.toLowerCase()}`}
+                    />
+                  ) : (
+                    f.value || "Not recorded"
+                  )}
+                </dd>
               </div>
             ))}
           </dl>

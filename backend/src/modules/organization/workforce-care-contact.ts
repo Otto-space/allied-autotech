@@ -12,7 +12,7 @@ export const workforceCareContactSelect = {
       firstName: true,
       lastName: true,
       phone: true,
-      user: { select: { email: true } },
+      user: { select: { email: true, role: true } },
     },
   },
 } satisfies Prisma.EnquirySelect & Prisma.ComplaintSelect;
@@ -26,19 +26,22 @@ export function projectWorkforceCareContact<T extends object>(row: T) {
       firstName: string;
       lastName: string;
       phone: string;
-      user: { email: string };
+      user: { email: string; role: string };
     } | null;
   };
+  // A former customer promoted to staff does not expose new staff profile
+  // contact data through a historical case. Retain its recorded contact instead.
+  const account = customer?.user.role === "CUSTOMER" ? customer : null;
   return {
     ...record,
     ...(name !== undefined || customer !== undefined
       ? {
           contact: {
-            name: customer
-              ? `${customer.firstName} ${customer.lastName}`.trim()
+            name: account
+              ? `${account.firstName} ${account.lastName}`.trim()
               : (name ?? null),
-            email: customer?.user.email ?? email ?? null,
-            phone: customer?.phone ?? phone ?? null,
+            email: account?.user.email ?? email ?? null,
+            phone: account?.phone ?? phone ?? null,
             customerId: customerId ?? null,
           },
         }

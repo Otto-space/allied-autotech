@@ -709,7 +709,8 @@ export function WorkforceEnquiryDetail({
             </div>
           </div>
           <details className="care-secondary">
-            <summary>Workflow stages</summary>
+            <summary>Workflow and case reference</summary>
+            <CopyableValue value={row.id} label="Copy case reference" />
             <WorkflowProgress workflow="enquiry" status={row.status} />
           </details>
           <SupportEmailDeliverySummary

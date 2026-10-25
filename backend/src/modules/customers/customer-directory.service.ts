@@ -64,9 +64,17 @@ export class CustomerDirectoryService {
         throw customerResourceNotFound();
       if (profile.user.status !== input.expectedStatus)
         throw new AppError({
-          code: "CONFLICT",
+          code:
+            profile.user.status === input.status
+              ? input.status === "SUSPENDED"
+                ? "ACCOUNT_ALREADY_SUSPENDED"
+                : "ACCOUNT_ALREADY_ACTIVE"
+              : "CONFLICT",
           statusCode: 409,
-          message: "Account status changed. Refresh and review the customer again.",
+          message:
+            profile.user.status === input.status
+              ? `Account is already ${input.status === "SUSPENDED" ? "suspended" : "active"}. Refresh and review the customer again.`
+              : "Account status changed. Refresh and review the customer again.",
         });
       const now = new Date(),
         userId = profile.user.id;
