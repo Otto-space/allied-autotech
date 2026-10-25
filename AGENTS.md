@@ -37,3 +37,21 @@ Make every change professional, complete and reviewable.
   Report exactly which safety checks and restore tests ran; never promise zero risk.
 
 See `backend/docs/database-safety.md` for the supported workflow.
+
+## Local Docker disk hygiene — mandatory
+
+- Before Docker builds/tests and at task completion, follow
+  `backend/docs/docker-disk-hygiene.md`. This applies across linked worktrees.
+- Reuse verified suitable images and warm caches. Do not create duplicate builds,
+  throwaway builders, image archives or persistent test resources without a need.
+- Remove task-created temporary resources and confirmed superseded local images
+  and stale build caches when their purpose is finished. First verify container
+  references, current/pending releases, rollback requirements and other worktrees.
+- Age, dangling status, or "unused" alone never proves an image/cache unnecessary.
+  Keep useful current/rollback/base/tool images, recent reusable caches and resources
+  belonging to another active task. If usefulness is uncertain, retain and report it.
+- No blanket `docker system prune -a`, broad image/container/volume pruning, forced
+  image removal, Docker factory reset, or manual Docker/WSL disk deletion. Database
+  volumes, backups and application data are outside routine cleanup authority.
+- Use explicit reviewed targets and native Docker cleanup, recheck them immediately
+  before deletion, and report measured before/after space plus what was retained.

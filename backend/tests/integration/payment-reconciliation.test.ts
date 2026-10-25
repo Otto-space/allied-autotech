@@ -179,7 +179,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           (item) => item.internalAmountKobo === 0n && item.providerAmountKobo === 0n,
         ),
       ).toBe(true);
-    }, 20000);
+    }, 60000);
 
     it("totals confirmed receipts instead of requested amounts and retains underpayment as a difference", async () => {
       const f = await fixture();

@@ -19,7 +19,7 @@ describe("customer vehicle API response", () => {
     };
     expect(
       parseCustomerVehicles({ vehicles: [vehicle], nextCursor: vehicle.id }),
-    ).toEqual({ items: [vehicle], nextCursor: vehicle.id });
+    ).toEqual({ items: [{ ...vehicle, images: [] }], nextCursor: vehicle.id });
   });
 
   it("rejects malformed responses instead of treating them as an empty garage", () => {
