@@ -92,6 +92,22 @@
   table-layout: fixed;
   min-width: 920px;
 }
+.care-customer-col {
+  width: 18%;
+}
+.care-email-col {
+  width: 20%;
+}
+.care-phone-col {
+  width: 14%;
+}
+.care-status-col,
+.care-joined-col {
+  width: 13%;
+}
+.care-action-col {
+  width: 22%;
+}
 .dashboard .work-customers .care-row-actions {
   display: flex;
   flex-flow: row nowrap;

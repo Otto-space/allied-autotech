@@ -389,7 +389,7 @@ test("managed Customer Service keeps scoped conversation and next action ahead o
   await page.screenshot({ path: path.join(shots, "managed-care.png") });
 });
 
-test("short desktop, long contacts and 200 percent CSS zoom retain table containment", async ({
+test("short desktop, long contacts and 200 percent reflow emulation retain table containment", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
@@ -432,8 +432,14 @@ test("short desktop, long contacts and 200 percent CSS zoom retain table contain
       (Math.max(lum(ink), lum(fill)) + 0.05) / (Math.min(lum(ink), lum(fill)) + 0.05),
     ).toBeGreaterThanOrEqual(4.5);
   await page.screenshot({ path: path.join(shots, "customers-1366-long.png") });
-  await page.evaluate(() => {
-    document.body.style.zoom = "2";
+  // Desktop browser zoom halves the CSS viewport and doubles raster scale.
+  // CSS zoom alone retains desktop media queries and is not that reflow model.
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Emulation.setDeviceMetricsOverride", {
+    width: 683,
+    height: 384,
+    deviceScaleFactor: 2,
+    mobile: false,
   });
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),

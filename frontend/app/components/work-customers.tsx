@@ -216,19 +216,19 @@ function CustomerWorkspace() {
               </div>
             )}
             <div
-              className="wc-records wc-table-region"
+              className="wc-records care-table-region"
               role="region"
               aria-label="Customer results"
               tabIndex={0}
             >
               <table className="care-table">
                 <colgroup>
-                  <col style={{ width: "18%" }} />
-                  <col style={{ width: "20%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "13%" }} />
-                  <col style={{ width: "13%" }} />
-                  <col style={{ width: "22%" }} />
+                  <col className="care-customer-col" />
+                  <col className="care-email-col" />
+                  <col className="care-phone-col" />
+                  <col className="care-status-col" />
+                  <col className="care-joined-col" />
+                  <col className="care-action-col" />
                 </colgroup>
                 <caption className="sr-only">Customers on this page</caption>
                 <thead>
