@@ -13,9 +13,8 @@ export function assertStaffRevision(
     status: string;
     staffProfile: { updatedAt: Date; branchId: string | null } | null;
   },
-  expected: string | undefined,
+  expected: string,
 ) {
-  if (expected === undefined) return;
   const revision = [
     record.updatedAt.toISOString(),
     record.role,

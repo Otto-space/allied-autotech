@@ -1461,3 +1461,13 @@ Home/Help/Parts returned 200; `/shop` redirects to `/parts`; anonymous cart
 remains 401. No real cart or payment write was used for acceptance. Details and
 remaining limits: `cart-clear-atomic-20261025.md`. Item 6 and authenticated
 operational acceptance remain open.
+
+25 October 2026 - required staff revision candidate. Status, branch and role
+mutations now require the reviewed account revision and compare it under the
+account lock. Missing revisions fail 422; competing stale decisions fail 409.
+The deployed dashboard already sends the revision. A fresh isolated `_test`
+database replayed all 71 migrations with no schema difference; 13 focused
+integration tests, seven compiled dashboard fixtures, type/lint/format and
+API contract checks passed. See `staff-revision-required-20261025.md`.
+Production rollout and real signed-in role acceptance remain open. This does
+not close Item 6 or the wider site goal.

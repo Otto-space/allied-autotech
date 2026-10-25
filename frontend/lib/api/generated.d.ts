@@ -25454,8 +25454,8 @@ export interface operations {
                      * @enum {string}
                      */
                     status: "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
-                    /** @description Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. */
-                    expectedRevision?: string;
+                    /** @description Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. */
+                    expectedRevision: string;
                 };
             };
         };
@@ -25729,8 +25729,8 @@ export interface operations {
                      * @description Identifier of the branch resource; ownership is resolved server-side.
                      */
                     branchId: string;
-                    /** @description Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. */
-                    expectedRevision?: string;
+                    /** @description Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. */
+                    expectedRevision: string;
                 };
             };
         };
@@ -26010,8 +26010,8 @@ export interface operations {
                      * @description Identifier of the branch resource; ownership is resolved server-side.
                      */
                     branchId: string;
-                    /** @description Optional account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. New clients should always provide it. */
-                    expectedRevision?: string;
+                    /** @description Required account revision derived from updatedAt, role, status, profile updatedAt and branchId joined with colons. Checked atomically while the account and profile are locked. */
+                    expectedRevision: string;
                 };
             };
         };
