@@ -139,6 +139,16 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => {
+      if (
+        ["error", "warning"].includes(message.type()) &&
+        !(
+          message.location().url.includes("/auth/session") &&
+          message.text().includes("401")
+        )
+      )
+        errors.push(message.text());
+    });
     await page.goto("/parts");
     await expect(
       page.getByRole("heading", {
@@ -184,6 +194,17 @@ for (const width of [360, 390, 768, 1024, 1440]) {
     await page.getByRole("button", { name: "Apply filters", exact: true }).click();
     await expect(page).toHaveURL(/family=ENGINE_OIL/);
     await expect(page.getByRole("button", { name: /Remove .*5W-30/ })).toBeVisible();
+    const footerHref = await page
+      .locator('.product-contact a[href^="/contact?"]')
+      .getAttribute("href");
+    expect(footerHref).toContain("part_minPriceKobo=1000000");
+    expect(footerHref).toContain("part_maxPriceKobo=5000000");
+    const whatsapp = new URL(
+      (await page
+        .locator('.product-contact a[href^="https://wa.me/"]')
+        .getAttribute("href"))!,
+    );
+    expect(whatsapp.searchParams.get("text")).toMatch(/Maximum budget:.*50,000/);
     await healthy(page, "shop", width);
     await page.getByRole("button", { name: /^Filters/ }).click();
     await page
@@ -407,6 +428,91 @@ test("empty, no-match and API error states stay distinct and retry recovers", as
   await expect(
     page.getByRole("heading", { name: "No matching products", exact: true }),
   ).toBeVisible();
+});
+
+test("a superseded pending search shows loading and cannot replace the newer result", async ({
+  page,
+}) => {
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/v1/public/catalog/products/discovery?**", async (route) => {
+    if (new URL(route.request().url()).searchParams.get("search") === "SyntheticSlow")
+      await gate;
+    await route.fallback().catch(() => {});
+  });
+  try {
+    await page.goto("/parts");
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .fill("SyntheticSlow");
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .press("Enter");
+    await expect(page.locator(".product-results")).toHaveAttribute("aria-busy", "true");
+    await expect(page.getByText("Loading products…", { exact: true })).toBeVisible();
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .fill("DEMO");
+    await page
+      .getByRole("searchbox", { name: "Search products", exact: true })
+      .press("Enter");
+    await expect(page.locator(".shop-product-card")).toHaveCount(12);
+    release();
+    await expect(
+      page.getByRole("searchbox", { name: "Search products", exact: true }),
+    ).toHaveValue("DEMO");
+    await expect(page.locator(".shop-product-card")).toHaveCount(12);
+  } finally {
+    release();
+  }
+});
+
+test("a category-only zero result is distinguished from global emptiness and a constrained no-match", async ({
+  page,
+}) => {
+  await page.route("**/api/v1/public/catalog/products/discovery?**", async (route) => {
+    if (new URL(route.request().url()).searchParams.get("categoryId") === demoId(10))
+      return route.fulfill({ json: success({ items: [], totalMatches: 0 }) });
+    return route.fallback();
+  });
+  await page.goto("/parts");
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .fill("DEMO");
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .press("Enter");
+  await expect(page.locator(".shop-product-card")).toHaveCount(12);
+  await page.evaluate(
+    (id) => history.pushState(null, "", `/parts?categoryId=${id}`),
+    demoId(10),
+  );
+  await expect(
+    page.getByRole("heading", { name: "No products in this category", exact: true }),
+  ).toBeVisible();
+});
+test("explicit Newest overrides the query default and survives history and reload", async ({
+  page,
+}) => {
+  await page.goto("/parts");
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .fill("DEMO");
+  await page
+    .getByRole("searchbox", { name: "Search products", exact: true })
+    .press("Enter");
+  await expect(page.getByLabel("Sort by", { exact: true })).toHaveValue("best_match");
+  await page.getByLabel("Sort by", { exact: true }).selectOption("newest");
+  await expect(page).toHaveURL(/sort=newest/);
+  await page.getByLabel("Sort by", { exact: true }).selectOption("price_asc");
+  await page.goBack();
+  await expect(page.getByLabel("Sort by", { exact: true })).toHaveValue("newest");
+  await page.goForward();
+  await expect(page.getByLabel("Sort by", { exact: true })).toHaveValue("price_asc");
+  await page.reload();
+  await expect(page.getByLabel("Sort by", { exact: true })).toHaveValue("price_asc");
 });
 test("identity changes do not copy another principal's enquiry fields", async ({
   page,

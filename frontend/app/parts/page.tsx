@@ -6,6 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ArrowUpRight, CarFront, FileSearch, MapPin } from "lucide-react";
 import { business } from "@/lib/business";
+import { Suspense } from "react";
+import { partsEnquiryHref } from "@/lib/parts-fitment";
+import { CatalogueEnquiryLink } from "../components/catalogue-enquiry-link";
 import { productApiPath } from "@/lib/product-discovery";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { SiteHeader } from "../components/site-header";
@@ -44,10 +47,11 @@ export default async function PartsPage({
 }: {
   searchParams: SearchParameters;
 }) {
-  const initial = await loadPublicSeed(
-    await listingPath(searchParams),
-    parseProductDiscovery,
+  const cataloguePath = await listingPath(searchParams);
+  const enquiryHref = partsEnquiryHref(
+    new URLSearchParams(cataloguePath.split("?")[1] ?? ""),
   );
+  const initial = await loadPublicSeed(cataloguePath, parseProductDiscovery);
   const enquiriesOnly = browseEnquiriesOnly();
   return (
     <>
@@ -146,17 +150,37 @@ export default async function PartsPage({
             <div>
               <h2>Need help choosing a product?</h2>
               <p>
-                Share the product name or part number and your vehicle details with our
-                team.
+                Share the product, quantity and specifications you need. Add vehicle
+                details when relevant.
               </p>
             </div>
             <div className="actions">
-              <Link href="/contact?parts=1#enquiry" className="button">
-                Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-              <a href={business.whatsapp} className="button secondary">
-                Chat on WhatsApp
-              </a>
+              <Suspense
+                fallback={
+                  <Link href={enquiryHref} className="button">
+                    Ask about a product
+                  </Link>
+                }
+              >
+                <CatalogueEnquiryLink kind="product" className="button">
+                  Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
+                </CatalogueEnquiryLink>
+              </Suspense>
+              <Suspense
+                fallback={
+                  <a href={business.whatsapp} className="button secondary">
+                    Chat on WhatsApp
+                  </a>
+                }
+              >
+                <CatalogueEnquiryLink
+                  kind="product"
+                  channel="whatsapp"
+                  className="button secondary"
+                >
+                  Chat on WhatsApp
+                </CatalogueEnquiryLink>
+              </Suspense>
             </div>
           </div>
         </section>

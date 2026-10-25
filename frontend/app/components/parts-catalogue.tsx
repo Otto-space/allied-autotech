@@ -91,6 +91,11 @@ export function PartsCatalogue({
     ),
   ).toString();
   const filtered = selected.length > 0 || params.has("vehicleModelId");
+  const categoryOnly =
+    category.data?.id === categoryId &&
+    selected.length > 0 &&
+    selected.every((key) => key === "categoryId" || key === "parentCategoryId") &&
+    !params.has("vehicleModelId");
   const publication = useResource(
     filtered || params.has("cursor")
       ? "/public/catalog/products/discovery?limit=1"
@@ -442,7 +447,7 @@ export function PartsCatalogue({
         ) : (
           <span>
             {noCatalogue
-              ? "Your part search can be included in an enquiry."
+              ? "Your product preferences can be included in an enquiry."
               : "Search by name, brand or part number, or choose a category."}
           </span>
         )}
@@ -503,14 +508,18 @@ export function PartsCatalogue({
                 : filtered
                   ? noCatalogue
                     ? "No products are published yet"
-                    : "No matching products"
+                    : categoryOnly
+                      ? "No products in this category"
+                      : "No matching products"
                   : "No products are published yet"}
             </h3>
             <p>
               {noCatalogue
                 ? "Our online product catalogue has no published listings. Tell us the product, quantity and specifications you need. Add vehicle details when relevant."
                 : filtered
-                  ? "No results for these details. Try a broader search or remove a filter."
+                  ? categoryOnly
+                    ? "No online products are listed in this category. Choose another category or ask our team about what you need."
+                    : "No results for these details. Try a broader search or remove a filter."
                   : "Contact our team to ask about the product you need."}
             </p>
             <div className="actions">
