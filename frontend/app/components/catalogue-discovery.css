@@ -26,8 +26,9 @@
   font-weight: 650;
   margin-bottom: 8px;
 }
-.parts-intent label {
+.shop-page .product-search-panel .parts-intent label {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 10px;
   min-height: 44px;
@@ -38,6 +39,15 @@
   color: var(--product-navy, var(--vehicle-navy));
   font: inherit;
   cursor: pointer;
+}
+.shop-page .parts-intent input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  flex: 0 0 20px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--red);
 }
 .parts-intent label:has(input:checked) {
   background: var(--product-navy, var(--vehicle-navy));
