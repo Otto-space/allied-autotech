@@ -8,6 +8,7 @@ import {
   productFacetPageSchema,
 } from "./product-discovery.schemas.js";
 import {
+  adminProductResponseSchema,
   productResponseSchema,
   productImageResponseSchema,
 } from "./product-media.schemas.js";
@@ -21,6 +22,7 @@ import {
   categoryParamsSchema,
   categoryUpdateBodySchema,
   compatibilityCreateBodySchema,
+  compatibilityDeleteBodySchema,
   compatibilityParamsSchema,
   compatibilityUpdateBodySchema,
   favouriteListQuerySchema,
@@ -221,7 +223,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       summary: "List all products",
       response: responseSchema.extend({
         data: z.object({
-          items: z.array(productResponseSchema),
+          items: z.array(adminProductResponseSchema),
           nextCursor: z.uuid().optional(),
         }),
       }),
@@ -234,7 +236,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       summary: "Get an administrator product independently of catalogue paging",
       description:
         "Admin or Super Admin with the existing staff MFA assurance. Includes inactive products and inactive categories, safe administrator media metadata, compatibility and branch availability booleans; no raw inventory quantities or storage keys. Private no-store. Strict UUID and empty query. Missing records return 404. The returned updatedAt can be supplied as expectedUpdatedAt on product updates.",
-      response: responseSchema.extend({ data: productResponseSchema }),
+      response: responseSchema.extend({ data: adminProductResponseSchema }),
       params: productParamsSchema,
       secured: true,
     },
@@ -242,7 +244,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/admin/catalog/products",
       summary: "Create a product",
-      response: responseSchema.extend({ data: productResponseSchema }),
+      response: responseSchema.extend({ data: adminProductResponseSchema }),
       status: "201",
       body: productCreateBodySchema,
       secured: true,
@@ -254,7 +256,7 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       summary: "Update a product",
       description:
         "Admin or Super Admin with CSRF and existing MFA assurance. New editors supply expectedUpdatedAt from the direct administrator read. A mismatched timestamp returns 409 without changing the product or appending an audit. The comparison and update hold a product row lock; successful catalogue edits advance updatedAt by at least one millisecond. The precondition is optional for compatibility with existing clients; clients omitting it retain the existing update behavior and do not receive stale-snapshot protection. This is not an original-request receipt. Existing active-category, comparison-price and inventory-reservation rules remain authoritative.",
-      response: responseSchema.extend({ data: productResponseSchema }),
+      response: responseSchema.extend({ data: adminProductResponseSchema }),
       params: productParamsSchema,
       body: productUpdateBodySchema,
       secured: true,
@@ -274,6 +276,8 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "patch",
       path: "/admin/catalog/products/{productId}/compatibilities/{compatibilityId}",
       summary: "Update compatibility",
+      description:
+        "Legacy draft compatibility only. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read. Reviewed fitment rules use the separate technical-review workspace.",
       params: compatibilityParamsSchema,
       body: compatibilityUpdateBodySchema,
       secured: true,
@@ -283,7 +287,10 @@ export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
       method: "delete",
       path: "/admin/catalog/products/{productId}/compatibilities/{compatibilityId}",
       summary: "Delete compatibility",
+      description:
+        "Retires an unreviewed legacy draft and preserves version history. Optional expectedVersion is checked under the product lock; a stale version returns 409 without a write or audit. New editors should send the version from the administrator product read.",
       params: compatibilityParamsSchema,
+      body: compatibilityDeleteBodySchema,
       secured: true,
       csrf: true,
     },

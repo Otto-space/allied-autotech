@@ -77,15 +77,25 @@ export function ProductExtrasEditor({
         ...next.facts,
       ],
       onUncertain,
+      retryAfterRejection: false,
       submit: async () => {
+        let preflightPassed = false;
         try {
           await checkProductExtras(sourcePath, expected);
+          preflightPassed = true;
+          setProposal((current) =>
+            current ? { ...current, retryAfterRejection: false } : current,
+          );
           onPendingChange?.(true);
           await next.submit();
           onPendingChange?.(false);
           if (imageWrite && expected.mediaVersion !== undefined)
             setMinimumVersion(expected.mediaVersion + 1);
         } catch (error) {
+          if (!preflightPassed)
+            setProposal((current) =>
+              current ? { ...current, retryAfterRejection: true } : current,
+            );
           if (error instanceof ApiError && error.status >= 400 && error.status < 500)
             onPendingChange?.(false);
           throw error;
@@ -282,7 +292,13 @@ export function ProductExtrasEditor({
                 { label: "Final year", value: value.yearTo || "Not specified" },
                 { label: "Notes", value: value.notes || "Not recorded" },
               ],
-              submit: () => saveProductCompatibility(productId, editor.item?.id, value),
+              submit: () =>
+                saveProductCompatibility(
+                  productId,
+                  editor.item?.id,
+                  value,
+                  editor.item?.version,
+                ),
             })
           }
         />
@@ -387,12 +403,18 @@ export function ProductExtrasEditor({
                     </Link>
                   </p>
                 )}
+                {item.version === undefined && (
+                  <p className="notice">
+                    Refresh this product before editing its compatibility.
+                  </p>
+                )}
                 <div className="actions">
                   <button
                     className="button secondary"
                     disabled={
                       disabled ||
                       !!editor ||
+                      item.version === undefined ||
                       !!item.vehicleModelId ||
                       (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
                     }
@@ -413,6 +435,7 @@ export function ProductExtrasEditor({
                     disabled={
                       disabled ||
                       !!editor ||
+                      item.version === undefined ||
                       !!item.vehicleModelId ||
                       (!!item.reviewStatus && item.reviewStatus !== "DRAFT")
                     }
@@ -433,7 +456,12 @@ export function ProductExtrasEditor({
                           { label: "Record reference", value: item.id },
                         ],
                         submit: () =>
-                          removeProductExtra(productId, "compatibilities", item.id),
+                          removeProductExtra(
+                            productId,
+                            "compatibilities",
+                            item.id,
+                            item.version,
+                          ),
                       })
                     }
                   >

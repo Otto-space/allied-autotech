@@ -653,5 +653,70 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         ).status,
       ).toBe(409);
     });
+    it("rejects a stale legacy compatibility save and retirement after a competing write", async () => {
+      const admin = await f.account(null, "ADMIN");
+      const base = `/admin/catalog/products/${productId}/compatibilities`;
+      const created = await write(
+        "post",
+        base,
+        { make: "Legacy concurrent make", model: "Model A", notes: null },
+        admin,
+      );
+      expect(created.status, JSON.stringify(created.body)).toBe(201);
+      const id = created.body.data.id as string;
+      const version = created.body.data.version as number;
+      const path = `/api/v1${base}/${id}`;
+      const observed = await request(app)
+        .get(`/api/v1/admin/catalog/products/${productId}`)
+        .set(admin.headers);
+      expect(observed.status).toBe(200);
+      expect(
+        observed.body.data.compatibilities.find((row: { id: string }) => row.id === id),
+      ).toMatchObject({ version });
+
+      const competing = await Promise.all(
+        ["First correction", "Second correction"].map((notes) =>
+          request(app)
+            .patch(path)
+            .set(admin.headers)
+            .send({ expectedVersion: version, notes }),
+        ),
+      );
+      expect(competing.map((response) => response.status).sort()).toEqual([200, 409]);
+      const after = await prisma.productCompatibility.findUniqueOrThrow({
+        where: { id },
+      });
+      expect(after.version).toBe(version + 1);
+      expect(["First correction", "Second correction"]).toContain(after.notes);
+      expect(
+        await prisma.productCompatibilityHistory.count({
+          where: { compatibilityId: id },
+        }),
+      ).toBe(2);
+
+      await request(app)
+        .delete(path)
+        .set(admin.headers)
+        .send({ expectedVersion: version })
+        .expect(409);
+      expect(
+        await prisma.productCompatibilityHistory.count({
+          where: { compatibilityId: id },
+        }),
+      ).toBe(2);
+      await request(app)
+        .delete(path)
+        .set(admin.headers)
+        .send({ expectedVersion: after.version })
+        .expect(200);
+      expect(
+        await prisma.productCompatibility.findUniqueOrThrow({ where: { id } }),
+      ).toMatchObject({ reviewStatus: "RETIRED", version: version + 2 });
+      expect(
+        await prisma.productCompatibilityHistory.count({
+          where: { compatibilityId: id },
+        }),
+      ).toBe(3);
+    });
   },
 );

@@ -609,6 +609,13 @@ export class CatalogService {
           where: { id, productId },
         });
         if (!existing) throw catalogResourceNotFound();
+        if (
+          input.expectedVersion !== undefined &&
+          existing.version !== input.expectedVersion
+        )
+          throw catalogConflict(
+            "This compatibility record changed. Reload it before saving.",
+          );
         if (existing.vehicleModelId !== null || existing.reviewStatus !== "DRAFT")
           throw catalogConflict(
             "Use the reviewed fitment workspace to change or retire this rule",
@@ -649,6 +656,7 @@ export class CatalogService {
     productId: string,
     id: string,
     context: RequestSecurityContext,
+    expectedVersion?: number,
   ) {
     await this.productChildMutation(
       actor,
@@ -660,6 +668,10 @@ export class CatalogService {
           where: { id, productId },
         });
         if (!existing) throw catalogResourceNotFound();
+        if (expectedVersion !== undefined && existing.version !== expectedVersion)
+          throw catalogConflict(
+            "This compatibility record changed. Reload it before retiring.",
+          );
         if (existing.vehicleModelId !== null || existing.reviewStatus !== "DRAFT")
           throw catalogConflict("Use the reviewed fitment workspace to retire this rule");
         if (

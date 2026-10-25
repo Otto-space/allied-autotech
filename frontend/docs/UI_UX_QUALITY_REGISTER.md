@@ -1356,7 +1356,7 @@ subsequent edits are evidence and the E2E fixture correction only. C: postflight
 29.54 GiB free; current/rollback images, warm cache, databases/backups and other
 tasks retained. No broad prune, duplicate install/worktree or image archive.
 
-# Cycle 9: Customers and Customer Care — 25 October 2026
+## Cycle 10: Customers and Customer Care — 25 October 2026
 
 Current bounded implementation: `feat/customers-care-20261025` in the reused
 `allied-shop-vehicles-r2-20261025` worktree. Released notification source
@@ -1391,3 +1391,35 @@ absolute assistive labels escaping the table's scroll containing block, and a
 acceptance. Earlier fixture envelope/ambiguous-selector failures were corrected;
 they are not counted as product regressions. Final checks and release evidence
 will follow; this checkpoint does not certify production rollout.
+
+## Cycle 9: Product compatibility concurrent edits — 25 October 2026
+
+Route `/admin/products`, administrator product detail editor. Another editor could
+change a legacy compatibility between the freshness read and write. The new editor
+sends the child version on update/retirement; the API checks it inside the product
+mutation lock and rejects stale changes with 409 before history or mutation.
+The administrator response exposes the version, while the public projection stays
+limited. An older response without a version disables edit/retire and asks for a
+refresh. A rejected review disables repeat confirmation, keeps the draft and offers
+explicit reload of current values. The draft key includes the child version so
+obsolete session storage does not override that reload.
+
+Nine isolated PostgreSQL integration cases passed under a non-owning runtime role;
+concurrent writes produced one success, one 409 and one history increment. Stale
+retirement was rejected. All 13 Edge/Playwright editor cases passed locally,
+including a 320px write-time conflict, draft recovery, no horizontal overflow and
+automated WCAG 2.2 AA rule checks. A focused follow-up confirmed no duplicate
+confirmation after rejection. The capture is
+`%TEMP%/allied-compatibility-conflict-mobile.png`. Final-source checks and
+hosted release evidence are tracked in the site-completion tracker. This is
+isolated/fixture-rendered evidence, not a real authenticated production editor
+session; physical devices and screen-reader speech remain untested.
+
+On the 70-migration release branch, final-source backend race tests passed 9/9,
+frontend/API builds, types and lint passed, and the optimized editor run passed
+11/13 before two issues were isolated. The preflight retry rule was corrected so
+a failed read can be retried safely while an attempted stale write cannot; a
+separate screenshot timed out under concurrent checks. Both cases and the mobile
+write-time conflict passed after the final rebuild (3/3 focused), with no new
+horizontal overflow or automated accessibility violation. Hosted authenticated
+acceptance remains open.

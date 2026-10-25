@@ -295,6 +295,7 @@ export class CatalogController {
       value.productId,
       value.compatibilityId,
       context(req),
+      (validated(res, "body") as { expectedVersion?: number }).expectedVersion,
     );
     res.status(200).json(successResponse("Compatibility retired", req.id));
   };

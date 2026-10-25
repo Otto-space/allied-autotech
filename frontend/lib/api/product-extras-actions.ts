@@ -31,14 +31,21 @@ export async function saveProductCompatibility(
   productId: string,
   itemId: string | undefined,
   values: CompatibilityValues,
+  expectedVersion?: number,
 ) {
+  if (itemId && expectedVersion === undefined)
+    throw new ApiError(409, { error: { code: "PRECONDITION_UNAVAILABLE" } });
   const body: RequestBody<"/admin/catalog/products/{productId}/compatibilities", "post"> =
     compatibilityBody(values);
   const result = parseCompatibilityChange(
     (
       await apiRequest<unknown>(
         `/admin/catalog/products/${productId}/compatibilities${itemId ? `/${itemId}` : ""}`,
-        { method: itemId ? "PATCH" : "POST", csrf: true, body },
+        {
+          method: itemId ? "PATCH" : "POST",
+          csrf: true,
+          body: { ...body, ...(itemId ? { expectedVersion } : {}) },
+        },
       )
     ).data,
   );
@@ -92,15 +99,17 @@ export async function saveProductImage(
   )
     throw new Error("Unexpected image response");
 }
-export function removeProductExtra(
+export async function removeProductExtra(
   productId: string,
   kind: "compatibilities" | "images",
   itemId: string,
   expectedVersion?: number,
 ) {
+  if (kind === "compatibilities" && expectedVersion === undefined)
+    throw new ApiError(409, { error: { code: "PRECONDITION_UNAVAILABLE" } });
   return apiRequest(`/admin/catalog/products/${productId}/${kind}/${itemId}`, {
     method: "DELETE",
     csrf: true,
-    body: kind === "images" && expectedVersion !== undefined ? { expectedVersion } : {},
+    body: expectedVersion === undefined ? {} : { expectedVersion },
   });
 }

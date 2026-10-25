@@ -1,6 +1,7 @@
 import { z } from "zod";
 export const compatibilitySchema = z.object({
   id: z.uuid(),
+  version: z.number().int().nonnegative().optional(),
   vehicleModelId: z.uuid().nullable().optional(),
   reviewStatus: z
     .enum(["DRAFT", "PENDING", "APPROVED", "REJECTED", "RETIRED"])
@@ -45,7 +46,7 @@ export const parseProductExtrasSource = (value: unknown) => {
   const direct = productExtrasSchema.safeParse(value);
   return direct.success ? { items: [direct.data] } : parseProductExtrasPage(value);
 };
-// Legacy compatibility writes compare the child projection; reviewed rules use the versioned fitment workspace.
+// The legacy editor also sends each child's version as an atomic write precondition.
 export const productExtrasRevision = (product: ProductExtras) => JSON.stringify(product);
 export const parseCompatibilityChange = (value: unknown) =>
   compatibilitySchema.extend({ productId: z.uuid() }).parse(value);

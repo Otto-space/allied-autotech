@@ -1357,5 +1357,37 @@ A fresh production archive restored into a separate local database and protected
 70-to-71 migration preserved original row hashes and ledger. This was a logical
 restore rehearsal, not a new managed PITR cluster. Production migration/promotion
 are pending final CI and compiled responsive acceptance. See the task evidence doc
-and UI quality Cycle 9; do not treat the remaining real-role/device acceptance or
+and UI quality Cycle 10; do not treat the remaining real-role/device acceptance or
 the broader site-completion Item 6 as completed by mocked role fixtures.
+
+
+25 October 2026 - legacy compatibility concurrency release candidate:
+branch `fix/compatibility-release-20261025` applies the isolated compatibility
+correction to the actual 70-migration notification release source, preserving its
+inbox/push, Shop/Vehicles and audit changes. The administrator editor sends the
+child version on compatibility update/retirement; the API checks it under the
+product mutation lock and returns 409 before any stale mutation/history write.
+The draft remains available for explicit reload and duplicate confirmation is
+disabled. Legacy bare DELETE remains compatible; public product fields remain
+limited. No schema change or production database write is needed for this fix.
+
+On the pre-integration source, 65 migrations replayed in an isolated `_test`
+database with no schema diff; nine focused integration tests passed under a
+restricted runtime role, including concurrent writes and stale retirement. The
+13-case local Edge editor suite passed, including 320px conflict, draft recovery,
+no horizontal overflow and automated accessibility checks. The matching source
+then passed a focused no-repeat confirmation test. Final-source verification and
+release evidence follow separately. The independent Customer Care branch with
+unreleased migration 71 is preserved; this candidate does not publish it. Item 6
+and the broader site goal remain open.
+
+Release-source verification: all 70 migrations replayed in a new isolated `_test`
+database with no schema difference; `db:check` and all nine focused integration
+cases passed with a non-owning runtime role. The final API contract validated 350
+paths and 410 documented operations. Backend and frontend types, lint, formatting
+and builds passed. In the optimized local browser run, 11 of 13 editor cases
+passed; the preflight retry assertion caught an overly broad repeat block and a
+mobile screenshot timed out under concurrent checks. The repeat rule now allows
+retry only when no write was sent and disables it once a write has been attempted.
+The preflight, write-time conflict and mobile accessibility cases all passed on
+the rebuilt final source. No synthetic customer or catalogue data was published.
