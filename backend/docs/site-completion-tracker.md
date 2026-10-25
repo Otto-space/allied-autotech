@@ -1013,3 +1013,49 @@ Docker cleanup totals: 39 -> 37 images, rounded 11.84 -> 11.81GB; 18 -> 13
 containers. Isolated database logical sizes totalled 34,606,462 bytes. Host free
 space measured 12,582,514,688 bytes afterward; no equivalent physical-reclamation
 claim is made. Task preview/API ports 3165/5021 remain closed.
+
+25 October 2026, 09:08 Lagos - preferred homepage restoration released:
+worktree C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025, branch
+fix/home-restoration-20261025. Runtime bb92ca529c3c75e8ed0b6439051412996184c0c0
+is live on READY dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU; main/www aliases both
+independently matched at 08:08:20 UTC. The baseline was the actual Home at
+93e2501b before b9162cc4, confirmed against file history and saved screenshots.
+Trust-led hero, original imagery/type, partner/workshop/principles sections,
+vehicle/parts editorial bands and feedback/FAQ are restored. New service detail,
+three-step process, truthful states, enquiry restrictions, retry and paused
+marquee remain. Extra lifestyle grid omitted; no unrelated application rollback.
+Customer feedback remains visible when empty and links to public /reviews.
+/demo and production sample catalogue code/data are removed; HTTP 404 verified.
+No fake inventory or review was published. Existing Parts/Vehicles/Contact,
+permissions, auth and backend/migration improvements are preserved.
+
+992 frontend tests plus lint/types/format/build passed; final-source frontend
+release CI 40174871261 and secret guard 40174871259 passed. Final hosted candidate
+passed 16 real/isolated-fixture scenarios and seven stability/focus/enlarged-text/
+long-name/media checks; unchanged review code passed 23 public-review regressions.
+All nine real-data checks passed again on production at 320/390/768/1024/1440,
+with zero page exceptions, scoped axe, loaded images and working CTA/menu/FAQ/
+carousel/review links. Source Home's 18-case optimized localhost suite remains
+unexecuted because automatic review blocked startup; hosted evidence is distinct.
+Real devices, screen-reader speech and real authenticated submissions remain
+untested. Exact evidence and screenshots: this worktree's Cycle 5 quality register
+and %TEMP%/allied-home-restoration-20261025/production/.
+
+Backend remains ACTIVE da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9, source 2fc02baf.
+Read-only rollout review verified database online, nine managed backups (latest
+05:22:10 UTC), existing encryption/retention/PITR evidence and the successful
+06:48:38 UTC separate 89-table/65-migration restore rehearsal, original rows
+unchanged. No new database command, migration, backup/restore, grant change,
+business DML, real enquiry/review/payment or Docker build occurred. Immediate
+frontend rollback: dpl_3XjRQRkHuJY1oVvnhPuqBPu5mMtv. Preserve migration 65.
+Temporary hosted review access was revoked; existing protection retained; browsers
+and local ports 3166/5021 are closed. Main-checkout unrelated edits are preserved.
+
+Disk review retained useful current/rollback/other-task images, warm caches,
+13 containers, 14 data volumes and backups. No Docker resource was created by
+this frontend task. Concurrent image/cache growth was retained without ownership
+evidence. Automatic approval review rejected bounded removal of the task's
+superseded .next build output as blocked by policy; 143,481,750 bytes remain,
+plus 451,146,323 bytes of useful warm cache. No deletion workaround was used.
+The homepage correction is complete; broader manual acceptance and settled Item 6
+keep their existing scope.

@@ -907,3 +907,71 @@ with original rows unchanged and no production write. Existing encrypted
 off-device retention/PITR evidence remains applicable. No new database command,
 backup, restore, migration, role/grant change or Docker build is needed for this
 frontend correction. Settled Item 6 and launch restrictions remain unchanged.
+
+### Released and verified
+
+Runtime source **`bb92ca529c3c75e8ed0b6439051412996184c0c0`** is live on READY
+Vercel **`dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU`**. Main/www aliases independently
+matched at **08:08:20 UTC / 09:08:20 Lagos** on 25 October 2026. Final source
+[frontend release checks](https://github.com/Otto-space/allied-autotech/actions/runs/40174871261)
+and [secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40174871259)
+passed. The complete 992-test frontend suite, lint, types, formatting and optimized
+build passed locally on the implementation; exact final-source CI repeated the
+release gate with lockfile-installed dependencies. Local reused Next is 16.3.8;
+the hosted/CI lockfile version is 16.4.3. No package/dependency change was made.
+
+Final acceptance: **16/16 hosted real/isolated-fixture scenarios** on the exact
+production candidate, **7/7 additional stability/focus/enlarged-text/long-name/
+broken-image checks** with committed CSS and no proposed-style injection, and
+**23/23 public-review regressions** on the preceding candidate with unchanged
+review code. After promotion, **9/9 real-data production scenarios** passed with
+zero page exceptions and scoped axe checks. Home sampling covers
+320/390/768/1024/1440px; the review suite additionally covers
+360/375/430/1280/1536px and a short 320x568 screen. Lab layout-shift observations
+were 0.0010–0.0269; all four hero slides had identical heights at each sampled
+width. CSS text enlargement is a stress test, not a claim of real browser-zoom or
+screen-reader acceptance. Source Home's full 18-case optimized localhost suite
+remains unexecuted because startup was blocked; equivalent hosted checks above
+are the actual acceptance evidence. Real devices, screen-reader speech and real
+authenticated operational submissions remain untested.
+
+The production page shows genuine empty parts/vehicle/review states and the
+published service. Populated cards/reviews were verified only in browser-isolated
+fixtures; no synthetic record was published. All retained Home images loaded in
+the real-data desktop/phone inspections. Primary/secondary CTA destinations,
+parts-enquiry editable prefill, FAQ/directions, mobile navigation, touch/keyboard
+carousel, pause/play, reduced motion, retry/retained refresh failure and shared
+real Parts/Vehicle cards passed. `/reviews` is public and linked; `/demo` is an
+actual HTTP 404. Production anonymous account lookup shows the normal sign-in
+action; the earlier preview-only unavailable-account state is not present.
+
+Backend stays on ACTIVE `da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9`, source `2fc02baf`.
+No database command, migration, backup/restore operation, business DML, grant
+change, real enquiry/review submission or payment was performed this cycle.
+Immediate frontend rollback is `dpl_3XjRQRkHuJY1oVvnhPuqBPu5mMtv`; the preceding
+preferred-design release `dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB` is also retained.
+Application rollback must retain migration 65 and the compatible API constraint.
+
+Evidence outside source: `%TEMP%/allied-home-restoration-20261025/` contains
+`candidate/hosted-qa.json`, `stability-qa.json`, preflight/postflight receipts,
+`production/hosted-qa.json`, real `production/home-{1440,390}.png`, full-page
+captures and review-page screenshots. Compare against the baseline/redesign
+captures recorded above. Temporary automation keys were revoked, existing
+protection retained, browsers closed and local ports 3166/5021 closed.
+
+No Docker resource or dependency installation was created. Inspected context,
+builders, image/container references, data volumes and disk usage; useful current,
+rollback and other-worktree resources were retained. During concurrent activity
+Docker totals changed from 37 images/11.81GB, 13 containers, 14 volumes/1.012GB,
+6.627GB cache to 38 images/11.84GB and 6.715GB cache, with container/volume totals
+unchanged. These additions are not owned by this frontend task and were retained.
+Automatic approval review rejected removing the task's superseded `.next` output
+with “blocked by policy”; no alternate deletion was attempted. The measured
+143,481,750 bytes of generated output remain alongside 451,146,323 bytes of useful
+warm cache. Host free space was 11,335,639,040 bytes after that rejected cleanup;
+no reclaimed-space claim is made. Docker/database volumes and backups were untouched.
+
+This completes the owner's focused homepage correction. Further business-approved
+inventory and authentic customer reviews remain content inputs, not fixtures to
+publish. Existing broader role/device/manual acceptance and settled Item 6 retain
+their recorded scope; no further redesign is implied by the previous audit.
