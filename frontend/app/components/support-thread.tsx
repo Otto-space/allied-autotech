@@ -1,4 +1,5 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { useResource } from "@/lib/api/use-resource";
@@ -131,7 +132,7 @@ function StaffSupportThread({
               ) : (
                 <>
                   <dt>Enquiry type</dt>
-                  <dd>{record.type.toLowerCase()}</dd>
+                  <dd>{enquiryLabel(record.type, record.vehicleEnquiryIntent)}</dd>
                 </>
               )}
               <dt>Created</dt>

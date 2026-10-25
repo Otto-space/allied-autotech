@@ -37,6 +37,9 @@ function EnabledPublicEnquiryForm({
   initialMessage,
   initialContextKey,
   initialEnquiryType,
+  initialVehicleEnquiryIntent,
+  vehicleListingId,
+  vehicleListingTitle,
 }: {
   serviceId?: string;
   serviceName?: string;
@@ -45,7 +48,10 @@ function EnabledPublicEnquiryForm({
   initialSubject?: string;
   initialMessage?: string;
   initialContextKey?: string;
-  initialEnquiryType?: "PRODUCT";
+  initialEnquiryType?: "PRODUCT" | "VEHICLE";
+  initialVehicleEnquiryIntent?: "LISTING" | "REQUIREMENTS";
+  vehicleListingId?: string;
+  vehicleListingTitle?: string;
   submissionLocked?: boolean;
   onSubmissionUncertain?: () => void;
   presentation?: "contact";
@@ -114,6 +120,9 @@ function EnabledPublicEnquiryForm({
         initialSubject={initialSubject}
         initialMessage={initialMessage}
         initialEnquiryType={initialEnquiryType}
+        initialVehicleEnquiryIntent={initialVehicleEnquiryIntent}
+        vehicleListingId={vehicleListingId}
+        vehicleListingTitle={vehicleListingTitle}
         initialContextKey={initialContextKey}
       />
     </>

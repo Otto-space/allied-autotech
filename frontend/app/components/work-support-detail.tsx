@@ -1,4 +1,5 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 import { WorkflowProgress } from "./status-progress";
@@ -354,7 +355,7 @@ function ThreadWorkspace({
               </span>
               <span>
                 {current.kind === "enquiries"
-                  ? supportLabel(current.type)
+                  ? enquiryLabel(current.type, current.vehicleEnquiryIntent)
                   : `${supportLabel(current.priority)} priority`}
               </span>
             </div>

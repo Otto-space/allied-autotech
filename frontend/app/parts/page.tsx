@@ -28,7 +28,7 @@ export async function generateMetadata({
   searchParams: SearchParameters;
 }): Promise<Metadata> {
   const metadata = await publicPageMetadata(
-    "Auto Parts, Engine Oil & Automotive Products",
+    "Auto Parts & Automotive Essentials",
     "Browse automotive products from Allied AutoTech. Search by name, brand or vehicle compatibility and check availability before collection in Port Harcourt.",
     "/parts",
     searchParams,
@@ -60,17 +60,17 @@ export default async function PartsPage({
             </li>
             <li>
               <ChevronRight size={14} aria-hidden="true" />
-              <span aria-current="page">Parts</span>
+              <span aria-current="page">Shop</span>
             </li>
           </ol>
         </nav>
         <section className="product-hero" aria-labelledby="product-title">
           <div className="public-wrap product-hero-inner">
             <div className="product-hero-copy">
-              <h1 id="product-title">Find the part you need.</h1>
+              <h1 id="product-title">Auto Parts &amp; Automotive Essentials</h1>
               <p>
-                Explore parts, oils, fluids, tyres and automotive products. Check
-                specifications and suitability for your vehicle.
+                Browse replacement parts, engine oils and automotive essentials. Check
+                product specifications and collection availability with our team.
               </p>
             </div>
             <div className="product-hero-media">

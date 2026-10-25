@@ -1,10 +1,17 @@
 import { z } from "zod";
+import {
+  productFamily,
+  recordedProductFields,
+  normalizeOilGrade,
+  validOilGrade,
+} from "../product-family";
 import { productExtrasSchema } from "@/lib/api/product-extras-schemas";
 import { nairaToKobo } from "@/lib/format/currency-input";
 const uuid = z.uuid();
 const timestamp = z.iso.datetime({ offset: true });
 const money = z.string().regex(/^(?:0|[1-9][0-9]{0,15})$/);
 export const productCategorySchema = z.object({
+  family: productFamily.nullable().optional(),
   id: uuid,
   name: z.string().min(1).max(120),
   slug: z.string(),
@@ -12,6 +19,7 @@ export const productCategorySchema = z.object({
   parentId: uuid.nullable().optional(),
 });
 export const adminProductSchema = productExtrasSchema.extend({
+  ...recordedProductFields,
   name: z.string().min(1).max(180),
   slug: z.string().min(2).max(120),
   sku: z.string().min(2).max(80),
@@ -168,6 +176,23 @@ const amount = (optional = false) =>
     }, "Enter a valid amount with up to two decimal places.");
 export const productFormSchema = z
   .object({
+    family: z.enum(["", "REPLACEMENT_PART", "ENGINE_OIL"]).optional(),
+    oilViscosityGrade: z
+      .string()
+      .trim()
+      .refine(
+        (v) => !v || validOilGrade(v),
+        "Enter the recorded grade, for example 5W-30.",
+      )
+      .optional(),
+    packVolumeMl: z
+      .string()
+      .trim()
+      .refine(
+        (v) => !v || (/^[1-9][0-9]{0,6}$/.test(v) && +v <= 1000000),
+        "Enter a whole number of millilitres from 1 to 1,000,000.",
+      )
+      .optional(),
     name: clean(180).min(1, "Enter a product name."),
     slug: clean(120)
       .min(2)
@@ -205,12 +230,25 @@ export const productFormSchema = z
 export type ProductFormValues = z.infer<typeof productFormSchema>;
 export function productBody(values: ProductFormValues, record?: AdminProduct | null) {
   return {
+    ...(values.family === undefined
+      ? {}
+      : {
+          family: values.family || null,
+          oilViscosityGrade:
+            values.family === "ENGINE_OIL" && values.oilViscosityGrade
+              ? normalizeOilGrade(values.oilViscosityGrade)
+              : null,
+          packVolumeMl:
+            values.family === "ENGINE_OIL" && values.packVolumeMl
+              ? Number(values.packVolumeMl)
+              : null,
+        }),
     name: values.name,
     slug: values.slug,
     sku: values.sku.toUpperCase(),
     categoryId: values.categoryId,
-    condition: values.condition || null,
-    classification: values.classification || null,
+    condition: values.family === "ENGINE_OIL" ? null : values.condition || null,
+    classification: values.family === "ENGINE_OIL" ? null : values.classification || null,
     productType: values.productType || null,
     brand: values.brand || null,
     manufacturerPartNumber: values.manufacturerPartNumber || null,

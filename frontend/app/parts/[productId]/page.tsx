@@ -6,6 +6,7 @@ import {
   fitmentQualifierKeys,
 } from "@/lib/parts-fitment";
 import { ProductFitmentCheck } from "../../components/product-fitment-check";
+import { packVolumeLabel } from "@/lib/product-family";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -206,20 +207,29 @@ export default async function ProductPage({
         }
       : null;
   const specs = {
-    Condition:
-      product.condition === "NEW"
-        ? "New"
-        : product.condition === "USED"
-          ? "Used"
-          : product.condition === "REFURBISHED"
-            ? "Refurbished"
+    ...(product.family === "ENGINE_OIL"
+      ? {
+          "Recorded viscosity grade": product.oilViscosityGrade || "Not recorded",
+          "Pack volume": product.packVolumeMl
+            ? packVolumeLabel(product.packVolumeMl)
             : "Not recorded",
-    Classification:
-      product.classification === "GENUINE_OEM"
-        ? "Genuine OEM"
-        : product.classification === "AFTERMARKET"
-          ? "Aftermarket"
-          : "Not recorded",
+        }
+      : {
+          Condition:
+            product.condition === "NEW"
+              ? "New"
+              : product.condition === "USED"
+                ? "Used"
+                : product.condition === "REFURBISHED"
+                  ? "Refurbished"
+                  : "Not recorded",
+          Classification:
+            product.classification === "GENUINE_OEM"
+              ? "Genuine OEM"
+              : product.classification === "AFTERMARKET"
+                ? "Aftermarket"
+                : "Not recorded",
+        }),
     "Product type": product.productType?.replaceAll("_", " ") || "Not recorded",
     Brand: product.brand || "Not listed",
     Category: product.category.name,

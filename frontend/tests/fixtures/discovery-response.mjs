@@ -40,6 +40,29 @@ export function discoveryResponse(url, mode = "populated") {
       ...(query.has("vehicleModelId") ? { verifiedMatches: 0 } : {}),
     };
   }
+  if (path === "/public/catalog/products/options") {
+    const field = query.get("field");
+    const scope = new URLSearchParams(query.get("scope") ?? "");
+    let products = empty ? [] : demoProducts;
+    if (field !== "family" && scope.has("family"))
+      products = products.filter((item) => item.family === scope.get("family"));
+    const values = [
+      ...new Set(products.map((item) => item[field]).filter((value) => value != null)),
+    ];
+    return {
+      items: values.map((value) => ({
+        value: String(value),
+        label:
+          field === "family"
+            ? value === "ENGINE_OIL"
+              ? "Engine oil"
+              : "Replacement parts"
+            : field === "packVolumeMl"
+              ? `${Number(value) / 1000} L`
+              : String(value),
+      })),
+    };
+  }
   if (path.startsWith("/public/catalog/products/"))
     return demoProducts.find((item) => path.endsWith(item.id));
   if (path === "/public/vehicles" || path === "/public/vehicles/discovery") {

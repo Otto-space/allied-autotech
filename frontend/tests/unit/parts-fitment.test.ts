@@ -41,6 +41,8 @@ describe("parts fitment URL and permission boundaries", () => {
       fitment: "verified",
       engineCode: "2ZR-FE",
       market: "Japan",
+      categoryId: id(3),
+      condition: "NEW",
     });
     const enquiry = new URL(partsEnquiryHref(params, id(5)), "https://allied.example");
     expect(enquiry.pathname).toBe("/contact");

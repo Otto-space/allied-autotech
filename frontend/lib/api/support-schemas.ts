@@ -40,6 +40,7 @@ const enquiry = base.extend({
   bookingId: ref,
   quoteId: ref,
   vehicleListingId: ref,
+  vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).nullable().optional(),
 });
 const complaint = base.extend({
   acknowledgedAt: stamp.nullable().optional(),

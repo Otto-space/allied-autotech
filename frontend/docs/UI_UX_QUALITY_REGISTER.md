@@ -5,6 +5,21 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
+Current bounded implementation: Shop/Vehicles revision 2, branch
+`feat/shop-vehicles-r2-20261025`. Scope is `/parts`, `/vehicles`, their detail and
+Contact handoffs, catalogue authoring, and support intent labels. Homepage and
+broader dashboard design remain outside this task. Contracts, isolated backend
+evidence, release dependencies and untested states are recorded in
+[`backend/docs/shop-vehicles-search-r2.md`](../../backend/docs/shop-vehicles-search-r2.md).
+Rendered acceptance manifest: `tests/quality/shop-vehicles-r2.txt`.
+
+Status: implementation in progress. Real isolated PostgreSQL persistence/search/
+permission tests passed; browser specs are prepared but not yet executed. Local
+server startup was rejected by automatic approval review (“blocked by policy”).
+No hosted UI acceptance or production migration/deployment is claimed by this
+checkpoint. Business catalogue data and recorded oil attributes remain separate
+from synthetic acceptance fixtures.
+
 Read the complete [29-section directive](Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md)
 and root `AGENTS.md` before relevant work. The original supplied file is preserved
 byte-for-byte, SHA-256 `3dd72b1af1f2c3e36162db1ddf089fb7fbad9fc39b1244c3e9902663202831d9`.

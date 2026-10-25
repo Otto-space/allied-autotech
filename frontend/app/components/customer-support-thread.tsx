@@ -1,4 +1,5 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 
@@ -58,7 +59,7 @@ function RecordDetails({ record }: { record: SupportRecord }) {
         {record.kind === "enquiries" ? (
           <div>
             <dt>Enquiry type</dt>
-            <dd>{label(record.type)}</dd>
+            <dd>{enquiryLabel(record.type, record.vehicleEnquiryIntent)}</dd>
           </div>
         ) : (
           <>

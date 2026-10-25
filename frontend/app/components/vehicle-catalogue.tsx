@@ -20,6 +20,7 @@ import {
 } from "../vehicles/vehicle-filters";
 import { Feedback } from "./feedback";
 import { VehicleCard } from "./catalogue-cards";
+import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 
 export function VehicleCatalogue({
   initial,
@@ -129,15 +130,22 @@ export function VehicleCatalogue({
           <summary>Search and vehicle preferences</summary>
           <div className="vehicle-toolbar">
             <VehicleSearch value={params.get("search") ?? ""} update={update} />
-            <VehicleFilters query={advanced} count={selected.length} update={update} />
+            <VehicleFilters
+              query={advanced}
+              count={selected.filter((key) => key !== "search").length}
+              update={update}
+            />
             <div className="vehicle-sort" hidden={noCatalogue}>
               <label htmlFor="vehicle-sort">Sort by</label>
               <div className="vehicle-select">
                 <select
                   id="vehicle-sort"
-                  value={params.get("sort") ?? "newest"}
+                  value={
+                    params.get("sort") ?? (params.has("search") ? "best_match" : "newest")
+                  }
                   onChange={(e) => update((next) => next.set("sort", e.target.value))}
                 >
+                  {params.has("search") && <option value="best_match">Best match</option>}
                   <option value="newest">Newest listings</option>
                   <option value="price_asc">Price: low to high</option>
                   <option value="price_desc">Price: high to low</option>
@@ -285,7 +293,11 @@ export function VehicleCatalogue({
         ) : listings.data?.items.length ? (
           <div className="vehicle-results-grid">
             {listings.data.items.map((listing) => (
-              <VehicleCard key={listing.id} listing={listing} />
+              <VehicleCard
+                key={listing.id}
+                listing={listing}
+                href={`/vehicles/${listing.id}?${new URLSearchParams([...params].filter(([key]) => !["cursor", "_trail", "limit", "sort"].includes(key)))}`}
+              />
             ))}
           </div>
         ) : (
@@ -320,8 +332,8 @@ export function VehicleCatalogue({
                   Clear filters
                 </button>
               )}
-              <Link className="button" href="/contact">
-                Contact our team
+              <Link className="button" href={vehicleEnquiryHref(params)}>
+                Tell us what vehicle you’re looking for
               </Link>
             </div>
           </div>

@@ -1,0 +1,19 @@
+# Bounded revision 2 acceptance; not the broader dashboard redesign
+/parts
+/parts/[productId]
+/vehicles
+/vehicles/[listingId]
+/contact?parts=1
+/contact?vehicle=1
+/admin/products
+/admin/products/[productId]
+/admin/categories
+# Intent label only; existing permission/assignment rules retained
+/admin/support/enquiries/[supportId]
+/admin/workforce/enquiries
+/dashboard/support/enquiries/[supportId]
+# States: loaded/empty/no-match/loading/error, family reset, recorded choices,
+# budget validation, explicit sort/history, stale responses, review/submission,
+# unsent-draft Keep/Start/resume/reload, session boundary, storage failure.
+# Viewports: 360/390/768/1024/1440; keyboard, focus, reduced motion, axe.
+# Mocked rendering does not certify real data, persistence or permissions.

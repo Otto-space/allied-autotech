@@ -18,33 +18,47 @@ import { SavedPartsVehicleSelector } from "./saved-parts-vehicle-selector";
 import type { UpdateProductQuery } from "../parts/product-filters";
 
 const parseMakes = (value: unknown) => fitmentOptionsSchema.parse(value);
+export const usePartsMakeCatalogue = () =>
+  useResource("/public/fitment/makes?limit=1", parseMakes);
 
 export function FindPartsForCar({
   query,
   enquiryQuery,
   update,
+  makes,
 }: {
   query: string;
   enquiryQuery?: string;
   update: UpdateProductQuery;
+  makes: ReturnType<typeof usePartsMakeCatalogue>;
 }) {
-  const makes = useResource("/public/fitment/makes?limit=1", parseMakes);
   const unavailable = !makes.loading && !makes.error && makes.data?.items.length === 0;
   return (
     <section className="parts-car-finder" aria-labelledby="parts-car-title">
       <div className="parts-car-heading">
         <div>
-          <h3 id="parts-car-title">Find parts for my car</h3>
+          <h3 id="parts-car-title">
+            {unavailable ? "Get help choosing a product" : "Find products for my vehicle"}
+          </h3>
           <p>
-            Choose your vehicle, then find matching parts. Make, model and year identify
-            candidates; technical details confirm fitment.
+            Vehicle details identify candidates. Reviewed evidence and the necessary
+            technical specifications are required before compatibility can be confirmed.
           </p>
         </div>
         <Link href={partsEnquiryHref(new URLSearchParams(enquiryQuery ?? query))}>
-          Request the right part
+          Get help choosing a product
         </Link>
       </div>
-      {unavailable ? (
+      {makes.loading ? (
+        <p role="status">Checking vehicle choices…</p>
+      ) : makes.error || makes.refreshError ? (
+        <div role="status">
+          <p>Vehicle choices could not be checked. Retry or ask our team for help.</p>
+          <button className="button secondary" type="button" onClick={makes.refresh}>
+            Retry vehicle choices
+          </button>
+        </div>
+      ) : unavailable ? (
         <div className="parts-finder-unavailable" role="status">
           <p>
             Vehicle choices are not available in our parts finder yet. Send the make,

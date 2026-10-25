@@ -21,7 +21,14 @@ import { Feedback } from "./feedback";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 import { CopyControl } from "./copy-control";
 import type { useSupportCreateWrite } from "@/lib/support/use-support-create-write";
-import { draftIdentity, draftKey, forgetDraft, DRAFT_SAVED } from "@/lib/forms/drafts";
+import {
+  draftIdentity,
+  draftKey,
+  forgetDraft,
+  readDraft,
+  writeDraft,
+  DRAFT_SAVED,
+} from "@/lib/forms/drafts";
 import { visitRequestMessage } from "@/lib/support/visit-request";
 import { IntakePrivacyNote } from "./intake-privacy-note";
 import visitStyles from "./visit-request.module.css";
@@ -53,6 +60,9 @@ export function SupportCreateForm({
   initialMessage,
   initialContextKey,
   initialEnquiryType,
+  initialVehicleEnquiryIntent,
+  vehicleListingId,
+  vehicleListingTitle,
 }: {
   kind: SupportKind;
   publicMode?: boolean;
@@ -66,7 +76,10 @@ export function SupportCreateForm({
   initialSubject?: string;
   initialMessage?: string;
   initialContextKey?: string;
-  initialEnquiryType?: "PRODUCT";
+  initialEnquiryType?: "PRODUCT" | "VEHICLE";
+  initialVehicleEnquiryIntent?: "LISTING" | "REQUIREMENTS";
+  vehicleListingId?: string;
+  vehicleListingTitle?: string;
   presentation?: "contact" | "dashboard";
   userId?: string;
   guard?: ReturnType<typeof useSupportCreateWrite>;
@@ -76,9 +89,11 @@ export function SupportCreateForm({
     serviceId
       ? "SERVICE"
       : kind === "enquiries"
-        ? productId || initialEnquiryType === "PRODUCT"
-          ? "PRODUCT"
-          : "GENERAL"
+        ? vehicleListingId || initialEnquiryType === "VEHICLE"
+          ? "VEHICLE"
+          : productId || initialEnquiryType === "PRODUCT"
+            ? "PRODUCT"
+            : "GENERAL"
         : "NONE",
   );
   const [source, setSource] = useState<SupportSource | undefined>(
@@ -96,7 +111,17 @@ export function SupportCreateForm({
             fields: { productId },
             inheritsBranch: false,
           }
-        : undefined,
+        : vehicleListingId && kind === "enquiries"
+          ? {
+              id: vehicleListingId,
+              label: vehicleListingTitle ?? "Selected vehicle listing",
+              fields: { vehicleListingId },
+              inheritsBranch: true,
+            }
+          : undefined,
+  );
+  const [vehicleIntent, setVehicleIntent] = useState<"LISTING" | "REQUIREMENTS">(
+    initialVehicleEnquiryIntent ?? "LISTING",
   );
   const [branch, setBranch] = useState("");
   const [visitRequested, setVisitRequested] = useState(false);
@@ -134,6 +159,15 @@ export function SupportCreateForm({
         ? ["support-create-form:parts:1", initialContextKey, kind]
         : ["support-create-form:1", serviceId, kind],
   );
+  useEffect(() => {
+    if (!publicMode || !initialContextKey || complete) return;
+    const key = draftKey(draftIdentity() ?? "guest", window.location.pathname, draftId);
+    if (!Object.keys(readDraft(key)).length && (initialSubject || initialMessage))
+      writeDraft(key, {
+        "subject:0": initialSubject ?? "",
+        "message:0": initialMessage ?? "",
+      });
+  }, [publicMode, initialContextKey, initialSubject, initialMessage, draftId, complete]);
   useEffect(() => {
     if (complete && isContact) {
       successHeading.current?.focus({ preventScroll: true });
@@ -191,9 +225,11 @@ export function SupportCreateForm({
         serviceId
           ? "SERVICE"
           : kind === "enquiries"
-            ? productId || initialEnquiryType === "PRODUCT"
-              ? "PRODUCT"
-              : "GENERAL"
+            ? vehicleListingId || initialEnquiryType === "VEHICLE"
+              ? "VEHICLE"
+              : productId || initialEnquiryType === "PRODUCT"
+                ? "PRODUCT"
+                : "GENERAL"
             : "NONE",
       );
       setSource(
@@ -211,8 +247,16 @@ export function SupportCreateForm({
                 fields: { productId },
                 inheritsBranch: false,
               }
-            : undefined,
+            : vehicleListingId && kind === "enquiries"
+              ? {
+                  id: vehicleListingId,
+                  label: vehicleListingTitle ?? "Selected vehicle listing",
+                  fields: { vehicleListingId },
+                  inheritsBranch: true,
+                }
+              : undefined,
       );
+      setVehicleIntent(initialVehicleEnquiryIntent ?? "LISTING");
       setBranch("");
       setBranchLabel("");
       reset({
@@ -237,6 +281,9 @@ export function SupportCreateForm({
     initialSubject,
     initialMessage,
     initialEnquiryType,
+    initialVehicleEnquiryIntent,
+    vehicleListingId,
+    vehicleListingTitle,
     reset,
     onUncertain,
   ]);
@@ -339,7 +386,12 @@ export function SupportCreateForm({
               if (locked || proposal || guard?.disabled || pickerBlocked) return;
               setError(undefined);
               setSelectionError(undefined);
-              if (sourceType && !source && !(publicMode && type === "PRODUCT")) {
+              if (
+                sourceType &&
+                !source &&
+                !(publicMode && type === "PRODUCT") &&
+                !(type === "VEHICLE" && vehicleIntent === "REQUIREMENTS")
+              ) {
                 setSelectionError("source");
                 setError("Choose the related record.");
                 document.getElementById("support-source")?.focus();
@@ -367,6 +419,9 @@ export function SupportCreateForm({
               const body = {
                 subject: values.subject,
                 ...(kind === "enquiries" ? { type, message } : { description: message }),
+                ...(kind === "enquiries" && type === "VEHICLE"
+                  ? { vehicleEnquiryIntent: vehicleIntent }
+                  : {}),
                 ...source?.fields,
                 ...(!source?.inheritsBranch ? { branchId: branch } : {}),
                 ...(publicMode
@@ -599,8 +654,40 @@ export function SupportCreateForm({
               </SelectFrame>
             </div>
           )}
+          {kind === "enquiries" && type === "VEHICLE" && (
+            <fieldset className="field contact-field-wide">
+              <legend>Vehicle enquiry</legend>
+              {(["LISTING", "REQUIREMENTS"] as const).map((intent) => (
+                <label className="check-label" key={intent}>
+                  <input
+                    type="radio"
+                    name="vehicleEnquiryIntent"
+                    value={intent}
+                    checked={vehicleIntent === intent}
+                    onChange={() => {
+                      setVehicleIntent(intent);
+                      setSource(undefined);
+                      setSourceBlocked(false);
+                      setSelectionError(undefined);
+                      setError(undefined);
+                    }}
+                  />
+                  {intent === "LISTING"
+                    ? "Ask about a listed vehicle"
+                    : "Discuss my vehicle requirements"}
+                </label>
+              ))}
+              {vehicleIntent === "REQUIREMENTS" && (
+                <p className="field-hint">
+                  No listing is selected. This starts a conversation about your
+                  preferences; sourcing and availability are not guaranteed.
+                </p>
+              )}
+            </fieldset>
+          )}
           {sourceType &&
             !serviceId &&
+            !(type === "VEHICLE" && vehicleIntent === "REQUIREMENTS") &&
             (isContact ? (
               <div className="field contact-field-wide">
                 <label htmlFor="support-source">

@@ -1,6 +1,7 @@
 "use client";
 import { browseEnquiriesOnly, catalogueOnly } from "@/lib/public-launch";
 import { PublicEnquiryActions } from "./public-enquiry-actions";
+import { vehicleEnquiryHref } from "@/lib/catalogue-enquiry";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
@@ -52,6 +53,7 @@ type Review =
 
 type VehicleActionsProps = {
   listingId: string;
+  enquiryHref?: string;
   listingTitle: string;
   branchName: string;
   gallery: ReactNode;
@@ -66,7 +68,13 @@ export function VehicleActions(props: VehicleActionsProps) {
         {props.gallery}
         <aside className="vd-summary" aria-label="Price and vehicle enquiries">
           {props.summary}
-          <PublicEnquiryActions subject={props.listingTitle} />
+          <PublicEnquiryActions
+            subject={props.listingTitle}
+            enquiryHref={
+              props.enquiryHref ??
+              vehicleEnquiryHref(new URLSearchParams(), props.listingId)
+            }
+          />
           <p>Contact our team to discuss availability and arrange a viewing.</p>
         </aside>
         {props.children}
@@ -77,6 +85,7 @@ export function VehicleActions(props: VehicleActionsProps) {
 
 function VehicleCustomerActions({
   listingId,
+  enquiryHref,
   listingTitle,
   branchName,
   gallery,
@@ -85,6 +94,7 @@ function VehicleCustomerActions({
   enquiriesOnly,
 }: {
   listingId: string;
+  enquiryHref?: string;
   listingTitle: string;
   branchName: string;
   gallery: ReactNode;
@@ -763,7 +773,12 @@ function VehicleCustomerActions({
         {gallery}
         <aside className="vd-summary" aria-label="Price and vehicle enquiries">
           {summary}
-          <PublicEnquiryActions subject={listingTitle} />
+          <PublicEnquiryActions
+            subject={listingTitle}
+            enquiryHref={
+              enquiryHref ?? vehicleEnquiryHref(new URLSearchParams(), listingId)
+            }
+          />
           <div ref={accountNotice} tabIndex={operation.sessionChanged ? -1 : undefined}>
             <AccountChangeNotice visible={operation.sessionChanged} />
           </div>
