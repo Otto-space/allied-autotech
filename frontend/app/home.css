@@ -509,9 +509,12 @@
 /* Keep illustration context quiet without covering the preferred hero composition. */
 .home-page .hero-caption {
   max-width: 240px;
-  font-size: 11px;
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: #01121ae8;
+  font-size: 12px;
   line-height: 1.4;
-  color: #d4dfe8;
+  color: #fff;
 }
 .home-page .partner-links p,
 .home-page .principles-list p {
