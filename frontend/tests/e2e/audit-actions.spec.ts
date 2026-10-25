@@ -70,9 +70,9 @@ test("changed flows have no application console errors or warnings", async ({ pa
                 : ".support-audience";
     await expect(page.locator(ready)).toBeVisible();
     await expect(page.locator("main h1")).toBeVisible();
-    await expect(page.locator("nextjs-portal")).not.toContainText(
-      /Build Error|Runtime Error/,
-    );
+    await expect(
+      page.locator("nextjs-portal").filter({ hasText: /Build Error|Runtime Error/ }),
+    ).toHaveCount(0);
   }
   expect(problems, failedReads.join("\n")).toEqual([]);
 });
@@ -123,9 +123,9 @@ test("A07: empty-message error and doubled text remain usable on a short phone",
 });
 async function check(page: Page, name: string, width: number) {
   await expect(page.locator("main")).toBeVisible();
-  await expect(page.locator("nextjs-portal")).not.toContainText(
-    /Build Error|Runtime Error/,
-  );
+  await expect(
+    page.locator("nextjs-portal").filter({ hasText: /Build Error|Runtime Error/ }),
+  ).toHaveCount(0);
   expect(await page.title()).not.toBe("");
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
