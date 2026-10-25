@@ -37,18 +37,18 @@ This tracker lives in the user's main checkout. That checkout is not the latest
 public-release source. Inspect current live state and Git history before any edit
 or deployment; never deploy the older checkout merely because it is the cwd.
 
-- Current frontend and backend source: `C:/Users/PC/.codex/worktrees/allied-email-evidence-20261023`.
-  Frontend commit `098b580c` includes gallery release `ad550f7c`, the newer
-  brand update and the dashboard `/shop` correction. Backend remains on the
-  gallery API release from `ad550f7c`.
+- Current frontend release source: `C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`,
+  commit `5e7deb6a` based on dashboard-quality release `d5269cb3`.
+  Backend runtime remains the verified discovery/fitment release; see
+  `C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023`.
 - Earlier accounts/enquiries release source: `C:/Users/PC/.codex/worktrees/allied-admin-redesign-20261022`;
   detailed release record there: `backend/docs/accounts-and-enquiries-release.md`.
 - Comprehensive policy evidence: `C:/Users/PC/.codex/worktrees/allied-launch-final-20261022/backend/docs/public-launch-policy-decisions.md`
 - Provider/operational gaps there: `backend/docs/public-enquiry-privacy-review.md`
-- Current backend observed: `92fb65ee-dfc7-4a81-9124-92f4913574c7` (ACTIVE),
-  API-only image change from gallery release commit `ad550f7c` for Item 6.
-- Current frontend observed: `dpl_GaG2tZE9e7YbQ1U2pSq7LnHGxUcS` (READY), assigned
-  to the main domain on 23 October 2026. Recheck before changing production.
+- Current backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE)
+  from the discovery/fitment release.
+- Current frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
+  assigned to both main and www domains on 24 October 2026. Recheck before changes.
 
 ## Sequential work queue
 
@@ -642,3 +642,540 @@ galleries work. This closes the specific old-icon/gallery defect for the live
 customer journey. Item 6 remains open for staff-managed image acceptance and
 future real product/marketplace vehicle publication and stock checks; no fake
 public listings should be created.
+
+24 October audit continuation: read-only live Parts search updated the URL and active filter correctly, with a clear no-match state against the currently empty public catalogue. The live guidance still referred to purchase and cart use under the approved browse/enquiries mode. The current release worktree now has mode-aware Parts guidance and neutral filter copy; targeted lint and TypeScript checks passed. A local enquiry-mode page returned 200, and its browser snapshot confirmed the wording and filter dialog. The local API was not running, so this did not validate product data or suggestions. No production change was deployed; all previously recorded financial, role, catalogue-content and owner-decision gates remain open.
+
+Parts filter source review found mappings and backend predicates for the visible search, category, brand, fitment, price, featured, availability and sort controls. Actual result correctness still requires approved real product records or isolated fixtures; no fake public listing was created.
+
+24 October P0 financial follow-up: isolated refund suites passed 49/49. A later
+direct-network test runner used a new, disposable PostgreSQL 17 `_test` database
+on `127.0.0.1:5432`, confirmed before writes, and replayed all 62 migrations
+with no Prisma schema difference. Paystack and Monnify were disabled. The
+work-payments and reconciliation suites passed together, 22/22 tests. The
+1,003-attempt case had first passed alone in 14.97 seconds; its test-only
+deadline was changed from 20 to 60 seconds to tolerate shared-suite load.
+The disposable database was removed. No application database or live money
+action was used. Provider settlement, authenticated role acceptance, catalogue
+content and owner/operational decisions remain open. The user has now explicitly
+authorized production deployment of completed work without another permission
+request, while keeping live payments disabled until Paystack is configured.
+
+## Local Docker disk maintenance - 24 October 2026
+
+This separate maintenance task does not close Item 6 or change the release source,
+deployment, outstanding decisions or acceptance gates above. The current worktrees,
+release runner, local Docker context and actual active/pending DigitalOcean releases
+were inspected before selecting resources. Current component digests, the two prior
+successful production releases, linked-worktree builds, recent images and all images
+referenced by running or stopped containers were protected.
+
+Removed 49 confirmed superseded local project images using exact references without
+force. Docker image storage fell from 14.18 GB to 10.3 GB. Also removed the exact
+stopped, unregistered BuildKit container and its verified build-cache-only volume
+(approximately 1.95 GB). Combined logical Docker storage reclaimed was about 5.8 GB.
+The conservative inactive/unshared cache prune reclaimed 0 B; 4.398 GB of reusable
+builder cache was retained. No blanket prune, image archive, new build or pull was
+used. All 33 retained image IDs, all 13 original database containers and all original
+database volumes were verified afterward. No application/database volume was removed.
+
+Windows C: free space measured approximately 19.57 GB before and 19.79 GB after;
+concurrent local work means that difference cannot be attributed solely to cleanup.
+Docker's VHDX logical length stayed 32,284,606,464 bytes. The 5.8 GB figure is Docker
+storage reclaimed, not a claim of equivalent Windows physical disk recovery. Docker
+and WSL were not stopped and no manual VHDX compaction was attempted.
+
+Mandatory retention-aware disk hygiene is now in `AGENTS.md` and
+`backend/docs/docker-disk-hygiene.md` in this checkout and the active
+`allied-email-evidence-20261023` and `allied-discovery-fitment-20261023` worktrees.
+Existing code and pending work were preserved. Small, secret-free before/after and
+removal receipts are in `%TEMP%/allied-docker-cleanup-20261024`. Documentation diff
+checks passed. No application tests, database writes, migrations, backup/restore
+tests, deployments or remote registry deletions were performed for this maintenance.
+
+
+## Latest production handoff - discovery/fitment, 24 October 2026
+
+This later observation supersedes earlier live-source pointers above while
+preserving the independent audit checkpoints and the settled site-completion queue.
+Current release worktree: C:/Users/PC/.codex/worktrees/allied-discovery-fitment-20261023,
+branch feat/discovery-fitment-20261023, verified code 7bb485b8 (pushed). Backend
+images are from 59d5141b; frontend source e2143b56. Backend deployment
+5c1ea9a7-6211-46d2-995f-c45e504bf9e9 is ACTIVE, 16/16 steps successful.
+Vercel dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr is READY and separately verified on
+alliedautotech.com and www.alliedautotech.com. Recheck actual provider state before
+choosing source for another release; the older email-evidence worktree's pending
+audit/copy changes were not silently deployed or discarded.
+
+Final checks: 1,422 backend tests passed, 156 intentional skips; 985 frontend tests
+plus lint/types/build/format passed; 168 combined browser scenarios passed with
+zero failures/skips/flaky results; both production audits reported zero
+vulnerabilities. GitHub frontend release, database safety and secret guard passed.
+A new empty isolated _ci target replayed all 64 migrations. An actual restore of
+a fresh production archive into a separate new _ci database verified 86 tables,
+then rehearsed the two additive migrations with existing rows preserved. Production
+used only the protected db:migrate runner with another fresh verified backup;
+db:check, runtime privilege/schema checks and restoration of the app-only firewall
+passed. Existing data/grants and staging were preserved. Eight live backend GET
+checks passed. Existing launch/payment/provider policy remains in place.
+
+The vehicle/parts filters, category hierarchy, reviewed fitment, saved garage and
+notification context/read-state requirements are live. Full evidence is in the
+release worktree's backend/docs/discovery-fitment-release-review.md. Item 6 and
+the remaining site queue retain their recorded scope; synthetic tests do not
+supply real manufacturer evidence or close staff/media acceptance. Independent
+main-checkout edits and audit work are preserved. Only this handoff was appended.
+
+
+## Current frontend handoff - UI quality cycle 1, 24 October 2026
+
+The standing 29-section UI/UX directive is preserved byte-for-byte in
+frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md, referenced by
+AGENTS.md. frontend/docs/UI_UX_QUALITY_REGISTER.md owns scope, source inventory,
+coverage evidence, remaining gaps and future finite review cycles. Inventory:
+104 route patterns (14 public, 7 authentication, 25 customer, 58 work) and 294
+interaction/boundary source files; source discovery is not rendered acceptance.
+
+Current frontend release worktree is
+C:/Users/PC/.codex/worktrees/allied-ui-quality-20261024, branch
+feat/continuous-ui-quality-20261024, implementation bd0ac141 (pushed), based on
+the prior af9d8b94 release. Vercel dpl_5bJRSphwZTktgFmz9jM3reZ1Hipx is READY;
+both alliedautotech.com and www.alliedautotech.com were separately verified on
+that ID at 20:08:48 UTC. Rollback frontend: dpl_Ew6X9yGVXF37FEpnqoED8srmKkzr.
+Backend remains ACTIVE 5c1ea9a7-6211-46d2-995f-c45e504bf9e9. Recheck provider
+state before selecting source for another release.
+
+The batch corrects parts Help for enquiry/collection mode and reviewed fitment,
+aligns booking/payment preparation, and reuses role-aware Help actions in Quick
+Help with loading/error/retry, focus wrapping/restoration and contrast fixes.
+Full frontend lint/types/format/build passed; 988 unit tests and 75 distinct
+browser scenarios passed across the documented runs/rechecks, including 15/15
+against the optimized enquiry-mode production build. Release GitHub frontend,
+database-safety and secret-guard checks passed. Initial dev chunk-loading and
+outdated MFA-search test failures/rechecks are recorded honestly in the register.
+Rendered QA was local production-build plus hosted baseline; final live release
+was verified by provider READY and both domain IDs, not real private actions.
+
+Provider preflight confirmed the database online, eight managed backups (latest
+24 October 05:22:10 UTC) and the same-day prior restore evidence was reviewed.
+This frontend cycle ran no database commands/writes, migration, backup or restore,
+and created/removed no Docker images, containers or volumes. Existing runtime,
+backup, payment-disabled, enquiry-only and collection policies remain in force.
+All earlier Item 6 staff-media/real-publication and operational decisions retain
+their recorded scope. Other worktrees' pending audit/copy edits were preserved.
+
+
+## Current frontend handoff - dashboards and managed workforce, 24 October 2026
+
+The owner's page-by-page UI directive is now applied to the dashboard/workforce
+review queue. All 83 customer/work route entries were inspected, with a per-page
+evidence index and managed-workforce subpage index in
+frontend/docs/UI_UX_QUALITY_REGISTER.md. The reproducible selection is
+frontend/tests/quality/dashboard-pages.txt. Source review, synthetic rendered
+samples, intentionally restricted launch pages and actual live acceptance remain
+distinct; this is not a claim of exhaustive role/state or WCAG acceptance.
+
+Current frontend release worktree:
+C:/Users/PC/.codex/worktrees/allied-dashboard-quality-20261024; branch
+feat/dashboard-workforce-quality-20261024; runtime implementation 7e522931
+(pushed). Vercel dpl_42w1rg4PojUn7a81eD4KrrRVnaW2 is READY. Both main and www
+aliases were independently verified on it at 20:57:29 UTC / 21:57:29 Lagos.
+Frontend rollback: dpl_5bJRSphwZTktgFmz9jM3reZ1Hipx. Backend remains ACTIVE
+5c1ea9a7-6211-46d2-995f-c45e504bf9e9. Recheck actual provider state before
+choosing source for the next change.
+
+The batch removes stale work navigation/content after unverifiable workforce
+access, provides legacy capability retry and clear session states, contains
+mobile drawer focus, fixes repeated workflow landmarks, adds a staff-directory
+path for responsibility management, and repairs review-detail retry/heading
+hierarchy. No permission, business policy, schema or API contract was broadened.
+
+Local lint/types/format/production build and 988 unit tests passed. The selected
+production-build matrix covered 167 distinct scenarios across 82 suites: 164
+initial passes, three corrected findings/test assumptions and a fresh-build 6/6
+targeted recheck. Initial runner trace collisions, restricted-route test setup,
+relative redirect parsing, stale booking-link assertions and Next.js streaming
+not-found semantics are documented in the register. Existing overview baseline
+was 75/75. No final selected case is left skipped or unresolved; real-directory
+API acceptance remains explicitly outside the fixture pass. GitHub frontend
+release, database-safety and secret checks passed for runtime implementation.
+Rendered verification used the local optimized build; published acceptance here
+is provider READY and both actual alias IDs, not real authenticated operations.
+
+Provider preflight confirmed the database online with eight managed backups,
+latest 24 October 05:22:10 UTC; same-day separate restore evidence was reviewed.
+No local/production DB command, migration, new backup/restore, staff enrollment,
+responsibility assignment or real financial action was made. GitHub DB checks
+used isolated CI. Docker resources and warm caches were retained; no Docker
+resource was created/deleted and dependencies were reused. Task-owned previews
+were stopped. Payments and deferred customer transaction routes remain disabled.
+Original main-checkout edits and all other worktrees were preserved. Item 6's
+settled media/real-catalogue and operational decisions keep their existing scope.
+
+24 October evening audit/copy release: the live source advanced during this audit
+from `af9d8b94` to dashboard-quality `d5269cb3`. The two customer-facing copy
+fixes were cherry-picked onto that newer source as `5e7deb6a`; no older frontend
+was promoted over it. The final branch is
+`C:/Users/PC/.codex/worktrees/allied-audit-copy-current-20261024`.
+Vercel production deployment `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` built READY
+with automatic custom-domain promotion paused. Protected deployment checks
+confirmed enquiry-mode Parts copy and a published service detail's preparation
+copy. After promotion, both `alliedautotech.com` and
+`www.alliedautotech.com` independently resolved to that exact deployment.
+Public main-domain Parts and service pages returned 200 with the expected copy.
+Backend remains `5c1ea9a7-6211-46d2-995f-c45e504bf9e9`; no schema,
+application-database, payment-provider or message action was made. Payments
+remain disabled in browse/enquiries mode. The preceding dashboard deployment
+`dpl_42w1rg4PojUn7a81eD4KrrRVnaW2` is the immediate frontend rollback
+candidate, subject to the normal compatibility check.
+
+The audit's financial suites passed 49 refund and 22 payment/reconciliation
+tests on separate disposable isolated databases, but those were run against
+the older audit worktree and do not replace the newer dashboard release's
+recorded CI or provider settlement acceptance. An attempted full
+`header-session.spec.ts` run on the newer source passed 6/19 and exposed
+stale fixture assumptions around extra Help session probes and one success
+toast. That fixture change was excluded from the production copy release;
+header/auth runtime code was untouched. Follow up on the fixture and the
+customer toast separately. No real authenticated role journey or live provider
+transaction was claimed for this release. Item 6 and owner/operational
+dependencies remain open.
+
+The release branch was pushed to GitHub at `origin/release/audit-copy-current-20261024`.
+Its automatic Vercel **preview** status was canceled before build because Vercel
+reported that the commit signature could not be verified; the preceding
+dashboard-quality release branch shows the same status. Do not disable commit
+verification to turn that preview green. The CLI-created production deployment
+had already built READY from the reviewed source and both production aliases
+remained on `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` after the branch push. A
+verified signing/identity workflow is a separate release-pipeline follow-up.
+
+
+24 October 2026, 23:17 Lagos - scoped catalogue/customer-care design release:
+runtime `1aacb6af5ffbe72c23e1f0f7d35b78fadf5f4447` on
+`C:/Users/PC/.codex/worktrees/allied-catalogue-care-ux-20261024`, branch
+`feat/catalogue-care-ux-20261024`. This is the current frontend release source.
+It includes the separate copy release and receipt; the older main checkout was
+not deployed. Vercel `dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB` is READY and
+both main/www domains independently resolved to it at 22:17:35 UTC. Rollback
+frontend is `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ`; backend remains ACTIVE
+`5c1ea9a7-6211-46d2-995f-c45e504bf9e9`.
+
+Shop search precedes fitment tools; catalogue filter/price guidance is clearer.
+My Vehicles starts its form with required identity and has clearer navigation
+and removal styles. Customer Care has task anchors, associated writing guidance
+and a full-width privacy note. Customer and care records have responsive filter
+rows, removable constraints, readable blue links and expandable reference facts.
+The customer directory remains admin/super-admin only; staff retain their scoped
+care/managed queues. Broader testing also fixed lost managed-workforce drafts and
+success feedback during access refresh: pending work stays mounted but hidden
+and inert; failure or a changed responsibility scope still discards it.
+
+Local 988 unit tests plus lint/types/build/format passed. Initial browser matrix:
+349 passed/10 failed; five refresh-lifecycle failures were repaired, four upload
+failures corrected a local fixture-host setting and one Shop assertion was
+aligned with the existing enquiry-mode copy. All 11 critical rechecks and the
+fresh-build 179/179 final checks passed. The passed-case union covers all 385
+distinct selected scenarios across 22 suites; it is not a single clean 385-case
+run. Final implementation frontend CI/secret checks passed; unchanged backend
+safety passed isolated CI on the preceding UI commit. Full evidence, matrix and
+remaining manual/real-role limits are in the central quality register.
+
+Read-only preflight confirmed database online/eight managed backups (latest
+24 October 05:22:10 UTC); existing encrypted retention/PITR and separate restore
+receipts were reviewed. No local/production DB command, migration, new backup
+or restore, real message or financial action was performed. Production verification
+was provider READY/actual alias identity; browser checks used local synthetic
+fixtures. Payments stay disabled. Dependencies and Docker resources were retained;
+preview port 3155 stopped. Original main-checkout edits remain untouched except
+the guarded documentation handoff. Item 6 and owner dependencies retain scope.
+
+
+25 October 2026 - Home/Parts/Vehicles implementation checkpoint (not released):
+`C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, branch
+`feat/home-discovery-ux-20261025`, based on latest release `93e2501b` after checking
+both actual production aliases. Home sections/motion, direct Parts search and grouped
+fitment, simpler vehicle filters, catalogue empty/failure handling and Product enquiry
+context are implemented. A separate explicitly fictional `/demo` has 20 products/parts,
+12 vehicles and four services; genuine catalogue/database records were not seeded.
+Code is uncommitted in that worktree; main-checkout application edits were preserved.
+
+Full lint/types/format, 988 frontend unit tests, four later fixture-contract tests,
+10 focused backend unit tests, 347-path OpenAPI validation and the final optimized
+build passed. Latest selected development-browser run was 16 passed/1 failed; the
+remaining fixture-count assertion was corrected but not rerun. Final Home and broader
+127-case optimized regression matrix are incomplete: automatic approval review
+rejected loopback preview startup as "blocked by policy", including after the user's
+explicit approval. Preview/API ports 3165/5021 are closed; no workaround was used.
+See Cycle 4 in that worktree's `frontend/docs/UI_UX_QUALITY_REGISTER.md` for exact
+commands, evidence, limitations and resume steps. Do not count this as release-ready.
+
+The compatible public Product-enquiry API expansion must be deployed before the
+matching frontend. No schema change, database check/write/migration, backup/restore,
+real submission, push or deployment occurred. Docker images/caches/volumes were
+retained; no new Docker resource or package installation was needed. Existing useful
+dependencies and the built review artifact are retained. Current release/rollback,
+launch restrictions, database safeguards and settled Item 6 decisions remain unchanged.
+
+25 October 2026, 08:07 Lagos - public Home/Parts/Vehicles release:
+worktree `C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`,
+branch `feat/home-discovery-ux-20261025`. Frontend runtime `b9162cc4`
+is live on READY Vercel `dpl_3XjRQRkHuJY1oVvnhPuqBPu5mMtv`; both actual
+main/www aliases independently matched at 07:07:45 UTC. Backend source
+`2fc02bafdde75385fffad9c46767615a506f5eb2` is ACTIVE in deployment
+`da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9`, with 16/16 successful provider steps
+and all four actual immutable image digests verified. This is the current release
+source; the older main checkout and independent pending f0062282 work were preserved.
+
+Home hierarchy/motion, direct Parts search and grouped fitment, vehicle priorities,
+distinct empty/error states and editable Product enquiry context are released.
+The public, noindex `/demo` shows 20 fictional products/parts, 12 vehicles and
+four services, explicitly separate from genuine availability. Real public stock
+and make choices remain empty; no genuine catalogue/customer/workforce/financial
+seed or real enquiry/payment submission was made.
+
+Release review corrected the initial API-only assumption: existing SQL required
+a product reference even for anonymous Product enquiries. New forward migration
+`20261025050000_public_unlisted_parts_enquiries` permits only anonymous unlisted
+Product enquiries; customer-linked and other source requirements remain intact.
+All 65 migrations replayed on a new isolated target; 13 real persistence/security
+tests, 43 packaged-image/release checks and all final release CI passed. A fresh
+production archive was actually restored and rehearsed separately across 89
+tables, with existing row counts preserved. A new 06:56:39 UTC exact-target
+verified backup preceded `npm run db:migrate`; production `db:check`, all 65
+checksums and runtime least privilege passed. An expected runtime denial when a
+postcheck tried to read the migration ledger was resolved using the migration
+account read-only, without changing grants or rerunning the migration. All
+temporary operator firewall access was removed and original app-only rules verified.
+Nine managed backups were listed, latest 25 October 05:22:10 UTC; existing managed
+encryption/retention/PITR and restore evidence were reviewed. No production reset,
+business DML, data deletion, history repair or restore-over-live was performed.
+
+Selected hosted acceptance passed 22 scenarios (real data, browser-only fixtures
+and explicit pause/play), then all 13 real-data journeys passed again on production
+at 320/390/768/1024/1440. API readiness/public reads returned 200. The full 127-case
+local matrix remains unexecuted because local preview startup was tool-blocked;
+real devices, screen-reader speech and real authenticated operational acceptance
+are not claimed. Exact evidence/remaining scope is in Cycle 4 of this worktree's
+`frontend/docs/UI_UX_QUALITY_REGISTER.md`.
+
+Immediate frontend rollback: `dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB`; backend:
+`5c1ea9a7-6211-46d2-995f-c45e504bf9e9` with its protected pinned manifest.
+Retain the compatible expanded database constraint on any application rollback.
+Future backend sources must include migration 65; never bypass unknown history
+to deploy an older branch. Existing launch restrictions and Item 6 remain settled.
+
+Bounded cleanup removed two obsolete never-deployed task API images, five
+interrupted never-started test containers, one unused internal network and the two
+task-created isolated verification databases through the supported test-only
+command after target/connection checks. Existing 14 data volumes, useful current/
+rollback/other-task images, warm caches and verified backups were retained.
+Docker cleanup totals: 39 -> 37 images, rounded 11.84 -> 11.81GB; 18 -> 13
+containers. Isolated database logical sizes totalled 34,606,462 bytes. Host free
+space measured 12,582,514,688 bytes afterward; no equivalent physical-reclamation
+claim is made. Task preview/API ports 3165/5021 remain closed.
+
+25 October 2026, 09:08 Lagos - preferred homepage restoration released:
+worktree C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025, branch
+fix/home-restoration-20261025. Runtime bb92ca529c3c75e8ed0b6439051412996184c0c0
+is live on READY dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU; main/www aliases both
+independently matched at 08:08:20 UTC. The baseline was the actual Home at
+93e2501b before b9162cc4, confirmed against file history and saved screenshots.
+Trust-led hero, original imagery/type, partner/workshop/principles sections,
+vehicle/parts editorial bands and feedback/FAQ are restored. New service detail,
+three-step process, truthful states, enquiry restrictions, retry and paused
+marquee remain. Extra lifestyle grid omitted; no unrelated application rollback.
+Customer feedback remains visible when empty and links to public /reviews.
+/demo and production sample catalogue code/data are removed; HTTP 404 verified.
+No fake inventory or review was published. Existing Parts/Vehicles/Contact,
+permissions, auth and backend/migration improvements are preserved.
+
+992 frontend tests plus lint/types/format/build passed; final-source frontend
+release CI 40174871261 and secret guard 40174871259 passed. Final hosted candidate
+passed 16 real/isolated-fixture scenarios and seven stability/focus/enlarged-text/
+long-name/media checks; unchanged review code passed 23 public-review regressions.
+All nine real-data checks passed again on production at 320/390/768/1024/1440,
+with zero page exceptions, scoped axe, loaded images and working CTA/menu/FAQ/
+carousel/review links. Source Home's 18-case optimized localhost suite remains
+unexecuted because automatic review blocked startup; hosted evidence is distinct.
+Real devices, screen-reader speech and real authenticated submissions remain
+untested. Exact evidence and screenshots: this worktree's Cycle 5 quality register
+and %TEMP%/allied-home-restoration-20261025/production/.
+
+Backend remains ACTIVE da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9, source 2fc02baf.
+Read-only rollout review verified database online, nine managed backups (latest
+05:22:10 UTC), existing encryption/retention/PITR evidence and the successful
+06:48:38 UTC separate 89-table/65-migration restore rehearsal, original rows
+unchanged. No new database command, migration, backup/restore, grant change,
+business DML, real enquiry/review/payment or Docker build occurred. Immediate
+frontend rollback: dpl_3XjRQRkHuJY1oVvnhPuqBPu5mMtv. Preserve migration 65.
+Temporary hosted review access was revoked; existing protection retained; browsers
+and local ports 3166/5021 are closed. Main-checkout unrelated edits are preserved.
+
+Disk review retained useful current/rollback/other-task images, warm caches,
+13 containers, 14 data volumes and backups. No Docker resource was created by
+this frontend task. Concurrent image/cache growth was retained without ownership
+evidence. Automatic approval review rejected bounded removal of the task's
+superseded .next build output as blocked by policy; 143,481,750 bytes remain,
+plus 451,146,323 bytes of useful warm cache. No deletion workaround was used.
+The homepage correction is complete; broader manual acceptance and settled Item 6
+keep their existing scope.
+
+25 October 2026 - owner-requested local disk cleanup:
+Removed 5,542,707,536 bytes of verified redundant files: 1,780,236,350 bytes
+of cached installers from an inactive temporary editor-test profile, and
+3,762,471,186 bytes (108 files) of superseded webpack compiler caches across
+seven older worktrees. Source worktrees, uncommitted changes and current/rollback
+caches were preserved; source Git statuses were rechecked. Installed Codex,
+sandbox runtime/state, settings, session/history stores, dependencies, database
+folders/volumes and backups were retained. No database command or application
+code change was performed. Free C: space measured 11,313,684,480 bytes immediately
+before cleanup and 16,812,593,152 bytes at final verification; concurrent activity
+means the change differs slightly from the sum of removed file lengths.
+
+Reviewed five stale unshared Docker cache records and ran the documented bounded
+24-hour native prune, excluding shared/in-use/package-cache records. It reclaimed
+0B. All 38 images/11.84GB, 13 containers, 14 volumes/1.012GB and 6.715GB cache
+remain. No blanket prune, image/volume removal or Docker/WSL disk operation ran.
+
+Automatic approval review rejected recursive removal of the inactive temporary
+extension copy at C:/Users/PC/AppData/Local/Temp/codex-ui-test-20261024-150755/extensions
+(4,770,580,255 bytes), including after the owner explicitly approved that exact
+path. It remains. Removal of this task's superseded local .next dev/standalone
+output was also rejected as blocked by policy; no alternate deletion was used.
+The successfully removed installer archives are separate files, not the installed
+extension. Detailed filesystem audit/target/cleanup receipts are under %TEMP%
+with allied-disk-* and allied-cleanup-* names dated 20261025. The existing hygiene
+document and main AGENTS now also cover local builds and editor-test copies.
+
+25 October 2026 - owner explicitly approved deleting the 143,481,750 bytes of superseded generated output in allied-home-restoration-20261025/frontend/.next while retaining cache/source/dependencies. Rechecked the exact folder and confirmed no Next.js process uses it; application worktree remained clean. Automatic approval review again rejected the bounded native deletion before execution as blocked by policy. No output was removed. The owner's authorization is recorded; do not request the same permission again or evade the tool restriction.
+
+25 October 2026 - staff vehicle filters released from the current backend source:
+`C:/Users/PC/.codex/worktrees/allied-staff-vehicle-current-20261025`, branch
+`fix/staff-vehicle-filters-current-20261025`. Runtime commit `ff42b0e2` and
+release receipt `1e1b6152` are pushed. Production DigitalOcean deployment
+`f9239c36-d4b7-4ef0-b8ba-479cda926a13` is ACTIVE with API digest
+`sha256:6ceab2563f0f15dc6b877aac02de89542113e98f5079c9d85803b383a7bbafb3`;
+both workers and the predeploy job retain their prior digests. Its build, deploy,
+component and read-only predeploy job steps succeeded. Live readiness, public
+products and public vehicles returned 200; anonymous staff vehicles returned 401.
+The API fix had passed 3/3 isolated staff-stock integration tests and a complete
+isolated migration replay on the exact deployed source. Today's managed backup
+and the previous separate restore evidence were reviewed; the API-only rollout
+did not write to the application database. Hosted authenticated staff-filter
+acceptance remains open until a suitable QA login is available. See the release
+receipt in the fix branch's copy of this tracker for exact scope and limits.
+
+25 October 2026 - audit A01-A07 implementation checkpoint:
+Current implementation branch fix/audit-actions-20261025 reuses the existing
+allied-home-restoration-20261025 worktree and caches. Combined source b45513f1
+preserves bb92ca52 preferred Home and the ff42b0e2 active backend filter fix;
+main-checkout user edits remain separate. All seven findings were revalidated
+against source and isolated rendered fixtures. The 31-case responsive matrix
+passed; additional recovery, permission, text-enlargement and regression checks
+are being completed. Current production remains dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU
+and ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13. No publication or real operational
+write is part of this batch. See Cycle 6 in the release worktree's quality register
+for scope, current acceptance and remaining checks. Preserve the disk-cleanup
+approvals/rejections and existing database/Item 6 constraints recorded above.
+
+25 October 2026 - owner-requested disk reserve and bounded cache maintenance:
+The Desktop checkout owns the shared Git history used by 23 linked worktrees.
+Several worktrees have uncommitted changes or release/policy evidence; all were
+retained, together with installed/shared dependencies and active development.
+No repository consolidation, application change or deployment was attempted.
+
+Native `npm cache npx rm` removed seven explicitly reviewed inactive entries:
+2778af9cee32ff87, ce0d8c019a05051b, 69c381f8ad94b576, 420ff84f11983ee5,
+5fdb855d8f7e0fd1, cc2145a2fe1558fa and 1d6e82a4126006c4. These contained an
+unused Prisma 8 prerelease, superseded Vercel 65.1 and old disposable test/setup
+tools; current project Prisma 7 and useful current CLI/MCP caches remain.
+Removed entry file lengths totalled 1,187,310,775 bytes. `npm cache verify`
+then garbage-collected 1,110 unreferenced blobs / 2,436,362,178 bytes and verified
+3,471 retained cache entries / 1,899,363,748 bytes. Total logical cache removal:
+3,623,672,953 bytes. Host C: free space rose from 22,592,446,464 to
+26,330,132,480 bytes (24.52 GiB); concurrent activity and allocation accounting
+mean the host-space change differs from the removed file lengths.
+
+The owner's mandatory 20 GiB reserve is recorded in global/repository instructions
+and docker-disk-hygiene.md. Shared read-only checker:
+C:/Users/PC/.codex/scripts/assert-disk-space.ps1. Default expected growth is 5 GiB,
+requiring 25 GiB free before substantial writes; justified growth estimates can
+vary, but the 20 GiB reserve cannot be reduced. Actual-space pass, insufficient-
+space block and unverifiable-target block were tested (exit codes 0/1/1).
+This is an agent preflight, not a background service or machine-wide quota.
+
+Automatic approval review rejected the proposed removal of compiler-pack files
+in allied-catalogue-care-ux-20261024 and allied-home-discovery-20261025 as
+"blocked by policy" before execution. No compiler files were removed and no
+alternate deletion was attempted. Prior deletion rejections remain in force.
+Docker stayed at 38 images / 11.84 GB, 14 containers, 14 volumes / 1.012 GB and
+87 cache records / 6.715 GB; Docker-reclaimed space was 0 B. No database command,
+backup, restore rehearsal, grant change, image build, new worktree or dependency
+installation ran. Existing source/uncommitted work, databases, backups, secrets,
+history and useful current/rollback resources were preserved. Small inventory
+receipts are under %TEMP%/allied-*-inventory-20261025.json; no large archive made.
+
+25 October 2026 - audit batch completion receipt:
+Implemented and committed e9f48ef5 on fix/audit-actions-20261025 in the reused
+allied-home-restoration-20261025 worktree; its Git status is clean. Local lint,
+types, all 996 frontend tests, format, optimized build and standalone preparation
+passed. Selected browser/portrait evidence and remaining real-role/device/hosted
+limits are in Cycle 6 of that worktree's quality register. A01-A07 is complete;
+A08-A15 remains the next batch. No production deployment was made. Current review
+build and useful caches are retained; no new Docker image, dependency copy or
+worktree was created. Final fixed-reserve check passed at 24.42 GiB free on C:.
+No claim is made about unrelated applications' later disk use. Main-checkout
+uncommitted work and all existing data/backup/security constraints remain intact.
+
+25 October 2026 - Shop/Vehicles revision 2 implementation is IN PROGRESS in
+C:/Users/PC/.codex/worktrees/allied-shop-vehicles-r2-20261025, branch
+feat/shop-vehicles-r2-20261025, based on merged current source b45513f1.
+Provider reads confirmed restored frontend dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU
+READY and staff-filter backend f9239c36-d4b7-4ef0-b8ba-479cda926a13 ACTIVE.
+This is not a release receipt. Other worktree edits remain intact.
+Contracts and the acceptance checklist are in backend/docs/shop-vehicles-search-r2.md.
+Isolated loopback PostgreSQL uses task-owned tmpfs storage, no application data.
+69 forward migrations replayed with no Prisma difference; 67-migration db:check
+passed before search extension. Vehicle intent/persistence/queue and product
+family checks passed (22 focused checks); search/discovery regressions passed
+33 checks, including a 10,000-listing fixture. New scoped product choices plus
+search/domain checks passed 15 checks. Frontend transfer/draft and adjacent units
+passed 52 checks; admin helpers passed 31 checks. These are separate runs, not
+one complete final matrix. Browser acceptance and final release checks remain
+pending. No production database command, migration, seed, enquiry or deployment.
+Owner's new 20 GiB disk reserve is enforced before substantial operations;
+small checks use a documented 0.25 GiB estimate above the reserve. No new package
+installation/image build/pull; existing dependencies and cached postgres:18 reused.
+
+25 October 2026, 12:15 Lagos - audit A01-A07 production release complete:
+Frontend runtime e9f48ef525b80cc215f340015b0553e5b1e3af73 is READY on Vercel
+dpl_5vyykAdQnDsAshfCKRU9KNkePJgb. Both main/www aliases independently matched
+at 11:13:48 UTC. Release branch fix/audit-actions-20261025 in reused worktree
+allied-home-restoration-20261025 now includes test-only 8b5fe871 and release
+receipt 0253a651; neither changes the deployed runtime inputs. Runtime frontend
+CI 40186973452, backend safety 40186973448 and secret guard 40186973443 passed;
+test-correction frontend CI 40187506046 and secret guard 40187506070 also passed.
+34/34 optimized hosted isolated audit scenarios, 9/9 real-data candidate scenarios,
+9/9 production public scenarios and 3/3 live main/www Privacy/restriction checks
+passed. Final browser checks ended 11:15:50 UTC / 12:15:50 Lagos with zero page
+exceptions. Expected anonymous-session 401 and intentional /demo 404 are not
+application exceptions. Real authenticated operational submissions remain untested.
+No synthetic data, real reply, approval, transaction or production migration ran.
+
+Backend remains ACTIVE f9239c36-d4b7-4ef0-b8ba-479cda926a13 / ff42b0e2; no backend
+image or database configuration changed. Read-only recovery review confirmed the
+online target, nine managed backups (latest 05:22:10 UTC), existing encrypted
+off-device seven-day/PITR safeguards and today's successful separate 89-table /
+65-migration restore rehearsal with original rows unchanged. No new DB command,
+backup/restore or grant change was performed. Existing browse/enquiry restrictions
+and protection are retained; owned temporary QA keys were revoked and verified
+absent. Rollback frontend: dpl_Hspe97LQ9MsxdKoNwaiqURvKFQPU. Future R2 publication
+must retain this audit frontend rather than overwrite it from the older b45513f1
+base. The separate in-progress R2 source and other uncommitted work are preserved.
+
+Evidence: release worktree Cycle 6 quality register and %TEMP%/allied-audit-deploy-20261025/.
+Browsers closed; C: fixed-reserve check passed at 23.83 GiB free. No new local
+build, dependency installation/copy, worktree, editor profile or Docker resource
+was created for rollout. Docker remains 38 images/11.84GB, 14 containers,
+14 volumes/1.012GB and 87 caches/6.715GB; current/rollback/other-task resources,
+source, history, secrets, databases and backups were retained.

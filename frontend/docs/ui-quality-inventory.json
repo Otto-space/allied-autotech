@@ -1,0 +1,2310 @@
+{
+  "scope": "Source routes and interaction signals, not runtime permissions or test coverage. Regenerate after route/component changes.",
+  "command": "node scripts/ui-quality-inventory.mjs",
+  "routes": [
+    {
+      "route": "/about",
+      "source": "app/about/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/[resource]",
+      "source": "app/admin/[resource]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/audit",
+      "source": "app/admin/audit/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/booking-capacity",
+      "source": "app/admin/booking-capacity/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/booking-slots",
+      "source": "app/admin/booking-slots/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/bookings/[bookingId]",
+      "source": "app/admin/bookings/[bookingId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/bookings",
+      "source": "app/admin/bookings/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/branches",
+      "source": "app/admin/branches/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/categories/[categoryId]",
+      "source": "app/admin/categories/[categoryId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/categories",
+      "source": "app/admin/categories/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/complaint-policy",
+      "source": "app/admin/complaint-policy/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/customers/[customerId]",
+      "source": "app/admin/customers/[customerId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/customers",
+      "source": "app/admin/customers/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/delivery-policy",
+      "source": "app/admin/delivery-policy/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/dispute-policy",
+      "source": "app/admin/dispute-policy/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/finance-policy",
+      "source": "app/admin/finance-policy/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/fitment",
+      "source": "app/admin/fitment/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/inspections",
+      "source": "app/admin/inspections/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/inventory/[inventoryId]",
+      "source": "app/admin/inventory/[inventoryId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/inventory",
+      "source": "app/admin/inventory/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/invoices/[invoiceId]",
+      "source": "app/admin/invoices/[invoiceId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/invoices",
+      "source": "app/admin/invoices/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/notifications",
+      "source": "app/admin/notifications/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/orders/[orderId]/aftercare",
+      "source": "app/admin/orders/[orderId]/aftercare/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/orders/[orderId]",
+      "source": "app/admin/orders/[orderId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/orders",
+      "source": "app/admin/orders/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin",
+      "source": "app/admin/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/payment-disputes",
+      "source": "app/admin/payment-disputes/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/payment-disputes/work",
+      "source": "app/admin/payment-disputes/work/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/payment-exceptions",
+      "source": "app/admin/payment-exceptions/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/payments",
+      "source": "app/admin/payments/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/privacy",
+      "source": "app/admin/privacy/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/processing-jobs",
+      "source": "app/admin/processing-jobs/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/products/[productId]",
+      "source": "app/admin/products/[productId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/products",
+      "source": "app/admin/products/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/promotions/[promotionId]",
+      "source": "app/admin/promotions/[promotionId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/promotions/new",
+      "source": "app/admin/promotions/new/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/promotions",
+      "source": "app/admin/promotions/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/refund-timing",
+      "source": "app/admin/refund-timing/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/refunds",
+      "source": "app/admin/refunds/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/reservation-terms",
+      "source": "app/admin/reservation-terms/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/retention-policy",
+      "source": "app/admin/retention-policy/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/reviews",
+      "source": "app/admin/reviews/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/security",
+      "source": "app/admin/security/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/service-categories/[categoryId]",
+      "source": "app/admin/service-categories/[categoryId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/service-categories",
+      "source": "app/admin/service-categories/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/services/[serviceId]",
+      "source": "app/admin/services/[serviceId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/services",
+      "source": "app/admin/services/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/staff/[staffUserId]",
+      "source": "app/admin/staff/[staffUserId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/staff/invite",
+      "source": "app/admin/staff/invite/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/staff",
+      "source": "app/admin/staff/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/support/[kind]/[supportId]",
+      "source": "app/admin/support/[kind]/[supportId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/support",
+      "source": "app/admin/support/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/vehicle-sales/[transactionId]",
+      "source": "app/admin/vehicle-sales/[transactionId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/vehicle-sales",
+      "source": "app/admin/vehicle-sales/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/vehicles/[vehicleId]",
+      "source": "app/admin/vehicles/[vehicleId]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/vehicles/new",
+      "source": "app/admin/vehicles/new/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/vehicles",
+      "source": "app/admin/vehicles/page.tsx",
+      "family": "work",
+      "dynamic": false,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/admin/workforce/[[...section]]",
+      "source": "app/admin/workforce/[[...section]]/page.tsx",
+      "family": "work",
+      "dynamic": true,
+      "access": "server-enforced role and capability; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/contact",
+      "source": "app/contact/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/bookings/[bookingId]",
+      "source": "app/dashboard/bookings/[bookingId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/bookings",
+      "source": "app/dashboard/bookings/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/cart",
+      "source": "app/dashboard/cart/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/inspections",
+      "source": "app/dashboard/inspections/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/invoices/[invoiceId]",
+      "source": "app/dashboard/invoices/[invoiceId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/invoices",
+      "source": "app/dashboard/invoices/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/notifications",
+      "source": "app/dashboard/notifications/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/orders/[orderId]/aftercare",
+      "source": "app/dashboard/orders/[orderId]/aftercare/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/orders/[orderId]",
+      "source": "app/dashboard/orders/[orderId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/orders",
+      "source": "app/dashboard/orders/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard",
+      "source": "app/dashboard/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/payments/[paymentId]",
+      "source": "app/dashboard/payments/[paymentId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/payments",
+      "source": "app/dashboard/payments/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/privacy",
+      "source": "app/dashboard/privacy/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/profile",
+      "source": "app/dashboard/profile/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/reviews/[reviewId]",
+      "source": "app/dashboard/reviews/[reviewId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/reviews",
+      "source": "app/dashboard/reviews/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/saved",
+      "source": "app/dashboard/saved/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/security",
+      "source": "app/dashboard/security/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/support/[kind]/[supportId]",
+      "source": "app/dashboard/support/[kind]/[supportId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/support",
+      "source": "app/dashboard/support/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/vehicle-transactions/[transactionId]",
+      "source": "app/dashboard/vehicle-transactions/[transactionId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/vehicle-transactions",
+      "source": "app/dashboard/vehicle-transactions/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/vehicles/[vehicleId]",
+      "source": "app/dashboard/vehicles/[vehicleId]/page.tsx",
+      "family": "customer",
+      "dynamic": true,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/dashboard/vehicles",
+      "source": "app/dashboard/vehicles/page.tsx",
+      "family": "customer",
+      "dynamic": false,
+      "access": "authenticated customer; per-route confirmation required",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/forgot-password",
+      "source": "app/forgot-password/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/help/[slug]",
+      "source": "app/help/[slug]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/help",
+      "source": "app/help/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/login",
+      "source": "app/login/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/mfa",
+      "source": "app/mfa/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/",
+      "source": "app/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/parts/[productId]",
+      "source": "app/parts/[productId]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/parts",
+      "source": "app/parts/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/payments/complete",
+      "source": "app/payments/complete/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/privacy",
+      "source": "app/privacy/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/register",
+      "source": "app/register/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/reset-password",
+      "source": "app/reset-password/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/reviews",
+      "source": "app/reviews/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/services/[serviceId]",
+      "source": "app/services/[serviceId]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/services",
+      "source": "app/services/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/staff/accept-invitation",
+      "source": "app/staff/accept-invitation/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/vehicles/[listingId]",
+      "source": "app/vehicles/[listingId]/page.tsx",
+      "family": "public",
+      "dynamic": true,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/vehicles",
+      "source": "app/vehicles/page.tsx",
+      "family": "public",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    },
+    {
+      "route": "/verify-email",
+      "source": "app/verify-email/page.tsx",
+      "family": "authentication",
+      "dynamic": false,
+      "access": "public; launch mode and token conditions may restrict actions",
+      "review": "source inventoried; see register for sampled rendered evidence"
+    }
+  ],
+  "surfaces": [
+    {
+      "source": "app/about/page.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/branches/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/customers/[customerId]/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/customers/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/fitment/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/invoices/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/payment-disputes/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/payment-disputes/work/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/payment-exceptions/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/payments/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/privacy/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/refunds/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/reviews/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/staff/invite/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/staff/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/support/[kind]/[supportId]/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/admin/support/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/accept-staff-invitation.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/account-change-notice.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/account-notifications.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/admin-branch-picker.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/admin-overview.tsx",
+      "sourceSignals": ["disclosure", "table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/admin-resource.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/aftercare-intake.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/aftercare-recovery.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/aftercare-review.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/audit-log.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/audit-values.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/authenticator-help.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/authenticator-qr.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/authenticator-replacement.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-capacity.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-detail-sections.tsx",
+      "sourceSignals": ["table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/booking-detail.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/bookings-panel.tsx",
+      "sourceSignals": ["table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/branches-workspace.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/browser-push-settings.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/cart-panel.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/cart-update-drawer.tsx",
+      "sourceSignals": ["dialog"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/collection-checkout.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/complaint-acknowledgement.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/complaint-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/completed-inspection-picker.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/contact-parts-enquiry.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/copy-control.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-directory-detail.tsx",
+      "sourceSignals": ["table"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-directory.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-order-aftercare.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-privacy.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-review-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-support-thread.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-support.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/customer-vehicles.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/dashboard-navigation.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/dashboard-shell.tsx",
+      "sourceSignals": ["dialog", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/delivery-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/dispute-assignment.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/dispute-evidence.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/dispute-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/dispute-progress.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/document-actions.tsx",
+      "sourceSignals": ["dialog", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/email-verification-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/equipment-gallery.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/factor-removal-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/file-upload.tsx",
+      "sourceSignals": ["fileInput", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/finance-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/find-parts-for-car.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/fitment-catalogue-picker.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/forgot-password-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/fulfillment-evidence.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/garage-dialog.tsx",
+      "sourceSignals": ["dialog"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/garage-images.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/garage-photo-carousel.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/garage-remove-dialog.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/garage-vehicle-editor.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/help-account-action.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/help-centre.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/home-catalogue-preview.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/home-hero.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/home-reviews-preview.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/inspection-history.tsx",
+      "sourceSignals": ["disclosure", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/inspection-status-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/inventory-change-forms.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/inventory-create-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/inventory-filters.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/inventory-records.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/invitation-change-coordinator.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/invoice-create-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/invoice-detail.tsx",
+      "sourceSignals": ["table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/invoice-filters.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/invoice-source-picker.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/invoices-panel.tsx",
+      "sourceSignals": ["table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/login-form.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/manual-payment-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/manual-payment-review.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/media-gallery.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/mfa-challenge.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/mfa-code-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/mfa-enrollment.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/mfa-form.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/mutation-review.tsx",
+      "sourceSignals": ["dialog"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/notification-arrival.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/notification-attention-queue.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/notification-preferences.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/notification-record-context.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/notifications-panel.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/operation-action-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/operational-jobs.tsx",
+      "sourceSignals": ["disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/operational-policy-fields.tsx",
+      "sourceSignals": ["nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/operational-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/operations-queue.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/order-aftercare.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/order-detail.tsx",
+      "sourceSignals": ["form", "dialog", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/orders-panel.tsx",
+      "sourceSignals": ["table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/overview-activity.tsx",
+      "sourceSignals": ["disclosure", "table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/parts-catalogue.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/password-change-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/payment-anomalies.tsx",
+      "sourceSignals": ["disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/payment-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/payment-disputes.tsx",
+      "sourceSignals": ["disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/payments-panel.tsx",
+      "sourceSignals": ["table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/policy-contacts.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/preference-recovery.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/privacy-request-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/privacy-request-review.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/privacy-requests.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/private-document-access.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/product-actions.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/product-compatibility-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/product-extras-editor.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/product-file-upload.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/product-fitment-check.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/product-image-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/profile-panel.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/promotion-editor.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/promotion-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/promotion-preview.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/public-enquiry-form.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/public-home.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/public-reviews.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/refund-decision-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/refund-evidence-check.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/refund-record-facts.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/refund-request-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/refund-timing-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/refund-transfer-form.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/register-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/reservation-terms-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/reset-password-form.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/retention-holds.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/retention-policy.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/retention-rule-fields.tsx",
+      "sourceSignals": ["nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/review-carousel.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/review-create-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/review-moderation-form.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/review-source-picker.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/reviews-panel.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/role-overview.tsx",
+      "sourceSignals": ["form", "disclosure", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/saved-items.tsx",
+      "sourceSignals": ["tabs", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/saved-parts-vehicle-selector.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/security-factors.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/security-sessions.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-detail.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-discovery-controls.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-image-editor.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-line-entry.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-line-fields.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-line-table.tsx",
+      "sourceSignals": ["table"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/service-list.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/services-catalogue.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/site-header.tsx",
+      "sourceSignals": ["dialog", "disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/slot-catalog-picker.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-access-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-account-detail.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-booking-detail.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-booking-slots.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-bookings.tsx",
+      "sourceSignals": ["form", "disclosure", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-capabilities.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-change-coordinator.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-directory.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-inventory-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-inventory.tsx",
+      "sourceSignals": ["form", "disclosure", "table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-invitation-form.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-invoice-detail.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-invoice-paper.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-invoices.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-order-detail.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-orders.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-payment-actions.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-payments.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-picker.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-quote-records.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-refunds.tsx",
+      "sourceSignals": ["disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-reviews.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/staff-work-order.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/stock-image-gallery.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-create-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-email-delivery.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-messages.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-panel.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-reply-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-reply-recovery.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-source-picker.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-staff-actions.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-thread.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/support-widget.tsx",
+      "sourceSignals": ["form", "dialog", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-actions.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-attachment-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-catalogue.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-condition-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-document-review.tsx",
+      "sourceSignals": ["form", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-evidence.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-handover.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-listing-forms.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-payment-requests.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-record-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-reservation-agreement.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-sale-forms.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-transaction-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/vehicle-transactions.tsx",
+      "sourceSignals": ["table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-category-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-category-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-customer-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-customers.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-dispute-handling.tsx",
+      "sourceSignals": ["disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-inspections.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-parts-fitment.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-privacy.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-categories.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-category-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-category-form.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-category.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-detail.tsx",
+      "sourceSignals": ["table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-filters.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-product-media.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-products.tsx",
+      "sourceSignals": ["table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-promotion-create.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-promotion-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-promotions.tsx",
+      "sourceSignals": ["form", "disclosure", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-service-categories.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-service-category.tsx",
+      "sourceSignals": ["nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-service-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-service-form.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-services.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-slot-filters.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-support-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-support.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-vehicle-create.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-vehicle-detail.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-vehicle-sale-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-vehicle-sales.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/work-vehicle-stock.tsx",
+      "sourceSignals": ["form", "disclosure", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-access-panel.tsx",
+      "sourceSignals": ["form", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-booking-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-bookings.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-complaint-detail.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-complaints.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-enquiries.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-enquiry-candidates.tsx",
+      "sourceSignals": ["form", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-enquiry-detail.tsx",
+      "sourceSignals": ["form", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-entry.tsx",
+      "sourceSignals": ["form"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-finance.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-job-detail.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-jobs.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-order-detail.tsx",
+      "sourceSignals": ["form", "table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-orders.tsx",
+      "sourceSignals": ["form", "table", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-overview.tsx",
+      "sourceSignals": ["table", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-payment-detail.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/components/workforce-workspace.tsx",
+      "sourceSignals": ["form", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/contact/contact-account-link.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/contact/contact-record-picker.tsx",
+      "sourceSignals": ["disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/contact/page.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/error.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/help/[slug]/not-found.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/not-found.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/parts/[productId]/error.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/parts/[productId]/not-found.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/parts/[productId]/page.tsx",
+      "sourceSignals": ["disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/parts/[productId]/product-gallery.tsx",
+      "sourceSignals": ["dialog", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/parts/product-category.tsx",
+      "sourceSignals": ["dialog", "disclosure", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/parts/product-filters.tsx",
+      "sourceSignals": ["form", "dialog", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/reviews/page.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/reviews/review-account-link.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/services/[serviceId]/error.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/services/[serviceId]/not-found.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/services/[serviceId]/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/services/[serviceId]/service-choice.tsx",
+      "sourceSignals": ["disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/services/page.tsx",
+      "sourceSignals": ["disclosure"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/vehicles/[listingId]/error.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/vehicles/[listingId]/not-found.tsx",
+      "sourceSignals": ["loadingBoundary"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/vehicles/[listingId]/page.tsx",
+      "sourceSignals": ["feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/vehicles/[listingId]/vehicle-gallery.tsx",
+      "sourceSignals": ["dialog", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    },
+    {
+      "source": "app/vehicles/vehicle-filters.tsx",
+      "sourceSignals": ["form", "dialog", "disclosure", "nativeSelect", "feedback"],
+      "review": "not independently rendered unless recorded in register"
+    }
+  ]
+}
