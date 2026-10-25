@@ -558,7 +558,7 @@ by the preceding copy audit; those do not reopen the settled launch scope.
 
 ## Cycle 4: Home, Parts, Vehicles and parts-enquiry handoff - 25 October 2026
 
-Implementation checkpoint; final rendered acceptance blocked on
+Initial implementation checkpoint (superseded by the verified release below) on
 `feat/home-discovery-ux-20261025`, worktree
 `C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, based on the latest
 recorded release `93e2501b`. Both production aliases were independently inspected
@@ -730,3 +730,108 @@ The first integration attempt omitted the existing Origin header and required
 synthetic phone field; those fixture omissions were corrected without weakening
 either guard. The successful recheck used the same task-created isolated database,
 preserved the first failed receipt and reset or deleted no records.
+
+### Verified production release - 25 October 2026
+
+**Released.** Frontend runtime source is `b9162cc43bd6fa56ca88d3a07d280ffad4b3dff8`;
+backend, constraint migration and cross-platform checksum pin are
+`2fc02bafdde75385fffad9c46767615a506f5eb2`. Later backend/docs/type-description
+changes do not change the candidate's frontend runtime. Both main and www aliases
+were independently verified on READY **`dpl_3XjRQRkHuJY1oVvnhPuqBPu5mMtv`** at
+**07:07:45 UTC / 08:07:45 Lagos**. API deployment
+**`da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9`** is ACTIVE with **16/16** successful
+provider steps; all four actual deployment image digests match the verified
+manifest. Existing capacity, secrets, permissions, collection-only policy,
+`browse_enquiries`, indexing/protection settings and disabled payments were preserved.
+The compatible migration preceded the API, which preceded frontend promotion.
+
+Current acceptance supersedes the earlier blocked checklist:
+
+| Surface                      | Final evidence / status                                                                                                                                                                                                                                                                                                                                                      |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home                         | Verified real empty catalogue state at 320/390/768/1024/1440; carousel/keyboard/FAQ and pause/play checked; browser-only populated/refresh-failure/retry/empty previews and reviews at 390/1440.                                                                                                                                                                             |
+| Parts                        | Direct and vehicle paths, grouped detail draft, actual unknown-fitment status, populated shared cards, genuine empty vs filtered no-match, loading/failure/retry and corrected five-brake-example assertion verified in hosted fixtures.                                                                                                                                     |
+| Vehicles                     | Populated/missing-media cards; budget Naira-to-kobo URL values, condition, independent chip removal and cancelled drafts verified at 390/1440; genuine empty state on production. Older supported URL semantics remain covered by existing passing unit contracts.                                                                                                           |
+| Enquiry                      | Generic Product classification and editable draft survive public-resource refresh on the real site. Actual isolated HTTP persistence returned 202 without an invented product ID; linked-customer and other-category database constraints still reject missing references. No real production enquiry was submitted.                                                         |
+| Demo                         | Public [read-only demo](https://alliedautotech.com/demo): 20 products/parts, 12 vehicles, four services, five categories, three makes and six models. Fictional prices/images/availability are visibly labelled, independently filterable, and sample details cannot order/reserve/submit. No dashboard, customer, staff, financial or genuine catalogue seed was published. |
+| Accessibility and responsive | Selected page identity, meaningful content, no framework overlay, zero page exceptions, scoped axe, no horizontal overflow, keyboard/disclosure/modal controls and inspected desktop/phone captures passed. Emulation and automated checks do not certify real devices or screen-reader speech.                                                                              |
+
+Release verification: all three workflows passed on the final backend/migration
+source: [frontend release](https://github.com/Otto-space/allied-autotech/actions/runs/40158808468),
+[isolated database safety and real parts persistence](https://github.com/Otto-space/allied-autotech/actions/runs/40158806716),
+and [secret guard](https://github.com/Otto-space/allied-autotech/actions/runs/40158484492).
+Manual workflow dispatch covered the final `.gitattributes` checksum pin. Local
+**43/43 packaged-image/release checks** passed, including non-root commands, CA
+bootstrap, media/app imports, isolated migration replay, separate restore and drift
+rejection. Local **13/13 database/security tests** passed. The earlier full frontend
+988-unit run and later four fixture-contract checks are separate local receipts;
+the final frontend workflow also ran the complete production check.
+
+Selected hosted candidate coverage was **22 scenarios**: 13 real-data journeys,
+eight browser-only fixture journeys and one explicit autoplay pause/play case.
+The real 13 journeys were repeated successfully on the public production domain
+after promotion, at the representative widths above, with zero page exceptions.
+The 17 health/screenshot/axe entries in each real-data receipt are checkpoints
+within those 13 scenarios, not 17 distinct scenarios. The full local 127-case
+matrix remains unexecuted because preview startup was blocked by tool policy;
+the selected hosted acceptance replaces the release blocker without claiming
+that entire matrix passed. Real-device keyboards, screen-reader speech and real
+authenticated staff/customer operations were not exercised in this release.
+
+Database safety: confirmed the exact production host/25060/database, strict TLS
+and separate backup/migrator/runtime roles. The provider listed **nine managed
+backups**, latest **25 October 05:22:10 UTC**. Managed encryption, seven-day
+retention/PITR and existing separate managed-restore evidence were reviewed against
+the provider's documented recovery features. A fresh production logical archive
+was actually restored into a new local isolated `_ci` database: **89 tables**, all
+pre-existing row counts preserved, with the forward migration rehearsed from
+64 to 65 and `db:check` passing. This was not a new managed PITR restore or a
+restore over production. A new exact-target verified backup at **06:56:39 UTC**
+preceded the guarded production `npm run db:migrate`; the target then passed
+`npm run db:check`, all 65 checksums, validated constraint and runtime-column checks.
+No production business DML, reset, data deletion, history resolution or grant
+change was performed. Runtime remains unable to read the migration ledger or
+perform ownership/DDL/TRUNCATE/superuser/role-creation operations.
+
+An initial backup failed; client/permission checks and a successful verified retry
+preceded any migration. A host-clock pause invalidated local time-bound processes;
+affected Docker tests were rerun sequentially and the local restore was inspected
+before resuming, without reset or failed-history changes. A post-migration
+aggregate check initially tried to read the ledger with the restricted runtime
+role and correctly received a permission denial. It was completed read-only using
+the separate migration role; the migration was not rerun and no grant was expanded.
+Every temporary operator firewall rule was removed and the original app-only
+rules verified, including the final postcheck. API readiness and five public
+catalogue/branch/service reads then returned 200. Public products, vehicles and
+make choices remain truly empty; one real service and branch remain published.
+
+Immediate frontend rollback is `dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB`; API rollback
+is `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` and its protected immutable manifest.
+The expanded SQL check is compatible with the prior application and must remain
+in place during any application rollback. Never downgrade/restore the database
+as an image-rollback shortcut. Recheck current provider state before future work.
+
+Bounded disk cleanup removed the two task-owned, never-deployed obsolete API
+images (`b9162cc4`, `dddef8c0`), five never-started test containers and their unused
+internal network after checking exact IDs, state, image provenance, mounts and
+container references. Docker totals during that cleanup changed **39 -> 37
+images**, rounded **11.84 -> 11.81GB**, and **18 -> 13 containers**. All **14
+existing volumes / 1.012GB** were retained. Current/rollback/other-task images
+(including the independent `f0062282` build) and **6.627GB of useful warm cache**
+were retained; no blanket prune, registry deletion or image archive was used.
+Both task-created isolated verification databases were removed with the supported
+test-only drop command after confirming exact loopback targets and zero active
+connections; their measured logical sizes totalled **34,606,462 bytes**. Durable
+verified backups and protected receipts remain. Host C: free space measured
+**12,582,514,688 bytes** after cleanup; rounded Docker totals and logical database
+sizes do not prove an equivalent physical host-space recovery. Local preview/API
+ports 3165/5021 remained closed. Existing unrelated worktrees and main-checkout
+edits were preserved.
+
+Evidence: `%TEMP%/allied-home-release-20261025/` contains candidate/fixture/playback
+and final production receipts plus responsive captures. Protected backend release,
+backup, rehearsal, firewall, migration and image receipts remain under this
+worktree's ignored, ACL-restricted deployment directory. No credentials, archive
+contents or customer records were added to source. Owner inputs remain genuine
+publishable stock, prices, approved service detail and authentic catalogue media;
+the new demo is not evidence of genuine availability. Preserve settled Item 6.

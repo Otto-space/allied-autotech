@@ -955,3 +955,61 @@ real submission, push or deployment occurred. Docker images/caches/volumes were
 retained; no new Docker resource or package installation was needed. Existing useful
 dependencies and the built review artifact are retained. Current release/rollback,
 launch restrictions, database safeguards and settled Item 6 decisions remain unchanged.
+
+25 October 2026, 08:07 Lagos - public Home/Parts/Vehicles release:
+worktree `C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`,
+branch `feat/home-discovery-ux-20261025`. Frontend runtime `b9162cc4`
+is live on READY Vercel `dpl_3XjRQRkHuJY1oVvnhPuqBPu5mMtv`; both actual
+main/www aliases independently matched at 07:07:45 UTC. Backend source
+`2fc02bafdde75385fffad9c46767615a506f5eb2` is ACTIVE in deployment
+`da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9`, with 16/16 successful provider steps
+and all four actual immutable image digests verified. This is the current release
+source; the older main checkout and independent pending f0062282 work were preserved.
+
+Home hierarchy/motion, direct Parts search and grouped fitment, vehicle priorities,
+distinct empty/error states and editable Product enquiry context are released.
+The public, noindex `/demo` shows 20 fictional products/parts, 12 vehicles and
+four services, explicitly separate from genuine availability. Real public stock
+and make choices remain empty; no genuine catalogue/customer/workforce/financial
+seed or real enquiry/payment submission was made.
+
+Release review corrected the initial API-only assumption: existing SQL required
+a product reference even for anonymous Product enquiries. New forward migration
+`20261025050000_public_unlisted_parts_enquiries` permits only anonymous unlisted
+Product enquiries; customer-linked and other source requirements remain intact.
+All 65 migrations replayed on a new isolated target; 13 real persistence/security
+tests, 43 packaged-image/release checks and all final release CI passed. A fresh
+production archive was actually restored and rehearsed separately across 89
+tables, with existing row counts preserved. A new 06:56:39 UTC exact-target
+verified backup preceded `npm run db:migrate`; production `db:check`, all 65
+checksums and runtime least privilege passed. An expected runtime denial when a
+postcheck tried to read the migration ledger was resolved using the migration
+account read-only, without changing grants or rerunning the migration. All
+temporary operator firewall access was removed and original app-only rules verified.
+Nine managed backups were listed, latest 25 October 05:22:10 UTC; existing managed
+encryption/retention/PITR and restore evidence were reviewed. No production reset,
+business DML, data deletion, history repair or restore-over-live was performed.
+
+Selected hosted acceptance passed 22 scenarios (real data, browser-only fixtures
+and explicit pause/play), then all 13 real-data journeys passed again on production
+at 320/390/768/1024/1440. API readiness/public reads returned 200. The full 127-case
+local matrix remains unexecuted because local preview startup was tool-blocked;
+real devices, screen-reader speech and real authenticated operational acceptance
+are not claimed. Exact evidence/remaining scope is in Cycle 4 of this worktree's
+`frontend/docs/UI_UX_QUALITY_REGISTER.md`.
+
+Immediate frontend rollback: `dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB`; backend:
+`5c1ea9a7-6211-46d2-995f-c45e504bf9e9` with its protected pinned manifest.
+Retain the compatible expanded database constraint on any application rollback.
+Future backend sources must include migration 65; never bypass unknown history
+to deploy an older branch. Existing launch restrictions and Item 6 remain settled.
+
+Bounded cleanup removed two obsolete never-deployed task API images, five
+interrupted never-started test containers, one unused internal network and the two
+task-created isolated verification databases through the supported test-only
+command after target/connection checks. Existing 14 data volumes, useful current/
+rollback/other-task images, warm caches and verified backups were retained.
+Docker cleanup totals: 39 -> 37 images, rounded 11.84 -> 11.81GB; 18 -> 13
+containers. Isolated database logical sizes totalled 34,606,462 bytes. Host free
+space measured 12,582,514,688 bytes afterward; no equivalent physical-reclamation
+claim is made. Task preview/API ports 3165/5021 remain closed.
