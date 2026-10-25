@@ -1451,3 +1451,17 @@ Only the owned auto-remove tmpfs fixture and eight superseded local candidate ta
 were removed. All 14 volume identities, protected native fixtures/restores/backups,
 current/rollback/base/tool images and other tasks were retained; no broad prune.
 Postflight C: 28.77 GiB free at measurement; no machine-wide reserve guarantee.
+
+## Cycle 11: Cart clear across tabs - candidate 25 October 2026
+
+The reviewed customer cart could change in another tab after the client's final
+read but before the empty-body DELETE. The server now requires the reviewed item
+IDs, product IDs, quantities and unit prices, compares them under a cart lock and
+returns 409 without deletion when anything changed. The client sends this snapshot
+while preserving its full preflight, draft review and unknown-outcome safeguards.
+The backend contract and all 13 compiled cart fixture cases passed. The selected
+320px and 1280px cases passed automated axe/overflow and keyboard interaction;
+this does not replace physical-device or full screen-reader verification. A fresh
+isolated 71-migration replay and two backend integration files passed. Actual
+production customer carts were not mutated for acceptance. Release and real-role
+checks remain open; the per-page dashboard backlog is unchanged.

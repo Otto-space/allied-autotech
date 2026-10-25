@@ -1438,3 +1438,15 @@ on the final compiled candidate; final locked CI passed 1,024 units, types/lint/
 format/build and zero production audit findings. No further backend/schema change.
 Live read-only smoke and the prior fixture/real-role/device/recovery limitations
 are recorded in the release evidence doc and UI quality Cycle 10.
+
+25 October 2026 - reviewed cart clear correction in progress. Source branch
+`fix/cart-clear-atomic-20261025` merges the latest customer-care refinement. The
+server now checks an exact reviewed item/quantity/price snapshot under the cart
+lock before clearing; stale contents return 409 without deletion. Item edits use
+the same lock, and the old empty-body clear is rejected. No schema/payment mode
+change. Fresh isolated 71-migration replay and schema comparison passed; two
+related integration files, 13 compiled cart browser fixtures, types, lint, format,
+OpenAPI/route checks and frontend build passed. See `cart-clear-atomic-20261025.md`.
+Production deployment and real signed-in acceptance are pending; existing customer
+care and notification releases must be preserved. The broader Item 6 and site
+acceptance remain open.
