@@ -191,6 +191,9 @@ export const publicVehicleListQuerySchema = z
   });
 export const staffVehicleListQuerySchema = publicVehicleListQuerySchema
   .safeExtend({
+    sort: z
+      .enum(["newest", "year_desc", "year_asc", "mileage_asc", "mileage_desc"])
+      .default("newest"),
     status: z
       .enum(["DRAFT", "AVAILABLE", "RESERVED", "SOLD", "INACTIVE", "ARCHIVED"])
       .optional(),
@@ -200,7 +203,18 @@ export const staffVehicleListQuerySchema = publicVehicleListQuerySchema
   .refine((value) => value.listed !== false || value.status === undefined, {
     path: ["listed"],
     message: "An unlisted record cannot have a listing status",
-  });
+  })
+  .refine(
+    (value) =>
+      value.listed !== false ||
+      (value.featured === undefined &&
+        value.minPriceKobo === undefined &&
+        value.maxPriceKobo === undefined),
+    {
+      path: ["listed"],
+      message: "An unlisted record cannot have listing-specific filters",
+    },
+  );
 
 export const vehicleCreateBodySchema = z
   .object({

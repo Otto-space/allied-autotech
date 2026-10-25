@@ -1059,3 +1059,18 @@ superseded .next build output as blocked by policy; 143,481,750 bytes remain,
 plus 451,146,323 bytes of useful warm cache. No deletion workaround was used.
 The homepage correction is complete; broader manual acceptance and settled Item 6
 keep their existing scope.
+
+25 October 2026 - staff vehicle stock query release integrated into this source:
+The backend fix on commit `ff42b0e2` was tested on the `2fc02baf` backend base
+with full type/lint/format, 407-operation route coverage, 347-path OpenAPI,
+an empty isolated migration replay and 3/3 focused stock integration cases.
+It was pushed as image digest
+`sha256:6ceab2563f0f15dc6b877aac02de89542113e98f5079c9d85803b383a7bbafb3`.
+DigitalOcean deployment `f9239c36-d4b7-4ef0-b8ba-479cda926a13` is ACTIVE;
+only the API digest changed. The two workers and read-only predeploy job retained
+the previous `2fc02baf` digests. Provider build/deploy/component steps passed;
+live API readiness, public products and public vehicles returned 200, and
+anonymous staff vehicles returned 401. The 25 October managed backup and earlier
+separate restore rehearsal were reviewed; this API-only release did not apply a
+migration or write application data. Hosted authenticated staff-filter acceptance
+is still open. Item 6 remains open for real catalogue publication.
