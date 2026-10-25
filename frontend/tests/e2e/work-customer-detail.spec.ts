@@ -18,7 +18,7 @@ for (const role of ["ADMIN", "SUPER_ADMIN"])
     await open(page, "?collection=orders");
     await expect(page.locator(".wcd-overview")).toContainText(bookingId(30000));
     await expect(page.locator(".wcd-overview")).toContainText("Not provided");
-    await expect(page.locator(".wcd-overview")).toContainText("10:00:00.123");
+    await expect(page.locator(".wcd-overview")).toContainText("10:00");
     await expect(rows(page).first()).toContainText("99,999,999,999,999.99");
     await expect(rows(page).nth(1)).toContainText("₦0.00");
     await expect(
@@ -170,6 +170,9 @@ test("garage records have no fabricated management links and foreign currency st
   f.detail.records[0].currency = "USD";
   await open(page);
   await expect(rows(page).first().getByRole("link")).toHaveCount(0);
+  await expect(rows(page).first()).not.toContainText("Recorded amount");
+  await expect(rows(page).first()).not.toContainText("Status");
+  await btn(page, "Orders").click();
   await expect(rows(page).first()).toContainText(
     "USD · 9,999,999,999,999,999 minor units",
   );

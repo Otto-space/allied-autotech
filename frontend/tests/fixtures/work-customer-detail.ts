@@ -50,7 +50,17 @@ export async function workCustomerDetailFixture(page: Page, role = "ADMIN") {
     else {
       const rows = mode === "empty" ? [] : detail.records,
         after = u.searchParams.has("cursor"),
-        items = rows.slice(after ? 25 : 0, after ? 50 : 25);
+        items = rows.slice(after ? 25 : 0, after ? 50 : 25).map((row, n) =>
+          u.pathname.endsWith("/vehicles")
+            ? {
+                ...row,
+                title: `Toyota Corolla ${n + 1}`,
+                status: null,
+                amountKobo: null,
+                currency: null,
+              }
+            : row,
+        );
       data =
         mode === "malformed"
           ? { items: [{ id: "bad" }] }
