@@ -52,6 +52,7 @@ export function SupportCreateForm({
   initialSubject,
   initialMessage,
   initialContextKey,
+  initialEnquiryType,
 }: {
   kind: SupportKind;
   publicMode?: boolean;
@@ -65,6 +66,7 @@ export function SupportCreateForm({
   initialSubject?: string;
   initialMessage?: string;
   initialContextKey?: string;
+  initialEnquiryType?: "PRODUCT";
   presentation?: "contact" | "dashboard";
   userId?: string;
   guard?: ReturnType<typeof useSupportCreateWrite>;
@@ -74,7 +76,7 @@ export function SupportCreateForm({
     serviceId
       ? "SERVICE"
       : kind === "enquiries"
-        ? productId
+        ? productId || initialEnquiryType === "PRODUCT"
           ? "PRODUCT"
           : "GENERAL"
         : "NONE",
@@ -189,7 +191,7 @@ export function SupportCreateForm({
         serviceId
           ? "SERVICE"
           : kind === "enquiries"
-            ? productId
+            ? productId || initialEnquiryType === "PRODUCT"
               ? "PRODUCT"
               : "GENERAL"
             : "NONE",
@@ -234,6 +236,7 @@ export function SupportCreateForm({
     productName,
     initialSubject,
     initialMessage,
+    initialEnquiryType,
     reset,
     onUncertain,
   ]);
@@ -336,7 +339,7 @@ export function SupportCreateForm({
               if (locked || proposal || guard?.disabled || pickerBlocked) return;
               setError(undefined);
               setSelectionError(undefined);
-              if (sourceType && !source) {
+              if (sourceType && !source && !(publicMode && type === "PRODUCT")) {
                 setSelectionError("source");
                 setError("Choose the related record.");
                 document.getElementById("support-source")?.focus();
@@ -600,11 +603,16 @@ export function SupportCreateForm({
             !serviceId &&
             (isContact ? (
               <div className="field contact-field-wide">
-                <label htmlFor="support-source">Related record</label>
+                <label htmlFor="support-source">
+                  {publicMode && type === "PRODUCT"
+                    ? "Related product (optional)"
+                    : "Related record"}
+                </label>
                 <ContactRecordPicker
                   key={sourceType}
                   id="support-source"
                   kind={sourceType}
+                  required={!(publicMode && type === "PRODUCT")}
                   value={source}
                   onChange={(value) => {
                     setSource(value);

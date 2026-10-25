@@ -1,0 +1,122 @@
+/* Shared discovery hierarchy; scoped to the two public catalogues. */
+:is(.shop-page, .vehicles-page) [hidden] {
+  display: none !important;
+}
+.catalogue-controls {
+  margin-top: 16px;
+  min-width: 0;
+}
+.catalogue-controls > summary,
+.parts-technical-group > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding-block: 10px;
+  font-weight: 650;
+}
+.parts-intent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block: 16px;
+}
+.parts-intent button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--product-border, #8290a1);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--product-navy, var(--vehicle-navy));
+  font: inherit;
+  cursor: pointer;
+}
+.parts-intent button[aria-pressed="true"] {
+  background: var(--product-navy, var(--vehicle-navy));
+  color: #fff;
+  border-color: var(--product-navy, var(--vehicle-navy));
+}
+.product-direct-search {
+  max-width: 700px;
+}
+.product-direct-search .product-search {
+  width: 100%;
+}
+.shop-page .product-hero-inner {
+  min-height: 185px;
+}
+:is(.shop-page, .vehicles-page)
+  :is(.product-inventory-heading h2, .vehicle-inventory-heading h2) {
+  font-family: var(--font-quicksand), sans-serif;
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 700;
+}
+:is(.shop-page, .vehicles-page)
+  :is(
+    .product-empty p,
+    .vehicle-empty p,
+    .product-guidance p,
+    .vehicle-buying-guide p,
+    .parts-car-heading p,
+    .parts-car-details p
+  ) {
+  font-size: 16px;
+  line-height: 1.65;
+}
+.parts-finder-prerequisite,
+.parts-finder-unavailable p {
+  color: var(--product-muted);
+  line-height: 1.6;
+  font-size: 15px;
+}
+.parts-fitment-unknown {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  margin-top: 8px;
+}
+.parts-technical-group {
+  border-top: 1px solid var(--product-border, #8290a1);
+}
+.vehicles-page .vehicle-filter-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.vehicles-page .vehicle-field:has(.vehicle-multiple-options) {
+  grid-column: 1 / -1;
+}
+.vehicles-page .vehicle-filter-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+.vehicles-page .vehicle-filter-panel {
+  max-height: min(800px, 85dvh);
+  overflow-y: auto;
+  scroll-padding-block: 16px 90px;
+}
+.vehicles-page .vehicle-filter-group {
+  scroll-margin-bottom: 90px;
+}
+:is(.shop-page, .vehicles-page) summary:focus-visible,
+.parts-intent button:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
+}
+@media (max-width: 767px) {
+  .shop-page .product-hero-inner {
+    grid-template-columns: 1fr;
+  }
+  .shop-page .product-hero-copy {
+    padding-block: 24px;
+  }
+  .shop-page .product-hero-media {
+    display: none;
+  }
+  .parts-intent button {
+    flex: 1 1 180px;
+  }
+  .vehicles-page .vehicle-filter-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .vehicles-page .vehicle-filter-panel {
+    max-height: 100dvh;
+  }
+}

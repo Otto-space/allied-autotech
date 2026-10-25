@@ -25,13 +25,21 @@ const sessionSchema = z.object({
 });
 export function SavedPartsVehicleSelector({
   onUse,
+  returnTo = "/parts",
 }: {
   onUse: (query: URLSearchParams) => void;
+  returnTo?: string;
 }) {
   if (catalogueOnly()) return null;
-  return <SavedVehicleAccount onUse={onUse} />;
+  return <SavedVehicleAccount onUse={onUse} returnTo={returnTo} />;
 }
-function SavedVehicleAccount({ onUse }: { onUse: (query: URLSearchParams) => void }) {
+function SavedVehicleAccount({
+  onUse,
+  returnTo,
+}: {
+  onUse: (query: URLSearchParams) => void;
+  returnTo: string;
+}) {
   const [actor, setActor] = useState<string | null>();
   const [failed, setFailed] = useState(false),
     [revision, setRevision] = useState(0);
@@ -103,8 +111,12 @@ function SavedVehicleAccount({ onUse }: { onUse: (query: URLSearchParams) => voi
     );
   return actor === null ? (
     <p className="parts-saved-vehicles">
-      <Link href="/login?next=%2Fparts">Sign in to reuse a saved vehicle</Link>. You can
-      also search with the vehicle details below.
+      <Link
+        href={`/login?next=${encodeURIComponent(returnTo === "/parts" || returnTo.startsWith("/parts?") ? returnTo : "/parts")}`}
+      >
+        Sign in to reuse a saved vehicle
+      </Link>
+      . You can also search with the vehicle details below.
     </p>
   ) : null;
 }

@@ -57,7 +57,14 @@ async function fixture(page: Page) {
       return ok({
         items: state.empty
           ? []
-          : [{ id: branchId, name: "Port Harcourt test branch", code: "TEST" }],
+          : [
+              { id: branchId, name: "Port Harcourt test branch", code: "TEST" },
+              {
+                id: "f6000000-0000-4000-8000-000000000099",
+                name: "Second synthetic workshop",
+                code: "TEST2",
+              },
+            ],
       });
     }
     if (endpoint.endsWith("/public/catalog/products"))

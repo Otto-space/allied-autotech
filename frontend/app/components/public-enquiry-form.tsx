@@ -36,6 +36,7 @@ function EnabledPublicEnquiryForm({
   initialSubject,
   initialMessage,
   initialContextKey,
+  initialEnquiryType,
 }: {
   serviceId?: string;
   serviceName?: string;
@@ -44,6 +45,7 @@ function EnabledPublicEnquiryForm({
   initialSubject?: string;
   initialMessage?: string;
   initialContextKey?: string;
+  initialEnquiryType?: "PRODUCT";
   submissionLocked?: boolean;
   onSubmissionUncertain?: () => void;
   presentation?: "contact";
@@ -111,6 +113,7 @@ function EnabledPublicEnquiryForm({
         productName={productName}
         initialSubject={initialSubject}
         initialMessage={initialMessage}
+        initialEnquiryType={initialEnquiryType}
         initialContextKey={initialContextKey}
       />
     </>

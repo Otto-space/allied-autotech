@@ -111,7 +111,7 @@ async function fixture(page: Page) {
     if (path.endsWith("/public/catalog/categories")) return ok({ items: [category] });
     if (path.endsWith(`/public/catalog/categories/${categoryId}`)) return ok(category);
     if (path.endsWith("/public/catalog/products/discovery")) {
-      state.requests.push(url);
+      if (url.searchParams.get("limit") !== "1") state.requests.push(url);
       const selected = url.searchParams.has("vehicleModelId");
       const required = ["engineCode", "market", "position", "brakeSystem"];
       const missing = required.filter((key) => !url.searchParams.get(key));
@@ -162,6 +162,7 @@ async function fixture(page: Page) {
   return state;
 }
 async function chooseCar(page: Page) {
+  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
   const make = page.getByRole("combobox", { name: "Vehicle make", exact: true });
   await make.fill("Toy");
   await page.getByRole("option", { name: "Toyota", exact: true }).click();
@@ -185,7 +186,9 @@ for (const width of [1440, 390])
       page.getByRole("heading", { name: "No verified match for these details" }),
     ).toBeVisible();
     await expect(page.locator(".product-card")).toContainText("Needs verification");
-    await page.getByText("More vehicle details", { exact: false }).click();
+    await page.getByText("All technical details", { exact: false }).click();
+    await page.getByText("Engine and vehicle configuration", { exact: true }).click();
+    await page.getByText("Brakes and position", { exact: true }).click();
     for (const [label, value] of [
       ["Engine code", "2ZR-FE"],
       ["Vehicle market", "Japan"],
@@ -239,11 +242,9 @@ for (const width of [1440, 390])
     await page
       .getByLabel("Email address", { exact: true })
       .fill("parts-test@example.test");
-    const branch = page.getByRole("combobox", { name: "Handling branch", exact: true });
-    await branch.fill("Port Harcourt");
-    await page
-      .getByRole("option", { name: "Port Harcourt test branch", exact: true })
-      .click();
+    await expect(page.getByLabel("Handling branch", { exact: true })).toHaveValue(
+      "Port Harcourt test branch",
+    );
     await page.getByRole("button", { name: "Review enquiry", exact: true }).click();
     expect(state.writes).toHaveLength(0);
     await page
@@ -255,7 +256,7 @@ for (const width of [1440, 390])
     ).toBeVisible();
     expect(state.writes).toHaveLength(1);
     expect(state.writes[0]).toMatchObject({
-      type: "GENERAL",
+      type: "PRODUCT",
       email: "parts-test@example.test",
     });
     expect(state.writes[0].message).toContain("Vehicle: Toyota Corolla, model year 2018");
@@ -269,6 +270,7 @@ test("unavailable catalogue reads can retry and changing make clears dependent s
   const state = await fixture(page);
   state.makeFailure = true;
   await page.goto("/parts");
+  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
   await page.getByRole("combobox", { name: "Vehicle make", exact: true }).click();
   await expect(page.getByRole("button", { name: "Retry make options" })).toBeVisible();
   state.makeFailure = false;
@@ -285,6 +287,9 @@ test("unavailable catalogue reads can retry and changing make clears dependent s
   await expect(page.getByLabel("Model year", { exact: true })).toHaveValue("");
   await page.getByRole("button", { name: "Find matching parts", exact: true }).click();
   await expect(
-    page.getByText("Choose a catalogue make, model and supported year.", { exact: true }),
+    page.getByText(
+      "Choose your vehicle make and model from the suggestions, then choose a supported model year.",
+      { exact: true },
+    ),
   ).toBeVisible();
 });

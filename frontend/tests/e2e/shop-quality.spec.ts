@@ -137,7 +137,8 @@ async function fixture(page: Page) {
     });
   });
   await page.route("**/api/v1/public/catalog/products/discovery?*", async (route) => {
-    state.requests.push(new URL(route.request().url()));
+    if (new URL(route.request().url()).searchParams.get("limit") !== "1")
+      state.requests.push(new URL(route.request().url()));
     if (state.delay) await new Promise((resolve) => setTimeout(resolve, state.delay));
     if (state.offline) return route.abort("internetdisconnected");
     if (state.status !== 200)
@@ -395,7 +396,7 @@ test("loading, empty, server, rate-limit and network errors remain recoverable",
   await expect(page.getByRole("heading", { name: "No matching products" })).toBeVisible();
   await page.getByRole("button", { name: "Clear filters", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "No products are listed yet" }),
+    page.getByRole("heading", { name: "No products are published yet" }),
   ).toBeVisible();
   state.empty = false;
   for (const status of [503, 429, 0]) {
@@ -424,7 +425,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
       page
         .getByRole("navigation", { name: "Breadcrumb" })
         .locator('[aria-current="page"]'),
-    ).toHaveText("Shop");
+    ).toHaveText("Parts");
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
     ).toBe(true);

@@ -96,8 +96,8 @@ export function VehicleSearch({
 }
 
 const labels: Record<string, string> = {
-  make: "Make (exact name)",
-  model: "Model (exact name)",
+  make: "Make",
+  model: "Model",
   year: "Year",
   minPriceKobo: "Minimum price (NGN)",
   maxPriceKobo: "Maximum price (NGN)",
@@ -105,9 +105,9 @@ const labels: Record<string, string> = {
   transmission: "Transmission",
   fuelType: "Fuel type",
   featured: "Featured listings",
-  trim: "Trim (exact name)",
+  trim: "Trim",
   conditions: "Vehicle condition",
-  powertrains: "Powertrain Technology",
+  powertrains: "Powertrain technology",
   manufactureCountryCode: "Final assembly country",
   manufactureRegion: "Final assembly region",
   powertrain: "Powertrain",
@@ -119,8 +119,8 @@ const labels: Record<string, string> = {
   minEngineCapacityCc: "Engine capacity from (cc)",
   maxEngineCapacityCc: "Engine capacity to (cc)",
   seats: "Seats",
-  color: "Colour (exact name)",
-  feature: "Recorded feature (exact name)",
+  color: "Colour",
+  feature: "Equipment",
   inspected: "Condition report",
 };
 
@@ -138,6 +138,12 @@ export function VehicleFilters({
   const [open, setOpen] = useState(false);
   function readValues() {
     const params = new URLSearchParams(query);
+    // Legacy exact-year links remain supported; editing uses a single year range.
+    if (params.has("year")) {
+      params.set("minYear", params.get("year")!);
+      params.set("maxYear", params.get("year")!);
+      params.delete("year");
+    }
     return Object.fromEntries(
       advancedVehicleKeys.map((key) => [
         key,
@@ -237,7 +243,10 @@ export function VehicleFilters({
         "Choose a European country or clear the region.";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) {
-      document.getElementById(`filter-${Object.keys(nextErrors)[0]}`)?.focus();
+      const field = document.getElementById(`filter-${Object.keys(nextErrors)[0]}`);
+      const group = field?.closest("details");
+      if (group) group.open = true;
+      field?.focus();
       return;
     }
     update((params) => {
@@ -267,6 +276,8 @@ export function VehicleFilters({
             close();
             return;
           }
+          setValues(readValues());
+          setErrors({});
           if (window.matchMedia("(max-width: 767px)").matches)
             dialog.current?.showModal();
           else dialog.current?.show();
@@ -320,83 +331,60 @@ export function VehicleFilters({
             </button>
           </div>
           <div className="vehicle-filter-body">
-            <div className="vehicle-origin-presets" aria-label="Final assembly shortcuts">
-              <span>Final assembly:</span>
-              {[
-                ["CN", "China"],
-                ["JP", "Japan"],
-                ["KR", "South Korea"],
-                ["NG", "Nigeria"],
-                ["EUROPE", "Europe"],
-              ].map(([code, label]) => (
-                <button
-                  type="button"
-                  key={code}
-                  aria-pressed={
-                    code === "EUROPE"
-                      ? values.manufactureRegion === code
-                      : values.manufactureCountryCode === code
-                  }
-                  onClick={() =>
-                    setValues((v) => ({
-                      ...v,
-                      manufactureCountryCode: code === "EUROPE" ? "" : code,
-                      manufactureRegion: code === "EUROPE" ? code : "",
-                    }))
-                  }
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            <p className="vehicle-filter-hint">
-              Origin means final assembly country. Unknown origin and specifications
-              remain unspecified.
-            </p>
             {[
+              ["Budget", ["minPriceKobo", "maxPriceKobo"]],
+              ["Make and model", ["make", "model"]],
+              ["Condition", ["conditions"]],
+              ["Model year and body", ["minYear", "maxYear", "bodyType"]],
               [
-                "Vehicle",
+                "Advanced: driving and equipment",
                 [
-                  "make",
-                  "model",
-                  "trim",
-                  "conditions",
-                  "manufactureCountryCode",
-                  "manufactureRegion",
-                ],
-              ],
-              [
-                "Price, year and mileage",
-                [
-                  "minPriceKobo",
-                  "maxPriceKobo",
-                  "year",
-                  "minYear",
-                  "maxYear",
+                  "transmission",
                   "minMileageKm",
                   "maxMileageKm",
-                ],
-              ],
-              [
-                "Specifications",
-                [
-                  "bodyType",
                   "powertrains",
                   "fuelType",
-                  "transmission",
                   "driveType",
                   "minEngineCapacityCc",
                   "maxEngineCapacityCc",
                   "seats",
+                  "trim",
                   "color",
-                  "feature",
                   "inspected",
-                  "featured",
                 ],
               ],
+              [
+                "Advanced: assembly location",
+                ["manufactureCountryCode", "manufactureRegion"],
+              ],
             ].map(([heading, keys]) => (
-              <details className="vehicle-filter-group" key={heading as string} open>
+              <details
+                className="vehicle-filter-group"
+                key={heading as string}
+                open={
+                  !(heading as string).startsWith("Advanced:") ||
+                  (keys as string[]).some((key) => !!values[key])
+                }
+              >
                 <summary>{heading}</summary>
+                {heading === "Condition" && (
+                  <p className="vehicle-filter-hint">
+                    Used with unspecified origin remains separate from foreign used and
+                    Nigerian used. Condition does not describe assembly location.
+                  </p>
+                )}
+                {heading === "Advanced: driving and equipment" && (
+                  <p className="vehicle-filter-hint">
+                    Powertrain describes the propulsion system; fuel type is the listing’s
+                    recorded energy source. Combining them narrows results.
+                  </p>
+                )}
+                {heading === "Advanced: assembly location" && (
+                  <p className="vehicle-filter-hint">
+                    Final assembly location does not establish import condition or vehicle
+                    quality. Unrecorded locations remain unspecified.
+                  </p>
+                )}
                 <div className="vehicle-filter-fields">
                   {(keys as string[]).map((key) => (
                     <div className="vehicle-field" key={key}>
@@ -563,7 +551,7 @@ export function VehicleFilters({
                       )}
                       {["make", "model"].includes(key) && (
                         <small id={`filter-${key}-hint`}>
-                          Matches the full {key} name.
+                          Choose a published suggestion, or enter the full {key} name.
                         </small>
                       )}
                       {errors[key] && (

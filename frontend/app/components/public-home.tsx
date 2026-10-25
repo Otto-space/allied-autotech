@@ -14,12 +14,7 @@ import { ServiceMarquee } from "./service-marquee";
 import { ServiceList } from "./service-list";
 import { HomePartsPreview, HomeVehiclesPreview } from "./home-catalogue-preview";
 import { HomeReviewsPreview } from "./home-reviews-preview";
-import {
-  ContactInvitation,
-  LifestyleDiscovery,
-  ServiceJourney,
-  TrustPrinciples,
-} from "./brand-editorial";
+import { ContactInvitation } from "./brand-editorial";
 import "../home.css";
 
 export async function PublicHome() {
@@ -35,47 +30,40 @@ export async function PublicHome() {
       <main id="main" className="public-site home-page">
         <HomeHero />
         <ServiceMarquee />
-        <section className="public-section">
-          <div className="public-wrap partner-layout">
-            <div className="partner-intro">
-              <h2>
-                One trusted
-                <br />
-                automotive partner.
-              </h2>
-              <p>For the vehicle you drive today. And the one you choose tomorrow.</p>
-              <Link href="/about" className="text-link">
-                Meet Allied AutoTech <ArrowUpRight size={17} aria-hidden="true" />
-              </Link>
+        <section
+          className="public-section home-routes"
+          aria-labelledby="home-routes-title"
+        >
+          <div className="public-wrap">
+            <div className="section-heading">
+              <h2 id="home-routes-title">What can we help you with?</h2>
             </div>
-            <div className="partner-links">
+            <div className="home-route-grid">
               {[
                 {
                   icon: Wrench,
-                  title: "Service & repairs",
-                  copy: "Understand the issue. Plan the work. Keep moving with confidence.",
+                  title: "Services and repairs",
+                  copy: "Review the service details and discuss your vehicle’s needs.",
                   href: "/services",
                 },
                 {
                   icon: Package,
-                  title: "Shop & automotive products",
-                  copy: "Find parts, oils and the essentials that keep your vehicle performing.",
+                  title: "Parts and automotive products",
+                  copy: "Search by part or vehicle. Ask us to check suitability before collection.",
                   href: "/parts",
                 },
                 {
                   icon: CarFront,
-                  title: "Vehicle marketplace",
-                  copy: "Explore current vehicles and arrange a closer look with our team.",
+                  title: "Vehicles",
+                  copy: "Compare published listings or tell our team what you are looking for.",
                   href: "/vehicles",
                 },
               ].map((item) => (
                 <Link href={item.href} key={item.href}>
-                  <item.icon size={22} aria-hidden="true" />
-                  <div>
-                    <h3>{item.title}</h3>
-                    <p>{item.copy}</p>
-                  </div>
-                  <ArrowUpRight size={19} aria-hidden="true" />
+                  <item.icon size={24} aria-hidden="true" />
+                  <h3>{item.title}</h3>
+                  <p>{item.copy}</p>
+                  <ArrowUpRight size={18} aria-hidden="true" />
                 </Link>
               ))}
             </div>
@@ -85,18 +73,18 @@ export async function PublicHome() {
           <div className="public-wrap home-services__layout">
             <div className="home-services__image">
               <Image
-                src="/images/allied-autotech/workshop-editorial.webp"
-                alt="Editorial workshop scene showing a technician inspecting an SUV"
+                src="/images/allied-autotech/technician-original.webp"
+                alt="Technician in Allied AutoTech’s original workshop campaign photograph"
                 fill
                 sizes="(max-width: 700px) 90vw, 35vw"
               />
             </div>
             <div>
               <div className="section-heading">
-                <h2>Care for every next kilometre.</h2>
+                <h2>Which services can I enquire about?</h2>
                 <p>
-                  Explore our current services, review the details and choose your next
-                  step.
+                  Read the published scope and pricing basis, then ask our team about your
+                  vehicle. Work and appointments are confirmed separately.
                 </p>
               </div>
               <ServiceList preview initial={services} />
@@ -106,85 +94,7 @@ export async function PublicHome() {
             </div>
           </div>
         </section>
-        <ServiceJourney />
-        <section className="public-section trust-story">
-          <div className="public-wrap trust-layout">
-            <figure className="technician-story">
-              <div className="technician-story__image">
-                <Image
-                  src="/images/allied-autotech/technician-original.webp"
-                  alt="Allied AutoTech technician in the company’s original Precision Autocare You Can Trust campaign"
-                  fill
-                  sizes="(max-width: 700px) 90vw, 40vw"
-                />
-              </div>
-              <figcaption>From the Allied AutoTech workshop.</figcaption>
-            </figure>
-            <div>
-              <h2>
-                Precision Autocare
-                <br />
-                You Can Trust.
-              </h2>
-              <p>
-                Built on trust driven by quality. Our principles shape the way we care for
-                your vehicle and the way we work with you.
-              </p>
-              <TrustPrinciples />
-              <Link className="text-link" href="/about#principles">
-                The principles behind our work{" "}
-                <ArrowUpRight size={17} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-        </section>
-        <section className="public-section home-vehicles">
-          <div className="public-wrap">
-            <div className="section-heading-row">
-              <div className="section-heading">
-                <h2>Your next chapter starts here.</h2>
-                <p>
-                  Current listings. Clear details. A closer look before your next move.
-                </p>
-              </div>
-              <Link className="button secondary" href="/vehicles">
-                Explore Vehicles <ArrowUpRight size={17} aria-hidden="true" />
-              </Link>
-            </div>
-            <HomeVehiclesPreview initial={vehicles} />
-          </div>
-        </section>
-        <LifestyleDiscovery />
-        <section className="public-section public-surface home-shop">
-          <div className="public-wrap">
-            <div className="shop-editorial">
-              <div>
-                <h2>
-                  Quality parts.
-                  <br />
-                  Reliable performance.
-                </h2>
-                <p>
-                  Explore available automotive essentials. Check compatibility, stock and
-                  collection details before ordering.
-                </p>
-                <Link className="button" href="/parts">
-                  Visit the Shop <ArrowUpRight size={17} aria-hidden="true" />
-                </Link>
-              </div>
-              <div className="shop-editorial__image">
-                <Image
-                  src="/images/allied-autotech/parts-editorial.webp"
-                  alt="Editorial display of automotive filters, brake components and oil containers"
-                  fill
-                  sizes="(max-width: 700px) 100vw, 55vw"
-                />
-              </div>
-            </div>
-            <HomePartsPreview initial={products} />
-          </div>
-        </section>
-        <section className="public-section">
+        <section className="public-section" aria-labelledby="home-equipment-title">
           <div className="public-wrap equipment-story">
             <div className="equipment-story__image">
               <Image
@@ -195,27 +105,59 @@ export async function PublicHome() {
               />
             </div>
             <div>
-              <h2>Precision starts with understanding.</h2>
+              <h2 id="home-equipment-title">
+                How do we investigate your vehicle’s concern?
+              </h2>
               <p>
-                Our diagnostic equipment helps us investigate the issue, explain our
-                findings and recommend the next step for your vehicle.
+                Our diagnostic equipment helps the team investigate issues, explain
+                findings and recommend the next step.
               </p>
               <Link href="/about#equipment" className="text-link">
-                Explore our technology & equipment{" "}
-                <ArrowUpRight size={17} aria-hidden="true" />
+                Our equipment and approach <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
             </div>
           </div>
         </section>
+        <section
+          className="public-section public-surface"
+          aria-labelledby="home-next-title"
+        >
+          <div className="public-wrap">
+            <div className="section-heading">
+              <h2 id="home-next-title">What happens next?</h2>
+              <p>Start a conversation. Agree the work before it begins.</p>
+            </div>
+            <ol className="home-process">
+              {[
+                [
+                  "Tell us what you need",
+                  "Share the vehicle details and the issue, service or part you need help with.",
+                ],
+                [
+                  "Discuss the findings and scope",
+                  "Our team explains the next step. Review any proposed work and quotation before approval.",
+                ],
+                [
+                  "Confirm your visit or collection",
+                  "Agree arrangements with the team. An enquiry alone does not confirm an appointment or reserve stock.",
+                ],
+              ].map(([title, copy], index) => (
+                <li key={title}>
+                  <span aria-hidden="true">0{index + 1}</span>
+                  <h3>{title}</h3>
+                  <p>{copy}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+        <HomePartsPreview initial={products} />
+        <HomeVehiclesPreview initial={vehicles} />
         <HomeReviewsPreview initial={reviews} />
         <section className="public-section">
           <div className="public-wrap home-faq">
             <div>
-              <h2>
-                A little clarity.
-                <br />
-                Before you set off.
-              </h2>
+              <h2>Before your visit.</h2>
               <p>Practical answers for your next visit.</p>
               <Link className="text-link" href="/help">
                 Visit the Help Centre <ArrowUpRight size={17} aria-hidden="true" />

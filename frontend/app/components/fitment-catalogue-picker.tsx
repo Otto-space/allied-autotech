@@ -183,7 +183,7 @@ export function FitmentCataloguePicker({
       <small id={`${id}-hint`}>
         {disabled
           ? "Choose a vehicle make first."
-          : `Choose a ${kind} from the catalogue suggestions.`}
+          : `Choose your vehicle ${kind} from the suggestions.`}
       </small>
       {open && !disabled && (
         <div className="fitment-picker-popup">
@@ -209,7 +209,8 @@ export function FitmentCataloguePicker({
           {(pending || state.loading) && <p role="status">Loading {kind} options…</p>}
           {!pending && !state.loading && !state.error && !options.length && (
             <p role="status">
-              No matching catalogue {kind}. Request help with your vehicle.
+              No matching {kind} is available. Try another spelling or ask our team to
+              check your vehicle.
             </p>
           )}
           {!pending && state.error && (

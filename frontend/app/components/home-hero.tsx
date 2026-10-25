@@ -7,42 +7,42 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const slides = [
   {
-    title: "Built on trust ",
-    emphasis: "driven by quality",
+    title: "Vehicle care in",
+    emphasis: "Port Harcourt.",
     description:
-      "Professional diagnostics, maintenance and repairs, with clear advice and careful workmanship at every step.",
-    action: "Book a Service",
+      "Diagnostics, repairs and maintenance. Tell us what your vehicle needs and discuss the next step with our team.",
+    action: "Explore services",
     href: "/services",
     image: "/images/allied-autotech/workshop-editorial.webp",
     alt: "Editorial scene of a technician inspecting a dark SUV in a modern workshop",
-    secondary: "Request a Quote",
+    secondary: "Discuss your vehicle",
     secondaryHref: "/contact#enquiry",
-    caption: "Your vehicle. Our focus.",
+    caption: "Built on trust, driven by quality. Editorial workshop image.",
     contain: false,
   },
   {
     title: "Find the car",
     emphasis: "that fits your life.",
     description:
-      "Explore carefully presented vehicles for family life, daily movement, business and executive comfort.",
+      "Browse published listings when available. Compare condition, budget and specifications, then enquire about a closer look.",
     action: "Explore Vehicles",
     href: "/vehicles",
     image: "/images/allied-autotech/showroom-editorial.webp",
     alt: "Editorial showroom scene with a silver sedan and dark SUV",
-    secondary: "Request an Inspection",
-    secondaryHref: "/vehicles#inventory",
+    secondary: "Discuss your search",
+    secondaryHref: "/contact#enquiry",
     caption: "Technology that supports informed decisions.",
     contain: true,
   },
   {
-    title: "Built for every",
-    emphasis: "journey that matters.",
+    title: "Understand the issue.",
+    emphasis: "Plan the next step.",
     description:
-      "Family comfort, everyday confidence and room for the moments that make life yours. Start your next chapter with us.",
-    action: "Discover Vehicles",
-    href: "/vehicles",
-    image: "/images/allied-autotech/family-editorial.webp",
-    alt: "Editorial scene of an African family beside a white SUV",
+      "Learn about our diagnostic equipment and how the team investigates vehicle concerns before recommending work.",
+    action: "Explore our equipment",
+    href: "/about#equipment",
+    image: "/images/equipment/autel-mk808s.jpg",
+    alt: "Autel MK808S diagnostic equipment",
     secondary: "Speak With Us",
     secondaryHref: "https://wa.me/2348136075567",
     caption: "Quality products. Professional vehicle care.",
@@ -52,13 +52,13 @@ const slides = [
     title: "Quality parts.",
     emphasis: "Reliable performance.",
     description:
-      "Find the right essentials for your vehicle. Browse available parts, oils and automotive products in our Shop.",
-    action: "Visit the Shop",
+      "Search by part name or number, or use your vehicle details. Our team can help check suitability and collection availability.",
+    action: "Find parts",
     href: "/parts",
     image: "/images/allied-autotech/parts-editorial.webp",
     alt: "Editorial arrangement of brake components, filters and unlabelled oil containers",
-    secondary: "Request a Quotation",
-    secondaryHref: "/contact#enquiry",
+    secondary: "Ask about a part",
+    secondaryHref: "/contact?parts=1#enquiry",
     caption: "Care and support for your next move.",
     contain: false,
   },
@@ -138,6 +138,15 @@ export function HomeHero() {
           sizes="100vw"
           preload={index === 0}
         />
+        <span className="hero-image-note">
+          {index === 0
+            ? "Editorial workshop illustration"
+            : index === 1
+              ? "Showroom illustration — see listings for availability"
+              : index === 2
+                ? "Autel MK808S diagnostic equipment"
+                : "Editorial parts illustration"}
+        </span>
       </div>
       <div className="public-wrap hero-layout">
         <div
@@ -145,6 +154,7 @@ export function HomeHero() {
           aria-live={advancing ? "off" : "polite"}
           aria-atomic="true"
         >
+          <p className="hero-brand-line">Built on trust, driven by quality</p>
           <h1>
             {current.title}
             <br />

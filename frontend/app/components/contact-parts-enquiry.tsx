@@ -57,11 +57,7 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
       ? model.data
       : undefined;
   const validProduct = product.data?.id === productId ? product.data : undefined;
-  const lines = [
-    "Please help me verify the right part.",
-    ...(validModel
-      ? [`Vehicle: ${validModel.make.name} ${validModel.name}, model year ${year}.`]
-      : ["Vehicle: please add the make, model and year below."]),
+  const details = [
     ...fitmentQualifierKeys.flatMap((key) => {
       const parsed = text.safeParse(params.get(`part_${key}`) ?? "");
       return parsed.success && parsed.data
@@ -82,6 +78,13 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
           : [];
       },
     ),
+  ];
+  const lines = [
+    "Please help me verify the right part.",
+    ...(validModel
+      ? [`Vehicle: ${validModel.make.name} ${validModel.name}, model year ${year}.`]
+      : ["Vehicle: please add the make, model and year below."]),
+    ...details,
     "Make, model and year alone do not confirm compatibility. Please verify the necessary specifications before collection.",
     "Collection only. I understand delivery is unavailable.",
     "",
@@ -93,12 +96,14 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
       160,
     );
   const message = lines.join("\n").slice(0, 3500);
+  const hasContext = !!validModel || details.length > 0;
   return (
     <>
       <p className="notice">
-        Your selected vehicle and part details are included in the enquiry. Review and
-        edit them before sending. This request does not confirm fitment, reserve stock or
-        place an order.
+        {hasContext
+          ? "Your available vehicle or part details are included below. Review and edit them before sending."
+          : "Add the part name or number and any vehicle details you know below."}{" "}
+        This request does not confirm fitment, reserve stock or place an order.
       </p>
       {((modelId && !validModel) || (productId && !validProduct)) && (
         <p role="status">
@@ -107,11 +112,12 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
         </p>
       )}
       <PublicEnquiryForm
-        key={`${modelId}:${year}:${productId}:${message}`}
+        key={params.toString()}
         presentation="contact"
         initialSubject={subject}
         initialMessage={message}
-        initialContextKey={`${modelId}:${year}:${productId}:${message}`}
+        initialContextKey={params.toString()}
+        initialEnquiryType="PRODUCT"
         productId={validProduct?.id}
         productName={validProduct?.name}
       />

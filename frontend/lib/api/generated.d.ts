@@ -4635,7 +4635,7 @@ export interface paths {
         put?: never;
         /**
          * Submit a public enquiry
-         * @description Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Deploy this compatible API change before enabling the matching generic Product handoff in the frontend. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         post: operations["postPublicSupportEnquiries"];
         delete?: never;
@@ -78402,7 +78402,7 @@ export interface operations {
                      * Format: uuid
                      * @description Identifier of the product resource; ownership is resolved server-side.
                      */
-                    productId: string;
+                    productId?: string;
                 } | {
                     /**
                      * Format: uuid

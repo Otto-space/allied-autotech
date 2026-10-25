@@ -928,3 +928,30 @@ was provider READY/actual alias identity; browser checks used local synthetic
 fixtures. Payments stay disabled. Dependencies and Docker resources were retained;
 preview port 3155 stopped. Original main-checkout edits remain untouched except
 the guarded documentation handoff. Item 6 and owner dependencies retain scope.
+
+
+25 October 2026 - Home/Parts/Vehicles implementation checkpoint (not released):
+`C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, branch
+`feat/home-discovery-ux-20261025`, based on latest release `93e2501b` after checking
+both actual production aliases. Home sections/motion, direct Parts search and grouped
+fitment, simpler vehicle filters, catalogue empty/failure handling and Product enquiry
+context are implemented. A separate explicitly fictional `/demo` has 20 products/parts,
+12 vehicles and four services; genuine catalogue/database records were not seeded.
+Code is uncommitted in that worktree; main-checkout application edits were preserved.
+
+Full lint/types/format, 988 frontend unit tests, four later fixture-contract tests,
+10 focused backend unit tests, 347-path OpenAPI validation and the final optimized
+build passed. Latest selected development-browser run was 16 passed/1 failed; the
+remaining fixture-count assertion was corrected but not rerun. Final Home and broader
+127-case optimized regression matrix are incomplete: automatic approval review
+rejected loopback preview startup as "blocked by policy", including after the user's
+explicit approval. Preview/API ports 3165/5021 are closed; no workaround was used.
+See Cycle 4 in that worktree's `frontend/docs/UI_UX_QUALITY_REGISTER.md` for exact
+commands, evidence, limitations and resume steps. Do not count this as release-ready.
+
+The compatible public Product-enquiry API expansion must be deployed before the
+matching frontend. No schema change, database check/write/migration, backup/restore,
+real submission, push or deployment occurred. Docker images/caches/volumes were
+retained; no new Docker resource or package installation was needed. Existing useful
+dependencies and the built review artifact are retained. Current release/rollback,
+launch restrictions, database safeguards and settled Item 6 decisions remain unchanged.

@@ -1,28 +1,17 @@
 "use client";
 import { FindPartsForCar } from "./find-parts-for-car";
-import { PartFitmentSummary } from "./part-fitment-summary";
+import { PartCard } from "./catalogue-cards";
 import {
   clearVehicleSelection,
   vehicleSelectionKeys,
   fitmentLabels,
   partsEnquiryHref,
-  productFitmentHref,
 } from "@/lib/parts-fitment";
 import type { PublicSeed } from "@/lib/api/public-seed";
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CarFront,
-  ChevronDown,
-  CircleCheck,
-  CircleMinus,
-  Package,
-  PackageSearch,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown, PackageSearch, X } from "lucide-react";
 import { useResource } from "@/lib/api/use-resource";
 import { parseProductDiscovery } from "@/lib/api/commerce-schemas";
 import { formatKobo } from "@/lib/format/money";
@@ -43,7 +32,6 @@ import {
   useProductCategory,
 } from "../parts/product-category";
 import { Feedback } from "./feedback";
-import { PublicMedia } from "./public-media";
 
 export function PartsCatalogue({
   initial,
@@ -99,6 +87,27 @@ export function PartsCatalogue({
       (advancedProductKeys as readonly string[]).includes(key),
     ),
   ).toString();
+  const filtered = selected.length > 0 || params.has("vehicleModelId");
+  const publication = useResource(
+    filtered || params.has("cursor")
+      ? "/public/catalog/products/discovery?limit=1"
+      : null,
+    parseProductDiscovery,
+  );
+  const noCatalogue =
+    products.data?.items.length === 0 &&
+    !products.loading &&
+    !products.error &&
+    !products.refreshError &&
+    !publication.loading &&
+    !publication.error &&
+    !publication.refreshError &&
+    (filtered || params.has("cursor")
+      ? publication.data?.totalMatches === 0
+      : products.data?.totalMatches === 0);
+  const [intent, setIntent] = useState<"part" | "vehicle">(
+    params.has("vehicleModelId") ? "vehicle" : "part",
+  );
   const trail = params.get("_trail")?.split(",") ?? [];
   function navigate(next: URLSearchParams) {
     const normalized = normalizeProductQuery(next).params.toString();
@@ -148,7 +157,9 @@ export function PartsCatalogue({
               ? "Loading products…"
               : products.error
                 ? "Products unavailable"
-                : `${(products.data?.totalMatches ?? 0).toLocaleString("en-NG")} matching product${products.data?.totalMatches === 1 ? "" : "s"} · ${products.data?.items.length ?? 0} product${products.data?.items.length === 1 ? "" : "s"} on this page`}
+                : noCatalogue
+                  ? ""
+                  : `${(products.data?.totalMatches ?? 0).toLocaleString("en-NG")} matching product${products.data?.totalMatches === 1 ? "" : "s"} · ${products.data?.items.length ?? 0} product${products.data?.items.length === 1 ? "" : "s"} on this page`}
           </p>
         </div>
         {invalid && (
@@ -157,111 +168,138 @@ export function PartsCatalogue({
             filters below.
           </p>
         )}
-        <div className="product-toolbar">
+        <div
+          className="parts-intent"
+          role="group"
+          aria-label="How would you like to find parts?"
+        >
+          <button
+            type="button"
+            aria-pressed={intent === "part"}
+            onClick={() => setIntent("part")}
+          >
+            I know the part
+          </button>
+          <button
+            type="button"
+            aria-pressed={intent === "vehicle"}
+            onClick={() => setIntent("vehicle")}
+          >
+            Find parts for my car
+          </button>
+        </div>
+        <div className="product-direct-search">
           <ProductSearch
             key={searchReset}
             value={params.get("search") ?? ""}
             update={update}
           />
-          <ProductCategory
-            value={rootId}
-            categories={categories}
-            scope={{ rootOnly: true }}
-            onChange={(id) =>
-              update((next) => {
-                next.delete("categoryId");
-                next.delete("parentCategoryId");
-                if (id) next.set("categoryId", id);
-              })
-            }
-          />
-          <ProductCategory
-            key={rootId}
-            title="Subcategory"
-            value={childId}
-            categories={subcategories}
-            scope={{ parentId: rootId }}
-            disabled={!rootId}
-            onChange={(id) =>
-              update((next) => {
-                next.delete("categoryId");
-                if (rootId) next.set("parentCategoryId", rootId);
-                if (id) next.set("categoryId", id);
-              })
-            }
-          />
-          <ProductFilters
-            query={advanced}
-            count={selected.length}
-            update={update}
-            clear={clear}
-          />
-          <div className="product-sort">
-            <label htmlFor="product-sort">Sort by</label>
-            <div className="product-select">
-              <select
-                id="product-sort"
-                value={params.get("sort") ?? "newest"}
-                onChange={(event) =>
-                  update((next) => next.set("sort", event.target.value))
-                }
-              >
-                <option value="newest">Newest products</option>
-                <option value="name">Name</option>
-                <option value="price_asc">Price: low to high</option>
-                <option value="price_desc">Price: high to low</option>
-              </select>
-              <ChevronDown size={16} aria-hidden="true" />
+        </div>
+        <details className="catalogue-controls" open={!noCatalogue || filtered}>
+          <summary>Categories and filters</summary>
+          <div className="product-toolbar">
+            <ProductCategory
+              value={rootId}
+              categories={categories}
+              scope={{ rootOnly: true }}
+              onChange={(id) =>
+                update((next) => {
+                  next.delete("categoryId");
+                  next.delete("parentCategoryId");
+                  if (id) next.set("categoryId", id);
+                })
+              }
+            />
+            <ProductCategory
+              key={rootId}
+              title="Subcategory"
+              value={childId}
+              categories={subcategories}
+              scope={{ parentId: rootId }}
+              disabled={!rootId}
+              onChange={(id) =>
+                update((next) => {
+                  next.delete("categoryId");
+                  if (rootId) next.set("parentCategoryId", rootId);
+                  if (id) next.set("categoryId", id);
+                })
+              }
+            />
+            <ProductFilters
+              query={advanced}
+              count={selected.length}
+              update={update}
+              clear={clear}
+            />
+            <div className="product-sort" hidden={noCatalogue}>
+              <label htmlFor="product-sort">Sort by</label>
+              <div className="product-select">
+                <select
+                  id="product-sort"
+                  value={params.get("sort") ?? "newest"}
+                  onChange={(event) =>
+                    update((next) => next.set("sort", event.target.value))
+                  }
+                >
+                  <option value="newest">Newest products</option>
+                  <option value="name">Name</option>
+                  <option value="price_asc">Price: low to high</option>
+                  <option value="price_desc">Price: high to low</option>
+                </select>
+                <ChevronDown size={16} aria-hidden="true" />
+              </div>
             </div>
           </div>
-        </div>
-        {(categoryShortcuts.length > 0 || categories.loading) && (
-          <fieldset className="product-category-shortcuts">
-            <legend>Category shortcuts</legend>
-            <div>
-              <button
-                type="button"
-                aria-label="All product categories"
-                aria-pressed={!rootId}
-                onClick={() =>
-                  update((next) => {
-                    next.delete("categoryId");
-                    next.delete("parentCategoryId");
-                  })
-                }
-              >
-                All products
-              </button>
-              {categoryShortcuts.map((item) => (
+          {(categoryShortcuts.length > 0 || categories.loading) && (
+            <fieldset className="product-category-shortcuts">
+              <legend>Category shortcuts</legend>
+              <div>
                 <button
-                  key={item.id}
                   type="button"
-                  title={item.name}
-                  aria-label={`Category: ${item.name}`}
-                  aria-pressed={rootId === item.id}
+                  aria-label="All product categories"
+                  aria-pressed={!rootId}
                   onClick={() =>
                     update((next) => {
+                      next.delete("categoryId");
                       next.delete("parentCategoryId");
-                      next.set("categoryId", item.id);
                     })
                   }
                 >
-                  <span>{item.name}</span>
+                  All products
                 </button>
-              ))}
-            </div>
-            <p>
-              {categories.loading && !categoryShortcuts.length
-                ? "Loading category shortcuts…"
-                : "Use Category for more options."}
-            </p>
-          </fieldset>
-        )}
-        <FindPartsForCar
-          query={vehicleQuery}
-          enquiryQuery={params.toString()}
-          update={update}
-        />
+                {categoryShortcuts.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    title={item.name}
+                    aria-label={`Category: ${item.name}`}
+                    aria-pressed={rootId === item.id}
+                    onClick={() =>
+                      update((next) => {
+                        next.delete("parentCategoryId");
+                        next.set("categoryId", item.id);
+                      })
+                    }
+                  >
+                    <span>{item.name}</span>
+                  </button>
+                ))}
+              </div>
+              <p>
+                {categories.loading && !categoryShortcuts.length
+                  ? "Loading category shortcuts…"
+                  : "Use Category for more options."}
+              </p>
+            </fieldset>
+          )}
+        </details>
+        <div hidden={intent !== "vehicle"}>
+          <FindPartsForCar
+            query={vehicleQuery}
+            enquiryQuery={params.toString()}
+            update={update}
+          />
+        </div>
       </div>
       {mismatchedCategory && (
         <p className="notice" role="status">
@@ -352,14 +390,29 @@ export function PartsCatalogue({
             </button>
           </>
         ) : (
-          <span>Search by name, brand or part number, or choose a category.</span>
+          <span>
+            {noCatalogue
+              ? "Your part search can be included in an enquiry."
+              : "Search by name, brand or part number, or choose a category."}
+          </span>
         )}
       </div>
-      <div className="product-results" aria-busy={products.loading}>
-        {products.error ? (
+      {products.refreshError && !!products.data?.items.length && (
+        <div className="notice">
+          <Feedback message={products.refreshError} />
+          <button type="button" className="button secondary" onClick={products.refresh}>
+            Retry products
+          </button>
+        </div>
+      )}
+      <div
+        className="product-results"
+        aria-busy={products.loading || products.refreshing}
+      >
+        {products.error || (products.refreshError && !products.data?.items.length) ? (
           <div className="product-empty">
             <h3>Products could not be loaded.</h3>
-            <Feedback message={products.error} />
+            <Feedback message={products.error ?? products.refreshError} />
             <button
               className="button secondary"
               onClick={products.refresh}
@@ -387,98 +440,9 @@ export function PartsCatalogue({
           </div>
         ) : products.data?.items.length ? (
           <div className="product-results-grid">
-            {products.data.items.map((product) => {
-              const photo =
-                product.images.find((image) => image.isPrimary) ?? product.images[0];
-              const available = product.availability.some((item) => item.inStock);
-              const comparison =
-                product.compareAtPriceKobo &&
-                BigInt(product.compareAtPriceKobo) > BigInt(product.priceKobo)
-                  ? product.compareAtPriceKobo
-                  : null;
-              const fitment = product.compatibilities[0];
-              return (
-                <article className="product-card shop-product-card" key={product.id}>
-                  <Link href={productFitmentHref(product.id, params)}>
-                    <div className="shop-product-top">
-                      <PublicMedia
-                        key={photo?.url ?? "missing"}
-                        src={photo?.url}
-                        alt={photo?.altText ?? product.name}
-                        fallbackIcon={<Package size={28} strokeWidth={1.4} />}
-                        sizes="(max-width: 767px) 35vw, 150px"
-                      />
-                      <div className="shop-product-identity">
-                        <span className="product-card-meta">{product.category.name}</span>
-                        <h3>{product.name}</h3>
-                        {product.brand && (
-                          <p className="shop-product-brand">{product.brand}</p>
-                        )}
-                        <p className="shop-product-number">
-                          {product.manufacturerPartNumber
-                            ? `Part no. ${product.manufacturerPartNumber}`
-                            : `SKU ${product.sku}`}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="product-copy">
-                      <strong>{formatKobo(product.priceKobo)}</strong>
-                      {comparison && (
-                        <p className="shop-comparison-price">
-                          Compare at <s>{formatKobo(comparison)}</s>
-                        </p>
-                      )}
-                      <p
-                        className={`shop-stock-label${available ? " is-available" : ""}`}
-                      >
-                        {available ? (
-                          <CircleCheck size={14} aria-hidden="true" />
-                        ) : (
-                          <CircleMinus size={14} aria-hidden="true" />
-                        )}
-                        <span>
-                          {available
-                            ? "Available at a listed branch"
-                            : "Currently unavailable"}
-                        </span>
-                      </p>
-                      <div className="shop-card-fitment">
-                        <CarFront size={16} aria-hidden="true" />
-                        <div>
-                          {params.has("vehicleModelId") ? (
-                            <PartFitmentSummary decision={product.fitment} />
-                          ) : fitment ? (
-                            <>
-                              <span className="shop-fitment-label">
-                                Reviewed application listed
-                              </span>
-                              <p>
-                                {fitment.make}
-                                {fitment.model ? ` ${fitment.model}` : ""}
-                              </p>
-                              <span>
-                                Select your vehicle and technical details to confirm
-                                fitment.
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <p>Fitment unknown</p>
-                              <span>
-                                Choose your vehicle or ask our team to verify suitability.
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <span className="product-detail-link">
-                        View product <ArrowRight size={17} aria-hidden="true" />
-                      </span>
-                    </div>
-                  </Link>
-                </article>
-              );
-            })}
+            {products.data.items.map((product) => (
+              <PartCard key={product.id} product={product} params={params} />
+            ))}
           </div>
         ) : (
           <div className="product-empty">
@@ -486,14 +450,18 @@ export function PartsCatalogue({
             <h3>
               {params.has("cursor")
                 ? "No products on this page"
-                : selected.length
-                  ? "No matching products"
-                  : "No products are listed yet"}
+                : filtered
+                  ? noCatalogue
+                    ? "No products are published yet"
+                    : "No matching products"
+                  : "No products are published yet"}
             </h3>
             <p>
-              {selected.length
-                ? "Try a broader search or clear your filters."
-                : "Contact our team to ask about the product you need."}
+              {noCatalogue
+                ? "Our online product catalogue has no published listings. Send the part name or number and any vehicle details you know."
+                : filtered
+                  ? "No results for these details. Try a broader search or remove a filter."
+                  : "Contact our team to ask about the product you need."}
             </p>
             <div className="actions">
               {params.has("cursor") && (
@@ -501,62 +469,68 @@ export function PartsCatalogue({
                   Return to first page
                 </button>
               )}
-              {selected.length > 0 && (
+              {filtered && !noCatalogue && (
                 <button className="button secondary" onClick={clear}>
                   Clear filters
                 </button>
               )}
-              <Link className="button" href="/contact">
+              <Link className="button" href={partsEnquiryHref(params)}>
                 Ask about a product
               </Link>
             </div>
           </div>
         )}
       </div>
-      <nav className="product-pagination" aria-label="Shop pages">
-        <button
-          className="button secondary"
-          disabled={!params.has("cursor") || products.loading}
-          onClick={() => {
-            const next = new URLSearchParams(params),
-              previous = trail.at(-1);
-            next.delete("cursor");
-            next.delete("_trail");
-            if (previous && previous !== "start") {
-              next.set("cursor", previous);
-              if (trail.length > 1) next.set("_trail", trail.slice(0, -1).join(","));
-            }
-            navigate(next);
-            focusResults();
-          }}
-        >
-          <ArrowLeft size={16} aria-hidden="true" />
-          {params.has("cursor") && !trail.length ? "First page" : "Previous"}
-        </button>
-        <span>
-          {!params.has("cursor")
-            ? "Page 1"
-            : trail.length
-              ? `Page ${trail.length + 1}`
-              : "More products"}
-        </span>
-        <button
-          className="button secondary"
-          disabled={!products.data?.nextCursor || products.loading || !!products.error}
-          onClick={() => {
-            const next = new URLSearchParams(params);
-            next.set("cursor", products.data!.nextCursor!);
-            const previous = params.get("cursor");
-            if (!previous || (trail.length && trail.length < 50))
-              next.set("_trail", [...trail, previous ?? "start"].join(","));
-            else next.delete("_trail");
-            navigate(next);
-            focusResults();
-          }}
-        >
-          Next <ArrowRight size={16} aria-hidden="true" />
-        </button>
-      </nav>
+      {!!products.data?.items.length &&
+        !products.error &&
+        (params.has("cursor") || products.data.nextCursor) && (
+          <nav className="product-pagination" aria-label="Shop pages">
+            <button
+              className="button secondary"
+              disabled={!params.has("cursor") || products.loading}
+              onClick={() => {
+                const next = new URLSearchParams(params),
+                  previous = trail.at(-1);
+                next.delete("cursor");
+                next.delete("_trail");
+                if (previous && previous !== "start") {
+                  next.set("cursor", previous);
+                  if (trail.length > 1) next.set("_trail", trail.slice(0, -1).join(","));
+                }
+                navigate(next);
+                focusResults();
+              }}
+            >
+              <ArrowLeft size={16} aria-hidden="true" />
+              {params.has("cursor") && !trail.length ? "First page" : "Previous"}
+            </button>
+            <span>
+              {!params.has("cursor")
+                ? "Page 1"
+                : trail.length
+                  ? `Page ${trail.length + 1}`
+                  : "More products"}
+            </span>
+            <button
+              className="button secondary"
+              disabled={
+                !products.data?.nextCursor || products.loading || !!products.error
+              }
+              onClick={() => {
+                const next = new URLSearchParams(params);
+                next.set("cursor", products.data!.nextCursor!);
+                const previous = params.get("cursor");
+                if (!previous || (trail.length && trail.length < 50))
+                  next.set("_trail", [...trail, previous ?? "start"].join(","));
+                else next.delete("_trail");
+                navigate(next);
+                focusResults();
+              }}
+            >
+              Next <ArrowRight size={16} aria-hidden="true" />
+            </button>
+          </nav>
+        )}
     </>
   );
 }

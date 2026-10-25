@@ -981,7 +981,10 @@ export class SupportService {
   ) {
     let sourceBranch: string | null = null;
     if (input.type === "PRODUCT") {
-      if ((await this.repository.activeProduct(input.productId, transaction)) === null)
+      if (
+        input.productId &&
+        (await this.repository.activeProduct(input.productId, transaction)) === null
+      )
         throw supportNotFound();
     } else if (input.type === "SERVICE") {
       if ((await this.repository.activeService(input.serviceId, transaction)) === null)

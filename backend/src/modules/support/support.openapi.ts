@@ -257,6 +257,8 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       method: "post",
       path: "/public/support/enquiries",
       summary: "Submit a public enquiry",
+      description:
+        "Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Deploy this compatible API change before enabling the matching generic Product handoff in the frontend.",
       body: publicEnquiryCreateBodySchema,
       accepted: true,
     },

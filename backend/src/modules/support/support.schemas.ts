@@ -38,7 +38,11 @@ const publicEnquiryFields = {
 export const publicEnquiryCreateBodySchema = z.discriminatedUnion("type", [
   z.object({ ...publicEnquiryFields, type: z.literal("GENERAL") }).strict(),
   z
-    .object({ ...publicEnquiryFields, type: z.literal("PRODUCT"), productId: uuid })
+    .object({
+      ...publicEnquiryFields,
+      type: z.literal("PRODUCT"),
+      productId: uuid.optional(),
+    })
     .strict(),
   z
     .object({ ...publicEnquiryFields, type: z.literal("SERVICE"), serviceId: uuid })

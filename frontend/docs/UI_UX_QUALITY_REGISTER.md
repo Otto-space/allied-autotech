@@ -1,6 +1,6 @@
 # UI and UX quality register
 
-Updated 24 October 2026. This is the ongoing quality register, not an assertion
+Updated 25 October 2026. This is the ongoing quality register, not an assertion
 that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
@@ -27,8 +27,8 @@ collection only; no fabricated stock, fitment evidence, products or vehicles.
 
 ## Route, role and state inventory
 
-[Machine-readable source inventory](ui-quality-inventory.json) lists all 104
-`app/**/page.tsx` route patterns, dynamic segments, role families and 294 source
+[Machine-readable source inventory](ui-quality-inventory.json) lists all 105
+`app/**/page.tsx` route patterns, dynamic segments, role families and 296 source
 files with form, table, disclosure, select, file input, dialog, feedback or
 boundary signals. Regenerate with `node scripts/ui-quality-inventory.mjs` from
 `frontend`. These are source signals, not proofs that a route exposes a control,
@@ -555,3 +555,138 @@ matches its recorded bytes. Preserve the settled Item 6 queue and owner decision
 Future separate reviews can pair price-range fields more closely in the Shop
 advanced grid and follow the header-session fixture/customer-toast items recorded
 by the preceding copy audit; those do not reopen the settled launch scope.
+
+## Cycle 4: Home, Parts, Vehicles and parts-enquiry handoff - 25 October 2026
+
+Implementation checkpoint; final rendered acceptance blocked on
+`feat/home-discovery-ux-20261025`, worktree
+`C:/Users/PC/.codex/worktrees/allied-home-discovery-20261025`, based on the latest
+recorded release `93e2501b`. Both production aliases were independently inspected
+and still resolved to READY `dpl_8M1UudCWqwtTUtFCekqEwBuGDCsB` before choosing
+source. Existing main-checkout and other-worktree edits remain separate.
+The complete supplied [implementation brief](Allied_AutoTech_Home_Parts_Vehicles_Codex_Prompt.md)
+was read before editing; the standing quality directive is preserved.
+
+Flow: Home -> direct part search or vehicle discovery -> accurate results and
+compatibility context -> editable Product enquiry. Vehicles -> budget, make/model,
+condition and year -> retained advanced specifications and listing details.
+Browser plugin not available; installed Playwright/Edge supplies rendered evidence.
+
+Revalidated hosted evidence: anonymous unfiltered product and vehicle discovery
+returned HTTP 200 with zero public matches; filtered brake/Foreign Used queries
+also returned zero. Fitment makes returned HTTP 200 with no active choices both
+without a search and with Toyota. Public APIs prove absence of currently visible
+records, not absence of all private or unpublished inventory. Products require
+active categories/parents; vehicle listings require AVAILABLE status and an active
+branch; fitment makes/models must be active. These public requests did not expose
+private stock. No client mapping or failed-request cause was found for these zeros.
+A single published Tyre Change service has a fuller description than its short
+preview. There is one public branch and no published reviews. Baseline captures
+and safe request receipts: `%TEMP%/allied-home-discovery-20261025`.
+
+| Brief acceptance / batch                        | Implementation and status                                                                                                                                                                                                                         | Verification / dependency                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Catalogue states                                | Implemented: separately read unfiltered publication evidence for filtered zero results; retain error/retry and inputs; collapse irrelevant controls for known empty catalogues; omit empty/single-page pagination.                                | Rendered checks in progress; independent public reads are not a cross-request database snapshot. Unknown availability never becomes an authoritative global-empty claim.                                                                                                                  |
+| Parts intent and finder                         | Implemented: persistent direct search, two discovery choices, compact optional saved-vehicle path, honest no-makes fallback, selection prerequisites, reset explanation and grouped technical details.                                            | No category-specific fitment requirement metadata exists; grouping retains all fields without inventing category rules. Existing compatibility engine remains authoritative.                                                                                                              |
+| Vehicles                                        | Implemented: budget, make/model, condition and year range first; advanced driving/assembly groups; remove exact-name jargon, duplicate year input and merchandising/equipment choices without dropping existing deep-link semantics.              | Naira/kobo, ranges, Apply/cancel/clear/chips/history and keyboard checks in progress. Searchable equipment taxonomy remains a modelling/content dependency.                                                                                                                               |
+| Home                                            | Implemented: distinct navigation routes, authentic supplied campaign/equipment imagery, fuller service preview, concise process, conditional inventory/reviews, distinct carousel tasks and initially paused marquee.                             | No operational service data changed. Static-hero alternative deferred because the established carousel capability is retained. Owner should approve fuller tyre/service scope and supply additional authentic workshop photographs.                                                       |
+| Parts -> Contact                                | Implemented: Product default, conditional context, stable context identity and editable text; sole complete branch is selected without a needless choice; multi-branch selection remains.                                                         | Proven API dependency repaired compatibly: public PRODUCT may omit productId for unlisted parts. Supplied IDs are still checked; customer-linked enquiries and other source requirements remain strict. API must be released before the matching frontend; no schema migration is needed. |
+| Populated fixtures and later owner seed request | Implemented: 20 varied products/parts, 12 vehicles, 5 categories, 3 makes, 6 models and 4 services. `/demo` shares actual card renderers, shows explicit fictional labels, illustrative prices/images, sample details and no operational actions. | No production database seeding, fake genuine availability, public fictional testimonials, staff/customer enrollment or financial records. The optional local-only fixture API is read-only, requires `--demo` and refuses hosted/production execution.                                    |
+| Accessibility / responsive / regressions        | In progress: 320/390/768/1024/1440, populated/empty/failure states, keyboard focus, disclosures, chips, URL/history, pause/reduced motion and scoped axe.                                                                                         | Final results below; automated/emulated checks do not certify real devices, screen-reader speech or full WCAG conformance.                                                                                                                                                                |
+| Publication                                     | Not performed in this implementation checkpoint.                                                                                                                                                                                                  | Preserve launch restrictions, Item 6 and existing release/backup safeguards. Demo records are intentionally separate from genuine catalogue APIs and database records.                                                                                                                    |
+
+This cycle does not reopen the settled launch decisions. Real publishable inventory,
+approved prices/availability, authentic catalogue photos and customer reviews remain
+owner inputs. Do not populate application/shared/production databases to make a
+layout test pass or delete existing records as a cleanup shortcut.
+
+### Checkpoint evidence and remaining acceptance
+
+Source implementation is complete across the requested surfaces, but **final browser
+acceptance is incomplete**. No commit, push, deployment or application database seed
+was performed. `/demo` is a built customer-facing route in this worktree, not a URL
+currently available to production visitors. It is deliberately distinct from genuine
+inventory and dashboard records. The later request to make populated areas visible
+is implemented as an explicitly fictional read-only preview; it does not certify
+real prices, stock, services, condition reports or compatibility.
+
+Passed checks:
+
+- Full frontend lint, typecheck and formatting; full unit run **147 files / 988
+  tests**. Four additional isolated fixture-contract tests passed separately after
+  final review, using the real product, vehicle, category and service parsers.
+- Final optimized `browse_enquiries` build, TypeScript compilation and standalone
+  preparation passed after the visible Home illustration labels and final demo
+  image-label correction. No server startup success is implied by this build.
+- Backend typecheck, scripts typecheck, lint, formatting and **10 focused unit
+  tests** for public parts enquiries and the existing security boundaries passed.
+  OpenAPI export/type regeneration and validation passed for **347 paths** using
+  synthetic local test configuration, without connecting to a database.
+- Latest selected development-browser run: **16 passed / 1 failed** across 17
+  cases. Populated Parts/Vehicle cards and read-only demo layouts passed at 320,
+  390, 768, 1024 and 1440; scoped axe/reflow, dependent finder choices, stale
+  suggestions, grouped detail retention, generic/selected Product editable
+  prefill, context transfer and synthetic submission checks passed in that run.
+  The failed case expected six brake examples where the fixture contains five.
+  The assertion is corrected; its rerun is still required. Earlier broad runs
+  included cold-dev compilation and obsolete copy/fixture assertions and are
+  not counted as final passes.
+
+Rendered evidence used `http://127.0.0.1:3165`, local synthetic APIs and installed
+Edge/Playwright because Browser plugin was not available. Page identity, meaningful
+content, no framework error overlay, scoped page-error checks, screenshots and
+interaction assertions passed for the selected populated cases. This is fixture
+evidence from the development build, not production acceptance. Screenshots include
+`%TEMP%/allied-autotech-playwright/6f4ab084236c/discovery-remediation-*` and the hosted
+baseline directory above. The long full-page captures retain the sticky header at
+the interaction scroll position; they do not establish first-viewport positioning.
+The screenshot helper now scrolls to the top and blurs focus before capture, but
+those improved captures have not yet been generated.
+
+The final optimized preview startup was repeatedly rejected by automatic approval
+review with **“blocked by policy”**, including after the user's explicit “Do the
+preview yourself. I approve.” No more specific reason was supplied. No launch
+workaround was used. Ports 3165 and 5021 were checked closed. This tool restriction
+blocks the final Home carousel/FAQ, empty/error/populated Home, broad catalogue,
+Contact and saved-vehicle regression run; source/build checks do not replace it.
+The final Home labels, final demo label, standalone fixture response-envelope fix,
+and screenshot-helper change are not browser-reverified. The standalone fixture
+now includes the required `meta.requestId`; strict API response validation remains.
+
+Resume in this worktree when local preview execution is available. The intended
+preview is loopback-only, backend origin `http://127.0.0.1:5021`, port 3165, launch
+mode `browse_enquiries`; the existing optimized build is retained. For manual
+populated review use the explicit read-only `scripts/discovery-fixture-server.mjs
+--demo`. For the regression run **do not** start that separate fixture: the suites
+own port 5021 sequentially. Use `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3165`,
+`RUN_HOME_TESTS=true`, and:
+
+```powershell
+.\node_modules\.bin\playwright.cmd test tests/e2e/shop-quality.spec.ts tests/e2e/vehicles-quality.spec.ts tests/e2e/home-quality.spec.ts tests/e2e/contact-quality.spec.ts tests/e2e/saved-vehicle-fitment.spec.ts tests/e2e/discovery-remediation.spec.ts tests/e2e/parts-fitment.spec.ts --workers=1 --reporter=line --max-failures=6
+```
+
+Test discovery succeeds: **127 cases in seven files**, not 127 executed passes.
+Fix and rerun any proven defect, inspect Home and first-viewport phone/desktop
+captures, and update this checkpoint before release review. Real-device mobile
+keyboards, screen-reader speech, private stock/publication management, real dashboard
+operations, actual DB persistence and full WCAG conformance remain unverified.
+Category-specific technical fitment disclosure needs authoritative metadata; all
+current technical fields remain grouped and optional without invented rules.
+
+The compatible public Product API change must precede the frontend release.
+There is no schema change or migration. No database check, migration, backup,
+restore or operational submission ran in this cycle; isolated mocked unit tests
+do not constitute persistence or backup-recovery acceptance. Existing rollout
+safeguards, launch restrictions and Item 6 remain mandatory.
+
+Docker completion review: **32 images / 10.3GB, 13 stopped containers, 14 volumes /
+1.012GB, 50 build-cache records / 4.398GB** were retained. No Docker resource was
+created, removed or reclaimed by this cycle. Useful shared dependencies are reused
+through verified junctions; no package installation or image archive was created.
+Host C: free space measured **12,651,687,936 bytes** during final checks, versus
+13,392,957,440 at this cycle's start; necessary Next build/test artifacts account
+for task activity, and no physical disk-reclamation claim is made. The useful
+optimized build remains for the blocked review; database volumes and other tasks'
+resources were untouched. The mandatory hygiene rule is preserved in root AGENTS
+and the linked guide; Markdown is a review requirement, not automatic garbage
+collection.

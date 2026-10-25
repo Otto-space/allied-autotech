@@ -6,6 +6,7 @@ import { useResource } from "@/lib/api/use-resource";
 import {
   clearVehicleSelection,
   fitmentLabels,
+  fitmentOptionsSchema,
   fitmentQualifierKeys,
   parseFitmentModel,
   partsEnquiryHref,
@@ -16,6 +17,8 @@ import { FitmentCataloguePicker } from "./fitment-catalogue-picker";
 import { SavedPartsVehicleSelector } from "./saved-parts-vehicle-selector";
 import type { UpdateProductQuery } from "../parts/product-filters";
 
+const parseMakes = (value: unknown) => fitmentOptionsSchema.parse(value);
+
 export function FindPartsForCar({
   query,
   enquiryQuery,
@@ -25,6 +28,8 @@ export function FindPartsForCar({
   enquiryQuery?: string;
   update: UpdateProductQuery;
 }) {
+  const makes = useResource("/public/fitment/makes?limit=1", parseMakes);
+  const unavailable = !makes.loading && !makes.error && makes.data?.items.length === 0;
   return (
     <section className="parts-car-finder" aria-labelledby="parts-car-title">
       <div className="parts-car-heading">
@@ -39,24 +44,58 @@ export function FindPartsForCar({
           Request the right part
         </Link>
       </div>
-      <SavedPartsVehicleSelector
-        onUse={(saved) =>
-          update((params) => {
-            clearVehicleSelection(params);
-            for (const [key, value] of saved) params.set(key, value);
-          })
-        }
-      />
-      <CarSelectionDraft key={query} query={query} update={update} />
+      {unavailable ? (
+        <div className="parts-finder-unavailable" role="status">
+          <p>
+            Vehicle choices are not available in our parts finder yet. Send the make,
+            model, year and part you need so our team can help check suitability.
+          </p>
+          <Link
+            className="button secondary"
+            href={partsEnquiryHref(new URLSearchParams(enquiryQuery ?? query))}
+          >
+            Ask our team to check
+          </Link>
+        </div>
+      ) : (
+        <>
+          <SavedPartsVehicleSelector
+            returnTo={`/parts${enquiryQuery || query ? `?${enquiryQuery ?? query}` : ""}`}
+            onUse={(saved) =>
+              update((params) => {
+                clearVehicleSelection(params);
+                for (const [key, value] of saved) params.set(key, value);
+              })
+            }
+          />
+          {makes.error && (
+            <p role="status">
+              Vehicle choices could not be checked.{" "}
+              <button type="button" onClick={makes.refresh}>
+                Retry vehicle choices
+              </button>{" "}
+              or request help above.
+            </p>
+          )}
+          <CarSelectionDraft
+            key={query}
+            query={query}
+            enquiryQuery={enquiryQuery}
+            update={update}
+          />
+        </>
+      )}
     </section>
   );
 }
 
 function CarSelectionDraft({
   query,
+  enquiryQuery,
   update,
 }: {
   query: string;
+  enquiryQuery?: string;
   update: UpdateProductQuery;
 }) {
   const initial = new URLSearchParams(query);
@@ -66,6 +105,7 @@ function CarSelectionDraft({
   const [makeOption, setMakeOption] = useState<FitmentOption>();
   const [modelOption, setModelOption] = useState<FitmentOption>();
   const [error, setError] = useState("");
+  const [resetNotice, setResetNotice] = useState("");
   const model = useResource(
     values.vehicleModelId ? `/public/fitment/models/${values.vehicleModelId}` : null,
     parseFitmentModel,
@@ -90,6 +130,11 @@ function CarSelectionDraft({
       vehicleMakeId: option?.id ?? previous.vehicleMakeId,
     }));
   }
+  const enquiry = new URLSearchParams(enquiryQuery ?? query);
+  for (const key of vehicleSelectionKeys) {
+    enquiry.delete(key);
+    if (values[key]?.trim()) enquiry.set(key, values[key].trim());
+  }
   return (
     <form
       data-no-draft
@@ -103,7 +148,9 @@ function CarSelectionDraft({
           selectedModel.makeId !== effectiveMakeId ||
           !years.includes(values.year)
         ) {
-          setError("Choose a catalogue make, model and supported year.");
+          setError(
+            "Choose your vehicle make and model from the suggestions, then choose a supported model year.",
+          );
           document
             .getElementById(
               !values.vehicleMakeId
@@ -144,6 +191,11 @@ function CarSelectionDraft({
             selected={selectedMake}
             invalid={!!error && !values.vehicleMakeId}
             onChange={(option) => {
+              if (option?.id === effectiveMakeId) return;
+              if (values.vehicleModelId)
+                setResetNotice(
+                  "Vehicle make changed. Choose the matching model and year again; details for the previous vehicle were cleared.",
+                );
               setMakeOption(option);
               setModelOption(undefined);
               clearDraft(option);
@@ -169,6 +221,11 @@ function CarSelectionDraft({
             disabled={!effectiveMakeId}
             invalid={!!error && !values.vehicleModelId}
             onChange={(option) => {
+              if (option?.id === values.vehicleModelId) return;
+              if (values.year)
+                setResetNotice(
+                  "Vehicle model changed. Choose a supported year again; details for the previous model were cleared.",
+                );
               setModelOption(option);
               setValues((previous) => ({
                 ...previous,
@@ -208,6 +265,11 @@ function CarSelectionDraft({
           Find matching parts
         </button>
       </div>
+      <p className="parts-finder-prerequisite">
+        Choose a make, then a model and year. Select a suggestion rather than only typing
+        its name.
+      </p>
+      {resetNotice && <p role="status">{resetNotice}</p>}
       {model.error && (
         <p role="alert">
           The selected model could not be loaded.{" "}
@@ -223,29 +285,57 @@ function CarSelectionDraft({
       )}
       <details className="parts-car-details">
         <summary>
-          More vehicle details <span>(optional, required for some parts)</span>
+          All technical details <span>— add only what you know</span>
         </summary>
         <p>
-          Unknown details are never treated as confirmation. For brakes, confirm the axle
-          and brake hardware; include engine, trim and market where applicable.
+          Different parts need different specifications. These groups help you describe
+          the vehicle; unknown details never confirm compatibility.
         </p>
-        <div className="parts-car-qualifiers">
-          {fitmentQualifierKeys.map((key) => (
-            <div className="product-field" key={key}>
-              <label htmlFor={`parts-car-${key}`}>{fitmentLabels[key]}</label>
-              <input
-                id={`parts-car-${key}`}
-                value={values[key]}
-                maxLength={100}
-                autoComplete="off"
-                onChange={(event) =>
-                  setValues((previous) => ({ ...previous, [key]: event.target.value }))
-                }
-              />
+        {[
+          {
+            title: "Engine and vehicle configuration",
+            keys: [
+              "engineCode",
+              "trim",
+              "market",
+              "bodyType",
+              "transmission",
+              "generation",
+              "chassisCode",
+            ] as const,
+          },
+          {
+            title: "Brakes and position",
+            keys: ["position", "brakeSystem", "brakeDiameterMm"] as const,
+          },
+        ].map((group) => (
+          <details className="parts-technical-group" key={group.title}>
+            <summary>{group.title}</summary>
+            <div className="parts-car-qualifiers">
+              {group.keys.map((key) => (
+                <div className="product-field" key={key}>
+                  <label htmlFor={`parts-car-${key}`}>{fitmentLabels[key]}</label>
+                  <input
+                    id={`parts-car-${key}`}
+                    value={values[key]}
+                    maxLength={100}
+                    autoComplete="off"
+                    onChange={(event) =>
+                      setValues((previous) => ({
+                        ...previous,
+                        [key]: event.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </details>
+        ))}
       </details>
+      <Link className="text-link parts-fitment-unknown" href={partsEnquiryHref(enquiry)}>
+        I don’t know — help me check
+      </Link>
       {initial.has("vehicleModelId") && (
         <div className="parts-selected-car">
           <p>

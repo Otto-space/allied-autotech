@@ -246,7 +246,9 @@ export class SupportRepository {
         name: input.name,
         email: input.email,
         ...(input.phone === undefined ? {} : { phone: input.phone }),
-        ...(input.type === "PRODUCT" ? { productId: input.productId } : {}),
+        ...(input.type === "PRODUCT" && input.productId
+          ? { productId: input.productId }
+          : {}),
         ...(input.type === "SERVICE" ? { serviceId: input.serviceId } : {}),
         ...(input.type === "VEHICLE" ? { vehicleListingId: input.vehicleListingId } : {}),
       },

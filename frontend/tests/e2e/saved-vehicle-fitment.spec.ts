@@ -181,6 +181,7 @@ test("default is available beyond page one and a failed fresh owned read never a
     return ok(route, { vehicles: [state.records[1]], nextCursor: garageId(2) });
   });
   await page.goto("/parts");
+  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
   await expect(
     page.getByLabel("Your vehicle configurations", { exact: true }),
   ).toHaveValue(garageId(1));
@@ -244,6 +245,7 @@ test("session changes discard owned vehicle choices and suppress a late prefligh
         }),
   );
   await page.goto("/parts");
+  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
   await expect(
     page.getByLabel("Your vehicle configurations", { exact: true }),
   ).toHaveValue(garageId(1));
@@ -287,6 +289,7 @@ test("a late saved-vehicle read cannot overwrite a newer parts search", async ({
     await ok(route, state.records[0]);
   });
   await page.goto("/parts");
+  await page.getByRole("button", { name: "Find parts for my car", exact: true }).click();
   await page.getByRole("button", { name: "Use this vehicle", exact: true }).click();
   await expect.poll(() => started).toBe(true);
   await page

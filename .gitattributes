@@ -8,3 +8,5 @@ backend/prisma/migrations/**/migration.sql text eol=crlf
 backend/prisma/migrations/20261023010000_browser_push_subscriptions/migration.sql text eol=lf
 # Preserve the supplied standing directive byte-for-byte on every checkout.
 frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md -text
+
+frontend/docs/Allied_AutoTech_Home_Parts_Vehicles_Codex_Prompt.md -text

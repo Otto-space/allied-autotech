@@ -10,8 +10,8 @@ import { vehicleApiPath } from "@/lib/vehicle-discovery";
 import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { VehicleCatalogue } from "../components/vehicle-catalogue";
-import { LifestyleDiscovery } from "../components/brand-editorial";
 import "./vehicles.css";
+import "../components/catalogue-discovery.css";
 
 async function listingPath(searchParams: SearchParameters) {
   const query = new URLSearchParams();
@@ -128,7 +128,6 @@ export default async function VehiclesPage({
             </ol>
           </div>
         </section>
-        <LifestyleDiscovery />
         <section className="vehicle-contact">
           <div className="public-wrap">
             <div>

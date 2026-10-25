@@ -12,6 +12,7 @@ import { SiteHeader } from "../components/site-header";
 import { SiteFooter } from "../components/site-footer";
 import { PartsCatalogue } from "../components/parts-catalogue";
 import "./parts.css";
+import "../components/catalogue-discovery.css";
 
 async function listingPath(searchParams: SearchParameters) {
   const query = new URLSearchParams();
@@ -59,18 +60,14 @@ export default async function PartsPage({
             </li>
             <li>
               <ChevronRight size={14} aria-hidden="true" />
-              <span aria-current="page">Shop</span>
+              <span aria-current="page">Parts</span>
             </li>
           </ol>
         </nav>
         <section className="product-hero" aria-labelledby="product-title">
           <div className="public-wrap product-hero-inner">
             <div className="product-hero-copy">
-              <h1 id="product-title">
-                Quality parts.
-                <br />
-                Reliable performance.
-              </h1>
+              <h1 id="product-title">Find the part you need.</h1>
               <p>
                 Explore parts, oils, fluids, tyres and automotive products. Check
                 specifications and suitability for your vehicle.
@@ -127,7 +124,7 @@ export default async function PartsPage({
                       MapPin,
                       "Check branch availability",
                       enquiriesOnly
-                        ? "Ask our team to confirm availability at your preferred branch. Browsing does not reserve stock."
+                        ? "Ask our team to confirm availability for workshop collection. Browsing does not reserve stock."
                         : "Review the listed branch availability before choosing a quantity. Your cart does not reserve stock.",
                     ],
                   ] as const
@@ -154,7 +151,7 @@ export default async function PartsPage({
               </p>
             </div>
             <div className="actions">
-              <Link href="/contact" className="button">
+              <Link href="/contact?parts=1#enquiry" className="button">
                 Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
               </Link>
               <a href={business.whatsapp} className="button secondary">

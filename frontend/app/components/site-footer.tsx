@@ -24,7 +24,7 @@ export function SiteFooter() {
               Services
             </Link>
             <Link href="/parts" className="hover:text-white! transition-colors">
-              Shop
+              Parts
             </Link>
             <Link href="/vehicles" className="hover:text-white! transition-colors">
               Vehicles

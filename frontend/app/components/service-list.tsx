@@ -107,7 +107,8 @@ export function ServiceList({
                 {service.name}
               </CardHeading>
               <p className="service-discovery__description">
-                {service.shortDescription ??
+                {(preview ? service.description : service.shortDescription) ??
+                  service.shortDescription ??
                   service.description ??
                   "View this service for booking and quotation details."}
               </p>

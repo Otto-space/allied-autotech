@@ -245,7 +245,7 @@ export default async function ProductPage({
               </li>
               <li>
                 <ChevronRight size={14} aria-hidden="true" />
-                <Link href="/parts">Shop</Link>
+                <Link href="/parts">Parts</Link>
               </li>
               <li>
                 <ChevronRight size={14} aria-hidden="true" />
