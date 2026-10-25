@@ -301,6 +301,32 @@ export class VehiclesRepository {
     branchId: string | null,
     includeAcquisition = false,
   ) {
+    const listingWhere: Prisma.VehicleListingWhereInput = {
+      ...(query.status === undefined ? {} : { status: query.status }),
+      ...(query.featured === undefined ? {} : { featured: query.featured }),
+      ...(query.minPriceKobo === undefined && query.maxPriceKobo === undefined
+        ? {}
+        : {
+            priceKobo: {
+              ...(query.minPriceKobo === undefined
+                ? {}
+                : { gte: BigInt(query.minPriceKobo) }),
+              ...(query.maxPriceKobo === undefined
+                ? {}
+                : { lte: BigInt(query.maxPriceKobo) }),
+            },
+          }),
+    };
+    const orderBy: Record<
+      StaffVehicleListQuery["sort"],
+      Prisma.VehicleOrderByWithRelationInput[]
+    > = {
+      newest: [{ createdAt: "desc" }, { id: "desc" }],
+      year_desc: [{ year: "desc" }, { id: "desc" }],
+      year_asc: [{ year: "asc" }, { id: "desc" }],
+      mileage_asc: [{ mileageKm: { sort: "asc", nulls: "last" } }, { id: "desc" }],
+      mileage_desc: [{ mileageKm: { sort: "desc", nulls: "last" } }, { id: "desc" }],
+    };
     return this.database.vehicle.findMany({
       where: {
         ...(branchId === null
@@ -311,11 +337,9 @@ export class VehiclesRepository {
         ...vehicleAttributeWhere(query),
         ...(query.listed === false
           ? { listings: { none: {} } }
-          : query.status !== undefined
-            ? { listings: { some: { status: query.status } } }
-            : query.listed === true
-              ? { listings: { some: {} } }
-              : {}),
+          : query.listed === true || Object.keys(listingWhere).length > 0
+            ? { listings: { some: listingWhere } }
+            : {}),
         ...(query.search === undefined
           ? {}
           : {
@@ -335,7 +359,7 @@ export class VehiclesRepository {
             }),
       },
       select: vehicleSelect(includeAcquisition),
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      orderBy: orderBy[query.sort],
       take: query.limit + 1,
       ...(query.cursor === undefined ? {} : { cursor: { id: query.cursor }, skip: 1 }),
     });

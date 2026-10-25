@@ -48,10 +48,20 @@ or deployment; never deploy the older checkout merely because it is the cwd.
   detailed release record there: `backend/docs/accounts-and-enquiries-release.md`.
 - Comprehensive policy evidence: `C:/Users/PC/.codex/worktrees/allied-launch-final-20261022/backend/docs/public-launch-policy-decisions.md`
 - Provider/operational gaps there: `backend/docs/public-enquiry-privacy-review.md`
-- Current backend observed: `5c1ea9a7-6211-46d2-995f-c45e504bf9e9` (ACTIVE),
-  all four verified images; read-only predeploy passed and 64 migrations compatible.
+- Backend observed on 25 October 07:12 UTC:
+  `da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9` (ACTIVE), API image from
+  `2fc02bafdde75385fffad9c46767615a506f5eb2`; inspect its release
+  receipt and migration gate before another rollout. The earlier verified
+  deployment was `5c1ea9a7-6211-46d2-995f-c45e504bf9e9`.
 - Current frontend observed: `dpl_CMG2vPpWCQMvQdCWMZYsxbwproTZ` (READY),
   assigned to both main and www domains on 24 October 2026. Recheck before changes.
+- Current stock-query integration worktree:
+  `C:/Users/PC/.codex/worktrees/allied-staff-vehicle-current-20261025`,
+  branch `fix/staff-vehicle-filters-current-20261025`, based on the newly
+  active `2fc02baf`. The prior `f0062282` stock audit branch is preserved;
+  its image was not promoted after the concurrent deployment changed the
+  production source. The integrated fix passed new-source checks and remains
+  unreleased pending a matching API image and scoped production verification.
 - Full release evidence: `backend/docs/discovery-fitment-release-review.md` in this
   worktree. Earlier release pointers/checkpoints below describe their historical state.
 
@@ -889,7 +899,6 @@ customer toast separately. No real authenticated role journey or live provider
 transaction was claimed for this release. Item 6 and owner/operational
 dependencies remain open.
 
-
 24 October 2026, 23:17 Lagos - scoped catalogue/customer-care design release:
 runtime `1aacb6af5ffbe72c23e1f0f7d35b78fadf5f4447` on
 `C:/Users/PC/.codex/worktrees/allied-catalogue-care-ux-20261024`, branch
@@ -955,3 +964,25 @@ real submission, push or deployment occurred. Docker images/caches/volumes were
 retained; no new Docker resource or package installation was needed. Existing useful
 dependencies and the built review artifact are retained. Current release/rollback,
 launch restrictions, database safeguards and settled Item 6 decisions remain unchanged.
+
+25 October stock-query audit: `GET /staff/vehicles` accepted featured,
+price-bound and year/mileage sort parameters but ignored them. The isolated
+worktree now applies listing filters to the same stored listing (including
+history), rejects price sorting and incompatible unlisted combinations, and
+uses deterministic cursor sorting for newest/year/mileage. Its stock UI has
+not changed. TypeScript, full backend lint/format, route coverage (407
+operations), generated OpenAPI validation (347 paths), and 3/3 focused
+integration tests passed after clean migration replay in a new
+`aat_stock_*_test` PostgreSQL database on the earlier `c3f4076f` base. The
+disposable database container was removed. A separate deployment then made
+`2fc02baf` and deployment `da8e5b3a-19e7-4ab3-834f-d8a1aeffadf9` active;
+its newer migration and support changes were not in that test image. The stock
+fix was reapplied to that exact source. On the combined source, TypeScript,
+full lint/format, 407-operation route coverage, regenerated 347-path OpenAPI,
+clean isolated migration replay and all 3 stock integration tests passed. The
+first combined run stopped at a stale generated OpenAPI artifact; it was
+regenerated before the passing isolated rerun. Both task-created test database
+containers were removed. The previous stock image was pushed to the existing
+registry but not deployed. No application database was written by this stock
+audit. Item 6 remains open for real catalogue publication and authenticated
+staff acceptance.
