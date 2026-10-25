@@ -1297,3 +1297,20 @@ backend ACTIVE 264c3f8e-324d-42bd-86cb-0dffa2eb9f19, no pending rollout.
 No Docker resource was created or deleted; retained 42 images, 14 containers,
 14 volumes and 96 cache entries, including the unrelated active compatibility DB.
 Source, histories, secrets, databases/backups and current/rollback resources retained.
+
+
+25 October 2026 - notification build blocker resolved.
+Owner confirmed manual cleanup; all four approved redundant installer files were
+verified absent (1,147,739,384 measured prior file bytes, approximately 1.07 GiB).
+Both installed extensions and Chrome remain intact. C: passed the 1 GiB build
+preflight at 22.08 GiB free. Optimized frontend build, built-in TypeScript/prerender
+checks and standalone postbuild passed on runtime source 0def5c64. Postbuild free
+space was about 22.04 GiB, above the 20 GiB reserve. Source/worktree remained clean.
+No install, extra worktree, Docker build/resource or application database write.
+See %TEMP%/allied-notifications-final-frontend-build.log and cleanup receipt in
+%TEMP%/allied-notifications-final-20261025/. The previous disk/build blocker is
+resolved. Existing installed Next 16.3.8 differs from lock 16.4.3; exact locked CI
+and optimized hosted browser acceptance remain release checks. Native device
+subscription/delivery/click acceptance retains its documented permission-denied
+limit. No notification production deployment occurred; API/general worker must
+precede frontend rollout. All previous fixture/live evidence distinctions remain.

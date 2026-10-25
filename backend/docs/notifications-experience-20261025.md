@@ -171,14 +171,22 @@ tests). Frontend types and full formatting passed; full lint exposed one unused
 test import, removed and validated along with all subsequently changed source/tests.
 The final endpoint-hash contract/types were regenerated and checked separately.
 
-The final optimized frontend build is currently blocked by the mandatory disk
-preflight: about 20.95 GiB free, versus 21 GiB required for its 1 GiB growth allowance.
-The exact four approved installer files remain present. A manual cleanup handoff
-is pending because automatic review rejected agent deletion. This is an unfinished
-required check, not a passing build. Existing installed Next is 16.3.8 versus the
-lockfile's 16.4.3; locked-dependency CI/optimized hosted acceptance remains a release
-check. No dependency install was made to consume the reserve. The local preview
-is development mode; no hosted/private production acceptance is implied.
+The optimized frontend build and standalone postbuild now pass on source
+`0def5c64`, using the existing dependencies and `browse_enquiries` configuration.
+It was initially blocked by the mandatory disk preflight. The owner subsequently
+removed all four approved redundant installers (1,147,739,384 measured file bytes,
+about 1.07 GiB); their absence and retention of both installed extensions were
+verified. The 1 GiB build preflight passed with 22.08 GiB free, and the postbuild
+reading was about 22.04 GiB. Chrome was untouched. No dependency install, duplicate
+worktree or Docker resource was needed. The former disk/build blocker is resolved.
+Build log: `%TEMP%/allied-notifications-final-frontend-build.log`; manual-cleanup
+receipt: `%TEMP%/allied-notifications-final-20261025/owner-cleanup-verified.json`.
+
+Installed Next is 16.3.8 versus the lockfile's 16.4.3; exact locked-dependency CI and
+optimized hosted browser acceptance remain release checks. The rendered scenarios
+were verified in the local development preview; this successful optimized build
+does not turn them into production-mode browser evidence. Genuine native delivery
+and OS-click acceptance remain unverified for the device reason above.
 
 Live release was rechecked read-only: main/www still serve
 `dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe`; backend remains ACTIVE
