@@ -1450,3 +1450,14 @@ OpenAPI/route checks and frontend build passed. See `cart-clear-atomic-20261025.
 Production deployment and real signed-in acceptance are pending; existing customer
 care and notification releases must be preserved. The broader Item 6 and site
 acceptance remain open.
+
+25 October 2026 - cart correction released from source `76377d43`. DigitalOcean
+`98401193-fb85-48d9-8c51-462dcadd6d19` is ACTIVE with all four expected image
+digests; Vercel `dpl_JD4ffNmmmo2W7dgrzBHN4evwNd6u` is READY on main/www. The
+three GitHub workflows passed. Existing 71-migration schema was unchanged;
+predeploy ran the read-only database checker, and the same-day separate restore
+evidence plus eight managed backups were reviewed. API live/ready and public
+Home/Help/Parts returned 200; `/shop` redirects to `/parts`; anonymous cart
+remains 401. No real cart or payment write was used for acceptance. Details and
+remaining limits: `cart-clear-atomic-20261025.md`. Item 6 and authenticated
+operational acceptance remain open.

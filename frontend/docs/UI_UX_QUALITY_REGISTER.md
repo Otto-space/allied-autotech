@@ -1465,3 +1465,8 @@ this does not replace physical-device or full screen-reader verification. A fres
 isolated 71-migration replay and two backend integration files passed. Actual
 production customer carts were not mutated for acceptance. Release and real-role
 checks remain open; the per-page dashboard backlog is unchanged.
+
+The correction is released: frontend `dpl_JD4ffNmmmo2W7dgrzBHN4evwNd6u`
+READY on main/www, backend `98401193-fb85-48d9-8c51-462dcadd6d19` ACTIVE,
+source `76377d43`. The production API and public route smoke passed; the real
+signed-in cart clear, physical devices and screen-reader flow remain untested.
