@@ -1,5 +1,6 @@
 import type { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import { z, type ZodType } from "zod";
+import { productOptionQuerySchema } from "./product-options.schemas.js";
 import {
   productDiscoveryQuerySchema,
   productDiscoveryPageSchema,
@@ -58,6 +59,15 @@ interface Path {
 
 export function registerCatalogOpenApi(registry: OpenAPIRegistry): void {
   const paths: readonly Path[] = [
+    {
+      method: "get",
+      path: "/public/catalog/products/options",
+      summary: "Published product choices within the applied search scope",
+      query: productOptionQuerySchema,
+      response: responseSchema.extend({ data: productFacetPageSchema }),
+      description:
+        "Bounded public brand/family/product-type/recorded oil grade/pack-volume choices. scope is a URLSearchParams-encoded validated product-discovery query (maximum 6000 characters); sort, paging and page size are excluded. All active publication/category/availability/fitment/price/search constraints apply, except the requested facet is relaxed. Family also relaxes dependent condition/classification/type/oil fields. Brand case/whitespace variants share a normalized key with a recorded display label. No page-derived counts are returned. Options are ordered by their stable stored value (numeric volume); authenticated cursors bind complete scope/field/prefix state. Old /facets remains compatible. Unknown specifications do not become choices or approvals.",
+    },
     {
       method: "get",
       path: "/public/catalog/products/discovery",

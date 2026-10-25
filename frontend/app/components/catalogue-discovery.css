@@ -18,8 +18,19 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-block: 16px;
+  border: 0;
+  padding: 0;
+  min-width: 0;
 }
-.parts-intent button {
+.parts-intent legend {
+  font-weight: 650;
+  margin-bottom: 8px;
+}
+.shop-page .product-search-panel .parts-intent label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
   min-height: 44px;
   padding: 10px 16px;
   border: 1px solid var(--product-border, #8290a1);
@@ -29,7 +40,16 @@
   font: inherit;
   cursor: pointer;
 }
-.parts-intent button[aria-pressed="true"] {
+.shop-page .parts-intent input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  flex: 0 0 20px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--red);
+}
+.parts-intent label:has(input:checked) {
   background: var(--product-navy, var(--vehicle-navy));
   color: #fff;
   border-color: var(--product-navy, var(--vehicle-navy));
@@ -96,7 +116,7 @@
   scroll-margin-bottom: 90px;
 }
 :is(.shop-page, .vehicles-page) summary:focus-visible,
-.parts-intent button:focus-visible {
+.parts-intent label:focus-within {
   outline: 2px solid var(--red);
   outline-offset: 3px;
 }
@@ -110,7 +130,7 @@
   .shop-page .product-hero-media {
     display: none;
   }
-  .parts-intent button {
+  .parts-intent label {
     flex: 1 1 180px;
   }
   .vehicles-page .vehicle-filter-fields {

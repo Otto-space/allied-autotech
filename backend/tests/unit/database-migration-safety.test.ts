@@ -9,6 +9,7 @@ import {
 } from "../../src/config/prisma-command-safety.js";
 import {
   assertNonDestructiveMigration,
+  localMigrations,
   pendingMigrations,
 } from "../../scripts/lib/database-safety.js";
 
@@ -125,6 +126,27 @@ describe("database migration command protection", () => {
 });
 
 describe("forward migration history and SQL review gates", () => {
+  it("accepts only the exact reviewed catalogue backfills and rejects changed or renamed SQL", () => {
+    const migrations = localMigrations();
+    for (const name of [
+      "20261025132000_catalogue_word_search",
+      "20261025133000_catalogue_brand_options",
+      "20261025134000_preserve_alphabetic_search_codes",
+    ]) {
+      const sql = migrations.get(name)!.sql;
+      expect(() => assertNonDestructiveMigration(sql, name)).not.toThrow();
+      expect(() => assertNonDestructiveMigration(sql, "renamed")).toThrow();
+      expect(() =>
+        assertNonDestructiveMigration(
+          sql + '\nUPDATE "Product" SET "priceKobo" = 0;',
+          name,
+        ),
+      ).toThrow("changed");
+      expect(() =>
+        assertNonDestructiveMigration(sql.replace("'10s'", "'11s'"), name),
+      ).toThrow("changed");
+    }
+  });
   const local = new Map([
     ["first", { checksum: "original", sql: "" }],
     ["second", { checksum: "new", sql: "" }],

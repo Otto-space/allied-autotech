@@ -4,33 +4,116 @@ import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useResource } from "@/lib/api/use-resource";
 import { categorySchema, productSchema } from "@/lib/api/commerce-schemas";
+import { listingSchema } from "@/lib/api/vehicle-schemas";
+import { parseFitmentModel } from "@/lib/parts-fitment";
 import {
-  fitmentLabels,
-  fitmentQualifierKeys,
-  parseFitmentModel,
-} from "@/lib/parts-fitment";
+  catalogueEnquiryContext,
+  productEnquiryDraft,
+  vehicleEnquiryDraft,
+} from "@/lib/catalogue-enquiry";
 import { PublicEnquiryForm } from "./public-enquiry-form";
+import { CatalogueEnquiryDrafts } from "./catalogue-enquiry-drafts";
 
 const parseProduct = (value: unknown) => productSchema.parse(value);
 const parseCategory = (value: unknown) => categorySchema.parse(value);
-const text = z
-  .string()
-  .trim()
-  .max(100)
-  .refine((value) =>
-    [...value].every(
-      (char) => (char.codePointAt(0) ?? 0) > 31 && char.codePointAt(0) !== 127,
-    ),
-  );
+const parseListing = (value: unknown) => listingSchema.parse(value);
 const uuid = (value: string | null) => (z.uuid().safeParse(value).success ? value! : "");
 
-/** URL values supply editable enquiry context, never identity, ownership or redirects. */
+/** Transfer values are editable context, never identity, permissions or redirects. */
 export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean }) {
-  const params = useSearchParams();
-  const enabled = params.get("parts") === "1";
-  const modelId = enabled ? uuid(params.get("part_vehicleModelId")) : "";
-  const productId = enabled ? uuid(params.get("part_productId")) : "";
-  const categoryId = enabled ? uuid(params.get("part_categoryId")) : "";
+  const input = useSearchParams();
+  const params = new URLSearchParams(input.toString());
+  if (onlyParts && params.get("parts") !== "1" && params.get("vehicle") !== "1")
+    return null;
+  const incoming = catalogueEnquiryContext(params);
+  return (
+    <CatalogueEnquiryDrafts incoming={incoming}>
+      {(context) => {
+        const selected = new URL(context.href, "https://catalogue.invalid").searchParams;
+        return selected.get("vehicle") === "1" ? (
+          <VehicleEnquiryContext
+            key={context.id}
+            params={selected}
+            contextKey={context.contextKey}
+          />
+        ) : selected.get("parts") === "1" ? (
+          <ProductEnquiryContext
+            key={context.id}
+            params={selected}
+            contextKey={context.contextKey}
+          />
+        ) : (
+          <PublicEnquiryForm key={context.id} presentation="contact" />
+        );
+      }}
+    </CatalogueEnquiryDrafts>
+  );
+}
+
+function VehicleEnquiryContext({
+  params,
+  contextKey,
+}: {
+  params: URLSearchParams;
+  contextKey?: string;
+}) {
+  const listingRequested = params.has("vehicle_listingId");
+  const id = uuid(params.get("vehicle_listingId"));
+  const listing = useResource(id ? `/public/vehicles/${id}` : null, parseListing);
+  if (listing.loading) return <p role="status">Preparing your vehicle enquiry…</p>;
+  if (
+    listingRequested &&
+    (!id || listing.data?.id !== id || listing.error || listing.refreshError)
+  )
+    return (
+      <div role="status" className="notice">
+        <p>
+          This listing could not be verified. Your draft is kept; it has not been changed
+          to a vehicle requirements request.
+        </p>
+        {id && (
+          <button className="button secondary" type="button" onClick={listing.refresh}>
+            Retry listing check
+          </button>
+        )}
+      </div>
+    );
+  const draft = vehicleEnquiryDraft(params, listing.data?.title);
+  return (
+    <>
+      <p className="notice">
+        Your vehicle preferences are included below. Review and edit them before sending.
+        An enquiry does not reserve a vehicle or guarantee sourcing.
+      </p>
+      {draft.invalid && (
+        <p role="status">
+          Some invalid preferences were omitted. Review the details before sending.
+        </p>
+      )}
+      <PublicEnquiryForm
+        presentation="contact"
+        initialEnquiryType="VEHICLE"
+        initialVehicleEnquiryIntent={listingRequested ? "LISTING" : "REQUIREMENTS"}
+        initialSubject={draft.subject}
+        initialMessage={draft.message}
+        initialContextKey={contextKey}
+        vehicleListingId={listing.data?.id}
+        vehicleListingTitle={listing.data?.title}
+      />
+    </>
+  );
+}
+
+function ProductEnquiryContext({
+  params,
+  contextKey,
+}: {
+  params: URLSearchParams;
+  contextKey?: string;
+}) {
+  const modelId = uuid(params.get("part_vehicleModelId"));
+  const productId = uuid(params.get("part_productId"));
+  const categoryId = uuid(params.get("part_categoryId"));
   const model = useResource(
     modelId ? `/public/fitment/models/${modelId}` : null,
     parseFitmentModel,
@@ -43,9 +126,8 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
     categoryId ? `/public/catalog/categories/${categoryId}` : null,
     parseCategory,
   );
-  if (!enabled) return onlyParts ? null : <PublicEnquiryForm presentation="contact" />;
   if (model.loading || product.loading || category.loading)
-    return <p role="status">Preparing your parts enquiry…</p>;
+    return <p role="status">Preparing your product enquiry…</p>;
   const year = params.get("part_year") ?? "";
   const validModel =
     model.data?.id === modelId &&
@@ -57,67 +139,32 @@ export function ContactPartsEnquiry({ onlyParts = false }: { onlyParts?: boolean
       ? model.data
       : undefined;
   const validProduct = product.data?.id === productId ? product.data : undefined;
-  const details = [
-    ...fitmentQualifierKeys.flatMap((key) => {
-      const parsed = text.safeParse(params.get(`part_${key}`) ?? "");
-      return parsed.success && parsed.data
-        ? [`${fitmentLabels[key]}: ${parsed.data}`]
-        : [];
-    }),
-    ...(category.data?.id === categoryId
-      ? [`Requested category: ${category.data.name}`]
-      : []),
-    ...(validProduct
-      ? [`Requested product: ${validProduct.name} (SKU ${validProduct.sku}).`]
-      : []),
-    ...["search", "brand", "productType", "condition", "classification"].flatMap(
-      (key) => {
-        const parsed = text.safeParse(params.get(`part_${key}`) ?? "");
-        return parsed.success && parsed.data
-          ? [`Requested ${key === "search" ? "part / search" : key}: ${parsed.data}`]
-          : [];
-      },
-    ),
-  ];
-  const lines = [
-    "Please help me verify the right part.",
-    ...(validModel
-      ? [`Vehicle: ${validModel.make.name} ${validModel.name}, model year ${year}.`]
-      : ["Vehicle: please add the make, model and year below."]),
-    ...details,
-    "Make, model and year alone do not confirm compatibility. Please verify the necessary specifications before collection.",
-    "Collection only. I understand delivery is unavailable.",
-    "",
-    "Additional details:",
-  ];
-  const subject =
-    `Parts verification${validModel ? `: ${validModel.make.name} ${validModel.name} ${year}` : " request"}`.slice(
-      0,
-      160,
-    );
-  const message = lines.join("\n").slice(0, 3500);
-  const hasContext = !!validModel || details.length > 0;
+  const draft = productEnquiryDraft(params, {
+    productName: validProduct?.name,
+    sku: validProduct?.sku,
+    categoryName: category.data?.id === categoryId ? category.data.name : undefined,
+    vehicleName: validModel
+      ? `${validModel.make.name} ${validModel.name}, model year ${year}`
+      : undefined,
+  });
   return (
     <>
       <p className="notice">
-        {hasContext
-          ? "Your available vehicle or part details are included below. Review and edit them before sending."
-          : "Add the part name or number and any vehicle details you know below."}{" "}
-        This request does not confirm fitment, reserve stock or place an order.
+        Your product details are included below. Review and edit them before sending. This
+        request does not confirm suitability, reserve stock or place an order.
       </p>
-      {((modelId && !validModel) || (productId && !validProduct)) && (
+      {(draft.invalid || (modelId && !validModel) || (productId && !validProduct)) && (
         <p role="status">
-          Some linked details are unavailable. Describe the vehicle and part in your
-          message so our team can check them.
+          Some linked or invalid details are unavailable. Describe what you need below so
+          our team can check.
         </p>
       )}
       <PublicEnquiryForm
-        key={params.toString()}
         presentation="contact"
-        initialSubject={subject}
-        initialMessage={message}
-        initialContextKey={params.toString()}
         initialEnquiryType="PRODUCT"
+        initialSubject={draft.subject}
+        initialMessage={draft.message}
+        initialContextKey={contextKey}
         productId={validProduct?.id}
         productName={validProduct?.name}
       />

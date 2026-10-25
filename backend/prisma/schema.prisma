@@ -1222,17 +1222,23 @@ model WorkOrderItem {
   @@index([productId])
 }
 
+enum ProductFamily {
+  REPLACEMENT_PART
+  ENGINE_OIL
+}
+
 model Category {
-  parentId    String?    @db.Uuid
-  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
-  children    Category[] @relation("CategoryHierarchy")
-  id          String     @id @default(uuid()) @db.Uuid
+  family      ProductFamily?
+  parentId    String?        @db.Uuid
+  parent      Category?      @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict)
+  children    Category[]     @relation("CategoryHierarchy")
+  id          String         @id @default(uuid()) @db.Uuid
   name        String
-  slug        String     @unique
+  slug        String         @unique
   description String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   products Product[]
 
@@ -1241,6 +1247,14 @@ model Category {
 }
 
 model Product {
+  brandKey               String?                @db.Text
+  searchCore             String                 @default("") @db.Text
+  searchDocument         String                 @default("") @db.Text
+  searchNames            String[]               @default([])
+  searchIdentifiers      String[]               @default([])
+  family                 ProductFamily?
+  oilViscosityGrade      String?                @db.VarChar(12)
+  packVolumeMl           Int?
   condition              ProductCondition?
   classification         ProductClassification?
   productType            String?                @db.VarChar(80)
@@ -1274,6 +1288,10 @@ model Product {
   compatibilities ProductCompatibility[]
 
   @@index([condition, classification])
+  @@index([family, isActive])
+  @@index([brandKey, categoryId], map: "Product_brand_key_category_idx")
+  @@index([searchDocument(ops: raw("gin_trgm_ops"))], type: Gin, map: "Product_search_document_idx")
+  @@index([searchIdentifiers], type: Gin, map: "Product_search_identifiers_idx")
   @@index([categoryId, isActive])
   @@index([name])
   @@index([brand])
@@ -1951,23 +1969,26 @@ model Vehicle {
 }
 
 model VehicleListing {
-  id          String               @id @default(uuid()) @db.Uuid
-  vehicleId   String               @db.Uuid
-  branchId    String               @db.Uuid
-  title       String
-  slug        String               @unique
-  priceKobo   BigInt
-  currency    String               @default("NGN") @db.Char(3)
-  description String?
-  status      VehicleListingStatus @default(DRAFT)
-  featured    Boolean              @default(false)
-  publishedAt DateTime?
-  reservedAt  DateTime?
-  soldAt      DateTime?
-  archivedAt  DateTime?
-  version     Int                  @default(0)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
+  searchCore     String               @default("") @db.Text
+  searchDocument String               @default("") @db.Text
+  searchNames    String[]             @default([])
+  id             String               @id @default(uuid()) @db.Uuid
+  vehicleId      String               @db.Uuid
+  branchId       String               @db.Uuid
+  title          String
+  slug           String               @unique
+  priceKobo      BigInt
+  currency       String               @default("NGN") @db.Char(3)
+  description    String?
+  status         VehicleListingStatus @default(DRAFT)
+  featured       Boolean              @default(false)
+  publishedAt    DateTime?
+  reservedAt     DateTime?
+  soldAt         DateTime?
+  archivedAt     DateTime?
+  version        Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   vehicle          Vehicle               @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
   branch           Branch                @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -1980,6 +2001,7 @@ model VehicleListing {
   @@index([branchId, status])
   @@index([vehicleId])
   @@index([status, priceKobo])
+  @@index([searchDocument(ops: raw("gin_trgm_ops"))], type: Gin, map: "VehicleListing_search_document_idx")
   @@index([status, priceKobo, id], map: "VehicleListing_discovery_price_asc_idx")
   @@index([status, createdAt(sort: Desc), id(sort: Desc)], map: "VehicleListing_discovery_newest_idx")
   @@index([featured, status])
@@ -2246,28 +2268,34 @@ model Review {
   @@index([moderatedByUserId])
 }
 
+enum VehicleEnquiryIntent {
+  LISTING
+  REQUIREMENTS
+}
+
 model Enquiry {
-  id               String        @id @default(uuid()) @db.Uuid
-  customerId       String?       @db.Uuid
-  branchId         String?       @db.Uuid
-  productId        String?       @db.Uuid
-  serviceId        String?       @db.Uuid
-  bookingId        String?       @db.Uuid
-  quoteId          String?       @db.Uuid
-  vehicleListingId String?       @db.Uuid
-  assignedStaffId  String?       @db.Uuid
-  type             EnquiryType
-  status           EnquiryStatus @default(OPEN)
-  subject          String
-  message          String
-  name             String
-  email            String        @db.Citext
-  phone            String?       @db.VarChar(32)
-  resolvedAt       DateTime?
-  closedAt         DateTime?
-  version          Int           @default(0)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                   String                @id @default(uuid()) @db.Uuid
+  customerId           String?               @db.Uuid
+  branchId             String?               @db.Uuid
+  productId            String?               @db.Uuid
+  serviceId            String?               @db.Uuid
+  bookingId            String?               @db.Uuid
+  quoteId              String?               @db.Uuid
+  vehicleListingId     String?               @db.Uuid
+  vehicleEnquiryIntent VehicleEnquiryIntent?
+  assignedStaffId      String?               @db.Uuid
+  type                 EnquiryType
+  status               EnquiryStatus         @default(OPEN)
+  subject              String
+  message              String
+  name                 String
+  email                String                @db.Citext
+  phone                String?               @db.VarChar(32)
+  resolvedAt           DateTime?
+  closedAt             DateTime?
+  version              Int                   @default(0)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   customer             CustomerProfile?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
   branch               Branch?             @relation(fields: [branchId], references: [id], onDelete: Restrict)

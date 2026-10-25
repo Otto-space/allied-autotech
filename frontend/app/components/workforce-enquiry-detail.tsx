@@ -1,4 +1,5 @@
 "use client";
+import { enquiryLabel } from "@/lib/support/enquiry-label";
 import { NotificationRecordContext } from "./notification-record-context";
 import { SupportTimelineEntry } from "./support-timeline-entry";
 import { SupportEmailDeliverySummary } from "./support-email-delivery";
@@ -17,7 +18,6 @@ import {
   enquiryRevision,
   enquiryStaffName,
   enquiryStatusLabels,
-  enquiryTypeLabels,
   parseWorkforceEnquiry,
   parseWorkforceEnquiryCandidates,
   validateEnquiryReceipt,
@@ -495,7 +495,7 @@ export function WorkforceEnquiryDetail({
                 {row.subject}
               </h2>
               <p>
-                {enquiryTypeLabels[row.type]} ·{" "}
+                {enquiryLabel(row.type, row.vehicleEnquiryIntent)} ·{" "}
                 <span
                   className={`wfe-status is-${row.status.toLowerCase()}`}
                   data-status={row.status}

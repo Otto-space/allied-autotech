@@ -5,6 +5,21 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
+Current bounded implementation: Shop/Vehicles revision 2, branch
+`feat/shop-vehicles-r2-20261025`. Scope is `/parts`, `/vehicles`, their detail and
+Contact handoffs, catalogue authoring, and support intent labels. Homepage and
+broader dashboard design remain outside this task. Contracts, isolated backend
+evidence, release dependencies and untested states are recorded in
+[`backend/docs/shop-vehicles-search-r2.md`](../../backend/docs/shop-vehicles-search-r2.md).
+Rendered acceptance manifest: `tests/quality/shop-vehicles-r2.txt`.
+
+Status: bounded revision 2 implementation released; see Cycle 7 below. Real
+isolated PostgreSQL persistence/search/permission checks, 18 hosted fixture cases,
+and phone/desktop real public handoffs passed. Main/www now serve the reviewed
+tree; backend has 70 verified migrations. Business catalogue data and recorded
+oil attributes remain separate from synthetic acceptance fixtures. Full real
+authenticated operational and physical-device acceptance is not claimed.
+
 Read the complete [29-section directive](Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md)
 and root `AGENTS.md` before relevant work. The original supplied file is preserved
 byte-for-byte, SHA-256 `3dd72b1af1f2c3e36162db1ddf089fb7fbad9fc39b1244c3e9902663202831d9`.
@@ -1163,3 +1178,56 @@ Docker remained at 38 images/11.84GB, 14 containers, 14 volumes/1.012GB and 87 c
 entries/6.715GB. No task-owned redundant Docker resource existed to remove; useful
 current/rollback/other-task resources and evidence were retained. Main-checkout
 uncommitted edits and the independent R2 work remain untouched.
+## Cycle 7: Shop, Vehicles and enquiry continuity — 25 October 2026
+
+Bounded revision 2 implementation released. Frontend reviewed tree `cfba360d`,
+READY `dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe` on main/www; backend `91455d10`, ACTIVE
+`264c3f8e-324d-42bd-86cb-0dffa2eb9f19`; database history/schema verified at 70.
+The current audit/homepage source was merged and retained. This cycle does not
+redesign other dashboard pages or complete all broader role/state acceptance.
+
+| Area               | Verified behaviour and evidence                                                                                                                                                    | Limits                                                                                                                    |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Shop               | Broad product language, visible meaningful categories, native mode selection, scoped recorded choices, typed oil grade/ml, family reset, paired NGN budgets, explicit sort/history | Real catalogue still has zero published records; no inferred family/specification backfill                                |
+| Vehicles           | Cross-field make/model search, exact full sort cursor, budget/condition preferences, requirements intent distinct from listing                                                     | Matching/persistence use real isolated PostgreSQL; no real listing or sourcing promise invented                           |
+| Contact            | Both budgets and criteria in editable draft/review, listing reference, Keep/Start preserving both drafts, resume/reload, session separation and storage-failure protection         | Submission is mocked in browser; actual persistence/routing/authorization passed isolated API tests; no real enquiry sent |
+| Catalogue admin    | Grade and explicit ml validation/review/persistence, family/category compatibility, shared other-product authoring preserved                                                       | Browser admin save is a fixture; no live product/category mutation performed                                              |
+| Supporting queues  | New intent projected to authorised queues with existing branch/assignment/template restrictions; readable labels retain legacy listing semantics                                   | No new real authenticated operational sampling; broader dashboard redesign outside scope                                  |
+| Recovery/rendering | Global/category empty versus no match/error, pending/stale searches, invalid budget focus, Escape return, responsive 360–1440                                                      | Edge automation and sampled main-state WCAG scans; no full physical-device/screen-reader certification                    |
+
+Final source checks: 1,003/1,003 frontend units (150 files), lint, TypeScript,
+formatting, optimized production build, zero production audit vulnerabilities;
+backend CI, physical schema-drift rollback test, migration review/history/backup
+checks, isolated domain tests and fresh 65→70 production-archive restore rehearsal.
+All 18 hosted fixture browser cases passed in one final run. Two real public
+read-only cases passed on the candidate and again on production at 390/1440.
+No automated WCAG-tag violation or application error appeared in sampled main
+states. Keyboard validation/modal focus and Escape were automated; full manual
+assistive-technology and operational-role acceptance remain untested.
+
+Visual inspection caught and fixed inherited oversized native radios. Real-data
+inspection caught a generic footer enquiry losing criteria; Contact and bounded
+WhatsApp footer links now follow applied client-side preferences. The category-only
+empty state is explicit. Existing shared support for other products remains;
+new specialist tyre/battery/other-fluid/car-care fields and optional oil approvals
+are deferred pending their business contracts. Never seed fixtures to satisfy
+missing publication data. No checkout/payment/delivery/reservation was enabled.
+
+Manifest: `tests/quality/shop-vehicles-r2.txt`. Full contracts, migration/rollback
+and detailed evidence: `backend/docs/shop-vehicles-search-r2.md`. Screenshots:
+`%TEMP%/allied-shop-vehicles-r2/` (fictional populated fixtures) and
+`%TEMP%/allied-shop-r2-real/` (real empty data/public prefills). Temporary hosted
+review keys were revoked and existing protection retained. Local Next server
+startup was rejected by automatic approval review; hosted validation completed
+without an alternate local startup attempt.
+
+Owned synthetic tmpfs test container was removed after verifying no other consumer.
+Retained current/rollback images, useful caches, all data volumes, source, other
+worktrees, private backups and the native recovery database. No broad prune or
+unknown-file deletion. The 20 GiB reserve passed measured task preflights; final
+reading is in the completion tracker. This does not enforce a machine-wide quota.
+
+Remaining acceptance: real catalogue publication/labels and reviewed fitment are
+business inputs; authenticated live queues and real private detail states remain
+unsampled. Keep prior cycles' broader dashboard/manual backlog and settled Item 6
+scope. No homepage restoration or broader redesign is implied by this release.

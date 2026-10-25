@@ -200,6 +200,48 @@ Success: HTTP 200.
 
 Relevant errors: 400 The request is malformed.; 404 The requested resource is not available.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
 
+### GET `/public/catalog/products/options`
+
+- Operation ID: `getPublicCatalogProductsOptions`
+- Purpose: Bounded public brand/family/product-type/recorded oil grade/pack-volume choices. scope is a URLSearchParams-encoded validated product-discovery query (maximum 6000 characters); sort, paging and page size are excluded. All active publication/category/availability/fitment/price/search constraints apply, except the requested facet is relaxed. Family also relaxes dependent condition/classification/type/oil fields. Brand case/whitespace variants share a normalized key with a recorded display label. No page-derived counts are returned. Options are ordered by their stable stored value (numeric volume); authenticated cursors bind complete scope/field/prefix state. Old /facets remains compatible. Unknown specifications do not become choices or approvals. Published product choices within the applied search scope. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Roles: PUBLIC
+- Authentication: None
+- CSRF: Not required
+- Idempotency: Not required
+
+Parameters:
+
+| Parameter | Location | Type | Required | Purpose |
+| --- | --- | --- | --- | --- |
+| `field` | query | brand / family / productType / oilViscosityGrade / packVolumeMl | Yes | Field used to constrain this request. |
+| `scope` | query | string | No | Scope used to constrain this request. |
+| `search` | query | string | No | Search used to constrain this request. |
+| `cursor` | query | string | No | Opaque cursor returned by the preceding page. |
+| `limit` | query | string | No | Maximum number of records to return, bounded by the API. |
+
+Success: HTTP 200.
+
+```json
+{
+  "success": true,
+  "message": "Published product choices within the applied search scope",
+  "data": {
+    "items": [
+      {
+        "value": "synthetic-value",
+        "label": "synthetic-label"
+      }
+    ],
+    "nextCursor": "synthetic-nextcursor"
+  },
+  "meta": {
+    "requestId": "req_0000000000000001"
+  }
+}
+```
+
+Relevant errors: 400 The request is malformed.; 422 One or more request fields are invalid.; 429 The route-specific request limit was exceeded.; 500 An unexpected error occurred; no sensitive detail is disclosed.; 503 A required database is temporarily unavailable. Check current state before retrying a mutation.
+
 ### GET `/public/catalog/products/discovery`
 
 - Operation ID: `getPublicCatalogProductsDiscovery`
@@ -220,6 +262,9 @@ Parameters:
 | `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
 | `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
 | `productType` | query | string | No | Product Type used to constrain this request. |
+| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
+| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
+| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
 | `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
 | `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
 | `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
@@ -239,7 +284,7 @@ Parameters:
 | `model` | query | string | No | Model used to constrain this request. |
 | `year` | query | string | No | Year used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `sort` | query | newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
+| `sort` | query | best_match / newest / name / price_asc / price_desc | No | Sort used to constrain this request. |
 | `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
 | `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
 | `availability` | query | in_stock / out_of_stock | No | Availability used to constrain this request. |
@@ -477,6 +522,9 @@ Parameters:
 | `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
 | `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
 | `productType` | query | string | No | Product Type used to constrain this request. |
+| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
+| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
+| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
 | `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
 | `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
 | `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
@@ -1075,9 +1123,9 @@ Parameters:
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
+| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
+| `sort` | query | best_match / newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
 
 Success: HTTP 200.
 
@@ -1240,8 +1288,8 @@ Parameters:
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
+| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
 | `sort` | query | newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
 
 Success: HTTP 200.
@@ -1620,7 +1668,7 @@ Relevant errors: 400 The request is malformed.; 422 One or more request fields a
 ### POST `/public/support/enquiries`
 
 - Operation ID: `postPublicSupportEnquiries`
-- Purpose: Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Apply the compatible public-unlisted-parts constraint migration, then deploy this API change before enabling the matching generic Product handoff in the frontend. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Public PRODUCT enquiries may omit productId. VEHICLE accepts vehicleEnquiryIntent LISTING with a current public vehicleListingId, or explicit REQUIREMENTS without a listing. Legacy vehicle requests with a listing normalize to LISTING. Invalid/private references never downgrade to REQUIREMENTS. Listing branch is authoritative; requirements use an explicit active public branch or the sole active branch, otherwise 409 requests a choice. Existing branch/assignment/workforce queue scope applies. Deploy compatible forward migrations and API before enabling handoffs. Other source, validation, rate-limit and submission safeguards remain unchanged. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: PUBLIC
 - Authentication: None
 - CSRF: Not required
@@ -6043,7 +6091,8 @@ Success: HTTP 201.
     "serviceId": "00000000-0000-4000-8000-000000000001",
     "bookingId": "00000000-0000-4000-8000-000000000001",
     "quoteId": "00000000-0000-4000-8000-000000000001",
-    "vehicleListingId": "00000000-0000-4000-8000-000000000001"
+    "vehicleListingId": "00000000-0000-4000-8000-000000000001",
+    "vehicleEnquiryIntent": "LISTING"
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -9188,8 +9237,8 @@ Parameters:
 | `transmission` | query | AUTOMATIC / MANUAL / CVT / OTHER | No | Transmission used to constrain this request. |
 | `fuelType` | query | PETROL / DIESEL / HYBRID / ELECTRIC / OTHER | No | Fuel Type used to constrain this request. |
 | `featured` | query | true / false | No | Featured used to constrain this request. |
-| `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
-| `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
+| `minPriceKobo` | query | object | No | Min Price Kobo used to constrain this request. |
+| `maxPriceKobo` | query | object | No | Max Price Kobo used to constrain this request. |
 | `sort` | query | newest / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
 | `status` | query | DRAFT / AVAILABLE / RESERVED / SOLD / INACTIVE / ARCHIVED | No | Status used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
@@ -15804,6 +15853,7 @@ Success: HTTP 200.
     "subject": "synthetic-subject",
     "message": "synthetic-message",
     "type": "synthetic-type",
+    "vehicleEnquiryIntent": "LISTING",
     "assignedStaffId": "00000000-0000-4000-8000-000000000001",
     "access": {
       "managed": true,
@@ -16288,6 +16338,7 @@ Success: HTTP 200.
         "subject": "synthetic-subject",
         "message": "synthetic-message",
         "type": "synthetic-type",
+        "vehicleEnquiryIntent": "LISTING",
         "assignedStaffId": "00000000-0000-4000-8000-000000000001"
       }
     ],
@@ -18902,6 +18953,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
 | `name` | string | Yes | Name validated by this operation's strict request contract. |
 | `slug` | string | Yes | Slug validated by this operation's strict request contract. |
 | `description` | string / null | No | Description validated by this operation's strict request contract. |
@@ -18912,6 +18964,7 @@ Synthetic request example:
 
 ```json
 {
+  "family": "REPLACEMENT_PART",
   "name": "synthetic-name",
   "slug": "synthetic-slug",
   "description": "synthetic-description",
@@ -18996,6 +19049,7 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
 | `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `name` | string | No | Name validated by this operation's strict request contract. |
 | `slug` | string | No | Slug validated by this operation's strict request contract. |
@@ -19007,6 +19061,7 @@ Synthetic request example:
 
 ```json
 {
+  "family": "REPLACEMENT_PART",
   "expectedUpdatedAt": "2030-01-15T10:00:00.000Z",
   "name": "synthetic-name",
   "slug": "synthetic-slug",
@@ -19054,6 +19109,9 @@ Parameters:
 | `condition` | query | NEW / USED / REFURBISHED | No | Condition used to constrain this request. |
 | `classification` | query | GENUINE_OEM / AFTERMARKET | No | Classification used to constrain this request. |
 | `productType` | query | string | No | Product Type used to constrain this request. |
+| `family` | query | REPLACEMENT_PART / ENGINE_OIL | No | Family used to constrain this request. |
+| `oilViscosityGrade` | query | string | No | Oil Viscosity Grade used to constrain this request. |
+| `packVolumeMl` | query | integer | No | Pack Volume Ml used to constrain this request. |
 | `vehicleMakeId` | query | string (uuid) | No | Vehicle Make Id used to constrain this request. |
 | `vehicleModelId` | query | string (uuid) | No | Vehicle Model Id used to constrain this request. |
 | `fitment` | query | candidates / verified | No | Fitment used to constrain this request. |
@@ -19188,6 +19246,9 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
+| `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
+| `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |
 | `categoryId` | string (uuid) | Yes | Identifier of the category resource; ownership is resolved server-side. |
 | `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |
 | `classification` | GENUINE_OEM / AFTERMARKET / null | No | Classification validated by this operation's strict request contract. |
@@ -19427,6 +19488,9 @@ JSON request fields:
 
 | Field | Type | Required | Purpose |
 | --- | --- | --- | --- |
+| `family` | REPLACEMENT_PART / ENGINE_OIL / null | No | Family validated by this operation's strict request contract. |
+| `oilViscosityGrade` | string / null | No | Oil Viscosity Grade validated by this operation's strict request contract. |
+| `packVolumeMl` | integer / null | No | Pack Volume Ml validated by this operation's strict request contract. |
 | `expectedUpdatedAt` | string (date-time) | No | ISO 8601 timestamp interpreted and validated by the server. |
 | `categoryId` | string (uuid) | No | Identifier of the category resource; ownership is resolved server-side. |
 | `condition` | NEW / USED / REFURBISHED / null | No | Condition validated by this operation's strict request contract. |

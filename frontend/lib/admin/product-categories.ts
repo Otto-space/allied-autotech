@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { categoryFormSchema as baseCategoryFormSchema } from "./category-catalogue";
 export const categoryFormSchema = baseCategoryFormSchema.extend({
+  family: z.enum(["", "REPLACEMENT_PART", "ENGINE_OIL"]).optional(),
   parentId: z.union([z.literal(""), z.uuid()]).optional(),
 });
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 export const adminProductCategorySchema = z.object({
+  family: z.enum(["REPLACEMENT_PART", "ENGINE_OIL"]).nullable().optional(),
   id: z.uuid(),
   name: z.string().min(1).max(120),
   slug: z.string().min(2).max(120),
@@ -89,6 +91,7 @@ export function productCategoryBody(
 ) {
   return {
     name: values.name.trim(),
+    ...(values.family === undefined ? {} : { family: values.family || null }),
     slug: values.slug.trim(),
     description: values.description.trim() || null,
     isActive: values.isActive,

@@ -1,5 +1,5 @@
 "use client";
-import { FindPartsForCar } from "./find-parts-for-car";
+import { FindPartsForCar, usePartsMakeCatalogue } from "./find-parts-for-car";
 import { PartCard } from "./catalogue-cards";
 import {
   clearVehicleSelection,
@@ -20,7 +20,9 @@ import {
   normalizeProductQuery,
   productApiPath,
   productFilterKeys,
+  clearProductFamilyFilters,
 } from "@/lib/product-discovery";
+import { familyLabels, packVolumeLabel } from "@/lib/product-family";
 import {
   ProductFilters,
   ProductSearch,
@@ -40,6 +42,7 @@ export function PartsCatalogue({
 }) {
   const searchParams = useSearchParams();
   const [searchReset, setSearchReset] = useState(0);
+  const makes = usePartsMakeCatalogue();
   const { params, invalid } = normalizeProductQuery(
     new URLSearchParams(searchParams.toString()),
   );
@@ -88,6 +91,11 @@ export function PartsCatalogue({
     ),
   ).toString();
   const filtered = selected.length > 0 || params.has("vehicleModelId");
+  const categoryOnly =
+    category.data?.id === categoryId &&
+    selected.length > 0 &&
+    selected.every((key) => key === "categoryId" || key === "parentCategoryId") &&
+    !params.has("vehicleModelId");
   const publication = useResource(
     filtered || params.has("cursor")
       ? "/public/catalog/products/discovery?limit=1"
@@ -108,6 +116,11 @@ export function PartsCatalogue({
   const [intent, setIntent] = useState<"part" | "vehicle">(
     params.has("vehicleModelId") ? "vehicle" : "part",
   );
+  const [modeQuery, setModeQuery] = useState(vehicleQuery);
+  if (modeQuery !== vehicleQuery) {
+    setModeQuery(vehicleQuery);
+    setIntent(params.has("vehicleModelId") ? "vehicle" : "part");
+  }
   const trail = params.get("_trail")?.split(",") ?? [];
   function navigate(next: URLSearchParams) {
     const normalized = normalizeProductQuery(next).params.toString();
@@ -168,26 +181,32 @@ export function PartsCatalogue({
             filters below.
           </p>
         )}
-        <div
-          className="parts-intent"
-          role="group"
-          aria-label="How would you like to find parts?"
-        >
-          <button
-            type="button"
-            aria-pressed={intent === "part"}
-            onClick={() => setIntent("part")}
-          >
-            I know the part
-          </button>
-          <button
-            type="button"
-            aria-pressed={intent === "vehicle"}
-            onClick={() => setIntent("vehicle")}
-          >
-            Find parts for my car
-          </button>
-        </div>
+        <fieldset className="parts-intent">
+          <legend>How would you like to find products?</legend>
+          <label>
+            <input
+              type="radio"
+              name="product-discovery-mode"
+              checked={intent === "part"}
+              onChange={() => {
+                setIntent("part");
+                update(clearVehicleSelection);
+              }}
+            />
+            Search all products
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="product-discovery-mode"
+              checked={intent === "vehicle"}
+              onChange={() => setIntent("vehicle")}
+            />
+            {makes.data?.items.length
+              ? "Find products for my vehicle"
+              : "Get help choosing a product"}
+          </label>
+        </fieldset>
         <div className="product-direct-search">
           <ProductSearch
             key={searchReset}
@@ -195,52 +214,71 @@ export function PartsCatalogue({
             update={update}
           />
         </div>
-        <details className="catalogue-controls" open={!noCatalogue || filtered}>
-          <summary>Categories and filters</summary>
+        <div className="catalogue-controls">
           <div className="product-toolbar">
-            <ProductCategory
-              value={rootId}
-              categories={categories}
-              scope={{ rootOnly: true }}
-              onChange={(id) =>
-                update((next) => {
-                  next.delete("categoryId");
-                  next.delete("parentCategoryId");
-                  if (id) next.set("categoryId", id);
-                })
-              }
-            />
-            <ProductCategory
-              key={rootId}
-              title="Subcategory"
-              value={childId}
-              categories={subcategories}
-              scope={{ parentId: rootId }}
-              disabled={!rootId}
-              onChange={(id) =>
-                update((next) => {
-                  next.delete("categoryId");
-                  if (rootId) next.set("parentCategoryId", rootId);
-                  if (id) next.set("categoryId", id);
-                })
-              }
-            />
+            {(categories.items.length > 0 ||
+              categories.loading ||
+              categories.error ||
+              rootId) && (
+              <ProductCategory
+                value={rootId}
+                categories={categories}
+                scope={{ rootOnly: true }}
+                onChange={(id) =>
+                  update((next) => {
+                    next.delete("categoryId");
+                    next.delete("parentCategoryId");
+                    clearProductFamilyFilters(next);
+                    if (id) next.set("categoryId", id);
+                  })
+                }
+              />
+            )}
+            {rootId &&
+              (subcategories.items.length > 0 ||
+                subcategories.loading ||
+                subcategories.error ||
+                childId) && (
+                <ProductCategory
+                  key={rootId}
+                  title="Subcategory"
+                  value={childId}
+                  categories={subcategories}
+                  scope={{ parentId: rootId }}
+                  disabled={!rootId}
+                  onChange={(id) =>
+                    update((next) => {
+                      next.delete("categoryId");
+                      clearProductFamilyFilters(next);
+                      if (rootId) next.set("parentCategoryId", rootId);
+                      if (id) next.set("categoryId", id);
+                    })
+                  }
+                />
+              )}
             <ProductFilters
               query={advanced}
-              count={selected.length}
+              count={
+                selected.filter((key) => key !== "search").length +
+                (params.has("vehicleModelId") ? 1 : 0)
+              }
               update={update}
               clear={clear}
+              scope={params.toString()}
             />
             <div className="product-sort" hidden={noCatalogue}>
               <label htmlFor="product-sort">Sort by</label>
               <div className="product-select">
                 <select
                   id="product-sort"
-                  value={params.get("sort") ?? "newest"}
+                  value={
+                    params.get("sort") ?? (params.has("search") ? "best_match" : "newest")
+                  }
                   onChange={(event) =>
                     update((next) => next.set("sort", event.target.value))
                   }
                 >
+                  {params.has("search") && <option value="best_match">Best match</option>}
                   <option value="newest">Newest products</option>
                   <option value="name">Name</option>
                   <option value="price_asc">Price: low to high</option>
@@ -262,6 +300,7 @@ export function PartsCatalogue({
                     update((next) => {
                       next.delete("categoryId");
                       next.delete("parentCategoryId");
+                      clearProductFamilyFilters(next);
                     })
                   }
                 >
@@ -277,6 +316,7 @@ export function PartsCatalogue({
                     onClick={() =>
                       update((next) => {
                         next.delete("parentCategoryId");
+                        clearProductFamilyFilters(next);
                         next.set("categoryId", item.id);
                       })
                     }
@@ -292,9 +332,10 @@ export function PartsCatalogue({
               </p>
             </fieldset>
           )}
-        </details>
+        </div>
         <div hidden={intent !== "vehicle"}>
           <FindPartsForCar
+            makes={makes}
             query={vehicleQuery}
             enquiryQuery={params.toString()}
             update={update}
@@ -344,19 +385,27 @@ export function PartsCatalogue({
                   ? `Category: ${categories.selected?.name ?? "Loading category"}`
                   : key === "categoryId"
                     ? `${childId ? "Subcategory" : "Category"}: ${(childId ? subcategories.selected : categories.selected)?.name ?? (category.error ? "Unavailable category" : "Loading category")}`
-                    : key === "featured"
-                      ? value === "true"
-                        ? "Featured only"
-                        : "Non-featured only"
-                      : key === "minPriceKobo"
-                        ? `Minimum price: ${formatKobo(value)}`
-                        : key === "maxPriceKobo"
-                          ? `Maximum price: ${formatKobo(value)}`
-                          : key === "availability"
-                            ? value === "in_stock"
-                              ? "In stock"
-                              : "Out of stock"
-                            : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
+                    : key === "family"
+                      ? `Product family: ${familyLabels[value as keyof typeof familyLabels]}`
+                      : key === "oilViscosityGrade"
+                        ? `Viscosity grade: ${value}`
+                        : key === "packVolumeMl"
+                          ? `Pack volume: ${packVolumeLabel(Number(value))}`
+                          : key === "productType"
+                            ? `Product type: ${value.replaceAll("_", " ")}`
+                            : key === "featured"
+                              ? value === "true"
+                                ? "Featured only"
+                                : "Non-featured only"
+                              : key === "minPriceKobo"
+                                ? `Minimum price: ${formatKobo(value)}`
+                                : key === "maxPriceKobo"
+                                  ? `Maximum price: ${formatKobo(value)}`
+                                  : key === "availability"
+                                    ? value === "in_stock"
+                                      ? "In stock"
+                                      : "Out of stock"
+                                    : `${key[0].toUpperCase()}${key.slice(1)}: ${value}`;
               return (
                 <button
                   type="button"
@@ -367,6 +416,12 @@ export function PartsCatalogue({
                   onClick={() =>
                     update((next) => {
                       next.delete(key);
+                      if (
+                        key === "family" ||
+                        key === "categoryId" ||
+                        key === "parentCategoryId"
+                      )
+                        clearProductFamilyFilters(next);
                       if (key === "parentCategoryId") next.delete("categoryId");
                       if (key === "make") next.delete("model");
                     })
@@ -392,7 +447,7 @@ export function PartsCatalogue({
         ) : (
           <span>
             {noCatalogue
-              ? "Your part search can be included in an enquiry."
+              ? "Your product preferences can be included in an enquiry."
               : "Search by name, brand or part number, or choose a category."}
           </span>
         )}
@@ -453,14 +508,18 @@ export function PartsCatalogue({
                 : filtered
                   ? noCatalogue
                     ? "No products are published yet"
-                    : "No matching products"
+                    : categoryOnly
+                      ? "No products in this category"
+                      : "No matching products"
                   : "No products are published yet"}
             </h3>
             <p>
               {noCatalogue
-                ? "Our online product catalogue has no published listings. Send the part name or number and any vehicle details you know."
+                ? "Our online product catalogue has no published listings. Tell us the product, quantity and specifications you need. Add vehicle details when relevant."
                 : filtered
-                  ? "No results for these details. Try a broader search or remove a filter."
+                  ? categoryOnly
+                    ? "No online products are listed in this category. Choose another category or ask our team about what you need."
+                    : "No results for these details. Try a broader search or remove a filter."
                   : "Contact our team to ask about the product you need."}
             </p>
             <div className="actions">

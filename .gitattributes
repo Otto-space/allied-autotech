@@ -8,6 +8,12 @@ backend/prisma/migrations/**/migration.sql text eol=crlf
 backend/prisma/migrations/20261023010000_browser_push_subscriptions/migration.sql text eol=lf
 # This forward constraint migration was replayed and rehearsed with LF bytes.
 backend/prisma/migrations/20261025050000_public_unlisted_parts_enquiries/migration.sql text eol=lf
+# These forward migrations were first replayed with LF bytes; keep their checksums portable.
+backend/prisma/migrations/20261025130000_vehicle_requirements_enquiries/migration.sql text eol=lf
+backend/prisma/migrations/20261025131000_recorded_product_families/migration.sql text eol=lf
+backend/prisma/migrations/20261025132000_catalogue_word_search/migration.sql text eol=lf
+backend/prisma/migrations/20261025133000_catalogue_brand_options/migration.sql text eol=lf
+backend/prisma/migrations/20261025134000_preserve_alphabetic_search_codes/migration.sql text eol=lf
 # Preserve the supplied standing directive byte-for-byte on every checkout.
 frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md -text
 

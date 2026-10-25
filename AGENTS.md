@@ -2,6 +2,16 @@
 
 Make every change professional, complete and reviewable.
 
+## Owner's local disk reserve
+
+Keep at least 20 GiB free on C:. Before a build, dependency install, Docker
+pull/build/test, substantial download/worktree/write, run
+`powershell -NoProfile -File C:/Users/PC/.codex/scripts/assert-disk-space.ps1`.
+Its default includes 5 GiB growth; justify any operation-specific
+`-ExpectedGrowthGiB` without reducing the reserve. Stop a failed operation,
+review safe cleanup, reuse dependencies and preserve other tasks' resources.
+Recheck between large stages and at completion. This is a preflight, not an OS quota.
+
 ## Database safety — mandatory
 
 - Preserve existing application data. Never reset, drop, truncate, recreate, or restore

@@ -194,7 +194,7 @@ export function VehicleFilters({
     ]) {
       if (amount === undefined)
         nextErrors[key!] =
-          "Enter a price above zero, up to 99,999,999,999,999.99, with at most two decimal places. Use digits without commas.";
+          "Enter a non-negative budget, up to 99,999,999,999,999.99, with at most two decimal places. Use digits without commas.";
     }
     if (min && max && BigInt(min) > BigInt(max))
       nextErrors.maxPriceKobo = "Maximum price must be at least the minimum price.";

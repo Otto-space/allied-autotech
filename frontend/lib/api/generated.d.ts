@@ -1348,6 +1348,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/public/catalog/products/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Published product choices within the applied search scope
+         * @description Bounded public brand/family/product-type/recorded oil grade/pack-volume choices. scope is a URLSearchParams-encoded validated product-discovery query (maximum 6000 characters); sort, paging and page size are excluded. All active publication/category/availability/fitment/price/search constraints apply, except the requested facet is relaxed. Family also relaxes dependent condition/classification/type/oil fields. Brand case/whitespace variants share a normalized key with a recorded display label. No page-derived counts are returned. Options are ordered by their stable stored value (numeric volume); authenticated cursors bind complete scope/field/prefix state. Old /facets remains compatible. Unknown specifications do not become choices or approvals. Published product choices within the applied search scope. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         */
+        get: operations["getPublicCatalogProductsOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/catalog/products/discovery": {
         parameters: {
             query?: never;
@@ -4635,7 +4655,7 @@ export interface paths {
         put?: never;
         /**
          * Submit a public enquiry
-         * @description Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Apply the compatible public-unlisted-parts constraint migration, then deploy this API change before enabling the matching generic Product handoff in the frontend. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
+         * @description Public PRODUCT enquiries may omit productId. VEHICLE accepts vehicleEnquiryIntent LISTING with a current public vehicleListingId, or explicit REQUIREMENTS without a listing. Legacy vehicle requests with a listing normalize to LISTING. Invalid/private references never downgrade to REQUIREMENTS. Listing branch is authoritative; requirements use an explicit active public branch or the sole active branch, otherwise 409 requests a choice. Existing branch/assignment/workforce queue scope applies. Deploy compatible forward migrations and API before enabling handoffs. Other source, validation, rate-limit and submission safeguards remain unchanged. Submit a public enquiry. Access boundary: public. Does not accept browser bearer tokens. No CSRF token is required. This operation has no idempotency-key contract.
          */
         post: operations["postPublicSupportEnquiries"];
         delete?: never;
@@ -27208,6 +27228,197 @@ export interface operations {
             };
         };
     };
+    getPublicCatalogProductsOptions: {
+        parameters: {
+            query: {
+                /**
+                 * @description Field used to constrain this request.
+                 * @example brand
+                 */
+                field: "brand" | "family" | "productType" | "oilViscosityGrade" | "packVolumeMl";
+                /**
+                 * @description Scope used to constrain this request.
+                 * @example synthetic-scope
+                 */
+                scope?: string;
+                /**
+                 * @description Search used to constrain this request.
+                 * @example synthetic-search
+                 */
+                search?: string;
+                /**
+                 * @description Opaque cursor returned by the preceding page.
+                 * @example synthetic-cursor
+                 */
+                cursor?: string;
+                /**
+                 * @description Maximum number of records to return, bounded by the API.
+                 * @example synthetic-limit
+                 */
+                limit?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success: Published product choices within the applied search scope. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": true,
+                     *       "message": "Published product choices within the applied search scope",
+                     *       "data": {
+                     *         "items": [
+                     *           {
+                     *             "value": "synthetic-value",
+                     *             "label": "synthetic-label"
+                     *           }
+                     *         ],
+                     *         "nextCursor": "synthetic-nextcursor"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": {
+                        /** @description Success validated by this operation's strict request contract. */
+                        success: boolean;
+                        /** @description Plain-text business context; HTML is not accepted or rendered as trusted markup. */
+                        message: string;
+                        /** @description Data validated by this operation's strict request contract. */
+                        data: {
+                            /** @description Items validated by this operation's strict request contract. */
+                            items: {
+                                /** @description Value validated by this operation's strict request contract. */
+                                value: string;
+                                /** @description Label validated by this operation's strict request contract. */
+                                label: string;
+                            }[];
+                            /** @description Next Cursor validated by this operation's strict request contract. */
+                            nextCursor?: string;
+                        };
+                        /** @description Meta validated by this operation's strict request contract. */
+                        meta: {
+                            /** @description Identifier of the request resource; ownership is resolved server-side. */
+                            requestId: string;
+                        };
+                    };
+                };
+            };
+            /** @description The request is malformed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The request is malformed.",
+                     *       "error": {
+                     *         "code": "BAD_REQUEST"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description One or more request fields are invalid. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "One or more request fields are invalid.",
+                     *       "error": {
+                     *         "code": "VALIDATION_FAILED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description The route-specific request limit was exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "The route-specific request limit was exceeded.",
+                     *       "error": {
+                     *         "code": "RATE_LIMITED"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description An unexpected error occurred; no sensitive detail is disclosed. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "An unexpected error occurred; no sensitive detail is disclosed.",
+                     *       "error": {
+                     *         "code": "INTERNAL_ERROR"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description A required database is temporarily unavailable. Check current state before retrying a mutation. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "success": false,
+                     *       "message": "A required database is temporarily unavailable. Check current state before retrying a mutation.",
+                     *       "error": {
+                     *         "code": "DATABASE_UNAVAILABLE"
+                     *       },
+                     *       "meta": {
+                     *         "requestId": "req_0000000000000001"
+                     *       }
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     getPublicCatalogProductsDiscovery: {
         parameters: {
             query?: {
@@ -27246,6 +27457,21 @@ export interface operations {
                  * @example synthetic-producttype
                  */
                 productType?: string;
+                /**
+                 * @description Family used to constrain this request.
+                 * @example REPLACEMENT_PART
+                 */
+                family?: "REPLACEMENT_PART" | "ENGINE_OIL";
+                /**
+                 * @description Oil Viscosity Grade used to constrain this request.
+                 * @example synthetic-oilviscositygrade
+                 */
+                oilViscosityGrade?: string;
+                /**
+                 * @description Pack Volume Ml used to constrain this request.
+                 * @example 1
+                 */
+                packVolumeMl?: number;
                 /**
                  * @description Vehicle Make Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
@@ -27343,9 +27569,9 @@ export interface operations {
                 featured?: "true" | "false";
                 /**
                  * @description Sort used to constrain this request.
-                 * @example newest
+                 * @example best_match
                  */
-                sort?: "newest" | "name" | "price_asc" | "price_desc";
+                sort?: "best_match" | "newest" | "name" | "price_asc" | "price_desc";
                 /**
                  * @description Min Price Kobo used to constrain this request.
                  * @example 300000
@@ -27473,6 +27699,15 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /**
+                                 * @description Family validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                                /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                                oilViscosityGrade?: string | null;
+                                /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                                packVolumeMl?: number | null;
                                 /** @description Fitment validated by this operation's strict request contract. */
                                 fitment?: {
                                     /**
@@ -27548,6 +27783,11 @@ export interface operations {
                                 updatedAt: string;
                                 /** @description Category validated by this operation's strict request contract. */
                                 category: {
+                                    /**
+                                     * @description Family validated by this operation's strict request contract.
+                                     * @enum {string|null}
+                                     */
+                                    family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -28413,6 +28653,21 @@ export interface operations {
                  */
                 productType?: string;
                 /**
+                 * @description Family used to constrain this request.
+                 * @example REPLACEMENT_PART
+                 */
+                family?: "REPLACEMENT_PART" | "ENGINE_OIL";
+                /**
+                 * @description Oil Viscosity Grade used to constrain this request.
+                 * @example synthetic-oilviscositygrade
+                 */
+                oilViscosityGrade?: string;
+                /**
+                 * @description Pack Volume Ml used to constrain this request.
+                 * @example 1
+                 */
+                packVolumeMl?: number;
+                /**
                  * @description Vehicle Make Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -28622,6 +28877,15 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /**
+                                 * @description Family validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                                /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                                oilViscosityGrade?: string | null;
+                                /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                                packVolumeMl?: number | null;
                                 /** @description Fitment validated by this operation's strict request contract. */
                                 fitment?: {
                                     /**
@@ -28697,6 +28961,11 @@ export interface operations {
                                 updatedAt: string;
                                 /** @description Category validated by this operation's strict request contract. */
                                 category: {
+                                    /**
+                                     * @description Family validated by this operation's strict request contract.
+                                     * @enum {string|null}
+                                     */
+                                    family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -29051,6 +29320,15 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /**
+                             * @description Family validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                            /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                            oilViscosityGrade?: string | null;
+                            /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                            packVolumeMl?: number | null;
                             /** @description Fitment validated by this operation's strict request contract. */
                             fitment?: {
                                 /**
@@ -29126,6 +29404,11 @@ export interface operations {
                             updatedAt: string;
                             /** @description Category validated by this operation's strict request contract. */
                             category: {
+                                /**
+                                 * @description Family validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -31298,6 +31581,7 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "family": "REPLACEMENT_PART",
                  *       "name": "synthetic-name",
                  *       "slug": "synthetic-slug",
                  *       "description": "synthetic-description",
@@ -31306,6 +31590,11 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /**
+                     * @description Family validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                     /** @description Name validated by this operation's strict request contract. */
                     name: string;
                     /** @description Slug validated by this operation's strict request contract. */
@@ -31811,6 +32100,7 @@ export interface operations {
             content: {
                 /**
                  * @example {
+                 *       "family": "REPLACEMENT_PART",
                  *       "expectedUpdatedAt": "2030-01-15T10:00:00.000Z",
                  *       "name": "synthetic-name",
                  *       "slug": "synthetic-slug",
@@ -31820,6 +32110,11 @@ export interface operations {
                  *     }
                  */
                 "application/json": {
+                    /**
+                     * @description Family validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                     /**
                      * Format: date-time
                      * @description ISO 8601 timestamp interpreted and validated by the server.
@@ -32116,6 +32411,21 @@ export interface operations {
                  */
                 productType?: string;
                 /**
+                 * @description Family used to constrain this request.
+                 * @example REPLACEMENT_PART
+                 */
+                family?: "REPLACEMENT_PART" | "ENGINE_OIL";
+                /**
+                 * @description Oil Viscosity Grade used to constrain this request.
+                 * @example synthetic-oilviscositygrade
+                 */
+                oilViscosityGrade?: string;
+                /**
+                 * @description Pack Volume Ml used to constrain this request.
+                 * @example 1
+                 */
+                packVolumeMl?: number;
+                /**
                  * @description Vehicle Make Id used to constrain this request.
                  * @example 00000000-0000-4000-8000-000000000001
                  */
@@ -32330,6 +32640,15 @@ export interface operations {
                         data: {
                             /** @description Items validated by this operation's strict request contract. */
                             items: {
+                                /**
+                                 * @description Family validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                                /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                                oilViscosityGrade?: string | null;
+                                /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                                packVolumeMl?: number | null;
                                 /** @description Fitment validated by this operation's strict request contract. */
                                 fitment?: {
                                     /**
@@ -32405,6 +32724,11 @@ export interface operations {
                                 updatedAt: string;
                                 /** @description Category validated by this operation's strict request contract. */
                                 category: {
+                                    /**
+                                     * @description Family validated by this operation's strict request contract.
+                                     * @enum {string|null}
+                                     */
+                                    family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                                     /**
                                      * Format: uuid
                                      * @description Identifier of the id resource; ownership is resolved server-side.
@@ -32716,6 +33040,15 @@ export interface operations {
                  */
                 "application/json": {
                     /**
+                     * @description Family validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                    /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                    oilViscosityGrade?: string | null;
+                    /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                    packVolumeMl?: number | null;
+                    /**
                      * Format: uuid
                      * @description Identifier of the category resource; ownership is resolved server-side.
                      */
@@ -32864,6 +33197,15 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /**
+                             * @description Family validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                            /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                            oilViscosityGrade?: string | null;
+                            /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                            packVolumeMl?: number | null;
                             /** @description Fitment validated by this operation's strict request contract. */
                             fitment?: {
                                 /**
@@ -32939,6 +33281,11 @@ export interface operations {
                             updatedAt: string;
                             /** @description Category validated by this operation's strict request contract. */
                             category: {
+                                /**
+                                 * @description Family validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -33350,6 +33697,15 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /**
+                             * @description Family validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                            /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                            oilViscosityGrade?: string | null;
+                            /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                            packVolumeMl?: number | null;
                             /** @description Fitment validated by this operation's strict request contract. */
                             fitment?: {
                                 /**
@@ -33425,6 +33781,11 @@ export interface operations {
                             updatedAt: string;
                             /** @description Category validated by this operation's strict request contract. */
                             category: {
+                                /**
+                                 * @description Family validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -33749,6 +34110,15 @@ export interface operations {
                 /** @example {} */
                 "application/json": {
                     /**
+                     * @description Family validated by this operation's strict request contract.
+                     * @enum {string|null}
+                     */
+                    family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                    /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                    oilViscosityGrade?: string | null;
+                    /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                    packVolumeMl?: number | null;
+                    /**
                      * Format: date-time
                      * @description ISO 8601 timestamp interpreted and validated by the server.
                      */
@@ -33895,6 +34265,15 @@ export interface operations {
                         message: string;
                         /** @description Data validated by this operation's strict request contract. */
                         data: {
+                            /**
+                             * @description Family validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
+                            /** @description Oil Viscosity Grade validated by this operation's strict request contract. */
+                            oilViscosityGrade?: string | null;
+                            /** @description Pack Volume Ml validated by this operation's strict request contract. */
+                            packVolumeMl?: number | null;
                             /** @description Fitment validated by this operation's strict request contract. */
                             fitment?: {
                                 /**
@@ -33970,6 +34349,11 @@ export interface operations {
                             updatedAt: string;
                             /** @description Category validated by this operation's strict request contract. */
                             category: {
+                                /**
+                                 * @description Family validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                family?: "REPLACEMENT_PART" | "ENGINE_OIL" | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the id resource; ownership is resolved server-side.
@@ -56013,17 +56397,17 @@ export interface operations {
                  * @description Min Price Kobo used to constrain this request.
                  * @example 300000
                  */
-                minPriceKobo?: string;
+                minPriceKobo?: "0" | string;
                 /**
                  * @description Max Price Kobo used to constrain this request.
                  * @example 300000
                  */
-                maxPriceKobo?: string;
+                maxPriceKobo?: "0" | string;
                 /**
                  * @description Sort used to constrain this request.
-                 * @example newest
+                 * @example best_match
                  */
-                sort?: "newest" | "price_asc" | "price_desc" | "year_desc" | "year_asc" | "mileage_asc" | "mileage_desc";
+                sort?: "best_match" | "newest" | "price_asc" | "price_desc" | "year_desc" | "year_asc" | "mileage_asc" | "mileage_desc";
             };
             header?: never;
             path?: never;
@@ -56721,12 +57105,12 @@ export interface operations {
                  * @description Min Price Kobo used to constrain this request.
                  * @example 300000
                  */
-                minPriceKobo?: string;
+                minPriceKobo?: "0" | string;
                 /**
                  * @description Max Price Kobo used to constrain this request.
                  * @example 300000
                  */
-                maxPriceKobo?: string;
+                maxPriceKobo?: "0" | string;
                 /**
                  * @description Sort used to constrain this request.
                  * @example newest
@@ -58516,12 +58900,12 @@ export interface operations {
                  * @description Min Price Kobo used to constrain this request.
                  * @example 300000
                  */
-                minPriceKobo?: string;
+                minPriceKobo?: "0" | string;
                 /**
                  * @description Max Price Kobo used to constrain this request.
                  * @example 300000
                  */
-                maxPriceKobo?: string;
+                maxPriceKobo?: "0" | string;
                 /**
                  * @description Sort used to constrain this request.
                  * @example newest
@@ -78497,10 +78881,15 @@ export interface operations {
                      */
                     type: "VEHICLE";
                     /**
+                     * @description Vehicle Enquiry Intent validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    vehicleEnquiryIntent?: "LISTING" | "REQUIREMENTS";
+                    /**
                      * Format: uuid
                      * @description Identifier of the vehicle listing resource; ownership is resolved server-side.
                      */
-                    vehicleListingId: string;
+                    vehicleListingId?: string;
                 };
             };
         };
@@ -79817,10 +80206,15 @@ export interface operations {
                      */
                     type: "VEHICLE";
                     /**
+                     * @description Vehicle Enquiry Intent validated by this operation's strict request contract.
+                     * @enum {string}
+                     */
+                    vehicleEnquiryIntent?: "LISTING" | "REQUIREMENTS";
+                    /**
                      * Format: uuid
                      * @description Identifier of the vehicle listing resource; ownership is resolved server-side.
                      */
-                    vehicleListingId: string;
+                    vehicleListingId?: string;
                 } | {
                     /**
                      * Format: uuid
@@ -79903,7 +80297,8 @@ export interface operations {
                      *         "serviceId": "00000000-0000-4000-8000-000000000001",
                      *         "bookingId": "00000000-0000-4000-8000-000000000001",
                      *         "quoteId": "00000000-0000-4000-8000-000000000001",
-                     *         "vehicleListingId": "00000000-0000-4000-8000-000000000001"
+                     *         "vehicleListingId": "00000000-0000-4000-8000-000000000001",
+                     *         "vehicleEnquiryIntent": "LISTING"
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -80019,6 +80414,11 @@ export interface operations {
                              * @description Identifier of the vehicle listing resource; ownership is resolved server-side.
                              */
                             vehicleListingId: string | null;
+                            /**
+                             * @description Vehicle Enquiry Intent validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            vehicleEnquiryIntent: "LISTING" | "REQUIREMENTS" | null;
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -118428,6 +118828,7 @@ export interface operations {
                      *         "subject": "synthetic-subject",
                      *         "message": "synthetic-message",
                      *         "type": "synthetic-type",
+                     *         "vehicleEnquiryIntent": "LISTING",
                      *         "assignedStaffId": "00000000-0000-4000-8000-000000000001",
                      *         "access": {
                      *           "managed": true,
@@ -118562,6 +118963,11 @@ export interface operations {
                             message: string;
                             /** @description Type validated by this operation's strict request contract. */
                             type: string;
+                            /**
+                             * @description Vehicle Enquiry Intent validated by this operation's strict request contract.
+                             * @enum {string|null}
+                             */
+                            vehicleEnquiryIntent: "LISTING" | "REQUIREMENTS" | null;
                             /**
                              * Format: uuid
                              * @description Identifier of the assigned staff resource; ownership is resolved server-side.
@@ -120429,6 +120835,7 @@ export interface operations {
                      *             "subject": "synthetic-subject",
                      *             "message": "synthetic-message",
                      *             "type": "synthetic-type",
+                     *             "vehicleEnquiryIntent": "LISTING",
                      *             "assignedStaffId": "00000000-0000-4000-8000-000000000001"
                      *           }
                      *         ],
@@ -120536,6 +120943,11 @@ export interface operations {
                                 message: string;
                                 /** @description Type validated by this operation's strict request contract. */
                                 type: string;
+                                /**
+                                 * @description Vehicle Enquiry Intent validated by this operation's strict request contract.
+                                 * @enum {string|null}
+                                 */
+                                vehicleEnquiryIntent: "LISTING" | "REQUIREMENTS" | null;
                                 /**
                                  * Format: uuid
                                  * @description Identifier of the assigned staff resource; ownership is resolved server-side.

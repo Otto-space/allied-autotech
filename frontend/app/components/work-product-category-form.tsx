@@ -19,8 +19,15 @@ import { WorkProductCategory } from "./work-product-category";
 import { MutationReview, type MutationProposal } from "./mutation-review";
 
 const endpoint = "/admin/catalog/categories";
-const fields = ["name", "slug", "description", "parentId", "isActive"] as const;
-const empty = { name: "", slug: "", description: "", parentId: "", isActive: true };
+const fields = ["name", "slug", "description", "parentId", "isActive", "family"] as const;
+const empty = {
+  name: "",
+  slug: "",
+  description: "",
+  parentId: "",
+  isActive: true,
+  family: "" as const,
+};
 export function WorkProductCategoryEditor({
   id,
   owner,
@@ -199,6 +206,7 @@ function CategoryForm({
           slug: record.slug,
           description: record.description || "",
           parentId: record.parentId || "",
+          family: record.family || "",
           isActive: record.isActive,
         }
       : empty,
@@ -233,6 +241,15 @@ function CategoryForm({
           value: body.parentId ? parentLabel : "None (top-level category)",
         },
         { label: "Active", value: body.isActive ? "Yes" : "No" },
+        {
+          label: "Product family",
+          value:
+            body.family === "ENGINE_OIL"
+              ? "Engine oils"
+              : body.family === "REPLACEMENT_PART"
+                ? "Replacement parts"
+                : "Shared / inherited",
+        },
       ],
       onUncertain: () => pending(true),
       submit: async () => {
@@ -410,6 +427,23 @@ function CategoryForm({
                 most two levels. Deactivate subcategories before their parent.
               </span>
               {fieldError("parentId")}
+            </div>
+            <div className="field">
+              <label htmlFor="product-category-family">Product family (optional)</label>
+              <select
+                {...common("family")}
+                {...form.register("family")}
+                aria-describedby="category-family-hint"
+              >
+                <option value="">Shared / inherit parent family</option>
+                <option value="REPLACEMENT_PART">Replacement parts</option>
+                <option value="ENGINE_OIL">Engine oils</option>
+              </select>
+              <small id="category-family-hint">
+                A typed parent also governs its subcategories. Existing products must
+                match before a family change can be saved.
+              </small>
+              {fieldError("family")}
             </div>
             <div className="field">
               <label htmlFor="product-category-slug">URL name</label>

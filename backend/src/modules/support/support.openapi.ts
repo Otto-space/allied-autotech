@@ -104,6 +104,7 @@ const enquirySubmission = supportSubmissionBase.extend({
   bookingId: z.uuid().nullable(),
   quoteId: z.uuid().nullable(),
   vehicleListingId: z.uuid().nullable(),
+  vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).nullable(),
 });
 const complaintSubmission = supportSubmissionBase.extend({
   status: z.enum(["OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"]),
@@ -258,7 +259,7 @@ export function registerSupportOpenApi(registry: OpenAPIRegistry): void {
       path: "/public/support/enquiries",
       summary: "Submit a public enquiry",
       description:
-        "Public PRODUCT enquiries may omit productId when asking for an unlisted part. Supplied product IDs must reference an active public product. Branch resolution, validation, rate limits and existing submission controls still apply. Other linked enquiry types retain their required references. Apply the compatible public-unlisted-parts constraint migration, then deploy this API change before enabling the matching generic Product handoff in the frontend.",
+        "Public PRODUCT enquiries may omit productId. VEHICLE accepts vehicleEnquiryIntent LISTING with a current public vehicleListingId, or explicit REQUIREMENTS without a listing. Legacy vehicle requests with a listing normalize to LISTING. Invalid/private references never downgrade to REQUIREMENTS. Listing branch is authoritative; requirements use an explicit active public branch or the sole active branch, otherwise 409 requests a choice. Existing branch/assignment/workforce queue scope applies. Deploy compatible forward migrations and API before enabling handoffs. Other source, validation, rate-limit and submission safeguards remain unchanged.",
       body: publicEnquiryCreateBodySchema,
       accepted: true,
     },

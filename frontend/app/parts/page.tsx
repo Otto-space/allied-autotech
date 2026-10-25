@@ -6,6 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, ArrowUpRight, CarFront, FileSearch, MapPin } from "lucide-react";
 import { business } from "@/lib/business";
+import { Suspense } from "react";
+import { partsEnquiryHref } from "@/lib/parts-fitment";
+import { CatalogueEnquiryLink } from "../components/catalogue-enquiry-link";
 import { productApiPath } from "@/lib/product-discovery";
 import { browseEnquiriesOnly } from "@/lib/public-launch";
 import { SiteHeader } from "../components/site-header";
@@ -28,7 +31,7 @@ export async function generateMetadata({
   searchParams: SearchParameters;
 }): Promise<Metadata> {
   const metadata = await publicPageMetadata(
-    "Auto Parts, Engine Oil & Automotive Products",
+    "Auto Parts & Automotive Essentials",
     "Browse automotive products from Allied AutoTech. Search by name, brand or vehicle compatibility and check availability before collection in Port Harcourt.",
     "/parts",
     searchParams,
@@ -44,10 +47,11 @@ export default async function PartsPage({
 }: {
   searchParams: SearchParameters;
 }) {
-  const initial = await loadPublicSeed(
-    await listingPath(searchParams),
-    parseProductDiscovery,
+  const cataloguePath = await listingPath(searchParams);
+  const enquiryHref = partsEnquiryHref(
+    new URLSearchParams(cataloguePath.split("?")[1] ?? ""),
   );
+  const initial = await loadPublicSeed(cataloguePath, parseProductDiscovery);
   const enquiriesOnly = browseEnquiriesOnly();
   return (
     <>
@@ -60,17 +64,17 @@ export default async function PartsPage({
             </li>
             <li>
               <ChevronRight size={14} aria-hidden="true" />
-              <span aria-current="page">Parts</span>
+              <span aria-current="page">Shop</span>
             </li>
           </ol>
         </nav>
         <section className="product-hero" aria-labelledby="product-title">
           <div className="public-wrap product-hero-inner">
             <div className="product-hero-copy">
-              <h1 id="product-title">Find the part you need.</h1>
+              <h1 id="product-title">Auto Parts &amp; Automotive Essentials</h1>
               <p>
-                Explore parts, oils, fluids, tyres and automotive products. Check
-                specifications and suitability for your vehicle.
+                Browse replacement parts, engine oils and automotive essentials. Check
+                product specifications and collection availability with our team.
               </p>
             </div>
             <div className="product-hero-media">
@@ -146,17 +150,37 @@ export default async function PartsPage({
             <div>
               <h2>Need help choosing a product?</h2>
               <p>
-                Share the product name or part number and your vehicle details with our
-                team.
+                Share the product, quantity and specifications you need. Add vehicle
+                details when relevant.
               </p>
             </div>
             <div className="actions">
-              <Link href="/contact?parts=1#enquiry" className="button">
-                Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
-              </Link>
-              <a href={business.whatsapp} className="button secondary">
-                Chat on WhatsApp
-              </a>
+              <Suspense
+                fallback={
+                  <Link href={enquiryHref} className="button">
+                    Ask about a product
+                  </Link>
+                }
+              >
+                <CatalogueEnquiryLink kind="product" className="button">
+                  Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
+                </CatalogueEnquiryLink>
+              </Suspense>
+              <Suspense
+                fallback={
+                  <a href={business.whatsapp} className="button secondary">
+                    Chat on WhatsApp
+                  </a>
+                }
+              >
+                <CatalogueEnquiryLink
+                  kind="product"
+                  channel="whatsapp"
+                  className="button secondary"
+                >
+                  Chat on WhatsApp
+                </CatalogueEnquiryLink>
+              </Suspense>
             </div>
           </div>
         </section>

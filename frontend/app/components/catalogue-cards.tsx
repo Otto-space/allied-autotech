@@ -17,6 +17,7 @@ import type { parseListings } from "@/lib/api/vehicle-schemas";
 import { productFitmentHref } from "@/lib/parts-fitment";
 import { vehicleLabel } from "@/lib/vehicle-discovery";
 import { formatKobo } from "@/lib/format/money";
+import { packVolumeLabel } from "@/lib/product-family";
 import { PartFitmentSummary } from "./part-fitment-summary";
 import { PublicMedia } from "./public-media";
 type VehicleListing = ReturnType<typeof parseListings>["items"][number];
@@ -53,6 +54,14 @@ export function PartCard({
             <span className="product-card-meta">{product.category.name}</span>
             <h3>{product.name}</h3>
             {product.brand && <p className="shop-product-brand">{product.brand}</p>}
+            {product.family === "ENGINE_OIL" && (
+              <p className="shop-product-number">
+                {product.oilViscosityGrade ?? "Grade not recorded"} ·{" "}
+                {product.packVolumeMl
+                  ? packVolumeLabel(product.packVolumeMl)
+                  : "Pack volume not recorded"}
+              </p>
+            )}
             <p className="shop-product-number">
               {product.manufacturerPartNumber
                 ? `Part no. ${product.manufacturerPartNumber}`
@@ -80,7 +89,15 @@ export function PartCard({
           <div className="shop-card-fitment">
             <CarFront size={16} aria-hidden="true" />
             <div>
-              {params.has("vehicleModelId") ? (
+              {product.family === "ENGINE_OIL" && !params.has("vehicleModelId") ? (
+                <>
+                  <p>Check the required specifications</p>
+                  <span>
+                    A recorded grade alone does not confirm vehicle suitability or
+                    manufacturer approval.
+                  </span>
+                </>
+              ) : params.has("vehicleModelId") ? (
                 <PartFitmentSummary decision={product.fitment} />
               ) : fitment ? (
                 <>

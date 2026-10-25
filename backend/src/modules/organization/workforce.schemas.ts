@@ -286,6 +286,7 @@ const enquiryRow = queueBase.extend({
   subject: z.string(),
   message: z.string(),
   type: z.string(),
+  vehicleEnquiryIntent: z.enum(["LISTING", "REQUIREMENTS"]).nullable(),
   assignedStaffId: z.uuid().nullable(),
 });
 const enquiryMessage = z.object({

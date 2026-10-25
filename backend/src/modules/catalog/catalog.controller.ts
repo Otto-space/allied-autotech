@@ -5,6 +5,7 @@ import { AppError } from "../../common/errors/app-error.js";
 import { errorCodes } from "../../common/errors/error-codes.js";
 import { successResponse } from "../../common/http/api-response.js";
 import { catalogService, type CatalogService } from "./catalog.service.js";
+import type { ProductOptionQuery } from "./product-options.schemas.js";
 import type {
   ProductDiscoveryQuery,
   ProductFacetQuery,
@@ -77,6 +78,17 @@ export class CatalogController {
           "Product options retrieved",
           req.id,
           await this.service.publicFacets(validated<ProductFacetQuery>(res, "query")),
+        ),
+      );
+  };
+  publicOptions = async (req: Request, res: Response) => {
+    res
+      .status(200)
+      .json(
+        successResponse(
+          "Scoped product options retrieved",
+          req.id,
+          await this.service.publicOptions(validated<ProductOptionQuery>(res, "query")),
         ),
       );
   };

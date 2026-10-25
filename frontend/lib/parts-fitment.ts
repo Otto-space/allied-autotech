@@ -78,21 +78,27 @@ export type FitmentOption = z.infer<typeof fitmentOptionsSchema>["items"][number
 
 export function productFitmentHref(productId: string, params: URLSearchParams) {
   const query = new URLSearchParams();
-  for (const key of vehicleSelectionKeys)
+  for (const key of productPreferenceKeys)
     if (params.has(key)) query.set(key, params.get(key)!);
   return `/parts/${productId}${query.size ? `?${query}` : ""}`;
 }
+const productPreferenceKeys = [
+  ...vehicleSelectionKeys,
+  "categoryId",
+  "search",
+  "brand",
+  "productType",
+  "condition",
+  "classification",
+  "family",
+  "oilViscosityGrade",
+  "packVolumeMl",
+  "minPriceKobo",
+  "maxPriceKobo",
+] as const;
 export function partsEnquiryHref(params: URLSearchParams, productId?: string) {
   const query = new URLSearchParams({ parts: "1" });
-  for (const key of [
-    ...vehicleSelectionKeys,
-    "categoryId",
-    "search",
-    "brand",
-    "productType",
-    "condition",
-    "classification",
-  ]) {
+  for (const key of productPreferenceKeys) {
     const value = params.get(key);
     if (value && key !== "fitment") query.set(`part_${key}`, value);
   }

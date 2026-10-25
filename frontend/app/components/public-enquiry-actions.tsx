@@ -11,7 +11,12 @@ export function PublicEnquiryActions({
   message?: string;
   enquiryHref?: string;
 }) {
-  const whatsapp = `${business.whatsapp}?text=${encodeURIComponent(message ?? `Hello Allied AutoTech, I would like more information about ${subject}.`)}`;
+  const draft = Array.from(
+    message ?? `Hello Allied AutoTech, I would like more information about ${subject}.`,
+  )
+    .slice(0, 1200)
+    .join("");
+  const whatsapp = `${business.whatsapp}?text=${encodeURIComponent(draft)}`;
   return (
     <div className="actions">
       {catalogueOnly() ? (

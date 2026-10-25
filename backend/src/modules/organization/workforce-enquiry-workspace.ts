@@ -8,6 +8,7 @@ export const workforceEnquirySelect = {
   subject: true,
   message: true,
   type: true,
+  vehicleEnquiryIntent: true,
   status: true,
   version: true,
   assignedStaffId: true,
