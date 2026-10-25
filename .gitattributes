@@ -6,6 +6,8 @@ backend/prisma/migrations/**/migration.sql text eol=crlf
 # The browser-push migration was replayed and rehearsed with LF bytes. Preserve
 # its established checksum without changing any earlier migration's line endings.
 backend/prisma/migrations/20261023010000_browser_push_subscriptions/migration.sql text eol=lf
+# This forward constraint migration was replayed and rehearsed with LF bytes.
+backend/prisma/migrations/20261025050000_public_unlisted_parts_enquiries/migration.sql text eol=lf
 # Preserve the supplied standing directive byte-for-byte on every checkout.
 frontend/docs/Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md -text
 
