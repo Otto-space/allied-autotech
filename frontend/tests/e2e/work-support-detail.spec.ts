@@ -333,6 +333,7 @@ test("summary outage keeps labelled facts read-only and denial clears history", 
   f.detail.mode = "error";
   await btn(page, "Refresh conversation").click();
   await expect(btn(page, "Retry conversation")).toBeVisible();
+  await page.getByRole("link", { name: "Details", exact: true }).click();
   await expect(page.locator("#conversation-details")).toBeVisible();
   await expect(btn(page, "Review support change")).toBeDisabled();
   f.detail.mode = "denied";

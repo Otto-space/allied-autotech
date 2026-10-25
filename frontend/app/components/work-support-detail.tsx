@@ -438,7 +438,16 @@ function ThreadWorkspace({
               ["reply", "Reply"],
               ["management", "Management"],
             ].map(([anchor, label]) => (
-              <a key={anchor} href={`#conversation-${anchor}`}>
+              <a
+                key={anchor}
+                href={`#conversation-${anchor}`}
+                onClick={() => {
+                  const disclosure = document
+                    .getElementById(`conversation-${anchor}`)
+                    ?.closest("details");
+                  if (disclosure) disclosure.open = true;
+                }}
+              >
                 {label}
               </a>
             ))}
