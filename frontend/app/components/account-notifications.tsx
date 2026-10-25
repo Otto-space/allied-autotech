@@ -288,12 +288,29 @@ export function AccountNotificationInbox({
   const pendingFocus = useRef<{ id: string; read: boolean } | null>(null);
   useEffect(() => {
     const desired = pendingFocus.current;
-    if (!desired || records.loading || records.refreshing || !records.data || records.error || records.refreshError) return;
+    if (
+      !desired ||
+      records.loading ||
+      records.refreshing ||
+      !records.data ||
+      records.error ||
+      records.refreshError
+    )
+      return;
     const item = records.data.items.find((row) => row.id === desired.id);
     if (item && !!item.readAt !== desired.read) return;
     pendingFocus.current = null;
-    (document.getElementById(`notification-action-${desired.id}`) ?? document.getElementById("inbox-title"))?.focus({ preventScroll: true });
-  }, [records.data, records.loading, records.refreshing, records.error, records.refreshError]);
+    (
+      document.getElementById(`notification-action-${desired.id}`) ??
+      document.getElementById("inbox-title")
+    )?.focus({ preventScroll: true });
+  }, [
+    records.data,
+    records.loading,
+    records.refreshing,
+    records.error,
+    records.refreshError,
+  ]);
   const guard = useNotificationWrite(userId, "inbox", records, role);
   const [proposal, setProposal] = useState<MutationProposal | null>(null);
   const [message, setMessage] = useState<string>();
@@ -375,7 +392,9 @@ export function AccountNotificationInbox({
         <NotificationAttentionQueue role={role} />
       </Suspense>
       <div className="cn-inbox-heading">
-        <h2 id="inbox-title" tabIndex={-1}>Inbox</h2>
+        <h2 id="inbox-title" tabIndex={-1}>
+          Inbox
+        </h2>
         <button
           className="button secondary"
           disabled={records.loading || records.refreshing || guard.busy}
@@ -390,41 +409,58 @@ export function AccountNotificationInbox({
         </button>
       </div>
       <div className="cn-views" role="group" aria-label="Notification view">
-        {[false, true].map((unreadOnly) => <button key={String(unreadOnly)} className="button secondary" aria-pressed={filters.unreadOnly === unreadOnly} disabled={guard.busy || guard.pending} onClick={() => { setFilters({ ...filters, unreadOnly }); pagination.reset(); setMessage(undefined); }}>{unreadOnly ? "Unread" : "All"}</button>)}
-        <details className="cn-filter-details"><summary>More filters{filters.type || filters.category ? " (active)" : ""}</summary>
-        <div className="cn-filters">
-        {(
-          [
-            { name: "type", title: "Notification type", values: notificationTypes },
-            {
-              name: "category",
-              title: "Notification category",
-              values: notificationCategories,
-            },
-          ] as const
-        ).map((field) => (
-          <div className="field" key={field.name}>
-            <label htmlFor={`notification-${field.name}`}>{field.title}</label>
-            <select
-              id={`notification-${field.name}`}
-              value={filters[field.name]}
-              disabled={guard.busy || guard.pending}
-              onChange={(event) => {
-                setFilters({ ...filters, [field.name]: event.target.value });
-                pagination.reset();
-                setMessage(undefined);
-              }}
-            >
-              <option value="">All</option>
-              {field.values.map((value) => (
-                <option key={value} value={value}>
-                  {label(value)}
-                </option>
-              ))}
-            </select>
-          </div>
+        {[false, true].map((unreadOnly) => (
+          <button
+            key={String(unreadOnly)}
+            className="button secondary"
+            aria-pressed={filters.unreadOnly === unreadOnly}
+            disabled={guard.busy || guard.pending}
+            onClick={() => {
+              setFilters({ ...filters, unreadOnly });
+              pagination.reset();
+              setMessage(undefined);
+            }}
+          >
+            {unreadOnly ? "Unread" : "All"}
+          </button>
         ))}
-        </div>
+        <details className="cn-filter-details">
+          <summary>
+            More filters{filters.type || filters.category ? " (active)" : ""}
+          </summary>
+          <div className="cn-filters">
+            {(
+              [
+                { name: "type", title: "Notification type", values: notificationTypes },
+                {
+                  name: "category",
+                  title: "Notification category",
+                  values: notificationCategories,
+                },
+              ] as const
+            ).map((field) => (
+              <div className="field" key={field.name}>
+                <label htmlFor={`notification-${field.name}`}>{field.title}</label>
+                <select
+                  id={`notification-${field.name}`}
+                  value={filters[field.name]}
+                  disabled={guard.busy || guard.pending}
+                  onChange={(event) => {
+                    setFilters({ ...filters, [field.name]: event.target.value });
+                    pagination.reset();
+                    setMessage(undefined);
+                  }}
+                >
+                  <option value="">All</option>
+                  {field.values.map((value) => (
+                    <option key={value} value={value}>
+                      {label(value)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+          </div>
         </details>
       </div>
       <div className="cn-toolbar">

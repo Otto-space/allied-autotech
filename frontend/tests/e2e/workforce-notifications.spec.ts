@@ -53,9 +53,7 @@ for (const width of [360, 390, 430, 768, 1024, 1280, 1440])
           .analyze()
       ).violations,
     ).toEqual([]);
-    const opener = page.getByRole("switch", { name: "Marketing by email",
-      exact: true,
-    });
+    const opener = page.getByRole("switch", { name: "Marketing by email", exact: true });
     await opener.click();
     await expect(
       page.getByRole("button", { name: "Go back", exact: true }),
@@ -99,6 +97,8 @@ for (const template of Object.keys(notificationResponsibilities) as Array<
           href === "/admin" ||
           href === "/admin/security" ||
           href === route ||
+          (href === "/admin/fitment" &&
+            ["OPERATIONS", "SALES_SUPERVISOR", "WORKSHOP_LEAD"].includes(template)) ||
           href?.startsWith("/admin/workforce/"),
       ),
     ).toBe(true);
@@ -127,7 +127,8 @@ test("read marker and preference use existing account endpoints and exact payloa
     endpoint: `/staff/notifications/${state.notifications.items[0].id}/read`,
     body: {},
   });
-  const opener = page.getByRole("switch", { name: "Service updates by email",
+  const opener = page.getByRole("switch", {
+    name: "Service updates by email",
     exact: true,
   });
   await opener.click();

@@ -5,5 +5,7 @@ export async function showNotificationSettings(page: Page) {
   const open = page.getByRole("button", { name: "Notification settings", exact: true });
   await expect(open).toBeVisible();
   await open.click();
-  await expect(page.getByRole("heading", { name: "Delivery preferences", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Delivery preferences", exact: true }),
+  ).toBeVisible();
 }

@@ -160,7 +160,9 @@ test("notifications link to the exact conversation and an older review detail", 
     page.getByText("Please remove personal contact information.", { exact: true }),
   ).toBeVisible();
   expect(state.writes).toEqual([]);
-  await page.getByRole("button", { name: "Mark displayed updates as read", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Mark displayed updates as read", exact: true })
+    .click();
   await expect.poll(() => state.writes.length).toBe(1);
   expect(state.writes[0]).toMatchObject({
     endpoint: "/customers/notifications/read-context",
@@ -188,7 +190,8 @@ test("manual refresh discovers new unread updates and an error never shows a fal
   state.failInbox = true;
   await page.getByRole("button", { name: "Refresh inbox", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Open notifications, unread status unavailable",
+    page.getByRole("button", {
+      name: "Open notifications, unread status unavailable",
       exact: true,
     }),
   ).toBeVisible();

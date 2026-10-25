@@ -80,7 +80,14 @@ export async function notificationsFixture(page: Page, role = "CUSTOMER") {
         mfaVerifiedAt: state.role === "CUSTOMER" ? null : time,
       });
     if (endpoint === "/staff/profile" && role !== "CUSTOMER")
-      return reply(route, { id: state.sessionUserId, email: "notifications@example.test", role: state.role, status: "ACTIVE", staffProfile: null, capabilities: [] });
+      return reply(route, {
+        id: state.sessionUserId,
+        email: "notifications@example.test",
+        role: state.role,
+        status: "ACTIVE",
+        staffProfile: null,
+        capabilities: [],
+      });
     if (endpoint === "/auth/csrf")
       return reply(route, { csrfToken: "isolated-notification-csrf-".repeat(3) });
     const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications`;

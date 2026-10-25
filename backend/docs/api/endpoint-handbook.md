@@ -6641,7 +6641,10 @@ Success: HTTP 200.
   "data": {
     "available": true,
     "publicKey": "synthetic-publickey",
-    "enabled": true
+    "enabled": true,
+    "endpointHashes": [
+      "synthetic-endpointhashes-item"
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"
@@ -12727,7 +12730,10 @@ Success: HTTP 200.
   "data": {
     "available": true,
     "publicKey": "synthetic-publickey",
-    "enabled": true
+    "enabled": true,
+    "endpointHashes": [
+      "synthetic-endpointhashes-item"
+    ]
   },
   "meta": {
     "requestId": "req_0000000000000001"

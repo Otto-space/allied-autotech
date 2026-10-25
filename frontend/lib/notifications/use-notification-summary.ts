@@ -25,7 +25,11 @@ export function subscribeNotificationChanges(userId: string, listener: () => voi
   };
 }
 export function announceNotificationChange(userId: string, refreshInbox = true) {
-  window.dispatchEvent(new CustomEvent(changed, { detail: refreshInbox ? userId : { userId, summaryOnly: true } }));
+  window.dispatchEvent(
+    new CustomEvent(changed, {
+      detail: refreshInbox ? userId : { userId, summaryOnly: true },
+    }),
+  );
   if (typeof BroadcastChannel !== "undefined") {
     const channel = new BroadcastChannel(changed);
     channel.postMessage({ userId, ...(!refreshInbox ? { summaryOnly: true } : {}) });
@@ -81,7 +85,11 @@ export function useNotificationSummary(session: SessionState | null) {
       void refresh();
     };
     const updated = (event: Event) => {
-      if (event instanceof CustomEvent && (event.detail === userId || event.detail?.userId === userId)) void refresh(true);
+      if (
+        event instanceof CustomEvent &&
+        (event.detail === userId || event.detail?.userId === userId)
+      )
+        void refresh(true);
     };
     const discard = () => {
       active = false;

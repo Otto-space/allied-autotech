@@ -110245,12 +110245,22 @@
                         "enabled": {
                           "type": "boolean",
                           "description": "Enabled validated by this operation's strict request contract."
+                        },
+                        "endpointHashes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$",
+                            "description": "Endpoint Hashes Item validated by this operation's strict request contract."
+                          },
+                          "description": "Endpoint Hashes validated by this operation's strict request contract."
                         }
                       },
                       "required": [
                         "available",
                         "publicKey",
-                        "enabled"
+                        "enabled",
+                        "endpointHashes"
                       ],
                       "description": "Data validated by this operation's strict request contract."
                     },
@@ -110282,7 +110292,10 @@
                   "data": {
                     "available": true,
                     "publicKey": "synthetic-publickey",
-                    "enabled": true
+                    "enabled": true,
+                    "endpointHashes": [
+                      "synthetic-endpointhashes-item"
+                    ]
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"
@@ -115122,12 +115135,22 @@
                         "enabled": {
                           "type": "boolean",
                           "description": "Enabled validated by this operation's strict request contract."
+                        },
+                        "endpointHashes": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$",
+                            "description": "Endpoint Hashes Item validated by this operation's strict request contract."
+                          },
+                          "description": "Endpoint Hashes validated by this operation's strict request contract."
                         }
                       },
                       "required": [
                         "available",
                         "publicKey",
-                        "enabled"
+                        "enabled",
+                        "endpointHashes"
                       ],
                       "description": "Data validated by this operation's strict request contract."
                     },
@@ -115159,7 +115182,10 @@
                   "data": {
                     "available": true,
                     "publicKey": "synthetic-publickey",
-                    "enabled": true
+                    "enabled": true,
+                    "endpointHashes": [
+                      "synthetic-endpointhashes-item"
+                    ]
                   },
                   "meta": {
                     "requestId": "req_0000000000000001"

@@ -43,8 +43,43 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
 });
 describe("notification destinations", () => {
+  it.each(["full", "browse_enquiries"])(
+    "respects %s release destinations without reviving unavailable records",
+    (mode) => {
+      vi.stubEnv("NEXT_PUBLIC_PUBLIC_LAUNCH_MODE", mode);
+      const record = {
+        resourceType: "BOOKING",
+        resourceId: id,
+        category: "TRANSACTIONAL" as const,
+      };
+      const destination = {
+        section: "/dashboard/bookings",
+        href: `/dashboard/bookings/${id}`,
+        label: "View booking",
+      };
+      const expected =
+        mode === "full"
+          ? { href: destination.href, label: destination.label }
+          : { href: "/contact", label: "Contact about this update" };
+      expect(customerNotificationDestination(record)).toEqual(expected);
+      expect(customerNotificationDestination({ ...record, destination })).toEqual(
+        mode === "full" ? destination : expected,
+      );
+      expect(
+        customerNotificationDestination({ ...record, destination: null }),
+      ).toBeNull();
+      expect(
+        customerNotificationDestination({
+          resourceType: "REVIEW",
+          resourceId: id,
+          category: "OPERATIONAL",
+        })?.href,
+      ).toBe(`/dashboard/reviews/${id}`);
+    },
+  );
   it("uses the related booking for a refund update and supports historical casing", () => {
     expect(
       customerNotificationDestination({
@@ -159,10 +194,14 @@ describe("notification destinations", () => {
 });
 describe("account-scoped notification status", () => {
   it("summary-only refresh does not replace an intentional foreground inbox refresh", () => {
-    const listener = vi.fn(); const unsubscribe = subscribeNotificationChanges("one", listener);
-    announceNotificationChange("one", false); expect(listener).not.toHaveBeenCalled();
-    announceNotificationChange("other"); expect(listener).not.toHaveBeenCalled();
-    announceNotificationChange("one"); expect(listener).toHaveBeenCalledTimes(1);
+    const listener = vi.fn();
+    const unsubscribe = subscribeNotificationChanges("one", listener);
+    announceNotificationChange("one", false);
+    expect(listener).not.toHaveBeenCalled();
+    announceNotificationChange("other");
+    expect(listener).not.toHaveBeenCalled();
+    announceNotificationChange("one");
+    expect(listener).toHaveBeenCalledTimes(1);
     unsubscribe();
   });
   it("does not fetch before sign-in and refreshes after a confirmed read change", async () => {

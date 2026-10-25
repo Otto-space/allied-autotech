@@ -23,7 +23,10 @@ function routes(): Router {
   const router = Router();
   const controller = new NotificationsController();
   const push = new PushService();
-  router.use((_req, res, next) => { res.setHeader("Cache-Control", "private, no-store"); next(); });
+  router.use((_req, res, next) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    next();
+  });
   router.get(
     "/push",
     validate({ query: notificationsEmptyQuerySchema }),

@@ -77,7 +77,9 @@ export function DashboardShell({
       ? workforce.data
       : undefined;
   const verifiedWorkforce = !workforce.loading ? retainedWorkforce : undefined;
-  const notifications = useNotificationSummary(session && (!session.workforceManaged || verifiedWorkforce) ? session : null);
+  const notifications = useNotificationSummary(
+    session && (!session.workforceManaged || verifiedWorkforce) ? session : null,
+  );
   const unreadCount = notifications?.data?.unreadCount ?? 0;
   const grants = useResource(
     session?.user.role === "STAFF" && !session.workforceManaged ? "/staff/profile" : null,

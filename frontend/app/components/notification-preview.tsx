@@ -66,11 +66,13 @@ export function NotificationPreview({
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={
-          pending ? "Open notifications, checking unread count" : unavailable
-            ? "Open notifications, unread status unavailable"
-            : count
-              ? `Open notifications, ${count} unread`
-              : "Open notifications"
+          pending
+            ? "Open notifications, checking unread count"
+            : unavailable
+              ? "Open notifications, unread status unavailable"
+              : count
+                ? `Open notifications, ${count} unread`
+                : "Open notifications"
         }
         onClick={() => {
           setState({});
@@ -102,7 +104,11 @@ export function NotificationPreview({
           <div>
             <h2 id="notification-preview-title">Notifications</h2>
             <p>
-              {pending ? "Checking unread count…" : unavailable ? "Unread count unavailable" : `${count} unread in your inbox`}
+              {pending
+                ? "Checking unread count…"
+                : unavailable
+                  ? "Unread count unavailable"
+                  : `${count} unread in your inbox`}
             </p>
           </div>
           <button

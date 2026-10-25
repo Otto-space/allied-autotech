@@ -9,13 +9,20 @@ const schema = z.object({
   available: z.boolean(),
   publicKey: z.string().nullable(),
   enabled: z.boolean(),
+  endpointHashes: z.array(z.string().regex(/^[a-f0-9]{64}$/)).optional(),
 });
 const parse = (value: unknown) => schema.parse(value);
+async function endpointFingerprint(endpoint: string) {
+  const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(endpoint));
+  return [...new Uint8Array(bytes)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
 export function BrowserPushSettings({ role, userId }: { role: string; userId: string }) {
   const base = `/${role === "CUSTOMER" ? "customers" : "staff"}/notifications/push`;
   const settings = useResource(base, parse);
   const [supported, setSupported] = useState<boolean | null>(null);
-  const [localEnabled, setLocalEnabled] = useState(false);
+  const [localFingerprint, setLocalFingerprint] = useState<string | null>(null);
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [online, setOnline] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -23,6 +30,7 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
   const [message, setMessage] = useState<string>();
   useEffect(() => {
     let active = true;
+    let checkVersion = 0;
     const supported =
       window.isSecureContext &&
       "serviceWorker" in navigator &&
@@ -33,6 +41,7 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
     });
     async function check() {
       if (!active) return;
+      const version = ++checkVersion;
       setOnline(navigator.onLine);
       if (supported) {
         setPermission(Notification.permission);
@@ -41,16 +50,20 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
           .then(async (registration) => {
             const sub = await registration?.pushManager.getSubscription();
             const worker = registration?.active ?? registration?.waiting;
-            if (active)
-              setLocalEnabled(
-                !!sub &&
-                  !!worker &&
-                  new URL(worker.scriptURL).pathname === "/push-sw.js" &&
-                  Notification.permission === "granted",
-              );
+            const fingerprint =
+              sub &&
+              !!worker &&
+              new URL(worker.scriptURL).pathname === "/push-sw.js" &&
+              Notification.permission === "granted"
+                ? await endpointFingerprint(sub.endpoint)
+                : null;
+            if (active && version === checkVersion) setLocalFingerprint(fingerprint);
           })
           .catch(() => {
-            if (active) setError("Unable to check this browser’s notification settings.");
+            if (active && version === checkVersion) {
+              setLocalFingerprint(null);
+              setError("Unable to check this browser’s notification settings.");
+            }
           });
       }
     }
@@ -59,7 +72,8 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
     window.addEventListener("online", check);
     window.addEventListener("offline", check);
     const clear = () => {
-      setLocalEnabled(false);
+      checkVersion++;
+      setLocalFingerprint(null);
     };
     window.addEventListener(SESSION_CHANGED, clear);
     return () => {
@@ -71,7 +85,10 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
     };
   }, []);
   const enabled =
-    localEnabled && permission === "granted" && settings.data?.enabled === true;
+    !!localFingerprint &&
+    permission === "granted" &&
+    settings.data?.enabled === true &&
+    settings.data.endpointHashes?.includes(localFingerprint) === true;
   async function enable() {
     setError(undefined);
     setMessage(undefined);
@@ -114,7 +131,9 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
         userVisibleOnly: true,
         applicationServerKey: bytes,
       });
+      let fingerprint: string;
       try {
+        fingerprint = await endpointFingerprint(subscription.endpoint);
         const json = subscription.toJSON();
         const response = await apiRequest(base, {
           method: "PUT",
@@ -126,6 +145,7 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
         if (
           !confirmed.enabled ||
           !confirmed.available ||
+          !confirmed.endpointHashes?.includes(fingerprint) ||
           Notification.permission !== "granted"
         )
           throw new Error("Device binding not confirmed");
@@ -133,7 +153,7 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
         await subscription.unsubscribe();
         throw error;
       }
-      setLocalEnabled(true);
+      setLocalFingerprint(fingerprint);
       settings.refresh();
       setMessage("Browser notifications are on for this signed-in device.");
     } catch (error) {
@@ -153,7 +173,7 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
     try {
       await apiRequest(base, { method: "DELETE", csrf: true, body: {} });
       await clearBrowserPush();
-      setLocalEnabled(false);
+      setLocalFingerprint(null);
       settings.refresh();
       setMessage(
         "Browser notifications are off on this device. Your browser’s site permission is unchanged.",
@@ -172,9 +192,10 @@ export function BrowserPushSettings({ role, userId }: { role: string; userId: st
     <section className="cn-browser-push" aria-labelledby="browser-push-heading">
       <h3 id="browser-push-heading">Browser notifications</h3>
       <p>
-        Background Web Push can show a discreet alert while the site is closed, where
-        supported. Message contents stay inside your account. This applies to this
-        signed-in browser session and stops when you sign out or the session expires.
+        Browser alerts use Web Push where supported. Delivery depends on this browser,
+        your permission and your signed-in session. Message contents stay inside your
+        account. This applies to this signed-in browser session and stops when you sign
+        out or the session expires.
       </p>
       <Feedback message={error ?? settings.error} />
       {message && <p role="status">{message}</p>}

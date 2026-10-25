@@ -28,7 +28,7 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536])
       { ...notificationItem(2), readAt: "2026-10-12T10:00:00Z" },
     ];
     await page.goto(route);
-  await showNotificationSettings(page);
+    await showNotificationSettings(page);
     await expect(mark(page)).toBeEnabled();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -57,9 +57,7 @@ for (const width of [320, 390, 768, 1440])
           .analyze()
       ).violations,
     ).toEqual([]);
-    const opener = page.getByRole("switch", { name: "Marketing by email",
-      exact: true,
-    });
+    const opener = page.getByRole("switch", { name: "Marketing by email", exact: true });
     await opener.click();
     await expect(
       page.getByRole("button", { name: "Go back", exact: true }),
@@ -77,7 +75,12 @@ for (const width of [320, 390, 768, 1440])
 
 test("empty account and filtered empty remain distinct", async ({ page }) => {
   const state = await ready(page);
-  if (!(await page.locator(".cn-filter-details").evaluate((el) => (el as HTMLDetailsElement).open))) await page.locator(".cn-filter-details > summary").click();
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("PAYMENT");
   await expect(
     page.getByText("No notifications match this page and filters."),

@@ -5,20 +5,18 @@ that every route or state has passed review. Work proceeds in finite batches.
 
 ## Standing responsibility and source
 
-Current bounded implementation: Shop/Vehicles revision 2, branch
-`feat/shop-vehicles-r2-20261025`. Scope is `/parts`, `/vehicles`, their detail and
-Contact handoffs, catalogue authoring, and support intent labels. Homepage and
-broader dashboard design remain outside this task. Contracts, isolated backend
-evidence, release dependencies and untested states are recorded in
-[`backend/docs/shop-vehicles-search-r2.md`](../../backend/docs/shop-vehicles-search-r2.md).
-Rendered acceptance manifest: `tests/quality/shop-vehicles-r2.txt`.
+Current bounded implementation: notifications only, branch
+`feat/notifications-experience-20261025` in the reused
+`allied-home-restoration-20261025` worktree. Customer and work inboxes, bell,
+preview, read/unread state, preferences, device flow, producer privacy and delivery
+reliability are the current cycle. Homepage, catalogue and unrelated dashboards
+remain outside the new implementation scope. Released Shop/Vehicles source
+`71d3f60d` was merged and its 70 migrations and existing behaviour preserved.
 
-Status: bounded revision 2 implementation released; see Cycle 7 below. Real
-isolated PostgreSQL persistence/search/permission checks, 18 hosted fixture cases,
-and phone/desktop real public handoffs passed. Main/www now serve the reviewed
-tree; backend has 70 verified migrations. Business catalogue data and recorded
-oil attributes remain separate from synthetic acceptance fixtures. Full real
-authenticated operational and physical-device acceptance is not claimed.
+Status: local implementation with post-merge verification in progress; not deployed.
+See Cycle 8 and [notification contracts/evidence](../../backend/docs/notifications-experience-20261025.md).
+Real authenticated production-role acceptance and genuine native background-push
+transport/click acceptance are not claimed. The released Cycle 7 remains live.
 
 Read the complete [29-section directive](Allied_AutoTech_Continuous_UI_UX_Codex_Prompt.md)
 and root `AGENTS.md` before relevant work. The original supplied file is preserved
@@ -1178,6 +1176,7 @@ Docker remained at 38 images/11.84GB, 14 containers, 14 volumes/1.012GB and 87 c
 entries/6.715GB. No task-owned redundant Docker resource existed to remove; useful
 current/rollback/other-task resources and evidence were retained. Main-checkout
 uncommitted edits and the independent R2 work remain untouched.
+
 ## Cycle 7: Shop, Vehicles and enquiry continuity — 25 October 2026
 
 Bounded revision 2 implementation released. Frontend reviewed tree `cfba360d`,
@@ -1231,3 +1230,89 @@ Remaining acceptance: real catalogue publication/labels and reviewed fitment are
 business inputs; authenticated live queues and real private detail states remain
 unsampled. Keep prior cycles' broader dashboard/manual backlog and settled Item 6
 scope. No homepage restoration or broader redesign is implied by this release.
+
+## Cycle 8: Notifications across roles - 25 October 2026
+
+Bounded notification-only implementation on `feat/notifications-experience-20261025`.
+Original baseline `0253a651`; checkpoint `04559c7a`, then current released R2 source
+`71d3f60d` merged as `628d6add`. Shared generated contracts were regenerated.
+No current production release, role, customer data or business policy was changed.
+
+| Page/surface                                   | Verified implementation and state scope                                                                                                                                                 | Evidence/limit                                                                                                                 |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Customer `/dashboard/notifications`            | Focused inbox, optional full-width settings, read/unread, All/Unread/advanced filters, paging, whole-account bulk scope, retry and uncertain-write recovery                             | Populated browser-isolated fixtures; source-record commerce stays launch-restricted                                            |
+| Staff/Admin/Super Admin `/admin/notifications` | Same workspace; own inbox and current managed-access gate, no title-based permission grants                                                                                             | Legacy four-role and represented eight responsibility fixtures; real operational accounts unsampled                            |
+| Shared bell/preview                            | Global count, 99+ display/full accessible count, five frozen recent rows, no read-on-render, retry/empty/error, focus/Escape/outside dismissal                                          | Account/session isolation; no duplicate toast/sound stream                                                                     |
+| Settings                                       | Reviewed switch changes, immutable channel policy, truthful defaults, unavailable SMS/marketing state and deliberate future consent                                                     | Existing preference/idempotency protections retained; no real provider delivery triggered                                      |
+| Source-record context                          | Explicit read of displayed related IDs only, no hover/render/scroll acknowledgement or focus theft; missing/revoked source redaction                                                    | API integration and targeted rendered journeys; restricted full-mode customer commerce remains separately unsampled            |
+| Browser push                                   | Local native subscription AND permission AND server binding, no prompt on mount, device-only off, endpoint/account isolation, bounded persistent ID deduplication and safe inbox clicks | Worker fake-provider + actual handler/storage harness; native Edge subscription probe failed with permission-denied AbortError |
+| Producers/recipients                           | Persisted security events added transactionally; existing branch/assigned/delegated/internal-note boundaries and optional channel policy retained                                       | Isolated real PostgreSQL checks, no fabricated production events or broad escalation                                           |
+
+Post-merge checks already passed: 1,018 frontend unit tests; 477 backend unit tests;
+51 integration cases (42 domain/context/preference/retry/identity + 5 push-provider
+fixtures + 4 ownership/summary). All 70 existing migrations replayed on a new
+isolated `_ci` target with restricted runtime and `db:check`. Backend types, lint,
+format, secret guard and 410 mounted/documented API operations passed. No new
+notification migration is needed. Final frontend checks/browser evidence follow.
+
+Fixtures never certify a real production account, physical device, screen-reader
+speech or native delivery. Native probe used an ephemeral local Edge profile and
+keys: permission reported granted, then subscribe failed with `AbortError:
+Registration failed - permission denied`; no external provider send occurred.
+Production push configuration already exists, confirmed read-only without exposing
+secrets. A supported device/provider delivery and actual OS-click check remains.
+Deploy the compatible push worker before the new service worker/frontend; missing
+endpoint fingerprints intentionally fail closed. No publication in this cycle.
+
+Screenshots: `%TEMP%/allied-notifications-cycle-20261025/` contains four-role
+390/1440 inbox/preview/settings captures plus 360/768/1024 long-content views.
+Final migration/API/browser/native receipts: `%TEMP%/allied-notifications-final-20261025/`.
+Desktop/mobile captures were visually inspected; baseline screenshots were blocked
+before local preview became available, so no manufactured before/after claim.
+Current fixture preview is development mode with reused installed dependencies;
+locked-dependency hosted acceptance is a separate pending release check.
+
+Disk interruption and recovery: browser testing paused when C: fell below the
+mandatory 20 GiB reserve. The approved disposable 1.94 GiB batch was automatically
+rejected and retained. Owner completed CapCut uninstall, independently verified
+about 5 GiB recovered and 21.16 GiB free before resuming a 1 GiB bounded stage.
+Chrome, source, other worktrees, histories, databases, backups and release resources
+were retained. No blanket cache/Docker prune or deletion workaround was used.
+
+Final rendered checkpoint: 155 distinct browser scenarios have passing latest
+outcomes across the recorded runs; this is not one clean full-suite run. The
+147-case run first passed 143: one cold development redirect exceeded its wait and
+passed unchanged on recheck; three old workforce assertions omitted the existing
+Fitment link. Assertions were corrected only for the three already eligible
+templates; all eight workforce scopes then passed. Nine focused context/focus/
+doubled-text/reduced-motion cases passed, including seven permitted source-record
+journeys. All four roles' 390/1440 inbox/preview/settings captures were refreshed
+in an eight-case passing run. Restricted full-mode customer commerce context pages
+remain inaccessible in the current browse/enquiries preview and were not counted
+as passing. Physical-device zoom and full screen-reader speech remain unsampled.
+
+Final device correction: push-status now returns only the current account/session's
+endpoint hashes. A saved binding for an older endpoint cannot make the renewed
+local subscription appear enabled. Six focused device tests passed after this
+correction, including actual SHA-256 comparison and no repeated permission prompt;
+five isolated push API/worker cases passed, including endpoint renewal and keeping
+another session's device enabled. The earlier full frontend suite passed 1,018;
+the six-case focused recheck includes one newly added regression (not 1,024 distinct
+tests). Frontend types and full formatting passed; full lint exposed one unused
+test import, removed and validated along with all subsequently changed source/tests.
+The final endpoint-hash contract/types were regenerated and checked separately.
+
+The final optimized frontend build is currently blocked by the mandatory disk
+preflight: about 20.95 GiB free, versus 21 GiB required for its 1 GiB growth allowance.
+The exact four approved installer files remain present. A manual cleanup handoff
+is pending because automatic review rejected agent deletion. This is an unfinished
+required check, not a passing build. Existing installed Next is 16.3.8 versus the
+lockfile's 16.4.3; locked-dependency CI/optimized hosted acceptance remains a release
+check. No dependency install was made to consume the reserve. The local preview
+is development mode; no hosted/private production acceptance is implied.
+
+Live release was rechecked read-only: main/www still serve
+`dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe`; backend remains ACTIVE
+`264c3f8e-324d-42bd-86cb-0dffa2eb9f19` with no pending rollout.
+No notification deployment was performed. Release API/general worker before the
+frontend, then verify native delivery/clicks on a supported consented test device.

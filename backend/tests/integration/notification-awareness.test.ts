@@ -133,12 +133,13 @@ describe.skipIf(process.env.RUN_NOTIFICATION_AWARENESS_TESTS !== "true")(
         unreadCount: 130,
         groups: [
           {
-            resourceType: "BOOKING",
-            type: "BOOKING",
-            category: "TRANSACTIONAL",
+            resourceType: null,
+            type: "SYSTEM",
+            category: "OPERATIONAL",
             count: 130,
           },
         ],
+        destinations: [],
       });
       const other = await request(app)
         .get(`${base}/summary`)
@@ -180,7 +181,7 @@ describe.skipIf(process.env.RUN_NOTIFICATION_AWARENESS_TESTS !== "true")(
       await request(app).post(`${base}/read-all`).set(headers).send({}).expect(200);
       expect(
         (await request(app).get(`${base}/summary`).set(headers).expect(200)).body.data,
-      ).toEqual({ unreadCount: 0, groups: [] });
+      ).toEqual({ unreadCount: 0, groups: [], destinations: [] });
       expect(
         (await request(app).get(`${base}/summary`).set(otherHeaders).expect(200)).body
           .data.unreadCount,

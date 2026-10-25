@@ -101,10 +101,10 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           .send({}),
       ]) {
         expect(response.status).toBe(200);
-        const projected = response.body.data.items?.find((item: { id: string }) => item.id === row.id) ?? response.body.data;
-        expect(JSON.stringify(projected)).not.toContain(
-          "Confidential fixture content",
-        );
+        const projected =
+          response.body.data.items?.find((item: { id: string }) => item.id === row.id) ??
+          response.body.data;
+        expect(JSON.stringify(projected)).not.toContain("Confidential fixture content");
         expect(JSON.stringify(projected)).not.toContain(f.job1.id);
       }
       const item = (await get(`${base}/${row.id}`)).body.data;

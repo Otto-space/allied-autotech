@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 import os from "node:os";
 import path from "node:path";
 
-import { notificationsFixture as fixture, notificationItem as item } from "../fixtures/customer-notifications";
+import { notificationsFixture as fixture } from "../fixtures/customer-notifications";
 import { showNotificationSettings } from "../fixtures/notification-settings";
 const id = (n: number) => `b3000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const time = "2026-09-17T10:00:00Z";
@@ -15,7 +15,12 @@ test("customer inbox filters and cursor pages preserve query scope", async ({ pa
   await page.goto("/dashboard/notifications");
   await expect(page).toHaveTitle(/Notifications/);
   await expect(page.getByRole("heading", { name: "Booking update" })).toBeVisible();
-  if (!(await page.locator(".cn-filter-details").evaluate((el) => (el as HTMLDetailsElement).open))) await page.locator(".cn-filter-details > summary").click();
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("BOOKING");
   await page
     .getByLabel("Notification category", { exact: true })
@@ -25,7 +30,12 @@ test("customer inbox filters and cursor pages preserve query scope", async ({ pa
   await expect(page.getByRole("heading", { name: "Older update" })).toBeVisible();
   expect(state.reads.at(-1)).toContain(`cursor=${id(1)}`);
   expect(state.reads.at(-1)).toContain("unreadOnly=true");
-  if (!(await page.locator(".cn-filter-details").evaluate((el) => (el as HTMLDetailsElement).open))) await page.locator(".cn-filter-details > summary").click();
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("PAYMENT");
   await expect(
     page.getByText("No notifications match this page and filters."),
@@ -56,7 +66,12 @@ test("mark all explicitly includes hidden records and reports server count", asy
 }) => {
   const state = await fixture(page);
   await page.goto("/dashboard/notifications");
-  if (!(await page.locator(".cn-filter-details").evaluate((el) => (el as HTMLDetailsElement).open))) await page.locator(".cn-filter-details > summary").click();
+  if (
+    !(await page
+      .locator(".cn-filter-details")
+      .evaluate((el) => (el as HTMLDetailsElement).open))
+  )
+    await page.locator(".cn-filter-details > summary").click();
   await page.getByLabel("Notification type", { exact: true }).selectOption("PAYMENT");
   await page.getByRole("button", { name: "Mark all read", exact: true }).click();
   await expect(
@@ -75,9 +90,9 @@ test("preferences derive defaults and require explicit marketing consent", async
   const state = await fixture(page);
   await page.goto("/dashboard/notifications");
   await showNotificationSettings(page);
-  await expect(page.getByRole("article", { name: "Service updates by email" })).toContainText(
-    "On (default)",
-  );
+  await expect(
+    page.getByRole("article", { name: "Service updates by email" }),
+  ).toContainText("On (default)");
   await expect(page.getByRole("article", { name: "Marketing by email" })).toContainText(
     "Off (default)",
   );
@@ -96,9 +111,7 @@ test("preferences derive defaults and require explicit marketing consent", async
     enabled: true,
     expectedVersion: 0,
   });
-  await page
-    .getByRole("switch", { name: "Service updates by SMS", exact: true })
-    .click();
+  await page.getByRole("switch", { name: "Service updates by SMS", exact: true }).click();
   await confirm(page).click();
   await expect(
     page.getByRole("switch", { name: "Service updates by SMS", exact: true }),

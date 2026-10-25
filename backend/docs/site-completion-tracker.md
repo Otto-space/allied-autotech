@@ -1254,3 +1254,46 @@ cache96/6.798GB retained; no image/cache/volume prune or unknown-file deletion.
 Kept private backups, native recovery database, current/rollback/base/tool images,
 warm dependencies/builds, source and all unrelated work. Final C: reserve reading
 was approximately 23.74 GiB free, a point-in-time observation rather than an OS quota.
+
+
+25 October 2026 - notification-only local implementation checkpoint.
+Source branch feat/notifications-experience-20261025 in the reused
+C:/Users/PC/.codex/worktrees/allied-home-restoration-20261025. Initial checkpoint
+04559c7a; released Shop/Vehicles source 71d3f60d merged as 628d6add, preserving its
+70 migrations, Home/audit fixes and catalogue/enquiry behaviour. Other worktrees
+and existing main-checkout edits remain untouched. No notification rollout occurred.
+
+Implemented shared role inbox/settings and header preview, explicit idempotent
+read/unread and cutoff bulk scope, current source/privacy projection, quiet bounded
+foreground reconciliation, precise native-endpoint/session binding, generic push
+payload/deduplication and disabled-channel termination. Added persisted password/
+MFA-removal security inbox events without expanding approved outbound policy.
+API/general worker must precede frontend rollout. Existing permissions and release
+restrictions remain; no real customer message, transaction or published fixture.
+
+Evidence: backend/docs/notifications-experience-20261025.md and Cycle 8 of the UI
+quality register. 70 migrations replayed on a new isolated native loopback _ci
+DB and passed db:check; 477 backend units, 51 isolated integrations, 1,018 full-suite
+frontend units plus 6 final focused device cases, and 155 distinct browser scenarios
+with passing latest outcomes across documented runs. Final backend build/types/
+lint/routes/secret checks and frontend types/format/scoped final lint passed.
+Initial browser failures and corrected assertions remain recorded, not hidden.
+Screenshots: %TEMP%/allied-notifications-cycle-20261025/. Final receipts:
+%TEMP%/allied-notifications-final-20261025/. No claim of real operational-role,
+physical-device, full screen-reader or genuine native transport/click acceptance.
+
+Remaining required checkpoint: optimized frontend build blocked at about 20.95 GiB
+free by the 21 GiB preflight (20 reserve + 1 growth). Manual deletion of four already
+approved redundant installers is pending; automatic review blocked agent deletion.
+The owner completed CapCut uninstall (~5 GiB recovered); Chrome was left untouched.
+Do not retry blocked deletions through another tool or lower the 20 GiB reserve.
+Native Edge subscription probe reported permission granted then AbortError:
+Registration failed - permission denied; no provider send occurred. Existing live
+VAPID configuration was verified read-only, so missing keys are not the prerequisite.
+Installed Next 16.3.8 differs from lock 16.4.3; exact locked CI and optimized hosted
+acceptance remain release checks. Main/www still serve dpl_7Hnx3QdAhEL9UFtWSKnf8AzHFDYe;
+backend ACTIVE 264c3f8e-324d-42bd-86cb-0dffa2eb9f19, no pending rollout.
+
+No Docker resource was created or deleted; retained 42 images, 14 containers,
+14 volumes and 96 cache entries, including the unrelated active compatibility DB.
+Source, histories, secrets, databases/backups and current/rollback resources retained.

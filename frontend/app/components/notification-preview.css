@@ -15,9 +15,19 @@
   box-shadow: 0 16px 60px #01121a30;
   overflow: hidden;
 }
-.notification-preview-dialog[open] { display: flex; flex-direction: column; }
-.notification-preview-dialog header, .notification-preview-dialog footer { flex-shrink: 0; }
-.np-content { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.notification-preview-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.notification-preview-dialog header,
+.notification-preview-dialog footer {
+  flex-shrink: 0;
+}
+.np-content {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .notification-preview-dialog::backdrop {
   background: #01121a25;
 }

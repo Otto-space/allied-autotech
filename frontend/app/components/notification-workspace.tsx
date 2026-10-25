@@ -21,13 +21,26 @@ export function NotificationWorkspace({
       <header className="cn-page-heading">
         <div>
           <h1>Notifications</h1>
-          <p>Keep track of your account and work updates.{role === "CUSTOMER" && <> <Link className="cn-help-link" href="/help">Help centre</Link></>}</p>
+          <p>
+            Keep track of your account and work updates.
+            {role === "CUSTOMER" && (
+              <>
+                {" "}
+                <Link className="cn-help-link" href="/help">
+                  Help centre
+                </Link>
+              </>
+            )}
+          </p>
         </div>
         <button
           className="button secondary"
           aria-expanded={settings}
           aria-controls="notification-settings"
-          onClick={() => { setSettingsVisited(true); setSettings(!settings); }}
+          onClick={() => {
+            setSettingsVisited(true);
+            setSettings(!settings);
+          }}
         >
           {settings ? (
             <ArrowLeft size={17} aria-hidden="true" />
@@ -39,7 +52,9 @@ export function NotificationWorkspace({
       </header>
       <div className="cn-layout">
         <div id="notification-settings" hidden={!settings}>
-          {settingsVisited && <AccountNotificationPreferences userId={userId} role={role} />}
+          {settingsVisited && (
+            <AccountNotificationPreferences userId={userId} role={role} />
+          )}
         </div>
         <AccountNotificationInbox userId={userId} role={role} />
       </div>

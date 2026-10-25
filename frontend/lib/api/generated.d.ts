@@ -87723,7 +87723,10 @@ export interface operations {
                      *       "data": {
                      *         "available": true,
                      *         "publicKey": "synthetic-publickey",
-                     *         "enabled": true
+                     *         "enabled": true,
+                     *         "endpointHashes": [
+                     *           "synthetic-endpointhashes-item"
+                     *         ]
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -87743,6 +87746,8 @@ export interface operations {
                             publicKey: string | null;
                             /** @description Enabled validated by this operation's strict request contract. */
                             enabled: boolean;
+                            /** @description Endpoint Hashes validated by this operation's strict request contract. */
+                            endpointHashes: string[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
@@ -91369,7 +91374,10 @@ export interface operations {
                      *       "data": {
                      *         "available": true,
                      *         "publicKey": "synthetic-publickey",
-                     *         "enabled": true
+                     *         "enabled": true,
+                     *         "endpointHashes": [
+                     *           "synthetic-endpointhashes-item"
+                     *         ]
                      *       },
                      *       "meta": {
                      *         "requestId": "req_0000000000000001"
@@ -91389,6 +91397,8 @@ export interface operations {
                             publicKey: string | null;
                             /** @description Enabled validated by this operation's strict request contract. */
                             enabled: boolean;
+                            /** @description Endpoint Hashes validated by this operation's strict request contract. */
+                            endpointHashes: string[];
                         };
                         /** @description Meta validated by this operation's strict request contract. */
                         meta: {
