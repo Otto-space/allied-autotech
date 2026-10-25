@@ -1364,3 +1364,14 @@ then passed a focused no-repeat confirmation test. Final-source verification and
 release evidence follow separately. The independent Customer Care branch with
 unreleased migration 71 is preserved; this candidate does not publish it. Item 6
 and the broader site goal remain open.
+
+Release-source verification: all 70 migrations replayed in a new isolated `_test`
+database with no schema difference; `db:check` and all nine focused integration
+cases passed with a non-owning runtime role. The final API contract validated 350
+paths and 410 documented operations. Backend and frontend types, lint, formatting
+and builds passed. In the optimized local browser run, 11 of 13 editor cases
+passed; the preflight retry assertion caught an overly broad repeat block and a
+mobile screenshot timed out under concurrent checks. The repeat rule now allows
+retry only when no write was sent and disables it once a write has been attempted.
+The preflight, write-time conflict and mobile accessibility cases all passed on
+the rebuilt final source. No synthetic customer or catalogue data was published.

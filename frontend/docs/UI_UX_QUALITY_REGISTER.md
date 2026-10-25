@@ -1378,3 +1378,12 @@ confirmation after rejection. The capture is
 hosted release evidence are tracked in the site-completion tracker. This is
 isolated/fixture-rendered evidence, not a real authenticated production editor
 session; physical devices and screen-reader speech remain untested.
+
+On the 70-migration release branch, final-source backend race tests passed 9/9,
+frontend/API builds, types and lint passed, and the optimized editor run passed
+11/13 before two issues were isolated. The preflight retry rule was corrected so
+a failed read can be retried safely while an attempted stale write cannot; a
+separate screenshot timed out under concurrent checks. Both cases and the mobile
+write-time conflict passed after the final rebuild (3/3 focused), with no new
+horizontal overflow or automated accessibility violation. Hosted authenticated
+acceptance remains open.

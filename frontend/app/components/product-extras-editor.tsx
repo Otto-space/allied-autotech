@@ -79,14 +79,23 @@ export function ProductExtrasEditor({
       onUncertain,
       retryAfterRejection: false,
       submit: async () => {
+        let preflightPassed = false;
         try {
           await checkProductExtras(sourcePath, expected);
+          preflightPassed = true;
+          setProposal((current) =>
+            current ? { ...current, retryAfterRejection: false } : current,
+          );
           onPendingChange?.(true);
           await next.submit();
           onPendingChange?.(false);
           if (imageWrite && expected.mediaVersion !== undefined)
             setMinimumVersion(expected.mediaVersion + 1);
         } catch (error) {
+          if (!preflightPassed)
+            setProposal((current) =>
+              current ? { ...current, retryAfterRejection: true } : current,
+            );
           if (error instanceof ApiError && error.status >= 400 && error.status < 500)
             onPendingChange?.(false);
           throw error;
