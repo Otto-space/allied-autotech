@@ -1387,3 +1387,15 @@ separate screenshot timed out under concurrent checks. Both cases and the mobile
 write-time conflict passed after the final rebuild (3/3 focused), with no new
 horizontal overflow or automated accessibility violation. Hosted authenticated
 acceptance remains open.
+
+Release source `313c4f9c` passed exact-source frontend CI. Production-configured
+Vercel `dpl_GDqL1pgfFbWtb7avvNGGW8Zu3bNH` is READY on both main and www aliases,
+after the matching API became ACTIVE on `634b9110-8ad0-455e-ad7d-48cd9ee35681`.
+Protected candidate Home, Help, Parts and admin routes responded successfully.
+The final three browser-isolated editor cases passed on the actual main domain:
+320px write-time conflict/draft reload, safe failed-read retry, and mobile
+layout/automated accessibility. All requests that could write were intercepted
+inside the browser; this does not claim an authenticated operator test or
+production data change. Public Home/Help/Parts responded 200 after promotion,
+`/shop` resolved to `/parts`, and `/demo` remained 404. Wider role/device and
+manual screen-reader acceptance remain in the prioritized backlog.
