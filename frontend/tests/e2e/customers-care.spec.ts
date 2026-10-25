@@ -65,6 +65,9 @@ for (const width of [360, 390, 768, 1024, 1440])
     );
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
+    page.on("console", (message) => {
+      if (message.type() === "error") errors.push(message.text());
+    });
     await page.goto("/admin/customers");
     await expect(page.getByRole("table")).toBeVisible();
     await expect(page.locator("tbody tr")).toHaveCount(25);
@@ -346,7 +349,7 @@ test("persistent delivery dismissal retains failure indicators and resurfaces ch
 test("customer creation is focused, drafts survive close/reopen, and staff metadata stays out", async ({
   page,
 }) => {
-  await customerSupportFixture(page);
+  const state = await customerSupportFixture(page);
   await page.goto("/dashboard/support");
   await expect(page.getByRole("table")).toBeVisible();
   await expect(page.getByLabel("Enquiry type")).not.toBeVisible();
@@ -357,6 +360,22 @@ test("customer creation is focused, drafts survive close/reopen, and staff metad
   await expect(page.getByLabel("Subject", { exact: true })).toHaveValue(
     "Retained synthetic enquiry",
   );
+  await page.getByLabel("Subject", { exact: true }).press("Enter");
+  expect(state.writes).toHaveLength(0);
+  await page.getByLabel("Record category").selectOption("complaints");
+  await page.getByText("Make a complaint", { exact: true }).click();
+  await page.getByLabel("Subject", { exact: true }).fill("Separate complaint draft");
+  await page.reload();
+  await page.getByText("New enquiry", { exact: true }).click();
+  await expect(page.getByLabel("Subject", { exact: true })).toHaveValue(
+    "Retained synthetic enquiry",
+  );
+  await page.getByLabel("Record category").selectOption("complaints");
+  await page.getByText("Make a complaint", { exact: true }).click();
+  await expect(page.getByLabel("Subject", { exact: true })).toHaveValue(
+    "Separate complaint draft",
+  );
+  expect(state.writes).toHaveLength(0);
   await page.screenshot({ path: path.join(shots, "customer-care-create.png") });
 });
 

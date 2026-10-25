@@ -28,6 +28,7 @@ const payload = {
 };
 function transaction(optedOut = false) {
   return {
+    $queryRaw: vi.fn().mockResolvedValue([]),
     $executeRaw: vi.fn().mockResolvedValue(1),
     user: { findUnique: vi.fn().mockResolvedValue({ email: "account@example.test" }) },
     notificationPreference: {
@@ -270,30 +271,29 @@ describe("support customer email", () => {
   it("uses the latest provider event time even when callbacks arrive out of order", async () => {
     const tx = transaction();
     const accepted = new Date("2026-10-23T10:00:00Z");
-    tx.outboxEvent.findMany
-      .mockResolvedValueOnce([
-        {
-          id,
-          status: "PUBLISHED",
-          lastError: null,
-          createdAt: accepted,
-          publishedAt: accepted,
-          attempts: 1,
-          availableAt: accepted,
-        },
-      ])
-      .mockResolvedValueOnce([
-        {
-          aggregateId: id,
-          createdAt: new Date("2026-10-23T10:02:00Z"),
-          payload: { type: "email.delivered" },
-        },
-        {
-          aggregateId: id,
-          createdAt: new Date("2026-10-23T10:01:00Z"),
-          payload: { type: "email.delivery_delayed" },
-        },
-      ]);
+    tx.outboxEvent.findMany.mockResolvedValueOnce([
+      {
+        id,
+        status: "PUBLISHED",
+        lastError: null,
+        createdAt: accepted,
+        publishedAt: accepted,
+        attempts: 1,
+        availableAt: accepted,
+      },
+    ]);
+    tx.$queryRaw.mockResolvedValueOnce([
+      {
+        aggregateId: id,
+        createdAt: new Date("2026-10-23T10:02:00Z"),
+        payload: { type: "email.delivered" },
+      },
+      {
+        aggregateId: id,
+        createdAt: new Date("2026-10-23T10:01:00Z"),
+        payload: { type: "email.delivery_delayed" },
+      },
+    ]);
     const result = await supportEmailDeliveries(
       tx as unknown as Prisma.TransactionClient,
       id,
