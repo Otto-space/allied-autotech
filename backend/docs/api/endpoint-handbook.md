@@ -9083,7 +9083,7 @@ Relevant errors: 400 The request is malformed.; 401 A valid session and required
 ### GET `/staff/vehicles`
 
 - Operation ID: `getStaffVehicles`
-- Purpose: Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with status. Listing status matches any stored listing on a record, including history. Existing createdAt/ID descending cursor paging is retained. The stock UI uses search, exact make/model, year, branch and listing filters only; inherited public-discovery price/specification/sort parameters require a separate stock-query contract audit. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
+- Purpose: Private, no-store staff stock discovery. Existing active assigned-branch Staff and cross-branch Admin/Super Admin/MFA policy is unchanged. Search is a literal case-insensitive substring across stock number, make, model and VIN; exact make/model matching also treats percent, underscore and backslash literally. Optional listed=true selects records with any listing; listed=false selects records with none and cannot be combined with listing-specific filters. Status, featured and price bounds must match the same stored listing, including history. Newest, year and mileage sorts use an ID tie-breaker and cursor paging; price sorting is not accepted because a stock record can have multiple historical listing prices. The stock UI currently exposes search, exact make/model, year, branch and listing filters. List branch vehicle inventory; acquisition costs are administrator-only. Access boundary: mfa-verified-staff. Requires the opaque session cookie. No CSRF token is required. This operation has no idempotency-key contract.
 - Roles: STAFF, ADMIN, SUPER_ADMIN
 - Authentication: Opaque session cookie
 - CSRF: Not required
@@ -9123,7 +9123,7 @@ Parameters:
 | `featured` | query | true / false | No | Featured used to constrain this request. |
 | `minPriceKobo` | query | string | No | Min Price Kobo used to constrain this request. |
 | `maxPriceKobo` | query | string | No | Max Price Kobo used to constrain this request. |
-| `sort` | query | newest / price_asc / price_desc / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
+| `sort` | query | newest / year_desc / year_asc / mileage_asc / mileage_desc | No | Sort used to constrain this request. |
 | `status` | query | DRAFT / AVAILABLE / RESERVED / SOLD / INACTIVE / ARCHIVED | No | Status used to constrain this request. |
 | `branchId` | query | string (uuid) | No | Branch Id used to constrain this request. |
 | `listed` | query | true / false | No | Listed used to constrain this request. |

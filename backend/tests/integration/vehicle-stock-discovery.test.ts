@@ -110,7 +110,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
         make: n % 2 ? "Lexus" : "Toyota",
         model: n % 2 ? "RX 350" : "Camry",
         year: n % 2 ? 2020 : 2022,
-        mileageKm: n === 0 ? 0 : 12000,
+        mileageKm: n === 0 ? 0 : n === 27 ? null : 12000,
         acquisitionCostKobo: 1234567891n,
         createdAt,
       }));
@@ -124,6 +124,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           title: "Synthetic stock sale " + n,
           slug: randomUUID(),
           priceKobo: n === 0 ? 9999999999999999n : 2850000000n,
+          featured: n % 4 === 0,
           publishedAt: createdAt,
           reservedAt: n % 2 ? createdAt : null,
           status: n % 2 ? ("RESERVED" as const) : ("AVAILABLE" as const),
@@ -136,6 +137,7 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
           title: "Earlier archived sale",
           slug: randomUUID(),
           priceKobo: 100n,
+          featured: true,
           status: "ARCHIVED",
           archivedAt: createdAt,
         },
@@ -195,6 +197,51 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       const historic = await read({ status: "ARCHIVED" });
       expect(historic.body.data.items.map((row) => row.id)).toEqual([data[1]!.id]);
       expect(historic.body.data.items[0].listings).toHaveLength(2);
+      const featuredAtPrice = await read({
+        featured: "true",
+        minPriceKobo: "2850000000",
+        maxPriceKobo: "2850000000",
+      });
+      expect(featuredAtPrice.status).toBe(200);
+      expect(new Set(featuredAtPrice.body.data.items.map((row) => row.id))).toEqual(
+        new Set(
+          listings
+            .filter((listing) => listing.featured && listing.priceKobo === 2850000000n)
+            .map((listing) => listing.vehicleId),
+        ),
+      );
+      const archivedMatch = await read({ featured: "true", maxPriceKobo: "200" });
+      expect(archivedMatch.body.data.items.map((row) => row.id)).toEqual([data[1]!.id]);
+      const mismatchedListings = await read({
+        status: "AVAILABLE",
+        featured: "true",
+        maxPriceKobo: "200",
+      });
+      expect(mismatchedListings.body.data.items).toEqual([]);
+      const byYear = await read({ sort: "year_desc" });
+      const yearOrder = [...data].sort(
+        (left, right) => right.year - left.year || right.id.localeCompare(left.id),
+      );
+      expect(byYear.body.data.items.map((row) => row.id)).toEqual(
+        yearOrder.slice(0, 25).map((row) => row.id),
+      );
+      const yearNext = await read({
+        sort: "year_desc",
+        cursor: byYear.body.data.nextCursor,
+      });
+      expect(yearNext.body.data.items.map((row) => row.id)).toEqual(
+        yearOrder.slice(25).map((row) => row.id),
+      );
+      const byMileage = await read({ sort: "mileage_asc" });
+      expect(byMileage.body.data.items[0].id).toBe(data[0]!.id);
+      expect(byMileage.body.data.items.every((row) => row.id !== data[27]!.id)).toBe(
+        true,
+      );
+      const mileageNext = await read({
+        sort: "mileage_asc",
+        cursor: byMileage.body.data.nextCursor,
+      });
+      expect(mileageNext.body.data.items.at(-1).id).toBe(data[27]!.id);
       const old = await read({ branchId: inactive });
       expect(old.body.data.items.map((row) => row.id)).toEqual([data[27]!.id]);
       expect(old.body.data.items[0].branch.isActive).toBe(false);
@@ -276,6 +323,9 @@ describe.skipIf(process.env.RUN_DATABASE_TESTS !== "true")(
       for (const q of [
         { listed: "yes" },
         { listed: "false", status: "AVAILABLE" },
+        { listed: "false", featured: "true" },
+        { listed: "false", minPriceKobo: "0" },
+        { sort: "price_asc" },
         { branchId: "bad" },
         { year: 2022.5 },
         { status: "OTHER" },
