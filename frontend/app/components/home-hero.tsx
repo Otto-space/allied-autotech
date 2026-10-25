@@ -7,59 +7,59 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const slides = [
   {
-    title: "Vehicle care in",
-    emphasis: "Port Harcourt.",
+    title: "Built on trust ",
+    emphasis: "driven by quality",
     description:
-      "Diagnostics, repairs and maintenance. Tell us what your vehicle needs and discuss the next step with our team.",
-    action: "Explore services",
+      "Professional diagnostics, maintenance and repairs, with clear advice and careful workmanship at every step.",
+    action: "Book a Service",
     href: "/services",
     image: "/images/allied-autotech/workshop-editorial.webp",
     alt: "Editorial scene of a technician inspecting a dark SUV in a modern workshop",
-    secondary: "Discuss your vehicle",
+    secondary: "Request a Quote",
     secondaryHref: "/contact#enquiry",
-    caption: "Built on trust, driven by quality. Editorial workshop image.",
+    caption: "Editorial workshop illustration.",
     contain: false,
   },
   {
     title: "Find the car",
     emphasis: "that fits your life.",
     description:
-      "Browse published listings when available. Compare condition, budget and specifications, then enquire about a closer look.",
+      "Explore carefully presented vehicles for family life, daily movement, business and executive comfort.",
     action: "Explore Vehicles",
     href: "/vehicles",
     image: "/images/allied-autotech/showroom-editorial.webp",
     alt: "Editorial showroom scene with a silver sedan and dark SUV",
     secondary: "Discuss your search",
     secondaryHref: "/contact#enquiry",
-    caption: "Technology that supports informed decisions.",
+    caption: "Showroom illustration. See listings for availability.",
     contain: true,
   },
   {
-    title: "Understand the issue.",
-    emphasis: "Plan the next step.",
+    title: "Built for every",
+    emphasis: "journey that matters.",
     description:
-      "Learn about our diagnostic equipment and how the team investigates vehicle concerns before recommending work.",
-    action: "Explore our equipment",
-    href: "/about#equipment",
-    image: "/images/equipment/autel-mk808s.jpg",
-    alt: "Autel MK808S diagnostic equipment",
+      "Family comfort, everyday confidence and room for the moments that make life yours. Start your next chapter with us.",
+    action: "Discover Vehicles",
+    href: "/vehicles",
+    image: "/images/allied-autotech/family-editorial.webp",
+    alt: "Editorial scene of an African family beside a white SUV",
     secondary: "Speak With Us",
     secondaryHref: "https://wa.me/2348136075567",
-    caption: "Quality products. Professional vehicle care.",
+    caption: "Editorial family illustration.",
     contain: false,
   },
   {
     title: "Quality parts.",
     emphasis: "Reliable performance.",
     description:
-      "Search by part name or number, or use your vehicle details. Our team can help check suitability and collection availability.",
-    action: "Find parts",
+      "Find the right essentials for your vehicle. Browse available parts, oils and automotive products in our Shop.",
+    action: "Visit the Shop",
     href: "/parts",
     image: "/images/allied-autotech/parts-editorial.webp",
     alt: "Editorial arrangement of brake components, filters and unlabelled oil containers",
-    secondary: "Ask about a part",
+    secondary: "Request a Quotation",
     secondaryHref: "/contact?parts=1#enquiry",
-    caption: "Care and support for your next move.",
+    caption: "Editorial parts illustration.",
     contain: false,
   },
 ] as const;
@@ -138,15 +138,6 @@ export function HomeHero() {
           sizes="100vw"
           preload={index === 0}
         />
-        <span className="hero-image-note">
-          {index === 0
-            ? "Editorial workshop illustration"
-            : index === 1
-              ? "Showroom illustration — see listings for availability"
-              : index === 2
-                ? "Autel MK808S diagnostic equipment"
-                : "Editorial parts illustration"}
-        </span>
       </div>
       <div className="public-wrap hero-layout">
         <div
@@ -154,7 +145,6 @@ export function HomeHero() {
           aria-live={advancing ? "off" : "polite"}
           aria-atomic="true"
         >
-          <p className="hero-brand-line">Built on trust, driven by quality</p>
           <h1>
             {current.title}
             <br />
@@ -191,6 +181,7 @@ export function HomeHero() {
             ))}
           </div>
           <div className="hero-arrows">
+            <span className="hero-caption">{current.caption}</span>
             <span className="hero-count" aria-hidden="true">
               {String(index + 1).padStart(2, "0")} / 04
             </span>

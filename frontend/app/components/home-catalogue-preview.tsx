@@ -37,74 +37,65 @@ export function HomePartsPreview({
     initial?.data,
     { initialError: initial?.error, revalidateOnMount: false },
   );
-  if (
-    !parts.loading &&
-    !parts.error &&
-    !parts.refreshError &&
-    parts.data?.items.length === 0
-  )
-    return null;
   return (
-    <section className="public-section home-inventory-preview home-shop">
-      <div className="public-wrap">
-        <div className="section-heading-row">
-          <h2>Parts to explore</h2>
-          <Link className="text-link" href="/parts">
-            Browse parts <ArrowUpRight size={17} aria-hidden="true" />
+    <div className="home-catalogue-preview" aria-busy={parts.loading}>
+      <Feedback message={parts.error} />
+      <Feedback message={parts.refreshError} />
+      {(parts.error || parts.refreshError) && (
+        <button
+          className="button secondary"
+          onClick={parts.refresh}
+          disabled={parts.loading}
+        >
+          Retry products
+        </button>
+      )}
+      {parts.loading && <p role="status">Loading products…</p>}
+      {parts.loading && !parts.data && <PreviewLoading />}
+      <div className="home-product-grid">
+        {(!parts.error ? parts.data : undefined)?.items.map((part) => {
+          const media = part.images.find((item) => item.isPrimary) ?? part.images[0];
+          const inStock = part.availability.some((branch) => branch.inStock);
+          return (
+            <article className="home-product-card" key={part.id}>
+              <PublicMedia
+                key={media?.url ?? "empty"}
+                src={media?.url}
+                alt={media?.altText ?? part.name}
+                sizes="(max-width: 540px) 90vw, (max-width: 1000px) 45vw, 22vw"
+              />
+              <div className="home-card__body">
+                <p className="home-card__meta">
+                  {[part.brand, part.category.name].filter(Boolean).join(" · ")}
+                </p>
+                <h3>
+                  <Link href={`/parts/${part.id}`}>{part.name}</Link>
+                </h3>
+                <p className="home-card__price">{formatKobo(part.priceKobo)}</p>
+                <p className="home-card__stock">
+                  {inStock ? "In stock at a branch" : "Currently out of stock"}
+                </p>
+                <Link
+                  className="text-link home-card__link"
+                  href={`/parts/${part.id}`}
+                  aria-label={`View product: ${part.name}`}
+                >
+                  View product <ArrowUpRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      {!parts.loading && !parts.error && parts.data?.items.length === 0 && (
+        <div className="home-preview-empty">
+          <p>No products are published yet. Contact the team with what you need.</p>
+          <Link className="text-link" href="/contact?parts=1#enquiry">
+            Ask about a product <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
         </div>
-        <div className="home-catalogue-preview" aria-busy={parts.loading}>
-          <Feedback message={parts.error} />
-          <Feedback message={parts.refreshError} />
-          {(parts.error || parts.refreshError) && (
-            <button
-              className="button secondary"
-              onClick={parts.refresh}
-              disabled={parts.loading}
-            >
-              Retry products
-            </button>
-          )}
-          {parts.loading && <p role="status">Loading products…</p>}
-          {parts.loading && !parts.data && <PreviewLoading />}
-          <div className="home-product-grid">
-            {(!parts.error ? parts.data : undefined)?.items.map((part) => {
-              const media = part.images.find((item) => item.isPrimary) ?? part.images[0];
-              const inStock = part.availability.some((branch) => branch.inStock);
-              return (
-                <article className="home-product-card" key={part.id}>
-                  <PublicMedia
-                    key={media?.url ?? "empty"}
-                    src={media?.url}
-                    alt={media?.altText ?? part.name}
-                    sizes="(max-width: 540px) 90vw, (max-width: 1000px) 45vw, 22vw"
-                  />
-                  <div className="home-card__body">
-                    <p className="home-card__meta">
-                      {[part.brand, part.category.name].filter(Boolean).join(" · ")}
-                    </p>
-                    <h3>
-                      <Link href={`/parts/${part.id}`}>{part.name}</Link>
-                    </h3>
-                    <p className="home-card__price">{formatKobo(part.priceKobo)}</p>
-                    <p className="home-card__stock">
-                      {inStock ? "In stock at a branch" : "Currently out of stock"}
-                    </p>
-                    <Link
-                      className="text-link home-card__link"
-                      href={`/parts/${part.id}`}
-                      aria-label={`View product: ${part.name}`}
-                    >
-                      View product <ArrowUpRight size={16} aria-hidden="true" />
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }
 
@@ -117,104 +108,91 @@ export function HomeVehiclesPreview({
     initialError: initial?.error,
     revalidateOnMount: false,
   });
-  if (
-    !listings.loading &&
-    !listings.error &&
-    !listings.refreshError &&
-    listings.data?.items.length === 0
-  )
-    return null;
   return (
-    <section className="public-section home-inventory-preview home-vehicles">
-      <div className="public-wrap">
-        <div className="section-heading-row">
-          <h2>Vehicles to compare</h2>
-          <Link className="text-link" href="/vehicles">
-            Browse vehicles <ArrowUpRight size={17} aria-hidden="true" />
+    <div className="home-catalogue-preview" aria-busy={listings.loading}>
+      <Feedback message={listings.error} />
+      <Feedback message={listings.refreshError} />
+      {(listings.error || listings.refreshError) && (
+        <button
+          className="button secondary"
+          onClick={listings.refresh}
+          disabled={listings.loading}
+        >
+          Retry vehicles
+        </button>
+      )}
+      {listings.loading && <p role="status">Loading vehicle listings…</p>}
+      {listings.loading && !listings.data && <PreviewLoading vehicles />}
+      <div className="home-vehicle-grid">
+        {(!listings.error ? listings.data : undefined)?.items.map((listing) => {
+          const media =
+            listing.vehicle.images.find((item) => item.isPrimary) ??
+            listing.vehicle.images[0];
+          return (
+            <article className="home-vehicle-card" key={listing.id}>
+              <PublicMedia
+                key={media?.url ?? "empty"}
+                src={media?.url}
+                alt={media?.altText ?? listing.title}
+                fallbackIcon={<CarFront size={32} strokeWidth={1.3} />}
+                sizes="(max-width: 540px) 90vw, (max-width: 1000px) 45vw, 20vw"
+              />
+              <div className="home-card__body">
+                <h3>
+                  <Link href={`/vehicles/${listing.id}`}>{listing.title}</Link>
+                </h3>
+                <p className="home-card__meta">
+                  {listing.vehicle.year} · {listing.vehicle.make} {listing.vehicle.model}
+                </p>
+                <p className="home-card__price">{formatKobo(listing.priceKobo)}</p>
+                <ul className="home-vehicle-specs" aria-label="Vehicle specifications">
+                  {listing.vehicle.mileageKm != null && (
+                    <li>
+                      <Gauge size={15} aria-hidden="true" />
+                      <span>{listing.vehicle.mileageKm.toLocaleString("en-NG")} km</span>
+                    </li>
+                  )}
+                  {listing.vehicle.transmission && (
+                    <li>
+                      <Settings2 size={15} aria-hidden="true" />
+                      <span>{listing.vehicle.transmission}</span>
+                    </li>
+                  )}
+                  {listing.vehicle.fuelType && (
+                    <li>
+                      <Fuel size={15} aria-hidden="true" />
+                      <span>{listing.vehicle.fuelType}</span>
+                    </li>
+                  )}
+                </ul>
+                <p className="home-card__location">
+                  <MapPin size={15} aria-hidden="true" />
+                  <span>
+                    {listing.branch.city}, {listing.branch.state}
+                  </span>
+                </p>
+                <Link
+                  className="text-link home-card__link"
+                  href={`/vehicles/${listing.id}`}
+                  aria-label={`View vehicle: ${listing.title}`}
+                >
+                  View vehicle <ArrowUpRight size={16} aria-hidden="true" />
+                </Link>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      {!listings.loading && !listings.error && listings.data?.items.length === 0 && (
+        <div className="home-preview-empty">
+          <p>
+            No vehicles are published yet. Contact the team about your vehicle search.
+          </p>
+          <Link className="text-link" href="/contact#enquiry">
+            Discuss your vehicle search <ArrowUpRight size={16} aria-hidden="true" />
           </Link>
         </div>
-        <div className="home-catalogue-preview" aria-busy={listings.loading}>
-          <Feedback message={listings.error} />
-          <Feedback message={listings.refreshError} />
-          {(listings.error || listings.refreshError) && (
-            <button
-              className="button secondary"
-              onClick={listings.refresh}
-              disabled={listings.loading}
-            >
-              Retry vehicles
-            </button>
-          )}
-          {listings.loading && <p role="status">Loading vehicle listings…</p>}
-          {listings.loading && !listings.data && <PreviewLoading vehicles />}
-          <div className="home-vehicle-grid">
-            {(!listings.error ? listings.data : undefined)?.items.map((listing) => {
-              const media =
-                listing.vehicle.images.find((item) => item.isPrimary) ??
-                listing.vehicle.images[0];
-              return (
-                <article className="home-vehicle-card" key={listing.id}>
-                  <PublicMedia
-                    key={media?.url ?? "empty"}
-                    src={media?.url}
-                    alt={media?.altText ?? listing.title}
-                    fallbackIcon={<CarFront size={32} strokeWidth={1.3} />}
-                    sizes="(max-width: 540px) 90vw, (max-width: 1000px) 45vw, 20vw"
-                  />
-                  <div className="home-card__body">
-                    <h3>
-                      <Link href={`/vehicles/${listing.id}`}>{listing.title}</Link>
-                    </h3>
-                    <p className="home-card__meta">
-                      {listing.vehicle.year} · {listing.vehicle.make}{" "}
-                      {listing.vehicle.model}
-                    </p>
-                    <p className="home-card__price">{formatKobo(listing.priceKobo)}</p>
-                    <ul
-                      className="home-vehicle-specs"
-                      aria-label="Vehicle specifications"
-                    >
-                      {listing.vehicle.mileageKm != null && (
-                        <li>
-                          <Gauge size={15} aria-hidden="true" />
-                          <span>
-                            {listing.vehicle.mileageKm.toLocaleString("en-NG")} km
-                          </span>
-                        </li>
-                      )}
-                      {listing.vehicle.transmission && (
-                        <li>
-                          <Settings2 size={15} aria-hidden="true" />
-                          <span>{listing.vehicle.transmission}</span>
-                        </li>
-                      )}
-                      {listing.vehicle.fuelType && (
-                        <li>
-                          <Fuel size={15} aria-hidden="true" />
-                          <span>{listing.vehicle.fuelType}</span>
-                        </li>
-                      )}
-                    </ul>
-                    <p className="home-card__location">
-                      <MapPin size={15} aria-hidden="true" />
-                      <span>
-                        {listing.branch.city}, {listing.branch.state}
-                      </span>
-                    </p>
-                    <Link
-                      className="text-link home-card__link"
-                      href={`/vehicles/${listing.id}`}
-                      aria-label={`View vehicle: ${listing.title}`}
-                    >
-                      View vehicle <ArrowUpRight size={16} aria-hidden="true" />
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }

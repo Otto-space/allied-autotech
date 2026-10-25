@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+﻿import { test, expect, type Page } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import path from "node:path";
 import os from "node:os";
@@ -181,7 +181,7 @@ async function fixture(page: Page) {
 }
 async function ready(page: Page) {
   await page.goto("/");
-  await expect(page.locator("main h1")).toContainText("Vehicle care in");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   await page.evaluate(() => document.fonts.ready);
 }
 async function noOverflow(page: Page) {
@@ -223,10 +223,10 @@ for (const width of [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1536]) {
     ).toHaveCount(0);
     for (const selector of [
       ".home-services",
-      ".home-routes",
+      ".partner-layout",
       ".home-vehicles",
       ".home-shop",
-      ".home-process",
+      ".services-journey",
       ".home-faq",
     ]) {
       await page.locator(selector).scrollIntoViewIfNeeded();
@@ -272,14 +272,14 @@ test("carousel, keyboard, FAQ and navigation perform their advertised actions", 
   await page.getByRole("button", { name: "Next slide", exact: true }).click();
   await expect(page.locator("main h1")).toContainText("Find the car");
   await page.getByRole("button", { name: "Next slide", exact: true }).press("ArrowRight");
-  await expect(page.locator("main h1")).toContainText("Understand the issue.");
-  await page.getByRole("button", { name: "Show slide 4: Find parts" }).click();
+  await expect(page.locator("main h1")).toContainText("Built for every");
+  await page.getByRole("button", { name: "Show slide 4: Visit the Shop" }).click();
   await expect(page.locator(".hero-copy .button").first()).toHaveAttribute(
     "href",
     "/parts",
   );
   await page.getByRole("button", { name: "Next slide", exact: true }).click();
-  await expect(page.locator("main h1")).toContainText("Vehicle care in");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   await page
     .locator("main")
     .getByText("Where is Allied AutoTech?", { exact: true })
@@ -300,11 +300,15 @@ test("empty collections retain useful contact and browsing paths", async ({ page
   mode = "empty";
   await fixture(page);
   await ready(page);
-  await expect(page.locator(".home-route-grid a")).toHaveCount(3);
-  await expect(page.locator(".home-inventory-preview, .home-feedback")).toHaveCount(0);
+  await expect(page.locator(".partner-links a")).toHaveCount(3);
+  await expect(page.locator(".home-feedback")).toBeVisible();
+  await expect(page.getByRole("link", { name: "View all reviews" })).toHaveAttribute(
+    "href",
+    "/reviews",
+  );
   await expect(
     page.getByText("No customer reviews have been published yet."),
-  ).toHaveCount(0);
+  ).toBeVisible();
   await expect(
     page.locator(".home-product-card, .home-vehicle-card, .review-card"),
   ).toHaveCount(0);
@@ -405,7 +409,7 @@ test("mobile menu, touch carousel and paused autoplay remain usable", async ({
   await page.getByRole("button", { name: "Pause slideshow", exact: true }).click();
   await page.mouse.move(1, 1);
   await page.waitForTimeout(7200);
-  await expect(page.locator("main h1")).toContainText("Vehicle care in");
+  await expect(page.locator("main h1")).toContainText("Built on trust");
   const hero = page.locator(".home-hero");
   await hero.dispatchEvent("pointerdown", {
     pointerType: "touch",
@@ -420,7 +424,7 @@ test("mobile menu, touch carousel and paused autoplay remain usable", async ({
   await expect(page.locator("main h1")).toContainText("Find the car");
   await page.getByRole("button", { name: "Play slideshow", exact: true }).click();
   await page.mouse.move(1, 1);
-  await expect(page.locator("main h1")).toContainText("Understand the issue.", {
+  await expect(page.locator("main h1")).toContainText("Built for every", {
     timeout: 10000,
   });
   await page.getByRole("button", { name: "Open navigation", exact: true }).click();

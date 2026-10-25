@@ -154,41 +154,13 @@ for (const width of [320, 390, 768, 1024, 1440]) {
     await healthy(page, width);
     expect(errors).toEqual([]);
   });
-  test(`customer-facing demo is labelled, populated and read-only at ${width}px`, async ({
-    page,
-  }) => {
-    await fixture(page);
+  test(`removed demo catalogue returns 404 at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    const writes: string[] = [];
-    page.on("request", (request) => {
-      if (request.method() !== "GET") writes.push(request.url());
-    });
-    await page.goto("/demo");
-    await expect(page).toHaveTitle(/Demo catalogue/);
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-      "content",
-      /noindex/,
-    );
+    const response = await page.goto("/demo");
+    expect(response?.status()).toBe(404);
     await expect(
-      page.getByRole("complementary", { name: "Demo data notice" }),
-    ).toContainText("Fictional examples");
-    await expect(page.locator(".shop-product-card")).toHaveCount(20);
-    await page.locator(".shop-product-card a").first().click();
-    const dialog = page.getByRole("dialog");
-    await expect(dialog).toContainText("Fictional sample. Not for sale.");
-    await expect(dialog.getByRole("button")).toHaveCount(1);
-    await page.keyboard.press("Escape");
-    await expect(page.locator(".shop-product-card a").first()).toBeFocused();
-    await page.getByRole("button", { name: "12 vehicles", exact: true }).click();
-    await expect(page.locator(".vehicle-card")).toHaveCount(12);
-    await page.getByLabel("Demo condition").selectOption("LOCALLY_USED");
-    await expect(page.locator(".vehicle-card")).toHaveCount(3);
-    await page.getByRole("button", { name: "Clear demo filters" }).click();
-    await expect(page.locator(".vehicle-card")).toHaveCount(12);
-    await healthy(page, width);
-    await page.getByRole("button", { name: "4 services", exact: true }).click();
-    await expect(page.locator(".demo-services article")).toHaveCount(4);
-    expect(writes).toEqual([]);
+      page.getByRole("heading", { name: "Explore a populated demo catalogue" }),
+    ).toHaveCount(0);
   });
 }
 test("global emptiness, filtered emptiness, loading and failures are distinct", async ({

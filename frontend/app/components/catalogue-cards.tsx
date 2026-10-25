@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowRight,
   CarFront,
@@ -25,12 +24,10 @@ export function PartCard({
   product,
   params = new URLSearchParams(),
   href,
-  demo = false,
 }: {
   product: Product;
   params?: URLSearchParams;
   href?: string;
-  demo?: boolean;
 }) {
   const photo = product.images.find((image) => image.isPrimary) ?? product.images[0];
   const available = product.availability.some((item) => item.inStock);
@@ -44,17 +41,13 @@ export function PartCard({
     <article className="product-card shop-product-card">
       <Link href={href ?? productFitmentHref(product.id, params)}>
         <div className="shop-product-top">
-          {demo ? (
-            <DemoMedia kind="part" />
-          ) : (
-            <PublicMedia
-              key={photo?.url ?? "missing"}
-              src={photo?.url}
-              alt={photo?.altText ?? product.name}
-              fallbackIcon={<Package size={28} strokeWidth={1.4} />}
-              sizes="(max-width: 767px) 35vw, 150px"
-            />
-          )}
+          <PublicMedia
+            key={photo?.url ?? "missing"}
+            src={photo?.url}
+            alt={photo?.altText ?? product.name}
+            fallbackIcon={<Package size={28} strokeWidth={1.4} />}
+            sizes="(max-width: 767px) 35vw, 150px"
+          />
 
           <div className="shop-product-identity">
             <span className="product-card-meta">{product.category.name}</span>
@@ -81,11 +74,7 @@ export function PartCard({
               <CircleMinus size={14} aria-hidden="true" />
             )}
             <span>
-              {demo
-                ? "Demo availability — not real stock"
-                : available
-                  ? "Available at a listed branch"
-                  : "Currently unavailable"}
+              {available ? "Available at a listed branch" : "Currently unavailable"}
             </span>
           </p>
           <div className="shop-card-fitment">
@@ -113,8 +102,7 @@ export function PartCard({
             </div>
           </div>
           <span className="product-detail-link">
-            {demo ? "View sample details" : "View product"}{" "}
-            <ArrowRight size={17} aria-hidden="true" />
+            View product <ArrowRight size={17} aria-hidden="true" />
           </span>
         </div>
       </Link>
@@ -125,36 +113,30 @@ export function PartCard({
 export function VehicleCard({
   listing,
   href,
-  demo = false,
 }: {
   listing: VehicleListing;
   href?: string;
-  demo?: boolean;
 }) {
   return (
     <article className="product-card vehicle-card">
       <Link href={href ?? `/vehicles/${listing.id}`}>
-        {demo ? (
-          <DemoMedia kind="vehicle" />
-        ) : (
-          <PublicMedia
-            key={
-              (
-                listing.vehicle.images.find((image) => image.isPrimary) ??
-                listing.vehicle.images[0]
-              )?.url ?? "missing"
-            }
-            src={
-              (
-                listing.vehicle.images.find((image) => image.isPrimary) ??
-                listing.vehicle.images[0]
-              )?.url
-            }
-            alt={listing.title}
-            fallbackIcon={<CarFront size={34} strokeWidth={1.4} />}
-            sizes="(max-width: 767px) 100vw, (max-width: 1050px) 50vw, 33vw"
-          />
-        )}
+        <PublicMedia
+          key={
+            (
+              listing.vehicle.images.find((image) => image.isPrimary) ??
+              listing.vehicle.images[0]
+            )?.url ?? "missing"
+          }
+          src={
+            (
+              listing.vehicle.images.find((image) => image.isPrimary) ??
+              listing.vehicle.images[0]
+            )?.url
+          }
+          alt={listing.title}
+          fallbackIcon={<CarFront size={34} strokeWidth={1.4} />}
+          sizes="(max-width: 767px) 100vw, (max-width: 1050px) 50vw, 33vw"
+        />
 
         <div className="product-copy">
           <span className="vehicle-card-meta">
@@ -225,29 +207,10 @@ export function VehicleCard({
             </p>
           )}
           <span className="vehicle-card-view">
-            {demo ? "View sample details" : "View vehicle"}{" "}
-            <ArrowRight size={17} aria-hidden="true" />
+            View vehicle <ArrowRight size={17} aria-hidden="true" />
           </span>
         </div>
       </Link>
     </article>
-  );
-}
-
-function DemoMedia({ kind }: { kind: "part" | "vehicle" }) {
-  return (
-    <div className="product-media">
-      <Image
-        src={
-          kind === "part"
-            ? "/images/allied-autotech/parts-editorial.webp"
-            : "/images/allied-autotech/showroom-editorial.webp"
-        }
-        alt="Editorial illustration for the sample layout, not a photograph of this fictional item"
-        fill
-        sizes="(max-width: 767px) 90vw, 33vw"
-      />
-      <span className="demo-image-label">Illustration: demo item</span>
-    </div>
   );
 }

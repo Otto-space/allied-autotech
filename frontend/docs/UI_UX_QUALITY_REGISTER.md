@@ -835,3 +835,45 @@ worktree's ignored, ACL-restricted deployment directory. No credentials, archive
 contents or customer records were added to source. Owner inputs remain genuine
 publishable stock, prices, approved service detail and authentic catalogue media;
 the new demo is not evidence of genuine availability. Preserve settled Item 6.
+
+## Cycle 5: Owner-directed homepage restoration — 25 October 2026
+
+The owner's preference for the previous homepage supersedes conflicting design
+guidance from Cycle 4. This correction starts from the complete released `3bf61321`
+in isolated worktree `allied-home-restoration-20261025`, branch
+`fix/home-restoration-20261025`. Both live aliases were independently checked at
+07:27:19 UTC and still pointed to `dpl_3XjRQRkHuJY1oVvnhPuqBPu5mMtv`.
+Main-checkout edits and independent staff-filter work remain untouched.
+
+Baseline: the actual Home implementation at `93e2501b`, before `b9162cc4` changed
+its hero, typography, partner introduction and editorial structure. Home history
+and file-level comparisons show that intervening commits were unrelated. The
+saved `allied-home-discovery-20261025/before-home-1440.png` confirms that design;
+`allied-home-release-20261025/production-home-{1440,390}.png` records the redesign.
+There is no unresolved competing baseline candidate.
+
+Restored: trust-led hero, original workshop/showroom/family/parts artwork, Nippo
+headings, partner introduction, workshop services, original technician story and
+principles, darker vehicle section, illustrated parts section, equipment, customer
+feedback, FAQ and contact invitation. The extra lifestyle grid stays omitted:
+its themes already appear in the hero. Retained improvements are the paused
+marquee (less competing motion), fuller published service descriptions, three
+clear process steps, distinct failed/empty requests and retry controls, current
+enquiry-only CTAs and the correct Product enquiry handoff. No booking, checkout,
+reservation, inventory, permission or backend change is introduced.
+
+The feedback section remains visible when there are no published reviews. Its
+link restores direct discovery of the existing `/reviews` page, whose moderated
+feedback, filters, account-aware action and privacy boundaries are preserved.
+No review has been fabricated. `/demo` and all production-only sample catalogue
+components/data are removed. Deterministic fixtures now live exclusively in tests;
+shared real Parts/Vehicle cards retain their ordinary behaviour. The route
+inventory is regenerated and a 404 regression replaces the demo acceptance.
+
+Initial local lint/types/format, 992 tests in 148 files and optimized build passed.
+The development browser run was stopped after duplicate-fetch assertions failed
+under React development effects (first case also exceeded its cold compilation
+timeout). This is not counted as release acceptance. Automatic approval review
+blocked optimized loopback startup with “blocked by policy”; no alternate startup
+was used. Hosted rendered verification is pending. Browser plugin not available;
+existing Playwright and installed Edge are used without downloads.

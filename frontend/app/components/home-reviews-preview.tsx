@@ -31,13 +31,6 @@ export function HomeReviewsPreview({
       {reviews.error ? "Retry feedback" : "Refresh feedback"}
     </button>
   );
-  if (
-    !reviews.loading &&
-    !reviews.error &&
-    !reviews.refreshError &&
-    reviews.data?.items.length === 0
-  )
-    return null;
   return (
     <section
       className="public-section home-feedback"

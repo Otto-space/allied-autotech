@@ -683,14 +683,6 @@
       "review": "source inventoried; see register for sampled rendered evidence"
     },
     {
-      "route": "/demo",
-      "source": "app/demo/page.tsx",
-      "family": "public",
-      "dynamic": false,
-      "access": "public; launch mode and token conditions may restrict actions",
-      "review": "source inventoried; see register for sampled rendered evidence"
-    },
-    {
       "route": "/forgot-password",
       "source": "app/forgot-password/page.tsx",
       "family": "authentication",
@@ -2212,11 +2204,6 @@
     {
       "source": "app/contact/page.tsx",
       "sourceSignals": ["disclosure"],
-      "review": "not independently rendered unless recorded in register"
-    },
-    {
-      "source": "app/demo/preview.tsx",
-      "sourceSignals": ["dialog", "nativeSelect", "feedback"],
       "review": "not independently rendered unless recorded in register"
     },
     {
